@@ -23,7 +23,7 @@ import java.nio.IntBuffer;
 public abstract class GameWindow{
 	
 	// TODO allow full screen to enter on whatever monitor the window is on, this should also fix a bug with going to full screen when the window is not on the primary monitor
-
+	
 	/** The title displayed on the window */
 	private String windowTitle;
 	
@@ -54,8 +54,10 @@ public abstract class GameWindow{
 		public boolean willEnter(){
 			return this == ENTER;
 		}
-
-		/** Get the state corrspeodning to a boolean value
+		
+		/**
+		 * Get the state corrsponding to a boolean value
+		 * 
 		 * @param enter tue to get the state for entering full screen, false to exit
 		 * @return {@link #ENTER} or {@link #EXIT} depending on enter
 		 */
@@ -179,6 +181,7 @@ public abstract class GameWindow{
 		this.setInFullScreenNow(enterFullScreen);
 		
 		// Start the main loop
+		// TODO make printing the fps a setting
 		this.renderLooper = new GameLooper(maxFps, this::loopFunction, this::shouldRender, this::keepRunningFunction, !this.useVsync, "FPS", true);
 	}
 	

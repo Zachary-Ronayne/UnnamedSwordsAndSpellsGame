@@ -12,6 +12,10 @@ public final class ZFilePaths{
 	public static final String SHADERS = ASSETS +
 		"shaders/";
 	
+	/** The location of the main folder containing images */
+	public static final String IMAGES = ASSETS +
+		"images/";
+	
 	/** Cannot instantiate ZFilePaths */
 	private ZFilePaths(){
 	}

@@ -46,7 +46,7 @@ public class Renderer{
 		this.framebufferShader = new ShaderProgram("framebuffer");
 		this.renderModeImage();
 	}
-
+	
 	/** Delete any resources used by this Renderer */
 	public void destory(){
 		this.screen.destory();
@@ -153,16 +153,26 @@ public class Renderer{
 	}
 	
 	/**
-	 * Call OpenGL operations that transform a rectangle centered on the OpenGL screen, to the given rectangle in game coordinates.
+	 * Call OpenGL operations that transforms to draw to a location in game coordinates.
+	 * This method assumes the coordinates to translate are centered in the given rectangular bounding box in game coordinates
 	 * This method does not push or pop the matrix stack
+	 * 
+	 * @param x The x coordinate of the upper lefthand corner
+	 * @param y The y coordinate of the upper lefthand corner
+	 * @param w The width
+	 * @param h The height
 	 */
-	private void positionRect(double x, double y, double w, double h){
+	private void positionObject(double x, double y, double w, double h){
+		// Get renderer width and height
+		double rw = this.getWidth();
+		double rh = this.getHeight();
+
 		// Get half width (hw) and half height (hh)
-		double hw = this.getWidth() * 0.5;
-		double hh = this.getHeight() * 0.5;
+		double hw = rw * 0.5;
+		double hh = rh * 0.5;
 		
-		glTranslated(-1 + (x + w) / hw, 1 - (h + y) / hh, 0);
-		glScaled(w / hw, h / hh, 1);
+		glTranslated(-1 + (x + w * .5) / hw, 1 - (y + h * .5) / hh, 0);
+		glScaled(w / rw, h / rh, 1);
 	}
 	
 	/**
@@ -177,8 +187,27 @@ public class Renderer{
 		this.renderModeShapes();
 		
 		glPushMatrix();
-		this.positionRect(x, y, w, h);
+		this.positionObject(x, y, w, h);
 		DisplayList.rect();
+		glPopMatrix();
+	}
+	
+	/**
+	 * Draw a rectangular image at the specified location. All values are in game coordinates.
+	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will strech to fit the given dimensions
+	 * 
+	 * @param x The x coordinate of the upper right hand corner of the image
+	 * @param y The y coordinate of the upper right hand corner of the image
+	 * @param w The width of the image
+	 * @param h The height of the image
+	 */
+	public void drawImage(double x, double y, double w, double h, GameImage img){
+		this.renderModeImage();
+		
+		glPushMatrix();
+		this.positionObject(x, y, w, h);
+		img.use();
+		DisplayList.texRect();
 		glPopMatrix();
 	}
 	
