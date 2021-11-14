@@ -19,7 +19,7 @@ public class MainTest extends GameWindow{
 	public static double speed = 10;
 	
 	public MainTest(){
-		super("test", 1280, 720, 1280, 720, 0, true, false, false, true);
+		super("test", 1280, 720, 1200, 700, 0, true, false, false, true);
 	}
 	
 	public static void main(String[] args){

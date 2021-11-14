@@ -2,8 +2,7 @@ package zgame.graphics;
 
 import static org.lwjgl.opengl.GL30.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Scanner;
 
 import zgame.utils.ZConfig;
@@ -34,8 +33,6 @@ public class Shader{
 		this.init();
 	}
 	
-	// TODO figure out how to load assets directly from the exported .jar
-	
 	/**
 	 * Load the shader at the given file path, i.e. take the code from that file and use it for this shader.
 	 * This method does not update the shader itself, it only loads the shader from the file
@@ -43,8 +40,11 @@ public class Shader{
 	public void load(String path){
 		Scanner file = null;
 		try{
+			// Get the file from the jar			
+			InputStream stream = getClass().getClassLoader().getResourceAsStream(path);
+
 			// Open the file
-			file = new Scanner(new File(path));
+			file = new Scanner(stream);
 
 			// Read the entire file and put it into the code variable
 			StringBuilder sb = new StringBuilder("");
@@ -52,7 +52,8 @@ public class Shader{
 			this.code = sb.toString();
 			if(ZConfig.printSuccess()) ZStringUtils.print("Successfully loaded shader at '", path, "'");
 
-		}catch(FileNotFoundException e){
+		// }catch(FileNotFoundException e){
+		}catch(Exception e){
 			// Error checking
 			if(ZConfig.printErrors()) e.printStackTrace();
 		}finally{

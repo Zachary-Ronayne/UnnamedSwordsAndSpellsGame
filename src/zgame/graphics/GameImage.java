@@ -4,6 +4,8 @@ import static org.lwjgl.opengl.GL30.*;
 
 import static org.lwjgl.stb.STBImage.*;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -44,18 +46,32 @@ public class GameImage{
 		// Keep everything pixelated
 		this.setPixelSettings();
 		
-		// Load the image
+		// Load the image from the jar
+		ByteBuffer buff = null;
+		InputStream stream = null;
+		try{
+			stream = getClass().getClassLoader().getResourceAsStream(this.path);
+			byte[] bytes = stream.readAllBytes();
+			buff = BufferUtils.createByteBuffer(bytes.length);
+			buff.put(bytes);
+			buff.flip();
+			stream.close();
+		}catch(IOException e){
+			ZStringUtils.print("Image '", path, "' failed to load from the jar");
+			return;
+		}
+		// Load the image in with stbi
 		IntBuffer w = BufferUtils.createIntBuffer(1);
 		IntBuffer h = BufferUtils.createIntBuffer(1);
 		IntBuffer c = BufferUtils.createIntBuffer(1);
-		ByteBuffer img = stbi_load(path, w, h, c, 0);
+		ByteBuffer img = stbi_load_from_memory(buff, w, h, c, 0);
 		boolean success = img != null;
 		if(ZConfig.printSuccess() && success){
 			ZStringUtils.print("Image '", path, "' loaded successfully");
 			ZStringUtils.print("with width: ", w.get(0), ", height: ", h.get(0), ", channels: ", c.get(0));
 		}
 		else if(ZConfig.printErrors() && !success){
-			ZStringUtils.print("Image '", path, "' failed to load");
+			ZStringUtils.print("Image '", path, "' failed to load via stbi");
 			return;
 		}
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w.get(0), h.get(0), 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
@@ -94,9 +110,10 @@ public class GameImage{
 	public String getPath(){
 		return this.path;
 	}
-
+	
 	/**
 	 * A convenience method which creates a GameImage with a file of the given name, assuming the file is located in ZFilePaths.IMAGES
+	 * 
 	 * @param name The name of the file, including file extension
 	 * @return The new image
 	 */
