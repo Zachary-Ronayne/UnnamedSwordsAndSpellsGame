@@ -16,8 +16,9 @@ public class GameLooper{
 	
 	/** The number of times per second which this loop will activate. Use zero to put no time limit on the loop */
 	private int rate;
-	/** The amount of time, in nanoseconds, which each loop iteration is expected to take */
+	/** The amount of time, in seconds, which each loop iteration is expected to take */
 	private double rateTime;
+	/** The amount of time, in nanoseconds, which each loop iteration is expected to take */
 	private long rateTimeNano;
 	/** The timestamp, in nanoseconds, of the last time the loop activated */
 	private long lastFunCall;
