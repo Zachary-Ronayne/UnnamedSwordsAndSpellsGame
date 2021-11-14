@@ -100,7 +100,7 @@ public abstract class GameWindow{
 	 * @param title See {@link #windowTitle}
 	 */
 	public GameWindow(String title){
-		this(title, 1280, 720, 200, true, false, false);
+		this(title, 1280, 720, 200, true, false, false, true);
 	}
 	
 	/**
@@ -114,8 +114,8 @@ public abstract class GameWindow{
 	 * @param enterFullScreen True to immediately enter fullscreen
 	 * @param stretchToFill See {@link #stretchToFill}
 	 */
-	public GameWindow(String title, int winWidth, int winHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill){
-		this(title, winWidth, winHeight, winWidth, winHeight, maxFps, useVsync, enterFullScreen, stretchToFill);
+	public GameWindow(String title, int winWidth, int winHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps){
+		this(title, winWidth, winHeight, winWidth, winHeight, maxFps, useVsync, enterFullScreen, stretchToFill, printFps);
 	}
 	
 	/**
@@ -130,8 +130,9 @@ public abstract class GameWindow{
 	 * @param useVsync See {@link #useVsync}
 	 * @param enterFullScreen True to immediately enter fullscreen
 	 * @param stretchToFill See {@link #stretchToFill}
+	 * 
 	 */
-	public GameWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill){
+	public GameWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps){
 		this.windowTitle = title;
 		this.width = winWidth;
 		this.height = winHeight;
@@ -181,8 +182,7 @@ public abstract class GameWindow{
 		this.setInFullScreenNow(enterFullScreen);
 		
 		// Start the main loop
-		// TODO make printing the fps a setting
-		this.renderLooper = new GameLooper(maxFps, this::loopFunction, this::shouldRender, this::keepRunningFunction, !this.useVsync, "FPS", true);
+		this.renderLooper = new GameLooper(maxFps, this::loopFunction, this::shouldRender, this::keepRunningFunction, !this.useVsync, "FPS", printFps);
 	}
 	
 	/**
@@ -487,4 +487,14 @@ public abstract class GameWindow{
 		if(r != null) r.setWaitBetweenLoops(!this.usesVsync());
 	}
 	
+	/** @return true if the fps should be printed once each second, false otherwise */
+	public boolean isPrintFps(){
+		return this.renderLooper.willPrintRate();
+	}
+
+	/** @param print See {@link #isPrintFps()} */
+	public void setPrintFps(boolean print){
+		this.renderLooper.setPrintRate(print);
+	}
+
 }

@@ -3,8 +3,6 @@ package tester;
 import zgame.GameWindow;
 import zgame.graphics.GameImage;
 import zgame.graphics.Renderer;
-import zgame.utils.ZFilePaths;
-import zgame.utils.ZStringUtils;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -21,7 +19,7 @@ public class MainTest extends GameWindow{
 	public static double speed = 10;
 	
 	public MainTest(){
-		super("test", 1280, 720, 1280, 720, 0, true, false, false);
+		super("test", 1280, 720, 1280, 720, 0, true, false, false, true);
 	}
 	
 	public static void main(String[] args){
@@ -59,6 +57,9 @@ public class MainTest extends GameWindow{
 				break;
 			case GLFW_KEY_3:
 				window.setStretchToFill(!window.isStretchToFill());
+				break;
+			case GLFW_KEY_4:
+				window.setPrintFps(!window.isPrintFps());
 				break;
 		}
 	}
