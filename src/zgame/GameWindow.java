@@ -1,6 +1,7 @@
 package zgame;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import static org.lwjgl.opengl.GL30.*;
@@ -16,13 +17,14 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 import java.nio.IntBuffer;
 
+import java.awt.Rectangle;
+import java.awt.Point;
+
 /**
  * A class that handles one central window created by glfw.
  * This includes an option to move to full screen
  */
 public abstract class GameWindow{
-	
-	// TODO allow full screen to enter on whatever monitor the window is on, this should also fix a bug with going to full screen when the window is not on the primary monitor
 	
 	/** The title displayed on the window */
 	private String windowTitle;
@@ -35,6 +37,8 @@ public abstract class GameWindow{
 	private boolean inFullScreen;
 	/** Determines if on the next OpenGL loop, the screen should update if it is or is not in full screen */
 	private FullscreenState updateFullscreen;
+	/** The position of the monitor before moving to full screen */
+	private Point oldPosition;
 	
 	/** A simple enum for telling what should happen to the full screen status on the next OpenGL loop */
 	private enum FullscreenState{
@@ -130,7 +134,6 @@ public abstract class GameWindow{
 	 * @param useVsync See {@link #useVsync}
 	 * @param enterFullScreen True to immediately enter fullscreen
 	 * @param stretchToFill See {@link #stretchToFill}
-	 * 
 	 */
 	public GameWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps){
 		this.windowTitle = title;
@@ -138,6 +141,7 @@ public abstract class GameWindow{
 		this.height = winHeight;
 		this.useVsync = useVsync;
 		this.stretchToFill = stretchToFill;
+		this.oldPosition = new Point(0, 0);
 		
 		// For printing error messages to System.err
 		GLFWErrorCallback.createPrint(System.err).set();
@@ -371,7 +375,10 @@ public abstract class GameWindow{
 		this.inFullScreen = inFullScreen;
 		if(this.inFullScreen){
 			this.createFullScreenWindow();
-			
+			if(this.fullScreenID == NULL){
+				this.inFullScreen = false;
+				return;
+			}
 			// Use the fullscreen window
 			glfwMakeContextCurrent(this.fullScreenID);
 			glfwShowWindow(this.fullScreenID);
@@ -391,6 +398,9 @@ public abstract class GameWindow{
 			// Use the windowed window
 			glfwMakeContextCurrent(window);
 			glfwShowWindow(window);
+			
+			// Put the window back where it was before going to full screen
+			glfwSetWindowPos(window, this.oldPosition.x, this.oldPosition.y);
 		}
 		// Ensure the current window has the callbacks
 		this.initCallBacks();
@@ -403,14 +413,93 @@ public abstract class GameWindow{
 	}
 	
 	/**
-	 * Create a window to use for the fullscreen. This window will appear on the primary monitor in the case of multiple monitors.
+	 * Create a window to use for the fullscreen. In the case of multiple monitors,
+	 * the monitor which will be used is the one with the upper lefthand corner of the window in it
 	 * The id is stored in {@link #fullScreenID}
 	 */
 	private void createFullScreenWindow(){
-		long monitor = glfwGetPrimaryMonitor();
+		// Find which monitor the window is on and center it, additionally, save the old position before entering fullscreen
+		this.oldPosition = this.getWindowPos();
+		long monitor = this.center();
+		
+		if(monitor == NULL){
+			if(ZConfig.printErrors()) ZStringUtils.print("Failed to find any monitors to create a fullscreen window");
+			return;
+		}
+		// Put the found monitor in full screen on that window
 		GLFWVidMode mode = glfwGetVideoMode(monitor);
 		this.fullScreenID = glfwCreateWindow(mode.width(), mode.height(), ZStringUtils.concat(this.getWindowTitle(), " | Fullscreen"), monitor, this.getWindowID());
-		if(this.fullScreenID == NULL) throw new IllegalStateException("Failed to create a fullscreen window");
+		if(this.fullScreenID == NULL){
+			if(ZConfig.printErrors()) ZStringUtils.print("Failed to create a fullscreen window");
+			return;
+		}
+	}
+	
+	/**
+	 * Center the window to the monitor which contains the upper left hand corner of the window. Does nothing if no monitor is found
+	 * 
+	 * @return The monitor id which the window was centered to
+	 */
+	public long center(){
+		return this.center(this.getCurrentMonitor());
+	}
+	
+	/**
+	 * Center the window to the given monitor. Uses the primary monitor if the given monitor is null
+	 * 
+	 * @param monitor The monitor id to center to
+	 * @return The monitor id which the window was centered to
+	 */
+	public long center(long monitor){
+		if(monitor == NULL) monitor = glfwGetPrimaryMonitor();
+		
+		// Find the monitor position
+		IntBuffer mx = BufferUtils.createIntBuffer(1);
+		IntBuffer my = BufferUtils.createIntBuffer(1);
+		glfwGetMonitorPos(monitor, mx, my);
+		
+		// Find the monitor width and center it
+		GLFWVidMode mode = glfwGetVideoMode(monitor);
+		int w = mode.width();
+		int h = mode.height();
+		glfwSetWindowPos(this.getWindowID(), mx.get(0) + (w - this.getWidth()) / 2, my.get(0) + (h - this.getHeight()) / 2);
+		
+		return monitor;
+	}
+	
+	/** @return A Point containing the position of the window */
+	public Point getWindowPos(){
+		long winId = this.getWindowID();
+		IntBuffer wx = BufferUtils.createIntBuffer(1);
+		IntBuffer wy = BufferUtils.createIntBuffer(1);
+		glfwGetWindowPos(winId, wx, wy);
+		return new Point(wx.get(0), wy.get(0));
+	}
+	
+	/**
+	 * Find the monitor which contains the upperleft hand corner of the window
+	 * 
+	 * @return the id, or the primary monitor if no monitor is found
+	 */
+	public long getCurrentMonitor(){
+		// First get the window position
+		Point wp = this.getWindowPos();
+		
+		// Now check that window position against each monitor
+		PointerBuffer buff = glfwGetMonitors();
+		if(buff == null) return NULL;
+		while(buff.hasRemaining()){
+			long id = buff.get();
+			GLFWVidMode mode = glfwGetVideoMode(id);
+			int w = mode.width();
+			int h = mode.height();
+			IntBuffer mx = BufferUtils.createIntBuffer(1);
+			IntBuffer my = BufferUtils.createIntBuffer(1);
+			glfwGetMonitorPos(id, mx, my);
+			// If we find a monitor whose bounds contain the position of the monitor, center it
+			if(new Rectangle(mx.get(0), my.get(0), w, h).contains(wp.x, wp.y)) return id;
+		}
+		return glfwGetPrimaryMonitor();
 	}
 	
 	/**
@@ -491,10 +580,10 @@ public abstract class GameWindow{
 	public boolean isPrintFps(){
 		return this.renderLooper.willPrintRate();
 	}
-
+	
 	/** @param print See {@link #isPrintFps()} */
 	public void setPrintFps(boolean print){
 		this.renderLooper.setPrintRate(print);
 	}
-
+	
 }

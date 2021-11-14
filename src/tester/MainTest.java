@@ -25,7 +25,9 @@ public class MainTest extends GameWindow{
 	public static void main(String[] args){
 		window = new MainTest();
 		playerImage = GameImage.create("player.png");
+		window.center();
 		window.start();
+		
 		playerImage.delete();
 	}
 	
