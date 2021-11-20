@@ -26,8 +26,8 @@ import java.awt.Point;
  */
 public abstract class GameWindow{
 	
-	// TODO Add the tick loop in a similar way as the render loop
-
+	// TODO implement keyboard and mouse input
+	
 	// TODO implement sound
 	
 	/** The title displayed on the window */
@@ -85,15 +85,21 @@ public abstract class GameWindow{
 	/** The current height of the window in pixels, this does not include decorators such as the minimize button */
 	private int height;
 	/** The current ratio of {@link #width} divided by {@link #height} */
-	private double ratio;
+	private double windowRatio;
 	
 	/** The looper to run the main OpenGL loop */
 	private GameLooper renderLooper;
 	/** true to use vsync, i.e. lock the framerate to the refreshrate of the monitor, false otherwise */
 	private boolean useVsync;
-	
 	/** The renderer used by this GameWindow to draw to the screen */
 	private Renderer renderer;
+	
+	/** The {@link GameLooper} which runs the regular time intervals */
+	private GameLooper tickLooper;
+	/** The {@link Thread} which runs the game tick loop. This is a separate thread from the main thread, which the OpenGL loop will run on */
+	private Thread tickThread;
+	/** The {@link Runnable} used by {@link #tickThread} to run its thread */
+	private TickLoopTask tickTask;
 	
 	/**
 	 * Create an empty GameWindow. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
@@ -125,7 +131,7 @@ public abstract class GameWindow{
 	 * @param stretchToFill See {@link #stretchToFill}
 	 */
 	public GameWindow(String title, int winWidth, int winHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps){
-		this(title, winWidth, winHeight, winWidth, winHeight, maxFps, useVsync, enterFullScreen, stretchToFill, printFps);
+		this(title, winWidth, winHeight, winWidth, winHeight, maxFps, useVsync, enterFullScreen, stretchToFill, printFps, 60, true);
 	}
 	
 	/**
@@ -141,7 +147,7 @@ public abstract class GameWindow{
 	 * @param enterFullScreen True to immediately enter fullscreen
 	 * @param stretchToFill See {@link #stretchToFill}
 	 */
-	public GameWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps){
+	public GameWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
 		this.windowTitle = title;
 		this.width = 1;
 		this.height = 1;
@@ -193,8 +199,11 @@ public abstract class GameWindow{
 		this.updateFullscreen = FullscreenState.NOTHING;
 		this.setInFullScreenNow(enterFullScreen);
 		
-		// Start the main loop
-		this.renderLooper = new GameLooper(maxFps, this::loopFunction, this::shouldRender, this::keepRunningFunction, !this.useVsync, "FPS", printFps);
+		// Create the main loop
+		this.renderLooper = new GameLooper(maxFps, this::loopFunction, this::shouldRender, this::keepRenderLoopFunction, !this.useVsync, "FPS", printFps);
+		
+		// Create the tick loop
+		this.tickLooper = new GameLooper(tps, this::tickLoopFunction, this::shouldTick, this::keepTickLoopFunction, ZConfig.waitBetweenTicks(), "TPS", printTps);
 	}
 	
 	/**
@@ -240,10 +249,19 @@ public abstract class GameWindow{
 	
 	/**
 	 * Begin running the main OpenGL loop. When the loop ends, the cleanup method is automatically run. Do not manually call {@link #end()}, terminate the main loop instead
-	 * Calling this method will run the loop on the currently executing thread. This should only be the main Java thread, not an external thread
+	 * Calling this method will run the loop on the currently executing thread. This should only be the main Java thread, not an external thread.
+	 * In parallel to the main thread, a second thread will run, which runs the game tick loop
 	 */
 	public void start(){
+		// Run the tick loop on its own thread first
+		this.tickTask = new TickLoopTask();
+		this.tickThread = new Thread(this.tickTask);
+		this.tickThread.start();
+		
+		// Run the render loop in the main thread
 		this.renderLooper.loop();
+
+		// End the program
 		this.end();
 	}
 	
@@ -251,6 +269,10 @@ public abstract class GameWindow{
 	 * End the program, freeing all resources
 	 */
 	private void end(){
+		// End the loopers
+		this.renderLooper.end();
+		this.tickLooper.end();
+
 		// Free memory / destory callbacks
 		this.renderer.destory();
 		long w = this.getWindowID();
@@ -267,7 +289,7 @@ public abstract class GameWindow{
 	}
 	
 	/**
-	 * The function run by the GameLooper as its main loop
+	 * The function run by the rendering GameLooper as its main loop for OpenGL
 	 */
 	private void loopFunction(){
 		// Update fullscreen status
@@ -313,7 +335,7 @@ public abstract class GameWindow{
 	 * 
 	 * @return true if the next frame should be drawn regardless, false otherwise
 	 */
-	private boolean shouldRender(){
+	protected boolean shouldRender(){
 		return this.usesVsync();
 	}
 	
@@ -322,9 +344,41 @@ public abstract class GameWindow{
 	 * 
 	 * @return true if the loop should continue, false otherwise
 	 */
-	private boolean keepRunningFunction(){
+	protected boolean keepRenderLoopFunction(){
 		long w = this.getCurrentWindowID();
 		return w == NULL || !glfwWindowShouldClose(w);
+	}
+	
+	/**
+	 * The function run by the tick GameLooper as its main loop
+	 */
+	private void tickLoopFunction(){
+		this.tick(this.tickLooper.getRateTime());
+	}
+	
+	/**
+	 * Called each time a tick occurs. A tick is a game update, i.e. some amount of time passing
+	 * 
+	 * @param dt The amount of time, in seconds, which passed in this tick
+	 */
+	protected abstract void tick(double dt);
+	
+	/**
+	 * The function used to determine if each the tick loop should update each time regardless of time
+	 * 
+	 * @return Usually false, unless this method is overritten with different behavior
+	 */
+	protected boolean shouldTick(){
+		return false;
+	}
+	
+	/**
+	 * The function used to determine if the tick loop should end
+	 * 
+	 * @return Usually the same result as {@link #keepRenderLoopFunction()}, unless this method is overritten with different behavior
+	 */
+	protected boolean keepTickLoopFunction(){
+		return this.keepRenderLoopFunction();
 	}
 	
 	/**
@@ -541,8 +595,8 @@ public abstract class GameWindow{
 	public int getWidth(){
 		return this.width;
 	}
-
-	/** Set the current width and update {@link #ratio} */
+	
+	/** Set the current width and update {@link #windowRatio} */
 	private void setWidth(int width){
 		this.width = width;
 		this.updateRatio();
@@ -553,7 +607,7 @@ public abstract class GameWindow{
 		return this.height;
 	}
 	
-	/** Set the current height and update {@link #ratio} */
+	/** Set the current height and update {@link #windowRatio} */
 	private void setHeight(int height){
 		this.height = height;
 		this.updateRatio();
@@ -568,15 +622,15 @@ public abstract class GameWindow{
 	public int getScreenHeight(){
 		return this.renderer.getHeight();
 	}
-
-	/** Update the value of {@link #ratio} based on the current values of {@link #width} and {@link #height} */
+	
+	/** Update the value of {@link #windowRatio} based on the current values of {@link #width} and {@link #height} */
 	private void updateRatio(){
-		this.ratio = (double)this.getWidth() / this.getHeight();
+		this.windowRatio = (double)this.getWidth() / this.getHeight();
 	}
-
-	/** @return See {@link #ratio} */
-	public double getRatio(){
-		return this.ratio;
+	
+	/** @return See {@link #windowRatio} */
+	public double getWindowRatio(){
+		return this.windowRatio;
 	}
 	
 	/**
@@ -615,5 +669,33 @@ public abstract class GameWindow{
 	public void setPrintFps(boolean print){
 		this.renderLooper.setPrintRate(print);
 	}
+
+	/** @return The number of times each second that this GameWindow runs a game tick */
+	public int getTps(){
+		return this.tickLooper.getRate();
+	}
+
+	/** @param See {@link #getTps()} */
+	public void setTps(int tps){
+		this.tickLooper.setRate(tps);
+	}
 	
+	/** @return true if the tps should be printed once each second, false otherwise */
+	public boolean isPrintTps(){
+		return this.tickLooper.willPrintRate();
+	}
+	
+	/** @param print See {@link #isPrintTps()} */
+	public void setPrintTps(boolean print){
+		this.tickLooper.setPrintRate(print);
+	}
+
+	/** A simple helper class used by {@link #tickLooper} to run its loop on a separate thread */
+	private class TickLoopTask implements Runnable{
+		@Override
+		public void run(){
+			tickLooper.loop();
+		}
+	}
+
 }

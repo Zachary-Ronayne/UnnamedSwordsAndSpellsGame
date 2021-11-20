@@ -16,10 +16,15 @@ public class MainTest extends GameWindow{
 	public static GameImage playerImage;
 	public static double playerX = 200;
 	public static double playerY = 500;
-	public static double speed = 10;
+	public static double speed = 200;
+	public static double hMoveState = 0;
+	public static double vMoveState = 0;
+	
+	public static double red = 0;
+	public static boolean redReverse = false;
 	
 	public MainTest(){
-		super("test", 1280, 720, 1200, 700, 0, true, false, false, true);
+		super("test", 1280, 720, 1200, 700, 0, true, false, false, true, 100, true);
 	}
 	
 	public static void main(String[] args){
@@ -33,22 +38,22 @@ public class MainTest extends GameWindow{
 	
 	@Override
 	public void keyPress(long id, int key, int scanCode, int action, int mods){
-		if(action != 0){
-			switch(key){
-				case GLFW_KEY_LEFT:
-					playerX -= speed;
-					break;
-				case GLFW_KEY_RIGHT:
-					playerX += speed;
-					break;
-				case GLFW_KEY_UP:
-					playerY -= speed;
-					break;
-				case GLFW_KEY_DOWN:
-					playerY += speed;
-					break;
-			}
+		double speedChange = (action != 0) ? 1 : 0;
+		switch(key){
+			case GLFW_KEY_LEFT:
+				hMoveState = -speedChange;
+				break;
+			case GLFW_KEY_RIGHT:
+				hMoveState = speedChange;
+				break;
+			case GLFW_KEY_UP:
+				vMoveState = -speedChange;
+				break;
+			case GLFW_KEY_DOWN:
+				vMoveState = speedChange;
+				break;
 		}
+
 		if(action != 0) return;
 		switch(key){
 			case GLFW_KEY_1:
@@ -71,13 +76,30 @@ public class MainTest extends GameWindow{
 		r.setColor(.2, .2, .2);
 		r.fill();
 		
-		r.setColor(1, 0, 0);
+		r.setColor(red, 0, 0);
 		r.drawRectangle(100, 50, 400, 100);
 		
 		r.drawImage(playerX, playerY, 150, 150, playerImage);
 		
 		r.setColor(0, 0, 1, 0.5);
 		r.drawRectangle(140, 70, 90, 400);
+	}
+	
+	@Override
+	protected void tick(double dt){
+		double redD = dt * 0.4;
+		if(redReverse) red -= redD;
+		else red += redD;
+		if(red > 1){
+			redReverse = true;
+			red = 1;
+		}
+		else if(red < 0){
+			redReverse = false;
+			red = 0;
+		}
+		playerX += speed * hMoveState * dt;
+		playerY += speed * vMoveState * dt;
 	}
 	
 }

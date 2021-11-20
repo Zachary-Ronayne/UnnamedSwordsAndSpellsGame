@@ -131,7 +131,7 @@ public class Renderer{
 		}
 		else{
 			// wRatio for the window aspect ratio and tRatio for this render's aspect ratio
-			double wRatio = window.getRatio();
+			double wRatio = window.getWindowRatio();
 			double tRatio = this.screen.getRatioWH();
 			int w;
 			int h;
