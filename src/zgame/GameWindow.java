@@ -26,6 +26,10 @@ import java.awt.Point;
  */
 public abstract class GameWindow{
 	
+	// TODO Add the tick loop in a similar way as the render loop
+
+	// TODO implement sound
+	
 	/** The title displayed on the window */
 	private String windowTitle;
 	
@@ -80,6 +84,8 @@ public abstract class GameWindow{
 	private int width;
 	/** The current height of the window in pixels, this does not include decorators such as the minimize button */
 	private int height;
+	/** The current ratio of {@link #width} divided by {@link #height} */
+	private double ratio;
 	
 	/** The looper to run the main OpenGL loop */
 	private GameLooper renderLooper;
@@ -137,8 +143,10 @@ public abstract class GameWindow{
 	 */
 	public GameWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps){
 		this.windowTitle = title;
-		this.width = winWidth;
-		this.height = winHeight;
+		this.width = 1;
+		this.height = 1;
+		this.setWidth(winWidth);
+		this.setHeight(winHeight);
 		this.useVsync = useVsync;
 		this.stretchToFill = stretchToFill;
 		this.oldPosition = new Point(0, 0);
@@ -157,7 +165,7 @@ public abstract class GameWindow{
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		
 		// Create the window
-		this.windowID = glfwCreateWindow(this.width, this.height, this.windowTitle, NULL, NULL);
+		this.windowID = glfwCreateWindow(this.getWidth(), this.getHeight(), this.windowTitle, NULL, NULL);
 		if(this.windowID == NULL) throw new RuntimeException("Failed to create the GLFW window");
 		
 		// Update fullscreen
@@ -219,8 +227,8 @@ public abstract class GameWindow{
 	 * @param h The new height
 	 */
 	private void windowSizeCallback(long window, int w, int h){
-		this.width = w;
-		this.height = h;
+		this.setWidth(w);
+		this.setHeight(h);
 	}
 	
 	/** Initialize the settings for textures based on the needs of simple 2D pixel art textures with transparency */
@@ -327,8 +335,8 @@ public abstract class GameWindow{
 		IntBuffer w = BufferUtils.createIntBuffer(1);
 		IntBuffer h = BufferUtils.createIntBuffer(1);
 		glfwGetWindowSize(this.getCurrentWindowID(), w, h);
-		this.width = w.get(0);
-		this.height = h.get(0);
+		this.setWidth(w.get(0));
+		this.setHeight(h.get(0));
 	}
 	
 	/** @return See {@link #windowTitle} */
@@ -533,10 +541,22 @@ public abstract class GameWindow{
 	public int getWidth(){
 		return this.width;
 	}
+
+	/** Set the current width and update {@link #ratio} */
+	private void setWidth(int width){
+		this.width = width;
+		this.updateRatio();
+	}
 	
 	/** @return See {@link #height} */
 	public int getHeight(){
 		return this.height;
+	}
+	
+	/** Set the current height and update {@link #ratio} */
+	private void setHeight(int height){
+		this.height = height;
+		this.updateRatio();
 	}
 	
 	/** @return The width, in pixels, of the internal buffer */
@@ -547,6 +567,16 @@ public abstract class GameWindow{
 	/** @return The height, in pixels, of the internal buffer */
 	public int getScreenHeight(){
 		return this.renderer.getHeight();
+	}
+
+	/** Update the value of {@link #ratio} based on the current values of {@link #width} and {@link #height} */
+	private void updateRatio(){
+		this.ratio = (double)this.getWidth() / this.getHeight();
+	}
+
+	/** @return See {@link #ratio} */
+	public double getRatio(){
+		return this.ratio;
 	}
 	
 	/**

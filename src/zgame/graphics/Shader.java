@@ -51,8 +51,6 @@ public class Shader{
 			while(file.hasNextLine()) sb.append(file.nextLine());
 			this.code = sb.toString();
 			if(ZConfig.printSuccess()) ZStringUtils.print("Successfully loaded shader at '", path, "'");
-
-		// }catch(FileNotFoundException e){
 		}catch(Exception e){
 			// Error checking
 			if(ZConfig.printErrors()) e.printStackTrace();

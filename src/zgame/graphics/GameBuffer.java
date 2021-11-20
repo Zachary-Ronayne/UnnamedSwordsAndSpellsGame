@@ -26,6 +26,19 @@ public class GameBuffer{
 	/** The height, in pixels, of this GameBuffer */
 	private int height;
 	
+	/** Stores the inverse of {@link #width} */
+	private double inverseWidth;
+	/** Stores the inverse of {@link #height} */
+	private double inverseHeight;
+	/** Stores the inverse of half of {@link #width} */
+	private double inverseHalfWidth;
+	/** Stores the inverse of half of {@link #height} */
+	private double inverseHalfHeight;
+	/** Stores the ratio of {@link #width} divided by {@link #height} */
+	private double ratioWH;
+	/** Stores the ratio of {@link #height} divided by {@link #width} */
+	private double ratioHW;
+	
 	/**
 	 * Create a GameBuffer of the given size
 	 * 
@@ -33,6 +46,24 @@ public class GameBuffer{
 	 * @param height See {@link #height}
 	 */
 	public GameBuffer(int width, int height){
+		this.regenerateBuffer(width, height, true);
+	}
+	
+	/**
+	 * Recreate the OpenGL Framebuffer used by this {@link GameBuffer}. This is an expensive operation, should not be used frequently
+	 * 
+	 * @param width The new width of the buffer
+	 * @param height The new height of the buffer
+	 * @param printStatus true to print whether or not the buffer was created successful, false otherwise.
+	 *        No success status will print if ZConfig.ZConfigprintSuccess() returns false,
+	 *        and no failure status will print if ZConfig.printErrors() returns false
+	 * @return true if the buffer was created, false otherwise
+	 */
+	public boolean regenerateBuffer(int width, int height, boolean printStatus){
+		this.destory();
+
+		this.width = 1;
+		this.height = 1;
 		this.setWidth(width);
 		this.setHeight(height);
 		
@@ -57,17 +88,28 @@ public class GameBuffer{
 		glBindFramebuffer(GL_FRAMEBUFFER, this.frameID);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this.textureID, 0);
-
+		
 		// Error check
-		if(ZConfig.printErrors()){
-			int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-			boolean success = status == GL_FRAMEBUFFER_COMPLETE;
-			if(success && ZConfig.printSuccess()) ZStringUtils.print("GameBuffer created successfully with id ", this.frameID);
-			else if(!success && ZConfig.printErrors()) ZStringUtils.print("Failed to create GameBuffer with status ", status);
-		}
+		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		boolean success = status == GL_FRAMEBUFFER_COMPLETE;
+		if(success && ZConfig.printSuccess()) ZStringUtils.print("GameBuffer created successfully with id ", this.frameID);
+		else if(!success && ZConfig.printErrors()) ZStringUtils.print("Failed to create GameBuffer with status ", status);
 		
 		// Bind the framebugger to the previous buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, oldBuffer);
+		
+		return success;
+	}
+	
+	/**
+	 * Recreate the OpenGL Framebuffer used by this {@link GameBuffer}. This is an expensive operation, should not be used frequently
+	 * 
+	 * @param width The new width of the buffer
+	 * @param height The new height of the buffer
+	 * @return true if the buffer was created, false otherwise
+	 */
+	public boolean regenerateBuffer(int width, int height){
+		return this.regenerateBuffer(width, height, true);
 	}
 	
 	/**
@@ -76,7 +118,7 @@ public class GameBuffer{
 	public void drawToBuffer(){
 		glBindFramebuffer(GL_FRAMEBUFFER, this.getFrameID());
 	}
-
+	
 	/** Erase all resources associated with this GameBuffer. After calling this method, this object should not be used */
 	public void destory(){
 		glDeleteTextures(this.getTextureID());
@@ -97,10 +139,27 @@ public class GameBuffer{
 	public int getWidth(){
 		return this.width;
 	}
+
+	/** @return See {@link #inverseWidth} */
+	public double getInverseWidth(){
+		return this.inverseWidth;
+	}
 	
-	/** @param width {@link #width} */
-	public void setWidth(int width){
+	/** @return See {@link #inverseHalfWidth} */
+	public double getInverseHalfWidth(){
+		return this.inverseHalfWidth;
+	}
+	
+	/**
+	 * Update the currently stored values for the buffer width, but do not update the buffer itself, should not be called without updating the buffer afterwards
+	 * 
+	 * @param width {@link #width}
+	 */
+	private void setWidth(int width){
 		this.width = width;
+		this.inverseWidth = 1.0 / width;
+		this.inverseHalfWidth = 1.0 / (width * 0.5);
+		this.updateRatio();
 	}
 	
 	/** @return See {@link #height} */
@@ -108,9 +167,42 @@ public class GameBuffer{
 		return this.height;
 	}
 	
-	/** @param height {@link #height} */
-	public void setHeight(int height){
+	/** @return See {@link #inverseHeight} */
+	public double getInverseHeight(){
+		return this.inverseHeight;
+	}
+	
+	/** @return See {@link #inverseHalfHeight} */
+	public double getInverseHalfHeight(){
+		return this.inverseHalfHeight;
+	}
+	
+	/**
+	 * Update the currently stored values for the buffer height, but do not update the buffer itself, should not be called without updating the buffer afterwards
+	 * 
+	 * @param height {@link #height}
+	 */
+	private void setHeight(int height){
 		this.height = height;
+		this.inverseHeight = 1.0 / height;
+		this.inverseHalfHeight = 1.0 / (height * 0.5);
+		this.updateRatio();
+	}
+
+	/** Updates the internal values of {@link #ratioWH} and {@link #ratioHW} */
+	private void updateRatio(){
+		this.ratioWH = (double)this.width / this.height;
+		this.ratioHW = (double)this.height / this.width;
+	}
+	
+	/** @return See {@link #ratioWH} */
+	public double getRatioWH(){
+		return this.ratioWH;
+	}
+
+	/** @return See {@link #ratioHW} */
+	public double getRatioHW(){
+		return this.ratioHW;
 	}
 	
 }

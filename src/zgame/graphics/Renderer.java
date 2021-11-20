@@ -13,6 +13,8 @@ import static org.lwjgl.opengl.GL30.*;
  */
 public class Renderer{
 	
+	// TODO implement camera
+	
 	/** The shader used to draw basic shapes, i.e. solid colors */
 	private ShaderProgram shapeShader;
 	/** The shader used to draw textures, i.e. images */
@@ -128,23 +130,20 @@ public class Renderer{
 			glViewport(0, 0, sw, sh);
 		}
 		else{
-			// tw and th for this renderer's width and height
-			int tw = this.getWidth();
-			int th = this.getHeight();
-			// sRatio for the screen aspect ratio and tRatio for this render's aspect ratio
-			double sRatio = (double)sw / sh;
-			double tRatio = (double)tw / th;
+			// wRatio for the window aspect ratio and tRatio for this render's aspect ratio
+			double wRatio = window.getRatio();
+			double tRatio = this.screen.getRatioWH();
 			int w;
 			int h;
-			if(tRatio < sRatio){
+			if(tRatio < wRatio){
 				h = sh;
 				w = (int)Math.round(h * tRatio);
 			}
 			else{
 				w = sw;
-				h = (int)Math.round(w / tRatio);
+				h = (int)Math.round(w * this.screen.getRatioHW());
 			}
-			glViewport((sw - w) / 2, (sh - h) / 2, w, h);
+			glViewport((sw - w) >> 1, (sh - h) >> 1, w, h);
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, this.screen.getTextureID());
@@ -163,16 +162,15 @@ public class Renderer{
 	 * @param h The height
 	 */
 	private void positionObject(double x, double y, double w, double h){
-		// Get renderer width and height
-		double rw = this.getWidth();
-		double rh = this.getHeight();
+		GameBuffer b = this.screen;
 
-		// Get half width (hw) and half height (hh)
-		double hw = rw * 0.5;
-		double hh = rh * 0.5;
+		double rw = b.getInverseWidth();
+		double rh = b.getInverseHeight();
+		double hw = b.getInverseHalfWidth();
+		double hh = b.getInverseHalfHeight();
 		
-		glTranslated(-1 + (x + w * .5) / hw, 1 - (y + h * .5) / hh, 0);
-		glScaled(w / rw, h / rh, 1);
+		glTranslated(-1 + (x + w * .5) * hw, 1 - (y + h * .5) * hh, 0);
+		glScaled(w * rw, h * rh, 1);
 	}
 	
 	/**
