@@ -21,10 +21,15 @@ import java.awt.Rectangle;
  * r = reset camera
  * arrow keys = move player
  * Click with mouse buttons while hovering the square and holding shift/alt/ctrl to change the square color
+ * shift + alt + ctrl + middle click = randomize square color
+ * shift + middle click + move mouse = move around square
+ * shift + scroll wheel = grow/shrink square
  * 1 = toggle full screen
  * 2 = toggle vsync (i.e. either match monitor refresh rate, or unlimited FPS)
  * 3 = toggle strech to fill
  * 4 = toggle printing FPS/TPS
+ * shift + z = change green of flickering red square
+ * shift + x = change blue of flickering red square
  */
 public class MainTest extends GameWindow{
 	
@@ -36,14 +41,16 @@ public class MainTest extends GameWindow{
 	public static boolean zoomOnlyY = false;
 	
 	public static GameImage playerImage;
-	public static double playerX = 200;
-	public static double playerY = 500;
+	public static double playerX;
+	public static double playerY;
 	public static double speed = 200;
 	
 	public static double red = 0;
+	public static double green = 0;
+	public static double blue = 0;
 	public static boolean redReverse = false;
 	
-	public static Rectangle changeRect = new Rectangle(600, 20, 200, 200);
+	public static Rectangle changeRect;
 	public static double changeR = 0;
 	public static double changeG = 0;
 	public static double changeB = 0;
@@ -63,9 +70,56 @@ public class MainTest extends GameWindow{
 		window = new MainTest();
 		playerImage = GameImage.create("player.png");
 		window.center();
+		reset();
 		window.start();
 		
 		playerImage.delete();
+	}
+
+	public static void reset(){
+		playerX = 200;
+		playerY = 500;
+		changeRect = new Rectangle(600, 20, 200, 200);
+		window.getCamera().reset();
+	}
+
+	@Override
+	protected void keyPress(int key, int scanCode, int action, int mods){
+		ZKeyInput keys = window.getKeyInput();
+		if(keys.shift()){
+			if(key == GLFW_KEY_Z) green = (green + 0.05) % 1;
+			if(key == GLFW_KEY_X) blue = (blue + 0.05) % 1;
+		}
+	}
+	
+	@Override
+	protected void mousePress(int button, int action, int mods){
+		ZKeyInput keys = window.getKeyInput();
+		if(keys.shift() && keys.alt() && keys.ctrl() && action == 0){
+			changeR = Math.random();
+			changeG = Math.random();
+			changeB = Math.random();
+		}
+	}
+
+	@Override
+	protected void mouseMove(double x, double y){
+		ZKeyInput keys = window.getKeyInput();
+		ZMouseInput mouse = window.getMouseInput();
+		if(keys.shift() && mouse.middleDown()){
+			changeRect.x += (int)(window.windowToScreenX(x) - mouse.lastX());
+			changeRect.y += (int)(window.windowToScreenY(y) - mouse.lastY());
+		}
+	}
+
+	@Override
+	protected void mouseWheelMove(double x, double y){
+		ZKeyInput keys = window.getKeyInput();
+		if(keys.shift()){
+			double size = changeRect.width * Math.pow(1.1, y);
+			changeRect.width = (int)size;
+			changeRect.height = (int)size;
+		}
 	}
 	
 	@Override
@@ -82,7 +136,7 @@ public class MainTest extends GameWindow{
 		r.setColor(changeR, changeG, changeB);
 		r.drawRectangle(changeRect.x, changeRect.y, changeRect.width, changeRect.height);
 		
-		r.setColor(red, 0, 0);
+		r.setColor(red, green, blue);
 		r.drawRectangle(100, 50, 400, 100);
 		
 		r.drawImage(playerX, playerY, 150, 150, playerImage);
@@ -149,7 +203,7 @@ public class MainTest extends GameWindow{
 			}
 		}
 		else down[FOUR] = true;
-		if(keys.pressed(GLFW_KEY_R)) window.getCamera().reset();
+		if(keys.pressed(GLFW_KEY_R)) reset();
 
 		// Move the player with keys
 		double hMoveState = 0;

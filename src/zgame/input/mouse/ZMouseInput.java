@@ -46,25 +46,23 @@ public class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	}
 	
 	/**
-	 * The method called by GLFW as the mouse press callback
+	 * The method called when a mouse button is pressed
 	 * 
-	 * @param window The id of the GLFW window where the button was pressed
 	 * @param button The mouse button which was pressed
 	 * @param action The action of the button, i.e. up or down
 	 * @param mods The additional buttons pressed, i.e. shift, alt, ctrl
 	 */
-	public void mousePress(long window, int button, int action, int mods){
+	public void mousePress(int button, int action, int mods){
 		this.buttonPress(button, action, mods);
 	}
 	
 	/**
-	 * The method called by GLFW as the mouse clicked
+	 * The method called when the mouse moves
 	 * 
-	 * @param window The id of the GLFW window where the mouse was moved
 	 * @param x The raw x pixel coordinate on the GLFW window
 	 * @param y The raw y pixel coordinate on the GLFW window
 	 */
-	public void mouseMove(long window, double x, double y){
+	public void mouseMove(double x, double y){
 		this.lastX = this.currentX;
 		this.lastY = this.currentY;
 		this.currentX = this.getWindow().windowToScreenX(x);
@@ -72,13 +70,12 @@ public class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	}
 	
 	/**
-	 * The method called by GLFW when the mouse wheel is moved
+	 * The method called when the mouse wheel scrolls
 	 * 
-	 * @param window The id of the GLFW window where the mouse was moved
 	 * @param x The amount the scroll wheel was moved on the x axis, unused
 	 * @param y The amount the scroll wheel was moved on the y axis, i.e. number of scrolls, 1 for scroll up, -1 for scroll down
 	 */
-	public void mouseWheelMove(long window, double x, double y){
+	public void mouseWheelMove(double x, double y){
 		this.scrollAmount += y;
 		this.lastScroll = y;
 	}

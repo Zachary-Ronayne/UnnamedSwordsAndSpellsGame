@@ -24,7 +24,7 @@ public class ZKeyInput extends ZButtonInput<ZKeyEvent>{
 	}
 	
 	/**
-	 * The method called by GLFW when a key is pressed
+	 * The method called when a key is pressed
 	 * 
 	 * @param id The id of the GLFW window used
 	 * @param key The id of the key pressed
@@ -32,7 +32,7 @@ public class ZKeyInput extends ZButtonInput<ZKeyEvent>{
 	 * @param action If the button was released, pressed, or held
 	 * @param mods The modifiers held during the key press, i.e. shift, alt, ctrl
 	 */
-	public void keyPress(long id, int key, int scanCode, int action, int mods){
+	public void keyPress(int key, int scanCode, int action, int mods){
 		this.buttonPress(key, action, mods);
 		this.shiftDown = ZButtonInput.isShift(mods);
 		this.altDown = ZButtonInput.isAlt(mods);

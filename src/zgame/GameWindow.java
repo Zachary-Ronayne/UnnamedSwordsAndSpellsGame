@@ -29,9 +29,9 @@ import java.awt.Point;
  */
 public abstract class GameWindow{
 	
-	// TODO implement sound
-	
 	// TODO reorganize code relating to GameWindow, Renderer, and Camera to properly separate rendering from the window
+	
+	// TODO implement sound
 	
 	/** The title displayed on the window */
 	private String windowTitle;
@@ -269,12 +269,103 @@ public abstract class GameWindow{
 			if(ZConfig.printErrors()) System.err.println("Error in GameWindow.initCallBacks, cannnot init callbacks if the current window is NULL");
 			return false;
 		}
-		glfwSetKeyCallback(w, this.keyInput::keyPress);
-		glfwSetCursorPosCallback(w, this.mouseInput::mouseMove);
-		glfwSetMouseButtonCallback(w, this.mouseInput::mousePress);
-		glfwSetScrollCallback(w, this.mouseInput::mouseWheelMove);
+		glfwSetKeyCallback(w, this::keyPress);
+		glfwSetCursorPosCallback(w, this::mouseMove);
+		glfwSetMouseButtonCallback(w, this::mousePress);
+		glfwSetScrollCallback(w, this::mouseWheelMove);
 		glfwSetWindowSizeCallback(w, this::windowSizeCallback);
 		return true;
+	}
+
+	/**
+	 * The method directly used as a callback method a key press
+	 * 
+	 * @param window The id of the GLFW window used
+	 * @param key The id of the key pressed
+	 * @param scanCode The system specific scancode of the key
+	 * @param action If the button was released, pressed, or held
+	 * @param mods The modifiers held during the key press, i.e. shift, alt, ctrl
+	 */
+	private void keyPress(long window, int key, int scanCode, int action, int mods){
+		this.keyPress(key, scanCode, action, mods);
+		this.getKeyInput().keyPress(key, scanCode, action, mods);
+	}
+	
+	/**
+	 * Called when the window recieves a key press. Can overrite this method to perform actions directly when keys are pressed
+	 * 
+	 * @param key The id of the key pressed
+	 * @param scanCode The system specific scancode of the key
+	 * @param action If the button was released, pressed, or held
+	 * @param mods The modifiers held during the key press, i.e. shift, alt, ctrl
+	 */
+	protected void keyPress(int key, int scanCode, int action, int mods){
+	}
+	
+	/**
+	 * The method directly used as a callback method for a mouse button press
+	 * 
+	 * @param window The id of the GLFW window where the button was pressed
+	 * @param button The mouse button which was pressed
+	 * @param action The action of the button, i.e. up or down
+	 * @param mods The additional buttons pressed, i.e. shift, alt, ctrl
+	 */
+	private void mousePress(long window, int button, int action, int mods){
+		this.mousePress(button, action, mods);
+		this.getMouseInput().mousePress(button, action, mods);
+	}
+	
+	/**
+	 * Called when the window recieves a mouse button press. Can overrite this method to perform actions directly when mouse buttons are pressed
+	 * 
+	 * @param window The id of the GLFW window where the button was pressed
+	 * @param button The mouse button which was pressed
+	 * @param action The action of the button, i.e. up or down
+	 * @param mods The additional buttons pressed, i.e. shift, alt, ctrl
+	 */
+	protected void mousePress(int button, int action, int mods){
+	}
+	
+	/**
+	 * The method directly used as a callback method for a mouse movement
+	 * 
+	 * @param window The id of the GLFW window where the button was pressed
+	 * @param x The raw x pixel coordinate of the mouse on the GLFW window
+	 * @param y The raw y pixel coordinate of the mouse on the GLFW window
+	 */
+	private void mouseMove(long window, double x, double y){
+		this.mouseMove(x, y);
+		this.getMouseInput().mouseMove(x, y);
+	}
+	
+	/**
+	 * Called when the window recieves mouse movement. Can overrite this method to perform actions directly when the mouse is moved
+	 * 
+	 * @param x The raw x pixel coordinate of the mouse on the GLFW window
+	 * @param y The raw y pixel coordinate of the mouse on the GLFW window
+	 */
+	protected void mouseMove(double x, double y){
+	}
+
+	/**
+	 * The method directly used as a callback method for mouse wheel scrolling
+	 * 
+	 * @param window The id of the GLFW window where the button was pressed
+	 * @param x The amount the scroll wheel was moved on the x axis, unused
+	 * @param y The amount the scroll wheel was moved on the y axis, i.e. number of scrolls, 1 for scroll up, -1 for scroll down
+	 */
+	private void mouseWheelMove(long window, double x, double y){
+		this.mouseWheelMove(x, y);
+		this.getMouseInput().mouseWheelMove(x, y);
+	}
+	
+	/**
+	 * Called when the window recieves a mouse wheel movement. Can overrite this method to perform actions directly when the mouse wheel is moved
+	 * 
+	 * @param x The amount the scroll wheel was moved on the x axis, unused
+	 * @param y The amount the scroll wheel was moved on the y axis, i.e. number of scrolls, 1 for scroll up, -1 for scroll down
+	 */
+	protected void mouseWheelMove(double x, double y){
 	}
 	
 	/**
@@ -290,7 +381,8 @@ public abstract class GameWindow{
 	}
 	
 	/**
-	 * Update the size of the window, directly changing the window. Does nothing if the {@link GameWindow} is in full screen, only works on a windowed version
+	 * Update the size of the window, directly changing the window. Does nothing if the {@link GameWindow} is in full screen, only works on a windowed version. 
+	 * This method directly updates the size, it should not be called outside the main OpenGL loop or initialization
 	 * 
 	 * @param w The new width, in pixels, not including any decorators such as the minimize button
 	 * @param h The new height, in pixels, not including any decorators such as the minimize button
