@@ -32,6 +32,8 @@ public abstract class GameWindow{
 	
 	// TODO implement sound
 	
+	// TODO reorganize code relating to GameWindow, Renderer, and Camera to properly separate rendering from the window
+	
 	/** The title displayed on the window */
 	private String windowTitle;
 	
@@ -225,7 +227,7 @@ public abstract class GameWindow{
 		GLUtil.setupDebugMessageCallback(System.err);
 		
 		// Init renderer
-		this.renderer = new Renderer(screenWidth, screenHeight);
+		this.renderer = new Renderer(this, screenWidth, screenHeight);
 		this.updateInternalValues();
 		
 		// Set up texture settings for drawing with an alpha channel
@@ -369,14 +371,25 @@ public abstract class GameWindow{
 		r.clear();
 		
 		// Render objects on the renderer
+		
+		// Set up drawing to the buffer
 		glLoadIdentity();
 		glViewport(0, 0, this.getScreenWidth(), this.getScreenHeight());
+		
+		// Draw the background
+		r.setCameraMode(false);
 		this.renderBackground(r);
+		
+		// Draw the foreground, i.e. main objects
 		glPushMatrix();
+		r.setCameraMode(true);
 		r.drawToRenderer();
 		this.getCamera().transform(this);
 		render(r);
 		glPopMatrix();
+		
+		// Draw the hud
+		r.setCameraMode(false);
 		this.renderHud(r);
 		
 		// Draw the renderer to the window
@@ -400,7 +413,8 @@ public abstract class GameWindow{
 	 * 
 	 * @param r The Renderer to use for drawing
 	 */
-	protected abstract void render(Renderer r);
+	protected void render(Renderer r){
+	}
 	
 	/**
 	 * Called once each time a frame is rendered to the screen, after the main render. Use this method to define what is drawn on top of the scree, i.e. a hud, menu, etc
@@ -442,7 +456,8 @@ public abstract class GameWindow{
 	 * 
 	 * @param dt The amount of time, in seconds, which passed in this tick
 	 */
-	protected abstract void tick(double dt);
+	protected void tick(double dt){
+	}
 	
 	/**
 	 * The function used to determine if each the tick loop should update each time regardless of time
@@ -1062,7 +1077,7 @@ public abstract class GameWindow{
 	public void zoomX(double zoom, double x){
 		this.getCamera().getX().zoom(zoom, x, this.getScreenWidth());
 	}
-
+	
 	/**
 	 * Zoom in on just the y axis
 	 * The zoom will reposition the camera so that the given coordinates are zoomed towards
@@ -1074,7 +1089,7 @@ public abstract class GameWindow{
 	public void zoomY(double zoom, double y){
 		this.getCamera().getY().zoom(zoom, y, this.getScreenHeight());
 	}
-
+	
 	/**
 	 * Zoom in on both axes
 	 * The zoom will reposition the camera so that the given coordinates are zoomed towards

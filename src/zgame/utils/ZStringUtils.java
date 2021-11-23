@@ -24,17 +24,33 @@ public final class ZStringUtils{
 	}
 	
 	/**
+	 * Get a string representation of a list of objects concatenated together using efficient string concatination, with a space between each element
+	 * 
+	 * @param separator An object to put between each object in the string, but not after the last element
+	 * @param objs The list of objects to put together
+	 * @return The resulting string
+	 */
+	public static String concatSep(String separator, Object ... objs){
+		StringBuilder b = new StringBuilder();
+
+		for(int i = 0; i < objs.length; i++){
+			Object obj = objs[i];
+			b.append((obj == null) ? "null" : obj.toString());
+			if(i + 1 != objs.length) b.append(separator);
+		}
+		return b.toString();
+	}
+	
+	/**
 	 * Get a string representation of a list of objects concatenated together using efficient string concatination
 	 * 
 	 * @param objs The list of objects to put together
 	 * @return The resulting string
 	 */
 	public static String concat(Object ... objs){
-		StringBuilder b = new StringBuilder();
-		for(Object obj : objs) b.append(obj.toString());
-		return b.toString();
+		return concatSep("", objs);
 	}
-	
+
 	/**
 	 * Get a string representation of a list of objects concatenated together using efficient string concatination, with a space between each element
 	 * 
@@ -42,12 +58,7 @@ public final class ZStringUtils{
 	 * @return The resulting string
 	 */
 	public static String concats(Object ... objs){
-		StringBuilder b = new StringBuilder();
-		for(Object obj : objs){
-			b.append(obj.toString());
-			b.append(" ");
-		}
-		return b.toString();
+		return concatSep(" ", objs);
 	}
 	
 	/** Cannot instantiate this class */

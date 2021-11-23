@@ -5,6 +5,8 @@ import zgame.graphics.Renderer;
 
 import static org.lwjgl.opengl.GL30.*;
 
+import java.awt.geom.Rectangle2D;
+
 /**
  * A class used by {@link Renderer} to track the location of where objects should be draw, based on their position in the game.
  * All positions are in game coordinates
@@ -16,7 +18,7 @@ public class GameCamera{
 	
 	/** The y axis of the camera, where its position represents the upper lefthand corner of the screen */
 	private CameraAxis y;
-
+	
 	/** The x axis anchor position for panning */
 	private double anchorX;
 	/** The y axis anchor position for panning */
@@ -74,12 +76,12 @@ public class GameCamera{
 		this.anchorY = this.getY().getPos() - y;
 		this.anchored = true;
 	}
-
+	
 	/** Release the anchor position so that a new one can be set. After this method is called, panning cannot occur until a new anchor is set */
 	public void releaseAnchor(){
 		this.anchored = false;
 	}
-
+	
 	/**
 	 * Move the camera based on the anchor position.
 	 * If no anchor is set, this method does nothing
@@ -92,22 +94,22 @@ public class GameCamera{
 		this.getX().setPos(x + this.getAnchorX());
 		this.getY().setPos(y + this.getAnchorY());
 	}
-
+	
 	/** @return See {@link #anchorX} */
 	public double getAnchorX(){
 		return this.anchorX;
 	}
-
+	
 	/** @return See {@link #anchorY} */
 	public double getAnchorY(){
 		return this.anchorY;
 	}
-
+	
 	/** @return See {@link #anchored} */
 	public boolean isAnchored(){
 		return this.anchored;
 	}
-
+	
 	/**
 	 * Zoom in on both axis
 	 * 
@@ -117,7 +119,7 @@ public class GameCamera{
 		this.getX().zoom(zoom);
 		this.getY().zoom(zoom);
 	}
-
+	
 	/**
 	 * Move both axes by the given amount
 	 * 
@@ -145,9 +147,22 @@ public class GameCamera{
 	 * @return The value in screen coordinates
 	 */
 	public double gameToScreenY(double y){
-		return this.getX().gameToScreen(y);
+		return this.getY().gameToScreen(y);
 	}
 	
+	/**
+	 * Convert the bounds of a rectangle in game coordinates to the bounds in screen coordinates
+	 * 
+	 * @param x The x coordinate of the upper right hand corner of the rectangle
+	 * @param y The y coordinate of the upper right hand corner of the rectangle
+	 * @param w The width of the rectangle
+	 * @param h The height of the rectangle
+	 * @return The converted bounds
+	 */
+	public Rectangle2D.Double boundsGameToScreen(double x, double y, double w, double h){
+		return new Rectangle2D.Double(this.gameToScreenX(x), this.gameToScreenY(y), this.sizeGameToScreenX(w), this.sizeGameToScreenY(h));
+	}
+
 	/**
 	 * Convert an x coordinate value in screen space, to a coordinate in game space coordinates
 	 * 
@@ -185,7 +200,7 @@ public class GameCamera{
 	 * @return The converted value
 	 */
 	public double sizeGameToScreenY(double y){
-		return this.getX().sizeGameToScreen(y);
+		return this.getY().sizeGameToScreen(y);
 	}
 	
 	/**
@@ -206,6 +221,19 @@ public class GameCamera{
 	 */
 	public double sizeScreenToGameY(double y){
 		return this.getY().sizeScreenToGame(y);
+	}
+	
+	/**
+	 * Convert the bounds of a rectangle in screen coordinates to the bounds in game coordinates
+	 * 
+	 * @param x The x coordinate of the upper right hand corner of the rectangle
+	 * @param y The y coordinate of the upper right hand corner of the rectangle
+	 * @param w The width of the rectangle
+	 * @param h The height of the rectangle
+	 * @return The converted bounds
+	 */
+	public Rectangle2D.Double boundsScreenToGame(double x, double y, double w, double h){
+		return new Rectangle2D.Double(this.screenToGameX(x), this.screenToGameY(y), this.sizeScreenToGameX(w), this.sizeScreenToGameY(h));
 	}
 	
 	/** @return See {@link #x} */

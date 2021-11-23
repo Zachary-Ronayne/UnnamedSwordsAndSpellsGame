@@ -3,6 +3,9 @@ package zgame.graphics;
 import static org.lwjgl.opengl.GL30.*;
 
 import zgame.GameWindow;
+import zgame.graphics.camera.GameCamera;
+
+import java.awt.geom.Rectangle2D;
 
 /**
  * A class that handles OpenGL operations related to drawing objects.
@@ -19,6 +22,9 @@ import zgame.GameWindow;
  */
 public class Renderer{
 	
+	/** The {@link GameWindow} associated with this Renderer */
+	private GameWindow window;
+	
 	/** The shader used to draw basic shapes, i.e. solid colors */
 	private ShaderProgram shapeShader;
 	/** The shader used to draw textures, i.e. images */
@@ -31,9 +37,14 @@ public class Renderer{
 	/** The buffer which this Renderer draws to, which later can be drawn to a window */
 	private GameBuffer screen;
 	
-	// TODO implement with camera
-	/** true if objects which would be rendered outside of the bounds of {@link #screen} should not be drawn, false otherwise */
+	/**
+	 * true if objects which would be rendered outside of the bounds of {@link #screen} should not be drawn, false otherwise.
+	 * If this value is false, then all objects will be rendered, even if they would never be visibile, which could cause performance issues
+	 */
 	private boolean renderOnlyInside;
+
+	/** true if objets should be rendered using the camera position, false if the camera should be ignored */
+	private boolean cameraMode;
 	
 	/**
 	 * Create a new empty renderer
@@ -41,8 +52,10 @@ public class Renderer{
 	 * @param width The width, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
-	public Renderer(int width, int height){
+	public Renderer(GameWindow window, int width, int height){
+		this.window = window;
 		this.setRenderOnlyInside(true);
+		this.setCameraMode(true);
 		this.resize(width, height);
 		
 		// Load shaders
@@ -159,14 +172,19 @@ public class Renderer{
 	 * @param y The y coordinate of the upper right hand corner of the rectangle
 	 * @param w The width of the rectangle
 	 * @param h The height of the rectangle
+	 * @return true if the object was drawn, false otherwise
 	 */
-	public void drawRectangle(double x, double y, double w, double h){
+	public boolean drawRectangle(double x, double y, double w, double h){
+		if(!this.shouldDraw(x, y, w, h)) return false;
+		
 		this.renderModeShapes();
 		
 		glPushMatrix();
 		this.positionObject(x, y, w, h);
 		DisplayList.rect();
 		glPopMatrix();
+		
+		return true;
 	}
 	
 	/**
@@ -177,8 +195,11 @@ public class Renderer{
 	 * @param y The y coordinate of the upper right hand corner of the image
 	 * @param w The width of the image
 	 * @param h The height of the image
+	 * @return true if the object was drawn, false otherwise
 	 */
-	public void drawImage(double x, double y, double w, double h, GameImage img){
+	public boolean drawImage(double x, double y, double w, double h, GameImage img){
+		if(!this.shouldDraw(x, y, w, h)) return false;
+		
 		this.renderModeImage();
 		
 		glPushMatrix();
@@ -186,6 +207,26 @@ public class Renderer{
 		img.use();
 		DisplayList.texRect();
 		glPopMatrix();
+		
+		return true;
+	}
+	
+	/**
+	 * Determine if the given bounds are contained within the current state of this {@link Renderer}
+	 * i.e. find out if something drawn within the given bounds would appear on the screen
+	 * 
+	 * @param x The upper left hand corner x coordinate of the object, in game coordinates
+	 * @param y The upper left hand corner y coordiate of the object, in game coordinates
+	 * @param w The width of the object, in game coordinates
+	 * @param h The height of the object, in game coordinates
+	 * @return true if the bounds should be drawn, false otherwise
+	 */
+	public boolean shouldDraw(double x, double y, double w, double h){
+		if(!this.isRenderOnlyInside()) return true;
+		GameCamera cam = this.getWindow().getCamera();
+		Rectangle2D.Double r = new Rectangle2D.Double(0, 0, this.getWidth(), this.getHeight());
+		if(this.isCameraMode()) return r.intersects(cam.boundsGameToScreen(x, y, w, h));
+		else return r.intersects(x, y, w, h);
 	}
 	
 	/** Fill the screen with the current color, regardless of camera position */
@@ -221,14 +262,29 @@ public class Renderer{
 		glColor4d(r, g, b, a);
 	}
 	
+	/** @return See {@link #window} */
+	public GameWindow getWindow(){
+		return this.window;
+	}
+	
 	/** @return See {@link #renderOnlyInside} */
 	public boolean isRenderOnlyInside(){
-		return renderOnlyInside;
+		return this.renderOnlyInside;
 	}
 	
 	/** @param renderOnlyInside See {@link #renderOnlyInside} */
 	public void setRenderOnlyInside(boolean renderOnlyInside){
 		this.renderOnlyInside = renderOnlyInside;
+	}
+	
+	/** @return See {@link #cameraMode} */
+	public boolean isCameraMode(){
+		return this.cameraMode;
+	}
+	
+	/** @param cameraMode See {@link #cameraMode} */
+	public void setCameraMode(boolean cameraMode){
+		this.cameraMode = cameraMode;
 	}
 	
 	/** @return The width, in pixels, of the underlyng buffer of this Renderer */

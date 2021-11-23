@@ -85,7 +85,7 @@ public class ZMouseInput{
 	 * 
 	 * @param window The id of the GLFW window where the mouse was moved
 	 * @param x The amount the scroll wheel was moved on the x axis, unused
-	 * @param x The amount the scroll wheel was moved on the y axis, i.e. number of scrolls, 1 for scroll up, -1 for scroll down
+	 * @param y The amount the scroll wheel was moved on the y axis, i.e. number of scrolls, 1 for scroll up, -1 for scroll down
 	 */
 	public void mouseWheelMove(long window, double x, double y){
 		this.scrollAmount += y;
