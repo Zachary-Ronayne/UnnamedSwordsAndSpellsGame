@@ -1,9 +1,7 @@
 package zgame.input.mouse;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import zgame.GameWindow;
+import zgame.input.ZButtonInput;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -14,10 +12,7 @@ import static org.lwjgl.glfw.GLFW.*;
  * and y represents the number of rendered pixels below that corner.
  * This means that coordinates do not necessarily exactly correspond to the pixels on the window
  */
-public class ZMouseInput{
-	
-	/** The {@link GameWindow} using this {@link ZMouseInput} */
-	private GameWindow window;
+public class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	
 	/** The current x coordinate */
 	private double currentX;
@@ -33,13 +28,9 @@ public class ZMouseInput{
 	/** The amount of distance the scrollwheel has moved since this value was last used */
 	private double scrollAmount;
 	
-	/** The {@link Map} storing the state of every mouse button and its associated actions */
-	private Map<Integer, ZMouseEvent> buttonsDown;
-	
 	/** Create a simple {@link ZMouseInput} and initialize every value */
 	public ZMouseInput(GameWindow window){
-		this.window = window;
-		
+		super(window);
 		this.currentX = 0;
 		this.currentY = 0;
 		this.lastX = 0;
@@ -47,8 +38,11 @@ public class ZMouseInput{
 		
 		this.lastScroll = 0;
 		this.scrollAmount = 0;
-		
-		this.buttonsDown = new HashMap<Integer, ZMouseEvent>();
+	}
+
+	@Override
+	public ZMouseEvent createEvent(int button, boolean shift, boolean alt, boolean ctrl, boolean press){
+		return new ZMouseEvent(this.x(), this.y(), button, this.getWindow(), shift, alt, ctrl, press);
 	}
 	
 	/**
@@ -60,10 +54,7 @@ public class ZMouseInput{
 	 * @param mods The additional buttons pressed, i.e. shift, alt, ctrl
 	 */
 	public void mousePress(long window, int button, int action, int mods){
-		boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
-		boolean alt = (mods & GLFW_MOD_ALT) != 0;
-		boolean ctrl = (mods & GLFW_MOD_CONTROL) != 0;
-		this.buttonsDown.put(button, new ZMouseEvent(this.x(), this.y(), button, this.getWindow(), shift, alt, ctrl, action == GLFW_PRESS));
+		this.buttonPress(button, action, mods);
 	}
 	
 	/**
@@ -76,8 +67,8 @@ public class ZMouseInput{
 	public void mouseMove(long window, double x, double y){
 		this.lastX = this.currentX;
 		this.lastY = this.currentY;
-		this.currentX = this.window.windowToScreenX(x);
-		this.currentY = this.window.windowToScreenY(y);
+		this.currentX = this.getWindow().windowToScreenX(x);
+		this.currentY = this.getWindow().windowToScreenY(y);
 	}
 	
 	/**
@@ -90,11 +81,6 @@ public class ZMouseInput{
 	public void mouseWheelMove(long window, double x, double y){
 		this.scrollAmount += y;
 		this.lastScroll = y;
-	}
-	
-	/** @return See {@link #window} */
-	public GameWindow getWindow(){
-		return this.window;
 	}
 	
 	/** @return The current x position of the mouse, in screen coordinates */
@@ -137,30 +123,6 @@ public class ZMouseInput{
 		double s = this.scrollAmount;
 		this.scrollAmount = 0;
 		return s;
-	}
-	
-	/**
-	 * Get a {@link ZMouseEvent} containing information about the desired button
-	 * 
-	 * @param button The ID of the button, these should be referred to useing GLFW mouse constants,
-	 *        i.e. GLFW_MOUSE_BUTTON_1 through GLFW_MOUSE_BUTTON_8,
-	 *        or GLFW_MOUSE_BUTTON_LEFT, GLFW_MOUSE_BUTTON_RIGHT, GLFW_MOUSE_BUTTON_MIDDLE
-	 * @return The event, or null if no such event exists
-	 */
-	public ZMouseEvent buttonEvent(int button){
-		return this.buttonsDown.get(button);
-	}
-	
-	/**
-	 * Determine if a particular mouse button is pressed
-	 * 
-	 * @param button The button to check, same conditions as {@link #buttonEvent(int)}
-	 * @return true if the button is pressed, false otherwise. Will also return false if button represents an invalid button
-	 */
-	public boolean buttonDown(int button){
-		ZMouseEvent e = this.buttonEvent(button);
-		if(e == null) return false;
-		return e.isPress();
 	}
 	
 	/** @return true if the left mouse button is down, false otherwise */

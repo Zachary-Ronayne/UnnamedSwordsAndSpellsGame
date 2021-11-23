@@ -5,7 +5,7 @@ import zgame.GameWindow;
 /**
  * A class which contains the basic universal information used by input devices
  */
-public abstract class ZInputEvent{
+public abstract class ZButtonInputEvent{
 	
 	/**
 	 * The numerical value which represents the specific button or action that was activated during the event.
@@ -29,7 +29,7 @@ public abstract class ZInputEvent{
 	private boolean press;
 	
 	/**
-	 * Create a new {@link ZInputEvent} with the given information
+	 * Create a new {@link ZButtonInputEvent} with the given information
 	 * 
 	 * @param id See {@link #id}
 	 * @param window See {@link #window}
@@ -38,7 +38,7 @@ public abstract class ZInputEvent{
 	 * @param ctrlDown See {@link #ctrlDown}
 	 * @param press See {@link #press}
 	 */
-	public ZInputEvent(int id, GameWindow window, boolean shiftDown, boolean altDown, boolean ctrlDown, boolean press){
+	public ZButtonInputEvent(int id, GameWindow window, boolean shiftDown, boolean altDown, boolean ctrlDown, boolean press){
 		this.id = id;
 		this.window = window;
 		this.shiftDown = shiftDown;

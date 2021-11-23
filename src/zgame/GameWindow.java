@@ -9,6 +9,7 @@ import static org.lwjgl.opengl.GL30.*;
 import zgame.graphics.DisplayList;
 import zgame.graphics.Renderer;
 import zgame.graphics.camera.GameCamera;
+import zgame.input.keyboard.ZKeyInput;
 import zgame.input.mouse.ZMouseInput;
 import zgame.utils.ZConfig;
 import zgame.utils.ZStringUtils;
@@ -28,8 +29,6 @@ import java.awt.Point;
  */
 public abstract class GameWindow{
 	
-	// TODO implement keyboard input
-	
 	// TODO implement sound
 	
 	// TODO reorganize code relating to GameWindow, Renderer, and Camera to properly separate rendering from the window
@@ -44,17 +43,17 @@ public abstract class GameWindow{
 	/** true if the Game is currently in full screen, false otherwise */
 	private boolean inFullScreen;
 	/** Determines if on the next OpenGL loop, the screen should update if it is or is not in full screen */
-	private FullscreenState updateFullscreen;
+	private OnOffState updateFullscreen;
 	/** The position of the monitor before moving to full screen */
 	private Point oldPosition;
 	
-	/** A simple enum for telling what should happen to the full screen status on the next OpenGL loop */
-	private enum FullscreenState{
-		/** Go to full screen */
+	/** A simple enum for tracking if something needs to be updated to on or off */
+	private enum OnOffState{
+		/** Turn the action on */
 		ENTER,
-		/** Leave full screen */
+		/** Turn the action off */
 		EXIT,
-		/** Do not change the state of fullscreen */
+		/** Do not change the action */
 		NOTHING;
 		
 		/** @return true if this state wants to make an update, false otherwise */
@@ -62,7 +61,7 @@ public abstract class GameWindow{
 			return this != NOTHING;
 		}
 		
-		/** @return true if the state says to enter fullscreen, false otherwise */
+		/** @return true if the state says to turn on, false otherwise */
 		public boolean willEnter(){
 			return this == ENTER;
 		}
@@ -70,10 +69,10 @@ public abstract class GameWindow{
 		/**
 		 * Get the state corrsponding to a boolean value
 		 * 
-		 * @param enter tue to get the state for entering full screen, false to exit
+		 * @param enter ture to get the state for turning on, false for turning off
 		 * @return {@link #ENTER} or {@link #EXIT} depending on enter
 		 */
-		public static FullscreenState state(boolean enter){
+		public static OnOffState state(boolean enter){
 			return enter ? ENTER : EXIT;
 		}
 	}
@@ -112,6 +111,8 @@ public abstract class GameWindow{
 	private GameLooper renderLooper;
 	/** true to use vsync, i.e. lock the framerate to the refreshrate of the monitor, false otherwise */
 	private boolean useVsync;
+	/** Determines if on the next OpenGL loop, vsync should update */
+	private OnOffState updateVsync;
 	/** The renderer used by this GameWindow to draw to the screen */
 	private Renderer renderer;
 	/** The Camera which determines the relative location and scale of objects drawn in the game */
@@ -134,6 +135,9 @@ public abstract class GameWindow{
 	
 	/** The object tracking mouse input events */
 	private ZMouseInput mouseInput;
+	
+	/** The object tracking keyboard input events */
+	private ZKeyInput keyInput;
 	
 	/**
 	 * Create an empty GameWindow. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
@@ -211,10 +215,14 @@ public abstract class GameWindow{
 		
 		// Create input objects
 		this.mouseInput = new ZMouseInput(this);
+		this.keyInput = new ZKeyInput(this);
 		
 		// Update fullscreen
 		this.setInFullScreenNow(false);
-		this.setUseVsync(useVsync);
+		
+		// Set up vsync
+		this.updateVsync = OnOffState.NOTHING;
+		this.setUseVsyncNow(useVsync);
 		
 		// This line is critical for LWJGL's interoperation with GLFW's
 		// OpenGL context, or any context that is managed externally.
@@ -237,7 +245,7 @@ public abstract class GameWindow{
 		DisplayList.initLists();
 		
 		// Init fullscreen, this will also set up callbacks
-		this.updateFullscreen = FullscreenState.NOTHING;
+		this.updateFullscreen = OnOffState.NOTHING;
 		this.setInFullScreenNow(enterFullScreen);
 		
 		// Init camera
@@ -261,16 +269,12 @@ public abstract class GameWindow{
 			if(ZConfig.printErrors()) System.err.println("Error in GameWindow.initCallBacks, cannnot init callbacks if the current window is NULL");
 			return false;
 		}
-		glfwSetKeyCallback(w, this::keyPress);
+		glfwSetKeyCallback(w, this.keyInput::keyPress);
 		glfwSetCursorPosCallback(w, this.mouseInput::mouseMove);
 		glfwSetMouseButtonCallback(w, this.mouseInput::mousePress);
 		glfwSetScrollCallback(w, this.mouseInput::mouseWheelMove);
 		glfwSetWindowSizeCallback(w, this::windowSizeCallback);
 		return true;
-	}
-	
-	/** Temporary keypress method for ease of testing */
-	public void keyPress(long id, int key, int scanCode, int action, int mods){
 	}
 	
 	/**
@@ -352,10 +356,14 @@ public abstract class GameWindow{
 	 */
 	private void loopFunction(){
 		// Update fullscreen status
-		FullscreenState state = this.updateFullscreen;
-		if(state.shouldUpdate()){
-			this.setInFullScreenNow(state.willEnter());
-			this.updateFullscreen = FullscreenState.NOTHING;
+		if(this.updateFullscreen.shouldUpdate()){
+			this.setInFullScreenNow(this.updateFullscreen.willEnter());
+			this.updateFullscreen = OnOffState.NOTHING;
+		}
+		// Update vsync status
+		if(this.updateVsync.shouldUpdate()){
+			this.setUseVsyncNow(this.updateVsync.willEnter());
+			this.updateVsync = OnOffState.NOTHING;
 		}
 		// Poll for window events. The key callback above will only be
 		// invoked during this call.
@@ -564,10 +572,14 @@ public abstract class GameWindow{
 		this.initCallBacks();
 		
 		// Update v-sync
-		this.setUseVsync(this.usesVsync());
+		this.setUseVsyncNow(this.usesVsync());
 		
 		// Update screen width and height
 		this.updateScreenSize();
+		
+		// Make sure no buttons are pressed
+		this.getMouseInput().clear();
+		this.getKeyInput().clear();
 	}
 	
 	/**
@@ -667,7 +679,7 @@ public abstract class GameWindow{
 	 * @param fullscreen true to enter fullscreen, false to exist.
 	 */
 	public void setFullscreen(boolean fullscreen){
-		this.updateFullscreen = FullscreenState.state(fullscreen);
+		this.updateFullscreen = OnOffState.state(fullscreen);
 	}
 	
 	/**
@@ -1001,8 +1013,21 @@ public abstract class GameWindow{
 		return this.useVsync;
 	}
 	
-	/** @param useVsync See {@link #useVsync} */
+	/**
+	 * On the next OpenGL loop, set whether or not to use vsync
+	 * 
+	 * @param useVsync See {@link #useVsync}
+	 */
 	public void setUseVsync(boolean useVsync){
+		this.updateVsync = OnOffState.state(useVsync);
+	}
+	
+	/**
+	 * This method instantly changes the vsync state using GLFW methods, do not call this outside of initialization or the OpenGL loop
+	 * 
+	 * @param useVsync See {@link #useVsync}
+	 */
+	private void setUseVsyncNow(boolean useVsync){
 		this.useVsync = useVsync;
 		if(this.usesVsync()) glfwSwapInterval(1);
 		else glfwSwapInterval(0);
@@ -1059,6 +1084,11 @@ public abstract class GameWindow{
 	/** @return The current y coordinate of the mouse in screen coordinates. Should use for things that do not move with the camera */
 	public double mouseSY(){
 		return this.getMouseInput().y();
+	}
+	
+	/** @return See {@link #keyInput} */
+	public ZKeyInput getKeyInput(){
+		return this.keyInput;
 	}
 	
 	/** @return See {@link #camera} */

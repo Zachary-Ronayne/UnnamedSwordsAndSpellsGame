@@ -1,13 +1,13 @@
 package zgame.input.mouse;
 
 import zgame.GameWindow;
-import zgame.input.ZInputEvent;
+import zgame.input.ZButtonInputEvent;
 
 /**
- * A {@link ZInputEvent} which represents a mouse action, i.e. a mouse button press. 
+ * A {@link ZButtonInputEvent} which represents a mouse action, i.e. a mouse button press. 
  * See {@link ZMouseInput} for details about coordinates
  */
-public class ZMouseEvent extends ZInputEvent{
+public class ZMouseEvent extends ZButtonInputEvent{
 
 	/** The x pixel coordiate when the event happened */
 	private double x;
