@@ -1,19 +1,23 @@
 package zgame.graphics;
 
-import zgame.GameWindow;
-
 import static org.lwjgl.opengl.GL30.*;
+
+import zgame.GameWindow;
 
 /**
  * A class that handles OpenGL operations related to drawing objects.
  * Create an instance of this class and call draw methods to draw to this Renderer,
  * then call drawToScreen to display the contents of this Renderer.
  * This class is dependent on {@link zgame.graphics.DisplayList}, be sure to initialize that class before using Renderer.
- * DO NOT directly call any OpenGL methods when using this class, otherwise unexpected results could happen
+ * DO NOT directly call any OpenGL methods when using this class, otherwise unexpected results could happen.
+ * Coordinate explanation:
+ * Window coordinates: The pixels on the GLFW window itself
+ * Screen coordinates: The in game coordinates, relative to what is displayed on the screen.
+ * i.e. the upper left hand corner is always (0, 0),
+ * and the lower right hand corner is always (Renderer.screen.width, Renderer.screen.height)
+ * Game coordinates: The actual position of something in the game, regardless of where it would be rendered
  */
 public class Renderer{
-	
-	// TODO implement camera
 	
 	/** The shader used to draw basic shapes, i.e. solid colors */
 	private ShaderProgram shapeShader;
@@ -26,9 +30,8 @@ public class Renderer{
 	
 	/** The buffer which this Renderer draws to, which later can be drawn to a window */
 	private GameBuffer screen;
-	/** The Camera which determines the relative location and scale of objects drawn with this Renderer */
-	private Camera camera;
 	
+	// TODO implement with camera
 	/** true if objects which would be rendered outside of the bounds of {@link #screen} should not be drawn, false otherwise */
 	private boolean renderOnlyInside;
 	
@@ -114,37 +117,11 @@ public class Renderer{
 	 * Additionally, this method will make all further drawing operations occur directly on the given GameWindow
 	 * 
 	 * @param window The window to draw to
-	 * @param stretchToFill true to stretch the image to the size of the window so that it fills the entire window,
-	 *        false to center the image, and make it take up as much of the screen as possible while maintaining the original aspect ratio,
-	 *        and leave black bars on the top and bottom or sides, depending on where excess space would be left
 	 */
-	public void drawToScreen(GameWindow window, boolean stretchToFill){
-		// sw and sh for screen width and height
-		int sw = window.getWidth();
-		int sh = window.getHeight();
-		
+	public void drawToWindow(GameWindow window){
 		this.renderModeBuffer();
-		
 		glPushMatrix();
-		if(stretchToFill){
-			glViewport(0, 0, sw, sh);
-		}
-		else{
-			// wRatio for the window aspect ratio and tRatio for this render's aspect ratio
-			double wRatio = window.getWindowRatio();
-			double tRatio = this.screen.getRatioWH();
-			int w;
-			int h;
-			if(tRatio < wRatio){
-				h = sh;
-				w = (int)Math.round(h * tRatio);
-			}
-			else{
-				w = sw;
-				h = (int)Math.round(w * this.screen.getRatioHW());
-			}
-			glViewport((sw - w) >> 1, (sh - h) >> 1, w, h);
-		}
+		glViewport(window.viewportX(), window.viewportY(), window.viewportW(), window.viewportH());
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, this.screen.getTextureID());
 		DisplayList.texRect();
@@ -152,9 +129,10 @@ public class Renderer{
 	}
 	
 	/**
-	 * Call OpenGL operations that transforms to draw to a location in game coordinates.
+	 * Call OpenGL operations that transform to draw to a location in game coordinates.
 	 * This method assumes the coordinates to translate are centered in the given rectangular bounding box in game coordinates
 	 * This method does not push or pop the matrix stack
+	 * Coordinates are in camera coordinates
 	 * 
 	 * @param x The x coordinate of the upper lefthand corner
 	 * @param y The y coordinate of the upper lefthand corner
@@ -163,7 +141,7 @@ public class Renderer{
 	 */
 	private void positionObject(double x, double y, double w, double h){
 		GameBuffer b = this.screen;
-
+		
 		double rw = b.getInverseWidth();
 		double rh = b.getInverseHeight();
 		double hw = b.getInverseHalfWidth();
@@ -175,6 +153,7 @@ public class Renderer{
 	
 	/**
 	 * Draw a rectangle, of the current color of this Renderer, at the specified location. All values are in game coordinates
+	 * Coordinates are in camera coordinates
 	 * 
 	 * @param x The x coordinate of the upper right hand corner of the rectangle
 	 * @param y The y coordinate of the upper right hand corner of the rectangle
@@ -209,15 +188,13 @@ public class Renderer{
 		glPopMatrix();
 	}
 	
-	/*
-	 * TODO create a way of differentiating between operations
-	 * like drawRectangle which should depend on camera position,
-	 * and operations like fill which should not depend on the camera
-	 */
-	/** Fill the screen with the current color */
+	/** Fill the screen with the current color, regardless of camera position */
 	public void fill(){
+		glPushMatrix();
+		glLoadIdentity();
 		this.renderModeShapes();
 		DisplayList.rect();
+		glPopMatrix();
 	}
 	
 	/**
@@ -233,6 +210,7 @@ public class Renderer{
 	
 	/**
 	 * Set the color currently used to draw basic shapes
+	 * s
 	 * 
 	 * @param r The red amount, should be in the range [0-1]
 	 * @param g The green amount, should be in the range [0-1]
@@ -261,6 +239,292 @@ public class Renderer{
 	/** @return The height, in pixels, of the underlyng buffer of this Renderer */
 	public int getHeight(){
 		return this.screen.getHeight();
+	}
+	
+	/** @return The ratio of the size of the internal buffer, i.e. the width divided by the height */
+	public double getRatioWH(){
+		return this.screen.getRatioWH();
+	}
+	
+	/** @return The ratio of the size of the internal buffer, i.e. the height divided by the width */
+	public double getRatioHW(){
+		return this.screen.getRatioHW();
+	}
+	
+	/**
+	 * Convert an x coordinate value in window space, to a coordinate in screen space coordinates
+	 * 
+	 * @param GameWindow the {@link GameWindow} to use for reference for converting coordinates
+	 * @param x The value to convert
+	 * @return The value in screen coordinates
+	 */
+	public double windowToScreenX(GameWindow window, double x){
+		return windowToScreen(x, window.viewportX(), window.viewportWInverse(), this.screen.getWidth());
+	}
+	
+	/**
+	 * Convert a y coordinate value in window space, to a coordinate in screen space coordinates
+	 * 
+	 * @param GameWindow the {@link GameWindow} to use for reference for converting coordinates
+	 * @param y The value to convert
+	 * @return The value in screen coordinates
+	 */
+	public double windowToScreenY(GameWindow window, double y){
+		return windowToScreen(y, window.viewportY(), window.viewportHInverse(), this.screen.getHeight());
+	}
+	
+	/**
+	 * Convert a coordinate value in window space, to a coordinate in screen space coordinates
+	 * 
+	 * @param p The value to convert
+	 * @param viewportPos The position of the screen when placed on the window
+	 * @param windowInverseSize The inverse of the size of the window
+	 * @param screenSize The size of the screen to convert to
+	 * @return The value in screen coordinates
+	 */
+	public static double windowToScreen(double p, double viewportPos, double windowInverseSize, double screenSize){
+		return (p - viewportPos) * windowInverseSize * screenSize;
+	}
+	
+	/**
+	 * Convert an x coordinate value in screen space, to a coordinate in window space coordinates
+	 * 
+	 * @param GameWindow the {@link GameWindow} to use for reference for converting coordinates
+	 * @param x The value to convert
+	 * @return The value in window coordinates
+	 */
+	public double screenToWindowX(GameWindow window, double x){
+		return screenToWindow(x, window.viewportX(), window.viewportW(), this.screen.getInverseWidth());
+	}
+	
+	/**
+	 * Convert a y coordinate value in screen space, to a coordinate in window space coordinates
+	 * 
+	 * @param GameWindow the {@link GameWindow} to use for reference for converting coordinates
+	 * @param y The value to convert
+	 * @return The value in window coordinates
+	 */
+	public double screenToWindowY(GameWindow window, double y){
+		return screenToWindow(y, window.viewportY(), window.viewportH(), this.screen.getInverseHeight());
+	}
+	
+	/**
+	 * Convert a coordinate value in screen space, to a coordinate in window space coordinates
+	 * 
+	 * @param p The value to convert
+	 * @param viewportPos The position of the screen when placed on the window
+	 * @param windowSize The size of the window
+	 * @param screenSize The size of the screen to convert from
+	 * @return The value in window coordinates
+	 */
+	public static double screenToWindow(double p, double viewportPos, double windowSize, double screenInverseSize){
+		return p * screenInverseSize * windowSize + viewportPos;
+	}
+	
+	/**
+	 * Convert an x coordinate value in screen space, to a coordinate in OpenGL coordinates
+	 * 
+	 * @param x The value to convert
+	 * @return The value in OpenGL coordinates
+	 */
+	public double screenToGlX(GameWindow window, double x){
+		return screenToGl(x, window.viewportX(), window.getWidth(), this.screen.getInverseWidth(), window.getInverseWidth());
+	};
+	
+	/**
+	 * Convert a y coordinate value in screen space, to a coordinate in OpenGL coordinates
+	 * 
+	 * @param y The value to convert
+	 * @return The value in OpenGL coordinates
+	 */
+	public double screenToGlY(GameWindow window, double y){
+		return screenToGl(y, window.viewportY(), window.getHeight(), this.screen.getInverseHeight(), window.getInverseHeight());
+	};
+	
+	/**
+	 * Convert a coordinate value in screen space, to a coordinate in OpenGL space coordinates
+	 * 
+	 * @param p The value to convert
+	 * @param viewportPos The position of the screen when placed on the window
+	 * @param windowSize The size of the window
+	 * @param screenInverseSize The inverse of the size of the screen to convert from
+	 * @param windowInverseSize The inverse of the size of the window to convert from
+	 * @return The value in OpenGL coordinates
+	 */
+	public static double screenToGl(double p, double viewportPos, double windowSize, double screenInverseSize, double windowInverseSize){
+		return screenToWindow(p, viewportPos, windowSize, screenInverseSize) * windowInverseSize * 2 - 1;
+	}
+	
+	/**
+	 * Convert an x coordinate value in OpenGL space, to a coordinate in screen coordinates
+	 * 
+	 * @param x The value to convert
+	 * @return The value in screen coordinates
+	 */
+	public double glToScreenX(GameWindow window, double x){
+		return glToScreen(x, window.viewportX(), window.getInverseWidth(), this.screen.getWidth(), window.getWidth());
+	};
+	
+	/**
+	 * Convert a y coordinate value in OpenGL space, to a coordinate in screen coordinates
+	 * 
+	 * @param y The value to convert
+	 * @return The value in screen coordinates
+	 */
+	public double glToScreenY(GameWindow window, double y){
+		return glToScreen(y, window.viewportY(), window.getInverseHeight(), this.screen.getHeight(), window.getHeight());
+	};
+	
+	/**
+	 * Convert a coordinate value in OpenGL space, to a coordinate in screen space coordinates
+	 * 
+	 * @param p The value to convert
+	 * @param viewportPos The position of the screen when placed on the window
+	 * @param windowInverseSize The inverse of the size of the window
+	 * @param screenSize The size of the screen to convert to
+	 * @param windowSize The size of the window to convert to
+	 * @return The value in OpenGL coordinates
+	 */
+	public static double glToScreen(double p, double viewportPos, double windowInverseSize, double screenSize, double windowSize){
+		return windowToScreen(((p + 1) * 0.5) * windowSize, viewportPos, windowInverseSize, screenSize);
+	}
+	
+	/**
+	 * Convert a size on the x axis in window space, to a size in screen space
+	 * 
+	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 * @param x The value to convert
+	 * @return The conveted size
+	 */
+	public double sizeWindowToScreenX(GameWindow window, double x){
+		return sizeWindowToScreen(x, window.viewportWInverse(), this.screen.getWidth());
+	}
+	
+	/**
+	 * Convert a size on the y axis in window space, to a size in screen space
+	 * 
+	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 * @param y The value to convert
+	 * @return The conveted size
+	 */
+	public double sizeWindowToScreenY(GameWindow window, double y){
+		return sizeWindowToScreen(y, window.viewportHInverse(), this.screen.getHeight());
+	}
+	
+	/**
+	 * Convert a size in window space, to a size in screen space
+	 * 
+	 * @param p The value to convert
+	 * @param windowInverseSize The size of the window
+	 * @param screenSize The size of the screen to convert to
+	 * @return The converted size
+	 */
+	public static double sizeWindowToScreen(double p, double windowInverseSize, double screenSize){
+		return p * windowInverseSize * screenSize;
+	}
+	
+	/**
+	 * Convert a size on the x axis in screen space, to a size in window space
+	 * 
+	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 * @param x The value to convert
+	 * @return The conveted size
+	 */
+	public double sizeScreenToWindowX(GameWindow window, double x){
+		return sizeScreenToWindow(x, window.viewportW(), this.screen.getInverseWidth());
+	}
+	
+	/**
+	 * Convert a size on the y axis in screen space, to a size in window space
+	 * 
+	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 * @param y The value to convert
+	 * @return The conveted size
+	 */
+	public double sizeScreenToWindowY(GameWindow window, double y){
+		return sizeScreenToWindow(y, window.viewportH(), this.screen.getInverseHeight());
+	}
+	
+	/**
+	 * Convert a size in screen space, to a size in window space
+	 * 
+	 * @param p The value to convert
+	 * @param windowSize The size of the window
+	 * @param screenSize The size of the screen to convert from
+	 * @return The converted size
+	 */
+	public static double sizeScreenToWindow(double p, double windowSize, double screenInverseSize){
+		return p * screenInverseSize * windowSize;
+	}
+	
+	/**
+	 * Convert a size on the x axis in screen space, to a size in OpenGL space
+	 * 
+	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 * @param x The value to convert
+	 * @return The conveted size
+	 */
+	public double sizeScreenToGlX(GameWindow window, double x){
+		return sizeScreenToGl(x, window.getWidth(), this.screen.getInverseWidth(), window.getInverseWidth());
+	};
+	
+	/**
+	 * Convert a size on the y axis in screen space, to a size in OpenGL space
+	 * 
+	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 * @param y The value to convert
+	 * @return The conveted size
+	 */
+	public double sizeScreenToGlY(GameWindow window, double y){
+		return sizeScreenToGl(y, window.getHeight(), this.screen.getInverseHeight(), window.getInverseHeight());
+	};
+	
+	/**
+	 * Convert a size in screen space, to a size in OpenGL space
+	 * 
+	 * @param p The value to convert
+	 * @param windowSize The size of the window
+	 * @param screenInverseSize The inverse of the size of the screen to convert from
+	 * @param windowInverseSize The inverse of the size of the window to convert from
+	 * @return The converted size
+	 */
+	public static double sizeScreenToGl(double p, double windowSize, double screenInverseSize, double windowInverseSize){
+		return sizeScreenToWindow(p, windowSize, screenInverseSize) * windowInverseSize * 2;
+	}
+	
+	/**
+	 * Convert a size on the x axis in OpenGL space, to a size in screen space
+	 * 
+	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 * @param x The value to convert
+	 * @return The conveted size
+	 */
+	public double sizeGlToScreenX(GameWindow window, double x){
+		return sizeGlToScreen(x, window.getInverseWidth(), this.screen.getWidth(), window.getWidth());
+	};
+	
+	/**
+	 * Convert a size on the y axis in OpenGL space, to a size in screen space
+	 * 
+	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 * @param y The value to convert
+	 * @return The conveted size
+	 */
+	public double sizeGlToScreenY(GameWindow window, double y){
+		return sizeGlToScreen(y, window.getInverseHeight(), this.screen.getHeight(), window.getHeight());
+	};
+	
+	/**
+	 * Convert a size in OpenGL space, to a size in screen space
+	 * 
+	 * @param p The value to convert
+	 * @param windowInverseSize The inverse of the size of the window
+	 * @param screenSize The size of the screen to convert to
+	 * @param windowSize The size of the window to convert to
+	 * @return The conveted size
+	 */
+	public static double sizeGlToScreen(double p, double windowInverseSize, double screenSize, double windowSize){
+		return sizeWindowToScreen(p * 0.5 * windowSize, windowInverseSize, screenSize);
 	}
 	
 }

@@ -8,6 +8,8 @@ import static org.lwjgl.opengl.GL30.*;
 
 import zgame.graphics.DisplayList;
 import zgame.graphics.Renderer;
+import zgame.graphics.camera.GameCamera;
+import zgame.input.mouse.ZMouseInput;
 import zgame.utils.ZConfig;
 import zgame.utils.ZStringUtils;
 
@@ -26,7 +28,7 @@ import java.awt.Point;
  */
 public abstract class GameWindow{
 	
-	// TODO implement keyboard and mouse input
+	// TODO implement keyboard input
 	
 	// TODO implement sound
 	
@@ -84,8 +86,25 @@ public abstract class GameWindow{
 	private int width;
 	/** The current height of the window in pixels, this does not include decorators such as the minimize button */
 	private int height;
+	/** The inverse of {@link #width} */
+	private double inverseWidth;
+	/** The inverse of {@link #height} */
+	private double inverseHeight;
 	/** The current ratio of {@link #width} divided by {@link #height} */
 	private double windowRatio;
+	
+	/** The x coordinate for the viewport of where the internal GameBuffer should be drawn with a renderer */
+	private int viewportX;
+	/** The y coordinate for the viewport of where the internal GameBuffer should be drawn with a renderer */
+	private int viewportY;
+	/** The width of the viewport for drawing the internal GameBuffer with a renderer */
+	private int viewportW;
+	/** The height of the viewport for drawing the internal GameBuffer with a renderer */
+	private int viewportH;
+	/** The inverse of {@link #viewportW} */
+	private double viewportWInverse;
+	/** The inverse of {@link #viewportH} */
+	private double viewportHInverse;
 	
 	/** The looper to run the main OpenGL loop */
 	private GameLooper renderLooper;
@@ -93,6 +112,8 @@ public abstract class GameWindow{
 	private boolean useVsync;
 	/** The renderer used by this GameWindow to draw to the screen */
 	private Renderer renderer;
+	/** The Camera which determines the relative location and scale of objects drawn in the game */
+	private GameCamera camera;
 	
 	/** The {@link GameLooper} which runs the regular time intervals */
 	private GameLooper tickLooper;
@@ -100,6 +121,17 @@ public abstract class GameWindow{
 	private Thread tickThread;
 	/** The {@link Runnable} used by {@link #tickThread} to run its thread */
 	private TickLoopTask tickTask;
+	
+	/** A simple helper class used by {@link #tickLooper} to run its loop on a separate thread */
+	private class TickLoopTask implements Runnable{
+		@Override
+		public void run(){
+			tickLooper.loop();
+		}
+	}
+	
+	/** The object tracking mouse input events */
+	private ZMouseInput mouseInput;
 	
 	/**
 	 * Create an empty GameWindow. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
@@ -148,11 +180,12 @@ public abstract class GameWindow{
 	 * @param stretchToFill See {@link #stretchToFill}
 	 */
 	public GameWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
+		// Init general values
 		this.windowTitle = title;
 		this.width = 1;
 		this.height = 1;
-		this.setWidth(winWidth);
-		this.setHeight(winHeight);
+		this.width = winWidth;
+		this.height = winHeight;
 		this.useVsync = useVsync;
 		this.stretchToFill = stretchToFill;
 		this.oldPosition = new Point(0, 0);
@@ -174,6 +207,9 @@ public abstract class GameWindow{
 		this.windowID = glfwCreateWindow(this.getWidth(), this.getHeight(), this.windowTitle, NULL, NULL);
 		if(this.windowID == NULL) throw new RuntimeException("Failed to create the GLFW window");
 		
+		// Create input objects
+		this.mouseInput = new ZMouseInput(this);
+		
 		// Update fullscreen
 		this.setInFullScreenNow(false);
 		this.setUseVsync(useVsync);
@@ -188,16 +224,22 @@ public abstract class GameWindow{
 		// Additional error messaging
 		GLUtil.setupDebugMessageCallback(System.err);
 		
-		// Set up display lists
-		DisplayList.initLists();
-		
 		// Init renderer
 		this.renderer = new Renderer(screenWidth, screenHeight);
+		this.updateInternalValues();
+		
+		// Set up texture settings for drawing with an alpha channel
 		initTextureSettings();
+		
+		// Set up display lists
+		DisplayList.initLists();
 		
 		// Init fullscreen, this will also set up callbacks
 		this.updateFullscreen = FullscreenState.NOTHING;
 		this.setInFullScreenNow(enterFullScreen);
+		
+		// Init camera
+		this.camera = new GameCamera();
 		
 		// Create the main loop
 		this.renderLooper = new GameLooper(maxFps, this::loopFunction, this::shouldRender, this::keepRenderLoopFunction, !this.useVsync, "FPS", printFps);
@@ -218,8 +260,9 @@ public abstract class GameWindow{
 			return false;
 		}
 		glfwSetKeyCallback(w, this::keyPress);
-		// glfwSetCursorPosCallback(w, Game::mouseMove);
-		// glfwSetMouseButtonCallback(w, Game::mousePress);
+		glfwSetCursorPosCallback(w, this.mouseInput::mouseMove);
+		glfwSetMouseButtonCallback(w, this.mouseInput::mousePress);
+		glfwSetScrollCallback(w, this.mouseInput::mouseWheelMove);
 		glfwSetWindowSizeCallback(w, this::windowSizeCallback);
 		return true;
 	}
@@ -238,6 +281,20 @@ public abstract class GameWindow{
 	private void windowSizeCallback(long window, int w, int h){
 		this.setWidth(w);
 		this.setHeight(h);
+	}
+	
+	/**
+	 * Update the size of the window, directly changing the window. Does nothing if the {@link GameWindow} is in full screen, only works on a windowed version
+	 * 
+	 * @param w The new width, in pixels, not including any decorators such as the minimize button
+	 * @param h The new height, in pixels, not including any decorators such as the minimize button
+	 */
+	public void setSize(int w, int h){
+		if(this.isInFullScreen()) return;
+		
+		this.setWidth(w);
+		this.setHeight(h);
+		glfwSetWindowSize(this.getWindowID(), w, h);
 	}
 	
 	/** Initialize the settings for textures based on the needs of simple 2D pixel art textures with transparency */
@@ -260,7 +317,7 @@ public abstract class GameWindow{
 		
 		// Run the render loop in the main thread
 		this.renderLooper.loop();
-
+		
 		// End the program
 		this.end();
 	}
@@ -272,7 +329,7 @@ public abstract class GameWindow{
 		// End the loopers
 		this.renderLooper.end();
 		this.tickLooper.end();
-
+		
 		// Free memory / destory callbacks
 		this.renderer.destory();
 		long w = this.getWindowID();
@@ -314,21 +371,45 @@ public abstract class GameWindow{
 		// Render objects on the renderer
 		glLoadIdentity();
 		glViewport(0, 0, this.getScreenWidth(), this.getScreenHeight());
+		this.renderBackground(r);
+		glPushMatrix();
 		r.drawToRenderer();
+		this.getCamera().transform(this);
 		render(r);
+		glPopMatrix();
+		this.renderHud(r);
 		
 		// Draw the renderer to the window
-		r.drawToScreen(this, this.isStretchToFill());
+		r.drawToWindow(this);
 		glfwSwapBuffers(this.getCurrentWindowID());
 	}
 	
 	/**
-	 * Called once each time a frame is rendered to the screen. Use this method to define what is drawn each frame.
+	 * Called once each time a frame is rendered to the screen, before the main render. Use this method to define what is drawn as a background, i.e. unaffected by the camera
 	 * Do not manually call this method
 	 * 
 	 * @param r The Renderer to use for drawing
 	 */
+	protected void renderBackground(Renderer r){
+	}
+	
+	/**
+	 * Called once each time a frame is rendered to the screen. Use this method to define what is drawn each frame.
+	 * Do not manually call this method.
+	 * All objects drawn with this method will be affected by the game camera
+	 * 
+	 * @param r The Renderer to use for drawing
+	 */
 	protected abstract void render(Renderer r);
+	
+	/**
+	 * Called once each time a frame is rendered to the screen, after the main render. Use this method to define what is drawn on top of the scree, i.e. a hud, menu, etc
+	 * Do not manually call this method
+	 * 
+	 * @param r The Renderer to use for drawing
+	 */
+	protected void renderHud(Renderer r){
+	}
 	
 	/**
 	 * The function used to determine if each the main OpenGL loop should draw a frame
@@ -589,6 +670,7 @@ public abstract class GameWindow{
 	/** @param stretchToFill See {@link #stretchToFill} */
 	public void setStretchToFill(boolean stretchToFill){
 		this.stretchToFill = stretchToFill;
+		this.updateInternalValues();
 	}
 	
 	/** @return See {@link #width} */
@@ -596,10 +678,16 @@ public abstract class GameWindow{
 		return this.width;
 	}
 	
+	/** @return See {@link #inverseWidth} */
+	public double getInverseWidth(){
+		return this.inverseWidth;
+	}
+	
 	/** Set the current width and update {@link #windowRatio} */
 	private void setWidth(int width){
 		this.width = width;
-		this.updateRatio();
+		this.inverseWidth = 1.0 / this.width;
+		this.updateInternalValues();
 	}
 	
 	/** @return See {@link #height} */
@@ -607,10 +695,16 @@ public abstract class GameWindow{
 		return this.height;
 	}
 	
+	/** @return See {@link #inverseHeight} */
+	public double getInverseHeight(){
+		return this.inverseHeight;
+	}
+	
 	/** Set the current height and update {@link #windowRatio} */
 	private void setHeight(int height){
 		this.height = height;
-		this.updateRatio();
+		this.inverseHeight = 1.0 / this.height;
+		this.updateInternalValues();
 	}
 	
 	/** @return The width, in pixels, of the internal buffer */
@@ -623,14 +717,256 @@ public abstract class GameWindow{
 		return this.renderer.getHeight();
 	}
 	
-	/** Update the value of {@link #windowRatio} based on the current values of {@link #width} and {@link #height} */
-	private void updateRatio(){
+	/**
+	 * Update the value of {@link #windowRatio} based on the current values of {@link #width} and {@link #height}
+	 */
+	private void updateRatios(){
 		this.windowRatio = (double)this.getWidth() / this.getHeight();
+	}
+	
+	/**
+	 * Update the value of {@link #windowRatio} based on the current values of {@link #width} and {@link #height}
+	 * Additionally, update the values of {@link #viewportX}, {@link #viewportY}, {@link #viewportW}, {@link #viewportH}
+	 */
+	private void updateInternalValues(){
+		this.updateRatios();
+		this.updateViewportValues();
 	}
 	
 	/** @return See {@link #windowRatio} */
 	public double getWindowRatio(){
 		return this.windowRatio;
+	}
+	
+	/** @return See {@link #viewportX} */
+	public int viewportX(){
+		return this.viewportX;
+	}
+	
+	/** @return See {@link #viewportY} */
+	public int viewportY(){
+		return this.viewportY;
+	}
+	
+	/** @return See {@link #viewportW} */
+	public int viewportW(){
+		return this.viewportW;
+	}
+	
+	/** @return See {@link #viewportH} */
+	public int viewportH(){
+		return this.viewportH;
+	}
+	
+	/** @return See {@link #viewportWInverse} */
+	public double viewportWInverse(){
+		return this.viewportWInverse;
+	}
+	
+	/** @return See {@link #viewportHInverse} */
+	public double viewportHInverse(){
+		return this.viewportHInverse;
+	}
+	
+	/**
+	 * Update the stored state of the values to use for the viewport for drawing the contents of the screen via {@link #renderer}
+	 * This method does nothing if {@link #renderer} is not yet initialized
+	 */
+	private void updateViewportValues(){
+		// Cannot perform this action without renderer initialized
+		if(this.renderer == null) return;
+		
+		// sw and sh for screen width and height
+		int sw = this.getWidth();
+		int sh = this.getHeight();
+		
+		if(this.isStretchToFill()){
+			this.viewportX = 0;
+			this.viewportY = 0;
+			this.viewportW = sw;
+			this.viewportH = sh;
+		}
+		else{
+			// wRatio for the window aspect ratio and tRatio for this render's aspect ratio
+			double wRatio = this.getWindowRatio();
+			double tRatio = this.renderer.getRatioWH();
+			int w;
+			int h;
+			if(tRatio < wRatio){
+				h = sh;
+				w = (int)Math.round(h * tRatio);
+			}
+			else{
+				w = sw;
+				h = (int)Math.round(w * this.renderer.getRatioHW());
+			}
+			this.viewportX = (sw - w) >> 1;
+			this.viewportY = (sh - h) >> 1;
+			this.viewportW = w;
+			this.viewportH = h;
+		}
+		this.viewportWInverse = 1.0 / this.viewportW;
+		this.viewportHInverse = 1.0 / this.viewportH;
+	}
+	
+	/**
+	 * Convert an x coordinate value in window space, to a coordinate in screen space coordinates
+	 * 
+	 * @param x The value to convert
+	 * @return The value in screen coordinates
+	 */
+	public double windowToScreenX(double x){
+		return this.renderer.windowToScreenX(this, x);
+	}
+	
+	/**
+	 * Convert a y coordinate value in window space, to a coordinate in screen space coordinates
+	 * 
+	 * @param y The value to convert
+	 * @return The value in screen coordinates
+	 */
+	public double windowToScreenY(double y){
+		return this.renderer.windowToScreenY(this, y);
+	}
+	
+	/**
+	 * Convert an x coordinate value in screen space, to a coordinate in window space coordinates
+	 * 
+	 * @param x The value to convert
+	 * @return The value in window coordinates
+	 */
+	public double screenToWindowX(double x){
+		return this.renderer.screenToWindowX(this, x);
+	}
+	
+	/**
+	 * Convert a y coordinate value in screen space, to a coordinate in window space coordinates
+	 * 
+	 * @param y The value to convert
+	 * @return The value in window coordinates
+	 */
+	public double screenToWindowY(double y){
+		return this.renderer.screenToWindowY(this, y);
+	}
+	
+	/**
+	 * Convert an x coordinate value in screen space, to a coordinate in OpenGL coordinates
+	 * 
+	 * @param x The value to convert
+	 * @return The value in OpenGL coordinates
+	 */
+	public double screenToGlX(double x){
+		return this.renderer.screenToGlX(this, x);
+	}
+	
+	/**
+	 * Convert a y coordinate value in screen space, to a coordinate in OpenGL coordinates
+	 * 
+	 * @param y The value to convert
+	 * @return The value in OpenGL coordinates
+	 */
+	public double screenToGlY(double y){
+		return this.renderer.screenToGlY(this, y);
+	}
+	
+	/**
+	 * Convert an x coordinate value in OpenGL space, to a coordinate in screen coordinates
+	 * 
+	 * @param x The value to convert
+	 * @return The value in screen coordinates
+	 */
+	public double glToScreenX(double x){
+		return this.renderer.glToScreenX(this, x);
+	}
+	
+	/**
+	 * Convert a y coordinate value in OpenGL space, to a coordinate in screen coordinates
+	 * 
+	 * @param y The value to convert
+	 * @return The value in screen coordinates
+	 */
+	public double glToScreenY(double y){
+		return this.renderer.glToScreenY(this, y);
+	}
+	
+	/**
+	 * Convert a size on the x axis in window space, to one in screen space
+	 * 
+	 * @param x The value to convert
+	 * @return The converted size
+	 */
+	public double sizeWindowToScreenX(double x){
+		return this.renderer.sizeWindowToScreenX(this, x);
+	}
+	
+	/**
+	 * Convert a size on the y axis in window space, to one in screen space
+	 * 
+	 * @param y The value to convert
+	 * @return The converted size
+	 */
+	public double sizeWindowToScreenY(double y){
+		return this.renderer.sizeWindowToScreenY(this, y);
+	}
+	
+	/**
+	 * Convert a size on the x axis in screen space, to one in window space
+	 * 
+	 * @param x The value to convert
+	 * @return The converted size
+	 */
+	public double sizeScreenToWindowX(double x){
+		return this.renderer.sizeScreenToWindowX(this, x);
+	}
+	
+	/**
+	 * Convert a size on the y axis in screen space, to one in window space
+	 * 
+	 * @param y The value to convert
+	 * @return The converted size
+	 */
+	public double sizeScreenToWindowY(double y){
+		return this.renderer.sizeScreenToWindowY(this, y);
+	}
+	
+	/**
+	 * Convert a size on the x axis in screen space, to one in OpenGL space
+	 * 
+	 * @param x The value to convert
+	 * @return The converted size
+	 */
+	public double sizeScreenToGlX(double x){
+		return this.renderer.sizeScreenToGlX(this, x);
+	}
+	
+	/**
+	 * Convert a size on the y axis in screen space, to one in OpenGL space
+	 * 
+	 * @param y The value to convert
+	 * @return The converted size
+	 */
+	public double sizeScreenToGlY(double y){
+		return this.renderer.sizeScreenToGlY(this, y);
+	}
+	
+	/**
+	 * Convert a size on the x axis in OpenGL space, to one in screen space
+	 * 
+	 * @param x The value to convert
+	 * @return The converted size
+	 */
+	public double sizeGglToScreenX(double x){
+		return this.renderer.sizeGlToScreenX(this, x);
+	}
+	
+	/**
+	 * Convert a size on the y axis in OpenGL space, to one in screen space
+	 * 
+	 * @param y The value to convert
+	 * @return The converted size
+	 */
+	public double sizeGlToScreenY(double y){
+		return this.renderer.sizeGlToScreenY(this, y);
 	}
 	
 	/**
@@ -660,6 +996,11 @@ public abstract class GameWindow{
 		if(r != null) r.setWaitBetweenLoops(!this.usesVsync());
 	}
 	
+	/** @return See {@link #renderer} */
+	public Renderer getRenderer(){
+		return this.renderer;
+	}
+	
 	/** @return true if the fps should be printed once each second, false otherwise */
 	public boolean isPrintFps(){
 		return this.renderLooper.willPrintRate();
@@ -669,12 +1010,12 @@ public abstract class GameWindow{
 	public void setPrintFps(boolean print){
 		this.renderLooper.setPrintRate(print);
 	}
-
+	
 	/** @return The number of times each second that this GameWindow runs a game tick */
 	public int getTps(){
 		return this.tickLooper.getRate();
 	}
-
+	
 	/** @param See {@link #getTps()} */
 	public void setTps(int tps){
 		this.tickLooper.setRate(tps);
@@ -689,13 +1030,73 @@ public abstract class GameWindow{
 	public void setPrintTps(boolean print){
 		this.tickLooper.setPrintRate(print);
 	}
-
-	/** A simple helper class used by {@link #tickLooper} to run its loop on a separate thread */
-	private class TickLoopTask implements Runnable{
-		@Override
-		public void run(){
-			tickLooper.loop();
-		}
+	
+	/** @return See {@link #mouseInput} */
+	public ZMouseInput getMouseInput(){
+		return this.mouseInput;
+	}
+	
+	/** @return The current x coordinate of the mouse in screen coordinates. Should use for things that do not move with the camera */
+	public double mouseSX(){
+		return this.getMouseInput().x();
+	}
+	
+	/** @return The current y coordinate of the mouse in screen coordinates. Should use for things that do not move with the camera */
+	public double mouseSY(){
+		return this.getMouseInput().y();
+	}
+	
+	/** @return See {@link #camera} */
+	public GameCamera getCamera(){
+		return this.camera;
+	}
+	
+	/**
+	 * Zoom in the screen with {@link #camera} on just the x axis
+	 * The zoom will reposition the camera so that the given coordinates are zoomed towards
+	 * These cooridnates are screen coordinates
+	 * 
+	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
+	 * @param x The x coordinate to base the zoom
+	 */
+	public void zoomX(double zoom, double x){
+		this.getCamera().getX().zoom(zoom, x, this.getScreenWidth());
 	}
 
+	/**
+	 * Zoom in on just the y axis
+	 * The zoom will reposition the camera so that the given coordinates are zoomed towards
+	 * These cooridnates are screen coordinates
+	 * 
+	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
+	 * @param y The y coordinate to base the zoom
+	 */
+	public void zoomY(double zoom, double y){
+		this.getCamera().getY().zoom(zoom, y, this.getScreenHeight());
+	}
+
+	/**
+	 * Zoom in on both axes
+	 * The zoom will reposition the camera so that the given coordinates are zoomed towards
+	 * These cooridnates are screen coordinates
+	 * 
+	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
+	 * @param x The x coordinate to base the zoom
+	 * @param y The y coordinate to base the zoom
+	 */
+	public void zoom(double zoom, double x, double y){
+		this.zoomX(zoom, x);
+		this.zoomY(zoom, y);
+	}
+	
+	/** @return The current x coordinate of the mouse in game coordinates. Should use for things that move with the camera */
+	public double mouseGX(){
+		return this.getCamera().screenToGameX(this.mouseSX());
+	}
+	
+	/** @return The current y coordinate of the mouse in game coordinates. Should use for things that move with the camera */
+	public double mouseGY(){
+		return this.getCamera().screenToGameY(this.mouseSY());
+	}
+	
 }
