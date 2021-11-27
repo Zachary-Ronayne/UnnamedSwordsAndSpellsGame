@@ -1,6 +1,5 @@
 package zgame.input.mouse;
 
-import zgame.GameWindow;
 import zgame.input.ZButtonInputEvent;
 
 /**
@@ -20,14 +19,13 @@ public class ZMouseEvent extends ZButtonInputEvent{
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 * @param id See {@link #getId()}
-	 * @param window See {@link #getWindow()}
 	 * @param shiftDown See {@link #isShiftDown()}
 	 * @param altDown See {@link #isAltDown()}
 	 * @param ctrlDown See {@link #isCtrlDown()}
 	 * @param press See {@link #isPress()}
 	 */
-	public ZMouseEvent(double x, double y, int id, GameWindow window, boolean shiftDown, boolean altDown, boolean ctrlDown, boolean press){
-		super(id, window, shiftDown, altDown, ctrlDown, press);
+	public ZMouseEvent(double x, double y, int id, boolean shiftDown, boolean altDown, boolean ctrlDown, boolean press){
+		super(id, shiftDown, altDown, ctrlDown, press);
 		this.x = x;
 		this.y = y;
 	}

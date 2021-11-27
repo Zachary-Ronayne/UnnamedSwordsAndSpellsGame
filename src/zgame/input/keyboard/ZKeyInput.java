@@ -1,6 +1,6 @@
 package zgame.input.keyboard;
 
-import zgame.GameWindow;
+import zgame.Game;
 import zgame.input.ZButtonInput;
 
 public class ZKeyInput extends ZButtonInput<ZKeyEvent>{
@@ -14,10 +14,11 @@ public class ZKeyInput extends ZButtonInput<ZKeyEvent>{
 
 	/**
 	 * Create a default {@link ZKeyInput} object
-	 * @param window The window which uses this input object
+	 * 
+	 * @param game The game which uses this input object
 	 */
-	public ZKeyInput(GameWindow window){
-		super(window);
+	public ZKeyInput(Game game){
+		super(game);
 		this.shiftDown = false;
 		this.altDown = false;
 		this.ctrlDown = false;
@@ -78,7 +79,7 @@ public class ZKeyInput extends ZButtonInput<ZKeyEvent>{
 
 	@Override
 	public ZKeyEvent createEvent(int button, boolean shift, boolean alt, boolean ctrl, boolean press){
-		return new ZKeyEvent(button, this.getWindow(), shift, alt, ctrl, press);
+		return new ZKeyEvent(button, shift, alt, ctrl, press);
 	}
 	
 }

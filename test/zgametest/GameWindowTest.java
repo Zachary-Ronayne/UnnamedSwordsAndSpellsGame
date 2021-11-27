@@ -1,29 +1,32 @@
 package zgametest;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static zgametest.Tester.DELTA;
+//import static zgametest.Tester.DELTA;
 
 import org.junit.jupiter.api.*;
 
+import zgame.Game;
 import zgame.GameWindow;
 
 public class GameWindowTest{
 	
+	private static Game game;
 	private static GameWindow window;
 
-	private double coordinateValue;
+	//private double coordinateValue;
 
 	/** Run one time before all tests occur, use for initializtion of static values */
 	@BeforeAll
 	public static void init(){
-		window = new TestWindow();
+		game = new TestGame();
+		window = game.getWindow();
 	}
 	
 	/** Run one time before each test occurs, use for initializtion of values that must be the same before each test */
 	@BeforeEach
 	public void setup(){
 		window.setSize(400, 150);
-		coordinateValue = 5;
+		//coordinateValue = 5;
 	}
 	
 	@Test
@@ -131,6 +134,7 @@ public class GameWindowTest{
 		assertEquals(window.viewportH(), 100, "Checking viewport y with horizontal bars");
 	}
 
+	/*
 	@Test
 	public void testWindowToScreenX(){
 		assertEquals(coordinateValue, window.windowToScreenX(window.screenToWindowX(coordinateValue)), DELTA, "Checking function inverse returns the same value");
@@ -170,6 +174,7 @@ public class GameWindowTest{
 	public void testGlToScreenY(){
 		assertEquals(coordinateValue, window.glToScreenY(window.screenToGlY(coordinateValue)), DELTA, "Checking function inverse returns the same value");
 	}
+	*/
 	
 	@Test
 	public void testGetMaxFps(){

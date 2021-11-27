@@ -22,9 +22,6 @@ import java.awt.geom.Rectangle2D;
  */
 public class Renderer{
 	
-	/** The {@link GameWindow} associated with this Renderer */
-	private GameWindow window;
-	
 	/** The shader used to draw basic shapes, i.e. solid colors */
 	private ShaderProgram shapeShader;
 	/** The shader used to draw textures, i.e. images */
@@ -37,6 +34,9 @@ public class Renderer{
 	/** The buffer which this Renderer draws to, which later can be drawn to a window */
 	private GameBuffer screen;
 	
+	/** The Camera which determines the relative location and scale of objects drawn in this renderer */
+	private GameCamera camera;
+
 	/**
 	 * true if objects which would be rendered outside of the bounds of {@link #screen} should not be drawn, false otherwise.
 	 * If this value is false, then all objects will be rendered, even if they would never be visibile, which could cause performance issues
@@ -52,8 +52,8 @@ public class Renderer{
 	 * @param width The width, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
-	public Renderer(GameWindow window, int width, int height){
-		this.window = window;
+	public Renderer(int width, int height){
+		this.camera = null;
 		this.setRenderOnlyInside(true);
 		this.setCameraMode(true);
 		this.resize(width, height);
@@ -219,13 +219,15 @@ public class Renderer{
 	 * @param y The upper left hand corner y coordiate of the object, in game coordinates
 	 * @param w The width of the object, in game coordinates
 	 * @param h The height of the object, in game coordinates
-	 * @return true if the bounds should be drawn, false otherwise
+	 * @return true if the bounds should be drawn, false otherwise. Will also return true if the current camera of this Renderer is null, and camera mode is on
 	 */
 	public boolean shouldDraw(double x, double y, double w, double h){
 		if(!this.isRenderOnlyInside()) return true;
-		GameCamera cam = this.getWindow().getCamera();
 		Rectangle2D.Double r = new Rectangle2D.Double(0, 0, this.getWidth(), this.getHeight());
-		if(this.isCameraMode()) return r.intersects(cam.boundsGameToScreen(x, y, w, h));
+		if(this.isCameraMode()){
+			if(this.camera == null) return true;
+			else return r.intersects(this.camera.boundsGameToScreen(x, y, w, h));
+		}
 		else return r.intersects(x, y, w, h);
 	}
 	
@@ -261,10 +263,10 @@ public class Renderer{
 	public void setColor(double r, double g, double b, double a){
 		glColor4d(r, g, b, a);
 	}
-	
-	/** @return See {@link #window} */
-	public GameWindow getWindow(){
-		return this.window;
+
+	/** @param camera See {@link #camera} */
+	public void setCamera(GameCamera camera){
+		this.camera = camera;
 	}
 	
 	/** @return See {@link #renderOnlyInside} */

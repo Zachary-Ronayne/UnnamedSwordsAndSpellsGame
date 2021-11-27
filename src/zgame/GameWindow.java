@@ -8,9 +8,7 @@ import static org.lwjgl.opengl.GL30.*;
 
 import zgame.graphics.DisplayList;
 import zgame.graphics.Renderer;
-import zgame.graphics.camera.GameCamera;
-import zgame.input.keyboard.ZKeyInput;
-import zgame.input.mouse.ZMouseInput;
+import zgame.utils.OnOffState;
 import zgame.utils.ZConfig;
 import zgame.utils.ZStringUtils;
 
@@ -27,11 +25,10 @@ import java.awt.Point;
  * A class that handles one central window created by glfw.
  * This includes an option to move to full screen
  */
-public abstract class GameWindow{
+public class GameWindow{
 	
-	// TODO reorganize code relating to GameWindow, Renderer, and Camera to properly separate rendering from the window
-	
-	// TODO implement sound
+	/** The {@link Game} which uses this {@link GameWindow} */
+	private Game game;
 	
 	/** The title displayed on the window */
 	private String windowTitle;
@@ -44,39 +41,17 @@ public abstract class GameWindow{
 	private boolean inFullScreen;
 	/** Determines if on the next OpenGL loop, the screen should update if it is or is not in full screen */
 	private OnOffState updateFullscreen;
-	/** The position of the monitor before moving to full screen */
+	/** The position of the window before moving to full screen */
 	private Point oldPosition;
 	
-	/** A simple enum for tracking if something needs to be updated to on or off */
-	private enum OnOffState{
-		/** Turn the action on */
-		ENTER,
-		/** Turn the action off */
-		EXIT,
-		/** Do not change the action */
-		NOTHING;
-		
-		/** @return true if this state wants to make an update, false otherwise */
-		public boolean shouldUpdate(){
-			return this != NOTHING;
-		}
-		
-		/** @return true if the state says to turn on, false otherwise */
-		public boolean willEnter(){
-			return this == ENTER;
-		}
-		
-		/**
-		 * Get the state corrsponding to a boolean value
-		 * 
-		 * @param enter ture to get the state for turning on, false for turning off
-		 * @return {@link #ENTER} or {@link #EXIT} depending on enter
-		 */
-		public static OnOffState state(boolean enter){
-			return enter ? ENTER : EXIT;
-		}
-	}
+	/** true to use vsync, i.e. lock the framerate to the refreshrate of the monitor, false otherwise */
+	private boolean useVsync;
+	/** Determines if on the next OpenGL loop, vsync should update */
+	private OnOffState updateVsync;
 	
+	/** The renderer used by this {@link GameWindow} to draw to a buffer which can later be drawn to the window */
+	private Renderer renderer;
+
 	/**
 	 * true if, when drawing the final Renderer image to the screen, the image should stretch to fill up the entire screen,
 	 * false to draw the image in the center of the screen leave black bars in areas that the image doesn't fill up
@@ -107,74 +82,45 @@ public abstract class GameWindow{
 	/** The inverse of {@link #viewportH} */
 	private double viewportHInverse;
 	
-	/** The looper to run the main OpenGL loop */
-	private GameLooper renderLooper;
-	/** true to use vsync, i.e. lock the framerate to the refreshrate of the monitor, false otherwise */
-	private boolean useVsync;
-	/** Determines if on the next OpenGL loop, vsync should update */
-	private OnOffState updateVsync;
-	/** The renderer used by this GameWindow to draw to the screen */
-	private Renderer renderer;
-	/** The Camera which determines the relative location and scale of objects drawn in the game */
-	private GameCamera camera;
-	
-	/** The {@link GameLooper} which runs the regular time intervals */
-	private GameLooper tickLooper;
-	/** The {@link Thread} which runs the game tick loop. This is a separate thread from the main thread, which the OpenGL loop will run on */
-	private Thread tickThread;
-	/** The {@link Runnable} used by {@link #tickThread} to run its thread */
-	private TickLoopTask tickTask;
-	
-	/** A simple helper class used by {@link #tickLooper} to run its loop on a separate thread */
-	private class TickLoopTask implements Runnable{
-		@Override
-		public void run(){
-			tickLooper.loop();
-		}
-	}
-	
-	/** The object tracking mouse input events */
-	private ZMouseInput mouseInput;
-	
-	/** The object tracking keyboard input events */
-	private ZKeyInput keyInput;
-	
 	/**
 	 * Create an empty GameWindow. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
 	 * 
+	 * @param game See {@link #game}
 	 * @param title See {@link #windowTitle}
 	 */
-	public GameWindow(){
-		this("Game Window");
+	public GameWindow(Game game){
+		this(game, "Game Window");
 	}
 	
 	/**
 	 * Create a default GameWindow. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
 	 * 
+	 * @param game See {@link #game}
 	 * @param title See {@link #windowTitle}
 	 */
-	public GameWindow(String title){
-		this(title, 1280, 720, 200, true, false, false, true);
+	public GameWindow(Game game, String title){
+		this(game, title, 1280, 720, 200, true, false, true);
 	}
 	
 	/**
 	 * Create a GameWindow with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
 	 * 
+	 * @param game See {@link #game}
 	 * @param title See {@link #windowTitle}
 	 * @param winWidth See {@link #width}
 	 * @param winHeight See {@link #height}
 	 * @param maxFps See {@link #getMaxFps()}
 	 * @param useVsync See {@link #useVsync}
-	 * @param enterFullScreen True to immediately enter fullscreen
 	 * @param stretchToFill See {@link #stretchToFill}
 	 */
-	public GameWindow(String title, int winWidth, int winHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps){
-		this(title, winWidth, winHeight, winWidth, winHeight, maxFps, useVsync, enterFullScreen, stretchToFill, printFps, 60, true);
+	public GameWindow(Game game, String title, int winWidth, int winHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps){
+		this(game, title, winWidth, winHeight, winWidth, winHeight, maxFps, useVsync, stretchToFill, printFps, 60, true);
 	}
 	
 	/**
 	 * Create a GameWindow with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
 	 * 
+	 * @param game See {@link #game}
 	 * @param title See {@link #windowTitle}
 	 * @param winWidth See {@link #width}
 	 * @param winHeight See {@link #height}
@@ -182,11 +128,11 @@ public abstract class GameWindow{
 	 * @param screenHeight The height, in pixels, of the internal buffer to draw to
 	 * @param maxFps See {@link #getMaxFps()}
 	 * @param useVsync See {@link #useVsync}
-	 * @param enterFullScreen True to immediately enter fullscreen
 	 * @param stretchToFill See {@link #stretchToFill}
 	 */
-	public GameWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
+	public GameWindow(Game game, String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
 		// Init general values
+		this.game = game;
 		this.windowTitle = title;
 		this.width = 1;
 		this.height = 1;
@@ -213,16 +159,14 @@ public abstract class GameWindow{
 		this.windowID = glfwCreateWindow(this.getWidth(), this.getHeight(), this.windowTitle, NULL, NULL);
 		if(this.windowID == NULL) throw new RuntimeException("Failed to create the GLFW window");
 		
-		// Create input objects
-		this.mouseInput = new ZMouseInput(this);
-		this.keyInput = new ZKeyInput(this);
+		// Set up window context
+		glfwMakeContextCurrent(this.windowID);
 		
-		// Update fullscreen
-		this.setInFullScreenNow(false);
+		// Update screen width and height
+		this.updateScreenSize();
 		
-		// Set up vsync
-		this.updateVsync = OnOffState.NOTHING;
-		this.setUseVsyncNow(useVsync);
+		// Set up full screen
+		this.updateFullscreen = OnOffState.NOTHING;
 		
 		// This line is critical for LWJGL's interoperation with GLFW's
 		// OpenGL context, or any context that is managed externally.
@@ -235,153 +179,48 @@ public abstract class GameWindow{
 		GLUtil.setupDebugMessageCallback(System.err);
 		
 		// Init renderer
-		this.renderer = new Renderer(this, screenWidth, screenHeight);
+		this.renderer = new Renderer(screenWidth, screenHeight);
 		this.updateInternalValues();
+		
+		// Set up vsync
+		this.updateVsync = OnOffState.NOTHING;
+		this.setUseVsyncNow(useVsync);
 		
 		// Set up texture settings for drawing with an alpha channel
 		initTextureSettings();
 		
 		// Set up display lists
 		DisplayList.initLists();
-		
-		// Init fullscreen, this will also set up callbacks
-		this.updateFullscreen = OnOffState.NOTHING;
-		this.setInFullScreenNow(enterFullScreen);
-		
-		// Init camera
-		this.camera = new GameCamera();
-		
-		// Create the main loop
-		this.renderLooper = new GameLooper(maxFps, this::loopFunction, this::shouldRender, this::keepRenderLoopFunction, !this.useVsync, "FPS", printFps);
-		
-		// Create the tick loop
-		this.tickLooper = new GameLooper(tps, this::tickLoopFunction, this::shouldTick, this::keepTickLoopFunction, ZConfig.waitBetweenTicks(), "TPS", printTps);
 	}
 	
-	/**
-	 * Assign the current window all needed callbacks, i.e. input
-	 * 
-	 * @return true if the callbacks could be set, false if an error occured
-	 */
-	private boolean initCallBacks(){
-		long w = this.getCurrentWindowID();
-		if(w == NULL){
-			if(ZConfig.printErrors()) System.err.println("Error in GameWindow.initCallBacks, cannnot init callbacks if the current window is NULL");
-			return false;
+	/** Should call this method once per OpenGL loop */
+	public void update(){
+		// Update fullscreen status
+		if(this.updateFullscreen.shouldUpdate()){
+			this.setInFullScreenNow(this.updateFullscreen.willEnter());
+			this.updateFullscreen = OnOffState.NOTHING;
 		}
-		glfwSetKeyCallback(w, this::keyPress);
-		glfwSetCursorPosCallback(w, this::mouseMove);
-		glfwSetMouseButtonCallback(w, this::mousePress);
-		glfwSetScrollCallback(w, this::mouseWheelMove);
-		glfwSetWindowSizeCallback(w, this::windowSizeCallback);
-		return true;
-	}
-
-	/**
-	 * The method directly used as a callback method a key press
-	 * 
-	 * @param window The id of the GLFW window used
-	 * @param key The id of the key pressed
-	 * @param scanCode The system specific scancode of the key
-	 * @param action If the button was released, pressed, or held
-	 * @param mods The modifiers held during the key press, i.e. shift, alt, ctrl
-	 */
-	private void keyPress(long window, int key, int scanCode, int action, int mods){
-		this.keyPress(key, scanCode, action, mods);
-		this.getKeyInput().keyPress(key, scanCode, action, mods);
+		// Update vsync status
+		if(this.updateVsync.shouldUpdate()){
+			this.setUseVsyncNow(this.updateVsync.willEnter());
+			this.updateVsync = OnOffState.NOTHING;
+		}
 	}
 	
 	/**
-	 * Called when the window recieves a key press. Can overrite this method to perform actions directly when keys are pressed
-	 * 
-	 * @param key The id of the key pressed
-	 * @param scanCode The system specific scancode of the key
-	 * @param action If the button was released, pressed, or held
-	 * @param mods The modifiers held during the key press, i.e. shift, alt, ctrl
-	 */
-	protected void keyPress(int key, int scanCode, int action, int mods){
-	}
-	
-	/**
-	 * The method directly used as a callback method for a mouse button press
-	 * 
-	 * @param window The id of the GLFW window where the button was pressed
-	 * @param button The mouse button which was pressed
-	 * @param action The action of the button, i.e. up or down
-	 * @param mods The additional buttons pressed, i.e. shift, alt, ctrl
-	 */
-	private void mousePress(long window, int button, int action, int mods){
-		this.mousePress(button, action, mods);
-		this.getMouseInput().mousePress(button, action, mods);
-	}
-	
-	/**
-	 * Called when the window recieves a mouse button press. Can overrite this method to perform actions directly when mouse buttons are pressed
-	 * 
-	 * @param window The id of the GLFW window where the button was pressed
-	 * @param button The mouse button which was pressed
-	 * @param action The action of the button, i.e. up or down
-	 * @param mods The additional buttons pressed, i.e. shift, alt, ctrl
-	 */
-	protected void mousePress(int button, int action, int mods){
-	}
-	
-	/**
-	 * The method directly used as a callback method for a mouse movement
-	 * 
-	 * @param window The id of the GLFW window where the button was pressed
-	 * @param x The raw x pixel coordinate of the mouse on the GLFW window
-	 * @param y The raw y pixel coordinate of the mouse on the GLFW window
-	 */
-	private void mouseMove(long window, double x, double y){
-		this.mouseMove(x, y);
-		this.getMouseInput().mouseMove(x, y);
-	}
-	
-	/**
-	 * Called when the window recieves mouse movement. Can overrite this method to perform actions directly when the mouse is moved
-	 * 
-	 * @param x The raw x pixel coordinate of the mouse on the GLFW window
-	 * @param y The raw y pixel coordinate of the mouse on the GLFW window
-	 */
-	protected void mouseMove(double x, double y){
-	}
-
-	/**
-	 * The method directly used as a callback method for mouse wheel scrolling
-	 * 
-	 * @param window The id of the GLFW window where the button was pressed
-	 * @param x The amount the scroll wheel was moved on the x axis, unused
-	 * @param y The amount the scroll wheel was moved on the y axis, i.e. number of scrolls, 1 for scroll up, -1 for scroll down
-	 */
-	private void mouseWheelMove(long window, double x, double y){
-		this.mouseWheelMove(x, y);
-		this.getMouseInput().mouseWheelMove(x, y);
-	}
-	
-	/**
-	 * Called when the window recieves a mouse wheel movement. Can overrite this method to perform actions directly when the mouse wheel is moved
-	 * 
-	 * @param x The amount the scroll wheel was moved on the x axis, unused
-	 * @param y The amount the scroll wheel was moved on the y axis, i.e. number of scrolls, 1 for scroll up, -1 for scroll down
-	 */
-	protected void mouseWheelMove(double x, double y){
-	}
-	
-	/**
-	 * Called when the window size is changed
+	 * Called when the window size is changed from an event
 	 * 
 	 * @param window The window ID
 	 * @param w The new width
 	 * @param h The new height
 	 */
-	private void windowSizeCallback(long window, int w, int h){
+	public void windowSizeCallback(long window, int w, int h){
 		this.setWidth(w);
 		this.setHeight(h);
 	}
 	
 	/**
-	 * Update the size of the window, directly changing the window. Does nothing if the {@link GameWindow} is in full screen, only works on a windowed version. 
+	 * Update the size of the window, directly changing the window. Does nothing if the {@link GameWindow} is in full screen, only works on a windowed version.
 	 * This method directly updates the size, it should not be called outside the main OpenGL loop or initialization
 	 * 
 	 * @param w The new width, in pixels, not including any decorators such as the minimize button
@@ -402,34 +241,9 @@ public abstract class GameWindow{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 	
-	/**
-	 * Begin running the main OpenGL loop. When the loop ends, the cleanup method is automatically run. Do not manually call {@link #end()}, terminate the main loop instead
-	 * Calling this method will run the loop on the currently executing thread. This should only be the main Java thread, not an external thread.
-	 * In parallel to the main thread, a second thread will run, which runs the game tick loop
-	 */
-	public void start(){
-		// Run the tick loop on its own thread first
-		this.tickTask = new TickLoopTask();
-		this.tickThread = new Thread(this.tickTask);
-		this.tickThread.start();
-		
-		// Run the render loop in the main thread
-		this.renderLooper.loop();
-		
-		// End the program
-		this.end();
-	}
-	
-	/**
-	 * End the program, freeing all resources
-	 */
-	private void end(){
-		// End the loopers
-		this.renderLooper.end();
-		this.tickLooper.end();
-		
+	/** End the program, freeing all resources */
+	public void end(){
 		// Free memory / destory callbacks
-		this.renderer.destory();
 		long w = this.getWindowID();
 		glfwFreeCallbacks(w);
 		glfwDestroyWindow(w);
@@ -439,142 +253,9 @@ public abstract class GameWindow{
 			glfwDestroyWindow(f);
 		}
 		// Terminate GLFW and free the error callback
+		this.renderer.destory();
 		glfwTerminate();
 		glfwSetErrorCallback(null).free();
-	}
-	
-	/**
-	 * The function run by the rendering GameLooper as its main loop for OpenGL
-	 */
-	private void loopFunction(){
-		// Update fullscreen status
-		if(this.updateFullscreen.shouldUpdate()){
-			this.setInFullScreenNow(this.updateFullscreen.willEnter());
-			this.updateFullscreen = OnOffState.NOTHING;
-		}
-		// Update vsync status
-		if(this.updateVsync.shouldUpdate()){
-			this.setUseVsyncNow(this.updateVsync.willEnter());
-			this.updateVsync = OnOffState.NOTHING;
-		}
-		// Poll for window events. The key callback above will only be
-		// invoked during this call.
-		glfwPollEvents();
-		
-		// Clear the main framebuffer
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		// Clear the internal renderer
-		Renderer r = this.renderer;
-		r.clear();
-		
-		// Render objects on the renderer
-		
-		// Set up drawing to the buffer
-		glLoadIdentity();
-		glViewport(0, 0, this.getScreenWidth(), this.getScreenHeight());
-		
-		// Draw the background
-		r.setCameraMode(false);
-		this.renderBackground(r);
-		
-		// Draw the foreground, i.e. main objects
-		glPushMatrix();
-		r.setCameraMode(true);
-		r.drawToRenderer();
-		this.getCamera().transform(this);
-		render(r);
-		glPopMatrix();
-		
-		// Draw the hud
-		r.setCameraMode(false);
-		this.renderHud(r);
-		
-		// Draw the renderer to the window
-		r.drawToWindow(this);
-		glfwSwapBuffers(this.getCurrentWindowID());
-	}
-	
-	/**
-	 * Called once each time a frame is rendered to the screen, before the main render. Use this method to define what is drawn as a background, i.e. unaffected by the camera
-	 * Do not manually call this method
-	 * 
-	 * @param r The Renderer to use for drawing
-	 */
-	protected void renderBackground(Renderer r){
-	}
-	
-	/**
-	 * Called once each time a frame is rendered to the screen. Use this method to define what is drawn each frame.
-	 * Do not manually call this method.
-	 * All objects drawn with this method will be affected by the game camera
-	 * 
-	 * @param r The Renderer to use for drawing
-	 */
-	protected void render(Renderer r){
-	}
-	
-	/**
-	 * Called once each time a frame is rendered to the screen, after the main render. Use this method to define what is drawn on top of the scree, i.e. a hud, menu, etc
-	 * Do not manually call this method
-	 * 
-	 * @param r The Renderer to use for drawing
-	 */
-	protected void renderHud(Renderer r){
-	}
-	
-	/**
-	 * The function used to determine if each the main OpenGL loop should draw a frame
-	 * 
-	 * @return true if the next frame should be drawn regardless, false otherwise
-	 */
-	protected boolean shouldRender(){
-		return this.usesVsync();
-	}
-	
-	/**
-	 * The function used to determine if the main OpenGL loop should end
-	 * 
-	 * @return true if the loop should continue, false otherwise
-	 */
-	protected boolean keepRenderLoopFunction(){
-		long w = this.getCurrentWindowID();
-		return w == NULL || !glfwWindowShouldClose(w);
-	}
-	
-	/**
-	 * The function run by the tick GameLooper as its main loop
-	 */
-	private void tickLoopFunction(){
-		this.tick(this.tickLooper.getRateTime());
-	}
-	
-	/**
-	 * Called each time a tick occurs. A tick is a game update, i.e. some amount of time passing
-	 * 
-	 * @param dt The amount of time, in seconds, which passed in this tick
-	 */
-	protected void tick(double dt){
-	}
-	
-	/**
-	 * The function used to determine if each the tick loop should update each time regardless of time
-	 * 
-	 * @return Usually false, unless this method is overritten with different behavior
-	 */
-	protected boolean shouldTick(){
-		return false;
-	}
-	
-	/**
-	 * The function used to determine if the tick loop should end
-	 * 
-	 * @return Usually the same result as {@link #keepRenderLoopFunction()}, unless this method is overritten with different behavior
-	 */
-	protected boolean keepTickLoopFunction(){
-		return this.keepRenderLoopFunction();
 	}
 	
 	/**
@@ -625,11 +306,11 @@ public abstract class GameWindow{
 	}
 	
 	/**
-	 * This method instantly changes the fullscreen state, do not use when outside of the main OpenGL thread
+	 * This method instantly changes the fullscreen state, do not use when outside of the main OpenGL thread or initialization
 	 * 
 	 * @param inFullScreen See {@link #inFullScreen}
 	 */
-	private void setInFullScreenNow(boolean inFullScreen){
+	public void setInFullScreenNow(boolean inFullScreen){
 		this.inFullScreen = inFullScreen;
 		if(this.inFullScreen){
 			this.createFullScreenWindow();
@@ -661,17 +342,17 @@ public abstract class GameWindow{
 			glfwSetWindowPos(window, this.oldPosition.x, this.oldPosition.y);
 		}
 		// Ensure the current window has the callbacks
-		this.initCallBacks();
+		this.game.initCallBacks();
 		
 		// Update v-sync
-		this.setUseVsyncNow(this.usesVsync());
+		this.updateVsync();
 		
 		// Update screen width and height
 		this.updateScreenSize();
 		
 		// Make sure no buttons are pressed
-		this.getMouseInput().clear();
-		this.getKeyInput().clear();
+		this.game.getMouseInput().clear();
+		this.game.getKeyInput().clear();
 	}
 	
 	/**
@@ -781,6 +462,61 @@ public abstract class GameWindow{
 		this.setFullscreen(!this.inFullScreen);
 	}
 	
+	/** @return See {@link #useVsync} */
+	public boolean usesVsync(){
+		return this.useVsync;
+	}
+	
+	/**
+	 * On the next OpenGL loop, set whether or not to use vsync
+	 * 
+	 * @param useVsync See {@link #useVsync}
+	 */
+	public void setUseVsync(boolean useVsync){
+		this.updateVsync = OnOffState.state(useVsync);
+	}
+	
+	/**
+	 * This method instantly changes the vsync state using GLFW methods, do not call this outside of initialization or the OpenGL loop
+	 * 
+	 * @param useVsync See {@link #useVsync}
+	 */
+	private void setUseVsyncNow(boolean useVsync){
+		this.useVsync = useVsync;
+		if(this.usesVsync()) glfwSwapInterval(1);
+		else glfwSwapInterval(0);
+		// Use the opposite of usesVsync for waiting between loops. If Vsync is enabled, then there is no need to wait between loop iterations
+		GameLooper r = this.getGame().getRenderLooper();
+		if(r != null) r.setWaitBetweenLoops(!this.usesVsync());
+	}
+	
+	/**
+	 * Update the state of using vsync on this GameWindow, i.e. call the appropriate glfw methods to turn vsync on or off depending on the value of {@link #useVsync}
+	 */
+	private void updateVsync(){
+		this.setUseVsyncNow(this.usesVsync());
+	}
+	
+	/** @return See {@link #game} */
+	public Game getGame(){
+		return this.game;
+	}
+	
+	/** @return See {@link #renderer} */
+	public Renderer getRenderer(){
+		return this.renderer;
+	}
+	
+	/** @return The width, in pixels, of the internal buffer */
+	public int getScreenWidth(){
+		return this.renderer.getWidth();
+	}
+	
+	/** @return The height, in pixels, of the internal buffer */
+	public int getScreenHeight(){
+		return this.renderer.getHeight();
+	}
+
 	/** @return See {@link #stretchToFill} */
 	public boolean isStretchToFill(){
 		return this.stretchToFill;
@@ -824,16 +560,6 @@ public abstract class GameWindow{
 		this.height = height;
 		this.inverseHeight = 1.0 / this.height;
 		this.updateInternalValues();
-	}
-	
-	/** @return The width, in pixels, of the internal buffer */
-	public int getScreenWidth(){
-		return this.renderer.getWidth();
-	}
-	
-	/** @return The height, in pixels, of the internal buffer */
-	public int getScreenHeight(){
-		return this.renderer.getHeight();
 	}
 	
 	/**
@@ -889,9 +615,10 @@ public abstract class GameWindow{
 	
 	/**
 	 * Update the stored state of the values to use for the viewport for drawing the contents of the screen via {@link #renderer}
-	 * This method does nothing if {@link #renderer} is not yet initialized
+	 * This method does nothing the given renderer is not yet initialized
 	 */
-	private void updateViewportValues(){
+	public void updateViewportValues(){
+		
 		// Cannot perform this action without renderer initialized
 		if(this.renderer == null) return;
 		
@@ -906,7 +633,7 @@ public abstract class GameWindow{
 			this.viewportH = sh;
 		}
 		else{
-			// wRatio for the window aspect ratio and tRatio for this render's aspect ratio
+			// wRatio for the window aspect ratio and tRatio for the render's aspect ratio
 			double wRatio = this.getWindowRatio();
 			double tRatio = this.renderer.getRatioWH();
 			int w;
@@ -1086,154 +813,6 @@ public abstract class GameWindow{
 	 */
 	public double sizeGlToScreenY(double y){
 		return this.renderer.sizeGlToScreenY(this, y);
-	}
-	
-	/**
-	 * @return The maximum number of frames to render per second. Use 0 for unlimited framerate. This value does nothing if {@link #useVsync} is true
-	 */
-	public int getMaxFps(){
-		return this.renderLooper.getRate();
-	}
-	
-	/** @param maxFps See {@link #getMaxFps()} */
-	public void setMaxFps(int maxFps){
-		this.renderLooper.setRate(maxFps);
-	}
-	
-	/** @return See {@link #useVsync} */
-	public boolean usesVsync(){
-		return this.useVsync;
-	}
-	
-	/**
-	 * On the next OpenGL loop, set whether or not to use vsync
-	 * 
-	 * @param useVsync See {@link #useVsync}
-	 */
-	public void setUseVsync(boolean useVsync){
-		this.updateVsync = OnOffState.state(useVsync);
-	}
-	
-	/**
-	 * This method instantly changes the vsync state using GLFW methods, do not call this outside of initialization or the OpenGL loop
-	 * 
-	 * @param useVsync See {@link #useVsync}
-	 */
-	private void setUseVsyncNow(boolean useVsync){
-		this.useVsync = useVsync;
-		if(this.usesVsync()) glfwSwapInterval(1);
-		else glfwSwapInterval(0);
-		// Use the opposite of usesVsync for waiting between loops. If Vsync is enabled, then there is no need to wait between loop iterations
-		GameLooper r = this.renderLooper;
-		if(r != null) r.setWaitBetweenLoops(!this.usesVsync());
-	}
-	
-	/** @return See {@link #renderer} */
-	public Renderer getRenderer(){
-		return this.renderer;
-	}
-	
-	/** @return true if the fps should be printed once each second, false otherwise */
-	public boolean isPrintFps(){
-		return this.renderLooper.willPrintRate();
-	}
-	
-	/** @param print See {@link #isPrintFps()} */
-	public void setPrintFps(boolean print){
-		this.renderLooper.setPrintRate(print);
-	}
-	
-	/** @return The number of times each second that this GameWindow runs a game tick */
-	public int getTps(){
-		return this.tickLooper.getRate();
-	}
-	
-	/** @param See {@link #getTps()} */
-	public void setTps(int tps){
-		this.tickLooper.setRate(tps);
-	}
-	
-	/** @return true if the tps should be printed once each second, false otherwise */
-	public boolean isPrintTps(){
-		return this.tickLooper.willPrintRate();
-	}
-	
-	/** @param print See {@link #isPrintTps()} */
-	public void setPrintTps(boolean print){
-		this.tickLooper.setPrintRate(print);
-	}
-	
-	/** @return See {@link #mouseInput} */
-	public ZMouseInput getMouseInput(){
-		return this.mouseInput;
-	}
-	
-	/** @return The current x coordinate of the mouse in screen coordinates. Should use for things that do not move with the camera */
-	public double mouseSX(){
-		return this.getMouseInput().x();
-	}
-	
-	/** @return The current y coordinate of the mouse in screen coordinates. Should use for things that do not move with the camera */
-	public double mouseSY(){
-		return this.getMouseInput().y();
-	}
-	
-	/** @return See {@link #keyInput} */
-	public ZKeyInput getKeyInput(){
-		return this.keyInput;
-	}
-	
-	/** @return See {@link #camera} */
-	public GameCamera getCamera(){
-		return this.camera;
-	}
-	
-	/**
-	 * Zoom in the screen with {@link #camera} on just the x axis
-	 * The zoom will reposition the camera so that the given coordinates are zoomed towards
-	 * These cooridnates are screen coordinates
-	 * 
-	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
-	 * @param x The x coordinate to base the zoom
-	 */
-	public void zoomX(double zoom, double x){
-		this.getCamera().getX().zoom(zoom, x, this.getScreenWidth());
-	}
-	
-	/**
-	 * Zoom in on just the y axis
-	 * The zoom will reposition the camera so that the given coordinates are zoomed towards
-	 * These cooridnates are screen coordinates
-	 * 
-	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
-	 * @param y The y coordinate to base the zoom
-	 */
-	public void zoomY(double zoom, double y){
-		this.getCamera().getY().zoom(zoom, y, this.getScreenHeight());
-	}
-	
-	/**
-	 * Zoom in on both axes
-	 * The zoom will reposition the camera so that the given coordinates are zoomed towards
-	 * These cooridnates are screen coordinates
-	 * 
-	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
-	 * @param x The x coordinate to base the zoom
-	 * @param y The y coordinate to base the zoom
-	 */
-	public void zoom(double zoom, double x, double y){
-		this.zoomX(zoom, x);
-		this.zoomY(zoom, y);
-	}
-	
-	/** @return The current x coordinate of the mouse in game coordinates. Should use for things that move with the camera */
-	public double mouseGX(){
-		return this.getCamera().screenToGameX(this.mouseSX());
-	}
-	
-	/** @return The current y coordinate of the mouse in game coordinates. Should use for things that move with the camera */
-	public double mouseGY(){
-		return this.getCamera().screenToGameY(this.mouseSY());
 	}
 	
 }

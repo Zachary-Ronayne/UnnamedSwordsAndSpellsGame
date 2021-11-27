@@ -5,12 +5,14 @@ import static zgametest.Tester.DELTA;
 
 import org.junit.jupiter.api.*;
 
+import zgame.Game;
 import zgame.GameWindow;
 import zgame.graphics.Renderer;
-import zgametest.TestWindow;
+import zgametest.TestGame;
 
 public class RendererTest{
 	
+	private static Game game;
 	private static GameWindow window;
 	private static Renderer renderer;
 	
@@ -19,8 +21,8 @@ public class RendererTest{
 	/** Run one time before all tests occur, use for initializtion of static values */
 	@BeforeAll
 	public static void init(){
-		window = new TestWindow();
-		renderer = window.getRenderer();
+		game = new TestGame();
+		renderer = game.getWindow().getRenderer();
 	}
 	
 	/** Run one time before each test occurs, use for initializtion of values that must be the same before each test */

@@ -3,7 +3,7 @@ package zgame.input;
 import java.util.HashMap;
 import java.util.Map;
 
-import zgame.GameWindow;
+import zgame.Game;
 import zgame.input.mouse.ZMouseEvent;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -15,15 +15,15 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	
-	/** The {@link GameWindow} using this {@link ZButtonInput} */
-	private GameWindow window;
+	/** The {@link Game} using this {@link ZButtonInput} */
+	private Game game;
 
 	/** The {@link Map} storing the state of every button and its associated actions */
 	private Map<Integer, B> buttonsDown;
 	
 	/** Create a simple {@link ZButtonInput} and initialize every value */
-	public ZButtonInput(GameWindow window){
-		this.window = window;
+	public ZButtonInput(Game game){
+		this.game = game;
 		this.buttonsDown = new HashMap<Integer, B>();
 	}
 
@@ -59,9 +59,9 @@ public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	 */
 	public abstract B createEvent(int button, boolean shift, boolean alt, boolean ctrl, boolean press);
 	
-	/** @return See {@link #window} */
-	public GameWindow getWindow(){
-		return this.window;
+	/** @return See {@link #game} */
+	public Game getGame(){
+		return this.game;
 	}
 	
 	/**

@@ -43,9 +43,9 @@ public class GameCamera{
 	}
 	
 	/**
-	 * Apply OpenGL transformations to position objects to where the camera should be, based on the given window
+	 * Apply OpenGL transformations to position objects to where the camera should be, based on the given {@link GameWindow}
 	 * 
-	 * @param window The window
+	 * @param window The {@link window}
 	 */
 	public void transform(GameWindow window){
 		// Find the distance the camera must travel, in OpenGL coordinates

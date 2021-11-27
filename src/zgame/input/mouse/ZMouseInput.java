@@ -1,5 +1,6 @@
 package zgame.input.mouse;
 
+import zgame.Game;
 import zgame.GameWindow;
 import zgame.input.ZButtonInput;
 
@@ -28,9 +29,12 @@ public class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	/** The amount of distance the scrollwheel has moved since this value was last used */
 	private double scrollAmount;
 	
-	/** Create a simple {@link ZMouseInput} and initialize every value */
-	public ZMouseInput(GameWindow window){
-		super(window);
+	/** Create a simple {@link ZMouseInput} and initialize every value
+	 * 
+	 * @param game the Game which uses this input object
+	 */
+	public ZMouseInput(Game game){
+		super(game);
 		this.currentX = 0;
 		this.currentY = 0;
 		this.lastX = 0;
@@ -42,7 +46,7 @@ public class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 
 	@Override
 	public ZMouseEvent createEvent(int button, boolean shift, boolean alt, boolean ctrl, boolean press){
-		return new ZMouseEvent(this.x(), this.y(), button, this.getWindow(), shift, alt, ctrl, press);
+		return new ZMouseEvent(this.x(), this.y(), button, shift, alt, ctrl, press);
 	}
 	
 	/**
@@ -65,8 +69,9 @@ public class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	public void mouseMove(double x, double y){
 		this.lastX = this.currentX;
 		this.lastY = this.currentY;
-		this.currentX = this.getWindow().windowToScreenX(x);
-		this.currentY = this.getWindow().windowToScreenY(y);
+		GameWindow w = this.getGame().getWindow();
+		this.currentX = w.windowToScreenX(x);
+		this.currentY = w.windowToScreenY(y);
 	}
 	
 	/**

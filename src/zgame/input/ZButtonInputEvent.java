@@ -1,7 +1,5 @@
 package zgame.input;
 
-import zgame.GameWindow;
-
 /**
  * A class which contains the basic universal information used by input devices
  */
@@ -12,9 +10,6 @@ public abstract class ZButtonInputEvent{
 	 * This could be mouse buttons, keys on a keyboard, buttons on a video game controller, etc
 	 */
 	private int id;
-	
-	/** The {@link GameWindow} in which the event originated */
-	private GameWindow window;
 	
 	/** true if a shift key was held during this event, false otherwise */
 	private boolean shiftDown;
@@ -38,9 +33,8 @@ public abstract class ZButtonInputEvent{
 	 * @param ctrlDown See {@link #ctrlDown}
 	 * @param press See {@link #press}
 	 */
-	public ZButtonInputEvent(int id, GameWindow window, boolean shiftDown, boolean altDown, boolean ctrlDown, boolean press){
+	public ZButtonInputEvent(int id, boolean shiftDown, boolean altDown, boolean ctrlDown, boolean press){
 		this.id = id;
-		this.window = window;
 		this.shiftDown = shiftDown;
 		this.altDown = altDown;
 		this.ctrlDown = ctrlDown;
@@ -50,11 +44,6 @@ public abstract class ZButtonInputEvent{
 	/** @return See {@link #id} */
 	public int getId(){
 		return this.id;
-	}
-	
-	/** @return See {@link #window} */
-	public GameWindow getWindow(){
-		return this.window;
 	}
 	
 	/** @return See {@link #shiftDown} */

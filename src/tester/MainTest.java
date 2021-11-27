@@ -1,5 +1,6 @@
 package tester;
 
+import zgame.Game;
 import zgame.GameWindow;
 import zgame.graphics.GameImage;
 import zgame.graphics.Renderer;
@@ -31,9 +32,10 @@ import java.awt.Rectangle;
  * shift + z = change green of flickering red square
  * shift + x = change blue of flickering red square
  */
-public class MainTest extends GameWindow{
+public class MainTest extends Game{
 	
-	public static MainTest window;
+	public static Game game;
+	public static GameWindow window;
 	
 	public static double camSpeed = 400;
 	public static double camZoom = 2;
@@ -67,11 +69,12 @@ public class MainTest extends GameWindow{
 	}
 	
 	public static void main(String[] args){
-		window = new MainTest();
+		game = new MainTest();
+		window = game.getWindow();
 		playerImage = GameImage.create("player.png");
 		window.center();
 		reset();
-		window.start();
+		game.start();
 		
 		playerImage.delete();
 	}
@@ -80,12 +83,12 @@ public class MainTest extends GameWindow{
 		playerX = 200;
 		playerY = 500;
 		changeRect = new Rectangle(600, 20, 200, 200);
-		window.getCamera().reset();
+		game.getCamera().reset();
 	}
 
 	@Override
 	protected void keyPress(int key, int scanCode, int action, int mods){
-		ZKeyInput keys = window.getKeyInput();
+		ZKeyInput keys = game.getKeyInput();
 		if(keys.shift()){
 			if(key == GLFW_KEY_Z) green = (green + 0.05) % 1;
 			if(key == GLFW_KEY_X) blue = (blue + 0.05) % 1;
@@ -94,7 +97,7 @@ public class MainTest extends GameWindow{
 	
 	@Override
 	protected void mousePress(int button, int action, int mods){
-		ZKeyInput keys = window.getKeyInput();
+		ZKeyInput keys = game.getKeyInput();
 		if(keys.shift() && keys.alt() && keys.ctrl() && action == 0){
 			changeR = Math.random();
 			changeG = Math.random();
@@ -104,8 +107,8 @@ public class MainTest extends GameWindow{
 
 	@Override
 	protected void mouseMove(double x, double y){
-		ZKeyInput keys = window.getKeyInput();
-		ZMouseInput mouse = window.getMouseInput();
+		ZKeyInput keys = game.getKeyInput();
+		ZMouseInput mouse = game.getMouseInput();
 		if(keys.shift() && mouse.middleDown()){
 			changeRect.x += (int)(window.windowToScreenX(x) - mouse.lastX());
 			changeRect.y += (int)(window.windowToScreenY(y) - mouse.lastY());
@@ -114,7 +117,7 @@ public class MainTest extends GameWindow{
 
 	@Override
 	protected void mouseWheelMove(double x, double y){
-		ZKeyInput keys = window.getKeyInput();
+		ZKeyInput keys = game.getKeyInput();
 		if(keys.shift()){
 			double size = changeRect.width * Math.pow(1.1, y);
 			changeRect.width = (int)size;
@@ -154,13 +157,13 @@ public class MainTest extends GameWindow{
 	@Override
 	protected void tick(double dt){
 		// Get values for updating things
-		ZMouseInput mouse = window.getMouseInput();
-		ZKeyInput keys = window.getKeyInput();
-		GameCamera cam = window.getCamera();
-		double msx = window.mouseSX();
-		double msy = window.mouseSY();
-		double mgx = window.mouseGX();
-		double mgy = window.mouseGY();
+		ZMouseInput mouse = game.getMouseInput();
+		ZKeyInput keys = game.getKeyInput();
+		GameCamera cam = game.getCamera();
+		double msx = game.mouseSX();
+		double msy = game.mouseSY();
+		double mgx = game.mouseGX();
+		double mgy = game.mouseGY();
 		
 		// Camera actions via keys
 		zoomOnlyX = keys.pressed(GLFW_KEY_MINUS);
@@ -198,8 +201,8 @@ public class MainTest extends GameWindow{
 		if(keys.released(GLFW_KEY_4)){
 			if(down[FOUR]){
 				down[FOUR] = false;
-				window.setPrintFps(!window.isPrintFps());
-				window.setPrintTps(!window.isPrintTps());
+				game.setPrintFps(!game.isPrintFps());
+				game.setPrintTps(!game.isPrintTps());
 			}
 		}
 		else down[FOUR] = true;
@@ -226,8 +229,8 @@ public class MainTest extends GameWindow{
 			boolean both = !zoomOnlyX && !zoomOnlyY;
 			boolean x = zoomOnlyX || both;
 			boolean y = zoomOnlyY || both;
-			if(x) window.zoomX(scroll * dt, msx);
-			if(y) window.zoomY(scroll * dt, msy);
+			if(x) game.zoomX(scroll * dt, msx);
+			if(y) game.zoomY(scroll * dt, msy);
 		}
 		// Change the color of a rectangle based on which moust buttons and modifier buttons are pressed
 		if(changeRect.contains(mgx, mgy)){
