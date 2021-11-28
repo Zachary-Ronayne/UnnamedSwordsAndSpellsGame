@@ -1,19 +1,16 @@
 package zgame.input.mouse;
 
-import zgame.Game;
-import zgame.GameWindow;
 import zgame.input.ZButtonInput;
-
-import static org.lwjgl.glfw.GLFW.*;
+import zgame.window.GameWindow;
 
 /**
- * A class that handles tracking mouse input for a {@link zgame.GameWindow}
- * Coordinates are tracked as (0, 0) being the upper lefthand corner of the rendered screen of the {@link zgame.GameWindow},
+ * A class that handles tracking mouse input for a {@link zgame.window.GameWindow}
+ * Coordinates are tracked as (0, 0) being the upper lefthand corner of the rendered screen of the {@link zgame.window.GameWindow},
  * then x represents the number of rendered pixels left of that corner,
  * and y represents the number of rendered pixels below that corner.
  * This means that coordinates do not necessarily exactly correspond to the pixels on the window
  */
-public class ZMouseInput extends ZButtonInput<ZMouseEvent>{
+public abstract class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	
 	/** The current x coordinate */
 	private double currentX;
@@ -29,12 +26,13 @@ public class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	/** The amount of distance the scrollwheel has moved since this value was last used */
 	private double scrollAmount;
 	
-	/** Create a simple {@link ZMouseInput} and initialize every value
+	/**
+	 * Create a simple {@link ZMouseInput} and initialize every value
 	 * 
-	 * @param game the Game which uses this input object
+	 * @param window The {@link GameWindow} which uses this input object
 	 */
-	public ZMouseInput(Game game){
-		super(game);
+	public ZMouseInput(GameWindow window){
+		super(window);
 		this.currentX = 0;
 		this.currentY = 0;
 		this.lastX = 0;
@@ -53,11 +51,13 @@ public class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	 * The method called when a mouse button is pressed
 	 * 
 	 * @param button The mouse button which was pressed
-	 * @param action The action of the button, i.e. up or down
-	 * @param mods The additional buttons pressed, i.e. shift, alt, ctrl
+	 * @param press true if the button was pressed, false for released
+	 * @param shift true if shift is pressed, false otherwise
+	 * @param alt true if alt is pressed, false otherwise
+	 * @param ctrl true if ctrl is pressed, false otherwise
 	 */
-	public void mousePress(int button, int action, int mods){
-		this.buttonPress(button, action, mods);
+	public void mouseAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		this.buttonAction(button, press, shift, alt, ctrl);
 	}
 	
 	/**
@@ -69,7 +69,7 @@ public class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	public void mouseMove(double x, double y){
 		this.lastX = this.currentX;
 		this.lastY = this.currentY;
-		GameWindow w = this.getGame().getWindow();
+		GameWindow w = this.getWindow();
 		this.currentX = w.windowToScreenX(x);
 		this.currentY = w.windowToScreenY(y);
 	}
@@ -77,12 +77,11 @@ public class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	/**
 	 * The method called when the mouse wheel scrolls
 	 * 
-	 * @param x The amount the scroll wheel was moved on the x axis, unused
-	 * @param y The amount the scroll wheel was moved on the y axis, i.e. number of scrolls, 1 for scroll up, -1 for scroll down
+	 * @param amount The amount the scroll wheel was moved
 	 */
-	public void mouseWheelMove(double x, double y){
-		this.scrollAmount += y;
-		this.lastScroll = y;
+	public void mouseWheelMove(double amount){
+		this.scrollAmount += amount;
+		this.lastScroll = amount;
 	}
 	
 	/** @return The current x position of the mouse, in screen coordinates */
@@ -128,18 +127,12 @@ public class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	}
 	
 	/** @return true if the left mouse button is down, false otherwise */
-	public boolean leftDown(){
-		return this.buttonDown(GLFW_MOUSE_BUTTON_LEFT);
-	}
+	public abstract boolean leftDown();
 	
 	/** @return true if the right mouse button is down, false otherwise */
-	public boolean rightDown(){
-		return this.buttonDown(GLFW_MOUSE_BUTTON_RIGHT);
-	}
+	public abstract boolean rightDown();
 	
 	/** @return true if the middle mouse button is down, false otherwise */
-	public boolean middleDown(){
-		return this.buttonDown(GLFW_MOUSE_BUTTON_MIDDLE);
-	}
+	public abstract boolean middleDown();
 	
 }

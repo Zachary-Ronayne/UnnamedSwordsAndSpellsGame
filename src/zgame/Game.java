@@ -2,27 +2,24 @@ package zgame;
 
 import static org.lwjgl.opengl.GL30.*;
 
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.system.MemoryUtil.*;
-
 import zgame.graphics.Renderer;
 import zgame.graphics.camera.GameCamera;
 import zgame.input.keyboard.ZKeyInput;
 import zgame.input.mouse.ZMouseInput;
 import zgame.utils.ZConfig;
+import zgame.window.GLFWWindow;
+import zgame.window.GameWindow;
 
 /**
  * The central class used to create a game. Create an extension of this class to begin making a game
  */
-public abstract class Game{
-	
+public class Game{
+
 	/*
-	 * TODO fix Game and GameWindow restructure
-	 * 
 	 * TODO implement sound
 	 */
 	
-	/** The {@link GameWindow} which is used by this {@link Game} as core interaction */
+	/** The {@link GLFWWindow} used by this {@link Game} as the core interaction */
 	private GameWindow window;
 	
 	/** The looper to run the main OpenGL loop */
@@ -46,22 +43,15 @@ public abstract class Game{
 		}
 	}
 	
-	/** The object tracking mouse input events */
-	private ZMouseInput mouseInput;
-	
-	/** The object tracking keyboard input events */
-	private ZKeyInput keyInput;
-	
 	/**
-	 * Create a {@link Game} with no special parameters
-	 * This also handles all of the setup for LWJGL, including OpenGL and OpenAL
+	 * Create a {@link Game} with no special parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
 	 */
 	public Game(){
 		this("Game");
 	}
 	
 	/**
-	 * Create a default {@link Game}. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
+	 * Create a {@link Game} with the given name. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
 	 * 
 	 * @param title The title of the game to be displayed on the window
 	 */
@@ -73,7 +63,7 @@ public abstract class Game{
 	 * Create a game with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
 	 * 
 	 * @param title The title of the game to be displayed on the window
-	 * @param winWidth See The current width of the window in pixels, this does not include decorators such as the minimize button
+	 * @param winWidth The current width of the window in pixels, this does not include decorators such as the minimize button
 	 * @param winHeight The current height of the window in pixels, this does not include decorators such as the minimize button
 	 * @param maxFps The maximum frames per second the game can draw, use 0 for unlimited FPS, does nothing if useVsync is true
 	 * @param useVsync true to lock the framerate to the display refresh rate, false otherwise
@@ -100,30 +90,29 @@ public abstract class Game{
 	 *        false to draw the image in the center of the screen leave black bars in areas that the image doesn't fill up
 	 */
 	public Game(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
-		this.window = new GameWindow(this, title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
-		
-		// Create input objects
-		this.mouseInput = new ZMouseInput(this);
-		this.keyInput = new ZKeyInput(this);
+		this.window = new GLFWWindow(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
 		
 		// Init camera
 		this.camera = new GameCamera();
 		
-		// setup callbacks
-		this.initCallBacks();
-
+		// Set up lambda calls for input
+		this.window.setKeyActionMethod(this::keyAction);
+		this.window.setMouseActionMethod(this::mouseAction);
+		this.window.setMouseMoveMethod(this::mouseMove);
+		this.window.setMouseWheelMoveMethod(this::mouseWheelMove);
+		
 		// Create the main loop
-		this.renderLooper = new GameLooper(maxFps, this::loopFunction, this::shouldRender, this::keepRenderLoopFunction, !this.window.usesVsync(), "FPS", printFps);
+		this.renderLooper = new GameLooper(maxFps, this::loopFunction, this::shouldRender, this::keepRenderLoopFunction, this::renderLoopWaitFunction, "FPS", printFps);
 		
 		// Create the tick loop
-		this.tickLooper = new GameLooper(tps, this::tickLoopFunction, this::shouldTick, this::keepTickLoopFunction, ZConfig.waitBetweenTicks(), "TPS", printTps);
-
+		this.tickLooper = new GameLooper(tps, this::tickLoopFunction, this::shouldTick, this::keepTickLoopFunction, this::tickLoopWaitFunction, "TPS", printTps);
+		
 		// Go to fullscreen if applicable
 		this.window.setInFullScreenNow(enterFullScreen);
 	}
 	
 	/**
-	 * Begin running the main OpenGL loop. When the loop ends, the cleanup method is automatically run. Do not manually call {@link #end()}, terminate the main loop instead
+	 * Begin running the main OpenGL loop. When the loop ends, the cleanup method is automatically run. Do not manually call {@link #end()}, terminate the main loop instead.
 	 * Calling this method will run the loop on the currently executing thread. This should only be the main Java thread, not an external thread.
 	 * In parallel to the main thread, a second thread will run, which runs the game tick loop
 	 */
@@ -153,126 +142,53 @@ public abstract class Game{
 	}
 	
 	/**
-	 * Assign the current window all needed callbacks, i.e. input. 
-	 * This is an expensive operation and should not be regularly called
-	 * 
-	 * @return true if the callbacks could be set, false if an error occured
-	 */
-	public boolean initCallBacks(){
-		long w = this.getWindow().getCurrentWindowID();
-		if(w == NULL){
-			if(ZConfig.printErrors()) System.err.println("Error in Game.initCallBacks, cannnot init callbacks if the current window is NULL");
-			return false;
-		}
-		glfwSetKeyCallback(w, this::keyPress);
-		glfwSetCursorPosCallback(w, this::mouseMove);
-		glfwSetMouseButtonCallback(w, this::mousePress);
-		glfwSetScrollCallback(w, this::mouseWheelMove);
-		glfwSetWindowSizeCallback(w, this.getWindow()::windowSizeCallback);
-		return true;
-	}
-	
-	/**
-	 * The method directly used as a callback method a key press
-	 * 
-	 * @param window The id of the GLFW window used
-	 * @param key The id of the key pressed
-	 * @param scanCode The system specific scancode of the key
-	 * @param action If the button was released, pressed, or held
-	 * @param mods The modifiers held during the key press, i.e. shift, alt, ctrl
-	 */
-	private void keyPress(long window, int key, int scanCode, int action, int mods){
-		this.keyPress(key, scanCode, action, mods);
-		this.getKeyInput().keyPress(key, scanCode, action, mods);
-	}
-	
-	/**
 	 * Called when the window recieves a key press. Can overrite this method to perform actions directly when keys are pressed
 	 * 
-	 * @param key The id of the key pressed
-	 * @param scanCode The system specific scancode of the key
-	 * @param action If the button was released, pressed, or held
-	 * @param mods The modifiers held during the key press, i.e. shift, alt, ctrl
+	 * @param key The id of the key
+	 * @param press true if the key was pressed, false for released
+	 * @param shift true if shift is pressed, false otherwise
+	 * @param alt true if alt is pressed, false otherwise
+	 * @param ctrl true if ctrl is pressed, false otherwise
 	 */
-	protected void keyPress(int key, int scanCode, int action, int mods){
-	}
-	
-	/**
-	 * The method directly used as a callback method for a mouse button press
-	 * 
-	 * @param window The id of the GLFW window where the button was pressed
-	 * @param button The mouse button which was pressed
-	 * @param action The action of the button, i.e. up or down
-	 * @param mods The additional buttons pressed, i.e. shift, alt, ctrl
-	 */
-	private void mousePress(long window, int button, int action, int mods){
-		this.mousePress(button, action, mods);
-		this.getMouseInput().mousePress(button, action, mods);
+	protected void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 	}
 	
 	/**
 	 * Called when the window recieves a mouse button press. Can overrite this method to perform actions directly when mouse buttons are pressed
 	 * 
-	 * @param window The id of the GLFW window where the button was pressed
-	 * @param button The mouse button which was pressed
-	 * @param action The action of the button, i.e. up or down
-	 * @param mods The additional buttons pressed, i.e. shift, alt, ctrl
+	 * @param button The ID of the mouse button
+	 * @param press true if the key was pressed, false for released
+	 * @param shift true if shift is pressed, false otherwise
+	 * @param alt true if alt is pressed, false otherwise
+	 * @param ctrl true if ctrl is pressed, false otherwise
 	 */
-	protected void mousePress(int button, int action, int mods){
-	}
-	
-	/**
-	 * The method directly used as a callback method for a mouse movement
-	 * 
-	 * @param window The id of the GLFW window where the button was pressed
-	 * @param x The raw x pixel coordinate of the mouse on the GLFW window
-	 * @param y The raw y pixel coordinate of the mouse on the GLFW window
-	 */
-	private void mouseMove(long window, double x, double y){
-		this.mouseMove(x, y);
-		this.getMouseInput().mouseMove(x, y);
+	protected void mouseAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 	}
 	
 	/**
 	 * Called when the window recieves mouse movement. Can overrite this method to perform actions directly when the mouse is moved
 	 * 
-	 * @param x The raw x pixel coordinate of the mouse on the GLFW window
-	 * @param y The raw y pixel coordinate of the mouse on the GLFW window
+	 * @param x The x coordinate in screen coordinates
+	 * @param y The y coordinate in screen coordinates
 	 */
 	protected void mouseMove(double x, double y){
 	}
 	
 	/**
-	 * The method directly used as a callback method for mouse wheel scrolling
-	 * 
-	 * @param window The id of the GLFW window where the button was pressed
-	 * @param x The amount the scroll wheel was moved on the x axis, unused
-	 * @param y The amount the scroll wheel was moved on the y axis, i.e. number of scrolls, 1 for scroll up, -1 for scroll down
-	 */
-	private void mouseWheelMove(long window, double x, double y){
-		this.mouseWheelMove(x, y);
-		this.getMouseInput().mouseWheelMove(x, y);
-	}
-	
-	/**
 	 * Called when the window recieves a mouse wheel movement. Can overrite this method to perform actions directly when the mouse wheel is moved
 	 * 
-	 * @param x The amount the scroll wheel was moved on the x axis, unused
-	 * @param y The amount the scroll wheel was moved on the y axis, i.e. number of scrolls, 1 for scroll up, -1 for scroll down
+	 * @param amount The amount the scroll wheel was moved
 	 */
-	protected void mouseWheelMove(double x, double y){
+	protected void mouseWheelMove(double amount){
 	}
 	
 	/**
-	 * The function run by the rendering GameLooper as its main loop for OpenGL
+	 * The function run by the rendering GameLooper as its main loop for OpenGL.
+	 * This handles calling all the appropriate rendering methods and associated window methods for the main loop
 	 */
 	private void loopFunction(){
 		// Update the window
-		this.getWindow().update();
-
-		// Poll for window events. The key callback above will only be
-		// invoked during this call.
-		glfwPollEvents();
+		this.getWindow().loopBegin();
 		
 		// Clear the main framebuffer
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -282,33 +198,34 @@ public abstract class Game{
 		// Clear the internal renderer
 		Renderer r = this.getWindow().getRenderer();
 		r.clear();
-		r.setCamera(this.getCamera());
 		
 		// Render objects on the renderer
-
+		
 		// Set up drawing to the buffer
 		glLoadIdentity();
 		glViewport(0, 0, this.getScreenWidth(), this.getScreenHeight());
 		
 		// Draw the background
-		r.setCameraMode(false);
+		r.setCamera(null);
 		this.renderBackground(r);
 		
 		// Draw the foreground, i.e. main objects
 		glPushMatrix();
-		r.setCameraMode(true);
+		r.setCamera(this.getCamera());
 		r.drawToRenderer();
 		this.getCamera().transform(this.getWindow());
 		render(r);
 		glPopMatrix();
 		
 		// Draw the hud
-		r.setCameraMode(false);
+		r.setCamera(null);
 		this.renderHud(r);
 		
 		// Draw the renderer to the window
 		r.drawToWindow(this.getWindow());
-		glfwSwapBuffers(this.getWindow().getCurrentWindowID());
+		
+		// Update the window
+		this.getWindow().loopEnd();
 	}
 	
 	/**
@@ -321,7 +238,7 @@ public abstract class Game{
 	}
 	
 	/**
-	 * Called once each time a frame is rendered to the screen. Use this method to define what is drawn each frame.
+	 * Called once each time a frame is rendered to the screen. Use this method to define what is drawn in the game each frame.
 	 * Do not manually call this method.
 	 * All objects drawn with this method will be affected by the game camera
 	 * 
@@ -331,7 +248,7 @@ public abstract class Game{
 	}
 	
 	/**
-	 * Called once each time a frame is rendered to the screen, after the main render. Use this method to define what is drawn on top of the scree, i.e. a hud, menu, etc
+	 * Called once each time a frame is rendered to the screen, after the main render. Use this method to define what is drawn on top of the screen, i.e. a hud, menu, etc
 	 * Do not manually call this method
 	 * 
 	 * @param r The Renderer to use for drawing
@@ -354,15 +271,23 @@ public abstract class Game{
 	 * @return true if the loop should continue, false otherwise
 	 */
 	protected boolean keepRenderLoopFunction(){
-		long w = this.getWindow().getCurrentWindowID();
-		return w == NULL || !glfwWindowShouldClose(w);
+		return this.getWindow().shouldClose();
+	}
+	
+	/**
+	 * The function used to determine if the main OpenGL loop should wait between rendering each frame
+	 * 
+	 * @return true if the loop should wait, false otherwise
+	 */
+	protected boolean renderLoopWaitFunction(){
+		return !this.getWindow().usesVsync();
 	}
 	
 	/**
 	 * The function run by the tick GameLooper as its main loop
 	 */
 	private void tickLoopFunction(){
-		this.tick(this.tickLooper.getRateTime());
+		this.tick(this.getTickLooper().getRateTime());
 	}
 	
 	/**
@@ -390,24 +315,33 @@ public abstract class Game{
 	protected boolean keepTickLoopFunction(){
 		return this.keepRenderLoopFunction();
 	}
-
+	
+	/**
+	 * The function used to determine if the main tick loop should wait between running each tick
+	 * 
+	 * @return true if the loop should wait, false otherwise
+	 */
+	protected boolean tickLoopWaitFunction(){
+		return ZConfig.waitBetweenTicks();
+	}
+	
 	/** @return See {@link #window} */
 	public GameWindow getWindow(){
 		return window;
 	}
-
+	
 	/**
-	 * @return The maximum number of frames to render per second. Use 0 for unlimited framerate. This value does nothing if {@link #useVsync} is true
+	 * @return The maximum number of frames to render per second. Use 0 for unlimited framerate. This value does nothing if vsync is turned on
 	 */
 	public int getMaxFps(){
-		return this.renderLooper.getRate();
+		return this.getRenderLooper().getRate();
 	}
 	
 	/** @param maxFps See {@link #getMaxFps()} */
 	public void setMaxFps(int maxFps){
 		this.renderLooper.setRate(maxFps);
 	}
-
+	
 	/** @return The width, in pixels, of the internal buffer */
 	public int getScreenWidth(){
 		return this.getWindow().getScreenWidth();
@@ -417,12 +351,12 @@ public abstract class Game{
 	public int getScreenHeight(){
 		return this.getWindow().getScreenHeight();
 	}
-
+	
 	/** @return See {@link #renderLooper} */
 	public GameLooper getRenderLooper(){
 		return this.renderLooper;
 	}
-
+	
 	/** @return See {@link #tickLooper} */
 	public GameLooper getTickLooper(){
 		return this.tickLooper;
@@ -430,7 +364,7 @@ public abstract class Game{
 	
 	/** @return true if the fps should be printed once each second, false otherwise */
 	public boolean isPrintFps(){
-		return this.renderLooper.willPrintRate();
+		return this.getRenderLooper().willPrintRate();
 	}
 	
 	/** @param print See {@link #isPrintFps()} */
@@ -458,24 +392,14 @@ public abstract class Game{
 		this.tickLooper.setPrintRate(print);
 	}
 	
-	/** @return See {@link #mouseInput} */
+	/** @return Get the object tracking mouse input for this {@link Game} */
 	public ZMouseInput getMouseInput(){
-		return this.mouseInput;
+		return this.getWindow().getMouseInput();
 	}
 	
-	/** @return The current x coordinate of the mouse in screen coordinates. Should use for things that do not move with the camera */
-	public double mouseSX(){
-		return this.getMouseInput().x();
-	}
-	
-	/** @return The current y coordinate of the mouse in screen coordinates. Should use for things that do not move with the camera */
-	public double mouseSY(){
-		return this.getMouseInput().y();
-	}
-	
-	/** @return See {@link #keyInput} */
+	/** @return Get the object tracking keyboard input for this {@link Game} */
 	public ZKeyInput getKeyInput(){
-		return this.keyInput;
+		return this.getWindow().getKeyInput();
 	}
 	
 	/** @return See {@link #camera} */
@@ -519,6 +443,16 @@ public abstract class Game{
 	public void zoom(double zoom, double x, double y){
 		this.zoomX(zoom, x);
 		this.zoomY(zoom, y);
+	}
+	
+	/** @return The current x coordinate of the mouse in screen coordinates. Should use for things that do not move with the camera */
+	public double mouseSX(){
+		return this.getMouseInput().x();
+	}
+	
+	/** @return The current y coordinate of the mouse in screen coordinates. Should use for things that do not move with the camera */
+	public double mouseSY(){
+		return this.getMouseInput().y();
 	}
 	
 	/** @return The current x coordinate of the mouse in game coordinates. Should use for things that move with the camera */

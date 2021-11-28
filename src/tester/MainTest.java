@@ -1,12 +1,12 @@
 package tester;
 
 import zgame.Game;
-import zgame.GameWindow;
 import zgame.graphics.GameImage;
 import zgame.graphics.Renderer;
 import zgame.graphics.camera.GameCamera;
 import zgame.input.keyboard.ZKeyInput;
 import zgame.input.mouse.ZMouseInput;
+import zgame.window.GameWindow;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -87,7 +87,7 @@ public class MainTest extends Game{
 	}
 
 	@Override
-	protected void keyPress(int key, int scanCode, int action, int mods){
+	protected void keyAction(int key, boolean press, boolean shift, boolean alt, boolean ctrl){
 		ZKeyInput keys = game.getKeyInput();
 		if(keys.shift()){
 			if(key == GLFW_KEY_Z) green = (green + 0.05) % 1;
@@ -96,9 +96,8 @@ public class MainTest extends Game{
 	}
 	
 	@Override
-	protected void mousePress(int button, int action, int mods){
-		ZKeyInput keys = game.getKeyInput();
-		if(keys.shift() && keys.alt() && keys.ctrl() && action == 0){
+	protected void mouseAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		if(shift && alt && ctrl && !press){
 			changeR = Math.random();
 			changeG = Math.random();
 			changeB = Math.random();
@@ -110,16 +109,16 @@ public class MainTest extends Game{
 		ZKeyInput keys = game.getKeyInput();
 		ZMouseInput mouse = game.getMouseInput();
 		if(keys.shift() && mouse.middleDown()){
-			changeRect.x += (int)(window.windowToScreenX(x) - mouse.lastX());
-			changeRect.y += (int)(window.windowToScreenY(y) - mouse.lastY());
+			changeRect.x += x - mouse.lastX();
+			changeRect.y += y - mouse.lastY();
 		}
 	}
 
 	@Override
-	protected void mouseWheelMove(double x, double y){
+	protected void mouseWheelMove(double amount){
 		ZKeyInput keys = game.getKeyInput();
 		if(keys.shift()){
-			double size = changeRect.width * Math.pow(1.1, y);
+			double size = changeRect.width * Math.pow(1.1, amount);
 			changeRect.width = (int)size;
 			changeRect.height = (int)size;
 		}

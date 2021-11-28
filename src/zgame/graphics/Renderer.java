@@ -2,8 +2,8 @@ package zgame.graphics;
 
 import static org.lwjgl.opengl.GL30.*;
 
-import zgame.GameWindow;
 import zgame.graphics.camera.GameCamera;
+import zgame.window.GameWindow;
 
 import java.awt.geom.Rectangle2D;
 
@@ -34,17 +34,14 @@ public class Renderer{
 	/** The buffer which this Renderer draws to, which later can be drawn to a window */
 	private GameBuffer screen;
 	
-	/** The Camera which determines the relative location and scale of objects drawn in this renderer */
+	/** The Camera which determines the relative location and scale of objects drawn in this renderer. If this is null, no transformations will be applied */
 	private GameCamera camera;
-
+	
 	/**
 	 * true if objects which would be rendered outside of the bounds of {@link #screen} should not be drawn, false otherwise.
 	 * If this value is false, then all objects will be rendered, even if they would never be visibile, which could cause performance issues
 	 */
 	private boolean renderOnlyInside;
-
-	/** true if objets should be rendered using the camera position, false if the camera should be ignored */
-	private boolean cameraMode;
 	
 	/**
 	 * Create a new empty renderer
@@ -55,7 +52,6 @@ public class Renderer{
 	public Renderer(int width, int height){
 		this.camera = null;
 		this.setRenderOnlyInside(true);
-		this.setCameraMode(true);
 		this.resize(width, height);
 		
 		// Load shaders
@@ -219,16 +215,13 @@ public class Renderer{
 	 * @param y The upper left hand corner y coordiate of the object, in game coordinates
 	 * @param w The width of the object, in game coordinates
 	 * @param h The height of the object, in game coordinates
-	 * @return true if the bounds should be drawn, false otherwise. Will also return true if the current camera of this Renderer is null, and camera mode is on
+	 * @return true if the bounds should be drawn, false otherwise
 	 */
 	public boolean shouldDraw(double x, double y, double w, double h){
 		if(!this.isRenderOnlyInside()) return true;
 		Rectangle2D.Double r = new Rectangle2D.Double(0, 0, this.getWidth(), this.getHeight());
-		if(this.isCameraMode()){
-			if(this.camera == null) return true;
-			else return r.intersects(this.camera.boundsGameToScreen(x, y, w, h));
-		}
-		else return r.intersects(x, y, w, h);
+		if(this.camera == null) return r.intersects(x, y, w, h);
+		else return r.intersects(this.camera.boundsGameToScreen(x, y, w, h));
 	}
 	
 	/** Fill the screen with the current color, regardless of camera position */
@@ -263,8 +256,8 @@ public class Renderer{
 	public void setColor(double r, double g, double b, double a){
 		glColor4d(r, g, b, a);
 	}
-
-	/** @param camera See {@link #camera} */
+	
+	/** @param camera See {@link #camera}. Can also use null to not use a camera for rendering */
 	public void setCamera(GameCamera camera){
 		this.camera = camera;
 	}
@@ -277,16 +270,6 @@ public class Renderer{
 	/** @param renderOnlyInside See {@link #renderOnlyInside} */
 	public void setRenderOnlyInside(boolean renderOnlyInside){
 		this.renderOnlyInside = renderOnlyInside;
-	}
-	
-	/** @return See {@link #cameraMode} */
-	public boolean isCameraMode(){
-		return this.cameraMode;
-	}
-	
-	/** @param cameraMode See {@link #cameraMode} */
-	public void setCameraMode(boolean cameraMode){
-		this.cameraMode = cameraMode;
 	}
 	
 	/** @return The width, in pixels, of the underlyng buffer of this Renderer */

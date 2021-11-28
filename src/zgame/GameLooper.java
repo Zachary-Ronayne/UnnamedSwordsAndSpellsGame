@@ -33,27 +33,28 @@ public class GameLooper{
 	private String name;
 	
 	/**
-	 * The function to call every time this loop runs. 
+	 * The function to call every time this loop runs.
 	 * Can set to null to automatically use a method that does nothing
 	 */
 	private EmptyFunc runFunc;
 	/**
-	 * An additional function that determines if {@link #runFunc} should run regardless of how much time has passed since the last loop. 
+	 * An additional function that determines if {@link #runFunc} should run regardless of how much time has passed since the last loop.
 	 * Can set to null to automatically use a method that always returns false
 	 */
 	private BooleanFunc shouldRunFunc;
 	/**
-	 * A function that checks if the loop should automatically end. If this function returns false, this loop will quit out on the next loop iteration. 
+	 * A function that checks if the loop should automatically end. If this function returns false, this loop will quit out on the next loop iteration.
 	 * Can set to null to automatically use a method that always returns true
-	*/
+	 */
 	private BooleanFunc keepRunningFunc;
 	
 	/**
-	 * true if this function should use the amount of time it takes to run each loop to call Thread.wait between calls of {@link #runFunc} to avoid wasting resources.
-	 * false otherwise.
+	 * A function which returns true if this function should use the amount of time it takes to run each loop to call Thread.wait between calls of {@link #runFunc}
+	 * to avoid wasting resources. It returns false otherwise.
 	 * This will do nothing if {@link #rate} is set to 0
+	 * Can set to null to automatically use a method that always returns false
 	 */
-	private boolean waitBetweenLoops;
+	private BooleanFunc waitBetweenLoopsFunc;
 	
 	/** true if this looper should end on the next iteration */
 	private boolean forceEnd;
@@ -65,11 +66,11 @@ public class GameLooper{
 	 * @param runFunc See {@link #runFunc}
 	 * @param shouldRunFunc See {@link #shouldRunFunc}
 	 * @param keepRunningFunc See {@link #keepRunningFunc}
-	 * @param waitBetweenLoops See {@link #waitBetweenLoops}
+	 * @param waitBetweenLoops See {@link #waitBetweenLoopsFunc}
 	 * @param name See {@link #name}
 	 * @param printRate See {@link #printRate}
 	 */
-	public GameLooper(int rate, EmptyFunc runFunc, BooleanFunc shouldRunFunc, BooleanFunc keepRunningFunc, boolean waitBetweenLoops, String name, boolean printRate){
+	public GameLooper(int rate, EmptyFunc runFunc, BooleanFunc shouldRunFunc, BooleanFunc keepRunningFunc, BooleanFunc waitBetweenLoops, String name, boolean printRate){
 		this.setRate(rate);
 		this.lastFunCall = 0;
 		this.funcCalls = 0;
@@ -79,7 +80,7 @@ public class GameLooper{
 		this.setRunFunc(runFunc);
 		this.setShouldRunFunc(shouldRunFunc);
 		this.setKeepRunningFunc(keepRunningFunc);
-		this.setWaitBetweenLoops(waitBetweenLoops);
+		this.setWaitBetweenLoopsFunc(waitBetweenLoops);
 		
 		this.forceEnd = false;
 	}
@@ -91,10 +92,10 @@ public class GameLooper{
 	 * @param runFunc See {@link #runFunc}
 	 * @param shouldRunFunc See {@link #shouldRunFunc}
 	 * @param keepRunningFunc See {@link #keepRunningFunc}
-	 * @param waitBetweenLoops See {@link #waitBetweenLoops}
+	 * @param waitBetweenLoopsFunc See {@link #waitBetweenLoopsFunc}
 	 */
 	public GameLooper(int rate, EmptyFunc runFunc, BooleanFunc shouldRunFunc, BooleanFunc keepRunningFunc){
-		this(rate, runFunc, shouldRunFunc, keepRunningFunc, false, "Looper Rate", false);
+		this(rate, runFunc, shouldRunFunc, keepRunningFunc, null, "Looper Rate", false);
 	}
 	
 	/** Begin the loop */
@@ -122,7 +123,7 @@ public class GameLooper{
 				lastTime = System.nanoTime();
 			}
 			// Wait between loops to avoid wasting resources
-			if(rate != 0 && this.willWaitBetweenLoops()){
+			if(rate != 0 && this.getWaitBetweenLoopsFunc().check()){
 				try{
 					Thread.sleep(Math.max(0, (long)((this.getRateTimeNano() - timeTaken) / 1E5)));
 				}catch(Exception e){
@@ -230,14 +231,15 @@ public class GameLooper{
 		this.keepRunningFunc = keepRunningFunc;
 	}
 	
-	/** @return See {@link #waitBetweenLoops} */
-	public boolean willWaitBetweenLoops(){
-		return this.waitBetweenLoops;
+	/** @return See {@link #waitBetweenLoopsFunc} */
+	public BooleanFunc getWaitBetweenLoopsFunc(){
+		return this.waitBetweenLoopsFunc;
 	}
 	
-	/** @param waitBetweenLoops See {@link #waitBetweenLoops} */
-	public void setWaitBetweenLoops(boolean waitBetweenLoops){
-		this.waitBetweenLoops = waitBetweenLoops;
+	/** @param waitBetweenLoopsFunc See {@link #waitBetweenLoopsFunc} */
+	public void setWaitBetweenLoopsFunc(BooleanFunc waitBetweenLoopsFunc){
+		if(waitBetweenLoopsFunc == null) waitBetweenLoopsFunc = () -> false;
+		this.waitBetweenLoopsFunc = waitBetweenLoopsFunc;
 	}
 	
 }

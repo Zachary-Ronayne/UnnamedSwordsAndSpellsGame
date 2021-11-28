@@ -9,7 +9,7 @@ public class ZConfig{
 	private static final boolean PRINT_SUCCESS = true;
 	
 	/**
-	 * true if, during the ticks of a {@link zgame.GameWindow}, the loop should wait between each loop iteration, false otherwise. 
+	 * true if, during the ticks of a {@link zgame.window.GameWindow}, the loop should wait between each loop iteration, false otherwise. 
 	 * This should generally decrease CPU load, but in the case where each tick takes longer than expected, it may be preferable that this value is set to false
 	 */
 	private static final boolean WAIT_BETWEEN_TICKS = true;

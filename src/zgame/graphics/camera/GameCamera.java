@@ -1,7 +1,7 @@
 package zgame.graphics.camera;
 
-import zgame.GameWindow;
 import zgame.graphics.Renderer;
+import zgame.window.GameWindow;
 
 import static org.lwjgl.opengl.GL30.*;
 

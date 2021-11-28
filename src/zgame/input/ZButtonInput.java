@@ -3,10 +3,8 @@ package zgame.input;
 import java.util.HashMap;
 import java.util.Map;
 
-import zgame.Game;
 import zgame.input.mouse.ZMouseEvent;
-
-import static org.lwjgl.glfw.GLFW.*;
+import zgame.window.GameWindow;
 
 /**
  * A class designed for input devices using GLFW which use buttons that can either be pressed or not pressed
@@ -15,15 +13,15 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	
-	/** The {@link Game} using this {@link ZButtonInput} */
-	private Game game;
+	/** The {@link GameWindow} using this {@link ZButtonInput} */
+	private GameWindow window;
 
 	/** The {@link Map} storing the state of every button and its associated actions */
 	private Map<Integer, B> buttonsDown;
 	
 	/** Create a simple {@link ZButtonInput} and initialize every value */
-	public ZButtonInput(Game game){
-		this.game = game;
+	public ZButtonInput(GameWindow window){
+		this.window = window;
 		this.buttonsDown = new HashMap<Integer, B>();
 	}
 
@@ -33,18 +31,16 @@ public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	}
 
 	/**
-	 * The method called by GLFW for a button press callback
+	 * The method called when a button has an action performed on it
 	 * 
-	 * @param window The id of the GLFW window where the button was pressed
 	 * @param button The mouse button which was pressed
-	 * @param action The action of the button, i.e. up or down
-	 * @param mods The additional buttons pressed, i.e. shift, alt, ctrl
+	 * @param press true if the button was pressed, false for released
+	 * @param shift true if shift is pressed, false otherwise
+	 * @param alt true if alt is pressed, false otherwise
+	 * @param ctrl true if ctrl is pressed, false otherwise
 	 */
-	public void buttonPress(int button, int action, int mods){
-		boolean shift = (mods & GLFW_MOD_SHIFT) != 0;
-		boolean alt = (mods & GLFW_MOD_ALT) != 0;
-		boolean ctrl = (mods & GLFW_MOD_CONTROL) != 0;
-		this.buttonsDown.put(button, this.createEvent(button, shift, alt, ctrl, action != GLFW_RELEASE));
+	public void buttonAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		this.buttonsDown.put(button, this.createEvent(button, shift, alt, ctrl, press));
 	}
 
 	/**
@@ -59,9 +55,9 @@ public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	 */
 	public abstract B createEvent(int button, boolean shift, boolean alt, boolean ctrl, boolean press);
 	
-	/** @return See {@link #game} */
-	public Game getGame(){
-		return this.game;
+	/** @return See {@link #window} */
+	public GameWindow getWindow(){
+		return this.window;
 	}
 	
 	/**
@@ -94,47 +90,6 @@ public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	 */
 	public boolean buttonUp(int button){
 		return !this.buttonDown(button);
-	}
-
-	/**
-	 * Determine if the given mods value from a GLFW function has the shift bit set
-	 * 
-	 * @param mods The value to check
-	 * @return true if the shift bit is set, false otherwise
-	 */
-	public static boolean isShift(int mods){
-		return bitSet(mods, GLFW_MOD_SHIFT);
-	}
-
-	/**
-	 * Determine if the given mods value from a GLFW function has the ctrl bit set
-	 * 
-	 * @param mods The value to check
-	 * @return true if the ctrl bit is set, false otherwise
-	 */
-	public static boolean isCtrl(int mods){
-		return bitSet(mods, GLFW_MOD_CONTROL);
-	}
-
-	/**
-	 * Determine if the given mods value from a GLFW function has the alt bit set
-	 * 
-	 * @param mods The value to check
-	 * @return true if the alt bit is set, false otherwise
-	 */
-	public static boolean isAlt(int mods){
-		return bitSet(mods, GLFW_MOD_ALT);
-	}
-
-	/**
-	 * Determine if the given mods value from a GLFW function has the given bit set
-	 * 
-	 * @param mods The value to check
-	 * @param bit The bit to check if it is set
-	 * @return true if the shift bit is set, false otherwise
-	 */
-	public static boolean bitSet(int mods, int bit){
-		return (mods & bit) != 0;
 	}
 
 }

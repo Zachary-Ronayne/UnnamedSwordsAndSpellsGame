@@ -1,9 +1,9 @@
 package zgame.input.keyboard;
 
-import zgame.Game;
 import zgame.input.ZButtonInput;
+import zgame.window.GameWindow;
 
-public class ZKeyInput extends ZButtonInput<ZKeyEvent>{
+public abstract class ZKeyInput extends ZButtonInput<ZKeyEvent>{
 
 	/** true if a shift key is down, false otherwise */
 	private boolean shiftDown;
@@ -15,31 +15,23 @@ public class ZKeyInput extends ZButtonInput<ZKeyEvent>{
 	/**
 	 * Create a default {@link ZKeyInput} object
 	 * 
-	 * @param game The game which uses this input object
+	 * @param window The {@link GameWindow} which uses this input object
 	 */
-	public ZKeyInput(Game game){
-		super(game);
+	public ZKeyInput(GameWindow window){
+		super(window);
 		this.shiftDown = false;
 		this.altDown = false;
 		this.ctrlDown = false;
 	}
-	
-	/**
-	 * The method called when a key is pressed
-	 * 
-	 * @param id The id of the GLFW window used
-	 * @param key The id of the key pressed
-	 * @param scanCode The system specific scancode of the key
-	 * @param action If the button was released, pressed, or held
-	 * @param mods The modifiers held during the key press, i.e. shift, alt, ctrl
-	 */
-	public void keyPress(int key, int scanCode, int action, int mods){
-		this.buttonPress(key, action, mods);
-		this.shiftDown = ZButtonInput.isShift(mods);
-		this.altDown = ZButtonInput.isAlt(mods);
-		this.ctrlDown = ZButtonInput.isCtrl(mods);
-	}
 
+	@Override
+	public void buttonAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.buttonAction(button, press, shift, alt, ctrl);
+		this.shiftDown = shift;
+		this.altDown = alt;
+		this.ctrlDown = ctrl;
+	}
+	
 	/**
 	 * Equivalent to calling {@link #buttonDown(int)}, renammed for clarity. 
 	 * Checks if a key is pressed

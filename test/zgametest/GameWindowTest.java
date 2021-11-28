@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 
 import zgame.Game;
-import zgame.GameWindow;
+import zgame.window.GameWindow;
 
 public class GameWindowTest{
 	

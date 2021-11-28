@@ -6,8 +6,8 @@ import static zgametest.Tester.DELTA;
 import org.junit.jupiter.api.*;
 
 import zgame.Game;
-import zgame.GameWindow;
 import zgame.graphics.Renderer;
+import zgame.window.GameWindow;
 import zgametest.TestGame;
 
 public class RendererTest{
