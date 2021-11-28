@@ -1,12 +1,12 @@
 package tester;
 
-import zgame.Game;
-import zgame.graphics.GameImage;
-import zgame.graphics.Renderer;
-import zgame.graphics.camera.GameCamera;
-import zgame.input.keyboard.ZKeyInput;
-import zgame.input.mouse.ZMouseInput;
-import zgame.window.GameWindow;
+import zgame.core.Game;
+import zgame.core.graphics.GameImage;
+import zgame.core.graphics.Renderer;
+import zgame.core.graphics.camera.GameCamera;
+import zgame.core.input.keyboard.ZKeyInput;
+import zgame.core.input.mouse.ZMouseInput;
+import zgame.core.window.GameWindow;
 
 import static org.lwjgl.glfw.GLFW.*;
 

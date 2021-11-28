@@ -5,7 +5,7 @@ import static zgametest.Tester.DELTA;
 
 import org.junit.jupiter.api.*;
 
-import zgame.graphics.camera.CameraAxis;
+import zgame.core.graphics.camera.CameraAxis;
 
 public class CameraAxisTest{
 

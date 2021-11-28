@@ -1,7 +1,7 @@
 package zgametest;
 
-import zgame.Game;
-import zgame.window.GameWindow;
+import zgame.core.Game;
+import zgame.core.window.GameWindow;
 
 import static org.lwjgl.glfw.GLFW.*;
 

@@ -2,7 +2,7 @@ package zgametest.graphics.camera;
 
 import org.junit.jupiter.api.*;
 
-import zgame.graphics.camera.GameCamera;
+import zgame.core.graphics.camera.GameCamera;
 
 import static zgametest.Tester.DELTA;
 
