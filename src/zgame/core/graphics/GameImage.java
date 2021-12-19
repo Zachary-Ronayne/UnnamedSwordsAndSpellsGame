@@ -57,7 +57,7 @@ public class GameImage{
 			buff.flip();
 			stream.close();
 		}catch(IOException e){
-			ZStringUtils.print("Image '", path, "' failed to load from the jar");
+			if(ZConfig.printErrors()) ZStringUtils.print("Image '", path, "' failed to load from the jar");
 			return;
 		}
 		// Load the image in with stbi

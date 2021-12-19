@@ -6,6 +6,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
+import zgame.core.sound.SoundManager;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GLFWWindow;
 import zgame.core.window.GameWindow;
@@ -14,13 +15,43 @@ import zgame.core.window.GameWindow;
  * The central class used to create a game. Create an extension of this class to begin making a game
  */
 public class Game{
-
+	
 	/*
-	 * TODO implement sound
+	 *
+	 * TODO improve performance when removing sounds from the list of currently playing sounds in SoundPlayer.playing
+	 * 
+	 * TODO fix issue where rescanning for sound devices makes no sound play
+	 * 
+	 * TODO fix issue of sound playing a click noise when it comes to its natural end
+	 * 
+	 * TODO use alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE); to make music global?
+	 * 
+	 * TODO fix sound issue where pressing a key to play a sound too early will cause a crash
+	 * 
+	 * TODO find out how to do sound scaling, like the position of the listener vs source
+	 * 
+	 * TODO buffer sound for music
+	 * 
+	 * TODO refactor some things, change the names of the method calls in GameWindow, like instead of beginning and end, call it swap buffers or whatever
+	 * 
+	 * TODO create an image manager, something similar to the sound manager that you can give images, and it will handle creation and freeing resources
+	 * 
+	 * TODO go through code and remedy any inconsistancies
+	 * 
+	 * TODO update code formatting, lines too long so add wrapping, allow for space between block statements and comments
+	 * 
+	 * TODO add option to turn off rendering/sounds/ticking when the window is minimized or not in focus or not visible
+	 * 
+	 * TODO add game speed option, i.e. change the amount of time that passes in each main call to tick via a multiplier, also change the speed of sound playback, also add a pause function
+	 * 
+	 * TODO add catagories of sound, i.e. you could have voices, background noise, footsteps, and have all of them volume controlled differently
 	 */
 	
 	/** The {@link GLFWWindow} used by this {@link Game} as the core interaction */
 	private GameWindow window;
+	
+	/** The {@link SoundManager} used by this {@link Game} to create sounds */
+	private SoundManager sounds;
 	
 	/** The looper to run the main OpenGL loop */
 	private GameLooper renderLooper;
@@ -90,6 +121,10 @@ public class Game{
 	 *        false to draw the image in the center of the screen leave black bars in areas that the image doesn't fill up
 	 */
 	public Game(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
+		// Init sound
+		this.sounds = new SoundManager();
+		
+		// Init window
 		this.window = new GLFWWindow(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
 		
 		// Init camera
@@ -139,6 +174,9 @@ public class Game{
 		
 		// Free memory / destory callbacks
 		this.getWindow().end();
+		
+		// Free sounds
+		this.sounds.end();
 	}
 	
 	/**
@@ -187,6 +225,9 @@ public class Game{
 	 * This handles calling all the appropriate rendering methods and associated window methods for the main loop
 	 */
 	private void loopFunction(){
+		// Update sounds
+		this.getSounds().update();
+		
 		// Update the window
 		this.getWindow().loopBegin();
 		
@@ -328,6 +369,11 @@ public class Game{
 	/** @return See {@link #window} */
 	public GameWindow getWindow(){
 		return window;
+	}
+	
+	/** @return See {@link #sounds} */
+	public SoundManager getSounds(){
+		return sounds;
 	}
 	
 	/**

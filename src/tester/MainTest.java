@@ -6,6 +6,10 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
+import zgame.core.sound.EffectsPlayer;
+import zgame.core.sound.MusicPlayer;
+import zgame.core.sound.SoundManager;
+import zgame.core.sound.SoundSource;
 import zgame.core.window.GameWindow;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -31,6 +35,16 @@ import java.awt.Rectangle;
  * 4 = toggle printing FPS/TPS
  * shift + z = change green of flickering red square
  * shift + x = change blue of flickering red square
+ * g = play win sound effect
+ * h = play lose sound effect
+ * m = play music
+ * n = scan for sound devices
+ * p = toggle effects paused
+ * o = toggle effects muted
+ * shift + p = toggle music paused
+ * shift + o = toggle music muted
+ * Indicators in the upper left hand corner for muted/paused: black = neither, red = muted, blue = paused, magenta = both muted and paused
+ * The left indicator is effects, the right indicator is music
  */
 public class MainTest extends Game{
 	
@@ -63,19 +77,32 @@ public class MainTest extends Game{
 	public static int TWO = 2;
 	public static int THREE = 3;
 	public static int FOUR = 4;
-	
+
+	public static SoundSource winSource;
+	public static SoundSource loseSource;
+
 	public MainTest(){
 		super("test", 1500, 720, 1000, 700, 0, true, false, false, true, 100, true);
 	}
 	
 	public static void main(String[] args){
+		// Set up game
 		game = new MainTest();
 		window = game.getWindow();
-		playerImage = GameImage.create("player.png");
 		window.center();
+		
+		// Load files
+		playerImage = GameImage.create("player.png");
+		SoundManager sm = game.getSounds();
+		sm.addEffect("win");
+		sm.addEffect("lose");
+		sm.addMusic("song");
+
+		// Start up the game
 		reset();
 		game.start();
 		
+		// Delete external files
 		playerImage.delete();
 	}
 
@@ -84,6 +111,12 @@ public class MainTest extends Game{
 		playerY = 500;
 		changeRect = new Rectangle(600, 20, 200, 200);
 		game.getCamera().reset();
+
+		if(winSource != null) winSource.end();
+		if(loseSource != null) loseSource.end();
+		winSource = new SoundSource(playerX, playerY);
+		// loseSource = new SoundSource(0, 200);
+		loseSource = new SoundSource(playerX, playerY);
 	}
 
 	@Override
@@ -92,6 +125,22 @@ public class MainTest extends Game{
 		if(keys.shift()){
 			if(key == GLFW_KEY_Z) green = (green + 0.05) % 1;
 			if(key == GLFW_KEY_X) blue = (blue + 0.05) % 1;
+		}
+
+		if(!press){
+			SoundManager s = game.getSounds();
+			if(key == GLFW_KEY_G) s.playEffect(winSource, "win");
+			else if(key == GLFW_KEY_H) s.playEffect(loseSource, "lose");
+			else if(key == GLFW_KEY_M) s.playMusic("song");
+			else if(key == GLFW_KEY_N) s.scanDevices();
+			else if(key == GLFW_KEY_P){
+				if(shift) s.getMusicPlayer().togglePaused();
+				else s.getEffectsPlayer().togglePaused();
+			}
+			else if(key == GLFW_KEY_O){
+				if(shift) s.getMusicPlayer().toggleMuted();
+				else s.getEffectsPlayer().toggleMuted();
+			}
 		}
 	}
 	
@@ -149,10 +198,21 @@ public class MainTest extends Game{
 	
 	@Override
 	protected void renderHud(Renderer r){
-		r.setColor(0, 1, 0, .5);
+		SoundManager sm = game.getSounds();
+		EffectsPlayer e = sm.getEffectsPlayer();
+		MusicPlayer m = sm.getMusicPlayer();
+
+		double red = e.isMuted() ? 1 : 0;
+		double blue = e.isPaused() ? 1 : 0;
+		r.setColor(red, 0, blue);
 		r.drawRectangle(5, 5, 30, 30);
+
+		red = m.isMuted() ? 1 : 0;
+		blue = m.isPaused() ? 1 : 0;
+		r.setColor(red, 0, blue);
+		r.drawRectangle(40, 5, 30, 30);
 	}
-	
+
 	@Override
 	protected void tick(double dt){
 		// Get values for updating things
@@ -249,6 +309,9 @@ public class MainTest extends Game{
 			redReverse = false;
 			red = 0;
 		}
+
+		// Update sound positions
+		game.getSounds().getListener().updatePosition(playerX, playerY);
 	}
 	
 }

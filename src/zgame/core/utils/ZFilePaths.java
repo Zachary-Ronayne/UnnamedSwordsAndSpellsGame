@@ -15,6 +15,18 @@ public final class ZFilePaths{
 	/** The location of the main folder containing images */
 	public static final String IMAGES = ASSETS +
 		"images/";
+
+	/** The location of the main folder containing sound */
+	public static final String SOUND = ASSETS +
+		"sounds/";
+
+	/** The location of the main folder containing music */
+	public static final String MUSIC = SOUND +
+		"music/";
+
+	/** The location of the main folder containing sound effects */
+	public static final String EFFECTS = SOUND +
+		"effects/";
 	
 	/** Cannot instantiate ZFilePaths */
 	private ZFilePaths(){
