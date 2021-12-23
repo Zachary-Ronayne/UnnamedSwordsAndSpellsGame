@@ -35,6 +35,9 @@ public class SoundManager{
 	/** The {@link SpeakerDevice} which is used as the current machine's default speaker device */
 	private SpeakerDevice defaultDevice;
 	
+	/** The amount the sound positions of sounds are scaled. i.e, multiply this value to every coordinate used by this {@link SoundManager} */
+	private double distanceScalar;
+	
 	/**
 	 * A list of every {@link SpeakerDevice} available on the current machine since the last scan.
 	 * There are no guarentees about the order of this list, i.e. the default device could be anywhere in the list
@@ -49,6 +52,16 @@ public class SoundManager{
 	
 	/** Initialize the {@link SoundManager} to its default state */
 	public SoundManager(){
+		this(1);
+	}
+	
+	/**
+	 * Initialize the {@link SoundManager} to its default state
+	 * 
+	 * @param distanceScalar See {@link #distanceScalar}
+	 */
+	public SoundManager(double distanceScalar){
+		this.distanceScalar = distanceScalar;
 		this.effects = new HashMap<String, Sound>();
 		this.music = new HashMap<String, Sound>();
 		
@@ -76,7 +89,7 @@ public class SoundManager{
 		
 		// Scan for all devices, load any which are not already in the list, and remove and close any devices which no longer can be found
 		// This is to avoid reloading devices which have already been loaded
-
+		
 		// First get the newly loaded names and the names before this scan
 		List<String> names = ALUtil.getStringList(0, ALC_ALL_DEVICES_SPECIFIER);
 		List<String> oldNames = new ArrayList<String>();
@@ -91,11 +104,7 @@ public class SoundManager{
 			}
 		}
 		// Next add all new devices
-		for(int i = 0; i < names.size(); i++){
-			if(!oldNames.contains(names.get(i))){
-				this.devices.add(new SpeakerDevice(names.get(i)));
-			}
-		}
+		for(int i = 0; i < names.size(); i++){ if(!oldNames.contains(names.get(i))){ this.devices.add(new SpeakerDevice(names.get(i))); } }
 		// Find default device name
 		String defaultName = alcGetString(0, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
 		// Find the default device in the list of devices, and set the default device
@@ -221,6 +230,51 @@ public class SoundManager{
 		this.getMusicPlayer().playSound(this.getMusicSource(), this.music.get(name));
 	}
 	
+	/**
+	 * Update the position of the listener of this SoundManager
+	 * 
+	 * @param x The new x coordinate in game coordinates
+	 * @param y The new y coordinate in game coordinates
+	 */
+	public void updateListenerPos(double x, double y){
+		this.updateSoundPos(getListener(), x, y);
+	}
+	
+	/**
+	 * Update the position of the given source based on the scaling of this sound manager
+	 * 
+	 * @param s The {@link SoundSource} to update
+	 * @param x The new x coordinate in game coordinates
+	 * @param y The new y coordinate in game coordinates
+	 */
+	public void updateSourcePos(SoundSource s, double x, double y){
+		this.updateSoundPos(s, x, y);
+	}
+	
+	/**
+	 * Update the position of the given {@link SoundLocation} based on the scaling of this sound manager
+	 * 
+	 * @param s The {@link SoundLocation} to update
+	 * @param x The new x coordinate in game coordinates
+	 * @param y The new y coordinate in game coordinates
+	 */
+	private void updateSoundPos(SoundLocation s, double x, double y){
+		s.updatePosition(x * this.getDistanceScalar(), y * this.getDistanceScalar());
+	}
+
+	/**
+	 * Create a {@link SoundSource} at the given coordinates which will be scaled by the scalar of this {@link SoundManager}
+	 * 
+	 * @param x The new x coordinate in game coordinates
+	 * @param y The new y coordinate in game coordinates
+	 * @return The source
+	 */
+	public SoundSource createSource(double x, double y){
+		SoundSource s = new SoundSource(x, y);
+		this.updateSourcePos(s, x, y);
+		return s;
+	}
+	
 	/** @return See {@link #musicSource} */
 	public SoundSource getMusicSource(){
 		return this.musicSource;
@@ -256,6 +310,16 @@ public class SoundManager{
 		SpeakerDevice[] arr = new SpeakerDevice[this.devices.size()];
 		for(int i = 0; i < arr.length; i++){ arr[i] = this.devices.get(i); }
 		return arr;
+	}
+
+	/** @return See {@link #distanceScalar} */
+	public double getDistanceScalar(){
+		return this.distanceScalar;
+	}
+	
+	/** @param distanceScalar See {@link #distanceScalar} */
+	public void setDistanceScalar(double distanceScalar){
+		this.distanceScalar = distanceScalar;
 	}
 	
 }

@@ -17,11 +17,7 @@ import zgame.core.window.GameWindow;
 public class Game{
 	
 	/*
-	
-	 * TODO fix sound issue where pressing a key to play a sound too early will cause a crash
-	 * 
-	 * TODO find out how to do sound scaling, like the position of the listener vs source
-	 * 
+	 *
 	 * TODO buffer sound for music
 	 * 
 	 * TODO add adjustable sound volume, i.e. SoundPlayer and SoundManager should have volume scalars, which trickle down to each individual sound

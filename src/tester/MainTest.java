@@ -97,6 +97,9 @@ public class MainTest extends Game{
 		sm.addEffect("win");
 		sm.addEffect("lose");
 		sm.addMusic("song");
+		
+		// Set the sound scaling distance
+		sm.setDistanceScalar(.04);
 
 		// Start up the game
 		reset();
@@ -118,9 +121,9 @@ public class MainTest extends Game{
 
 		if(winSource != null) winSource.end();
 		if(loseSource != null) loseSource.end();
-		winSource = new SoundSource(playerX, playerY);
-		// loseSource = new SoundSource(0, 200);
-		loseSource = new SoundSource(playerX, playerY);
+		SoundManager sm = game.getSounds();
+		winSource = sm.createSource(playerX, playerY);
+		loseSource = sm.createSource(0, 200);
 	}
 
 	@Override
@@ -315,7 +318,7 @@ public class MainTest extends Game{
 		}
 
 		// Update sound positions
-		game.getSounds().getListener().updatePosition(playerX, playerY);
+		game.getSounds().updateListenerPos(playerX, playerY);
 	}
 	
 }
