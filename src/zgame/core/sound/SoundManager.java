@@ -47,6 +47,7 @@ public class SoundManager{
 	/** A map of every piece of music currently available through this {@link SoundManager}. The key is a string representing the name of the sound */
 	private Map<String, Sound> music;
 	
+	/** Initialize the {@link SoundManager} to its default state */
 	public SoundManager(){
 		this.effects = new HashMap<String, Sound>();
 		this.music = new HashMap<String, Sound>();
@@ -69,18 +70,32 @@ public class SoundManager{
 		// Reset the players for effects and music
 		if(this.effectsPlayer != null) this.effectsPlayer.reset();
 		if(this.musicPlayer != null) this.musicPlayer.reset();
-
+		
 		// Record the name of the old current device
 		String oldName = (this.currentDevice == null) ? "" : this.currentDevice.getName();
 		
-		// Close resources opened by the manager
-		this.end();
-		
-		// Scan for all devices and load them in
-		this.devices.clear();
+		// Scan for all devices, load any which are not already in the list, and remove and close any devices which no longer can be found
+		// This is to avoid reloading devices which have already been loaded
+
+		// First get the newly loaded names and the names before this scan
 		List<String> names = ALUtil.getStringList(0, ALC_ALL_DEVICES_SPECIFIER);
-		for(int i = 0; i < names.size(); i++) devices.add(new SpeakerDevice(names.get(i)));
-		
+		List<String> oldNames = new ArrayList<String>();
+		for(SpeakerDevice d : this.devices) oldNames.add(d.getName());
+		// Next remove any devices with names which are not in the new list of names
+		for(int i = 0; i < this.devices.size(); i++){
+			SpeakerDevice d = this.devices.get(i);
+			if(!names.contains(d.getName())){
+				d.end();
+				this.devices.remove(i);
+				i--;
+			}
+		}
+		// Next add all new devices
+		for(int i = 0; i < names.size(); i++){
+			if(!oldNames.contains(names.get(i))){
+				this.devices.add(new SpeakerDevice(names.get(i)));
+			}
+		}
 		// Find default device name
 		String defaultName = alcGetString(0, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
 		// Find the default device in the list of devices, and set the default device
@@ -114,10 +129,15 @@ public class SoundManager{
 	
 	/** Clear any resources used by this {@link SoundManager} */
 	public void end(){
-		for(SpeakerDevice s : this.devices) s.end();
+		this.closeDevices();
 		if(this.effects != null) for(Map.Entry<String, Sound> s : this.effects.entrySet()) s.getValue().end();
 		if(this.music != null) for(Map.Entry<String, Sound> s : this.music.entrySet()) s.getValue().end();
 		if(this.musicSource != null) this.musicSource.end();
+	}
+	
+	/** Free all resources used by audio devices sed by this {@link SoundManager} */
+	private void closeDevices(){
+		for(SpeakerDevice s : this.devices) s.end();
 	}
 	
 	/** Update the state of the effects and music player */

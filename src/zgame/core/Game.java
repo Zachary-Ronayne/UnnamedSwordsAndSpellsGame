@@ -18,8 +18,6 @@ public class Game{
 	
 	/*
 	 * 
-	 * TODO fix issue where rescanning for sound devices makes no sound play
-	 * 
 	 * TODO fix issue of sound playing a click noise when it comes to its natural end
 	 * 
 	 * TODO use alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE); to make music global?
@@ -36,15 +34,16 @@ public class Game{
 	 * 
 	 * TODO create an image manager, something similar to the sound manager that you can give images, and it will handle creation and freeing resources
 	 * 
-	 * TODO go through code and remedy any inconsistancies
-	 * 
-	 * TODO update code formatting, lines too long so add wrapping, allow for space between block statements and comments
-	 * 
 	 * TODO add option to turn off rendering/sounds/ticking when the window is minimized or not in focus or not visible
 	 * 
 	 * TODO add game speed option, i.e. change the amount of time that passes in each main call to tick via a multiplier, also change the speed of sound playback, also add a pause function
 	 * 
 	 * TODO add catagories of sound, i.e. you could have voices, background noise, footsteps, and have all of them volume controlled differently
+	 * 
+	 * TODO go through code and remedy any inconsistancies
+	 * 
+	 * TODO update code formatting, lines too long so add wrapping, allow for space between block statements and comments, update comments to always link to classes and methods
+	 * 
 	 */
 	
 	/** The {@link GLFWWindow} used by this {@link Game} as the core interaction */

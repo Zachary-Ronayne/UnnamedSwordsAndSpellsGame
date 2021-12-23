@@ -102,6 +102,10 @@ public class MainTest extends Game{
 		reset();
 		game.start();
 		
+		// Close sound sources
+		winSource.end();
+		loseSource.end();
+
 		// Delete external files
 		playerImage.delete();
 	}

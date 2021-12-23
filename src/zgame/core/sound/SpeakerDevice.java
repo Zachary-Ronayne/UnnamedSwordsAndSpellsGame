@@ -42,6 +42,9 @@ public class SpeakerDevice{
 	 */
 	public SpeakerDevice(String name){
 		this.name = name;
+		this.context = NULL;
+		this.alCapabilities = null;
+		this.alcCapabilities = null;
 		
 		// Find the id
 		this.id = alcOpenDevice(this.getName());
@@ -51,27 +54,29 @@ public class SpeakerDevice{
 			if(ZConfig.printErrors()) ZStringUtils.prints("Failed to load audio device with name:", name);
 			return;
 		}
-		
 		// Print success
 		if(ZConfig.printSuccess()) ZStringUtils.prints("Successfully loaded audio device with name:", name);
 	}
-
+	
 	/** Use this device for audio */
 	public void use(){
-		this.alcCapabilities = ALC.createCapabilities(this.getId());
-		this.context = alcCreateContext(this.getId(), (IntBuffer)null);
-		boolean result = alcMakeContextCurrent(this.getContext());
-		this.alCapabilities = AL.createCapabilities(this.getAlcCapabilities());
-
-		if(result && ZConfig.printSuccess()) ZStringUtils.print("Successfully made context current with device name '", this.getName(), "' using context: ", this.getContext());
-		else if(!result && ZConfig.printErrors()) ZStringUtils.print("Failed to make context current with device name '", this.getName(), "' using context: ", this.getContext());
+		if(this.alcCapabilities == null) this.alcCapabilities = ALC.createCapabilities(this.getId());
+		if(this.context == NULL){
+			this.context = alcCreateContext(this.getId(), (IntBuffer)null);
+			boolean result = alcMakeContextCurrent(this.getContext());
+			this.alCapabilities = AL.createCapabilities(this.getAlcCapabilities());
+			if(result && ZConfig.printSuccess()) ZStringUtils.print("Successfully made context current with device name '", this.getName(), "' using context: ", this.getContext());
+			else if(!result && ZConfig.printErrors()) ZStringUtils.print("Failed to make context current with device name '", this.getName(), "' using context: ", this.getContext());
+		}
 	}
 	
 	/** Free any resources used by this SpeakerDevice */
 	public void end(){
 		alcMakeContextCurrent(MemoryUtil.NULL);
 		if(this.getContext() != NULL) alcDestroyContext(this.getContext());
-		alcCloseDevice(this.getId());
+		boolean success = alcCloseDevice(this.getId());
+		if(ZConfig.printErrors() && !success) ZStringUtils.print("Device '", this.getName(), "' failed to close");
+		else if(ZConfig.printSuccess() && success) ZStringUtils.print("Device '", this.getName(), "' successfully closed");
 	}
 	
 	/** @return See {@link #id} */
