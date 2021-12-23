@@ -17,8 +17,6 @@ import zgame.core.window.GameWindow;
 public class Game{
 	
 	/*
-	 *
-	 * TODO improve performance when removing sounds from the list of currently playing sounds in SoundPlayer.playing
 	 * 
 	 * TODO fix issue where rescanning for sound devices makes no sound play
 	 * 
@@ -31,6 +29,8 @@ public class Game{
 	 * TODO find out how to do sound scaling, like the position of the listener vs source
 	 * 
 	 * TODO buffer sound for music
+	 * 
+	 * TODO add adjustable sound volume, i.e. SoundPlayer and SoundManager should have volume scalars, which trickle down to each individual sound
 	 * 
 	 * TODO refactor some things, change the names of the method calls in GameWindow, like instead of beginning and end, call it swap buffers or whatever
 	 * 

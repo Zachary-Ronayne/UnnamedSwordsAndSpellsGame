@@ -1,9 +1,10 @@
 package zgame.core.sound;
 
 import java.nio.IntBuffer;
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Map;
 
 import org.lwjgl.BufferUtils;
 
@@ -14,8 +15,8 @@ import static org.lwjgl.openal.AL11.*;
  */
 public abstract class SoundPlayer{
 	
-	/** A list of every sound currently played by this {@link SoundPlayer} */
-	private List<SoundSource> playing;
+	/** A collection of every sound currently played by this {@link SoundPlayer} */
+	private Map<Integer, SoundSource> playing;
 	
 	/** The queue of sounds which will begin playing on the next update */
 	private LinkedList<SoundPair> queue;
@@ -28,7 +29,7 @@ public abstract class SoundPlayer{
 	
 	/** Create an empty {@link SoundPlayer} with no currently playing sounds */
 	public SoundPlayer(){
-		this.playing = new ArrayList<SoundSource>();
+		this.playing = new HashMap<Integer, SoundSource>();
 		this.queue = new LinkedList<SoundPair>();
 		this.unmute();
 		this.unpause();
@@ -39,7 +40,7 @@ public abstract class SoundPlayer{
 		this.unmute();
 		this.unpause();
 
-		for(SoundSource s : this.playing) alSourceStop(s.getId());
+		for(Map.Entry<Integer, SoundSource> s : this.playing.entrySet()) alSourceStop(s.getValue().getId());
 		this.playing.clear();
 		this.queue.clear();
 	}
@@ -63,7 +64,7 @@ public abstract class SoundPlayer{
 	 */
 	private void playSoundNow(SoundSource source, Sound sound){
 		// Keep track of the source that is now player
-		this.playing.add(source);
+		this.playing.put(source.getId(), source);
 		// Use the source to keep track of the sound
 		source.setCurrent(sound);
 		
@@ -98,7 +99,7 @@ public abstract class SoundPlayer{
 		this.queue.clear();
 		
 		// Update the states of the sounds
-		for(SoundSource s : this.playing) s.update();
+		for(Map.Entry<Integer, SoundSource> s : this.playing.entrySet()) s.getValue().update();
 		
 		// Run the class defined update method
 		this.runUpdate();
@@ -117,7 +118,7 @@ public abstract class SoundPlayer{
 	/** @param muted See {@link #muted} */
 	public void setMuted(boolean muted){
 		this.muted = muted;
-		for(SoundSource s : this.playing) s.setMuted(muted);
+		for(Map.Entry<Integer, SoundSource> s : this.playing.entrySet()) s.getValue().setMuted(muted);
 	}
 	
 	/** Shorthand for {@link #setMuted(boolean)} true */
@@ -146,14 +147,14 @@ public abstract class SoundPlayer{
 	public void pause(){
 		if(this.isPaused()) return;
 		this.paused = true;
-		for(SoundSource s : this.playing) s.pause();
+		for(Map.Entry<Integer, SoundSource> s : this.playing.entrySet()) s.getValue().pause();
 	}
 	
 	/** Unpause the sounds of this {@link SoundPlayer} and begin playing them. If it was already unpaused, this method does nothing */
 	public void unpause(){
 		if(!this.isPaused()) return;
 		this.paused = false;
-		for(SoundSource s : this.playing) s.unpause();
+		for(Map.Entry<Integer, SoundSource> s : this.playing.entrySet()) s.getValue().unpause();
 	}
 
 	/** If the player is paused, unpause it, otherwise, pause it */
@@ -170,22 +171,19 @@ public abstract class SoundPlayer{
 	 * @return The array
 	 */
 	public SoundSource[] getPlaying(){
-		SoundSource[] s = new SoundSource[this.playing.size()];
-		for(int i = 0; i < this.playing.size(); i++) s[i] = this.playing.get(i);
-		return s;
+		Collection<SoundSource> s = this.playing.values();
+		return s.toArray(new SoundSource[s.size()]);
 	}
 	
 	/** Remove any sounds from this {@link SoundPlayer} which are finished playing */
 	public void removeFinishedSounds(){
-		for(int i = 0; i < this.playing.size(); i++){
-			SoundSource s = this.playing.get(i);
+		SoundSource[] play = this.getPlaying();
+		for(int i = 0; i < play.length; i++){
+			SoundSource s = this.playing.get(play[i].getId());
 			IntBuffer buf = BufferUtils.createIntBuffer(1);
 			alGetSourcei(s.getId(), AL_SOURCE_STATE, buf);
 			int state = buf.get(0);
-			if(state == AL_STOPPED){
-				this.playing.remove(s);
-				i--;
-			}
+			if(state == AL_STOPPED) this.playing.remove(s.getId());
 		}
 	}
 	
