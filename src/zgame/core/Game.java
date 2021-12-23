@@ -17,9 +17,7 @@ import zgame.core.window.GameWindow;
 public class Game{
 	
 	/*
-	 * 
-	 * TODO use alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE); to make music global?
-	 * 
+	
 	 * TODO fix sound issue where pressing a key to play a sound too early will cause a crash
 	 * 
 	 * TODO find out how to do sound scaling, like the position of the listener vs source

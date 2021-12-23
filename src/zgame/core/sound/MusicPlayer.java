@@ -15,6 +15,7 @@ public class MusicPlayer extends SoundPlayer{
 	@Override
 	protected void runSound(SoundSource source, Sound sound){
 		int sourceID = source.getId();
+		alSourcei(sourceID, AL_SOURCE_RELATIVE, AL_TRUE);
 		alSourcei(sourceID, AL_BUFFER, sound.getId());
 		alSourcePlay(sourceID);
 	}
