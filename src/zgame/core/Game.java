@@ -18,8 +18,6 @@ public class Game{
 	
 	/*
 	 * 
-	 * TODO fix issue of sound playing a click noise when it comes to its natural end
-	 * 
 	 * TODO use alSourcei(source, AL_SOURCE_RELATIVE, AL_TRUE); to make music global?
 	 * 
 	 * TODO fix sound issue where pressing a key to play a sound too early will cause a crash
@@ -30,8 +28,6 @@ public class Game{
 	 * 
 	 * TODO add adjustable sound volume, i.e. SoundPlayer and SoundManager should have volume scalars, which trickle down to each individual sound
 	 * 
-	 * TODO refactor some things, change the names of the method calls in GameWindow, like instead of beginning and end, call it swap buffers or whatever
-	 * 
 	 * TODO create an image manager, something similar to the sound manager that you can give images, and it will handle creation and freeing resources
 	 * 
 	 * TODO add option to turn off rendering/sounds/ticking when the window is minimized or not in focus or not visible
@@ -39,6 +35,8 @@ public class Game{
 	 * TODO add game speed option, i.e. change the amount of time that passes in each main call to tick via a multiplier, also change the speed of sound playback, also add a pause function
 	 * 
 	 * TODO add catagories of sound, i.e. you could have voices, background noise, footsteps, and have all of them volume controlled differently
+	 * 
+	 * TODO refactor some things, change the names of the method calls in GameWindow, like instead of beginning and end, call it swap buffers or whatever
 	 * 
 	 * TODO go through code and remedy any inconsistancies
 	 * 
