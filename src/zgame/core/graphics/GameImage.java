@@ -4,13 +4,12 @@ import static org.lwjgl.opengl.GL30.*;
 
 import static org.lwjgl.stb.STBImage.*;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
 
+import zgame.core.utils.AssetUtils;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZFilePaths;
 import zgame.core.utils.ZStringUtils;
@@ -47,19 +46,8 @@ public class GameImage{
 		this.setPixelSettings();
 		
 		// Load the image from the jar
-		ByteBuffer buff = null;
-		InputStream stream = null;
-		try{
-			stream = getClass().getClassLoader().getResourceAsStream(this.path);
-			byte[] bytes = stream.readAllBytes();
-			buff = BufferUtils.createByteBuffer(bytes.length);
-			buff.put(bytes);
-			buff.flip();
-			stream.close();
-		}catch(IOException e){
-			if(ZConfig.printErrors()) ZStringUtils.print("Image '", path, "' failed to load from the jar");
-			return;
-		}
+		ByteBuffer buff = AssetUtils.getJarBytes(this.getPath());
+		
 		// Load the image in with stbi
 		IntBuffer w = BufferUtils.createIntBuffer(1);
 		IntBuffer h = BufferUtils.createIntBuffer(1);

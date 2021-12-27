@@ -1,7 +1,6 @@
 package tester;
 
 import zgame.core.Game;
-import zgame.core.graphics.GameImage;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.input.keyboard.ZKeyInput;
@@ -64,7 +63,6 @@ public class MainTest extends Game{
 	public static boolean zoomOnlyX = false;
 	public static boolean zoomOnlyY = false;
 	
-	public static GameImage playerImage;
 	public static double playerX;
 	public static double playerY;
 	public static double speed = 200;
@@ -99,13 +97,12 @@ public class MainTest extends Game{
 		window = game.getWindow();
 		window.center();
 		
-		// Load files
-		playerImage = GameImage.create("player.png");
+		// Add images
+		game.getImages().addAllImages();
+
+		// Add sounds
 		SoundManager sm = game.getSounds();
-		sm.addEffect("win");
-		sm.addEffect("lose");
-		sm.addMusic("song");
-		sm.addMusic("song short");
+		sm.addAllSounds();
 		
 		// Set the sound scaling distance
 		sm.setDistanceScalar(.04);
@@ -117,9 +114,6 @@ public class MainTest extends Game{
 		// Close sound sources
 		winSource.end();
 		loseSource.end();
-
-		// Delete external files
-		playerImage.delete();
 	}
 
 	public static void reset(){
@@ -145,11 +139,11 @@ public class MainTest extends Game{
 
 		if(!press){
 			SoundManager s = game.getSounds();
-			if(key == GLFW_KEY_G) s.playEffect(winSource, "win");
-			else if(key == GLFW_KEY_H) s.playEffect(loseSource, "lose");
+			if(key == GLFW_KEY_G) game.playEffect(winSource, "win");
+			else if(key == GLFW_KEY_H) game.playEffect(loseSource, "lose");
 			else if(key == GLFW_KEY_M){
-				if(shift) s.playMusic("song short");
-				else s.playMusic("song");
+				if(shift) game.playMusic("song short");
+				else game.playMusic("song");
 			}
 			else if(key == GLFW_KEY_N) s.scanDevices();
 			else if(key == GLFW_KEY_P){
@@ -210,7 +204,8 @@ public class MainTest extends Game{
 		r.setColor(red, green, blue);
 		r.drawRectangle(100, 50, 400, 100);
 		
-		r.drawImage(playerX, playerY, 150, 150, playerImage);
+		r.drawImage(550, 100, 50, 50, game.getImage("goal"));
+		r.drawImage(playerX, playerY, 150, 150, game.getImage("player"));
 		
 		r.setColor(0, 0, 1, 0.5);
 		r.drawRectangle(140, 70, 90, 400);

@@ -1,7 +1,5 @@
 package zgame.core.sound;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -10,6 +8,7 @@ import org.lwjgl.PointerBuffer;
 import static org.lwjgl.openal.AL11.*;
 import static org.lwjgl.stb.STBVorbis.*;
 
+import zgame.core.utils.AssetUtils;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
 
@@ -58,19 +57,8 @@ public abstract class Sound{
 	 */
 	public PointerBuffer load(boolean freePointer){
 		// Load the bytes of the sound from the jar
-		ByteBuffer buff = null;
-		InputStream stream = null;
-		try{
-			stream = getClass().getClassLoader().getResourceAsStream(this.getPath());
-			byte[] bytes = stream.readAllBytes();
-			buff = BufferUtils.createByteBuffer(bytes.length);
-			buff.put(bytes);
-			buff.flip();
-			stream.close();
-		}catch(IOException e){
-			if(ZConfig.printErrors()) ZStringUtils.print("Sound '", this.getPath(), "' failed to load from the jar");
-			return null;
-		}
+		ByteBuffer buff = AssetUtils.getJarBytes(this.getPath());
+
 		// Load in the sound in with stb
 		IntBuffer channels = BufferUtils.createIntBuffer(1);
 		IntBuffer sampleRate = BufferUtils.createIntBuffer(1);

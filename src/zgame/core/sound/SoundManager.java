@@ -9,7 +9,9 @@ import static org.lwjgl.openal.ALC11.*;
 
 import org.lwjgl.openal.ALUtil;
 
+import zgame.core.utils.AssetUtils;
 import zgame.core.utils.ZConfig;
+import zgame.core.utils.ZFilePaths;
 import zgame.core.utils.ZStringUtils;
 
 /**
@@ -211,6 +213,32 @@ public class SoundManager{
 		this.music.remove(name);
 	}
 	
+	/**
+	 * Load all the sounds as effects in {@link ZFilePaths#EFFECTS}, where the name of the file without a file extension is how they will be referred to using {@link #playEffect(SoundSource, String)}
+	 */
+	public void addAllEffects(){
+		List<String> names = AssetUtils.getFileNames(ZStringUtils.concat("/", ZFilePaths.EFFECTS), false);
+		for(String s : names) this.addEffect(s);
+	}
+	
+	/**
+	 * Load all the sounds as music in {@link ZFilePaths#MUSIC}, where the name of the file without a file extension is how they will be referred to using {@link #playMusic(String)}
+	 */
+	public void addAllMusic(){
+		List<String> names = AssetUtils.getFileNames(ZStringUtils.concat("/", ZFilePaths.MUSIC), false);
+		for(String s : names) this.addMusic(s);
+	}
+	
+	/**
+	 * Load all the sounds as effects in {@link ZFilePaths#EFFECTS},
+	 * and all the sounds as music in {@link ZFilePaths#MUSIC},
+	 * where the name of the file without a file extension is how they will be referred to using {@link #playEffect(SoundSource, String)} and {@link #playMusic(String)}
+	 */
+	public void addAllSounds(){
+		this.addAllEffects();
+		this.addAllMusic();
+	}
+
 	/**
 	 * Play the given sound at the given source
 	 * 

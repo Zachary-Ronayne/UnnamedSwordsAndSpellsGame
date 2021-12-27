@@ -2,11 +2,14 @@ package zgame.core;
 
 import static org.lwjgl.opengl.GL30.*;
 
+import zgame.core.graphics.GameImage;
+import zgame.core.graphics.ImageManager;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.sound.SoundManager;
+import zgame.core.sound.SoundSource;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GLFWWindow;
 import zgame.core.window.GameWindow;
@@ -18,8 +21,6 @@ public class Game{
 	
 	/*
 	 *
-	 * TODO create an image manager, something similar to the sound manager that you can give images, and it will handle creation and freeing resources
-	 * 
 	 * TODO add option to turn off rendering/sounds/ticking when the window is minimized or not in focus or not visible
 	 * 
 	 * TODO add game speed option, i.e. change the amount of time that passes in each main call to tick via a multiplier, also change the speed of sound playback, also add a pause function
@@ -30,7 +31,7 @@ public class Game{
 	 * 
 	 * TODO refactor some things, change the names of the method calls in GameWindow, like instead of beginning and end, call it swap buffers or whatever
 	 * 
-	 * TODO go through code and remedy any inconsistancies, abstract out things like loading data from the jar file
+	 * TODO go through code and remedy any inconsistancies, abstract out things
 	 * 
 	 * TODO update code formatting, lines too long so add wrapping, allow for space between block statements and comments, update comments to always link to classes and methods
 	 * 
@@ -41,6 +42,9 @@ public class Game{
 	
 	/** The {@link SoundManager} used by this {@link Game} to create sounds */
 	private SoundManager sounds;
+	
+	/** The {@link ImageManager} used by this {@link Game} to load images for ease of use in rendering */
+	private ImageManager images;
 	
 	/** The looper to run the main OpenGL loop */
 	private GameLooper renderLooper;
@@ -116,6 +120,9 @@ public class Game{
 		// Init window
 		this.window = new GLFWWindow(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
 		
+		// Init images
+		this.images = new ImageManager();
+		
 		// Init camera
 		this.camera = new GameCamera();
 		
@@ -166,6 +173,9 @@ public class Game{
 		
 		// Free sounds
 		this.sounds.end();
+		
+		// Free images
+		this.images.end();
 	}
 	
 	/**
@@ -363,6 +373,37 @@ public class Game{
 	/** @return See {@link #sounds} */
 	public SoundManager getSounds(){
 		return sounds;
+	}
+	
+	/**
+	 * A convenience method, this method is equivilent to this.getSounds().playEffect(source, name)
+	 * See {@link SoundManager#playEffect(SoundSource, String)}
+	 * 
+	 * @param source The source to play the effect on
+	 * @param name The name of the sound to play
+	 */
+	public void playEffect(SoundSource source, String name){
+		this.getSounds().playEffect(source, name);
+	}
+	
+	/**
+	 * A convenience method, this method is equivilent to this.getSounds().playMusic(name)
+	 * See {@link SoundManager#playMusic(String)}
+	 * 
+	 * @param name The name of the music to play
+	 */
+	public void playMusic(String name){
+		this.getSounds().playMusic(name);
+	}
+	
+	/** @return See {@link #images} */
+	public ImageManager getImages(){
+		return this.images;
+	}
+	
+	/** @return The image from {@link #images} with the given name */
+	public GameImage getImage(String name){
+		return this.getImages().getImage(name);
 	}
 	
 	/**

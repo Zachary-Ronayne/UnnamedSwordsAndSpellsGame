@@ -5,6 +5,7 @@ import static org.lwjgl.opengl.GL30.*;
 import java.io.InputStream;
 import java.util.Scanner;
 
+import zgame.core.utils.AssetUtils;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
 
@@ -41,7 +42,7 @@ public class Shader{
 		Scanner file = null;
 		try{
 			// Get the file from the jar			
-			InputStream stream = getClass().getClassLoader().getResourceAsStream(path);
+			InputStream stream = AssetUtils.getJarInputStream(path);
 
 			// Open the file
 			file = new Scanner(stream);
