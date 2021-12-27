@@ -46,10 +46,10 @@ public class SoundSource extends SoundLocation{
 	public SoundSource(double x, double y){
 		super();
 		this.id = alGenSources();
-		this.setVolume(1);
 		this.muted = false;
 		this.paused = false;
 		this.currentPaused = false;
+		this.setVolume(1);
 		this.pausedSample = -1;
 		alSourcef(this.getId(), AL_PITCH, 1);
 		this.updatePosition(x, y);

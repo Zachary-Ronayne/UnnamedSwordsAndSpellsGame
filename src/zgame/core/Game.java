@@ -18,8 +18,6 @@ public class Game{
 	
 	/*
 	 *
-	 *  TODO add adjustable sound volume, i.e. SoundPlayer and SoundManager should have volume scalars, which trickle down to each individual sound
-	 * 
 	 * TODO create an image manager, something similar to the sound manager that you can give images, and it will handle creation and freeing resources
 	 * 
 	 * TODO add option to turn off rendering/sounds/ticking when the window is minimized or not in focus or not visible

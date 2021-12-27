@@ -45,7 +45,13 @@ import java.awt.Rectangle;
  * shift + p = toggle music paused
  * shift + o = toggle music muted
  * l = toggle music looping
- * Indicators in the upper left hand corner for muted/paused: black = neither, red = muted, blue = paused, magenta = both muted and paused
+ * F1 = increase effects volume
+ * F2 = decrease effects volume
+ * shift + F1 = increase music volume
+ * shift + F2 = decrease music volume
+ * 
+ * Indicators in the upper left hand corner for muted/paused: black = neither, red = muted, blue = paused, magenta = both muted and paused.
+ * The size of the box represents the volume, a bigger box means higher volume
  * The left indicator is effects, the right indicator is music
  */
 public class MainTest extends Game{
@@ -219,12 +225,12 @@ public class MainTest extends Game{
 		double red = e.isMuted() ? 1 : 0;
 		double blue = e.isPaused() ? 1 : 0;
 		r.setColor(red, 0, blue);
-		r.drawRectangle(5, 5, 30, 30);
+		r.drawRectangle(5, 5, 30, 30 * e.getVolume());
 
 		red = m.isMuted() ? 1 : 0;
 		blue = m.isPaused() ? 1 : 0;
 		r.setColor(red, 0, blue);
-		r.drawRectangle(40, 5, 30, 30);
+		r.drawRectangle(40, 5, 30, 30 * m.getVolume());
 	}
 
 	@Override
@@ -280,6 +286,17 @@ public class MainTest extends Game{
 		}
 		else down[FOUR] = true;
 		if(keys.pressed(GLFW_KEY_R)) reset();
+
+		// Adjust volume
+		SoundManager sm = game.getSounds();
+		if(keys.pressed(GLFW_KEY_F1)){
+			if(keys.shift()) sm.getMusicPlayer().addVolume(dt * 0.5);
+			else sm.getEffectsPlayer().addVolume(dt * 0.5);
+		}
+		else if(keys.pressed(GLFW_KEY_F2)){
+			if(keys.shift()) sm.getMusicPlayer().addVolume(dt * -0.5);
+			else sm.getEffectsPlayer().addVolume(dt * -0.5);
+		}
 
 		// Move the player with keys
 		double hMoveState = 0;
