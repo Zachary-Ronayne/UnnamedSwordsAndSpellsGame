@@ -45,10 +45,10 @@ public class SoundManager{
 	private List<SpeakerDevice> devices;
 	
 	/** A map of every sound effect currently available through this {@link SoundManager}. The key is a string representing the name of the sound */
-	private Map<String, Sound> effects;
+	private Map<String, EffectSound> effects;
 	
 	/** A map of every piece of music currently available through this {@link SoundManager}. The key is a string representing the name of the sound */
-	private Map<String, Sound> music;
+	private Map<String, MusicSound> music;
 	
 	/** Initialize the {@link SoundManager} to its default state */
 	public SoundManager(){
@@ -62,8 +62,8 @@ public class SoundManager{
 	 */
 	public SoundManager(double distanceScalar){
 		this.distanceScalar = distanceScalar;
-		this.effects = new HashMap<String, Sound>();
-		this.music = new HashMap<String, Sound>();
+		this.effects = new HashMap<String, EffectSound>();
+		this.music = new HashMap<String, MusicSound>();
 		
 		this.devices = new ArrayList<SpeakerDevice>();
 		this.scanDevices();
@@ -139,8 +139,8 @@ public class SoundManager{
 	/** Clear any resources used by this {@link SoundManager} */
 	public void end(){
 		this.closeDevices();
-		if(this.effects != null) for(Map.Entry<String, Sound> s : this.effects.entrySet()) s.getValue().end();
-		if(this.music != null) for(Map.Entry<String, Sound> s : this.music.entrySet()) s.getValue().end();
+		if(this.effects != null) for(Map.Entry<String, EffectSound> s : this.effects.entrySet()) s.getValue().end();
+		if(this.music != null) for(Map.Entry<String, MusicSound> s : this.music.entrySet()) s.getValue().end();
 		if(this.musicSource != null) this.musicSource.end();
 	}
 	
@@ -161,7 +161,7 @@ public class SoundManager{
 	 * @param effect The sound to add
 	 * @param name The name of the sound, use this value when playing sounds
 	 */
-	public void addEffect(Sound effect, String name){
+	public void addEffect(EffectSound effect, String name){
 		this.effects.put(name, effect);
 	}
 	
@@ -171,7 +171,7 @@ public class SoundManager{
 	 * @param name The name of the sound, which must exist as a .ogg file in ZFilePaths.EFFECTS use this value when playing sounds
 	 */
 	public void addEffect(String name){
-		this.addEffect(Sound.loadEffect(name), name);
+		this.addEffect(EffectSound.loadSound(name), name);
 	}
 	
 	/**
@@ -189,7 +189,7 @@ public class SoundManager{
 	 * @param music The sound to add
 	 * @param name The name of the sound, use this value when playing sounds
 	 */
-	public void addMusic(Sound music, String name){
+	public void addMusic(MusicSound music, String name){
 		this.music.put(name, music);
 	}
 	
@@ -199,7 +199,7 @@ public class SoundManager{
 	 * @param name The name of the sound, which must exist as a .ogg file in ZFilePaths.MUSIC, use this value when playing sounds
 	 */
 	public void addMusic(String name){
-		this.addMusic(Sound.loadMusic(name), name);
+		this.addMusic(MusicSound.loadMusic(name), name);
 	}
 	
 	/**
@@ -215,7 +215,7 @@ public class SoundManager{
 	 * Play the given sound at the given source
 	 * 
 	 * @param source The source to play the sound
-	 * @param name The name of the sound, i.e. the name used when calling {@link #addEffect(Sound, String)}
+	 * @param name The name of the sound, i.e. the name used when calling {@link #addEffect(EffectSound, String)}
 	 */
 	public void playEffect(SoundSource source, String name){
 		this.getEffectsPlayer().playSound(source, this.effects.get(name));
@@ -224,7 +224,7 @@ public class SoundManager{
 	/**
 	 * Play the given music sound. Once the music sound ends, no further music will play
 	 * 
-	 * @param name The name of the sound, i.e. the name used when calling {@link #addMusic(Sound, String)}
+	 * @param name The name of the sound, i.e. the name used when calling {@link #addMusic(EffectSound, String)}
 	 */
 	public void playMusic(String name){
 		this.getMusicPlayer().playSound(this.getMusicSource(), this.music.get(name));

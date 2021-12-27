@@ -11,41 +11,52 @@ import static org.lwjgl.openal.AL11.*;
 import static org.lwjgl.stb.STBVorbis.*;
 
 import zgame.core.utils.ZConfig;
-import zgame.core.utils.ZFilePaths;
 import zgame.core.utils.ZStringUtils;
 
-/**
- * A class that tracks a single created sound in OpenAL
- */
-public class Sound{
+/** A class that represents much of the data needed to keep track of OpenAL sounds, but does not handle tracking an ID */
+public abstract class Sound{
 	
-	/** The id OpenAL id tracking this sound */
-	private int id;
 	/** The file path to the location of where this sound was loaded */
 	private String path;
-	/** true if this {@link Sound} is in mono, i.e. one channel, or stereo, i.e. two channels */
+	/** true if this {@link EffectSound} is in mono, i.e. one channel, or stereo, i.e. two channels */
 	private boolean mono;
 	/** The sample rate of this audio file, i.e. number of samples per second */
 	private int sampleRate;
+	/** The number of samples in this sound */
+	private int samples;
 	
 	/**
-	 * Create a new sound, loading the data from the given path
+	 * Create a new sound. Call {@link #load()} to load in the data itself
 	 * 
-	 * @param path
+	 * @param path The path to load data from
 	 */
 	public Sound(String path){
 		this.path = path;
-		this.init();
 	}
 	
-	/** Set up the state of this sound based on the current value of {@link #path} */
-	private void init(){
-		this.id = alGenBuffers();
-		this.load();
+	/**
+	 * Run methods to buffer the data
+	 * 
+	 * @param p The data to buffer
+	 */
+	protected abstract void bufferData(PointerBuffer p);
+	
+	/**
+	 * Load this sound from memory and associate that data with the id of this {@link EffectSound}
+	 * 
+	 * @return The pointer is if is still open, or null if it is not open, also returns null if any load errors occured
+	 */
+	public PointerBuffer load(){
+		return this.load(true);
 	}
 	
-	/** Load this sound from memory and associate that data with the id of this {@link Sound} */
-	private void load(){
+	/**
+	 * Load this sound from memory and associate that data with the id of this {@link EffectSound}
+	 * 
+	 * @param freePointer true to free the pointer used to load the data, false to keep it open
+	 * @return The pointer is if is still open, or null if it is not open, also returns null if any load errors occured
+	 */
+	public PointerBuffer load(boolean freePointer){
 		// Load the bytes of the sound from the jar
 		ByteBuffer buff = null;
 		InputStream stream = null;
@@ -58,7 +69,7 @@ public class Sound{
 			stream.close();
 		}catch(IOException e){
 			if(ZConfig.printErrors()) ZStringUtils.print("Sound '", this.getPath(), "' failed to load from the jar");
-			return;
+			return null;
 		}
 		// Load in the sound in with stb
 		IntBuffer channels = BufferUtils.createIntBuffer(1);
@@ -75,28 +86,28 @@ public class Sound{
 		// Determine success
 		boolean success = samplesLoaded != -1;
 		if(ZConfig.printSuccess() && success){
-			ZStringUtils.print("Sound '", this.getPath(), "' loaded successfully in ", (this.isMono() ? "mono" : "stereo"), ", with sample rate: ", this.getSampleRate(), ", ", samplesLoaded, " samples loaded, and id: ", this.getId());
+			ZStringUtils.print("Sound '", this.getPath(), "' loaded successfully in ", (this.isMono() ? "mono" : "stereo"), ", with sample rate: ", this.getSampleRate(), ", ", samplesLoaded, " samples loaded, and ids: ", this.getIdString());
 		}
 		else if(ZConfig.printErrors() && !success){
 			ZStringUtils.print("Sound '", this.getPath(), "' failed to load via stb");
-			return;
+			return null;
 		}
-		
-		// Set up the data with OpenAL
-		int format = (channelCount == 2) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
-		alBufferData(this.getId(), format, pointer.getShortBuffer(samplesLoaded * channelCount), this.getSampleRate());
-		pointer.free();
+		this.samples = samplesLoaded;
+		this.bufferData(pointer);
+		if(freePointer){
+			pointer.free();
+			return null;
+		}
+		return pointer;
 	}
 	
-	/** Free any resources used by this {@link Sound} After calling this method, this sound cannot be played */
+	/** Free any resources used by this {@link EffectSound} After calling this method, this sound cannot be played */
 	public void end(){
-		alDeleteBuffers(this.getId());
+		for(int i : this.getIds()) alDeleteBuffers(i);
 	}
 	
-	/** @return See {@link #id} */
-	public int getId(){
-		return this.id;
-	}
+	/** @return The ids used by this {@link Sound} for buffering */
+	public abstract int[] getIds();
 	
 	/** @return See {@link #path} */
 	public String getPath(){
@@ -113,31 +124,31 @@ public class Sound{
 		return this.isMono() ? 1 : 2;
 	}
 	
+	/** @return The OpenAL format of this {@link Sound} */
+	public int getFormat(){
+		return this.isMono() ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+	}
+	
 	/** @return See {@link #sampleRate} */
 	public int getSampleRate(){
 		return this.sampleRate;
 	}
-
-	/**
-	 * Load a sound based on the given name. This method assumes the given name is only the file name with no extension, 
-	 * that the file is located in ZFilePaths.EFFECTS, and that it is of type .ogg
-	 * 
-	 * @param name The name of the file
-	 * @return The loaded sound
-	 */
-	public static Sound loadEffect(String name){
-		return new Sound(ZStringUtils.concat(ZFilePaths.EFFECTS, name, ".ogg"));
+	
+	/** @return See {@link #samples} */
+	public int getSamples(){
+		return this.samples;
 	}
 	
-	/**
-	 * Load a sound based on the given name. This method assumes the given name is only the file name with no extension,
-	 * that the file is located in ZFilePaths.MUSIC, and that it is of type .ogg
-	 * 
-	 * @param name The name of the file
-	 * @return The loaded sound
-	 */
-	public static Sound loadMusic(String name){
-		return new Sound(ZStringUtils.concat(ZFilePaths.MUSIC, name, ".ogg"));
+	/** @return The total size of this {@link Sound}, i.e. the total number of samples across all channels */
+	public int getTotalSize(){
+		return this.getSamples() * this.getChannels();
 	}
-
+	
+	/** @return A user readble string containing each id used as a buffer for this Abstract sound */
+	public String getIdString(){
+		int[] ids = this.getIds();
+		Integer[] arr = new Integer[ids.length];
+		for(int i = 0; i < ids.length; i++) arr[i] = ids[i];
+		return ZStringUtils.arrStr(arr);
+	}
 }

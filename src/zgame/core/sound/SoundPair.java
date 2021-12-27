@@ -1,15 +1,17 @@
 package zgame.core.sound;
 
 /**
- * A utility class for holding a {@link SoundSource} and a {@link Sound} together
+ * A utility class for holding a {@link SoundSource} and a {@link EffectSound} together
+ * 
+ * @param S The type of the sound held by this pair
  */
-public class SoundPair{
+public class SoundPair<S extends Sound>{
 	
 	/** The {@link SoundSource} of this {@link SoundPair} */
 	private SoundSource source;
 	
-	/** The {@link Sound} of this {@link SoundPair} */
-	private Sound sound;
+	/** The {@link EffectSound} of this {@link SoundPair} */
+	private S sound;
 
 	/**
 	 * Create a {@link SoundPair} with the given parameters
@@ -17,7 +19,7 @@ public class SoundPair{
 	 * @param source See {@link #source}
 	 * @param sound See {@link #sound}
 	 */
-	public SoundPair(SoundSource source, Sound sound){
+	public SoundPair(SoundSource source, S sound){
 		this.source = source;
 		this.sound = sound;
 	}
@@ -33,12 +35,12 @@ public class SoundPair{
 	}
 	
 	/** @return See {@link #sound} */
-	public Sound getSound(){
+	public S getSound(){
 		return this.sound;
 	}
 	
 	/** @param sound See {@link #sound} */
-	public void setSound(Sound sound){
+	public void setSound(S sound){
 		this.sound = sound;
 	}
 

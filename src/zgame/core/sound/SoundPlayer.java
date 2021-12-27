@@ -12,14 +12,16 @@ import static org.lwjgl.openal.AL11.*;
 
 /**
  * A class that handles and keeps track of a list of playing sounds
+ * 
+ * @param S The AbstractSound type which this SoundPlayer can handle
  */
-public abstract class SoundPlayer{
+public abstract class SoundPlayer<S extends Sound>{
 	
 	/** A collection of every sound currently played by this {@link SoundPlayer} */
 	private Map<Integer, SoundSource> playing;
 	
 	/** The queue of sounds which will begin playing on the next update */
-	private LinkedList<SoundPair> queue;
+	private LinkedList<SoundPair<S>> queue;
 	
 	/** true if this {@link SoundPlayer} should not make any sound, but sounds should continue to play, false otherwise */
 	private boolean muted;
@@ -30,7 +32,7 @@ public abstract class SoundPlayer{
 	/** Create an empty {@link SoundPlayer} with no currently playing sounds */
 	public SoundPlayer(){
 		this.playing = new HashMap<Integer, SoundSource>();
-		this.queue = new LinkedList<SoundPair>();
+		this.queue = new LinkedList<SoundPair<S>>();
 		this.unmute();
 		this.unpause();
 	}
@@ -46,23 +48,23 @@ public abstract class SoundPlayer{
 	}
 	
 	/**
-	 * Queue the given {@link Sound} at the given {@link SoundSource} to play using this {@link SoundPlayer} on the next update
+	 * Queue the given {@link EffectSound} at the given {@link SoundSource} to play using this {@link SoundPlayer} on the next update
 	 * 
 	 * @param source The source which will play the sound
 	 * @param sound The sound to play
 	 */
-	protected void playSound(SoundSource source, Sound sound){
-		this.queue.push(new SoundPair(source, sound));
+	protected void playSound(SoundSource source, S sound){
+		this.queue.push(new SoundPair<S>(source, sound));
 	}
 	
 	/**
-	 * Immediately use this {@link SoundPlayer} to play the given {@link Sound} at the given {@link SoundSource}
+	 * Immediately use this {@link SoundPlayer} to play the given {@link EffectSound} at the given {@link SoundSource}
 	 * This method should not be called outside of {@link #updateState()} or related method calls
 	 * 
 	 * @param source The source which will play the sound
 	 * @param sound The sound to play
 	 */
-	private void playSoundNow(SoundSource source, Sound sound){
+	private void playSoundNow(SoundSource source, S sound){
 		// Keep track of the source that is now player
 		this.playing.put(source.getId(), source);
 		// Use the source to keep track of the sound
@@ -79,7 +81,7 @@ public abstract class SoundPlayer{
 	}
 	
 	/**
-	 * Implement this method so that this {@link SoundPlayer} will play the given {@link Sound} at the given {@link SoundSource}.
+	 * Implement this method so that this {@link SoundPlayer} will play the given {@link EffectSound} at the given {@link SoundSource}.
 	 * Implementation will varry depending on if the entire sound should be loaded all at once, or buffered in sections. 
 	 * This method should not interact at all with volume, position of the sound in space, velocity, ect, this method 
 	 * is only responsible for setting when the sound will play
@@ -87,7 +89,7 @@ public abstract class SoundPlayer{
 	 * @param source The source which will play the sound
 	 * @param sound The sound to play
 	 */
-	protected abstract void runSound(SoundSource source, Sound sound);
+	protected abstract void runSound(SoundSource source, S sound);
 	
 	/**
 	 * A method to be called when this {@link SoundPlayer} needs to be updated.
@@ -95,7 +97,7 @@ public abstract class SoundPlayer{
 	 */
 	public void updateState(){
 		// Play all sounds and clear the queue
-		for(SoundPair sp : this.queue) this.playSoundNow(sp.getSource(), sp.getSound());
+		for(SoundPair<S> sp : this.queue) this.playSoundNow(sp.getSource(), sp.getSound());
 		this.queue.clear();
 		
 		// Update the states of the sounds
@@ -175,16 +177,24 @@ public abstract class SoundPlayer{
 		return s.toArray(new SoundSource[s.size()]);
 	}
 	
-	/** Remove any sounds from this {@link SoundPlayer} which are finished playing */
-	public void removeFinishedSounds(){
+	/** Remove any sounds from this {@link SoundPlayer} which are finished playing 
+	 * 
+	 * @return true if at least one sound was removed, false otheriwse
+	*/
+	public boolean removeFinishedSounds(){
+		boolean found = false;
 		SoundSource[] play = this.getPlaying();
 		for(int i = 0; i < play.length; i++){
 			SoundSource s = this.playing.get(play[i].getId());
 			IntBuffer buf = BufferUtils.createIntBuffer(1);
 			alGetSourcei(s.getId(), AL_SOURCE_STATE, buf);
 			int state = buf.get(0);
-			if(state == AL_STOPPED) this.playing.remove(s.getId());
+			if(state == AL_STOPPED){
+				this.playing.remove(s.getId());
+				found = true;
+			}
 		}
+		return found;
 	}
 	
 }

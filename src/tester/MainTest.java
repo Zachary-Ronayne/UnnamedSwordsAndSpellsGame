@@ -38,11 +38,13 @@ import java.awt.Rectangle;
  * g = play win sound effect
  * h = play lose sound effect
  * m = play music
+ * shift + m = play short music
  * n = scan for sound devices
  * p = toggle effects paused
  * o = toggle effects muted
  * shift + p = toggle music paused
  * shift + o = toggle music muted
+ * l = toggle music looping
  * Indicators in the upper left hand corner for muted/paused: black = neither, red = muted, blue = paused, magenta = both muted and paused
  * The left indicator is effects, the right indicator is music
  */
@@ -97,6 +99,7 @@ public class MainTest extends Game{
 		sm.addEffect("win");
 		sm.addEffect("lose");
 		sm.addMusic("song");
+		sm.addMusic("song short");
 		
 		// Set the sound scaling distance
 		sm.setDistanceScalar(.04);
@@ -138,7 +141,10 @@ public class MainTest extends Game{
 			SoundManager s = game.getSounds();
 			if(key == GLFW_KEY_G) s.playEffect(winSource, "win");
 			else if(key == GLFW_KEY_H) s.playEffect(loseSource, "lose");
-			else if(key == GLFW_KEY_M) s.playMusic("song");
+			else if(key == GLFW_KEY_M){
+				if(shift) s.playMusic("song short");
+				else s.playMusic("song");
+			}
 			else if(key == GLFW_KEY_N) s.scanDevices();
 			else if(key == GLFW_KEY_P){
 				if(shift) s.getMusicPlayer().togglePaused();
@@ -148,6 +154,7 @@ public class MainTest extends Game{
 				if(shift) s.getMusicPlayer().toggleMuted();
 				else s.getEffectsPlayer().toggleMuted();
 			}
+			else if(key == GLFW_KEY_L) s.getMusicPlayer().toggleLooping();
 		}
 	}
 	

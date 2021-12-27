@@ -18,9 +18,7 @@ public class Game{
 	
 	/*
 	 *
-	 * TODO buffer sound for music
-	 * 
-	 * TODO add adjustable sound volume, i.e. SoundPlayer and SoundManager should have volume scalars, which trickle down to each individual sound
+	 *  TODO add adjustable sound volume, i.e. SoundPlayer and SoundManager should have volume scalars, which trickle down to each individual sound
 	 * 
 	 * TODO create an image manager, something similar to the sound manager that you can give images, and it will handle creation and freeing resources
 	 * 
@@ -30,9 +28,11 @@ public class Game{
 	 * 
 	 * TODO add catagories of sound, i.e. you could have voices, background noise, footsteps, and have all of them volume controlled differently
 	 * 
+	 * TODO for buffers, i.e. IntBuffer, ByteBuffer, etc, only allocate the memory once, don't constantly make a new buffer
+	 * 
 	 * TODO refactor some things, change the names of the method calls in GameWindow, like instead of beginning and end, call it swap buffers or whatever
 	 * 
-	 * TODO go through code and remedy any inconsistancies
+	 * TODO go through code and remedy any inconsistancies, abstract out things like loading data from the jar file
 	 * 
 	 * TODO update code formatting, lines too long so add wrapping, allow for space between block statements and comments, update comments to always link to classes and methods
 	 * 

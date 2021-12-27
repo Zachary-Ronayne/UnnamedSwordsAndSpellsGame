@@ -22,7 +22,7 @@ public final class ZStringUtils{
 	public static void prints(Object ... objs){
 		System.out.println(concats(objs));
 	}
-	
+
 	/**
 	 * Get a string representation of a list of objects concatenated together using efficient string concatination, with a space between each element
 	 * 
@@ -59,6 +59,29 @@ public final class ZStringUtils{
 	 */
 	public static String concats(Object ... objs){
 		return concatSep(" ", objs);
+	}
+	
+	/**
+	 * Get a string representation of a list of the objects in the given array concatenated together using efficient string concatination, formatted as [e1, e2, e3]
+	 * 
+	 * @param arr The array to get the string
+	 * @return The resulting string
+	 */
+	public static String arrStr(Object[] arr){
+		StringBuilder b = new StringBuilder("[");
+		b.append(concatSep(", ", arr));
+		b.append("]");
+		return b.toString();
+	}
+	
+	/**
+	 * Print a list of the objects in the given array concatenated together using efficient string concatination, formatted as [e1, e2, e3]
+	 * 
+	 * @param arr The array to get the string
+	 * @return The resulting string
+	 */
+	public static void printArr(Object[] arr){
+		System.out.println(arrStr(arr));
 	}
 	
 	/** Cannot instantiate this class */
