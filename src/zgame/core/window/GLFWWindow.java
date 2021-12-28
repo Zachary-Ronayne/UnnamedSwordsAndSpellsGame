@@ -115,16 +115,15 @@ public class GLFWWindow extends GameWindow{
 	}
 	
 	@Override
-	public void loopBegin(){
-		super.loopBegin();
+	public void checkEvents(){
+		super.checkEvents();
 		
 		// Poll for window events. The key callback above will only be invoked during this call.
 		glfwPollEvents();
 	}
 	
 	@Override
-	public void loopEnd(){
-		super.loopEnd();
+	public void swapBuffers(){
 		glfwSwapBuffers(this.getCurrentWindowID());
 	}
 	
@@ -170,6 +169,8 @@ public class GLFWWindow extends GameWindow{
 		glfwSetMouseButtonCallback(w, this::mousePress);
 		glfwSetScrollCallback(w, this::mouseWheelMove);
 		glfwSetWindowSizeCallback(w, this::windowSizeChanged);
+		glfwSetWindowIconifyCallback(w, this::windowMinimize);
+		glfwSetWindowFocusCallback(w, this::windowFocus);
 		return true;
 	}
 	
@@ -221,12 +222,32 @@ public class GLFWWindow extends GameWindow{
 	/**
 	 * The method directly used as a callback for a GLFW window size change
 	 * 
-	 * @param window
-	 * @param w
-	 * @param h
+	 * @param window The id of the window which was changed
+	 * @param w The new width
+	 * @param h The new height
 	 */
-	public void windowSizeChanged(long window, int w, int h){
+	private void windowSizeChanged(long window, int w, int h){
 		this.windowSizeChanged(w, h);
+	}
+	
+	/**
+	 * The method directly used as a callback for a GLFW window getting minimized, i.e. iconified
+	 * 
+	 * @param window The id of the window which had its state changed
+	 * @param min true if the window was minimized, false otherwise
+	 */
+	private void windowMinimize(long window, boolean min){
+		this.windowMinimize(min);
+	}
+	
+	/**
+	 * The method directly used as a callback for a GLFW window losing or gaining focus, i.e. iconified
+	 * 
+	 * @param window The id of the window which had its state changed
+	 * @param focus true if the window gained focus, false otherwise
+	 */
+	private void windowFocus(long window, boolean focus){
+		this.windowFocus(focus);
 	}
 	
 	@Override

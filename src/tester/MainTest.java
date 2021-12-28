@@ -32,6 +32,10 @@ import java.awt.Rectangle;
  * 2 = toggle vsync (i.e. either match monitor refresh rate, or unlimited FPS)
  * 3 = toggle strech to fill
  * 4 = toggle printing FPS/TPS
+ * 5 = toggle not rendering the game when the window doesn't have focus
+ * shift + 5 = toggle not rendering the game when the window is minimized
+ * alt + 5 = toggle not updating the game when the window doesn't have focus
+ * shift + alt + 5 = toggle not updating the game when the window is minimized
  * shift + z = change green of flickering red square
  * shift + x = change blue of flickering red square
  * g = play win sound effect
@@ -48,10 +52,18 @@ import java.awt.Rectangle;
  * F2 = decrease effects volume
  * shift + F1 = increase music volume
  * shift + F2 = decrease music volume
- * 
+ * -----------------------------------------
  * Indicators in the upper left hand corner for muted/paused: black = neither, red = muted, blue = paused, magenta = both muted and paused.
  * The size of the box represents the volume, a bigger box means higher volume
  * The left indicator is effects, the right indicator is music
+ * The bigger the indivator, the higher the volume, if there is no indicator, the volume is set to zero
+ * -----------------------------------------
+ * Indicator on the upper right hand corner for not updating or rendering the game:
+ * black = always do it
+ * red = don't do it when not in focus
+ * blue = don't do it when minimized
+ * magenta = don't do it when minimized or when not in focus
+ * Left indicator is for rendering, right is for updating
  */
 public class MainTest extends Game{
 	
@@ -83,10 +95,10 @@ public class MainTest extends Game{
 	public static int TWO = 2;
 	public static int THREE = 3;
 	public static int FOUR = 4;
-
+	
 	public static SoundSource winSource;
 	public static SoundSource loseSource;
-
+	
 	public MainTest(){
 		super("test", 1500, 720, 1000, 700, 0, true, false, false, true, 100, true);
 	}
@@ -99,14 +111,14 @@ public class MainTest extends Game{
 		
 		// Add images
 		game.getImages().addAllImages();
-
+		
 		// Add sounds
 		SoundManager sm = game.getSounds();
 		sm.addAllSounds();
 		
 		// Set the sound scaling distance
 		sm.setDistanceScalar(.04);
-
+		
 		// Start up the game
 		reset();
 		game.start();
@@ -115,20 +127,20 @@ public class MainTest extends Game{
 		winSource.end();
 		loseSource.end();
 	}
-
+	
 	public static void reset(){
 		playerX = 200;
 		playerY = 500;
 		changeRect = new Rectangle(600, 20, 200, 200);
 		game.getCamera().reset();
-
+		
 		if(winSource != null) winSource.end();
 		if(loseSource != null) loseSource.end();
 		SoundManager sm = game.getSounds();
 		winSource = sm.createSource(playerX, playerY);
 		loseSource = sm.createSource(0, 200);
 	}
-
+	
 	@Override
 	protected void keyAction(int key, boolean press, boolean shift, boolean alt, boolean ctrl){
 		ZKeyInput keys = game.getKeyInput();
@@ -136,7 +148,6 @@ public class MainTest extends Game{
 			if(key == GLFW_KEY_Z) green = (green + 0.05) % 1;
 			if(key == GLFW_KEY_X) blue = (blue + 0.05) % 1;
 		}
-
 		if(!press){
 			SoundManager s = game.getSounds();
 			if(key == GLFW_KEY_G) game.playEffect(winSource, "win");
@@ -155,6 +166,13 @@ public class MainTest extends Game{
 				else s.getEffectsPlayer().toggleMuted();
 			}
 			else if(key == GLFW_KEY_L) s.getMusicPlayer().toggleLooping();
+
+			else if(key == GLFW_KEY_5){
+				if(!keys.shift() && !keys.alt()) game.setFocusedRender(!game.isFocusedRender());
+				else if(keys.shift() && !keys.alt()) game.setMinimizedRender(!game.isMinimizedRender());
+				else if(!keys.shift() && keys.alt()) game.setFocusedUpdate(!game.isFocusedUpdate());
+				else game.setMinimizedUpdate(!game.isMinimizedUpdate());
+			}
 		}
 	}
 	
@@ -166,7 +184,7 @@ public class MainTest extends Game{
 			changeB = Math.random();
 		}
 	}
-
+	
 	@Override
 	protected void mouseMove(double x, double y){
 		ZKeyInput keys = game.getKeyInput();
@@ -176,7 +194,7 @@ public class MainTest extends Game{
 			changeRect.y += y - mouse.lastY();
 		}
 	}
-
+	
 	@Override
 	protected void mouseWheelMove(double amount){
 		ZKeyInput keys = game.getKeyInput();
@@ -216,18 +234,28 @@ public class MainTest extends Game{
 		SoundManager sm = game.getSounds();
 		EffectsPlayer e = sm.getEffectsPlayer();
 		MusicPlayer m = sm.getMusicPlayer();
-
-		double red = e.isMuted() ? 1 : 0;
-		double blue = e.isPaused() ? 1 : 0;
-		r.setColor(red, 0, blue);
+		
+		double rr = e.isMuted() ? 1 : 0;
+		double bb = e.isPaused() ? 1 : 0;
+		r.setColor(rr, 0, bb);
 		r.drawRectangle(5, 5, 30, 30 * e.getVolume());
-
-		red = m.isMuted() ? 1 : 0;
-		blue = m.isPaused() ? 1 : 0;
-		r.setColor(red, 0, blue);
+		
+		rr = m.isMuted() ? 1 : 0;
+		bb = m.isPaused() ? 1 : 0;
+		r.setColor(rr, 0, bb);
 		r.drawRectangle(40, 5, 30, 30 * m.getVolume());
-	}
 
+		rr = game.isFocusedRender() ? 1 : 0;
+		bb = game.isMinimizedRender() ? 1 : 0;
+		r.setColor(rr, 0, bb);
+		r.drawRectangle(930, 5, 30, 30);
+
+		rr = game.isFocusedUpdate() ? 1 : 0;
+		bb = game.isMinimizedUpdate() ? 1 : 0;
+		r.setColor(rr, 0, bb);
+		r.drawRectangle(965, 5, 30, 30);
+	}
+	
 	@Override
 	protected void tick(double dt){
 		// Get values for updating things
@@ -281,7 +309,7 @@ public class MainTest extends Game{
 		}
 		else down[FOUR] = true;
 		if(keys.pressed(GLFW_KEY_R)) reset();
-
+		
 		// Adjust volume
 		SoundManager sm = game.getSounds();
 		if(keys.pressed(GLFW_KEY_F1)){
@@ -292,7 +320,6 @@ public class MainTest extends Game{
 			if(keys.shift()) sm.getMusicPlayer().addVolume(dt * -0.5);
 			else sm.getEffectsPlayer().addVolume(dt * -0.5);
 		}
-
 		// Move the player with keys
 		double hMoveState = 0;
 		double vMoveState = 0;
@@ -317,7 +344,7 @@ public class MainTest extends Game{
 			if(x) game.zoomX(scroll * dt, msx);
 			if(y) game.zoomY(scroll * dt, msy);
 		}
-		// Change the color of a rectangle based on which moust buttons and modifier buttons are pressed
+		// Change the color of a rectangle based on which mouse buttons and modifier buttons are pressed
 		if(changeRect.contains(mgx, mgy)){
 			if(mouse.leftDown() && keys.shift()) changeR = (changeR + dt * 0.5) % 1;
 			if(mouse.middleDown() && keys.alt()) changeG = (changeG + dt * 0.5) % 1;
@@ -335,7 +362,6 @@ public class MainTest extends Game{
 			redReverse = false;
 			red = 0;
 		}
-
 		// Update sound positions
 		game.getSounds().updateListenerPos(playerX, playerY);
 	}

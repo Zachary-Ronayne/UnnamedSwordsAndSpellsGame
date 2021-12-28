@@ -31,6 +31,11 @@ public abstract class GameWindow{
 	/** The position of the window before moving to full screen */
 	private Point oldPosition;
 	
+	/** true if this window is currently minimized, false otherwise */
+	private boolean minimized;
+	/** true if this window is currently in focus, false otherwise */
+	private boolean focused;
+	
 	/** true to use vsync, i.e. lock the framerate to the refreshrate of the monitor, false otherwise */
 	private boolean useVsync;
 	/** Determines if on the next OpenGL loop, vsync should update */
@@ -146,6 +151,8 @@ public abstract class GameWindow{
 		this.height = 1;
 		this.width = winWidth;
 		this.height = winHeight;
+		this.focused = true;
+		this.minimized = false;
 		this.useVsync = useVsync;
 		this.stretchToFill = stretchToFill;
 		this.oldPosition = new Point(0, 0);
@@ -191,8 +198,11 @@ public abstract class GameWindow{
 	/** Called during object initialization. Must establish context with OpenGL before further initialization can occur */
 	protected abstract void createContext();
 	
-	/** Call this method once at the beginning of each OpenGL loop */
-	public void loopBegin(){
+	/**
+	 * Call this method once at the beginning of each OpenGL loop to check for events, i.e. keyboard input, mouse input, window size changed, etc
+	 * This method will also update the fullscreen and vsync status
+	 */
+	public void checkEvents(){
 		// Update fullscreen status
 		if(this.updateFullscreen.shouldUpdate()){
 			this.setInFullScreenNow(this.updateFullscreen.willEnter());
@@ -205,9 +215,8 @@ public abstract class GameWindow{
 		}
 	}
 	
-	/** Call this method once at the end of each OpenGL loop */
-	public void loopEnd(){
-	}
+	/** Call this method once at the end of each OpenGL loop to swap the buffers, i.e. to put the final image on the screen */
+	public abstract void swapBuffers();
 	
 	/** End the program, freeing all resources */
 	public void end(){
@@ -280,10 +289,28 @@ public abstract class GameWindow{
 	 * @param w The new width
 	 * @param h The new height
 	 */
-	public void windowSizeChanged(int w, int h){
+	protected void windowSizeChanged(int w, int h){
 		this.setWidth(w);
 		this.setHeight(h);
 		this.updateWindowSize();
+	}
+	
+	/**
+	 * Call this method when the window is minimized or unminimized
+	 * 
+	 * @param min true if the window was minimized, false otherwise
+	 */
+	protected void windowMinimize(boolean min){
+		this.minimized = min;
+	}
+	
+	/**
+	 * Call this method when the window gains or loses focus
+	 * 
+	 * @param focus true if the window gained focus, false otherwise
+	 */
+	protected void windowFocus(boolean focus){
+		this.focused = focus;
 	}
 	
 	/**
@@ -394,6 +421,16 @@ public abstract class GameWindow{
 	
 	/** @return A {@link Dimension} containing the width and height of the content of the window in pixels, this should not include decorators such as a menu bar, minimize button, etc */
 	public abstract Dimension getWindowSize();
+	
+	/** @return See {@link #minimized} */
+	public boolean isMinimized(){
+		return this.minimized;
+	}
+	
+	/** @return See {@link #focused} */
+	public boolean isFocused(){
+		return this.focused;
+	}
 	
 	/**
 	 * Center the window to the monitor which contains the upper left hand corner of the window. Does nothing if no monitor is found

@@ -8,6 +8,8 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
+import zgame.core.sound.EffectsPlayer;
+import zgame.core.sound.MusicPlayer;
 import zgame.core.sound.SoundManager;
 import zgame.core.sound.SoundSource;
 import zgame.core.utils.ZConfig;
@@ -20,16 +22,14 @@ import zgame.core.window.GameWindow;
 public class Game{
 	
 	/*
-	 *
-	 * TODO add option to turn off rendering/sounds/ticking when the window is minimized or not in focus or not visible
+	 * 
+	 * TODO potentially make a third thread that separately runs the sound, also modify documentation to say that sound updates do not need to be run in the main OpenGL loop
 	 * 
 	 * TODO add game speed option, i.e. change the amount of time that passes in each main call to tick via a multiplier, also change the speed of sound playback, also add a pause function
 	 * 
 	 * TODO add catagories of sound, i.e. you could have voices, background noise, footsteps, and have all of them volume controlled differently
 	 * 
 	 * TODO for buffers, i.e. IntBuffer, ByteBuffer, etc, only allocate the memory once, don't constantly make a new buffer
-	 * 
-	 * TODO refactor some things, change the names of the method calls in GameWindow, like instead of beginning and end, call it swap buffers or whatever
 	 * 
 	 * TODO go through code and remedy any inconsistancies, abstract out things
 	 * 
@@ -58,6 +58,21 @@ public class Game{
 	private Thread tickThread;
 	/** The {@link Runnable} used by {@link #tickThread} to run its thread */
 	private TickLoopTask tickTask;
+	
+	/** true if the game should only render frames when the game window has focus, false otherwise */
+	private boolean focusedRender;
+	/** true if the game should only update the state of the game when the game window has focus, false otherwise. If the game is not updating, this will also pause all sound */
+	private boolean focusedUpdate;
+	/** true if the game should only render frames when the game window is not minimized, false otherwise */
+	private boolean minimizedRender;
+	/** true if the game should only update the state of the game when the game is not minimized, false otherwise. If the game is not updating, this will also pause all sound */
+	private boolean minimizedUpdate;
+	/** Tracks if the sound effects were paused before pausing them due to the window losing focus or being minimized */
+	private boolean effectsPaused;
+	/** Tracks if the music was paused before pausing it due to the window losing focus or being minimized */
+	private boolean musicPaused;
+	/** Used to track if the state of the paused sounds have been updated since the window lost or gained focused, or was minimized or unminimized */
+	private boolean updateSoundState;
 	
 	/** A simple helper class used by {@link #tickLooper} to run its loop on a separate thread */
 	private class TickLoopTask implements Runnable{
@@ -114,6 +129,15 @@ public class Game{
 	 *        false to draw the image in the center of the screen leave black bars in areas that the image doesn't fill up
 	 */
 	public Game(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
+		// Init misc values
+		this.focusedRender = false;
+		this.focusedUpdate = false;
+		this.minimizedRender = false;
+		this.minimizedUpdate = false;
+		this.effectsPaused = false;
+		this.musicPaused = false;
+		this.updateSoundState = false;
+		
 		// Init sound
 		this.sounds = new SoundManager();
 		
@@ -218,54 +242,87 @@ public class Game{
 	 */
 	protected void mouseWheelMove(double amount){
 	}
+
+	/** Update the sound state, what sounds are playing, if sounds should be muted, etc */
+	private void updateSounds(){
+		SoundManager sm = this.getSounds();
+		EffectsPlayer ep = sm.getEffectsPlayer();
+		MusicPlayer mp = sm.getMusicPlayer();
+		sm.update();
+		boolean focused = this.getWindow().isFocused();
+		boolean minimized = this.getWindow().isMinimized();
+		if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized){
+			// If the sound has not yet been paused since needing to pause, then save the pause state of the sound players, and then pause them both
+			if(!this.updateSoundState){
+				this.effectsPaused = ep.isPaused();
+				this.musicPaused = ep.isPaused();
+				ep.pause();
+				mp.pause();
+				this.updateSoundState = true;
+			}
+		}
+		else{
+			// If the sound has not been unpaused since no longer needing to be paused, set the pause state to what it was before the pause
+			if(this.updateSoundState){
+				ep.setPaused(this.effectsPaused);
+				mp.setPaused(this.musicPaused);
+				this.updateSoundState = false;
+			}
+		}
+	}
 	
 	/**
 	 * The function run by the rendering GameLooper as its main loop for OpenGL.
 	 * This handles calling all the appropriate rendering methods and associated window methods for the main loop
 	 */
 	private void loopFunction(){
-		// Update sounds
-		this.getSounds().update();
-		
+		// First update the sounds
+		this.updateSounds();
+
+		boolean focused = this.getWindow().isFocused();
+		boolean minimized = this.getWindow().isMinimized();
+
 		// Update the window
-		this.getWindow().loopBegin();
+		this.getWindow().checkEvents();
 		
-		// Clear the main framebuffer
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		// Clear the internal renderer
-		Renderer r = this.getWindow().getRenderer();
-		r.clear();
-		
-		// Render objects on the renderer
-		
-		// Set up drawing to the buffer
-		glLoadIdentity();
-		glViewport(0, 0, this.getScreenWidth(), this.getScreenHeight());
-		
-		// Draw the background
-		r.setCamera(null);
-		this.renderBackground(r);
-		
-		// Draw the foreground, i.e. main objects
-		glPushMatrix();
-		r.setCamera(this.getCamera());
-		r.drawToRenderer();
-		this.getCamera().transform(this.getWindow());
-		render(r);
-		glPopMatrix();
-		
-		// Draw the hud
-		r.setCamera(null);
-		this.renderHud(r);
-		
-		// Draw the renderer to the window
-		r.drawToWindow(this.getWindow());
-		
+		// Only perform rendering operations if the window should be rendered, based on the state of the window's focus and minimize
+		if(!(this.isFocusedRender() && !focused) && !(this.isMinimizedRender() && minimized)){
+			// Clear the main framebuffer
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			
+			// Clear the internal renderer
+			Renderer r = this.getWindow().getRenderer();
+			r.clear();
+			
+			// Render objects on the renderer
+			
+			// Set up drawing to the buffer
+			glLoadIdentity();
+			glViewport(0, 0, this.getScreenWidth(), this.getScreenHeight());
+			
+			// Draw the background
+			r.setCamera(null);
+			this.renderBackground(r);
+			
+			// Draw the foreground, i.e. main objects
+			glPushMatrix();
+			r.setCamera(this.getCamera());
+			r.drawToRenderer();
+			this.getCamera().transform(this.getWindow());
+			render(r);
+			glPopMatrix();
+			
+			// Draw the hud
+			r.setCamera(null);
+			this.renderHud(r);
+			
+			// Draw the renderer to the window
+			r.drawToWindow(this.getWindow());
+		}
 		// Update the window
-		this.getWindow().loopEnd();
+		this.getWindow().swapBuffers();
 	}
 	
 	/**
@@ -327,6 +384,10 @@ public class Game{
 	 * The function run by the tick GameLooper as its main loop
 	 */
 	private void tickLoopFunction(){
+		boolean focused = this.getWindow().isFocused();
+		boolean minimized = this.getWindow().isMinimized();
+		// If the game should pause when unfocused or minimized, then do nothing
+		if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized) return;
 		this.tick(this.getTickLooper().getRateTime());
 	}
 	
@@ -363,6 +424,46 @@ public class Game{
 	 */
 	protected boolean tickLoopWaitFunction(){
 		return ZConfig.waitBetweenTicks();
+	}
+	
+	/** @return See {@link #focusedRender} */
+	public boolean isFocusedRender(){
+		return this.focusedRender;
+	}
+	
+	/** @param focusedRender See {@link #focusedRender} */
+	public void setFocusedRender(boolean focusedRender){
+		this.focusedRender = focusedRender;
+	}
+	
+	/** @return See {@link #focusedUpdate} */
+	public boolean isFocusedUpdate(){
+		return this.focusedUpdate;
+	}
+	
+	/** @param focusedUpdate See {@link #focusedUpdate} */
+	public void setFocusedUpdate(boolean focusedUpdate){
+		this.focusedUpdate = focusedUpdate;
+	}
+	
+	/** @return See {@link #minimizedRender} */
+	public boolean isMinimizedRender(){
+		return this.minimizedRender;
+	}
+	
+	/** @param minimizedRender See {@link #minimizedRender} */
+	public void setMinimizedRender(boolean minimizedRender){
+		this.minimizedRender = minimizedRender;
+	}
+	
+	/** @return See {@link #minimizedUpdate} */
+	public boolean isMinimizedUpdate(){
+		return this.minimizedUpdate;
+	}
+	
+	/** @param minimizedUpdate See {@link #minimizedUpdate} */
+	public void setMinimizedUpdate(boolean minimizedUpdate){
+		this.minimizedUpdate = minimizedUpdate;
 	}
 	
 	/** @return See {@link #window} */

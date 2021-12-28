@@ -166,6 +166,12 @@ public abstract class SoundPlayer<S extends Sound>{
 		this.paused = false;
 		for(Map.Entry<Integer, SoundSource> s : this.playing.entrySet()) s.getValue().unpause();
 	}
+
+	/** @param pause See {@link #paused} */
+	public void setPaused(boolean pause){
+		if(pause) this.pause();
+		else this.unpause();
+	}
 	
 	/** If the player is paused, unpause it, otherwise, pause it */
 	public void togglePaused(){
