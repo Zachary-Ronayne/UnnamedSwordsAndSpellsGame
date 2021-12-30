@@ -32,6 +32,7 @@ import java.awt.Rectangle;
  * 2 = toggle vsync (i.e. either match monitor refresh rate, or unlimited FPS)
  * 3 = toggle strech to fill
  * 4 = toggle printing FPS/TPS
+ * shift + 4: toggle printing the number of audio updates per second
  * 5 = toggle not rendering the game when the window doesn't have focus
  * shift + 5 = toggle not rendering the game when the window is minimized
  * alt + 5 = toggle not updating the game when the window doesn't have focus
@@ -303,8 +304,13 @@ public class MainTest extends Game{
 		if(keys.released(GLFW_KEY_4)){
 			if(down[FOUR]){
 				down[FOUR] = false;
-				game.setPrintFps(!game.isPrintFps());
-				game.setPrintTps(!game.isPrintTps());
+				if(keys.shift()){
+					game.setPrintSoundUpdates(!game.isPrintSoundUpdates());
+				}
+				else{
+					game.setPrintFps(!game.isPrintFps());
+					game.setPrintTps(!game.isPrintTps());
+				}
 			}
 		}
 		else down[FOUR] = true;

@@ -13,7 +13,7 @@ import static org.lwjgl.openal.AL11.*;
 /**
  * A class that handles and keeps track of a list of playing sounds
  * 
- * @param S The AbstractSound type which this SoundPlayer can handle
+ * @param S The {@link Sound} type which this {@link SoundPlayer} can handle
  */
 public abstract class SoundPlayer<S extends Sound>{
 	
@@ -104,12 +104,14 @@ public abstract class SoundPlayer<S extends Sound>{
 	 * For example if a music track needs to loop
 	 */
 	public void updateState(){
+
 		// Play all sounds and clear the queue
 		for(SoundPair<S> sp : this.queue) this.playSoundNow(sp.getSource(), sp.getSound());
+
 		this.queue.clear();
 		
 		// Update the states of the sounds
-		for(Map.Entry<Integer, SoundSource> s : this.playing.entrySet()) s.getValue().update();
+		for(SoundSource s : this.playing.values()) s.update();
 		
 		// Run the class defined update method
 		this.runUpdate();
@@ -128,7 +130,7 @@ public abstract class SoundPlayer<S extends Sound>{
 	/** @param muted See {@link #muted} */
 	public void setMuted(boolean muted){
 		this.muted = muted;
-		for(Map.Entry<Integer, SoundSource> s : this.playing.entrySet()) s.getValue().setMuted(muted);
+		for(SoundSource s : this.playing.values()) s.setMuted(muted);
 	}
 	
 	/** Shorthand for {@link #setMuted(boolean)} true */
@@ -157,14 +159,14 @@ public abstract class SoundPlayer<S extends Sound>{
 	public void pause(){
 		if(this.isPaused()) return;
 		this.paused = true;
-		for(Map.Entry<Integer, SoundSource> s : this.playing.entrySet()) s.getValue().pause();
+		for(SoundSource s : this.playing.values()) s.pause();
 	}
 	
 	/** Unpause the sounds of this {@link SoundPlayer} and begin playing them. If it was already unpaused, this method does nothing */
 	public void unpause(){
 		if(!this.isPaused()) return;
 		this.paused = false;
-		for(Map.Entry<Integer, SoundSource> s : this.playing.entrySet()) s.getValue().unpause();
+		for(SoundSource s : this.playing.values()) s.unpause();
 	}
 
 	/** @param pause See {@link #paused} */

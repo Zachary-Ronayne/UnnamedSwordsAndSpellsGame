@@ -21,11 +21,16 @@ import zgame.core.window.GameWindow;
  */
 public class Game{
 	
+	/**
+	 * By default, the number of times a second the sound will be updated, i.e. updating streaming sounds, checking if sounds are still playing, checking which sounds need to play, etc
+	 * Generally shouldn't modify the value in a {@link Game}, but it can be modified through {@link Game#setSoundUpdates(int)}
+	 * Setting the value too low can result in sounds getting stuck, particularly streaming sounds, i.e. music
+	 */
+	public static final int DEFAULT_SOUND_UPDATES = 100;
+	
 	/*
 	 * 
-	 * TODO potentially make a third thread that separately runs the sound, also modify documentation to say that sound updates do not need to be run in the main OpenGL loop
-	 * 
-	 * TODO add game speed option, i.e. change the amount of time that passes in each main call to tick via a multiplier, also change the speed of sound playback, also add a pause function
+	 * TODO add game speed option, i.e. change the amount of time that passes in each main call to tick via a multiplier
 	 * 
 	 * TODO add catagories of sound, i.e. you could have voices, background noise, footsteps, and have all of them volume controlled differently
 	 * 
@@ -59,6 +64,13 @@ public class Game{
 	/** The {@link Runnable} used by {@link #tickThread} to run its thread */
 	private TickLoopTask tickTask;
 	
+	/** The {@link GameLooper} which regularly updates the sound */
+	private GameLooper soundLooper;
+	/** The {@link Thread} which runs the game sound loop. This is a separate thread from the main thread, which the OpenGL loop will run on */
+	private Thread soundThread;
+	/** The {@link Runnable} used by {@link #soundThread} to run its thread */
+	private SoundLoopTask soundTask;
+	
 	/** true if the game should only render frames when the game window has focus, false otherwise */
 	private boolean focusedRender;
 	/** true if the game should only update the state of the game when the game window has focus, false otherwise. If the game is not updating, this will also pause all sound */
@@ -79,6 +91,14 @@ public class Game{
 		@Override
 		public void run(){
 			tickLooper.loop();
+		}
+	}
+	
+	/** A simple helper class used by {@link #soundLooper} to run its loop on a separate thread */
+	private class SoundLoopTask implements Runnable{
+		@Override
+		public void run(){
+			soundLooper.loop();
 		}
 	}
 	
@@ -162,6 +182,10 @@ public class Game{
 		// Create the tick loop
 		this.tickLooper = new GameLooper(tps, this::tickLoopFunction, this::shouldTick, this::keepTickLoopFunction, this::tickLoopWaitFunction, "TPS", printTps);
 		
+		// Create the sound loop
+		// TODO make settings
+		this.soundLooper = new GameLooper(DEFAULT_SOUND_UPDATES, this::updateSounds, this::shouldUpdateSound, this::keepSoundLoopFunction, this::soundLoopWaitFunction, "Audio", false);
+		
 		// Go to fullscreen if applicable
 		this.window.setInFullScreenNow(enterFullScreen);
 	}
@@ -176,6 +200,11 @@ public class Game{
 		this.tickTask = new TickLoopTask();
 		this.tickThread = new Thread(this.tickTask);
 		this.tickThread.start();
+		
+		// Run the audio loop
+		this.soundTask = new SoundLoopTask();
+		this.soundThread = new Thread(this.soundTask);
+		this.soundThread.start();
 		
 		// Run the render loop in the main thread
 		this.renderLooper.loop();
@@ -242,46 +271,15 @@ public class Game{
 	 */
 	protected void mouseWheelMove(double amount){
 	}
-
-	/** Update the sound state, what sounds are playing, if sounds should be muted, etc */
-	private void updateSounds(){
-		SoundManager sm = this.getSounds();
-		EffectsPlayer ep = sm.getEffectsPlayer();
-		MusicPlayer mp = sm.getMusicPlayer();
-		sm.update();
-		boolean focused = this.getWindow().isFocused();
-		boolean minimized = this.getWindow().isMinimized();
-		if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized){
-			// If the sound has not yet been paused since needing to pause, then save the pause state of the sound players, and then pause them both
-			if(!this.updateSoundState){
-				this.effectsPaused = ep.isPaused();
-				this.musicPaused = ep.isPaused();
-				ep.pause();
-				mp.pause();
-				this.updateSoundState = true;
-			}
-		}
-		else{
-			// If the sound has not been unpaused since no longer needing to be paused, set the pause state to what it was before the pause
-			if(this.updateSoundState){
-				ep.setPaused(this.effectsPaused);
-				mp.setPaused(this.musicPaused);
-				this.updateSoundState = false;
-			}
-		}
-	}
 	
 	/**
 	 * The function run by the rendering GameLooper as its main loop for OpenGL.
 	 * This handles calling all the appropriate rendering methods and associated window methods for the main loop
 	 */
 	private void loopFunction(){
-		// First update the sounds
-		this.updateSounds();
-
 		boolean focused = this.getWindow().isFocused();
 		boolean minimized = this.getWindow().isMinimized();
-
+		
 		// Update the window
 		this.getWindow().checkEvents();
 		
@@ -400,7 +398,7 @@ public class Game{
 	}
 	
 	/**
-	 * The function used to determine if each the tick loop should update each time regardless of time
+	 * The function used to determine if the tick loop should update each loop iteration regardless of time
 	 * 
 	 * @return Usually false, unless this method is overritten with different behavior
 	 */
@@ -424,6 +422,61 @@ public class Game{
 	 */
 	protected boolean tickLoopWaitFunction(){
 		return ZConfig.waitBetweenTicks();
+	}
+	
+	/** Update the sound state, what sounds are playing, if sounds should be muted, etc */
+	private void updateSounds(){
+		SoundManager sm = this.getSounds();
+		EffectsPlayer ep = sm.getEffectsPlayer();
+		MusicPlayer mp = sm.getMusicPlayer();
+		sm.update();
+		boolean focused = this.getWindow().isFocused();
+		boolean minimized = this.getWindow().isMinimized();
+		if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized){
+			// If the sound has not yet been paused since needing to pause, then save the pause state of the sound players, and then pause them both
+			if(!this.updateSoundState){
+				this.effectsPaused = ep.isPaused();
+				this.musicPaused = ep.isPaused();
+				ep.pause();
+				mp.pause();
+				this.updateSoundState = true;
+			}
+		}
+		else{
+			// If the sound has not been unpaused since no longer needing to be paused, set the pause state to what it was before the pause
+			if(this.updateSoundState){
+				ep.setPaused(this.effectsPaused);
+				mp.setPaused(this.musicPaused);
+				this.updateSoundState = false;
+			}
+		}
+	}
+	
+	/**
+	 * The function used to determine if the sound loop should update each loop iteration regardless of time
+	 * 
+	 * @return Usually false, unless this method is overritten with different behavior
+	 */
+	protected boolean shouldUpdateSound(){
+		return false;
+	}
+	
+	/**
+	 * The function used to determine if the sound loop should end
+	 * 
+	 * @return Usually the same result as {@link #keepRenderLoopFunction()}, unless this method is overritten with different behavior
+	 */
+	protected boolean keepSoundLoopFunction(){
+		return this.keepRenderLoopFunction();
+	}
+	
+	/**
+	 * The function used to determine if the sound loop should wait between running each tick
+	 * 
+	 * @return Usually true, unless this method is overritten with different behavior
+	 */
+	protected boolean soundLoopWaitFunction(){
+		return true;
 	}
 	
 	/** @return See {@link #focusedRender} */
@@ -549,7 +602,7 @@ public class Game{
 		this.renderLooper.setPrintRate(print);
 	}
 	
-	/** @return The number of times each second that this GameWindow runs a game tick */
+	/** @return The number of times each second that this {@link Game} runs a game tick */
 	public int getTps(){
 		return this.tickLooper.getRate();
 	}
@@ -567,6 +620,26 @@ public class Game{
 	/** @param print See {@link #isPrintTps()} */
 	public void setPrintTps(boolean print){
 		this.tickLooper.setPrintRate(print);
+	}
+	
+	/** @return The number of times each second that the sound will update */
+	public int getSoundUpdates(){
+		return this.soundLooper.getRate();
+	}
+	
+	/** @param s See {@link #getSoundUpdates()} */
+	public void setSoundUpdates(int s){
+		this.soundLooper.setRate(s);
+	}
+	
+	/** @return true if, once per second, the number of audio updates in that second should be printed */
+	public boolean isPrintSoundUpdates(){
+		return this.soundLooper.willPrintRate();
+	}
+	
+	/** @param print true to, once per second, print the number of audio updates in that second, false otherwise */
+	public void setPrintSoundUpdates(boolean print){
+		this.soundLooper.setPrintRate(print);
 	}
 	
 	/** @return Get the object tracking mouse input for this {@link Game} */
