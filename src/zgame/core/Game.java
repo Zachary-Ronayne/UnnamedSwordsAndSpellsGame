@@ -63,6 +63,11 @@ public class Game{
 	private Thread tickThread;
 	/** The {@link Runnable} used by {@link #tickThread} to run its thread */
 	private TickLoopTask tickTask;
+	/**
+	 * The factor in which time passes during each game tick, i.e. this number is multiplied to dt each time the main loop calls {@link #tick(double)}
+	 * Values higher than 1 make the game faster, values less than 1 make the game slower, this value will not go below 0 
+	 */
+	private double gameSpeed;
 	
 	/** The {@link GameLooper} which regularly updates the sound */
 	private GameLooper soundLooper;
@@ -150,6 +155,8 @@ public class Game{
 	 */
 	public Game(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
 		// Init misc values
+		this.gameSpeed = 1;
+
 		this.focusedRender = false;
 		this.focusedUpdate = false;
 		this.minimizedRender = false;
@@ -386,7 +393,7 @@ public class Game{
 		boolean minimized = this.getWindow().isMinimized();
 		// If the game should pause when unfocused or minimized, then do nothing
 		if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized) return;
-		this.tick(this.getTickLooper().getRateTime());
+		this.tick(this.getTickLooper().getRateTime() * this.getGameSpeed());
 	}
 	
 	/**
@@ -609,7 +616,18 @@ public class Game{
 	
 	/** @param See {@link #getTps()} */
 	public void setTps(int tps){
+		tps = Math.max(1, tps);
 		this.tickLooper.setRate(tps);
+	}
+
+	/** @return See {@link #gameSpeed} */
+	public double getGameSpeed(){
+		return this.gameSpeed;
+	}
+
+	/** @param gameSpeed See {@link #gameSpeed} */
+	public void setGameSpeed(double gameSpeed){
+		this.gameSpeed = Math.max(0, gameSpeed);
 	}
 	
 	/** @return true if the tps should be printed once each second, false otherwise */

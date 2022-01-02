@@ -53,6 +53,10 @@ import java.awt.Rectangle;
  * F2 = decrease effects volume
  * shift + F1 = increase music volume
  * shift + F2 = decrease music volume
+ * F11 = decrease game speed
+ * F12 = increase game speed
+ * shift + F11 = decrease TPS
+ * shift + F12 = increase TPS
  * -----------------------------------------
  * Indicators in the upper left hand corner for muted/paused: black = neither, red = muted, blue = paused, magenta = both muted and paused.
  * The size of the box represents the volume, a bigger box means higher volume
@@ -174,6 +178,15 @@ public class MainTest extends Game{
 				else if(!keys.shift() && keys.alt()) game.setFocusedUpdate(!game.isFocusedUpdate());
 				else game.setMinimizedUpdate(!game.isMinimizedUpdate());
 			}
+			
+			else if(key == GLFW_KEY_F11){
+				if(keys.shift()) game.setTps(game.getTps() - 5);
+				else game.setGameSpeed(game.getGameSpeed() - 0.1);
+			}
+			else if(key == GLFW_KEY_F12){
+				if(keys.shift()) game.setTps(game.getTps() + 5);
+				else game.setGameSpeed(game.getGameSpeed() + 0.1);
+			}
 		}
 	}
 	
@@ -245,12 +258,12 @@ public class MainTest extends Game{
 		bb = m.isPaused() ? 1 : 0;
 		r.setColor(rr, 0, bb);
 		r.drawRectangle(40, 5, 30, 30 * m.getVolume());
-
+		
 		rr = game.isFocusedRender() ? 1 : 0;
 		bb = game.isMinimizedRender() ? 1 : 0;
 		r.setColor(rr, 0, bb);
 		r.drawRectangle(930, 5, 30, 30);
-
+		
 		rr = game.isFocusedUpdate() ? 1 : 0;
 		bb = game.isMinimizedUpdate() ? 1 : 0;
 		r.setColor(rr, 0, bb);
