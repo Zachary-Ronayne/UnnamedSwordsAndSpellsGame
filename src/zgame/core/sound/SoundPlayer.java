@@ -1,12 +1,6 @@
 package zgame.core.sound;
 
-import java.nio.IntBuffer;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
-
-import org.lwjgl.BufferUtils;
 
 import static org.lwjgl.openal.AL11.*;
 
@@ -18,7 +12,7 @@ import static org.lwjgl.openal.AL11.*;
 public abstract class SoundPlayer<S extends Sound>{
 	
 	/** A collection of every sound currently played by this {@link SoundPlayer} */
-	private Map<Integer, SoundSource> playing;
+	private SoundMap playing;
 	
 	/** The queue of sounds which will begin playing on the next update */
 	private LinkedList<SoundPair<S>> queue;
@@ -29,19 +23,12 @@ public abstract class SoundPlayer<S extends Sound>{
 	/** true if this {@link SoundPlayer} is paused and should not play any sounds, false otherwise */
 	private boolean paused;
 	
-	/**
-	 * The current volume of this {@link SoundPlayer}. If this player is muted, this variable still retains its value.
-	 * This value will always stay in the range [0, 1]
-	 */
-	private double volume;
-	
 	/** Create an empty {@link SoundPlayer} with no currently playing sounds */
 	public SoundPlayer(){
-		this.playing = new HashMap<Integer, SoundSource>();
+		this.playing = new SoundMap();
 		this.queue = new LinkedList<SoundPair<S>>();
 		this.unmute();
 		this.unpause();
-		this.volume = 1;
 	}
 	
 	/** Immediately stop playinig and remove all currently played sounds, unmute the audio, and unpause the audio */
@@ -49,8 +36,7 @@ public abstract class SoundPlayer<S extends Sound>{
 		this.unmute();
 		this.unpause();
 		
-		for(Map.Entry<Integer, SoundSource> s : this.playing.entrySet()) alSourceStop(s.getValue().getId());
-		this.playing.clear();
+		this.playing.clearSound();
 		this.queue.clear();
 	}
 	
@@ -73,15 +59,15 @@ public abstract class SoundPlayer<S extends Sound>{
 	 */
 	private void playSoundNow(SoundSource source, S sound){
 		// Keep track of the source that is now player
-		this.playing.put(source.getId(), source);
+		this.playing.put(source);
 		// Use the source to keep track of the sound
 		source.setCurrent(sound);
 		
 		// Ensure the source is appropriately muted, paused, or the correct volume, based on the current state of this sound player
 		source.setMuted(this.isMuted());
 		source.setPaused(this.isPaused());
-		double v = (this.isMuted() || this.isPaused()) ? 0 : this.getVolume();
-		alSourcef(source.getId(), AL_GAIN, (float)v);
+		source.updateVolumeLevel();
+		if(this.isPaused()) alSourcef(source.getId(), AL_GAIN, 0.0f);
 		
 		// Play the actual sound, playing it from the beginning
 		alSourceRewind(source.getId());
@@ -104,14 +90,14 @@ public abstract class SoundPlayer<S extends Sound>{
 	 * For example if a music track needs to loop
 	 */
 	public void updateState(){
-
+		
 		// Play all sounds and clear the queue
 		for(SoundPair<S> sp : this.queue) this.playSoundNow(sp.getSource(), sp.getSound());
-
+		
 		this.queue.clear();
 		
 		// Update the states of the sounds
-		for(SoundSource s : this.playing.values()) s.update();
+		this.playing.update();
 		
 		// Run the class defined update method
 		this.runUpdate();
@@ -130,7 +116,7 @@ public abstract class SoundPlayer<S extends Sound>{
 	/** @param muted See {@link #muted} */
 	public void setMuted(boolean muted){
 		this.muted = muted;
-		for(SoundSource s : this.playing.values()) s.setMuted(muted);
+		this.playing.setMuted(muted);
 	}
 	
 	/** Shorthand for {@link #setMuted(boolean)} true */
@@ -159,20 +145,19 @@ public abstract class SoundPlayer<S extends Sound>{
 	public void pause(){
 		if(this.isPaused()) return;
 		this.paused = true;
-		for(SoundSource s : this.playing.values()) s.pause();
+		this.playing.setPaused(true);
 	}
 	
 	/** Unpause the sounds of this {@link SoundPlayer} and begin playing them. If it was already unpaused, this method does nothing */
 	public void unpause(){
 		if(!this.isPaused()) return;
 		this.paused = false;
-		for(SoundSource s : this.playing.values()) s.unpause();
+		this.playing.setPaused(false);
 	}
-
+	
 	/** @param pause See {@link #paused} */
 	public void setPaused(boolean pause){
-		if(pause) this.pause();
-		else this.unpause();
+		this.playing.setPaused(pause);
 	}
 	
 	/** If the player is paused, unpause it, otherwise, pause it */
@@ -181,23 +166,19 @@ public abstract class SoundPlayer<S extends Sound>{
 		else this.pause();
 	}
 	
-	/** @return See {@link #volume} */
+	/** @return The current volume set for every sound in this {@link SoundPlayer} */
 	public double getVolume(){
-		return this.volume;
+		return this.playing.getVolume();
 	}
 	
-	/** @param See {@link #volume} */
+	/** @param See The volume to set every sound in this {@link SoundPlayer} to play at */
 	public void setVolume(double volume){
-		this.volume = Math.min(1, Math.max(0, volume));
-		if(!this.isMuted()){
-			for(SoundSource s : this.playing.values()) s.setVolume(this.getVolume());
-			
-		}
+		this.playing.setVolume(volume);
 	}
 	
-	/** @param The amount to add to {@link #volume} */
+	/** Like {@link #setVolume(double)}, but add the volume instead of setting it */
 	public void addVolume(double volume){
-		this.setVolume(this.getVolume() + volume);
+		this.playing.addVolume(volume);
 	}
 	
 	/**
@@ -208,8 +189,7 @@ public abstract class SoundPlayer<S extends Sound>{
 	 * @return The array
 	 */
 	public SoundSource[] getPlaying(){
-		Collection<SoundSource> s = this.playing.values();
-		return s.toArray(new SoundSource[s.size()]);
+		return this.playing.toArray();
 	}
 	
 	/**
@@ -218,19 +198,7 @@ public abstract class SoundPlayer<S extends Sound>{
 	 * @return true if at least one sound was removed, false otheriwse
 	 */
 	public boolean removeFinishedSounds(){
-		boolean found = false;
-		SoundSource[] play = this.getPlaying();
-		for(int i = 0; i < play.length; i++){
-			SoundSource s = this.playing.get(play[i].getId());
-			IntBuffer buf = BufferUtils.createIntBuffer(1);
-			alGetSourcei(s.getId(), AL_SOURCE_STATE, buf);
-			int state = buf.get(0);
-			if(state == AL_STOPPED){
-				this.playing.remove(s.getId());
-				found = true;
-			}
-		}
-		return found;
+		return this.playing.removeFinishedSounds();
 	}
 	
 }

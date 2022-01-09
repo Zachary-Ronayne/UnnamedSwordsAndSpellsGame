@@ -15,6 +15,13 @@ public class SoundSource extends SoundLocation{
 	/** The current level of loudness of this {@link SoundSource}. 0 = muted, 1 = maximum volume without peaking. Value can be higher than 1, but could result in unintentionally distorted audio */
 	private double volume;
 	
+	/**
+	 * The volume of this sound before being modified by other sounds.
+	 * So, if this {@link SoundSource} is part of a {@link SoundPlayer}, then the end result volume will be this value multiplied by the volume of the player. 
+	 * This value cannot go below zero
+	 */
+	private double baseVolume;
+	
 	/** true if this {@link SoundSource} should make no sonud, regardless {@link #volume}, false otherwise */
 	private boolean muted;
 	
@@ -44,11 +51,23 @@ public class SoundSource extends SoundLocation{
 	 * @param y The current y position of the sound
 	 */
 	public SoundSource(double x, double y){
+		this(x, y, 1);
+	}
+
+	/**
+	 * Create and initialize a new {@link SoundSource}
+	 * 
+	 * @param x The current x position of the sound
+	 * @param y The current y position of the sound
+	 * @param baseVolume See {@link #baseVolume}
+	 */
+	public SoundSource(double x, double y, double baseVolume){
 		super();
 		this.id = alGenSources();
 		this.muted = false;
 		this.paused = false;
 		this.currentPaused = false;
+		this.setBaseVolume(baseVolume);
 		this.setVolume(1);
 		this.pausedSample = -1;
 		alSourcef(this.getId(), AL_PITCH, 1);
@@ -96,9 +115,40 @@ public class SoundSource extends SoundLocation{
 	/** @param volume See {@link #volume} */
 	public void setVolume(double volume){
 		this.volume = volume;
-		if(!this.isMuted()) alSourcef(id, AL_GAIN, (float)volume);
+		this.updateVolumeLevel();
 	}
 	
+	/** @param volume The amount to add to {@link #volume} */
+	public void addVolume(double volume){
+		this.setVolume(this.getVolume() + volume);
+	}
+
+	/** Based on the current state of the source, i.e. base volume, current volume, muted, set the correct volume level in OpenAL */
+	public void updateVolumeLevel(){
+		alSourcef(id, AL_GAIN, (float)this.getTotalVolume());
+	}
+
+	/** @return See {@link #baseVolume} */
+	public double getBaseVolume(){
+		return this.baseVolume;
+	}
+	
+	/** @param baseVolume See {@link #baseVolume} */
+	public void setBaseVolume(double baseVolume){
+		this.baseVolume = Math.max(0, baseVolume);
+	}
+	
+	/** @param volume The amount to add to {@link #baseVolume} */
+	public void addBaseVolume(double volume){
+		this.setBaseVolume(this.getBaseVolume() + volume);
+		this.updateVolumeLevel();
+	}
+	
+	/** @return The volume of the sound source based on the current state of the source. This accounts for base volume, current volume, and if the sound is muted */
+	public double getTotalVolume(){
+		return this.isMuted() ? 0 : (this.getVolume() * this.getBaseVolume());
+	}
+
 	/** @return See {@link #muted} */
 	public boolean isMuted(){
 		return this.muted;
@@ -107,8 +157,7 @@ public class SoundSource extends SoundLocation{
 	/** @param muted See {@link #muted} */
 	public void setMuted(boolean muted){
 		this.muted = muted;
-		float v = this.isMuted() ? 0.0f : (float)this.getVolume();
-		alSourcef(this.getId(), AL_GAIN, v);
+		this.updateVolumeLevel();
 	}
 	
 	/** Shorthand for {@link #setMuted(boolean)} true */
@@ -125,7 +174,7 @@ public class SoundSource extends SoundLocation{
 	public boolean isPaused(){
 		return this.paused;
 	}
-
+	
 	/**
 	 * @param paused See {@link #paused}
 	 */
@@ -142,7 +191,7 @@ public class SoundSource extends SoundLocation{
 	public void pause(){
 		if(this.isPaused()) return;
 		this.paused = true;
-
+		
 		// Track the sample position and then mute the sound immediately
 		this.pausedSample = this.getSamplePos();
 		alSourcef(this.getId(), AL_GAIN, 0);

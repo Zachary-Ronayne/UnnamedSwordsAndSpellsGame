@@ -30,9 +30,7 @@ public class Game{
 	
 	/*
 	 * 
-	 * TODO add game speed option, i.e. change the amount of time that passes in each main call to tick via a multiplier
-	 * 
-	 * TODO add catagories of sound, i.e. you could have voices, background noise, footsteps, and have all of them volume controlled differently
+	 * TODO allow sounds to be loaded from individual folders, where each folder represents a type of sound
 	 * 
 	 * TODO for buffers, i.e. IntBuffer, ByteBuffer, etc, only allocate the memory once, don't constantly make a new buffer
 	 * 
@@ -190,7 +188,6 @@ public class Game{
 		this.tickLooper = new GameLooper(tps, this::tickLoopFunction, this::shouldTick, this::keepTickLoopFunction, this::tickLoopWaitFunction, "TPS", printTps);
 		
 		// Create the sound loop
-		// TODO make settings
 		this.soundLooper = new GameLooper(DEFAULT_SOUND_UPDATES, this::updateSounds, this::shouldUpdateSound, this::keepSoundLoopFunction, this::soundLoopWaitFunction, "Audio", false);
 		
 		// Go to fullscreen if applicable

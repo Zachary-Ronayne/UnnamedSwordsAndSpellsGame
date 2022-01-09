@@ -5,6 +5,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
+import zgame.core.sound.EffectSound;
 import zgame.core.sound.EffectsPlayer;
 import zgame.core.sound.MusicPlayer;
 import zgame.core.sound.SoundManager;
@@ -53,6 +54,14 @@ import java.awt.Rectangle;
  * F2 = decrease effects volume
  * shift + F1 = increase music volume
  * shift + F2 = decrease music volume
+ * F3 = increase the win sound effect volume
+ * F4 = decrease the win sound effect volume
+ * shift + F3 = increase the lose sound effect volume
+ * shift + F4 = decrease the lose sound effect volume
+ * F5 = increase the good sound effect volume
+ * F6 = decrease the good sound effect volume
+ * shift + F5 = increase the bad sound effect volume
+ * shift + F6 = decrease the bad sound effect volume
  * F11 = decrease game speed
  * F12 = increase game speed
  * shift + F11 = decrease TPS
@@ -119,7 +128,9 @@ public class MainTest extends Game{
 		
 		// Add sounds
 		SoundManager sm = game.getSounds();
-		sm.addAllSounds();
+		// sm.addAllSounds();
+		sm.addEffect(EffectSound.loadSound("win", "good"), "win");
+		sm.addEffect(EffectSound.loadSound("lose", "bad"), "lose");
 		
 		// Set the sound scaling distance
 		sm.setDistanceScalar(.04);
@@ -171,7 +182,7 @@ public class MainTest extends Game{
 				else s.getEffectsPlayer().toggleMuted();
 			}
 			else if(key == GLFW_KEY_L) s.getMusicPlayer().toggleLooping();
-
+			
 			else if(key == GLFW_KEY_5){
 				if(!keys.shift() && !keys.alt()) game.setFocusedRender(!game.isFocusedRender());
 				else if(keys.shift() && !keys.alt()) game.setMinimizedRender(!game.isMinimizedRender());
@@ -331,13 +342,31 @@ public class MainTest extends Game{
 		
 		// Adjust volume
 		SoundManager sm = game.getSounds();
+		EffectsPlayer ep = sm.getEffectsPlayer();
+		MusicPlayer mp = sm.getMusicPlayer();
 		if(keys.pressed(GLFW_KEY_F1)){
-			if(keys.shift()) sm.getMusicPlayer().addVolume(dt * 0.5);
-			else sm.getEffectsPlayer().addVolume(dt * 0.5);
+			if(keys.shift()) mp.addVolume(dt * 0.5);
+			else ep.addVolume(dt * 0.5);
 		}
 		else if(keys.pressed(GLFW_KEY_F2)){
-			if(keys.shift()) sm.getMusicPlayer().addVolume(dt * -0.5);
-			else sm.getEffectsPlayer().addVolume(dt * -0.5);
+			if(keys.shift()) mp.addVolume(dt * -0.5);
+			else ep.addVolume(dt * -0.5);
+		}
+		else if(keys.pressed(GLFW_KEY_F3)){
+			if(keys.shift()) loseSource.addBaseVolume(dt * 0.5);
+			else winSource.addBaseVolume(dt * 0.5);
+		}
+		else if(keys.pressed(GLFW_KEY_F4)){
+			if(keys.shift()) loseSource.addBaseVolume(dt * -0.5);
+			else winSource.addBaseVolume(dt * -0.5);
+		}
+		else if(keys.pressed(GLFW_KEY_F5)){
+			if(keys.shift()) ep.addTypeVolume("bad", dt * 0.5);
+			else ep.addTypeVolume("good", dt * 0.5);
+		}
+		else if(keys.pressed(GLFW_KEY_F6)){
+			if(keys.shift()) ep.addTypeVolume("bad", dt * -0.5);
+			else ep.addTypeVolume("good", dt * -0.5);
 		}
 		// Move the player with keys
 		double hMoveState = 0;
