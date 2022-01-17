@@ -9,7 +9,7 @@ import static org.lwjgl.openal.ALC11.*;
 
 import org.lwjgl.openal.ALUtil;
 
-import zgame.core.utils.AssetUtils;
+import zgame.core.utils.ZAssetUtils;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZFilePaths;
 import zgame.core.utils.ZStringUtils;
@@ -173,7 +173,8 @@ public class SoundManager{
 	 * @param name The name of the sound, which must exist as a .ogg file in ZFilePaths.EFFECTS use this value when playing sounds
 	 */
 	public void addEffect(String name){
-		this.addEffect(EffectSound.loadSound(name), name);
+		EffectSound e = EffectSound.loadSound(name);
+		this.addEffect(e, name);
 	}
 	
 	/**
@@ -215,17 +216,28 @@ public class SoundManager{
 	
 	/**
 	 * Load all the sounds as effects in {@link ZFilePaths#EFFECTS}, where the name of the file without a file extension is how they will be referred to using {@link #playEffect(SoundSource, String)}
+	 * The files should be stored such that {@link ZFilePaths#EFFECT} contains folders, where each folder is named as the type of sound countained by that folder.
+	 * Then, each of those folders will contain the sound files which will be of the type of the folder they are in
 	 */
 	public void addAllEffects(){
-		List<String> names = AssetUtils.getFileNames(ZStringUtils.concat("/", ZFilePaths.EFFECTS), false);
-		for(String s : names) this.addEffect(s);
+		// First find all the folders
+		List<String> folders = ZAssetUtils.getAllFolders(ZFilePaths.EFFECTS);
+
+		// Now for each folder, add every effect in those folders, using the folder as the type
+		for(String f : folders){
+			// Get every file in the folder
+			List<String> names = ZAssetUtils.getAllFiles(ZStringUtils.concat(ZFilePaths.EFFECTS, "/", f), false);
+			
+			// Add each file
+			for(String n : names) this.addEffect(EffectSound.loadSound(ZStringUtils.concat(f, "/", n), f), n);
+		}
 	}
 	
 	/**
 	 * Load all the sounds as music in {@link ZFilePaths#MUSIC}, where the name of the file without a file extension is how they will be referred to using {@link #playMusic(String)}
 	 */
 	public void addAllMusic(){
-		List<String> names = AssetUtils.getFileNames(ZStringUtils.concat("/", ZFilePaths.MUSIC), false);
+		List<String> names = ZAssetUtils.getNames(ZFilePaths.MUSIC, false);
 		for(String s : names) this.addMusic(s);
 	}
 	

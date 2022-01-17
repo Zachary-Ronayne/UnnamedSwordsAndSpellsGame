@@ -19,22 +19,24 @@ import java.util.stream.Stream;
 import org.lwjgl.BufferUtils;
 
 /** A class containing utility methods for loading assets */
-public final class AssetUtils{
+public final class ZAssetUtils{
 	
 	/**
-	 * Get every file name at a specified directory
+	 * Get every file and folder name at a specified directory
 	 * 
-	 * @param basePath The path to look for files
+	 * @param basePath The path to look for names
 	 * @param includeExtension true to include the extension on the end of files, false for only the name
-	 * @return A list containing every file name
+	 * @return A list containing every file name. This will contain both files and folders in no guarenteed order
 	 */
-	public static List<String> getFileNames(String basePath, boolean includeExtension){
+	public static List<String> getNames(String basePath, boolean includeExtension){
+		basePath = ZStringUtils.concat("/", basePath);
+		
 		List<String> names = new ArrayList<String>();
 		FileSystem fileSystem = null;
 		Stream<Path> walk = null;
 		try{
 			// Get a URI which represents the location of the files
-			URI uri = AssetUtils.class.getResource(basePath).toURI();
+			URI uri = ZAssetUtils.class.getResource(basePath).toURI();
 			Path path;
 			
 			// If the files are loaded from a jar
@@ -82,13 +84,66 @@ public final class AssetUtils{
 	}
 	
 	/**
+	 * Get the name of only the files or only the folders contained by the given path. 
+	 * This method assumes that all files have a file extension
+	 * 
+	 * @param basePath The path to find the names
+	 * @param files true to only include files in the list, false to only include folders
+	 * @param extensions true to include file extensions, false otherwise. Only applies if files is true
+	 * @return A {@link List} containing the name of every folder
+	 */
+	public static List<String> getNameTypes(String basePath, boolean files, boolean extensions){
+		// Get all files and folders
+		List<String> names = getNames(basePath, true);
+		List<String> newNames = new ArrayList<String>();
+		
+		// If the file contains a dot, then it is a file with a file extension, otherwise it is a folder
+		for(String s : names){
+			boolean isFile = s.contains(".");
+			if(isFile && files){
+				// If needed, remove the file extension
+				if(!extensions){
+					int dotPos = s.indexOf(".");
+					if(dotPos >= 0) s = s.substring(0, dotPos);
+				}
+				newNames.add(s);
+			}
+			else if(!isFile && !files) newNames.add(s);
+		}
+		return newNames;
+	}
+	
+	/**
+	 * Get the name of only the files contained by the given path.
+	 * This method assumes that all files have a file extension
+	 * 
+	 * @param basePath The path to find the files
+	 * @param extensions true to include file extensions, false otherwise.
+	 * @return A {@link List} containing the name of every file
+	 */
+	public static List<String> getAllFiles(String basePath, boolean extension){
+		return getNameTypes(basePath, true, extension);
+	}
+
+	/**
+	 * Get the name of only the folders contained by the given path. 
+	 * This method assumes that all files have a file extension
+	 * 
+	 * @param basePath The path to find the folders
+	 * @return A {@link List} containing the name of every folder
+	 */
+	public static List<String> getAllFolders(String basePath){
+		return getNameTypes(basePath, false, false);
+	}
+
+	/**
 	 * Get an {@link InputStream} which can load files directly from the jar file
 	 * 
 	 * @param path The path to load from
 	 * @return The stream
 	 */
 	public static InputStream getJarInputStream(String path){
-		return AssetUtils.class.getClassLoader().getResourceAsStream(path);
+		return ZAssetUtils.class.getClassLoader().getResourceAsStream(path);
 	}
 	
 	/**
@@ -114,6 +169,6 @@ public final class AssetUtils{
 	}
 	
 	/** Cannot instantiate {@link #AssetUtils()} */
-	private AssetUtils(){
+	private ZAssetUtils(){
 	}
 }

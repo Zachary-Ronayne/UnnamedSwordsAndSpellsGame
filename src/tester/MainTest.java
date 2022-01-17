@@ -5,7 +5,6 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
-import zgame.core.sound.EffectSound;
 import zgame.core.sound.EffectsPlayer;
 import zgame.core.sound.MusicPlayer;
 import zgame.core.sound.SoundManager;
@@ -128,9 +127,7 @@ public class MainTest extends Game{
 		
 		// Add sounds
 		SoundManager sm = game.getSounds();
-		// sm.addAllSounds();
-		sm.addEffect(EffectSound.loadSound("win", "good"), "win");
-		sm.addEffect(EffectSound.loadSound("lose", "bad"), "lose");
+		sm.addAllSounds();
 		
 		// Set the sound scaling distance
 		sm.setDistanceScalar(.04);

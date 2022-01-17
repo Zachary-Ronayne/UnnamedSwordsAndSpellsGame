@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import zgame.core.utils.AssetUtils;
+import zgame.core.utils.ZAssetUtils;
 import zgame.core.utils.ZFilePaths;
 import zgame.core.utils.ZStringUtils;
 
@@ -56,7 +56,7 @@ public class ImageManager{
 	 * Load all the images in {@link ZFilePaths#IMAGES}, where the name of the file without a file extension is how they will be referred to using {@link #getImage(String)}
 	 */
 	public void addAllImages(){
-		List<String> names = AssetUtils.getFileNames(ZStringUtils.concat("/", ZFilePaths.IMAGES), false);
+		List<String> names = ZAssetUtils.getNames(ZFilePaths.IMAGES, false);
 		for(String s : names) this.addImage(s);
 	}
 	

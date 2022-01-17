@@ -30,8 +30,6 @@ public class Game{
 	
 	/*
 	 * 
-	 * TODO allow sounds to be loaded from individual folders, where each folder represents a type of sound
-	 * 
 	 * TODO for buffers, i.e. IntBuffer, ByteBuffer, etc, only allocate the memory once, don't constantly make a new buffer
 	 * 
 	 * TODO go through code and remedy any inconsistancies, abstract out things

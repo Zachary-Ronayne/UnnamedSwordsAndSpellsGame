@@ -9,7 +9,7 @@ import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
 
-import zgame.core.utils.AssetUtils;
+import zgame.core.utils.ZAssetUtils;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZFilePaths;
 import zgame.core.utils.ZStringUtils;
@@ -46,7 +46,7 @@ public class GameImage{
 		this.setPixelSettings();
 		
 		// Load the image from the jar
-		ByteBuffer buff = AssetUtils.getJarBytes(this.getPath());
+		ByteBuffer buff = ZAssetUtils.getJarBytes(this.getPath());
 		
 		// Load the image in with stbi
 		IntBuffer w = BufferUtils.createIntBuffer(1);

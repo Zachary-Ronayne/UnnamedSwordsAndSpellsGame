@@ -8,7 +8,7 @@ import org.lwjgl.PointerBuffer;
 import static org.lwjgl.openal.AL11.*;
 import static org.lwjgl.stb.STBVorbis.*;
 
-import zgame.core.utils.AssetUtils;
+import zgame.core.utils.ZAssetUtils;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
 
@@ -57,7 +57,7 @@ public abstract class Sound{
 	 */
 	public PointerBuffer load(boolean freePointer){
 		// Load the bytes of the sound from the jar
-		ByteBuffer buff = AssetUtils.getJarBytes(this.getPath());
+		ByteBuffer buff = ZAssetUtils.getJarBytes(this.getPath());
 
 		// Load in the sound in with stb
 		IntBuffer channels = BufferUtils.createIntBuffer(1);
