@@ -36,7 +36,7 @@ public abstract class GameWindow{
 	/** true if this window is currently in focus, false otherwise */
 	private boolean focused;
 	
-	/** true to use vsync, i.e. lock the framerate to the refreshrate of the monitor, false otherwise */
+	/** true to use vsync, i.e. lock the framerate to the refresh rate of the monitor, false otherwise */
 	private boolean useVsync;
 	/** Determines if on the next OpenGL loop, vsync should update */
 	private OnOffState updateVsync;
@@ -45,16 +45,16 @@ public abstract class GameWindow{
 	private Renderer renderer;
 	
 	/** A lambda function which is called each time a key is pressed or released, can be null to do nothing */
-	private KeyAction keyActionMethod;
+	private ButtonAction keyActionMethod;
 	/** A lambda function which is called each time a mouse button is pressed or released, can be null to do nothing */
-	private MouseAction mouseActionMethod;
+	private ButtonAction mouseActionMethod;
 	/** A lambda function which is called each time a mouse is moved, can be null to do nothing */
 	private MouseMove mouseMoveMethod;
-	/** A lambda function which is called each time a mousewheel is moved, can be null to do nothing */
+	/** A lambda function which is called each time a mouse wheel is moved, can be null to do nothing */
 	private MouseWheelMove mouseWheelMoveMethod;
 	
 	/**
-	 * true if, when drawing the final Renderer image to the screen, the image should stretch to fill up the entire screen,
+	 * true if, when drawing the final {@link Renderer} image to the screen, the image should stretch to fill up the entire screen,
 	 * false to draw the image in the center of the screen leave black bars in areas that the image doesn't fill up
 	 */
 	private boolean stretchToFill;
@@ -83,8 +83,8 @@ public abstract class GameWindow{
 	/** The inverse of {@link #viewportH} */
 	private double viewportHInverse;
 	
-	/** An interface for a lambda method which is called each time a key is pressed or released */
-	public interface KeyAction{
+	/** An interface for a lambda method which is called each time a key or mouse button is pressed or released */
+	public interface ButtonAction{
 		/**
 		 * Called when a key is pressed or released
 		 * 
@@ -95,20 +95,6 @@ public abstract class GameWindow{
 		 * @param ctrl true if ctrl is pressed, false otherwise
 		 */
 		public void act(int key, boolean press, boolean shift, boolean alt, boolean ctrl);
-	}
-	
-	/** An interface for a lambda method which is called each time a mouse button is pressed or released */
-	public interface MouseAction{
-		/**
-		 * Called when a mouse button is pressed or released
-		 * 
-		 * @param button The ID of the mouse button
-		 * @param press true if the key was pressed, false for released
-		 * @param shift true if shift is pressed, false otherwise
-		 * @param alt true if alt is pressed, false otherwise
-		 * @param ctrl true if ctrl is pressed, false otherwise
-		 */
-		public void act(int button, boolean press, boolean shift, boolean alt, boolean ctrl);
 	}
 	
 	/** An interface for a lambda method which is called each time a mouse is moved */
@@ -122,7 +108,7 @@ public abstract class GameWindow{
 		public void act(double x, double y);
 	}
 	
-	/** An interface for a lambda method which is called each time a mousewheel is moved */
+	/** An interface for a lambda method which is called each time a mouse wheel is moved */
 	public interface MouseWheelMove{
 		/**
 		 * Called when a mouse button is pressed or released
@@ -161,7 +147,7 @@ public abstract class GameWindow{
 		this.mouseMoveMethod = null;
 		this.mouseWheelMoveMethod = null;
 		
-		// Ensure context is set up
+		// Ensure window context is set up
 		this.createContext();
 		
 		// This line is critical for LWJGL's interoperation with GLFW's
@@ -195,7 +181,7 @@ public abstract class GameWindow{
 		DisplayList.initLists();
 	}
 	
-	/** Called during object initialization. Must establish context with OpenGL before further initialization can occur */
+	/** Called during object initialization. Must establish window context with OpenGL before further initialization can occur */
 	protected abstract void createContext();
 	
 	/**
@@ -220,17 +206,17 @@ public abstract class GameWindow{
 	
 	/** End the program, freeing all resources */
 	public void end(){
-		this.getRenderer().destory();
+		this.getRenderer().destroy();
 	}
 	
 	/** @return true if the current window is no longer used and should close */
 	public abstract boolean shouldClose();
 	
 	/**
-	 * Assign the current window all needed callbacks, i.e. input, window size changing.
-	 * This will usually be expensive operation and should not be regularly called
+	 * Assign the current window all needed callbacks, i.e. input, window size changing, etc.
+	 * This will usually be an expensive operation and should not be regularly called
 	 * 
-	 * @return true if the callbacks could be set, false if an error occured
+	 * @return true if the callbacks were set, false if an error occurred
 	 */
 	public abstract boolean initCallBacks();
 	
@@ -274,7 +260,7 @@ public abstract class GameWindow{
 	}
 	
 	/**
-	 * Call this method when the mousewheel is moved
+	 * Call this method when the mouse wheel is moved
 	 * 
 	 * @param amount The amount the scroll wheel was moved
 	 */
@@ -315,7 +301,7 @@ public abstract class GameWindow{
 	
 	/**
 	 * Update the size of the window, directly changing the window. Does nothing if the {@link GameWindow} is in full screen, only works on a windowed version.
-	 * This method directly updates the size, it should not be called outside the main OpenGL loop or initialization
+	 * This method should be overwritten and called as super to directly update the size, it should not be called outside the main OpenGL loop or initialization
 	 * 
 	 * @param w The new width, in pixels, not including any decorators such as the minimize button
 	 * @param h The new height, in pixels, not including any decorators such as the minimize button
@@ -419,7 +405,10 @@ public abstract class GameWindow{
 	/** @return A Point containing the position of the window */
 	public abstract Point getWindowPos();
 	
-	/** @return A {@link Dimension} containing the width and height of the content of the window in pixels, this should not include decorators such as a menu bar, minimize button, etc */
+	/**
+	 * @return A {@link Dimension} containing the width and height of the content of the window in pixels, this should not include decorators such as a menu bar, minimize button,
+	 *         etc
+	 */
 	public abstract Dimension getWindowSize();
 	
 	/** @return See {@link #minimized} */
@@ -462,7 +451,7 @@ public abstract class GameWindow{
 	}
 	
 	/**
-	 * On the next OpenGL loop, set whether or not to use vsync
+	 * Set whether or not to use vsync on the next OpenGL loop
 	 * 
 	 * @param useVsync See {@link #useVsync}
 	 */
@@ -500,12 +489,12 @@ public abstract class GameWindow{
 	}
 	
 	/** @param keyActionMethod See {@link #keyActionMethod} */
-	public void setKeyActionMethod(KeyAction keyActionMethod){
+	public void setKeyActionMethod(ButtonAction keyActionMethod){
 		this.keyActionMethod = keyActionMethod;
 	}
 	
 	/** @param mouseActionMethod See {@link #mouseActionMethod} */
-	public void setMouseActionMethod(MouseAction mouseActionMethod){
+	public void setMouseActionMethod(ButtonAction mouseActionMethod){
 		this.mouseActionMethod = mouseActionMethod;
 	}
 	

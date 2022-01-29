@@ -13,12 +13,12 @@ public class GameCameraTest{
 	private GameCamera cam;
 	private int coordinateValue;
 	
-	/** Run one time before all tests occur, use for initializtion of static values */
+	/** Run one time before all tests occur, use for initialization of static values */
 	@BeforeAll
 	public static void init(){
 	}
 	
-	/** Run one time before each test occurs, use for initializtion of values that must be the same before each test */
+	/** Run one time before each test occurs, use for initialization of values that must be the same before each test */
 	@BeforeEach
 	public void setup(){
 		cam = new GameCamera();

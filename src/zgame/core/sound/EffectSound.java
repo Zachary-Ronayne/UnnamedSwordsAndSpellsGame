@@ -16,7 +16,7 @@ public class EffectSound extends Sound{
 	
 	/** The type of sound that this effect is, i.e., is this dialog, footsteps, background noises, etc. Can be null to use no specified type */
 	private String type;
-
+	
 	/**
 	 * Create a new {@link EffectSound}. Call {@link #load()} to load in the data itself
 	 * 
@@ -25,7 +25,7 @@ public class EffectSound extends Sound{
 	public EffectSound(String path){
 		this(path, null);
 	}
-
+	
 	/**
 	 * Create a new {@link EffectSound}. Call {@link #load()} to load in the data itself
 	 * 
@@ -58,10 +58,10 @@ public class EffectSound extends Sound{
 	public String getType(){
 		return this.type;
 	}
-
+	
 	/**
 	 * Load a sound based on the given name. This method assumes the given name is only the file name with no extension,
-	 * that the file is located in ZFilePaths.EFFECTS, and that it is of type .ogg
+	 * that the file is located in {@link ZFilePaths#EFFECTS}, and that it is of type .ogg
 	 * The sound will have null for its sound type
 	 * 
 	 * @param name The name of the file
@@ -70,12 +70,12 @@ public class EffectSound extends Sound{
 	public static EffectSound loadSound(String name){
 		return loadSound(name, null);
 	}
-
+	
 	/**
 	 * Load a sound based on the given name. This method assumes the given name is only the file name with no extension,
-	 * that the file is located in ZFilePaths.EFFECTS, and that it is of type .ogg
+	 * that the file is located in {@link ZFilePaths#EFFECTS}, and that it is of type .ogg
 	 * 
-	 * @param name The name of the file
+	 * @param name The name of the file. This should also include any sub folders needed to get to the sound from {@link ZFilePaths#EFFECTS}
 	 * @param type The type of the sound
 	 * @return The loaded sound
 	 */

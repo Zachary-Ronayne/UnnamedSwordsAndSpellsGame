@@ -11,12 +11,12 @@ import java.nio.ShortBuffer;
 import java.util.Arrays;
 
 /**
- * An {@link Sound} which uses multiple buffers to play long music files.
+ * A {@link Sound} which uses multiple buffers to play long music files.
  * Instances of this class cannot be used on multiple sources at the same time without interfering with one another.
  */
 public class MusicSound extends Sound{
 	
-	/** The values used by OpenAL to track the buffers of this MusicSound */
+	/** The values used by OpenAL to track the buffers of this {@link MusicSound} */
 	private int[] ids;
 	
 	/** The number of buffers used by this music sound for splitting audio into multiple buffers */
@@ -93,7 +93,7 @@ public class MusicSound extends Sound{
 	protected void bufferDataChunk(int id){
 		// Find the total number of samples in the buffer of this sound
 		int totalSize = this.getTotalSize();
-
+		
 		// Get the pointer and the format, i.e. mono or stereo
 		PointerBuffer p = this.pointer;
 		int format = this.getFormat();
@@ -102,13 +102,13 @@ public class MusicSound extends Sound{
 		int size = Math.min(this.getBufferSize(), totalSize - pointerOffset);
 		// If there are no more samples, use zero samples
 		if(size < 0) size = 0;
-
+		
 		// Buffer the chunk of data
 		short[] data = new short[totalSize];
 		ShortBuffer buff = p.getShortBuffer(0, totalSize);
 		buff.get(data, 0, totalSize);
 		alBufferData(id, format, Arrays.copyOfRange(data, pointerOffset, pointerOffset + size), this.getSampleRate());
-
+		
 		// Keep track of the change
 		pointerOffset += size;
 	}
@@ -130,7 +130,7 @@ public class MusicSound extends Sound{
 	
 	/**
 	 * Load a sound based on the given name. This method assumes the given name is only the file name with no extension,
-	 * that the file is located in ZFilePaths.MUSIC, and that it is of type .ogg
+	 * that the file is located in {@link ZFilePaths#MUSIC}, and that it is of type .ogg
 	 * 
 	 * @param name The name of the file
 	 * @return The loaded sound

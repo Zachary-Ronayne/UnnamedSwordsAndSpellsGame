@@ -3,16 +3,16 @@ package zgame.core.graphics;
 import static org.lwjgl.opengl.GL30.*;
 
 /**
- * A class that handles a single OpenGL display list, and also contains basic display lists to use
+ * A class that handles a single OpenGL display list, and also contains basic static display lists to use
  * Must call {@link #initLists()} before using any other static methods in this class
  */
 public abstract class DisplayList{
 	
-	/** The id used to track this DisplayList */
+	/** The id used by OpenGL to track this DisplayList */
 	private int id;
 	
 	/**
-	 * Create an empty display list, which will perform the actions of listFunc
+	 * Create an empty display list, which will perform the actions of {@link #listFunc()}
 	 */
 	private DisplayList(){
 		this.id = glGenLists(1);
@@ -46,7 +46,7 @@ public abstract class DisplayList{
 		return id;
 	}
 	
-	/** Initialize every static list which can be used from DisplayList. Must call this method before any other static methods in this class */
+	/** Initialize every static display list which can be used from DisplayList. Must call this method before any other static methods in this class */
 	public static void initLists(){
 		rect = new RectangleList();
 		texRect = new TexRectangleList();
@@ -58,7 +58,7 @@ public abstract class DisplayList{
 	/** A static instance to use for drawing a textured rectangle */
 	private static TexRectangleList texRect;
 	
-	/** A basic implementation of DisplayList which draws a rectangle which takes up the entire base OpenGL screen */
+	/** A basic implementation of DisplayList which draws a rectangle that takes up the entire base OpenGL screen */
 	private static class RectangleList extends DisplayList{
 		@Override
 		public void listFunc(){
@@ -72,7 +72,7 @@ public abstract class DisplayList{
 	}
 	
 	/**
-	 * A basic implementation of DisplayList which draws a textured rectangle which takes up the entire base OpenGL screen. 
+	 * A basic implementation of DisplayList which draws a textured rectangle which takes up the entire base OpenGL screen.
 	 * The texture coordinates are such that the entire texture is mapped one time to the entire rectangle
 	 */
 	private static class TexRectangleList extends DisplayList{

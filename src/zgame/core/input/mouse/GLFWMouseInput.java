@@ -4,6 +4,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import zgame.core.window.GameWindow;
 
+/** An implementation of {@link ZMouseInput} for mouse input using GLFW */
 public class GLFWMouseInput extends ZMouseInput{
 	
 	/**

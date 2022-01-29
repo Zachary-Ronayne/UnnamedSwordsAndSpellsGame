@@ -9,12 +9,12 @@ public class Tester{
 	/** A simple constant for testing if double precision floating point values are approximately equal */
 	public static double DELTA = 0.000000001;
 	
-	/** Run one time before all tests occur, use for initializtion of static values */
+	/** Run one time before all tests occur, use for initialization of static values */
 	@BeforeAll
 	public static void init(){
 	}
 	
-	/** Run one time before each test occurs, use for initializtion of values that must be the same before each test */
+	/** Run one time before each test occurs, use for initialization of values that must be the same before each test */
 	@BeforeEach
 	public void setup(){
 	}

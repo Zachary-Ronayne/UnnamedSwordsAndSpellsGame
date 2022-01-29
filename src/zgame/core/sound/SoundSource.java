@@ -12,20 +12,23 @@ public class SoundSource extends SoundLocation{
 	/** The id used by OpenAL to track this source */
 	private int id;
 	
-	/** The current level of loudness of this {@link SoundSource}. 0 = muted, 1 = maximum volume without peaking. Value can be higher than 1, but could result in unintentionally distorted audio */
+	/**
+	 * The current level of loudness of this {@link SoundSource}. 0 = muted, 1 = maximum volume without peaking. Value can be higher than 1, but could result in unintentionally
+	 * distorted audio
+	 */
 	private double volume;
 	
 	/**
 	 * The volume of this sound before being modified by other sounds.
-	 * So, if this {@link SoundSource} is part of a {@link SoundPlayer}, then the end result volume will be this value multiplied by the volume of the player. 
+	 * So, if this {@link SoundSource} is part of a {@link SoundPlayer}, then the end result volume will be this value multiplied by the volume of the player.
 	 * This value cannot go below zero
 	 */
 	private double baseVolume;
 	
-	/** true if this {@link SoundSource} should make no sonud, regardless {@link #volume}, false otherwise */
+	/** true if this {@link SoundSource} should make no sound, regardless of {@link #volume}, false otherwise */
 	private boolean muted;
 	
-	/** true if this {@link SoundSource} is should pause on the next update and should not play, false otherwise */
+	/** true if this {@link SoundSource} is should pause on the next update and should stop playing, false otherwise */
 	private boolean paused;
 	
 	/** true if this {@link SoundSource} is currently paused and not making any sound, false otherwise */
@@ -53,7 +56,7 @@ public class SoundSource extends SoundLocation{
 	public SoundSource(double x, double y){
 		this(x, y, 1);
 	}
-
+	
 	/**
 	 * Create and initialize a new {@link SoundSource}
 	 * 
@@ -122,12 +125,12 @@ public class SoundSource extends SoundLocation{
 	public void addVolume(double volume){
 		this.setVolume(this.getVolume() + volume);
 	}
-
+	
 	/** Based on the current state of the source, i.e. base volume, current volume, muted, set the correct volume level in OpenAL */
 	public void updateVolumeLevel(){
 		alSourcef(id, AL_GAIN, (float)this.getTotalVolume());
 	}
-
+	
 	/** @return See {@link #baseVolume} */
 	public double getBaseVolume(){
 		return this.baseVolume;
@@ -148,7 +151,7 @@ public class SoundSource extends SoundLocation{
 	public double getTotalVolume(){
 		return this.isMuted() ? 0 : (this.getVolume() * this.getBaseVolume());
 	}
-
+	
 	/** @return See {@link #muted} */
 	public boolean isMuted(){
 		return this.muted;
@@ -185,7 +188,7 @@ public class SoundSource extends SoundLocation{
 	
 	/**
 	 * Cause {@link #current} to stop playing on the next update.
-	 * This is done by setting the OpenAL volume to 0, waiting a breif time, then pausing the sound on the next update.
+	 * This is done by setting the OpenAL volume to 0, waiting a brief time, then pausing the sound on the next update.
 	 * If the sound was already paused, this method does nothing
 	 */
 	public void pause(){

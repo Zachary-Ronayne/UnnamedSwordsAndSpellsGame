@@ -18,14 +18,14 @@ public class RendererTest{
 	
 	private double coordinateValue;
 	
-	/** Run one time before all tests occur, use for initializtion of static values */
+	/** Run one time before all tests occur, use for initialization of static values */
 	@BeforeAll
 	public static void init(){
 		game = new TestGame();
 		renderer = game.getWindow().getRenderer();
 	}
 	
-	/** Run one time before each test occurs, use for initializtion of values that must be the same before each test */
+	/** Run one time before each test occurs, use for initialization of values that must be the same before each test */
 	@BeforeEach
 	public void setup(){
 		window.setSize(400, 150);
@@ -110,17 +110,20 @@ public class RendererTest{
 	
 	@Test
 	public void testWindowToScreenX(){
-		assertEquals(coordinateValue, renderer.windowToScreenX(window, renderer.screenToWindowX(window, coordinateValue)), DELTA, "Checking function inverse returns the same value");
+		assertEquals(coordinateValue, renderer.windowToScreenX(window, renderer.screenToWindowX(window, coordinateValue)), DELTA,
+				"Checking function inverse returns the same value");
 	}
 	
 	@Test
 	public void testWindowToScreenY(){
-		assertEquals(coordinateValue, renderer.windowToScreenY(window, renderer.screenToWindowY(window, coordinateValue)), DELTA, "Checking function inverse returns the same value");
+		assertEquals(coordinateValue, renderer.windowToScreenY(window, renderer.screenToWindowY(window, coordinateValue)), DELTA,
+				"Checking function inverse returns the same value");
 	}
 	
 	@Test
 	public void testWindowToScreen(){
-		assertEquals(coordinateValue, Renderer.windowToScreen(Renderer.screenToWindow(coordinateValue, 50, 300, 1.0 / 200), 50, 1.0 / 300, 200), DELTA, "Checking function inverse returns the same value");
+		assertEquals(coordinateValue, Renderer.windowToScreen(Renderer.screenToWindow(coordinateValue, 50, 300, 1.0 / 200), 50, 1.0 / 300, 200), DELTA,
+				"Checking function inverse returns the same value");
 		
 		assertEquals(0, Renderer.windowToScreen(50, 50, 1.0 / 300, 200), DELTA, "Checking correct coordinate found");
 		assertEquals(100, Renderer.windowToScreen(200, 50, 1.0 / 300, 200), DELTA, "Checking correct coordinate found");
@@ -133,17 +136,20 @@ public class RendererTest{
 	
 	@Test
 	public void testScreenToWindowX(){
-		assertEquals(coordinateValue, renderer.screenToWindowX(window, renderer.windowToScreenX(window, coordinateValue)), DELTA, "Checking function inverse returns the same value");
+		assertEquals(coordinateValue, renderer.screenToWindowX(window, renderer.windowToScreenX(window, coordinateValue)), DELTA,
+				"Checking function inverse returns the same value");
 	}
 	
 	@Test
 	public void testScreenToWindowY(){
-		assertEquals(coordinateValue, renderer.screenToWindowY(window, renderer.windowToScreenY(window, coordinateValue)), DELTA, "Checking function inverse returns the same value");
+		assertEquals(coordinateValue, renderer.screenToWindowY(window, renderer.windowToScreenY(window, coordinateValue)), DELTA,
+				"Checking function inverse returns the same value");
 	}
 	
 	@Test
 	public void testScreenToWindow(){
-		assertEquals(coordinateValue, Renderer.screenToWindow(Renderer.windowToScreen(coordinateValue, 50, 1.0 / 300, 200), 50, 300, 1.0 / 200), DELTA, "Checking function inverse returns the same value");
+		assertEquals(coordinateValue, Renderer.screenToWindow(Renderer.windowToScreen(coordinateValue, 50, 1.0 / 300, 200), 50, 300, 1.0 / 200), DELTA,
+				"Checking function inverse returns the same value");
 		
 		assertEquals(50, Renderer.screenToWindow(0, 50, 300, 1.0 / 200), DELTA, "Checking correct coordinate found");
 		assertEquals(200, Renderer.screenToWindow(100, 50, 300, 1.0 / 200), DELTA, "Checking correct coordinate found");
@@ -166,7 +172,8 @@ public class RendererTest{
 	
 	@Test
 	public void testScreenToGl(){
-		assertEquals(coordinateValue, Renderer.screenToGl(Renderer.glToScreen(coordinateValue, 50, 1.0 / 300, 200, 200), 50, 300, 1.0 / 200, 1.0 / 200), DELTA, "Checking function inverse returns the same value");
+		assertEquals(coordinateValue, Renderer.screenToGl(Renderer.glToScreen(coordinateValue, 50, 1.0 / 300, 200, 200), 50, 300, 1.0 / 200, 1.0 / 200), DELTA,
+				"Checking function inverse returns the same value");
 		
 		// Case of viewport being equal to the screen size and the window, and no viewport offset
 		assertEquals(-1, Renderer.screenToGl(0, 0, 200, 1.0 / 200, 1.0 / 200), DELTA, "Checking correct coordinate found");
@@ -186,7 +193,8 @@ public class RendererTest{
 	
 	@Test
 	public void testGlToScreen(){
-		assertEquals(coordinateValue, Renderer.glToScreen(Renderer.screenToGl(coordinateValue, 50, 300, 1.0 / 200, 1.0 / 200), 50, 1.0 / 300, 200, 200), DELTA, "Checking function inverse returns the same value");
+		assertEquals(coordinateValue, Renderer.glToScreen(Renderer.screenToGl(coordinateValue, 50, 300, 1.0 / 200, 1.0 / 200), 50, 1.0 / 300, 200, 200), DELTA,
+				"Checking function inverse returns the same value");
 	}
 	
 	/** Run after each test runs, use to clean up resources */

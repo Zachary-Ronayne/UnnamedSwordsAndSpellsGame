@@ -11,17 +11,17 @@ import zgame.core.utils.ZStringUtils;
  */
 public class ShaderProgram{
 	
-	/** The vertex Shader used by this ShaderProgram */
+	/** The vertex Shader used by this {@link ShaderProgram} */
 	private Shader vertex;
 	
-	/** The fragment Shader used by this ShaderProgram */
+	/** The fragment Shader used by this {@link ShaderProgram} */
 	private Shader fragment;
 	
-	/** The OpenGL program id associated with this ShaderProgram */
+	/** The OpenGL program id associated with this {@link ShaderProgram} */
 	private int id;
 	
 	/**
-	 * Create a new ShaderProgram
+	 * Create a new {@link ShaderProgram}
 	 * 
 	 * @param vertexPath The file path for {@link #vertex}
 	 * @param fragmentPath The file path for {@link #fragment}
@@ -32,11 +32,12 @@ public class ShaderProgram{
 		
 		this.init();
 	}
-
+	
 	/**
 	 * Create a new ShaderProgram based on the name.
-	 * This method assumes that the given name represents two files with the form [name]Fragment.glsl and [name]Vertex.glsl, 
-	 * where [name] is the given parameter. These files are assumed to be located in ZFilePaths.SHADERS
+	 * This method assumes that the given name represents two files with the form [name]Fragment.glsl and [name]Vertex.glsl,
+	 * where [name] is the given parameter. These files are assumed to be located in {@link ZFilePaths#SHADERS}
+	 * 
 	 * @param name The name of the shader
 	 */
 	public ShaderProgram(String name){
@@ -44,7 +45,7 @@ public class ShaderProgram{
 	}
 	
 	/**
-	 * Initialize the state of this ShaderProgram based on the currently loaded Shaders
+	 * Initialize the state of this {@link ShaderProgram} based on the currently loaded Shaders
 	 */
 	private void init(){
 		this.id = glCreateProgram();
@@ -56,7 +57,8 @@ public class ShaderProgram{
 		boolean success = glGetProgrami(this.id, GL_LINK_STATUS) == GL_TRUE;
 		String status = success ? "success" : "failure";
 		if(ZConfig.printSuccess() && success || ZConfig.printErrors() && !success){
-			ZStringUtils.print("Created shader program with vertex shader at\n'", this.vertex.getPath(), "'\n and fragment shader at\n'", this.fragment.getPath(), "'\nWith status ", status);
+			ZStringUtils.print("Created shader program with vertex shader at\n'", this.vertex.getPath(), "'\n and fragment shader at\n'", this.fragment.getPath(),
+					"'\nWith status ", status);
 		}
 	}
 	

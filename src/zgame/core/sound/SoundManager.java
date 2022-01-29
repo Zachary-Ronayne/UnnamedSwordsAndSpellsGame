@@ -15,7 +15,7 @@ import zgame.core.utils.ZFilePaths;
 import zgame.core.utils.ZStringUtils;
 
 /**
- * A class that handles multiple SoundPlayers; music and effects
+ * A class that handles multiple {@link SoundPlayer} objects, music and effects
  */
 public class SoundManager{
 	
@@ -25,7 +25,7 @@ public class SoundManager{
 	/** The {@link MusicPlayer} tracking the music played by this {@link SoundManager} */
 	private MusicPlayer musicPlayer;
 	
-	/** The single {@link SoundSource} which plays music. Generally should position this sound to be in the same location as the player of the game */
+	/** The single {@link SoundSource} which plays music. Will automatically always play relative to the OpenAL listener */
 	private SoundSource musicSource;
 	
 	/** The single {@link SoundListener} which determines where sound is located */
@@ -42,11 +42,11 @@ public class SoundManager{
 	
 	/**
 	 * A list of every {@link SpeakerDevice} available on the current machine since the last scan.
-	 * There are no guarentees about the order of this list, i.e. the default device could be anywhere in the list
+	 * There are no guarantees about the order of this list, i.e. the default device could be anywhere in the list
 	 */
 	private List<SpeakerDevice> devices;
 	
-	/** A map of every sound effect currently available through this {@link SoundManager}. The key is a string representing the name of the sound */
+	/** A map of every {@link EffectSound} currently available through this {@link SoundManager}. The key is a string representing the name of the sound */
 	private Map<String, EffectSound> effects;
 	
 	/** A map of every piece of music currently available through this {@link SoundManager}. The key is a string representing the name of the sound */
@@ -106,9 +106,11 @@ public class SoundManager{
 			}
 		}
 		// Next add all new devices
-		for(int i = 0; i < names.size(); i++){ if(!oldNames.contains(names.get(i))){ this.devices.add(new SpeakerDevice(names.get(i))); } }
+		for(int i = 0; i < names.size(); i++) if(!oldNames.contains(names.get(i))) this.devices.add(new SpeakerDevice(names.get(i)));
+		
 		// Find default device name
 		String defaultName = alcGetString(0, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
+		
 		// Find the default device in the list of devices, and set the default device
 		this.defaultDevice = null;
 		for(SpeakerDevice s : this.devices){
@@ -158,7 +160,7 @@ public class SoundManager{
 	}
 	
 	/**
-	 * Add a sound effect used by this SoundManager. Sounds added here will automatically be deleted when {@link #end()} is called
+	 * Add a sound effect used by this {@link SoundManager}. Sounds added here will automatically be deleted when {@link #end()} is called
 	 * 
 	 * @param effect The sound to add
 	 * @param name The name of the sound, use this value when playing sounds
@@ -168,9 +170,9 @@ public class SoundManager{
 	}
 	
 	/**
-	 * Add a sound effect used by this SoundManager. Sounds added here will automatically be deleted when {@link #end()} is called
+	 * Add a sound effect used by this {@link SoundManager}. Sounds added here will automatically be deleted when {@link #end()} is called
 	 * 
-	 * @param name The name of the sound, which must exist as a .ogg file in ZFilePaths.EFFECTS use this value when playing sounds
+	 * @param name The name of the sound, which must exist as a .ogg file in {@link ZFilePaths#EFFECTS} use this value when playing sounds
 	 */
 	public void addEffect(String name){
 		EffectSound e = EffectSound.loadSound(name);
@@ -178,7 +180,7 @@ public class SoundManager{
 	}
 	
 	/**
-	 * Remove a sound effect used by this SoundManager
+	 * Remove a sound effect used by this {@link SoundManager}
 	 * 
 	 * @param name The name of the sound to use. After calling this method, the sound with the given name will not be able to play
 	 */
@@ -187,7 +189,7 @@ public class SoundManager{
 	}
 	
 	/**
-	 * Add a music sound used by this SoundManager Sounds added here will automatically be deleted when {@link #end()} is called
+	 * Add a music sound used by this {@link SoundManager}. Sounds added here will automatically be deleted when {@link #end()} is called
 	 * 
 	 * @param music The sound to add
 	 * @param name The name of the sound, use this value when playing sounds
@@ -199,7 +201,7 @@ public class SoundManager{
 	/**
 	 * Add a music sound used by this SoundManager Sounds added here will automatically be deleted when {@link #end()} is called
 	 * 
-	 * @param name The name of the sound, which must exist as a .ogg file in ZFilePaths.MUSIC, use this value when playing sounds
+	 * @param name The name of the sound, which must exist as a .ogg file in {@link ZFilePaths#MUSIC}, use this value when playing sounds
 	 */
 	public void addMusic(String name){
 		this.addMusic(MusicSound.loadMusic(name), name);
@@ -215,18 +217,19 @@ public class SoundManager{
 	}
 	
 	/**
-	 * Load all the sounds as effects in {@link ZFilePaths#EFFECTS}, where the name of the file without a file extension is how they will be referred to using {@link #playEffect(SoundSource, String)}
-	 * The files should be stored such that {@link ZFilePaths#EFFECT} contains folders, where each folder is named as the type of sound countained by that folder.
+	 * Load all the sounds as effects in {@link ZFilePaths#EFFECTS}, where the name of the file without a file extension is how they will be referred to using
+	 * {@link #playEffect(SoundSource, String)}
+	 * The files should be stored such that {@link ZFilePaths#EFFECT} contains folders, where each folder is named as the type of sound contained by that folder.
 	 * Then, each of those folders will contain the sound files which will be of the type of the folder they are in
 	 */
 	public void addAllEffects(){
 		// First find all the folders
 		List<String> folders = ZAssetUtils.getAllFolders(ZFilePaths.EFFECTS);
-
+		
 		// Now for each folder, add every effect in those folders, using the folder as the type
 		for(String f : folders){
 			// Get every file in the folder
-			List<String> names = ZAssetUtils.getAllFiles(ZStringUtils.concat(ZFilePaths.EFFECTS, "/", f), false);
+			List<String> names = ZAssetUtils.getAllFiles(ZStringUtils.concat(ZFilePaths.EFFECTS, f), false);
 			
 			// Add each file
 			for(String n : names) this.addEffect(EffectSound.loadSound(ZStringUtils.concat(f, "/", n), f), n);
@@ -234,7 +237,8 @@ public class SoundManager{
 	}
 	
 	/**
-	 * Load all the sounds as music in {@link ZFilePaths#MUSIC}, where the name of the file without a file extension is how they will be referred to using {@link #playMusic(String)}
+	 * Load all the sounds as music in {@link ZFilePaths#MUSIC}, where the name of the file without a file extension is how they will be referred to using
+	 * {@link #playMusic(String)}
 	 */
 	public void addAllMusic(){
 		List<String> names = ZAssetUtils.getNames(ZFilePaths.MUSIC, false);
@@ -250,7 +254,7 @@ public class SoundManager{
 		this.addAllEffects();
 		this.addAllMusic();
 	}
-
+	
 	/**
 	 * Play the given sound at the given source
 	 * 
@@ -262,7 +266,7 @@ public class SoundManager{
 	}
 	
 	/**
-	 * Play the given music sound. Once the music sound ends, no further music will play
+	 * Play the given music sound
 	 * 
 	 * @param name The name of the sound, i.e. the name used when calling {@link #addMusic(EffectSound, String)}
 	 */
@@ -301,7 +305,7 @@ public class SoundManager{
 	private void updateSoundPos(SoundLocation s, double x, double y){
 		s.updatePosition(x * this.getDistanceScalar(), y * this.getDistanceScalar());
 	}
-
+	
 	/**
 	 * Create a {@link SoundSource} at the given coordinates which will be scaled by the scalar of this {@link SoundManager}
 	 * 
@@ -351,7 +355,7 @@ public class SoundManager{
 		for(int i = 0; i < arr.length; i++){ arr[i] = this.devices.get(i); }
 		return arr;
 	}
-
+	
 	/** @return See {@link #distanceScalar} */
 	public double getDistanceScalar(){
 		return this.distanceScalar;

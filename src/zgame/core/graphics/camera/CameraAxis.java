@@ -8,17 +8,17 @@ public class CameraAxis{
 	/** The position on the axis */
 	private double pos;
 	
-	/** The factor determining the zoom level. Negative values zoom out, positive values zoom in, and zero means no zoom */
+	/** The factor determining the zoom level, not the value used to scale the camera. Negative values zoom out, positive values zoom in, and zero means no zoom */
 	private double zoomFactor;
 	/** The zoom level of the camera on the x axis, in the range (0, infinity), i.e. the raw number used to scale on the axis */
-	private double zoomLevel;
-	/** The inverse of {@link #zoomLevel} */
-	private double zoomLevelInverse;
-	/** The value that determines how fast the camera zooms, i.e. zoomLevel = zoomPower ^ zoomFactor */
+	private double zoomScale;
+	/** The inverse of {@link #zoomScale} */
+	private double zoomScaleInverse;
+	/** The value that determines how fast the camera zooms, i.e. zoomScale = zoomPower ^ zoomFactor */
 	private double zoomPower;
 	
 	/**
-	 * Create a {@link CameraAxis} in a default state, no translation or zooming
+	 * Create a {@link CameraAxis} in a default state, no translation or zooming, and a {@link #zoomPower} of 2
 	 */
 	public CameraAxis(){
 		this(0, 0, 2);
@@ -35,7 +35,7 @@ public class CameraAxis{
 		this.init(pos, zoomFactor, zoomPower);
 	}
 	
-	/** Reset the axis camera to a defaul state, i.e. no translation or zooming */
+	/** Reset the axis camera to a default state, i.e. no translation or zooming */
 	public void reset(){
 		this.init(0, 0, this.getZoomPower());
 	}
@@ -50,7 +50,7 @@ public class CameraAxis{
 	private void init(double pos, double zoomFactor, double zoomPower){
 		this.setPos(pos);
 		this.zoomFactor = 1;
-		this.zoomLevel = 0;
+		this.zoomScale = 0;
 		this.zoomPower = zoomPower;
 		this.setZoomFactor(zoomFactor);
 	}
@@ -60,19 +60,19 @@ public class CameraAxis{
 		return this.pos;
 	}
 	
-	/** @param x See {@link #pos} */
+	/** @param pos See {@link #pos} */
 	public void setPos(double pos){
 		this.pos = pos;
 	}
 	
-	/** @return See {@link #zoomLevel} */
-	public double getZoomLevel(){
-		return this.zoomLevel;
+	/** @return See {@link #zoomScale} */
+	public double getZoomScale(){
+		return this.zoomScale;
 	}
 	
-	/** @return See {@link #zoomLevelInverse} */
-	public double getZoomLevelInverse(){
-		return this.zoomLevelInverse;
+	/** @return See {@link #zoomScaleInverse} */
+	public double getZoomScaleInverse(){
+		return this.zoomScaleInverse;
 	}
 	
 	/** @return See {@link #zoomFactor} */
@@ -80,11 +80,11 @@ public class CameraAxis{
 		return this.zoomFactor;
 	}
 	
-	/** @param x See {@link #zoomFactor} */
+	/** @param zoomFactor See {@link #zoomFactor} */
 	public void setZoomFactor(double zoomFactor){
 		this.zoomFactor = zoomFactor;
-		this.zoomLevel = Math.pow(this.getZoomPower(), this.getZoomFactor());
-		this.zoomLevelInverse = 1 / this.zoomLevel;
+		this.zoomScale = Math.pow(this.getZoomPower(), this.getZoomFactor());
+		this.zoomScaleInverse = 1 / this.zoomScale;
 	}
 	
 	/** @return See {@link #zoomPower} */
@@ -107,7 +107,8 @@ public class CameraAxis{
 	}
 	
 	/**
-	 * Zoom in, then reposition the camera so that the given position is zoomed towards
+	 * Zoom in, then reposition the camera so that the given position is zoomed towards.
+	 * After zooming, the position will be such that it is proportionally at the same location relative to the given p and size
 	 * 
 	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
 	 * @param p The position to base the zoom reposition
@@ -115,13 +116,13 @@ public class CameraAxis{
 	 */
 	public void zoom(double zoom, double p, double size){
 		// Find the given size, opposite zoomed by the current zoom level
-		double baseSize = size * this.getZoomLevelInverse();
-		// Find the percecntage of the given size which the given position takes up
+		double baseSize = size * this.getZoomScaleInverse();
+		// Find the percentage of the given size which the given position takes up
 		double perc = (p - this.getPos()) / size;
 		// Perform the zoom
 		this.zoom(zoom);
 		// Based on the new zoom level, find the new size by using the normal zoom level
-		double newSize = baseSize * this.getZoomLevel();
+		double newSize = baseSize * this.getZoomScale();
 		// The new axis position is the given position, minus the amount of the percentage new size which is the same as the percentage of the old size
 		this.setPos(p - newSize * perc);
 	}
@@ -142,7 +143,7 @@ public class CameraAxis{
 	 * @return The value in screen coordinates
 	 */
 	public double gameToScreen(double p){
-		return p * this.getZoomLevel() + this.getPos();
+		return p * this.getZoomScale() + this.getPos();
 	}
 	
 	/**
@@ -152,7 +153,7 @@ public class CameraAxis{
 	 * @return The value in game coordinates
 	 */
 	public double screenToGame(double p){
-		return (p - this.getPos()) * this.getZoomLevelInverse();
+		return (p - this.getPos()) * this.getZoomScaleInverse();
 	}
 	
 	/**
@@ -162,7 +163,7 @@ public class CameraAxis{
 	 * @return The converted value
 	 */
 	public double sizeGameToScreen(double p){
-		return p * this.getZoomLevel();
+		return p * this.getZoomScale();
 	}
 	
 	/**
@@ -172,7 +173,7 @@ public class CameraAxis{
 	 * @return The converted value
 	 */
 	public double sizeScreenToGame(double p){
-		return p * this.getZoomLevelInverse();
+		return p * this.getZoomScaleInverse();
 	}
 	
 }

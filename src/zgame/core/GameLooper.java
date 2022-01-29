@@ -14,7 +14,7 @@ public class GameLooper{
 	/** The number of nano seconds in a second */
 	public static final long NANO_SECOND = (long)1E9;
 	
-	/** The number of times per second which this loop will activate. Use zero to put no time limit on the loop */
+	/** The number of times per second which this loop will activate. Use zero to run as many times per second as possible */
 	private int rate;
 	/** The amount of time, in seconds, which each loop iteration is expected to take */
 	private double rateTime;
@@ -60,7 +60,7 @@ public class GameLooper{
 	private boolean forceEnd;
 	
 	/**
-	 * Create a new GameLooper. The loop will not run until {@link #run()} is called
+	 * Create a new GameLooper. The loop will not run until {@link #loop()} is called
 	 * 
 	 * @param rate See {@link #rate}
 	 * @param runFunc See {@link #runFunc}
@@ -86,7 +86,7 @@ public class GameLooper{
 	}
 	
 	/**
-	 * Create a new GameLooper. The loop will not run until {@link #start()} is called
+	 * Create a new GameLooper. The loop will not run until {@link #loop()} is called
 	 * 
 	 * @param rate See {@link #rate}
 	 * @param runFunc See {@link #runFunc}

@@ -30,7 +30,7 @@ import java.awt.Rectangle;
  * shift + scroll wheel = grow/shrink square
  * 1 = toggle full screen
  * 2 = toggle vsync (i.e. either match monitor refresh rate, or unlimited FPS)
- * 3 = toggle strech to fill
+ * 3 = toggle stretch to fill
  * 4 = toggle printing FPS/TPS
  * shift + 4: toggle printing the number of audio updates per second
  * 5 = toggle not rendering the game when the window doesn't have focus
@@ -65,12 +65,12 @@ import java.awt.Rectangle;
  * F12 = increase game speed
  * shift + F11 = decrease TPS
  * shift + F12 = increase TPS
- * -----------------------------------------
+ * 
  * Indicators in the upper left hand corner for muted/paused: black = neither, red = muted, blue = paused, magenta = both muted and paused.
  * The size of the box represents the volume, a bigger box means higher volume
  * The left indicator is effects, the right indicator is music
- * The bigger the indivator, the higher the volume, if there is no indicator, the volume is set to zero
- * -----------------------------------------
+ * The bigger the indicator, the higher the volume, if there is no indicator, the volume is set to zero
+ * 
  * Indicator on the upper right hand corner for not updating or rendering the game:
  * black = always do it
  * red = don't do it when not in focus

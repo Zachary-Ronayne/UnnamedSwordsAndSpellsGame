@@ -45,9 +45,9 @@ public final class GLFWModUtils{
 	public static boolean bitSet(int mods, int bit){
 		return (mods & bit) != 0;
 	}
-
+	
 	/** Cannot instantiate {@link GLFWModUtils} */
 	private GLFWModUtils(){
 	}
-
+	
 }

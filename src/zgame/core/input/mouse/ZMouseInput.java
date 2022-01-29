@@ -4,11 +4,13 @@ import zgame.core.input.ZButtonInput;
 import zgame.core.window.GameWindow;
 
 /**
- * A class that handles tracking mouse input for a {@link zgame.window.GameWindow}
- * Coordinates are tracked as (0, 0) being the upper lefthand corner of the rendered screen of the {@link zgame.window.GameWindow},
- * then x represents the number of rendered pixels left of that corner,
+ * A class that handles tracking mouse input for a {@link GameWindow}
+ * Coordinates are tracked as (0, 0) being the upper left hand corner of the rendered screen of the {@link GameWindow},
+ * then x represents the number of rendered pixels to the right of that corner,
  * and y represents the number of rendered pixels below that corner.
- * This means that coordinates do not necessarily exactly correspond to the pixels on the window
+ * This means that coordinates do not necessarily exactly correspond to the pixels on the window.
+ * So if the {@link GameWindow} has black bars on the sides, and the mouse is at the right hand side of the left hand bar, then the x coordinate in this {@link ZMouseInput} would
+ * be zero, not the pixel coordinate of the bar position.
  */
 public abstract class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	
@@ -41,7 +43,7 @@ public abstract class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 		this.lastScroll = 0;
 		this.scrollAmount = 0;
 	}
-
+	
 	@Override
 	public ZMouseEvent createEvent(int button, boolean shift, boolean alt, boolean ctrl, boolean press){
 		return new ZMouseEvent(this.x(), this.y(), button, shift, alt, ctrl, press);
@@ -50,7 +52,7 @@ public abstract class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	/**
 	 * The method called when a mouse button is pressed
 	 * 
-	 * @param button The mouse button which was pressed
+	 * @param button The mouse button which is pressed
 	 * @param press true if the button was pressed, false for released
 	 * @param shift true if shift is pressed, false otherwise
 	 * @param alt true if alt is pressed, false otherwise
@@ -109,7 +111,7 @@ public abstract class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 		return this.lastScroll;
 	}
 	
-	/** @return The scroll amount returned by {@link #useScrollAmount()} but, do not reset the value */
+	/** @return The scroll amount returned by {@link #useScrollAmount()} but this method does not reset the value */
 	public double getScrollAmount(){
 		return this.scrollAmount;
 	}

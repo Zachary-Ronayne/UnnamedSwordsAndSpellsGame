@@ -3,16 +3,16 @@ package zgame.core.input.mouse;
 import zgame.core.input.ZButtonInputEvent;
 
 /**
- * A {@link ZButtonInputEvent} which represents a mouse action, i.e. a mouse button press. 
+ * A {@link ZButtonInputEvent} which represents a mouse action, i.e. a mouse button press.
  * See {@link ZMouseInput} for details about coordinates
  */
 public class ZMouseEvent extends ZButtonInputEvent{
-
-	/** The x pixel coordiate when the event happened */
+	
+	/** The x pixel coordinate when the event happened */
 	private double x;
-	/** The y pixel coordiate when the event happened */
+	/** The y pixel coordinate when the event happened */
 	private double y;
-
+	
 	/**
 	 * Create a new {@link ZMouseEvent} with the given information
 	 * 
@@ -29,7 +29,7 @@ public class ZMouseEvent extends ZButtonInputEvent{
 		this.x = x;
 		this.y = y;
 	}
-
+	
 	/** @return See {@link #x} */
 	public double getX(){
 		return this.x;

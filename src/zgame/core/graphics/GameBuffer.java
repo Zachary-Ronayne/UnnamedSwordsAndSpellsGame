@@ -46,7 +46,7 @@ public class GameBuffer{
 	 * @param height See {@link #height}
 	 */
 	public GameBuffer(int width, int height){
-		this.regenerateBuffer(width, height, true);
+		this.regenerateBuffer(width, height);
 	}
 	
 	/**
@@ -54,14 +54,11 @@ public class GameBuffer{
 	 * 
 	 * @param width The new width of the buffer
 	 * @param height The new height of the buffer
-	 * @param printStatus true to print whether or not the buffer was created successful, false otherwise.
-	 *        No success status will print if ZConfig.ZConfigprintSuccess() returns false,
-	 *        and no failure status will print if ZConfig.printErrors() returns false
 	 * @return true if the buffer was created, false otherwise
 	 */
-	public boolean regenerateBuffer(int width, int height, boolean printStatus){
-		this.destory();
-
+	public boolean regenerateBuffer(int width, int height){
+		this.destroy();
+		
 		this.width = 1;
 		this.height = 1;
 		this.setWidth(width);
@@ -95,23 +92,12 @@ public class GameBuffer{
 		if(success && ZConfig.printSuccess()) ZStringUtils.print("GameBuffer created successfully with id ", this.frameID);
 		else if(!success && ZConfig.printErrors()) ZStringUtils.print("Failed to create GameBuffer with status ", status);
 		
-		// Bind the framebugger to the previous buffer
+		// Bind the framebuffer to the previous buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, oldBuffer);
 		
 		return success;
 	}
-	
-	/**
-	 * Recreate the OpenGL Framebuffer used by this {@link GameBuffer}. This is an expensive operation, should not be used frequently
-	 * 
-	 * @param width The new width of the buffer
-	 * @param height The new height of the buffer
-	 * @return true if the buffer was created, false otherwise
-	 */
-	public boolean regenerateBuffer(int width, int height){
-		return this.regenerateBuffer(width, height, true);
-	}
-	
+
 	/**
 	 * After calling this method, all further OpenGL rendering operations will draw to this GameBuffer
 	 */
@@ -120,7 +106,7 @@ public class GameBuffer{
 	}
 	
 	/** Erase all resources associated with this GameBuffer. After calling this method, this object should not be used */
-	public void destory(){
+	public void destroy(){
 		glDeleteTextures(this.getTextureID());
 		glDeleteFramebuffers(this.getFrameID());
 	}
@@ -139,7 +125,7 @@ public class GameBuffer{
 	public int getWidth(){
 		return this.width;
 	}
-
+	
 	/** @return See {@link #inverseWidth} */
 	public double getInverseWidth(){
 		return this.inverseWidth;
@@ -188,7 +174,7 @@ public class GameBuffer{
 		this.inverseHalfHeight = 1.0 / (height * 0.5);
 		this.updateRatio();
 	}
-
+	
 	/** Updates the internal values of {@link #ratioWH} and {@link #ratioHW} */
 	private void updateRatio(){
 		this.ratioWH = (double)this.width / this.height;
@@ -199,7 +185,7 @@ public class GameBuffer{
 	public double getRatioWH(){
 		return this.ratioWH;
 	}
-
+	
 	/** @return See {@link #ratioHW} */
 	public double getRatioHW(){
 		return this.ratioHW;

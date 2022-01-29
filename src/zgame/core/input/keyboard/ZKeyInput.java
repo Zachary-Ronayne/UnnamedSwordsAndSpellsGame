@@ -3,15 +3,16 @@ package zgame.core.input.keyboard;
 import zgame.core.input.ZButtonInput;
 import zgame.core.window.GameWindow;
 
+/** An implementation of {@link ZButtonInput} designed for keyboard input */
 public abstract class ZKeyInput extends ZButtonInput<ZKeyEvent>{
-
+	
 	/** true if a shift key is down, false otherwise */
 	private boolean shiftDown;
-	/** true if a alt key is down, false otherwise */
+	/** true if an alt key is down, false otherwise */
 	private boolean altDown;
-	/** true if a ctrl alt is down, false otherwise */
+	/** true if a ctrl key is down, false otherwise */
 	private boolean ctrlDown;
-
+	
 	/**
 	 * Create a default {@link ZKeyInput} object
 	 * 
@@ -23,7 +24,7 @@ public abstract class ZKeyInput extends ZButtonInput<ZKeyEvent>{
 		this.altDown = false;
 		this.ctrlDown = false;
 	}
-
+	
 	@Override
 	public void buttonAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.buttonAction(button, press, shift, alt, ctrl);
@@ -33,7 +34,7 @@ public abstract class ZKeyInput extends ZButtonInput<ZKeyEvent>{
 	}
 	
 	/**
-	 * Equivalent to calling {@link #buttonDown(int)}, renammed for clarity. 
+	 * Equivalent to calling {@link #buttonDown(int)}, renamed for clarity.
 	 * Checks if a key is pressed
 	 * 
 	 * @param key The key to check
@@ -42,9 +43,9 @@ public abstract class ZKeyInput extends ZButtonInput<ZKeyEvent>{
 	public boolean pressed(int key){
 		return this.buttonDown(key);
 	}
-
+	
 	/**
-	 * Equivalent to calling {@link #buttonUp(int)}, renammed for clarity.
+	 * Equivalent to calling {@link #buttonUp(int)}, renamed for clarity.
 	 * Checks if a key is released
 	 * 
 	 * @param key The key to check
@@ -58,17 +59,17 @@ public abstract class ZKeyInput extends ZButtonInput<ZKeyEvent>{
 	public boolean shift(){
 		return this.shiftDown;
 	}
-
+	
 	/** @return See {@link #altDown} */
 	public boolean alt(){
 		return this.altDown;
 	}
-
+	
 	/** @return See {@link #ctrlDown} */
 	public boolean ctrl(){
 		return this.ctrlDown;
 	}
-
+	
 	@Override
 	public ZKeyEvent createEvent(int button, boolean shift, boolean alt, boolean ctrl, boolean press){
 		return new ZKeyEvent(button, shift, alt, ctrl, press);

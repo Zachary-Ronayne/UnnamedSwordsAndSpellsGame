@@ -9,9 +9,8 @@ public abstract class SoundLocation{
 	 * Create a new empty {@link SoundLocation}
 	 */
 	public SoundLocation(){
-		
 	}
-
+	
 	/**
 	 * Update the current position values of this {@link SoundLocation} based on the given values
 	 * 
@@ -19,5 +18,5 @@ public abstract class SoundLocation{
 	 * @param y The y coordinate of the sound location
 	 */
 	public abstract void updatePosition(double x, double y);
-
+	
 }

@@ -11,7 +11,7 @@ import zgame.core.utils.ZStringUtils;
 
 /**
  * A class that handles an individual shader, i.e. a vertex or fragment shader for OpenGL.
- * Mostly a helper class for ShaderProgram
+ * Mostly a helper class for {@link ShaderProgram}
  */
 public class Shader{
 	
@@ -41,12 +41,12 @@ public class Shader{
 	public void load(String path){
 		Scanner file = null;
 		try{
-			// Get the file from the jar			
+			// Get the file from the jar
 			InputStream stream = ZAssetUtils.getJarInputStream(path);
-
+			
 			// Open the file
 			file = new Scanner(stream);
-
+			
 			// Read the entire file and put it into the code variable
 			StringBuilder sb = new StringBuilder("");
 			while(file.hasNextLine()) sb.append(file.nextLine());
@@ -72,9 +72,7 @@ public class Shader{
 		// Error check
 		boolean success = glGetShaderi(this.id, GL_COMPILE_STATUS) == GL_TRUE;
 		String status = success ? "success" : "failure";
-		if(ZConfig.printSuccess() && success || ZConfig.printErrors() && !success){
-			ZStringUtils.print("Shader at path '", this.getPath(), "' initialize ", status);
-		}
+		if(ZConfig.printSuccess() && success || ZConfig.printErrors() && !success){ ZStringUtils.print("Shader at path '", this.getPath(), "' initialize ", status); }
 	}
 	
 	/** @return See {@link #path} */

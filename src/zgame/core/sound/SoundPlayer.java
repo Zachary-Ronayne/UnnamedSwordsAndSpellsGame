@@ -31,7 +31,7 @@ public abstract class SoundPlayer<S extends Sound>{
 		this.unpause();
 	}
 	
-	/** Immediately stop playinig and remove all currently played sounds, unmute the audio, and unpause the audio */
+	/** Immediately stop playing and remove all currently played sounds, unmute the audio, and unpause the audio */
 	public void reset(){
 		this.unmute();
 		this.unpause();
@@ -41,7 +41,7 @@ public abstract class SoundPlayer<S extends Sound>{
 	}
 	
 	/**
-	 * Queue the given {@link EffectSound} at the given {@link SoundSource} to play using this {@link SoundPlayer} on the next update
+	 * Queue the given {@link Sound} at the given {@link SoundSource} to play using this {@link SoundPlayer} on the next update
 	 * 
 	 * @param source The source which will play the sound
 	 * @param sound The sound to play
@@ -51,19 +51,19 @@ public abstract class SoundPlayer<S extends Sound>{
 	}
 	
 	/**
-	 * Immediately use this {@link SoundPlayer} to play the given {@link EffectSound} at the given {@link SoundSource}
+	 * Immediately use this {@link SoundPlayer} to play the given {@link Sound} at the given {@link SoundSource}
 	 * This method should not be called outside of {@link #updateState()} or related method calls
 	 * 
 	 * @param source The source which will play the sound
 	 * @param sound The sound to play
 	 */
 	private void playSoundNow(SoundSource source, S sound){
-		// Keep track of the source that is now player
+		// Keep track of the source that is now playing
 		this.playing.put(source);
 		// Use the source to keep track of the sound
 		source.setCurrent(sound);
 		
-		// Ensure the source is appropriately muted, paused, or the correct volume, based on the current state of this sound player
+		// Ensure the source is appropriately muted, paused, and the correct volume, based on the current state of this sound player
 		source.setMuted(this.isMuted());
 		source.setPaused(this.isPaused());
 		source.updateVolumeLevel();
@@ -75,9 +75,9 @@ public abstract class SoundPlayer<S extends Sound>{
 	}
 	
 	/**
-	 * Implement this method so that this {@link SoundPlayer} will play the given {@link EffectSound} at the given {@link SoundSource}.
-	 * Implementation will varry depending on if the entire sound should be loaded all at once, or buffered in sections.
-	 * This method should not interact at all with volume, position of the sound in space, velocity, ect, this method
+	 * Implement this method so that this {@link SoundPlayer} will play the given {@link Sound} at the given {@link SoundSource}.
+	 * Implementation will vary depending on if the entire sound should be loaded all at once, or buffered in sections.
+	 * This method should not interact at all with volume, position of the sound in space, velocity, etc, this method
 	 * is only responsible for setting when the sound will play
 	 * 
 	 * @param source The source which will play the sound
@@ -90,10 +90,8 @@ public abstract class SoundPlayer<S extends Sound>{
 	 * For example if a music track needs to loop
 	 */
 	public void updateState(){
-		
 		// Play all sounds and clear the queue
 		for(SoundPair<S> sp : this.queue) this.playSoundNow(sp.getSource(), sp.getSound());
-		
 		this.queue.clear();
 		
 		// Update the states of the sounds
@@ -157,6 +155,7 @@ public abstract class SoundPlayer<S extends Sound>{
 	
 	/** @param pause See {@link #paused} */
 	public void setPaused(boolean pause){
+		this.paused = pause;
 		this.playing.setPaused(pause);
 	}
 	
@@ -183,7 +182,7 @@ public abstract class SoundPlayer<S extends Sound>{
 	
 	/**
 	 * Get an array of every {@link SoundSource} currently playing through this {@link SoundPlayer}
-	 * This array is separate from the internal storage of this SoundPlayer, i.e. moving the elements of the returned array will not affect the player,
+	 * This array is separate from the internal storage of this {@link SoundPlayer}, i.e. moving the elements of the returned array will not affect the player,
 	 * however, modifying the individual objects in the array will affect the player
 	 * 
 	 * @return The array
@@ -195,7 +194,7 @@ public abstract class SoundPlayer<S extends Sound>{
 	/**
 	 * Remove any sounds from this {@link SoundPlayer} which are finished playing
 	 * 
-	 * @return true if at least one sound was removed, false otheriwse
+	 * @return true if at least one sound was removed, false otherwise
 	 */
 	public boolean removeFinishedSounds(){
 		return this.playing.removeFinishedSounds();

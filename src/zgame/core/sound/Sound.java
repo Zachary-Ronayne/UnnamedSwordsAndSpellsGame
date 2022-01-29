@@ -17,7 +17,7 @@ public abstract class Sound{
 	
 	/** The file path to the location of where this sound was loaded */
 	private String path;
-	/** true if this {@link EffectSound} is in mono, i.e. one channel, or stereo, i.e. two channels */
+	/** true if this {@link Sound} is in mono, i.e. one channel, or stereo, i.e. two channels */
 	private boolean mono;
 	/** The sample rate of this audio file, i.e. number of samples per second */
 	private int sampleRate;
@@ -41,24 +41,24 @@ public abstract class Sound{
 	protected abstract void bufferData(PointerBuffer p);
 	
 	/**
-	 * Load this sound from memory and associate that data with the id of this {@link EffectSound}
+	 * Load this {@link Sound} from memory and associate that data with the id of this {@link Sound}
 	 * 
-	 * @return The pointer is if is still open, or null if it is not open, also returns null if any load errors occured
+	 * @return The pointer is if is still open, or null if it is not open, also returns null if any load errors occurred
 	 */
 	public PointerBuffer load(){
 		return this.load(true);
 	}
 	
 	/**
-	 * Load this sound from memory and associate that data with the id of this {@link EffectSound}
+	 * Load this sound from memory and associate that data with the id of this {@link Sound}
 	 * 
 	 * @param freePointer true to free the pointer used to load the data, false to keep it open
-	 * @return The pointer is if is still open, or null if it is not open, also returns null if any load errors occured
+	 * @return The pointer is if is still open, or null if it is not open, also returns null if any load errors occurred
 	 */
 	public PointerBuffer load(boolean freePointer){
 		// Load the bytes of the sound from the jar
 		ByteBuffer buff = ZAssetUtils.getJarBytes(this.getPath());
-
+		
 		// Load in the sound in with stb
 		IntBuffer channels = BufferUtils.createIntBuffer(1);
 		IntBuffer sampleRate = BufferUtils.createIntBuffer(1);
@@ -74,7 +74,8 @@ public abstract class Sound{
 		// Determine success
 		boolean success = samplesLoaded != -1;
 		if(ZConfig.printSuccess() && success){
-			ZStringUtils.print("Sound '", this.getPath(), "' loaded successfully in ", (this.isMono() ? "mono" : "stereo"), ", with sample rate: ", this.getSampleRate(), ", ", samplesLoaded, " samples loaded, and ids: ", this.getIdString());
+			ZStringUtils.print("Sound '", this.getPath(), "' loaded successfully in ", (this.isMono() ? "mono" : "stereo"), ", with sample rate: ", this.getSampleRate(), ", ",
+					samplesLoaded, " samples loaded, and ids: ", this.getIdString());
 		}
 		else if(ZConfig.printErrors() && !success){
 			ZStringUtils.print("Sound '", this.getPath(), "' failed to load via stb");
@@ -89,7 +90,7 @@ public abstract class Sound{
 		return pointer;
 	}
 	
-	/** Free any resources used by this {@link EffectSound} After calling this method, this sound cannot be played */
+	/** Free any resources used by this {@link Sound} After calling this method, this sound cannot be played */
 	public void end(){
 		for(int i : this.getIds()) alDeleteBuffers(i);
 	}
@@ -132,7 +133,7 @@ public abstract class Sound{
 		return this.getSamples() * this.getChannels();
 	}
 	
-	/** @return A user readble string containing each id used as a buffer for this Abstract sound */
+	/** @return A user readable string containing each id used as a buffer for this {@link Sound} */
 	public String getIdString(){
 		int[] ids = this.getIds();
 		Integer[] arr = new Integer[ids.length];

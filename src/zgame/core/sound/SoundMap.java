@@ -13,19 +13,19 @@ public class SoundMap extends HashMap<Integer, SoundSource>{
 	
 	/** The current volume of this {@link SoundMap}. This value will never be negative */
 	private double volume;
-
+	
 	/** Create a new empty {@link SoundMap} */
 	public SoundMap(){
 		super();
 		this.volume = 1;
 	}
-
+	
 	/** Cause every source in this map to stop playing, and then remove them from the map */
 	public void clearSound(){
 		for(SoundSource s : this.values()) alSourceStop(s.getId());
 		this.clear();
 	}
-
+	
 	/**
 	 * Add the given source to the map
 	 * 
@@ -34,12 +34,12 @@ public class SoundMap extends HashMap<Integer, SoundSource>{
 	public void put(SoundSource s){
 		this.put(s.getId(), s);
 	}
-
+	
 	/** Update the state of every {@link SoundSource} in this {@link SoundMap} */
 	public void update(){
 		for(SoundSource s : this.values()) s.update();
 	}
-
+	
 	/**
 	 * Set the muted state of every {@link SoundSource} in this {@link SoundMap}
 	 * 
@@ -58,15 +58,15 @@ public class SoundMap extends HashMap<Integer, SoundSource>{
 		if(pause) for(SoundSource s : this.values()) s.pause();
 		else for(SoundSource s : this.values()) s.unpause();
 	}
-
+	
 	/** @return See {@link #volume} */
 	public double getVolume(){
 		return this.volume;
 	}
-
+	
 	/**
 	 * Set the volume state of every {@link SoundSource} in this {@link SoundMap}
-	 * This only sets the relative volume, i.e. the given volume and the internel volume of each sound are multiplied together
+	 * This only sets the relative volume, i.e. the given volume and the internal volume of each sound are multiplied together
 	 * 
 	 * @param volume The volume to set to
 	 */
@@ -74,12 +74,12 @@ public class SoundMap extends HashMap<Integer, SoundSource>{
 		this.volume = Math.max(0, volume);
 		for(SoundSource s : this.values()) s.setVolume(volume);
 	}
-
+	
 	/** Like {@link #setVolume(double)} but add the given volume instead of setting it */
 	public void addVolume(double volume){
 		this.setVolume(this.getVolume() + volume);
 	}
-
+	
 	/** @return An array containing every {@link SoundSource} in this {@link SoundMap} */
 	public SoundSource[] toArray(){
 		Collection<SoundSource> s = this.values();
@@ -87,9 +87,9 @@ public class SoundMap extends HashMap<Integer, SoundSource>{
 	}
 	
 	/**
-	 * Remove any sounds from this {@link SoundMap} which are finished playing, i.r. their AL_SOURCE_STATE equals AL_STOPPED
+	 * Remove any sounds from this {@link SoundMap} which are finished playing, i.e. their AL_SOURCE_STATE equals AL_STOPPED
 	 * 
-	 * @return true if at least one sound was removed, false otheriwse
+	 * @return true if at least one sound was removed, false otherwise
 	 */
 	public boolean removeFinishedSounds(){
 		boolean found = false;
@@ -106,5 +106,5 @@ public class SoundMap extends HashMap<Integer, SoundSource>{
 		}
 		return found;
 	}
-
+	
 }

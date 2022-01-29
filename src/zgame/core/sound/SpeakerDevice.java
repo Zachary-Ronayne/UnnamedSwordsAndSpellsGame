@@ -20,13 +20,13 @@ import java.nio.IntBuffer;
  */
 public class SpeakerDevice{
 	
-	/** The id used by OpenAL to respresnt this {@link SpeakerDevice} */
+	/** The id used by OpenAL to represent this {@link SpeakerDevice} */
 	private long id;
 	
-	/** A vlue used by OpenAL to refer to the context of this {@link SpeakerDevice} */
+	/** A value used by OpenAL to refer to the context of this {@link SpeakerDevice} */
 	private long context;
 	
-	/** The human readble name associated with this {@link SpeakerDevice} */
+	/** The human readable name associated with this {@link SpeakerDevice} */
 	private String name;
 	
 	/** The {@link ALCapabilities} used by this device. Can be null if none have been set yet */
@@ -66,7 +66,8 @@ public class SpeakerDevice{
 			boolean result = alcMakeContextCurrent(this.getContext());
 			this.alCapabilities = AL.createCapabilities(this.getAlcCapabilities());
 			if(result && ZConfig.printSuccess()) ZStringUtils.print("Successfully made context current with device name '", this.getName(), "' using context: ", this.getContext());
-			else if(!result && ZConfig.printErrors()) ZStringUtils.print("Failed to make context current with device name '", this.getName(), "' using context: ", this.getContext());
+			else if(!result && ZConfig.printErrors()) ZStringUtils.print("Failed to make context current with device name '", this.getName(), "' using context: ",
+					this.getContext());
 		}
 	}
 	

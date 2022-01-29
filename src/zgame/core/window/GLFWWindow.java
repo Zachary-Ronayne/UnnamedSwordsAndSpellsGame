@@ -131,7 +131,7 @@ public class GLFWWindow extends GameWindow{
 	@Override
 	public void end(){
 		super.end();
-		// Free memory / destory callbacks
+		// Free memory / destroy callbacks
 		long w = this.getWindowID();
 		glfwFreeCallbacks(w);
 		glfwDestroyWindow(w);
@@ -155,13 +155,13 @@ public class GLFWWindow extends GameWindow{
 	 * Assign the current window all needed callbacks, i.e. input.
 	 * This is an expensive operation and should not be regularly called
 	 * 
-	 * @return true if the callbacks could be set, false if an error occured
+	 * @return true if the callbacks could be set, false if an error occutred
 	 */
 	@Override
 	public boolean initCallBacks(){
 		long w = this.getCurrentWindowID();
 		if(w == NULL){
-			if(ZConfig.printErrors()) System.err.println("Error in GLFWWindow.initCallBacks, cannnot init callbacks if the current window is NULL");
+			if(ZConfig.printErrors()) System.err.println("Error in GLFWWindow.initCallBacks, cannot init callbacks if the current window is NULL");
 			return false;
 		}
 		glfwSetKeyCallback(w, this::keyPress);
@@ -177,7 +177,7 @@ public class GLFWWindow extends GameWindow{
 	/**
 	 * The method directly used as a callback for a GLFW keyboard press
 	 * 
-	 * @param window The ID of the window from which the event occured
+	 * @param window The ID of the window from which the event occurred
 	 * @param key The ID of the key pressed
 	 * @param scanCode The ID of the system specific scancode
 	 * @param action The action taken, i.e. released, pressed, held
@@ -190,7 +190,7 @@ public class GLFWWindow extends GameWindow{
 	/**
 	 * The method directly used as a callback for a GLFW mouse button press
 	 * 
-	 * @param window The ID of the window from which the event occured
+	 * @param window The ID of the window from which the event occurred
 	 * @param button The ID of the button pressed
 	 * @param action The action taken, i.e. released, pressed, held
 	 * @param mods The value containing bits for modifiers, i.e. shift, alt, ctrl
@@ -202,6 +202,7 @@ public class GLFWWindow extends GameWindow{
 	/**
 	 * The method directly used as a callback for a GLFW mouse movement
 	 * 
+	 * @param window The ID of the window from which the event occurred
 	 * @param x The raw x pixel coordinate of the mouse on the GLFW window
 	 * @param y The raw y pixel coordinate of the mouse on the GLFW window
 	 */
@@ -210,7 +211,7 @@ public class GLFWWindow extends GameWindow{
 	}
 	
 	/**
-	 * The method directly used as a callback for a GLFW mousewheel movement
+	 * The method directly used as a callback for a GLFW mouse wheel movement
 	 * 
 	 * @param x The amount of distance scrolled on the x axis, unused
 	 * @param y The amount of distance scrolled on the y axis, used as the scroll amount
@@ -287,7 +288,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * Create a window to use for the fullscreen. In the case of multiple monitors,
-	 * the monitor which will be used is the one with the upper lefthand corner of the window in it
+	 * the monitor which will be used is the one with the upper left hand corner of the window in it
 	 * The id is stored in {@link #fullScreenID}
 	 */
 	protected void createFullScreenWindow(){
@@ -331,7 +332,7 @@ public class GLFWWindow extends GameWindow{
 	}
 	
 	/**
-	 * Center the window to the given monitor. Uses the primary monitor if the given monitor is null
+	 * Center the window to the given monitor. Uses the primary monitor if the given monitor is NULL
 	 * 
 	 * @param monitor The monitor id to center to
 	 * @return The monitor id which the window was centered to
@@ -363,7 +364,7 @@ public class GLFWWindow extends GameWindow{
 	}
 	
 	/**
-	 * Find the monitor which contains the upperleft hand corner of the window
+	 * Find the monitor which contains the upper left hand corner of the window
 	 * 
 	 * @return the id, or the primary monitor if no monitor is found
 	 */
@@ -382,7 +383,7 @@ public class GLFWWindow extends GameWindow{
 			IntBuffer mx = BufferUtils.createIntBuffer(1);
 			IntBuffer my = BufferUtils.createIntBuffer(1);
 			glfwGetMonitorPos(id, mx, my);
-			// If we find a monitor whose bounds contain the position of the monitor, center it
+			// If we find a monitor whose bounds contain the position of the monitor, return that id
 			if(new Rectangle(mx.get(0), my.get(0), w, h).contains(wp.x, wp.y)) return id;
 		}
 		return glfwGetPrimaryMonitor();

@@ -11,9 +11,10 @@ import java.awt.geom.Rectangle2D;
  * A class that handles OpenGL operations related to drawing objects.
  * Create an instance of this class and call draw methods to draw to this Renderer,
  * then call drawToScreen to display the contents of this Renderer.
- * This class is dependent on {@link zgame.graphics.DisplayList}, be sure to initialize that class before using Renderer.
+ * This class is dependent on {@link DisplayList}, be sure to initialize that class before using Renderer.
  * DO NOT directly call any OpenGL methods when using this class, otherwise unexpected results could happen.
  * Coordinate explanation:
+ * OpenGL space: the coordinate system used by OpenGL, i.e. the upper left hand corner is (-1, 1) and the lower right hand corner is (1, -1)
  * Window coordinates: The pixels on the GLFW window itself
  * Screen coordinates: The in game coordinates, relative to what is displayed on the screen.
  * i.e. the upper left hand corner is always (0, 0),
@@ -34,12 +35,12 @@ public class Renderer{
 	/** The buffer which this Renderer draws to, which later can be drawn to a window */
 	private GameBuffer screen;
 	
-	/** The Camera which determines the relative location and scale of objects drawn in this renderer. If this is null, no transformations will be applied */
+	/** The {@link GameCamera} which determines the relative location and scale of objects drawn in this renderer. If this is null, no transformations will be applied */
 	private GameCamera camera;
 	
 	/**
 	 * true if objects which would be rendered outside of the bounds of {@link #screen} should not be drawn, false otherwise.
-	 * If this value is false, then all objects will be rendered, even if they would never be visibile, which could cause performance issues
+	 * If this value is false, then all objects will be rendered, even if they should not be visible, which could cause performance issues
 	 */
 	private boolean renderOnlyInside;
 	
@@ -62,8 +63,8 @@ public class Renderer{
 	}
 	
 	/** Delete any resources used by this Renderer */
-	public void destory(){
-		this.screen.destory();
+	public void destroy(){
+		this.screen.destroy();
 	}
 	
 	/**
@@ -73,7 +74,7 @@ public class Renderer{
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public void resize(int width, int height){
-		if(this.screen != null) this.screen.destory();
+		if(this.screen != null) this.screen.destroy();
 		this.screen = new GameBuffer(width, height);
 	}
 	
@@ -121,9 +122,9 @@ public class Renderer{
 	}
 	
 	/**
-	 * Draw the contents of {@link #screen} to the given GameWindow.
-	 * This method will leave the Renderer in the state for drawing buffers, i.e. {@link #renderModeBuffer()} is called.
-	 * Additionally, this method will make all further drawing operations occur directly on the given GameWindow
+	 * Draw the contents of {@link #screen} to the given {@link GameWindow}.
+	 * This method will leave this {@link Renderer} in the state for drawing buffers, i.e. {@link #renderModeBuffer()} is called.
+	 * Additionally, this method will make all further drawing operations occur directly on the given {@link GameWindow}
 	 * 
 	 * @param window The window to draw to
 	 */
@@ -141,10 +142,9 @@ public class Renderer{
 	 * Call OpenGL operations that transform to draw to a location in game coordinates.
 	 * This method assumes the coordinates to translate are centered in the given rectangular bounding box in game coordinates
 	 * This method does not push or pop the matrix stack
-	 * Coordinates are in camera coordinates
 	 * 
-	 * @param x The x coordinate of the upper lefthand corner
-	 * @param y The y coordinate of the upper lefthand corner
+	 * @param x The x coordinate of the upper left hand corner
+	 * @param y The y coordinate of the upper left hand corner
 	 * @param w The width
 	 * @param h The height
 	 */
@@ -164,8 +164,8 @@ public class Renderer{
 	 * Draw a rectangle, of the current color of this Renderer, at the specified location. All values are in game coordinates
 	 * Coordinates are in camera coordinates
 	 * 
-	 * @param x The x coordinate of the upper right hand corner of the rectangle
-	 * @param y The y coordinate of the upper right hand corner of the rectangle
+	 * @param x The x coordinate of the upper left hand corner of the rectangle
+	 * @param y The y coordinate of the upper left hand corner of the rectangle
 	 * @param w The width of the rectangle
 	 * @param h The height of the rectangle
 	 * @return true if the object was drawn, false otherwise
@@ -185,7 +185,7 @@ public class Renderer{
 	
 	/**
 	 * Draw a rectangular image at the specified location. All values are in game coordinates.
-	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will strech to fit the given dimensions
+	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
 	 * 
 	 * @param x The x coordinate of the upper right hand corner of the image
 	 * @param y The y coordinate of the upper right hand corner of the image
@@ -212,14 +212,14 @@ public class Renderer{
 	 * i.e. find out if something drawn within the given bounds would appear on the screen
 	 * 
 	 * @param x The upper left hand corner x coordinate of the object, in game coordinates
-	 * @param y The upper left hand corner y coordiate of the object, in game coordinates
+	 * @param y The upper left hand corner y coordinate of the object, in game coordinates
 	 * @param w The width of the object, in game coordinates
 	 * @param h The height of the object, in game coordinates
 	 * @return true if the bounds should be drawn, false otherwise
 	 */
 	public boolean shouldDraw(double x, double y, double w, double h){
 		if(!this.isRenderOnlyInside()) return true;
-		Rectangle2D.Double r = new Rectangle2D.Double(0, 0, this.getWidth(), this.getHeight());
+		Rectangle2D.Double r = this.getBounds();
 		if(this.camera == null) return r.intersects(x, y, w, h);
 		else return r.intersects(this.camera.boundsGameToScreen(x, y, w, h));
 	}
@@ -246,12 +246,11 @@ public class Renderer{
 	
 	/**
 	 * Set the color currently used to draw basic shapes
-	 * s
 	 * 
 	 * @param r The red amount, should be in the range [0-1]
 	 * @param g The green amount, should be in the range [0-1]
 	 * @param b The blue amount, should be in the range [0-1]
-	 * @param a The alpha amount, should be in the range [0-1]
+	 * @param a The alpha amount (transparency), should be in the range [0-1]
 	 */
 	public void setColor(double r, double g, double b, double a){
 		glColor4d(r, g, b, a);
@@ -272,14 +271,19 @@ public class Renderer{
 		this.renderOnlyInside = renderOnlyInside;
 	}
 	
-	/** @return The width, in pixels, of the underlyng buffer of this Renderer */
+	/** @return The width, in pixels, of the underlying buffer of this Renderer */
 	public int getWidth(){
 		return this.screen.getWidth();
 	}
 	
-	/** @return The height, in pixels, of the underlyng buffer of this Renderer */
+	/** @return The height, in pixels, of the underlying buffer of this Renderer */
 	public int getHeight(){
 		return this.screen.getHeight();
+	}
+
+	/** @return A rectangle of the bounds of this {@link Renderer}, i.e. the position will be (0, 0), width will be {@link #getWidth()} and height will be {@link #getHeight()} */
+	public Rectangle2D.Double getBounds(){
+		return new Rectangle2D.Double(0, 0, this.getWidth(), this.getHeight());
 	}
 	
 	/** @return The ratio of the size of the internal buffer, i.e. the width divided by the height */
@@ -435,7 +439,7 @@ public class Renderer{
 	 * 
 	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
 	 * @param x The value to convert
-	 * @return The conveted size
+	 * @return The converted size
 	 */
 	public double sizeWindowToScreenX(GameWindow window, double x){
 		return sizeWindowToScreen(x, window.viewportWInverse(), this.screen.getWidth());
@@ -446,7 +450,7 @@ public class Renderer{
 	 * 
 	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
 	 * @param y The value to convert
-	 * @return The conveted size
+	 * @return The converted size
 	 */
 	public double sizeWindowToScreenY(GameWindow window, double y){
 		return sizeWindowToScreen(y, window.viewportHInverse(), this.screen.getHeight());
@@ -469,7 +473,7 @@ public class Renderer{
 	 * 
 	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
 	 * @param x The value to convert
-	 * @return The conveted size
+	 * @return The converted size
 	 */
 	public double sizeScreenToWindowX(GameWindow window, double x){
 		return sizeScreenToWindow(x, window.viewportW(), this.screen.getInverseWidth());
@@ -480,7 +484,7 @@ public class Renderer{
 	 * 
 	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
 	 * @param y The value to convert
-	 * @return The conveted size
+	 * @return The converted size
 	 */
 	public double sizeScreenToWindowY(GameWindow window, double y){
 		return sizeScreenToWindow(y, window.viewportH(), this.screen.getInverseHeight());
@@ -503,7 +507,7 @@ public class Renderer{
 	 * 
 	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
 	 * @param x The value to convert
-	 * @return The conveted size
+	 * @return The converted size
 	 */
 	public double sizeScreenToGlX(GameWindow window, double x){
 		return sizeScreenToGl(x, window.getWidth(), this.screen.getInverseWidth(), window.getInverseWidth());
@@ -514,7 +518,7 @@ public class Renderer{
 	 * 
 	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
 	 * @param y The value to convert
-	 * @return The conveted size
+	 * @return The converted size
 	 */
 	public double sizeScreenToGlY(GameWindow window, double y){
 		return sizeScreenToGl(y, window.getHeight(), this.screen.getInverseHeight(), window.getInverseHeight());
@@ -538,7 +542,7 @@ public class Renderer{
 	 * 
 	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
 	 * @param x The value to convert
-	 * @return The conveted size
+	 * @return The converted size
 	 */
 	public double sizeGlToScreenX(GameWindow window, double x){
 		return sizeGlToScreen(x, window.getInverseWidth(), this.screen.getWidth(), window.getWidth());
@@ -549,7 +553,7 @@ public class Renderer{
 	 * 
 	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
 	 * @param y The value to convert
-	 * @return The conveted size
+	 * @return The converted size
 	 */
 	public double sizeGlToScreenY(GameWindow window, double y){
 		return sizeGlToScreen(y, window.getInverseHeight(), this.screen.getHeight(), window.getHeight());
@@ -562,7 +566,7 @@ public class Renderer{
 	 * @param windowInverseSize The inverse of the size of the window
 	 * @param screenSize The size of the screen to convert to
 	 * @param windowSize The size of the window to convert to
-	 * @return The conveted size
+	 * @return The converted size
 	 */
 	public static double sizeGlToScreen(double p, double windowInverseSize, double screenSize, double windowSize){
 		return sizeWindowToScreen(p * 0.5 * windowSize, windowInverseSize, screenSize);

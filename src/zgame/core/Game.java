@@ -22,21 +22,12 @@ import zgame.core.window.GameWindow;
 public class Game{
 	
 	/**
-	 * By default, the number of times a second the sound will be updated, i.e. updating streaming sounds, checking if sounds are still playing, checking which sounds need to play, etc
+	 * By default, the number of times a second the sound will be updated, i.e. updating streaming sounds, checking if sounds are still playing, checking which sounds need to play,
+	 * etc
 	 * Generally shouldn't modify the value in a {@link Game}, but it can be modified through {@link Game#setSoundUpdates(int)}
 	 * Setting the value too low can result in sounds getting stuck, particularly streaming sounds, i.e. music
 	 */
 	public static final int DEFAULT_SOUND_UPDATES = 100;
-	
-	/*
-	 * 
-	 * TODO for buffers, i.e. IntBuffer, ByteBuffer, etc, only allocate the memory once, don't constantly make a new buffer
-	 * 
-	 * TODO go through code and remedy any inconsistancies, abstract out things
-	 * 
-	 * TODO update code formatting, lines too long so add wrapping, allow for space between block statements and comments, update comments to always link to classes and methods
-	 * 
-	 */
 	
 	/** The {@link GLFWWindow} used by this {@link Game} as the core interaction */
 	private GameWindow window;
@@ -61,7 +52,7 @@ public class Game{
 	private TickLoopTask tickTask;
 	/**
 	 * The factor in which time passes during each game tick, i.e. this number is multiplied to dt each time the main loop calls {@link #tick(double)}
-	 * Values higher than 1 make the game faster, values less than 1 make the game slower, this value will not go below 0 
+	 * Values higher than 1 make the game faster, values less than 1 make the game slower, this value will not go below 0
 	 */
 	private double gameSpeed;
 	
@@ -152,7 +143,7 @@ public class Game{
 	public Game(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
 		// Init misc values
 		this.gameSpeed = 1;
-
+		
 		this.focusedRender = false;
 		this.focusedUpdate = false;
 		this.minimizedRender = false;
@@ -186,7 +177,8 @@ public class Game{
 		this.tickLooper = new GameLooper(tps, this::tickLoopFunction, this::shouldTick, this::keepTickLoopFunction, this::tickLoopWaitFunction, "TPS", printTps);
 		
 		// Create the sound loop
-		this.soundLooper = new GameLooper(DEFAULT_SOUND_UPDATES, this::updateSounds, this::shouldUpdateSound, this::keepSoundLoopFunction, this::soundLoopWaitFunction, "Audio", false);
+		this.soundLooper = new GameLooper(DEFAULT_SOUND_UPDATES, this::updateSounds, this::shouldUpdateSound, this::keepSoundLoopFunction, this::soundLoopWaitFunction, "Audio",
+				false);
 		
 		// Go to fullscreen if applicable
 		this.window.setInFullScreenNow(enterFullScreen);
@@ -195,7 +187,7 @@ public class Game{
 	/**
 	 * Begin running the main OpenGL loop. When the loop ends, the cleanup method is automatically run. Do not manually call {@link #end()}, terminate the main loop instead.
 	 * Calling this method will run the loop on the currently executing thread. This should only be the main Java thread, not an external thread.
-	 * In parallel to the main thread, a second thread will run, which runs the game tick loop
+	 * In parallel to the main thread, a second thread will run, which runs the game tick loop, and a third thread will run which updates the sounds
 	 */
 	public void start(){
 		// Run the tick loop on its own thread first
@@ -223,7 +215,7 @@ public class Game{
 		this.renderLooper.end();
 		this.tickLooper.end();
 		
-		// Free memory / destory callbacks
+		// Free memory / destroy callbacks
 		this.getWindow().end();
 		
 		// Free sounds
@@ -234,7 +226,7 @@ public class Game{
 	}
 	
 	/**
-	 * Called when the window recieves a key press. Can overrite this method to perform actions directly when keys are pressed
+	 * Called when the window receives a key press. Can overwrite this method to perform actions directly when keys are pressed
 	 * 
 	 * @param key The id of the key
 	 * @param press true if the key was pressed, false for released
@@ -246,7 +238,7 @@ public class Game{
 	}
 	
 	/**
-	 * Called when the window recieves a mouse button press. Can overrite this method to perform actions directly when mouse buttons are pressed
+	 * Called when the window receives a mouse button press. Can overwrite this method to perform actions directly when mouse buttons are pressed
 	 * 
 	 * @param button The ID of the mouse button
 	 * @param press true if the key was pressed, false for released
@@ -258,7 +250,7 @@ public class Game{
 	}
 	
 	/**
-	 * Called when the window recieves mouse movement. Can overrite this method to perform actions directly when the mouse is moved
+	 * Called when the window receives mouse movement. Can overwrite this method to perform actions directly when the mouse is moved
 	 * 
 	 * @param x The x coordinate in screen coordinates
 	 * @param y The y coordinate in screen coordinates
@@ -267,7 +259,7 @@ public class Game{
 	}
 	
 	/**
-	 * Called when the window recieves a mouse wheel movement. Can overrite this method to perform actions directly when the mouse wheel is moved
+	 * Called when the window receives a mouse wheel movement. Can overwrite this method to perform actions directly when the mouse wheel is moved
 	 * 
 	 * @param amount The amount the scroll wheel was moved
 	 */
@@ -402,7 +394,7 @@ public class Game{
 	/**
 	 * The function used to determine if the tick loop should update each loop iteration regardless of time
 	 * 
-	 * @return Usually false, unless this method is overritten with different behavior
+	 * @return Usually false, unless this method is overwritten with different behavior
 	 */
 	protected boolean shouldTick(){
 		return false;
@@ -411,7 +403,7 @@ public class Game{
 	/**
 	 * The function used to determine if the tick loop should end
 	 * 
-	 * @return Usually the same result as {@link #keepRenderLoopFunction()}, unless this method is overritten with different behavior
+	 * @return Usually the same result as {@link #keepRenderLoopFunction()}, unless this method is overwritten with different behavior
 	 */
 	protected boolean keepTickLoopFunction(){
 		return this.keepRenderLoopFunction();
@@ -457,7 +449,7 @@ public class Game{
 	/**
 	 * The function used to determine if the sound loop should update each loop iteration regardless of time
 	 * 
-	 * @return Usually false, unless this method is overritten with different behavior
+	 * @return Usually false, unless this method is overwritten with different behavior
 	 */
 	protected boolean shouldUpdateSound(){
 		return false;
@@ -466,7 +458,7 @@ public class Game{
 	/**
 	 * The function used to determine if the sound loop should end
 	 * 
-	 * @return Usually the same result as {@link #keepRenderLoopFunction()}, unless this method is overritten with different behavior
+	 * @return Usually the same result as {@link #keepRenderLoopFunction()}, unless this method is overwritten with different behavior
 	 */
 	protected boolean keepSoundLoopFunction(){
 		return this.keepRenderLoopFunction();
@@ -475,7 +467,7 @@ public class Game{
 	/**
 	 * The function used to determine if the sound loop should wait between running each tick
 	 * 
-	 * @return Usually true, unless this method is overritten with different behavior
+	 * @return Usually true, unless this method is overwritten with different behavior
 	 */
 	protected boolean soundLoopWaitFunction(){
 		return true;
@@ -532,8 +524,7 @@ public class Game{
 	}
 	
 	/**
-	 * A convenience method, this method is equivilent to this.getSounds().playEffect(source, name)
-	 * See {@link SoundManager#playEffect(SoundSource, String)}
+	 * A convenience method, this method is equivalent to {@link SoundManager#playEffect(SoundSource, String)}
 	 * 
 	 * @param source The source to play the effect on
 	 * @param name The name of the sound to play
@@ -543,8 +534,7 @@ public class Game{
 	}
 	
 	/**
-	 * A convenience method, this method is equivilent to this.getSounds().playMusic(name)
-	 * See {@link SoundManager#playMusic(String)}
+	 * A convenience method, this method is equivalent to{@link SoundManager#playMusic(String)}
 	 * 
 	 * @param name The name of the music to play
 	 */
@@ -614,12 +604,12 @@ public class Game{
 		tps = Math.max(1, tps);
 		this.tickLooper.setRate(tps);
 	}
-
+	
 	/** @return See {@link #gameSpeed} */
 	public double getGameSpeed(){
 		return this.gameSpeed;
 	}
-
+	
 	/** @param gameSpeed See {@link #gameSpeed} */
 	public void setGameSpeed(double gameSpeed){
 		this.gameSpeed = Math.max(0, gameSpeed);
@@ -673,7 +663,7 @@ public class Game{
 	/**
 	 * Zoom in the screen with {@link #camera} on just the x axis
 	 * The zoom will reposition the camera so that the given coordinates are zoomed towards
-	 * These cooridnates are screen coordinates
+	 * These coordinates are screen coordinates
 	 * 
 	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
 	 * @param x The x coordinate to base the zoom
@@ -685,7 +675,7 @@ public class Game{
 	/**
 	 * Zoom in on just the y axis
 	 * The zoom will reposition the camera so that the given coordinates are zoomed towards
-	 * These cooridnates are screen coordinates
+	 * These coordinates are screen coordinates
 	 * 
 	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
 	 * @param y The y coordinate to base the zoom
@@ -697,7 +687,7 @@ public class Game{
 	/**
 	 * Zoom in on both axes
 	 * The zoom will reposition the camera so that the given coordinates are zoomed towards
-	 * These cooridnates are screen coordinates
+	 * These coordinates are screen coordinates
 	 * 
 	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
 	 * @param x The x coordinate to base the zoom

@@ -16,6 +16,7 @@ public class ImageManager{
 	/** A map containing all images handled by this {@link ImageManager} */
 	private Map<String, GameImage> images;
 	
+	/** Create a new empty {@link ImageManager} */
 	public ImageManager(){
 		this.images = new HashMap<String, GameImage>();
 	}
@@ -29,7 +30,7 @@ public class ImageManager{
 	 * Add the given image to the manager
 	 * 
 	 * @param img The image to add
-	 * @param name The name of the image, also use this name to get the image
+	 * @param name The name of the image, also use this name to get the image with {@link #getImage(String)}
 	 */
 	public void addImage(GameImage img, String name){
 		this.images.put(name, img);
@@ -51,7 +52,7 @@ public class ImageManager{
 	public GameImage getImage(String name){
 		return this.images.get(name);
 	}
-
+	
 	/**
 	 * Load all the images in {@link ZFilePaths#IMAGES}, where the name of the file without a file extension is how they will be referred to using {@link #getImage(String)}
 	 */

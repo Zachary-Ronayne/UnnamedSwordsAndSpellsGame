@@ -60,7 +60,7 @@ public abstract class ZButtonInputEvent{
 	public boolean isCtrlDown(){
 		return this.ctrlDown;
 	}
-
+	
 	/** @return See {@link #press} */
 	public boolean isPress(){
 		return this.press;

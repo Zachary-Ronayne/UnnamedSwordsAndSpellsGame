@@ -26,9 +26,15 @@ public final class ZAssetUtils{
 	 * 
 	 * @param basePath The path to look for names
 	 * @param includeExtension true to include the extension on the end of files, false for only the name
-	 * @return A list containing every file name. This will contain both files and folders in no guarenteed order
+	 * @return A list containing every file name. This will contain both files and folders in no guaranteed order
 	 */
 	public static List<String> getNames(String basePath, boolean includeExtension){
+		if(basePath.contains("//")) try{
+			throw new Exception();
+		}catch(Exception e1){
+			e1.printStackTrace();
+			System.exit(1);
+		}
 		basePath = ZStringUtils.concat("/", basePath);
 		
 		List<String> names = new ArrayList<String>();
@@ -84,7 +90,7 @@ public final class ZAssetUtils{
 	}
 	
 	/**
-	 * Get the name of only the files or only the folders contained by the given path. 
+	 * Get the name of only the files or only the folders contained by the given path.
 	 * This method assumes that all files have a file extension
 	 * 
 	 * @param basePath The path to find the names
@@ -124,9 +130,9 @@ public final class ZAssetUtils{
 	public static List<String> getAllFiles(String basePath, boolean extension){
 		return getNameTypes(basePath, true, extension);
 	}
-
+	
 	/**
-	 * Get the name of only the folders contained by the given path. 
+	 * Get the name of only the folders contained by the given path.
 	 * This method assumes that all files have a file extension
 	 * 
 	 * @param basePath The path to find the folders
@@ -135,7 +141,7 @@ public final class ZAssetUtils{
 	public static List<String> getAllFolders(String basePath){
 		return getNameTypes(basePath, false, false);
 	}
-
+	
 	/**
 	 * Get an {@link InputStream} which can load files directly from the jar file
 	 * 

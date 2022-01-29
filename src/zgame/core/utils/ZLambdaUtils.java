@@ -9,7 +9,7 @@ public final class ZLambdaUtils{
 	public interface EmptyFunc{
 		public void run();
 	}
-
+	
 	/** A method that does nothing for convenience */
 	public static void emptyMethod(){
 	}
@@ -18,7 +18,7 @@ public final class ZLambdaUtils{
 	public interface BooleanFunc{
 		public boolean check();
 	}
-
+	
 	/** Cannot instantiate this class */
 	private ZLambdaUtils(){
 	};

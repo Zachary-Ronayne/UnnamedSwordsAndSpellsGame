@@ -100,7 +100,7 @@ public class GameImage{
 	}
 	
 	/**
-	 * A convenience method which creates a GameImage with a file of the given name, assuming the file is located in ZFilePaths.IMAGES
+	 * A convenience method which creates a GameImage with a file of the given name, assuming the file is located in {@link ZFilePaths#IMAGES}
 	 * 
 	 * @param name The name of the file, including file extension
 	 * @return The new image

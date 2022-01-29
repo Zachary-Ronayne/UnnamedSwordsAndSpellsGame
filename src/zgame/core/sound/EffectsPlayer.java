@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public class EffectsPlayer extends SoundPlayer<EffectSound>{
 	
-	/** A {@link Map} containing every {@link SoundMap} of playing sounds */
+	/** A {@link Map} containing every {@link SoundMap} of each type of playing sounds */
 	private Map<String, SoundMap> effects;
 	
 	/** Create an empty {@link EffectsPlayer} with no currently playing sounds */
@@ -21,7 +21,7 @@ public class EffectsPlayer extends SoundPlayer<EffectSound>{
 	
 	@Override
 	protected void runSound(SoundSource source, EffectSound sound){
-		// Add the sound to the list of separate maps
+		// Add the sound to the map of separate maps
 		this.addEffect(source, sound.getType());
 		
 		// Play the sound
@@ -55,8 +55,8 @@ public class EffectsPlayer extends SoundPlayer<EffectSound>{
 	}
 	
 	/**
-	 * Set the volume of a specific type of sounds. If the type does not exist, an empty map of that type is added to the player. 
-	 * Any calls to {@link #setVolume(double)} will set the volume of every sound in this {@link EffectsPlayer}, regardless of type. 
+	 * Set the volume of a specific type of sounds. If the type does not exist, an empty map of that type is added to the player.
+	 * Any calls to {@link #setVolume(double)} will set the volume of every sound in this {@link EffectsPlayer}, regardless of type.
 	 * Use {@link #setVolume(double)} to set the volume of every sound, use this {@link #setTypeVolume(String, double)} to set the volume of only specific types
 	 * 
 	 * @param type The type of sounds
@@ -66,7 +66,7 @@ public class EffectsPlayer extends SoundPlayer<EffectSound>{
 		this.addNewType(type);
 		this.effects.get(type).setVolume(volume);
 	}
-
+	
 	/**
 	 * Like {@link #setTypeVolume(String, double)}, but add the specified volume instead of setting it
 	 */

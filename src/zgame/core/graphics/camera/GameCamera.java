@@ -8,15 +8,15 @@ import static org.lwjgl.opengl.GL30.*;
 import java.awt.geom.Rectangle2D;
 
 /**
- * A class used by {@link Renderer} to track the location of where objects should be draw, based on their position in the game.
+ * A class used by {@link Renderer} to track the location of where objects should be drawn, based on their position in the game.
  * All positions are in game coordinates
  */
 public class GameCamera{
 	
-	/** The x axis of the camera, where its position represents the upper lefthand corner of the screen */
+	/** The x axis of the camera */
 	private CameraAxis x;
 	
-	/** The y axis of the camera, where its position represents the upper lefthand corner of the screen */
+	/** The y axis of the camera */
 	private CameraAxis y;
 	
 	/** The x axis anchor position for panning */
@@ -44,6 +44,7 @@ public class GameCamera{
 	
 	/**
 	 * Apply OpenGL transformations to position objects to where the camera should be, based on the given {@link GameWindow}
+	 * This translation will treat {@link #x} and {@link #y} positions as the upper left hand corner of the screen
 	 * 
 	 * @param window The {@link window}
 	 */
@@ -51,14 +52,14 @@ public class GameCamera{
 		// Find the distance the camera must travel, in OpenGL coordinates
 		double x = window.sizeScreenToGlX(this.getX().getPos());
 		double y = -window.sizeScreenToGlY(this.getY().getPos());
+
 		// OpenGL transformations occur in reverse order
-		
 		// Lastly, translate the camera to its actual position
 		glTranslated(x, y, 0);
 		// Third, adjust the camera back so that the upper left hand corner is in the correct position
 		glTranslated(-1, 1, 0);
 		// Second, scale to the appropriate size, based on the axis zoom levels
-		glScaled(this.getX().getZoomLevel(), this.getY().getZoomLevel(), 1);
+		glScaled(this.getX().getZoomScale(), this.getY().getZoomScale(), 1);
 		// First, adjust the camera so that the upper left hand corner, i.e. game coordinates (0, 0) is the center to use for scaling
 		glTranslated(1, -1, 0);
 	}
@@ -87,7 +88,7 @@ public class GameCamera{
 	 * If no anchor is set, this method does nothing
 	 * 
 	 * @param x The position to move on the x axis, relative to the anchor
-	 * @param y The position to move on the x axis, relative to the anchor
+	 * @param y The position to move on the y axis, relative to the anchor
 	 */
 	public void pan(double x, double y){
 		if(!this.isAnchored()) return;
@@ -111,7 +112,7 @@ public class GameCamera{
 	}
 	
 	/**
-	 * Zoom in on both axis
+	 * Zoom in on both axis. This method does not adjust camera position
 	 * 
 	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
 	 */
@@ -162,7 +163,7 @@ public class GameCamera{
 	public Rectangle2D.Double boundsGameToScreen(double x, double y, double w, double h){
 		return new Rectangle2D.Double(this.gameToScreenX(x), this.gameToScreenY(y), this.sizeGameToScreenX(w), this.sizeGameToScreenY(h));
 	}
-
+	
 	/**
 	 * Convert an x coordinate value in screen space, to a coordinate in game space coordinates
 	 * 
@@ -194,9 +195,9 @@ public class GameCamera{
 	}
 	
 	/**
-	 * Convert an x axis size in game space, to a size in screen space
+	 * Convert an y axis size in game space, to a size in screen space
 	 * 
-	 * @param x The value to convert
+	 * @param y The value to convert
 	 * @return The converted value
 	 */
 	public double sizeGameToScreenY(double y){

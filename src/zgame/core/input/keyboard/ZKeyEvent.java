@@ -6,11 +6,11 @@ import zgame.core.input.ZButtonInputEvent;
  * A class that holds the information associated when a keyboard presses or releases a key
  */
 public class ZKeyEvent extends ZButtonInputEvent{
-
+	
 	/**
 	 * Create a new {@link ZKeyEvent} with the given parameters
 	 * 
-	 * @param id The ID of the key, using GLFW constants
+	 * @param id The ID of the key
 	 * @param shiftDown See {@link #isShiftDown()}
 	 * @param altDown See {@link #isAltDown()}
 	 * @param ctrlDown See {@link #isCtrlDown()}

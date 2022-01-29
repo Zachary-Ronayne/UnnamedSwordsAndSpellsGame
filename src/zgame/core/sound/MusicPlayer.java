@@ -37,18 +37,18 @@ public class MusicPlayer extends SoundPlayer<MusicSound>{
 	protected void runSound(SoundSource source, MusicSound sound){
 		this.currentSong = new SoundPair<MusicSound>(source, sound);
 		int sourceID = source.getId();
-
+		
 		// Set the source to play relative to the listener
 		alSourcei(sourceID, AL_SOURCE_RELATIVE, AL_TRUE);
-
+		
 		// Remove all buffers and bring the sound to the beginning
 		alSourcei(sourceID, AL_BUFFER, 0);
 		alSourceRewind(sourceID);
 		sound.reset();
-
+		
 		// Queue all buffers
 		sound.bufferData();
-
+		
 		// Play the actual sound
 		alSourceQueueBuffers(sourceID, sound.getIds());
 		alSourcePlay(sourceID);
@@ -99,5 +99,5 @@ public class MusicPlayer extends SoundPlayer<MusicSound>{
 	public void toggleLooping(){
 		this.setLoop(!this.isLoop());
 	}
-
+	
 }

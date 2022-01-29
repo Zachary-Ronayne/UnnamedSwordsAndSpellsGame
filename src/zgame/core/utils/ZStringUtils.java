@@ -6,25 +6,25 @@ package zgame.core.utils;
 public final class ZStringUtils{
 	
 	/**
-	 * Print, to the main System.out, the string representation of a list of objects on one line using efficient string concatination
+	 * Print, to the main System.out, the string representation of a list of objects on one line using efficient string concatenation
 	 * 
 	 * @param objs The list of objects to print together
 	 */
 	public static void print(Object ... objs){
 		System.out.println(concat(objs));
 	}
-
+	
 	/**
-	 * Print, to the main System.out, the string representation of a list of objects on one line using efficient string concatination, with a space between each element
+	 * Print, to the main System.out, the string representation of a list of objects on one line using efficient string concatenation, with a space between each element
 	 * 
 	 * @param objs The list of objects to print together
 	 */
 	public static void prints(Object ... objs){
 		System.out.println(concats(objs));
 	}
-
+	
 	/**
-	 * Get a string representation of a list of objects concatenated together using efficient string concatination, with a space between each element
+	 * Get a string representation of a list of objects concatenated together using efficient string concatenation, with a space between each element
 	 * 
 	 * @param separator An object to put between each object in the string, but not after the last element
 	 * @param objs The list of objects to put together
@@ -32,7 +32,7 @@ public final class ZStringUtils{
 	 */
 	public static String concatSep(String separator, Object ... objs){
 		StringBuilder b = new StringBuilder();
-
+		
 		for(int i = 0; i < objs.length; i++){
 			Object obj = objs[i];
 			b.append((obj == null) ? "null" : obj.toString());
@@ -42,7 +42,7 @@ public final class ZStringUtils{
 	}
 	
 	/**
-	 * Get a string representation of a list of objects concatenated together using efficient string concatination
+	 * Get a string representation of a list of objects concatenated together using efficient string concatenation
 	 * 
 	 * @param objs The list of objects to put together
 	 * @return The resulting string
@@ -50,9 +50,9 @@ public final class ZStringUtils{
 	public static String concat(Object ... objs){
 		return concatSep("", objs);
 	}
-
+	
 	/**
-	 * Get a string representation of a list of objects concatenated together using efficient string concatination, with a space between each element
+	 * Get a string representation of a list of objects concatenated together using efficient string concatenation, with a space between each element
 	 * 
 	 * @param objs The list of objects to put together
 	 * @return The resulting string
@@ -62,7 +62,7 @@ public final class ZStringUtils{
 	}
 	
 	/**
-	 * Get a string representation of a list of the objects in the given array concatenated together using efficient string concatination, formatted as [e1, e2, e3]
+	 * Get a string representation of a list of the objects in the given array concatenated together using efficient string concatenation, formatted as [e1, e2, e3]
 	 * 
 	 * @param arr The array to get the string
 	 * @return The resulting string
@@ -75,7 +75,7 @@ public final class ZStringUtils{
 	}
 	
 	/**
-	 * Print a list of the objects in the given array concatenated together using efficient string concatination, formatted as [e1, e2, e3]
+	 * Print a list of the objects in the given array concatenated together using efficient string concatenation, formatted as [e1, e2, e3]
 	 * 
 	 * @param arr The array to get the string
 	 * @return The resulting string

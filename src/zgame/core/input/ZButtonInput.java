@@ -3,11 +3,10 @@ package zgame.core.input;
 import java.util.HashMap;
 import java.util.Map;
 
-import zgame.core.input.mouse.ZMouseEvent;
 import zgame.core.window.GameWindow;
 
 /**
- * A class designed for input devices using GLFW which use buttons that can either be pressed or not pressed
+ * A class designed for input devices which use buttons that can either be pressed or not pressed
  * 
  * @param B The {@link ZButtonInputEvent} which will represent events performed by this input object
  */
@@ -15,7 +14,7 @@ public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	
 	/** The {@link GameWindow} using this {@link ZButtonInput} */
 	private GameWindow window;
-
+	
 	/** The {@link Map} storing the state of every button and its associated actions */
 	private Map<Integer, B> buttonsDown;
 	
@@ -24,12 +23,12 @@ public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 		this.window = window;
 		this.buttonsDown = new HashMap<Integer, B>();
 	}
-
+	
 	/** Set all buttons to be not pressed */
 	public void clear(){
 		this.buttonsDown.clear();
 	}
-
+	
 	/**
 	 * The method called when a button has an action performed on it
 	 * 
@@ -42,16 +41,16 @@ public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	public void buttonAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		this.buttonsDown.put(button, this.createEvent(button, shift, alt, ctrl, press));
 	}
-
+	
 	/**
 	 * Create a new event caused by this {@link ZButtonInput} object
 	 * 
-	 * @param button The id of the button pressted
+	 * @param button The id of the button pressed
 	 * @param shift true if shift was down during this event, false otherwise
 	 * @param alt true if alt was down during this event, false otherwise
 	 * @param ctrl true if ctrl was down during this event, false otherwise
 	 * @param press true if the button was down during this event, false otherwise
-	 * @return
+	 * @return The event
 	 */
 	public abstract B createEvent(int button, boolean shift, boolean alt, boolean ctrl, boolean press);
 	
@@ -61,7 +60,7 @@ public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	}
 	
 	/**
-	 * Get a {@link ZMouseEvent} containing information about the desired button
+	 * Get a {@link ZButtonInputEvent} containing information about the desired button
 	 * 
 	 * @param button The ID of the button
 	 * @return The event, or null if no such event exists
@@ -81,7 +80,7 @@ public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 		if(e == null) return false;
 		return e.isPress();
 	}
-
+	
 	/**
 	 * Determine if a particular button is not pressed down
 	 * 
@@ -91,5 +90,5 @@ public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	public boolean buttonUp(int button){
 		return !this.buttonDown(button);
 	}
-
+	
 }
