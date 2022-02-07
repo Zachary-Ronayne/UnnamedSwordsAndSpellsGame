@@ -9,6 +9,8 @@ import zgame.core.sound.EffectsPlayer;
 import zgame.core.sound.MusicPlayer;
 import zgame.core.sound.SoundManager;
 import zgame.core.sound.SoundSource;
+import zgame.core.state.GameState;
+import zgame.core.state.MenuState;
 import zgame.core.window.GameWindow;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -65,6 +67,7 @@ import java.awt.Rectangle;
  * F12 = increase game speed
  * shift + F11 = decrease TPS
  * shift + F12 = increase TPS
+ * space = toggle between the play state and menu state
  * 
  * Indicators in the upper left hand corner for muted/paused: black = neither, red = muted, blue = paused, magenta = both muted and paused.
  * The size of the box represents the volume, a bigger box means higher volume
@@ -80,7 +83,9 @@ import java.awt.Rectangle;
  */
 public class MainTest extends Game{
 	
-	public static Game game;
+	public static Game testerGame;
+	public static GameState testerState;
+	public static MenuState menuState;
 	public static GameWindow window;
 	
 	public static double camSpeed = 400;
@@ -118,15 +123,18 @@ public class MainTest extends Game{
 	
 	public static void main(String[] args){
 		// Set up game
-		game = new MainTest();
-		window = game.getWindow();
+		testerGame = new MainTest();
+		testerState = new TesterGameState();
+		menuState = new TesterMenuState();
+		testerGame.setCurrentState(testerState);
+		window = testerGame.getWindow();
 		window.center();
 		
 		// Add images
-		game.getImages().addAllImages();
+		testerGame.getImages().addAllImages();
 		
 		// Add sounds
-		SoundManager sm = game.getSounds();
+		SoundManager sm = testerGame.getSounds();
 		sm.addAllSounds();
 		
 		// Set the sound scaling distance
@@ -134,7 +142,7 @@ public class MainTest extends Game{
 		
 		// Start up the game
 		reset();
-		game.start();
+		testerGame.start();
 		
 		// Close sound sources
 		winSource.end();
@@ -145,270 +153,279 @@ public class MainTest extends Game{
 		playerX = 200;
 		playerY = 500;
 		changeRect = new Rectangle(600, 20, 200, 200);
-		game.getCamera().reset();
+		testerGame.getCamera().reset();
 		
 		if(winSource != null) winSource.end();
 		if(loseSource != null) loseSource.end();
-		SoundManager sm = game.getSounds();
+		SoundManager sm = testerGame.getSounds();
 		winSource = sm.createSource(playerX, playerY);
 		loseSource = sm.createSource(0, 200);
 	}
-	
-	@Override
-	protected void keyAction(int key, boolean press, boolean shift, boolean alt, boolean ctrl){
-		ZKeyInput keys = game.getKeyInput();
-		if(keys.shift()){
-			if(key == GLFW_KEY_Z) green = (green + 0.05) % 1;
-			if(key == GLFW_KEY_X) blue = (blue + 0.05) % 1;
-		}
-		if(!press){
-			SoundManager s = game.getSounds();
-			if(key == GLFW_KEY_G) game.playEffect(winSource, "win");
-			else if(key == GLFW_KEY_H) game.playEffect(loseSource, "lose");
-			else if(key == GLFW_KEY_M){
-				if(shift) game.playMusic("song short");
-				else game.playMusic("song");
+
+	public static class TesterGameState extends GameState{
+		@Override
+		public void keyAction(Game game, int key, boolean press, boolean shift, boolean alt, boolean ctrl){
+			ZKeyInput keys = game.getKeyInput();
+			if(keys.shift()){
+				if(key == GLFW_KEY_Z) green = (green + 0.05) % 1;
+				if(key == GLFW_KEY_X) blue = (blue + 0.05) % 1;
 			}
-			else if(key == GLFW_KEY_N) s.scanDevices();
-			else if(key == GLFW_KEY_P){
-				if(shift) s.getMusicPlayer().togglePaused();
-				else s.getEffectsPlayer().togglePaused();
-			}
-			else if(key == GLFW_KEY_O){
-				if(shift) s.getMusicPlayer().toggleMuted();
-				else s.getEffectsPlayer().toggleMuted();
-			}
-			else if(key == GLFW_KEY_L) s.getMusicPlayer().toggleLooping();
-			
-			else if(key == GLFW_KEY_5){
-				if(!keys.shift() && !keys.alt()) game.setFocusedRender(!game.isFocusedRender());
-				else if(keys.shift() && !keys.alt()) game.setMinimizedRender(!game.isMinimizedRender());
-				else if(!keys.shift() && keys.alt()) game.setFocusedUpdate(!game.isFocusedUpdate());
-				else game.setMinimizedUpdate(!game.isMinimizedUpdate());
-			}
-			
-			else if(key == GLFW_KEY_F11){
-				if(keys.shift()) game.setTps(game.getTps() - 5);
-				else game.setGameSpeed(game.getGameSpeed() - 0.1);
-			}
-			else if(key == GLFW_KEY_F12){
-				if(keys.shift()) game.setTps(game.getTps() + 5);
-				else game.setGameSpeed(game.getGameSpeed() + 0.1);
-			}
-		}
-	}
-	
-	@Override
-	protected void mouseAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		if(shift && alt && ctrl && !press){
-			changeR = Math.random();
-			changeG = Math.random();
-			changeB = Math.random();
-		}
-	}
-	
-	@Override
-	protected void mouseMove(double x, double y){
-		ZKeyInput keys = game.getKeyInput();
-		ZMouseInput mouse = game.getMouseInput();
-		if(keys.shift() && mouse.middleDown()){
-			changeRect.x += x - mouse.lastX();
-			changeRect.y += y - mouse.lastY();
-		}
-	}
-	
-	@Override
-	protected void mouseWheelMove(double amount){
-		ZKeyInput keys = game.getKeyInput();
-		if(keys.shift()){
-			double size = changeRect.width * Math.pow(1.1, amount);
-			changeRect.width = (int)size;
-			changeRect.height = (int)size;
-		}
-	}
-	
-	@Override
-	protected void renderBackground(Renderer r){
-		r.setColor(.1, .1, .1);
-		r.fill();
-	}
-	
-	@Override
-	protected void render(Renderer r){
-		r.setColor(.2, .2, .2);
-		r.drawRectangle(0, 0, 1000, 700);
-		
-		r.setColor(changeR, changeG, changeB);
-		r.drawRectangle(changeRect.x, changeRect.y, changeRect.width, changeRect.height);
-		
-		r.setColor(red, green, blue);
-		r.drawRectangle(100, 50, 400, 100);
-		
-		r.drawImage(550, 100, 50, 50, game.getImage("goal"));
-		r.drawImage(playerX, playerY, 150, 150, game.getImage("player"));
-		
-		r.setColor(0, 0, 1, 0.5);
-		r.drawRectangle(140, 70, 90, 400);
-	}
-	
-	@Override
-	protected void renderHud(Renderer r){
-		SoundManager sm = game.getSounds();
-		EffectsPlayer e = sm.getEffectsPlayer();
-		MusicPlayer m = sm.getMusicPlayer();
-		
-		double rr = e.isMuted() ? 1 : 0;
-		double bb = e.isPaused() ? 1 : 0;
-		r.setColor(rr, 0, bb);
-		r.drawRectangle(5, 5, 30, 30 * e.getVolume());
-		
-		rr = m.isMuted() ? 1 : 0;
-		bb = m.isPaused() ? 1 : 0;
-		r.setColor(rr, 0, bb);
-		r.drawRectangle(40, 5, 30, 30 * m.getVolume());
-		
-		rr = game.isFocusedRender() ? 1 : 0;
-		bb = game.isMinimizedRender() ? 1 : 0;
-		r.setColor(rr, 0, bb);
-		r.drawRectangle(930, 5, 30, 30);
-		
-		rr = game.isFocusedUpdate() ? 1 : 0;
-		bb = game.isMinimizedUpdate() ? 1 : 0;
-		r.setColor(rr, 0, bb);
-		r.drawRectangle(965, 5, 30, 30);
-	}
-	
-	@Override
-	protected void tick(double dt){
-		// Get values for updating things
-		ZMouseInput mouse = game.getMouseInput();
-		ZKeyInput keys = game.getKeyInput();
-		GameCamera cam = game.getCamera();
-		double msx = game.mouseSX();
-		double msy = game.mouseSY();
-		double mgx = game.mouseGX();
-		double mgy = game.mouseGY();
-		
-		// Camera actions via keys
-		zoomOnlyX = keys.pressed(GLFW_KEY_MINUS);
-		zoomOnlyY = keys.pressed(GLFW_KEY_EQUAL);
-		double shiftXState = 0;
-		double shiftYState = 0;
-		if(keys.pressed(GLFW_KEY_A)) shiftXState = -1;
-		if(keys.pressed(GLFW_KEY_D)) shiftXState = 1;
-		if(keys.pressed(GLFW_KEY_W)) shiftYState = -1;
-		if(keys.pressed(GLFW_KEY_S)) shiftYState = 1;
-		cam.shift(camSpeed * shiftXState * dt, camSpeed * shiftYState * dt);
-		
-		// Misc actions via keys
-		if(keys.released(GLFW_KEY_1)){
-			if(down[ONE]){
-				down[ONE] = false;
-				window.toggleFullscreen();
-			}
-		}
-		else down[ONE] = true;
-		if(keys.released(GLFW_KEY_2)){
-			if(down[TWO]){
-				down[TWO] = false;
-				window.setUseVsync(!window.usesVsync());
-			}
-		}
-		else down[TWO] = true;
-		if(keys.released(GLFW_KEY_3)){
-			if(down[THREE]){
-				down[THREE] = false;
-				window.setStretchToFill(!window.isStretchToFill());
-			}
-		}
-		else down[THREE] = true;
-		if(keys.released(GLFW_KEY_4)){
-			if(down[FOUR]){
-				down[FOUR] = false;
-				if(keys.shift()){
-					game.setPrintSoundUpdates(!game.isPrintSoundUpdates());
+			if(!press){
+				SoundManager s = game.getSounds();
+				if(key == GLFW_KEY_G) game.playEffect(winSource, "win");
+				else if(key == GLFW_KEY_H) game.playEffect(loseSource, "lose");
+				else if(key == GLFW_KEY_M){
+					if(shift) game.playMusic("song short");
+					else game.playMusic("song");
 				}
-				else{
-					game.setPrintFps(!game.isPrintFps());
-					game.setPrintTps(!game.isPrintTps());
+				else if(key == GLFW_KEY_N) s.scanDevices();
+				else if(key == GLFW_KEY_P){
+					if(shift) s.getMusicPlayer().togglePaused();
+					else s.getEffectsPlayer().togglePaused();
+				}
+				else if(key == GLFW_KEY_O){
+					if(shift) s.getMusicPlayer().toggleMuted();
+					else s.getEffectsPlayer().toggleMuted();
+				}
+				else if(key == GLFW_KEY_L) s.getMusicPlayer().toggleLooping();
+				
+				else if(key == GLFW_KEY_5){
+					if(!keys.shift() && !keys.alt()) game.setFocusedRender(!game.isFocusedRender());
+					else if(keys.shift() && !keys.alt()) game.setMinimizedRender(!game.isMinimizedRender());
+					else if(!keys.shift() && keys.alt()) game.setFocusedUpdate(!game.isFocusedUpdate());
+					else game.setMinimizedUpdate(!game.isMinimizedUpdate());
+				}
+				
+				else if(key == GLFW_KEY_F11){
+					if(keys.shift()) game.setTps(game.getTps() - 5);
+					else game.setGameSpeed(game.getGameSpeed() - 0.1);
+				}
+				else if(key == GLFW_KEY_F12){
+					if(keys.shift()) game.setTps(game.getTps() + 5);
+					else game.setGameSpeed(game.getGameSpeed() + 0.1);
+				}
+				else if(key == GLFW_KEY_SPACE) game.setCurrentState(menuState);
+			}
+		}
+		
+		@Override
+		public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+			if(shift && alt && ctrl && !press){
+				changeR = Math.random();
+				changeG = Math.random();
+				changeB = Math.random();
+			}
+		}
+		
+		@Override
+		public void mouseMove(Game game, double x, double y){
+			ZKeyInput keys = game.getKeyInput();
+			ZMouseInput mouse = game.getMouseInput();
+			if(keys.shift() && mouse.middleDown()){
+				changeRect.x += x - mouse.lastX();
+				changeRect.y += y - mouse.lastY();
+			}
+		}
+		
+		@Override
+		public void mouseWheelMove(Game game, double amount){
+			ZKeyInput keys = game.getKeyInput();
+			if(keys.shift()){
+				double size = changeRect.width * Math.pow(1.1, amount);
+				changeRect.width = (int)size;
+				changeRect.height = (int)size;
+			}
+		}
+		
+		@Override
+		public void renderBackground(Game game, Renderer r){
+			r.setColor(.1, .1, .1);
+			r.fill();
+		}
+		
+		@Override
+		public void render(Game game, Renderer r){
+			r.setColor(.2, .2, .2);
+			r.drawRectangle(0, 0, 1000, 700);
+			
+			r.setColor(changeR, changeG, changeB);
+			r.drawRectangle(changeRect.x, changeRect.y, changeRect.width, changeRect.height);
+			
+			r.setColor(red, green, blue);
+			r.drawRectangle(100, 50, 400, 100);
+			
+			r.drawImage(550, 100, 50, 50, game.getImage("goal"));
+			r.drawImage(playerX, playerY, 150, 150, game.getImage("player"));
+			
+			r.setColor(0, 0, 1, 0.5);
+			r.drawRectangle(140, 70, 90, 400);
+		}
+		
+		@Override
+		public void renderHud(Game game, Renderer r){
+			SoundManager sm = game.getSounds();
+			EffectsPlayer e = sm.getEffectsPlayer();
+			MusicPlayer m = sm.getMusicPlayer();
+			
+			double rr = e.isMuted() ? 1 : 0;
+			double bb = e.isPaused() ? 1 : 0;
+			r.setColor(rr, 0, bb);
+			r.drawRectangle(5, 5, 30, 30 * e.getVolume());
+			
+			rr = m.isMuted() ? 1 : 0;
+			bb = m.isPaused() ? 1 : 0;
+			r.setColor(rr, 0, bb);
+			r.drawRectangle(40, 5, 30, 30 * m.getVolume());
+			
+			rr = game.isFocusedRender() ? 1 : 0;
+			bb = game.isMinimizedRender() ? 1 : 0;
+			r.setColor(rr, 0, bb);
+			r.drawRectangle(930, 5, 30, 30);
+			
+			rr = game.isFocusedUpdate() ? 1 : 0;
+			bb = game.isMinimizedUpdate() ? 1 : 0;
+			r.setColor(rr, 0, bb);
+			r.drawRectangle(965, 5, 30, 30);
+		}
+		
+		@Override
+		public void tick(Game game, double dt){
+			// Get values for updating things
+			ZMouseInput mouse = game.getMouseInput();
+			ZKeyInput keys = game.getKeyInput();
+			GameCamera cam = game.getCamera();
+			double msx = game.mouseSX();
+			double msy = game.mouseSY();
+			double mgx = game.mouseGX();
+			double mgy = game.mouseGY();
+			
+			// Camera actions via keys
+			zoomOnlyX = keys.pressed(GLFW_KEY_MINUS);
+			zoomOnlyY = keys.pressed(GLFW_KEY_EQUAL);
+			double shiftXState = 0;
+			double shiftYState = 0;
+			if(keys.pressed(GLFW_KEY_A)) shiftXState = -1;
+			if(keys.pressed(GLFW_KEY_D)) shiftXState = 1;
+			if(keys.pressed(GLFW_KEY_W)) shiftYState = -1;
+			if(keys.pressed(GLFW_KEY_S)) shiftYState = 1;
+			cam.shift(camSpeed * shiftXState * dt, camSpeed * shiftYState * dt);
+			
+			// Misc actions via keys
+			if(keys.released(GLFW_KEY_1)){
+				if(down[ONE]){
+					down[ONE] = false;
+					window.toggleFullscreen();
 				}
 			}
+			else down[ONE] = true;
+			if(keys.released(GLFW_KEY_2)){
+				if(down[TWO]){
+					down[TWO] = false;
+					window.setUseVsync(!window.usesVsync());
+				}
+			}
+			else down[TWO] = true;
+			if(keys.released(GLFW_KEY_3)){
+				if(down[THREE]){
+					down[THREE] = false;
+					window.setStretchToFill(!window.isStretchToFill());
+				}
+			}
+			else down[THREE] = true;
+			if(keys.released(GLFW_KEY_4)){
+				if(down[FOUR]){
+					down[FOUR] = false;
+					if(keys.shift()){
+						game.setPrintSoundUpdates(!game.isPrintSoundUpdates());
+					}
+					else{
+						game.setPrintFps(!game.isPrintFps());
+						game.setPrintTps(!game.isPrintTps());
+					}
+				}
+			}
+			else down[FOUR] = true;
+			if(keys.pressed(GLFW_KEY_R)) reset();
+			
+			// Adjust volume
+			SoundManager sm = game.getSounds();
+			EffectsPlayer ep = sm.getEffectsPlayer();
+			MusicPlayer mp = sm.getMusicPlayer();
+			if(keys.pressed(GLFW_KEY_F1)){
+				if(keys.shift()) mp.addVolume(dt * 0.5);
+				else ep.addVolume(dt * 0.5);
+			}
+			else if(keys.pressed(GLFW_KEY_F2)){
+				if(keys.shift()) mp.addVolume(dt * -0.5);
+				else ep.addVolume(dt * -0.5);
+			}
+			else if(keys.pressed(GLFW_KEY_F3)){
+				if(keys.shift()) loseSource.addBaseVolume(dt * 0.5);
+				else winSource.addBaseVolume(dt * 0.5);
+			}
+			else if(keys.pressed(GLFW_KEY_F4)){
+				if(keys.shift()) loseSource.addBaseVolume(dt * -0.5);
+				else winSource.addBaseVolume(dt * -0.5);
+			}
+			else if(keys.pressed(GLFW_KEY_F5)){
+				if(keys.shift()) ep.addTypeVolume("bad", dt * 0.5);
+				else ep.addTypeVolume("good", dt * 0.5);
+			}
+			else if(keys.pressed(GLFW_KEY_F6)){
+				if(keys.shift()) ep.addTypeVolume("bad", dt * -0.5);
+				else ep.addTypeVolume("good", dt * -0.5);
+			}
+			// Move the player with keys
+			double hMoveState = 0;
+			double vMoveState = 0;
+			if(keys.pressed(GLFW_KEY_LEFT)) hMoveState = -1;
+			if(keys.pressed(GLFW_KEY_RIGHT)) hMoveState = 1;
+			if(keys.pressed(GLFW_KEY_UP)) vMoveState = -1;
+			if(keys.pressed(GLFW_KEY_DOWN)) vMoveState = 1;
+			playerX += speed * hMoveState * dt;
+			playerY += speed * vMoveState * dt;
+			
+			// Camera movement via mouse
+			if(mouse.rightDown()){
+				if(!cam.isAnchored()) cam.setAnchor(msx, msy);
+				else cam.pan(msx, msy);
+			}
+			else cam.releaseAnchor();
+			double scroll = mouse.useScrollAmount() * 10;
+			if(scroll != 0){
+				boolean both = !zoomOnlyX && !zoomOnlyY;
+				boolean x = zoomOnlyX || both;
+				boolean y = zoomOnlyY || both;
+				if(x) game.zoomX(scroll * dt, msx);
+				if(y) game.zoomY(scroll * dt, msy);
+			}
+			// Change the color of a rectangle based on which mouse buttons and modifier buttons are pressed
+			if(changeRect.contains(mgx, mgy)){
+				if(mouse.leftDown() && keys.shift()) changeR = (changeR + dt * 0.5) % 1;
+				if(mouse.middleDown() && keys.alt()) changeG = (changeG + dt * 0.5) % 1;
+				if(mouse.rightDown() && keys.ctrl()) changeB = (changeB + dt * 0.5) % 1;
+			}
+			// Change the color of a rectangle over time
+			double redD = dt * 0.4;
+			if(redReverse) red -= redD;
+			else red += redD;
+			if(red > 1){
+				redReverse = true;
+				red = 1;
+			}
+			else if(red < 0){
+				redReverse = false;
+				red = 0;
+			}
+			// Update sound positions
+			game.getSounds().updateListenerPos(playerX, playerY);
 		}
-		else down[FOUR] = true;
-		if(keys.pressed(GLFW_KEY_R)) reset();
-		
-		// Adjust volume
-		SoundManager sm = game.getSounds();
-		EffectsPlayer ep = sm.getEffectsPlayer();
-		MusicPlayer mp = sm.getMusicPlayer();
-		if(keys.pressed(GLFW_KEY_F1)){
-			if(keys.shift()) mp.addVolume(dt * 0.5);
-			else ep.addVolume(dt * 0.5);
-		}
-		else if(keys.pressed(GLFW_KEY_F2)){
-			if(keys.shift()) mp.addVolume(dt * -0.5);
-			else ep.addVolume(dt * -0.5);
-		}
-		else if(keys.pressed(GLFW_KEY_F3)){
-			if(keys.shift()) loseSource.addBaseVolume(dt * 0.5);
-			else winSource.addBaseVolume(dt * 0.5);
-		}
-		else if(keys.pressed(GLFW_KEY_F4)){
-			if(keys.shift()) loseSource.addBaseVolume(dt * -0.5);
-			else winSource.addBaseVolume(dt * -0.5);
-		}
-		else if(keys.pressed(GLFW_KEY_F5)){
-			if(keys.shift()) ep.addTypeVolume("bad", dt * 0.5);
-			else ep.addTypeVolume("good", dt * 0.5);
-		}
-		else if(keys.pressed(GLFW_KEY_F6)){
-			if(keys.shift()) ep.addTypeVolume("bad", dt * -0.5);
-			else ep.addTypeVolume("good", dt * -0.5);
-		}
-		// Move the player with keys
-		double hMoveState = 0;
-		double vMoveState = 0;
-		if(keys.pressed(GLFW_KEY_LEFT)) hMoveState = -1;
-		if(keys.pressed(GLFW_KEY_RIGHT)) hMoveState = 1;
-		if(keys.pressed(GLFW_KEY_UP)) vMoveState = -1;
-		if(keys.pressed(GLFW_KEY_DOWN)) vMoveState = 1;
-		playerX += speed * hMoveState * dt;
-		playerY += speed * vMoveState * dt;
-		
-		// Camera movement via mouse
-		if(mouse.rightDown()){
-			if(!cam.isAnchored()) cam.setAnchor(msx, msy);
-			else cam.pan(msx, msy);
-		}
-		else cam.releaseAnchor();
-		double scroll = mouse.useScrollAmount() * 10;
-		if(scroll != 0){
-			boolean both = !zoomOnlyX && !zoomOnlyY;
-			boolean x = zoomOnlyX || both;
-			boolean y = zoomOnlyY || both;
-			if(x) game.zoomX(scroll * dt, msx);
-			if(y) game.zoomY(scroll * dt, msy);
-		}
-		// Change the color of a rectangle based on which mouse buttons and modifier buttons are pressed
-		if(changeRect.contains(mgx, mgy)){
-			if(mouse.leftDown() && keys.shift()) changeR = (changeR + dt * 0.5) % 1;
-			if(mouse.middleDown() && keys.alt()) changeG = (changeG + dt * 0.5) % 1;
-			if(mouse.rightDown() && keys.ctrl()) changeB = (changeB + dt * 0.5) % 1;
-		}
-		// Change the color of a rectangle over time
-		double redD = dt * 0.4;
-		if(redReverse) red -= redD;
-		else red += redD;
-		if(red > 1){
-			redReverse = true;
-			red = 1;
-		}
-		else if(red < 0){
-			redReverse = false;
-			red = 0;
-		}
-		// Update sound positions
-		game.getSounds().updateListenerPos(playerX, playerY);
 	}
 	
+	public static class TesterMenuState extends MenuState{
+		@Override
+		public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+			if(!press && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
+		}
+	}
 }

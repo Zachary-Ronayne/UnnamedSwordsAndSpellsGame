@@ -12,6 +12,8 @@ import zgame.core.sound.EffectsPlayer;
 import zgame.core.sound.MusicPlayer;
 import zgame.core.sound.SoundManager;
 import zgame.core.sound.SoundSource;
+import zgame.core.state.DefaultState;
+import zgame.core.state.GameState;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GLFWWindow;
 import zgame.core.window.GameWindow;
@@ -43,6 +45,11 @@ public class Game{
 	
 	/** The Camera which determines the relative location and scale of objects drawn in the game */
 	private GameCamera camera;
+	
+	/** The {@link GameState} which this game is currently in */
+	private GameState currentState;
+	/** The {@link GameState} which this game will update to in the next tick, or null if the state will not update */
+	private GameState nextCurrentState;
 	
 	/** The {@link GameLooper} which runs the regular time intervals */
 	private GameLooper tickLooper;
@@ -152,6 +159,9 @@ public class Game{
 		this.musicPaused = false;
 		this.updateSoundState = false;
 		
+		this.currentState = new DefaultState();
+		this.nextCurrentState = null;
+		
 		// Init sound
 		this.sounds = new SoundManager();
 		
@@ -226,7 +236,8 @@ public class Game{
 	}
 	
 	/**
-	 * Called when the window receives a key press. Can overwrite this method to perform actions directly when keys are pressed
+	 * Called when the window receives a key press. Can overwrite this method to perform actions directly when keys are pressed.
+	 * Can also provide this {@link Game} with a {@link GameState} via {@link #setCurrentState(GameState)} to perform that state's actions.
 	 * 
 	 * @param key The id of the key
 	 * @param press true if the key was pressed, false for released
@@ -235,10 +246,12 @@ public class Game{
 	 * @param ctrl true if ctrl is pressed, false otherwise
 	 */
 	protected void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		this.getCurrentState().keyAction(this, button, press, shift, alt, ctrl);
 	}
 	
 	/**
 	 * Called when the window receives a mouse button press. Can overwrite this method to perform actions directly when mouse buttons are pressed
+	 * Can also provide this {@link Game} with a {@link GameState} via {@link #setCurrentState(GameState)} to perform that state's actions.
 	 * 
 	 * @param button The ID of the mouse button
 	 * @param press true if the key was pressed, false for released
@@ -247,23 +260,28 @@ public class Game{
 	 * @param ctrl true if ctrl is pressed, false otherwise
 	 */
 	protected void mouseAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		this.getCurrentState().mouseAction(this, button, press, shift, alt, ctrl);
 	}
 	
 	/**
 	 * Called when the window receives mouse movement. Can overwrite this method to perform actions directly when the mouse is moved
+	 * Can also provide this {@link Game} with a {@link GameState} via {@link #setCurrentState(GameState)} to perform that state's actions.
 	 * 
 	 * @param x The x coordinate in screen coordinates
 	 * @param y The y coordinate in screen coordinates
 	 */
 	protected void mouseMove(double x, double y){
+		this.getCurrentState().mouseMove(this, x, y);
 	}
 	
 	/**
 	 * Called when the window receives a mouse wheel movement. Can overwrite this method to perform actions directly when the mouse wheel is moved
+	 * Can also provide this {@link Game} with a {@link GameState} via {@link #setCurrentState(GameState)} to perform that state's actions.
 	 * 
 	 * @param amount The amount the scroll wheel was moved
 	 */
 	protected void mouseWheelMove(double amount){
+		this.getCurrentState().mouseWheelMove(this, amount);
 	}
 	
 	/**
@@ -320,29 +338,35 @@ public class Game{
 	/**
 	 * Called once each time a frame is rendered to the screen, before the main render. Use this method to define what is drawn as a background, i.e. unaffected by the camera
 	 * Do not manually call this method
+	 * Can also provide this {@link Game} with a {@link GameState} via {@link #setCurrentState(GameState)} to perform that state's actions.
 	 * 
 	 * @param r The Renderer to use for drawing
 	 */
 	protected void renderBackground(Renderer r){
+		this.getCurrentState().renderBackground(this, r);
 	}
 	
 	/**
 	 * Called once each time a frame is rendered to the screen. Use this method to define what is drawn in the game each frame.
 	 * Do not manually call this method.
 	 * All objects drawn with this method will be affected by the game camera
+	 * Can also provide this {@link Game} with a {@link GameState} via {@link #setCurrentState(GameState)} to perform that state's actions.
 	 * 
 	 * @param r The Renderer to use for drawing
 	 */
 	protected void render(Renderer r){
+		this.getCurrentState().render(this, r);
 	}
 	
 	/**
 	 * Called once each time a frame is rendered to the screen, after the main render. Use this method to define what is drawn on top of the screen, i.e. a hud, menu, etc
 	 * Do not manually call this method
+	 * Can also provide this {@link Game} with a {@link GameState} via {@link #setCurrentState(GameState)} to perform that state's actions.
 	 * 
 	 * @param r The Renderer to use for drawing
 	 */
 	protected void renderHud(Renderer r){
+		this.getCurrentState().renderHud(this, r);
 	}
 	
 	/**
@@ -381,6 +405,9 @@ public class Game{
 		// If the game should pause when unfocused or minimized, then do nothing
 		if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized) return;
 		this.tick(this.getTickLooper().getRateTime() * this.getGameSpeed());
+		
+		// Update the state of the game
+		this.updateCurrentState();
 	}
 	
 	/**
@@ -389,6 +416,7 @@ public class Game{
 	 * @param dt The amount of time, in seconds, which passed in this tick
 	 */
 	protected void tick(double dt){
+		this.getCurrentState().tick(this, dt);
 	}
 	
 	/**
@@ -658,6 +686,30 @@ public class Game{
 	/** @return See {@link #camera} */
 	public GameCamera getCamera(){
 		return this.camera;
+	}
+	
+	/** @return See {@link #currentState} */
+	public GameState getCurrentState(){
+		return this.currentState;
+	}
+	
+	/**
+	 * If the state should do nothing, use a {@link DefaultState}
+	 * This method updates the state on the next game tick
+	 * 
+	 * @param newState See {@link #currentState}
+	 */
+	public void setCurrentState(GameState newState){
+		this.nextCurrentState = newState;
+	}
+	
+	/**
+	 * This method instantly updates the state. Do not call this method outside of the main tick loop
+	 */
+	private void updateCurrentState(){
+		if(this.nextCurrentState == null) return;
+		this.currentState = this.nextCurrentState;
+		this.nextCurrentState = null;
 	}
 	
 	/**
