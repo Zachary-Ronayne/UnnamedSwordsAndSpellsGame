@@ -155,7 +155,7 @@ public class GLFWWindow extends GameWindow{
 	 * Assign the current window all needed callbacks, i.e. input.
 	 * This is an expensive operation and should not be regularly called
 	 * 
-	 * @return true if the callbacks could be set, false if an error occutred
+	 * @return true if the callbacks could be set, false if an error occurred
 	 */
 	@Override
 	public boolean initCallBacks(){

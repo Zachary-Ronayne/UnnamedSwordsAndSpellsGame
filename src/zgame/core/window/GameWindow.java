@@ -204,7 +204,7 @@ public abstract class GameWindow{
 	/** Call this method once at the end of each OpenGL loop to swap the buffers, i.e. to put the final image on the screen */
 	public abstract void swapBuffers();
 	
-	/** End the program, freeing all resources */
+	/** End the program, freeing all resources. Do not call directly outside of the main loop */
 	public void end(){
 		this.getRenderer().destroy();
 	}

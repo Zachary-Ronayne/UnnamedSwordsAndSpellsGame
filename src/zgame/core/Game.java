@@ -217,6 +217,19 @@ public class Game{
 		this.end();
 	}
 	
+	/** Force the game to stop, but ensure the game closes without errors */
+	public void stop(){
+		try{
+			this.soundLooper.end();
+			while(this.soundLooper.isRunning())Thread.sleep(1);
+			this.tickLooper.end();
+			while(this.tickLooper.isRunning())Thread.sleep(1);
+		}catch(InterruptedException e){
+			if(ZConfig.printErrors()) e.printStackTrace();
+		}
+		this.renderLooper.end();
+	}
+	
 	/**
 	 * End the program, freeing all resources
 	 */

@@ -12,6 +12,8 @@ import zgame.core.sound.SoundSource;
 import zgame.core.state.GameState;
 import zgame.core.state.MenuState;
 import zgame.core.window.GameWindow;
+import zgame.menu.Menu;
+import zgame.menu.MenuButton;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -423,9 +425,56 @@ public class MainTest extends Game{
 	}
 	
 	public static class TesterMenuState extends MenuState{
+		public TesterMenuState(){
+			super(new TesterMenu());
+		}
+		
 		@Override
 		public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 			if(!press && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
 		}
 	}
+	
+	public static class TesterMenu extends Menu{
+		public TesterMenu(){
+			super();
+			this.addThing(new ColorButton(10, 10, 300, 50, 0, .2, .7){
+				@Override
+				public void click(Game game){
+					game.setCurrentState(testerState);
+				}
+			});
+			this.addThing(new ColorButton(50, 100, 200, 100, .5, 0, 0){
+				@Override
+				public void click(Game game){
+					game.stop();
+				}
+			});
+		}
+
+		@Override
+		public void renderBackground(Game game, Renderer r){
+			r.setColor(.1, .1, .2);
+			r.fill();
+		}
+	}
+
+	public static class ColorButton extends MenuButton{
+		public double r, g, b;
+		
+		public ColorButton(double x, double y, double w, double h, double r, double g, double b){
+			super(x, y, w, h);
+			this.r = r;
+			this.g = g;
+			this.b = b;
+		}
+
+		@Override
+		public void render(Game game, Renderer r){
+			r.setColor(this.r, this.g, this.b);
+			super.render(game, r);
+		}
+		
+	}
+
 }

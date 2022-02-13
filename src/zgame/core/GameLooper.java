@@ -58,6 +58,9 @@ public class GameLooper{
 	
 	/** true if this looper should end on the next iteration */
 	private boolean forceEnd;
+
+	/** Keeps track of if the loop is currently running */
+	private boolean running;
 	
 	/**
 	 * Create a new GameLooper. The loop will not run until {@link #loop()} is called
@@ -83,6 +86,7 @@ public class GameLooper{
 		this.setWaitBetweenLoopsFunc(waitBetweenLoops);
 		
 		this.forceEnd = false;
+		this.running = false;
 	}
 	
 	/**
@@ -107,6 +111,7 @@ public class GameLooper{
 		// Keep track of the amount of time the last loop took to run
 		long timeTaken = 0;
 		
+		this.running = true;
 		while(this.getKeepRunningFunc().check() && !this.forceEnd){
 			// If the rate is zero, or if the loop should run regardless, or enough time has passed since the last loop, run the loop again
 			thisTime = System.nanoTime();
@@ -134,11 +139,17 @@ public class GameLooper{
 				}
 			}
 		}
+		this.running = false;
 	}
 	
 	/** Force this loop to stop */
 	public void end(){
 		this.forceEnd = true;
+	}
+
+	/** @return See {@link #running} */
+	public boolean isRunning(){
+		return this.running;
 	}
 	
 	/** @return See {@link #rate} */
