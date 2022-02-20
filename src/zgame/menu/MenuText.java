@@ -35,7 +35,7 @@ public class MenuText extends MenuThing{
 		this.text = text;
 	}
 	
-	/** @return SEe {@link #text} */
+	/** @return See {@link #text} */
 	public String getText(){
 		return this.text;
 	}
@@ -49,7 +49,7 @@ public class MenuText extends MenuThing{
 	 * Draw a rectangle at the size and position of this {@link MenuText}
 	 */
 	@Override
-	public void render(Game game, Renderer r){
+	public void renderO(Game game, Renderer r){
 		r.drawRectangle(getX(), getY(), getWidth(), getHeight());
 	}
 	

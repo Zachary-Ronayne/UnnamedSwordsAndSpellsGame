@@ -163,7 +163,7 @@ public class MainTest extends Game{
 		winSource = sm.createSource(playerX, playerY);
 		loseSource = sm.createSource(0, 200);
 	}
-
+	
 	public static class TesterGameState extends GameState{
 		@Override
 		public void keyAction(Game game, int key, boolean press, boolean shift, boolean alt, boolean ctrl){
@@ -431,13 +431,14 @@ public class MainTest extends Game{
 		
 		@Override
 		public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+			super.keyAction(game, button, press, shift, alt, ctrl);
 			if(!press && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
 		}
 	}
 	
 	public static class TesterMenu extends Menu{
 		public TesterMenu(){
-			super();
+			super(100, 200);
 			this.addThing(new ColorButton(10, 10, 300, 50, 0, .2, .7){
 				@Override
 				public void click(Game game){
@@ -445,20 +446,28 @@ public class MainTest extends Game{
 				}
 			});
 			this.addThing(new ColorButton(50, 100, 200, 100, .5, 0, 0){
+				double pos = 0;
 				@Override
 				public void click(Game game){
 					game.stop();
 				}
+				@Override
+				public void keyActionO(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+					if(button == GLFW_KEY_1 && !press){
+						pos += 20;
+						this.addThing(new ColorButton(getRelX() + pos, getRelY(), 15, 10, 0, 0, (pos / 100) % 1));
+					}
+				}
 			});
 		}
-
+		
 		@Override
-		public void renderBackground(Game game, Renderer r){
+		public void renderBackgroundO(Game game, Renderer r){
 			r.setColor(.1, .1, .2);
 			r.fill();
 		}
 	}
-
+	
 	public static class ColorButton extends MenuButton{
 		public double r, g, b;
 		
@@ -468,13 +477,13 @@ public class MainTest extends Game{
 			this.g = g;
 			this.b = b;
 		}
-
+		
 		@Override
-		public void render(Game game, Renderer r){
+		public void renderO(Game game, Renderer r){
 			r.setColor(this.r, this.g, this.b);
-			super.render(game, r);
+			super.renderO(game, r);
 		}
 		
 	}
-
+	
 }
