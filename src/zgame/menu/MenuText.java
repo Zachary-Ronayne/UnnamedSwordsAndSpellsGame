@@ -1,8 +1,5 @@
 package zgame.menu;
 
-import zgame.core.Game;
-import zgame.core.graphics.Renderer;
-
 /** A {@link MenuThing} that holds text */
 public class MenuText extends MenuThing{
 
@@ -33,6 +30,7 @@ public class MenuText extends MenuThing{
 	public MenuText(double x, double y, double w, double h, String text){
 		super(x, y, w, h);
 		this.text = text;
+		this.setBgAlpha(1);
 	}
 	
 	/** @return See {@link #text} */
@@ -43,14 +41,6 @@ public class MenuText extends MenuThing{
 	/** @param text See {@link #text} */
 	public void setText(String text){
 		this.text = text;
-	}
-
-	/**
-	 * Draw a rectangle at the size and position of this {@link MenuText}
-	 */
-	@Override
-	public void renderO(Game game, Renderer r){
-		r.drawRectangle(getX(), getY(), getWidth(), getHeight());
 	}
 	
 }

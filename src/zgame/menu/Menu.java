@@ -18,6 +18,7 @@ public class Menu extends MenuThing{
 	 */
 	public Menu(double x, double y){
 		super(x, y);
+		this.setBgAlpha(1);
 	}
 	
 }

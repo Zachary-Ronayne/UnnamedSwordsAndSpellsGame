@@ -19,6 +19,18 @@ public abstract class MenuThing implements GameIntractable{
 	/** The height which this {@link MenuThing} should take up, in screen coordinates */
 	private double height;
 	
+	/** The amount of red in the background of this MenuThing in the range [0, 1] */
+	private double bgRed;
+
+	/** The amount of green in the background of this MenuThing in the range [0, 1] */
+	private double bgGreen;
+
+	/** The amount of blue in the background of this MenuThing in the range [0, 1] */
+	private double bgBlue;
+
+	/** The amount of alpha (transparency) in the background of this MenuThing in the range [0, 1] */
+	private double bgAlpha;
+
 	/** The {@link MenuThing} which holds this {@link MenuThing}. Can be null if this {@link MenuThing} has no parent */
 	private MenuThing parent;
 	
@@ -55,6 +67,12 @@ public abstract class MenuThing implements GameIntractable{
 		this.relY = y;
 		this.width = width;
 		this.height = height;
+
+		this.bgRed = 1;
+		this.bgGreen = 1;
+		this.bgBlue = 1;
+		this.bgAlpha = 0;
+
 		this.parent = null;
 		this.things = new ArrayList<MenuThing>();
 	}
@@ -114,6 +132,73 @@ public abstract class MenuThing implements GameIntractable{
 		return new Rectangle2D.Double(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
+	/** @return See {@link #bgRed} */
+	public double getBgRed(){
+		return bgRed;
+	}
+
+	/** @param bgRed See {@link #bgRed} */
+	public void setBgRed(double bgRed){
+		this.bgRed = bgRed;
+	}
+	
+	/** @return See {@link #bgGreen} */
+	public double getBgGreen(){
+		return this.bgGreen;
+	}
+	
+	/** @param bgGreen See {@link #bgGreen} */
+	public void setBgGreen(double bgGreen){
+		this.bgGreen = bgGreen;
+	}
+	
+	/** @return See {@link #bgGBlue} */
+	public double getBgBlue(){
+		return this.bgBlue;
+	}
+	
+	/** @param bgBlue See {@link #bgBlue} */
+	public void setBgBlue(double bgBlue){
+		this.bgBlue = bgBlue;
+	}
+	
+	/** @return See {@link #bgAlpha} */
+	public double getBgAlpha(){
+		return this.bgAlpha;
+	}
+	
+	/** @param bgRed See {@link #bgAlpha} */
+	public void setBgAlpha(double bgAlpha){
+		this.bgAlpha = bgAlpha;
+	}
+
+	/**
+	 * Set the background color of this {@link MenuThing}.
+	 * {@link #bgAlpha} will remain unchanged
+	 * 
+	 * @param r See {@link #bgRed}
+	 * @param g See {@link #bgGreen}
+	 * @param b See {@link #bgBlue}
+	 */
+	public void setBg(double r, double g, double b){
+		this.setBg(r, g, b, this.getBgAlpha());
+	}
+	
+	/**
+	 * Set the background color of this {@link MenuThing}.
+	 * 
+	 * @param r See {@link #bgRed}
+	 * @param g See {@link #bgGreen}
+	 * @param b See {@link #bgBlue}
+	 * @param a See {@link #bgAlpha}
+	 */
+	public void setBg(double r, double g, double b, double a){
+		this.setBgRed(r);
+		this.setBgGreen(g);
+		this.setBgBlue(b);
+		this.setBgAlpha(a);
+	}
+
 	/** @return See {@link #parent} */
 	public MenuThing getParent(){
 		return this.parent;
@@ -207,6 +292,11 @@ public abstract class MenuThing implements GameIntractable{
 	/** Do not call directly */
 	@Override
 	public final void render(Game game, Renderer r){
+		if(this.getBgAlpha() != 0){
+			r.setColor(this.getBgRed(), this.getBgGreen(), this.getBgBlue(), this.getBgAlpha());
+			r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+		}
+
 		this.renderO(game, r);
 		for(MenuThing t : this.things) t.render(game, r);
 	}

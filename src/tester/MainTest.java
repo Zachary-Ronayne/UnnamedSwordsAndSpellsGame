@@ -14,6 +14,7 @@ import zgame.core.state.MenuState;
 import zgame.core.window.GameWindow;
 import zgame.menu.Menu;
 import zgame.menu.MenuButton;
+import zgame.menu.MenuThing;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -434,18 +435,32 @@ public class MainTest extends Game{
 			super.keyAction(game, button, press, shift, alt, ctrl);
 			if(!press && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
 		}
+
+		@Override
+		public void renderBackground(Game game, Renderer r){
+			r.setColor(.1, .1, .1);
+			r.fill();
+			super.renderBackground(game, r);
+		}
 	}
 	
 	public static class TesterMenu extends Menu{
 		public TesterMenu(){
 			super(100, 200);
-			this.addThing(new ColorButton(10, 10, 300, 50, 0, .2, .7){
+			this.setWidth(800);
+			this.setHeight(300);
+			this.setBg(.1, .1, .2, 1);
+
+			MenuThing t = new MenuButton(10, 10, 300, 50){
 				@Override
 				public void click(Game game){
 					game.setCurrentState(testerState);
 				}
-			});
-			this.addThing(new ColorButton(50, 100, 200, 100, .5, 0, 0){
+			};
+			t.setBg(0, .2, .7);
+			this.addThing(t);
+
+			t = new MenuButton(50, 100, 200, 100){
 				double pos = 0;
 				@Override
 				public void click(Game game){
@@ -454,36 +469,16 @@ public class MainTest extends Game{
 				@Override
 				public void keyActionO(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 					if(button == GLFW_KEY_1 && !press){
+						MenuButton b = new MenuButton(pos, this.getHeight(), 15, 10);
+						b.setBg(0, 0, (pos / 100) % 1);
+						this.addThing(b);
 						pos += 20;
-						this.addThing(new ColorButton(getRelX() + pos, getRelY(), 15, 10, 0, 0, (pos / 100) % 1));
 					}
 				}
-			});
+			};
+			t.setBg(.5, 0, 0);
+			this.addThing(t);
 		}
-		
-		@Override
-		public void renderBackgroundO(Game game, Renderer r){
-			r.setColor(.1, .1, .2);
-			r.fill();
-		}
-	}
-	
-	public static class ColorButton extends MenuButton{
-		public double r, g, b;
-		
-		public ColorButton(double x, double y, double w, double h, double r, double g, double b){
-			super(x, y, w, h);
-			this.r = r;
-			this.g = g;
-			this.b = b;
-		}
-		
-		@Override
-		public void renderO(Game game, Renderer r){
-			r.setColor(this.r, this.g, this.b);
-			super.renderO(game, r);
-		}
-		
 	}
 	
 }
