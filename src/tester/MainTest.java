@@ -11,10 +11,11 @@ import zgame.core.sound.SoundManager;
 import zgame.core.sound.SoundSource;
 import zgame.core.state.GameState;
 import zgame.core.state.MenuState;
+import zgame.core.state.PlayState;
 import zgame.core.window.GameWindow;
 import zgame.menu.Menu;
 import zgame.menu.MenuButton;
-import zgame.menu.MenuThing;
+import zgame.things.entity.Player;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -70,7 +71,8 @@ import java.awt.Rectangle;
  * F12 = increase game speed
  * shift + F11 = decrease TPS
  * shift + F12 = increase TPS
- * space = toggle between the play state and menu state
+ * space = toggle between the demo state and menu state
+ * shift + space = toggle between the game play state and the demo state
  * 
  * Indicators in the upper left hand corner for muted/paused: black = neither, red = muted, blue = paused, magenta = both muted and paused.
  * The size of the box represents the volume, a bigger box means higher volume
@@ -88,6 +90,7 @@ public class MainTest extends Game{
 	
 	public static Game testerGame;
 	public static GameState testerState;
+	public static GameState engineState;
 	public static MenuState menuState;
 	public static GameWindow window;
 	
@@ -128,8 +131,9 @@ public class MainTest extends Game{
 		// Set up game
 		testerGame = new MainTest();
 		testerState = new TesterGameState();
+		engineState = new GameEngineState();
 		menuState = new TesterMenuState();
-		testerGame.setCurrentState(testerState);
+		testerGame.setCurrentState(engineState);
 		window = testerGame.getWindow();
 		window.center();
 		
@@ -163,6 +167,27 @@ public class MainTest extends Game{
 		SoundManager sm = testerGame.getSounds();
 		winSource = sm.createSource(playerX, playerY);
 		loseSource = sm.createSource(0, 200);
+	}
+
+	public static class GameEngineState extends PlayState{
+		private Player player;
+
+		public GameEngineState(){
+			super();
+			this.player = new Player(10, 400, 60, 100);
+			this.getCurrentRoom().addThing(this.player);
+		}
+
+		@Override
+		public void renderBackgroundO(Game game, Renderer r){
+			r.setColor(.2, .2, .2);
+			r.fill();
+		}
+
+		@Override
+		public void keyActionO(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+			if(shift && !press && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
+		}
 	}
 	
 	public static class TesterGameState extends GameState{
@@ -207,7 +232,11 @@ public class MainTest extends Game{
 					if(keys.shift()) game.setTps(game.getTps() + 5);
 					else game.setGameSpeed(game.getGameSpeed() + 0.1);
 				}
-				else if(key == GLFW_KEY_SPACE) game.setCurrentState(menuState);
+				else if(key == GLFW_KEY_SPACE){
+					if(shift) game.setCurrentState(engineState);
+					else game.setCurrentState(menuState);
+				}
+				
 			}
 		}
 		
@@ -451,7 +480,7 @@ public class MainTest extends Game{
 			this.setHeight(300);
 			this.setBg(.1, .1, .2, 1);
 
-			MenuThing t = new MenuButton(10, 10, 300, 50){
+			MenuButton t = new MenuButton(10, 10, 300, 50){
 				@Override
 				public void click(Game game){
 					game.setCurrentState(testerState);
@@ -477,6 +506,7 @@ public class MainTest extends Game{
 				}
 			};
 			t.setBg(.5, 0, 0);
+			t.setText("Exit");
 			this.addThing(t);
 		}
 	}
