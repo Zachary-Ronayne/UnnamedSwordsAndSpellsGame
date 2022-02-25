@@ -221,9 +221,9 @@ public class Game{
 	public void stop(){
 		try{
 			this.soundLooper.end();
-			while(this.soundLooper.isRunning())Thread.sleep(1);
+			while(this.soundLooper.isRunning()) Thread.sleep(1);
 			this.tickLooper.end();
-			while(this.tickLooper.isRunning())Thread.sleep(1);
+			while(this.tickLooper.isRunning()) Thread.sleep(1);
 		}catch(InterruptedException e){
 			if(ZConfig.printErrors()) e.printStackTrace();
 		}
@@ -699,6 +699,19 @@ public class Game{
 	/** @return See {@link #camera} */
 	public GameCamera getCamera(){
 		return this.camera;
+	}
+	
+	/**
+	 * Center the camera to the given coordinates
+	 * 
+	 * @param x The center of the camera x coordinate in game coordinates
+	 * @param y The center of the camera y coordinate in game coordinates
+	 */
+	public void centerCamera(double x, double y){
+		this.camera.setPos(
+			this.getScreenWidth() * 0.5 - this.camera.sizeGameToScreenX(x),
+			this.getScreenHeight() * 0.5 - this.camera.sizeGameToScreenY(y)
+		);
 	}
 	
 	/** @return See {@link #currentState} */

@@ -97,6 +97,8 @@ import java.awt.Rectangle;
  * d = toggle disable right wall
  * plus = increase jump height
  * minus = decrease jump height
+ * shift + scroll wheel = zoom in or out
+ * L = toggle lock camera to player
  */
 public class MainTest extends Game{
 	
@@ -186,7 +188,7 @@ public class MainTest extends Game{
 		
 		public GameEngineState(){
 			super();
-			this.player = new Player(10, 400, 60, 100);
+			this.player = new Player(100, 400, 60, 100);
 			Room r = this.getCurrentRoom();
 			r.addThing(this.player);
 			r.makeWallsSolid();
@@ -200,7 +202,10 @@ public class MainTest extends Game{
 		public void renderBackgroundO(Game game, Renderer r){
 			r.setColor(.1, .1, .1);
 			r.fill();
-			
+		}
+
+		@Override
+		public void renderO(Game game, Renderer r){
 			r.setColor(.2, .2, .2);
 			Room rm = this.getCurrentRoom();
 			r.drawRectangle(rm.getX(), rm.getY(), rm.getWidth(), rm.getHeight());
@@ -209,9 +214,9 @@ public class MainTest extends Game{
 		@Override
 		public void keyActionO(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 			if(press) return;
-
+			
 			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
-
+			
 			Room r = getCurrentRoom();
 			if(button == GLFW_KEY_W) r.makeWallState(Room.WALL_CEILING, !r.isSolid(Room.WALL_CEILING));
 			else if(button == GLFW_KEY_A) r.makeWallState(Room.WALL_LEFT, !r.isSolid(Room.WALL_LEFT));
@@ -219,6 +224,12 @@ public class MainTest extends Game{
 			else if(button == GLFW_KEY_D) r.makeWallState(Room.WALL_RIGHT, !r.isSolid(Room.WALL_RIGHT));
 			else if(button == GLFW_KEY_MINUS) player.setJumpPower(player.getJumpPower() - 10);
 			else if(button == GLFW_KEY_EQUAL) player.setJumpPower(player.getJumpPower() + 10);
+			else if(button == GLFW_KEY_L) player.setLockCamera(!player.isLockCamera());
+		}
+
+		@Override
+		public void mouseWheelMoveO(Game game, double amount){
+			if(game.getKeyInput().shift()) game.getCamera().zoom(amount);
 		}
 	}
 	

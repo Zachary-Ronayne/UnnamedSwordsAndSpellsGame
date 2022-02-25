@@ -22,8 +22,8 @@ public class PlayState extends GameState{
 	
 	@Override
 	public final void tick(Game game, double dt){
-		this.currentRoom.tick(game, dt);
 		this.tickO(game, dt);
+		this.currentRoom.tick(game, dt);
 	}
 	
 	@Override
@@ -53,8 +53,8 @@ public class PlayState extends GameState{
 	
 	@Override
 	public final void render(Game game, Renderer r){
-		this.currentRoom.render(game, r);
 		this.renderO(game, r);
+		this.currentRoom.render(game, r);
 	}
 	
 	@Override

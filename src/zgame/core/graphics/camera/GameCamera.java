@@ -131,6 +131,17 @@ public class GameCamera{
 		this.getX().shift(x);
 		this.getY().shift(y);
 	}
+
+	/**
+	 * Set the position of both axes
+	 * 
+	 * @param x The new x axis position
+	 * @param y The new y axis position
+	 */
+	public void setPos(double x, double y){
+		this.getX().setPos(x);
+		this.getY().setPos(y);
+	}
 	
 	/**
 	 * Convert an x coordinate value in game space, to a coordinate in screen space coordinates

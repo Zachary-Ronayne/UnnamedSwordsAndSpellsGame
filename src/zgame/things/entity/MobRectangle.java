@@ -51,6 +51,16 @@ public abstract class MobRectangle extends Mob implements RectangleHitBox{
 		this.setY(y);
 		return true;
 	}
+
+	/** @return The center x coordinate of this {@link MobRectangle} */
+	public double getCenterX(){
+		return this.getX() + this.getWidth() * 0.5;
+	}
+
+	/** @return The center y coordinate of this {@link MobRectangle} */
+	public double getCenterY(){
+		return this.getY() + this.getHeight() * 0.5;
+	}
 	
 	@Override
 	/** @return See {@link #width} */
