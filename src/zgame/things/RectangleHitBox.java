@@ -1,7 +1,7 @@
-package zgame.things.entity;
+package zgame.things;
 
 /** An interface which describes something with a width and height */
-public interface RectangleHitBox{
+public interface RectangleHitBox extends HitBox{
 	
 	/** @return The width of this object */
 	public double getWidth();

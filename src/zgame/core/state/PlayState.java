@@ -9,12 +9,12 @@ public class PlayState extends GameState{
 	
 	/** The {@link Room} which is currently used by this {@link PlayState} */
 	private Room currentRoom;
-
+	
 	public PlayState(){
 		super(true);
 		this.currentRoom = new Room();
 	}
-
+	
 	/** @return See {@link #currentRoom} */
 	public Room getCurrentRoom(){
 		return this.currentRoom;

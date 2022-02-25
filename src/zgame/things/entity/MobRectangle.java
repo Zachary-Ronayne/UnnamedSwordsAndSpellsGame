@@ -1,5 +1,7 @@
 package zgame.things.entity;
 
+import zgame.things.RectangleHitBox;
+
 /** A {@link Mob} which has a rectangular hit box */
 public abstract class MobRectangle extends Mob implements RectangleHitBox{
 	
@@ -20,6 +22,34 @@ public abstract class MobRectangle extends Mob implements RectangleHitBox{
 		super(x, y);
 		this.width = width;
 		this.height = height;
+	}
+
+	@Override
+	public boolean keepLeft(double x){
+		if(this.getX() + this.getWidth() <= x) return false;
+		this.setX(x - this.getWidth());
+		return true;
+	}
+
+	@Override
+	public boolean keepRight(double x){
+		if(this.getX() >= x) return false;
+		this.setX(x);
+		return true;
+	}
+
+	@Override
+	public boolean keepAbove(double y){
+		if(this.getY() + this.getHeight() <= y) return false;
+		this.setY(y - this.getHeight());
+		return true;
+	}
+	
+	@Override
+	public boolean keepBelow(double y){
+		if(this.getY() >= y) return false;
+		this.setY(y);
+		return true;
 	}
 	
 	@Override

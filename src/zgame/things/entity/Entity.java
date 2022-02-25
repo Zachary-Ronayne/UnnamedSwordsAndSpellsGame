@@ -56,12 +56,6 @@ public abstract class Entity extends PositionedThing implements GameTickable{
 		ZVector moveVec = this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5));
 		this.addX(moveVec.getX());
 		this.addY(moveVec.getY());
-		
-		// Temp code for keeping the entities from falling out of the room
-		if(this.getY() > 500){
-			this.setY(500);
-			this.touchFloor();
-		}
 	}
 	
 	/** @return See {@link #velocity} */
@@ -69,9 +63,20 @@ public abstract class Entity extends PositionedThing implements GameTickable{
 		return this.velocity;
 	}
 	
-	/** Called when the entity touches the floor. By default, resets the y velocity to 0 */
+	@Override
 	public void touchFloor(){
-		this.velocity = new ZVector(this.velocity.getX(), 0);
+		// Reset the y velocity to 0, only if the entity is moving downwards
+		if(this.velocity.getY() > 0) this.velocity = new ZVector(this.velocity.getX(), 0);
+	}
+
+	@Override
+	public void touchCeiling(){
+		// Reset the y velocity to 0, only if the entity is moving upwards
+		if(this.velocity.getY() < 0) this.velocity = new ZVector(this.velocity.getX(), 0);
+	}
+
+	@Override
+	public void touchWall(){
 	}
 	
 	/**

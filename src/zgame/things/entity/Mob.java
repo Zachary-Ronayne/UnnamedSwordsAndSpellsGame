@@ -18,7 +18,7 @@ public abstract class Mob extends Entity{
 	public Mob(double x, double y){
 		super(x, y);
 		this.canJump = false;
-		this.jumpPower = 500;
+		this.jumpPower = 300;
 	}
 	
 	/** Cause this mob to jump upwards, if the mob is in a position to jump */
@@ -28,7 +28,7 @@ public abstract class Mob extends Entity{
 		canJump = false;
 		this.addVelocityY(-this.getJumpPower());
 	}
-
+	
 	@Override
 	public void touchFloor(){
 		super.touchFloor();

@@ -1,7 +1,7 @@
 package zgame.things;
 
 /** A {@link GameThing} which uses x and y coordinates */
-public abstract class PositionedThing extends GameThing implements Positionable{
+public abstract class PositionedThing extends GameThing implements Positionable, HitBox{
 	
 	/** The x coordinate of this {@link PositionedThing} */
 	private double x;

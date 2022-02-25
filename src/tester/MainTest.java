@@ -15,6 +15,7 @@ import zgame.core.state.PlayState;
 import zgame.core.window.GameWindow;
 import zgame.menu.Menu;
 import zgame.menu.MenuButton;
+import zgame.things.Room;
 import zgame.things.entity.Player;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -85,6 +86,17 @@ import java.awt.Rectangle;
  * blue = don't do it when minimized
  * magenta = don't do it when minimized or when not in focus
  * Left indicator is for rendering, right is for updating
+ * 
+ * In play state:
+ * left arrow key = move left
+ * right arrow key = move right
+ * up arrow key = jump
+ * w = toggle disable ceiling
+ * a = toggle disable left wall
+ * s = toggle disable floor
+ * d = toggle disable right wall
+ * plus = increase jump height
+ * minus = decrease jump height
  */
 public class MainTest extends Game{
 	
@@ -168,25 +180,45 @@ public class MainTest extends Game{
 		winSource = sm.createSource(playerX, playerY);
 		loseSource = sm.createSource(0, 200);
 	}
-
+	
 	public static class GameEngineState extends PlayState{
 		private Player player;
-
+		
 		public GameEngineState(){
 			super();
 			this.player = new Player(10, 400, 60, 100);
-			this.getCurrentRoom().addThing(this.player);
+			Room r = this.getCurrentRoom();
+			r.addThing(this.player);
+			r.makeWallsSolid();
+			r.setX(50);
+			r.setY(100);
+			r.setWidth(800);
+			r.setHeight(520);
 		}
-
+		
 		@Override
 		public void renderBackgroundO(Game game, Renderer r){
-			r.setColor(.2, .2, .2);
+			r.setColor(.1, .1, .1);
 			r.fill();
+			
+			r.setColor(.2, .2, .2);
+			Room rm = this.getCurrentRoom();
+			r.drawRectangle(rm.getX(), rm.getY(), rm.getWidth(), rm.getHeight());
 		}
-
+		
 		@Override
 		public void keyActionO(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-			if(shift && !press && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
+			if(press) return;
+
+			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
+
+			Room r = getCurrentRoom();
+			if(button == GLFW_KEY_W) r.makeWallState(Room.WALL_CEILING, !r.isSolid(Room.WALL_CEILING));
+			else if(button == GLFW_KEY_A) r.makeWallState(Room.WALL_LEFT, !r.isSolid(Room.WALL_LEFT));
+			else if(button == GLFW_KEY_S) r.makeWallState(Room.WALL_FLOOR, !r.isSolid(Room.WALL_FLOOR));
+			else if(button == GLFW_KEY_D) r.makeWallState(Room.WALL_RIGHT, !r.isSolid(Room.WALL_RIGHT));
+			else if(button == GLFW_KEY_MINUS) player.setJumpPower(player.getJumpPower() - 10);
+			else if(button == GLFW_KEY_EQUAL) player.setJumpPower(player.getJumpPower() + 10);
 		}
 	}
 	
@@ -464,7 +496,7 @@ public class MainTest extends Game{
 			super.keyAction(game, button, press, shift, alt, ctrl);
 			if(!press && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
 		}
-
+		
 		@Override
 		public void renderBackground(Game game, Renderer r){
 			r.setColor(.1, .1, .1);
@@ -479,7 +511,7 @@ public class MainTest extends Game{
 			this.setWidth(800);
 			this.setHeight(300);
 			this.setBg(.1, .1, .2, 1);
-
+			
 			MenuButton t = new MenuButton(10, 10, 300, 50){
 				@Override
 				public void click(Game game){
@@ -488,13 +520,15 @@ public class MainTest extends Game{
 			};
 			t.setBg(0, .2, .7);
 			this.addThing(t);
-
+			
 			t = new MenuButton(50, 100, 200, 100){
 				double pos = 0;
+				
 				@Override
 				public void click(Game game){
 					game.stop();
 				}
+				
 				@Override
 				public void keyActionO(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 					if(button == GLFW_KEY_1 && !press){
