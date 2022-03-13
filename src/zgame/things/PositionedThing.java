@@ -1,7 +1,9 @@
 package zgame.things;
 
+import zgame.core.state.PlayState;
+
 /** A {@link GameThing} which uses x and y coordinates */
-public abstract class PositionedThing extends GameThing implements Positionable, HitBox{
+public abstract class PositionedThing extends GameThing implements Positionable{
 	
 	/** The x coordinate of this {@link PositionedThing} */
 	private double x;
@@ -63,6 +65,20 @@ public abstract class PositionedThing extends GameThing implements Positionable,
 	 */
 	public void addY(double y){
 		this.setY(this.getY() + y);
+	}
+
+	/**
+	 * Take this {@link PositionedThing} from the given room, and place it in the other given room
+	 * 
+	 * @param from The room to move the thing from, i.e. the thing was in this room. Can be null if the thing didn't come from a room
+	 * @param to The room to move the thing to, i.e. the thing is now in this room. Can be null if the thing isn't going to a room
+	 * @param state The {@link PlayState} of the game when this thing entered the room
+	 */
+	public void enterRoom(Room from, Room to, PlayState state){
+		if(from != null) from.removeThing(this);
+		if(to != null){
+			to.addThing(this);
+		}
 	}
 
 }

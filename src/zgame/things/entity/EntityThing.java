@@ -5,14 +5,17 @@ import java.util.Collection;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
+import zgame.core.state.PlayState;
 import zgame.physics.ZVector;
+import zgame.things.HitBox;
 import zgame.things.PositionedThing;
+import zgame.things.Room;
 
 /**
  * A {@link PositionedThing} which keeps track of an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
  * This is for things like creatures, dropped items, projectiles, etc.
  */
-public abstract class Entity extends PositionedThing implements GameTickable{
+public abstract class EntityThing extends PositionedThing implements GameTickable, HitBox{
 	
 	/** The ZVector determining how fast gravity applies to objects */
 	public static final ZVector GRAVITY = new ZVector(0, 1000);
@@ -20,13 +23,13 @@ public abstract class Entity extends PositionedThing implements GameTickable{
 	/** The current velocity of this Entity */
 	private ZVector velocity;
 	
-	/** Every force currently acting on this {@link Entity} */
+	/** Every force currently acting on this {@link EntityThing} */
 	private Collection<ZVector> forces;
 	
 	/**
 	 * Create a new empty entity at (0, 0)
 	 */
-	public Entity(){
+	public EntityThing(){
 		this(0, 0);
 	}
 	
@@ -36,7 +39,7 @@ public abstract class Entity extends PositionedThing implements GameTickable{
 	 * @param x The x coordinate of the entity
 	 * @param y The y coordinate of the entity
 	 */
-	public Entity(double x, double y){
+	public EntityThing(double x, double y){
 		super(x, y);
 		this.velocity = new ZVector(0, 0);
 		this.forces = new ArrayList<ZVector>();
@@ -44,7 +47,7 @@ public abstract class Entity extends PositionedThing implements GameTickable{
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
+	public void tick(Game game, PlayState state, Room r, double dt){
 		// Find the current acceleration
 		ZVector acceleration = new ZVector(0, 0);
 		for(ZVector f : this.forces) acceleration = acceleration.add(f);
@@ -107,12 +110,23 @@ public abstract class Entity extends PositionedThing implements GameTickable{
 	}
 	
 	/**
-	 * Add the given {@link ZForce} to the forces acting on this {@link Entity}
+	 * Add the given {@link ZForce} to the forces acting on this {@link EntityThing}
 	 * 
 	 * @param force The force to add
 	 */
 	public void addForce(ZVector force){
 		this.forces.add(force);
 	}
+
+	/**
+	 * Determine if this {@link EntityThing} intersects the given rectangular bounds
+	 * 
+	 * @param x The x coordinate upper left hand corner of the bounds
+	 * @param y The y coordinate upper left hand corner of the bounds
+	 * @param w The width of the bounds
+	 * @param h The height of the bounds
+	 * @return true if this {@link EntityThing} intersects the given bounds
+	 */
+	public abstract boolean intersects(double x, double y, double w, double h);
 	
 }

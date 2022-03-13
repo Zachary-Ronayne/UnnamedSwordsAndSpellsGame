@@ -3,7 +3,7 @@ package zgame.core;
 import zgame.core.graphics.Renderer;
 
 /** An interface which defines methods used by objects which interact with a {@link Game} using input and rendering */
-public interface GameIntractable extends GameTickable{
+public interface GameIntractable {
 	
 	/**
 	 * Called when a keyboard key is pressed on the game
@@ -49,6 +49,15 @@ public interface GameIntractable extends GameTickable{
 	 * @param amount The amount the scroll wheel was moved
 	 */
 	public void mouseWheelMove(Game game, double amount);
+	
+	/**
+	 * Called each time a game tick occurs. A tick is a game update, i.e. some amount of time passing.
+	 * Override to perform an action during a game tick
+	 * 
+	 * @param game The {@link Game} which called this method
+	 * @param dt The amount of time, in seconds, which passed in this tick
+	 */
+	public void tick(Game game, double dt);
 	
 	/**
 	 * Called once each time a frame of the game is drawn, before the main render. Use this method to define what is drawn as a background, i.e. unaffected by the camera

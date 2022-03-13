@@ -1,21 +1,21 @@
 package zgame.things.entity;
 
-/** An {@link Entity} which represents some kind of creature which can walk around, i.e. the player, an enemy, an animal, a monster, any NPC, etc. */
-public abstract class Mob extends Entity{
+/** An {@link EntityThing} which represents some kind of creature which can walk around, i.e. the player, an enemy, an animal, a monster, any NPC, etc. */
+public abstract class MobThing extends EntityThing{
 	
 	/** The velocity added during a jump */
 	private double jumpPower;
 	
-	/** true if this {@link Mob} is in a position where it is allowed to jump, false otherwise */
+	/** true if this {@link MobThing} is in a position where it is allowed to jump, false otherwise */
 	private boolean canJump;
 	
 	/**
-	 * Create a new {@link Mob} at the given position
+	 * Create a new {@link MobThing} at the given position
 	 * 
 	 * @param x The x coordinate of the mob
 	 * @param y The y coordinate of the mob
 	 */
-	public Mob(double x, double y){
+	public MobThing(double x, double y){
 		super(x, y);
 		this.canJump = false;
 		this.jumpPower = 300;

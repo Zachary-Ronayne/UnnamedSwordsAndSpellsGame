@@ -15,6 +15,7 @@ import zgame.core.state.PlayState;
 import zgame.core.window.GameWindow;
 import zgame.menu.Menu;
 import zgame.menu.MenuButton;
+import zgame.things.Door;
 import zgame.things.Room;
 import zgame.things.entity.Player;
 
@@ -187,32 +188,51 @@ public class MainTest extends Game{
 		private Player player;
 		
 		public GameEngineState(){
-			super();
+			super(false);
+			Room firstRoom = makeRoom();
+			Room secondRoom = makeRoom();
+			this.setCurrentRoom(firstRoom);
+			
 			this.player = new Player(100, 400, 60, 100);
-			Room r = this.getCurrentRoom();
-			r.addThing(this.player);
+			firstRoom.addThing(this.player);
+
+			Door d = new Door(700, 400);
+			d.setLeadRoom(secondRoom, 50, 100);
+			firstRoom.addThing(d);
+			
+			d = new Door(400, 500);
+			d.setLeadRoom(firstRoom, 100, 400);
+			secondRoom.addThing(d);
+		}
+
+		private Room makeRoom(){
+			Room r = new Room();
 			r.makeWallsSolid();
 			r.setX(50);
 			r.setY(100);
 			r.setWidth(800);
 			r.setHeight(520);
+			return r;
 		}
 		
 		@Override
-		public void renderBackgroundO(Game game, Renderer r){
+		public void renderBackground(Game game, Renderer r){
+			super.renderBackground(game, r);
 			r.setColor(.1, .1, .1);
 			r.fill();
 		}
 
 		@Override
-		public void renderO(Game game, Renderer r){
+		public void render(Game game, Renderer r){
 			r.setColor(.2, .2, .2);
 			Room rm = this.getCurrentRoom();
 			r.drawRectangle(rm.getX(), rm.getY(), rm.getWidth(), rm.getHeight());
+			super.render(game, r);
 		}
 		
 		@Override
-		public void keyActionO(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+			super.keyAction(game, button, press, shift, alt, ctrl);
 			if(press) return;
 			
 			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
@@ -228,7 +248,8 @@ public class MainTest extends Game{
 		}
 
 		@Override
-		public void mouseWheelMoveO(Game game, double amount){
+		public void mouseWheelMove(Game game, double amount){
+			super.mouseWheelMove(game, amount);
 			if(game.getKeyInput().shift()) game.getCamera().zoom(amount);
 		}
 	}

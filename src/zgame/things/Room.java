@@ -6,9 +6,11 @@ import java.util.Collection;
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
+import zgame.core.state.PlayState;
+import zgame.things.entity.EntityThing;
 
 /** An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc. */
-public class Room implements GameTickable{
+public class Room {
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -21,10 +23,16 @@ public class Room implements GameTickable{
 	
 	/** All of the {@link GameThing} objects which exist in in the game */
 	private Collection<GameThing> things;
+	/** All of the {@link EntityThing} objects which exist in in the game */
+	private Collection<EntityThing> entities;
 	/** All of the {@link HitBox} objects which exist in in the game */
 	private Collection<HitBox> hitBoxThings;
 	/** All of the {@link GameTickable} objects which exist in in the game */
 	private Collection<GameTickable> tickableThings;
+	
+	/** All of the {@link GameThing} objects which will be removed on the next game tick */
+	private Collection<GameThing> thingsToRemove;
+
 	
 	/** The upper left hand x coordinate of the room. Defaults to 0 */
 	private double x;
@@ -53,9 +61,12 @@ public class Room implements GameTickable{
 	 * @param width See {@link #height}
 	 */
 	public Room(double width, double height){
-		things = new ArrayList<GameThing>();
-		hitBoxThings = new ArrayList<HitBox>();
-		tickableThings = new ArrayList<GameTickable>();
+		this.things = new ArrayList<GameThing>();
+		this.entities = new ArrayList<EntityThing>();
+		this.hitBoxThings = new ArrayList<HitBox>();
+		this.tickableThings = new ArrayList<GameTickable>();
+
+		this.thingsToRemove = new ArrayList<GameThing>();
 		
 		this.x = 0;
 		this.y = 0;
@@ -63,6 +74,26 @@ public class Room implements GameTickable{
 		this.height = height;
 		
 		this.wallSolid = new boolean[]{true, true, true, true};
+	}
+
+	/** @return See {@link #things}. This is the actual collection holding the things, not a copy */
+	public Collection<GameThing> getThings(){
+		return this.things;
+	}
+	
+	/** @return See {@link #entities}. This is the actual collection holding the things, not a copy */
+	public Collection<EntityThing> getEntities(){
+		return this.entities;
+	}
+
+	/** @return See {@link #tickableThings}. This is the actual collection holding the things, not a copy */
+	public Collection<GameTickable> getTickableThings(){
+		return this.tickableThings;
+	}
+	
+	/** @return See {@link #hitBoxThings}. This is the actual collection holding the things, not a copy */
+	public Collection<HitBox> getHitBoxThings(){
+		return this.hitBoxThings;
 	}
 	
 	/**
@@ -72,6 +103,7 @@ public class Room implements GameTickable{
 	 */
 	public void addThing(GameThing thing){
 		this.things.add(thing);
+		if(thing instanceof EntityThing) this.entities.add((EntityThing)thing);
 		if(thing instanceof GameTickable) this.tickableThings.add((GameTickable)thing);
 		if(thing instanceof HitBox) this.hitBoxThings.add((HitBox)thing);
 	}
@@ -82,47 +114,38 @@ public class Room implements GameTickable{
 	 * @param thing The {@link GameTickable} to remove
 	 */
 	public void removeThing(GameThing thing){
-		this.things.remove(thing);
-		if(thing instanceof GameTickable) this.tickableThings.remove((GameTickable)thing);
-		if(thing instanceof HitBox) this.hitBoxThings.remove((HitBox)thing);
+		this.thingsToRemove.add(thing);
 	}
-	
-	@Override
+
 	/**
 	 * Update this {@link Room}
 	 * 
 	 * @param game The {@link Game} which this {@link Room} should update relative to
+	 * @param state The {@link PlayState} which the game was in when this method was called
 	 * @param dt The amount of time passed in this update
 	 */
-	public void tick(Game game, double dt){
+	public void tick(Game game, PlayState state, double dt){
 		// Update all updatable objects
-		for(GameTickable t : this.tickableThings) t.tick(game, dt);
+		for(GameTickable t : this.tickableThings) t.tick(game, state, this, dt);
 		
 		// Keep all objects inside the game bounds, if the walls are enabled
 		for(HitBox hb : this.hitBoxThings){
-			if(this.isSolid(WALL_LEFT)){
-				if(hb.keepRight(this.getX())){
-					hb.touchWall();
-				}
-			}
-			if(this.isSolid(WALL_RIGHT)){
-				if(hb.keepLeft(this.getX() + this.getWidth())){
-					hb.touchWall();
-				}
-			}
-			if(this.isSolid(WALL_CEILING)){
-				if(hb.keepBelow(this.getY())){
-					hb.touchCeiling();
-				}
-			}
-			if(this.isSolid(WALL_FLOOR)){
-				if(hb.keepAbove(this.getY() + this.getHeight())){
-					hb.touchFloor();
-				}
-			}
+			if(this.isSolid(WALL_LEFT)){ if(hb.keepRight(this.getX())){ hb.touchWall(); } }
+			if(this.isSolid(WALL_RIGHT)){ if(hb.keepLeft(this.getX() + this.getWidth())){ hb.touchWall(); } }
+			if(this.isSolid(WALL_CEILING)){ if(hb.keepBelow(this.getY())){ hb.touchCeiling(); } }
+			if(this.isSolid(WALL_FLOOR)){ if(hb.keepAbove(this.getY() + this.getHeight())){ hb.touchFloor(); } }
 		}
+		
+		// Remove all things that need to be removed
+		for(GameThing thing : this.thingsToRemove){
+			this.things.remove(thing);
+			if(thing instanceof EntityThing) this.entities.remove((EntityThing)thing);
+			if(thing instanceof GameTickable) this.tickableThings.remove((GameTickable)thing);
+			if(thing instanceof HitBox) this.hitBoxThings.remove((HitBox)thing);
+		}
+		this.thingsToRemove.clear();
 	}
-	
+
 	/**
 	 * Draw this {@link Room} to the given {@link Renderer}
 	 * 

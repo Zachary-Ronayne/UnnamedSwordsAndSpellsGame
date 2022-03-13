@@ -3,6 +3,8 @@ package zgame.things.entity;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.keyboard.ZKeyInput;
+import zgame.core.state.PlayState;
+import zgame.things.Room;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -26,8 +28,8 @@ public class Player extends MobRectangle{
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
-		super.tick(game, dt);
+	public void tick(Game game, PlayState state, Room r, double dt){
+		super.tick(game, state, r, dt);
 		
 		// Move left and right
 		ZKeyInput ki = game.getKeyInput();
@@ -58,6 +60,12 @@ public class Player extends MobRectangle{
 	/** @param lockCamera See {@link #lockCamera} */
 	public void setLockCamera(boolean lockCamera){
 		this.lockCamera = lockCamera;
+	}
+
+	@Override
+	public void enterRoom(Room from, Room to, PlayState state){
+		super.enterRoom(from, to, state);
+		if(to != null) state.setCurrentRoom(to);
 	}
 	
 }
