@@ -105,7 +105,7 @@ public class MainTest extends Game{
 	
 	public static Game testerGame;
 	public static GameState testerState;
-	public static GameState engineState;
+	public static PlayState engineState;
 	public static MenuState menuState;
 	public static GameWindow window;
 	
@@ -147,8 +147,9 @@ public class MainTest extends Game{
 		testerGame = new MainTest();
 		testerState = new TesterGameState();
 		engineState = new GameEngineState();
+		testerGame.setPlayState(engineState);
 		menuState = new TesterMenuState();
-		testerGame.setCurrentState(engineState);
+		testerGame.enterPlayState();
 		window = testerGame.getWindow();
 		window.center();
 		

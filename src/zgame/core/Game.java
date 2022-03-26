@@ -14,9 +14,11 @@ import zgame.core.sound.SoundManager;
 import zgame.core.sound.SoundSource;
 import zgame.core.state.DefaultState;
 import zgame.core.state.GameState;
+import zgame.core.state.PlayState;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GLFWWindow;
 import zgame.core.window.GameWindow;
+import zgame.things.Room;
 
 /**
  * The central class used to create a game. Create an extension of this class to begin making a game
@@ -50,7 +52,9 @@ public class Game{
 	private GameState currentState;
 	/** The {@link GameState} which this game will update to in the next tick, or null if the state will not update */
 	private GameState nextCurrentState;
-	
+	/** The {@link PlayState} of this game, should not be null */
+	private PlayState playState;
+
 	/** The {@link GameLooper} which runs the regular time intervals */
 	private GameLooper tickLooper;
 	/** The {@link Thread} which runs the game tick loop. This is a separate thread from the main thread, which the OpenGL loop will run on */
@@ -161,6 +165,7 @@ public class Game{
 		
 		this.currentState = new DefaultState();
 		this.nextCurrentState = null;
+		this.playState = new PlayState();
 		
 		// Init sound
 		this.sounds = new SoundManager();
@@ -738,6 +743,26 @@ public class Game{
 		this.nextCurrentState = null;
 	}
 	
+	/** Set this {@link Game} to its {@link #playState} */
+	public void enterPlayState(){
+		this.setCurrentState(this.getPlayState());
+	}
+
+	/** @param playState See {@link #playState} */
+	public void setPlayState(PlayState playState){
+		this.playState = playState;
+	}
+
+	/** @return See {@link #playState} */
+	public PlayState getPlayState(){
+		return this.playState;
+	}
+
+	/** @return The {@link Room} that the current {@link #playState} is using */
+	public Room getCurrentRoom(){
+		return this.getPlayState().getCurrentRoom();
+	}
+
 	/**
 	 * Zoom in the screen with {@link #camera} on just the x axis
 	 * The zoom will reposition the camera so that the given coordinates are zoomed towards

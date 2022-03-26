@@ -16,7 +16,7 @@ public class PlayState extends GameState{
 	public PlayState(){
 		this(true);
 	}
-
+	
 	/**
 	 * 
 	 * Create a basic empty play state
@@ -32,15 +32,23 @@ public class PlayState extends GameState{
 	public Room getCurrentRoom(){
 		return this.currentRoom;
 	}
-
-	/** @param r See {@link #currentRoom} */
-	public void setCurrentRoom(Room r){
+	
+	/**
+	 * Set the room to use for this {@link PlayState}
+	 * This method does nothing and returns false if r is null
+	 * 
+	 * @param r See {@link #currentRoom}
+	 * @return true if the room was set, false otherwise
+	 */
+	public boolean setCurrentRoom(Room r){
+		if(r == null) return false;
 		this.currentRoom = r;
+		return true;
 	}
 	
 	@Override
 	public void tick(Game game, double dt){
-		this.currentRoom.tick(game, this, dt);
+		this.currentRoom.tick(game, dt);
 	}
 	
 	@Override

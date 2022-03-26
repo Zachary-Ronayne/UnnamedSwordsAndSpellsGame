@@ -6,7 +6,6 @@ import java.util.Collection;
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
-import zgame.core.state.PlayState;
 import zgame.things.entity.EntityThing;
 
 /** An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc. */
@@ -121,12 +120,11 @@ public class Room {
 	 * Update this {@link Room}
 	 * 
 	 * @param game The {@link Game} which this {@link Room} should update relative to
-	 * @param state The {@link PlayState} which the game was in when this method was called
 	 * @param dt The amount of time passed in this update
 	 */
-	public void tick(Game game, PlayState state, double dt){
+	public void tick(Game game, double dt){
 		// Update all updatable objects
-		for(GameTickable t : this.tickableThings) t.tick(game, state, this, dt);
+		for(GameTickable t : this.tickableThings) t.tick(game, dt);
 		
 		// Keep all objects inside the game bounds, if the walls are enabled
 		for(HitBox hb : this.hitBoxThings){

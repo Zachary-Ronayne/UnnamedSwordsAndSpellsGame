@@ -5,7 +5,6 @@ import java.util.Collection;
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
-import zgame.core.state.PlayState;
 import zgame.things.entity.EntityThing;
 
 public class Door extends PositionedThing implements RectangleBounds, GameTickable{
@@ -59,14 +58,14 @@ public class Door extends PositionedThing implements RectangleBounds, GameTickab
 	 * 
 	 * @param r The room which the thing is coming from, can be null if there is no room the thing is coming from
 	 * @param thing The thing to move
-	 * @param state The {@link PlayState} of the game when the door was entered
+	 * @param game The {@link Game} where this room entering takes place
 	 */
-	public void enterRoom(Room r, PositionedThing thing, PlayState state){
+	public void enterRoom(Room r, PositionedThing thing, Game game){
 		if(r != null) r.removeThing(thing);
 		if(this.room != null){
 			thing.setX(this.roomX);
 			thing.setY(this.roomY);
-			thing.enterRoom(r, this.room, state);
+			thing.enterRoom(r, this.room, game);
 		}
 	}
 	
@@ -81,10 +80,10 @@ public class Door extends PositionedThing implements RectangleBounds, GameTickab
 	}
 	
 	@Override
-	public void tick(Game game, PlayState state, Room r, double dt){
-		Collection<EntityThing> entities = r.getEntities();
+	public void tick(Game game, double dt){
+		Collection<EntityThing> entities = game.getCurrentRoom().getEntities();
 		// Check every entity and if it touches this door, move it to this Room
-		for(EntityThing e : entities) if(e.intersects(this.getX(), this.getY(), this.getWidth(), this.getHeight())) this.enterRoom(r, e, state);
+		for(EntityThing e : entities) if(e.intersects(this.getX(), this.getY(), this.getWidth(), this.getHeight())) this.enterRoom(game.getCurrentRoom(), e, game);
 	}
 	
 	@Override

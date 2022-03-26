@@ -5,11 +5,9 @@ import java.util.Collection;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
-import zgame.core.state.PlayState;
 import zgame.physics.ZVector;
 import zgame.things.HitBox;
 import zgame.things.PositionedThing;
-import zgame.things.Room;
 
 /**
  * A {@link PositionedThing} which keeps track of an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
@@ -47,7 +45,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	}
 	
 	@Override
-	public void tick(Game game, PlayState state, Room r, double dt){
+	public void tick(Game game, double dt){
 		// Find the current acceleration
 		ZVector acceleration = new ZVector(0, 0);
 		for(ZVector f : this.forces) acceleration = acceleration.add(f);
