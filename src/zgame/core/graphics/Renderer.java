@@ -247,6 +247,15 @@ public class Renderer{
 	/**
 	 * Set the color currently used to draw basic shapes
 	 * 
+	 * @param c the new color
+	 */
+	public void setColor(ZColor c){
+		this.setColor(c.red(), c.green(), c.blue(), c.alpha());
+	}
+	
+	/**
+	 * Set the color currently used to draw basic shapes
+	 * 
 	 * @param r The red amount, should be in the range [0-1]
 	 * @param g The green amount, should be in the range [0-1]
 	 * @param b The blue amount, should be in the range [0-1]

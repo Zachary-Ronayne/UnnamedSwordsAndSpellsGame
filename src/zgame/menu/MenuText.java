@@ -30,7 +30,7 @@ public class MenuText extends MenuThing{
 	public MenuText(double x, double y, double w, double h, String text){
 		super(x, y, w, h);
 		this.text = text;
-		this.setBgAlpha(1);
+		this.setFill(this.getFill().solid());
 	}
 	
 	/** @return See {@link #text} */

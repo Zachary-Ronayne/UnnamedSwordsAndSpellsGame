@@ -3,7 +3,7 @@ package zgame.core;
 import zgame.core.graphics.Renderer;
 
 /** An interface which defines methods used by objects which interact with a {@link Game} using input and rendering */
-public interface GameIntractable {
+public interface GameInteractable {
 	
 	/**
 	 * Called when a keyboard key is pressed on the game

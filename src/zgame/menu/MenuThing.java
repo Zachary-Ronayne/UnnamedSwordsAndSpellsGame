@@ -1,14 +1,16 @@
 package zgame.menu;
 
 import zgame.core.Game;
-import zgame.core.GameIntractable;
+import zgame.core.GameInteractable;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
+
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 
 /** An object which can be contained by a Menu */
-public abstract class MenuThing implements GameIntractable{
+public abstract class MenuThing implements GameInteractable{
 	
 	/** The x coordinate of the {@link MenuThing}, in screen coordinates, relative to {@link #parent}, or relative to (0, 0) if {@link #parent} is null */
 	private double relX;
@@ -19,18 +21,13 @@ public abstract class MenuThing implements GameIntractable{
 	/** The height which this {@link MenuThing} should take up, in screen coordinates */
 	private double height;
 	
-	/** The amount of red in the background of this MenuThing in the range [0, 1] */
-	private double bgRed;
-
-	/** The amount of green in the background of this MenuThing in the range [0, 1] */
-	private double bgGreen;
-
-	/** The amount of blue in the background of this MenuThing in the range [0, 1] */
-	private double bgBlue;
-
-	/** The amount of alpha (transparency) in the background of this MenuThing in the range [0, 1] */
-	private double bgAlpha;
-
+	/** The color of the inside of this {@link MenuThing} */
+	private ZColor fill;
+	/** The color of the border of this {@link MenuThing} */
+	private ZColor border;
+	/** The width, in pixels, of the border of this {@link MenuThing} */
+	private double borderWidth;
+	
 	/** The {@link MenuThing} which holds this {@link MenuThing}. Can be null if this {@link MenuThing} has no parent */
 	private MenuThing parent;
 	
@@ -67,12 +64,11 @@ public abstract class MenuThing implements GameIntractable{
 		this.relY = y;
 		this.width = width;
 		this.height = height;
-
-		this.bgRed = 1;
-		this.bgGreen = 1;
-		this.bgBlue = 1;
-		this.bgAlpha = 0;
-
+		
+		this.fill = new ZColor(1, 1);
+		this.border = new ZColor(0, 1);
+		this.borderWidth = 0;
+		
 		this.parent = null;
 		this.things = new ArrayList<MenuThing>();
 	}
@@ -132,73 +128,37 @@ public abstract class MenuThing implements GameIntractable{
 		return new Rectangle2D.Double(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
-	/** @return See {@link #bgRed} */
-	public double getBgRed(){
-		return bgRed;
+	/** @return See {@link #fill} */
+	public ZColor getFill(){
+		return this.fill;
+	}
+	
+	/** @param fill See {@link #fill} */
+	public void setFill(ZColor fill){
+		this.fill = fill;
+	}
+	
+	/** @return See {@link #border} */
+	public ZColor getBorder(){
+		return this.border;
+	}
+	
+	/** @param border See {@link #border} */
+	public void setBorder(ZColor border){
+		this.border = border;
+	}
+	
+	/** @return See {@link #borderWidth} */
+	public double getBorderWidth(){
+		return this.borderWidth;
+	}
+	
+	/** @param borderWidth See {@link #borderWidth} */
+	public void setBorderWidth(double borderWidth){
+		this.borderWidth = borderWidth;
 	}
 
-	/** @param bgRed See {@link #bgRed} */
-	public void setBgRed(double bgRed){
-		this.bgRed = bgRed;
-	}
 	
-	/** @return See {@link #bgGreen} */
-	public double getBgGreen(){
-		return this.bgGreen;
-	}
-	
-	/** @param bgGreen See {@link #bgGreen} */
-	public void setBgGreen(double bgGreen){
-		this.bgGreen = bgGreen;
-	}
-	
-	/** @return See {@link #bgGBlue} */
-	public double getBgBlue(){
-		return this.bgBlue;
-	}
-	
-	/** @param bgBlue See {@link #bgBlue} */
-	public void setBgBlue(double bgBlue){
-		this.bgBlue = bgBlue;
-	}
-	
-	/** @return See {@link #bgAlpha} */
-	public double getBgAlpha(){
-		return this.bgAlpha;
-	}
-	
-	/** @param bgRed See {@link #bgAlpha} */
-	public void setBgAlpha(double bgAlpha){
-		this.bgAlpha = bgAlpha;
-	}
-
-	/**
-	 * Set the background color of this {@link MenuThing}.
-	 * {@link #bgAlpha} will remain unchanged
-	 * 
-	 * @param r See {@link #bgRed}
-	 * @param g See {@link #bgGreen}
-	 * @param b See {@link #bgBlue}
-	 */
-	public void setBg(double r, double g, double b){
-		this.setBg(r, g, b, this.getBgAlpha());
-	}
-	
-	/**
-	 * Set the background color of this {@link MenuThing}.
-	 * 
-	 * @param r See {@link #bgRed}
-	 * @param g See {@link #bgGreen}
-	 * @param b See {@link #bgBlue}
-	 * @param a See {@link #bgAlpha}
-	 */
-	public void setBg(double r, double g, double b, double a){
-		this.setBgRed(r);
-		this.setBgGreen(g);
-		this.setBgBlue(b);
-		this.setBgAlpha(a);
-	}
-
 	/** @return See {@link #parent} */
 	public MenuThing getParent(){
 		return this.parent;
@@ -249,100 +209,55 @@ public abstract class MenuThing implements GameIntractable{
 	
 	/** Do not call directly */
 	@Override
-	public final void tick(Game game, double dt){
-		this.tickO(game, dt);
+	public void tick(Game game, double dt){
 		for(MenuThing t : this.things) t.tick(game, dt);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public final void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		this.keyActionO(game, button, press, shift, alt, ctrl);
+	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		for(MenuThing t : this.things) t.keyAction(game, button, press, shift, alt, ctrl);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public final void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		this.mouseActionO(game, button, press, shift, alt, ctrl);
+	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		for(MenuThing t : this.things) t.mouseAction(game, button, press, shift, alt, ctrl);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public final void mouseMove(Game game, double x, double y){
-		this.mouseMoveO(game, x, y);
+	public void mouseMove(Game game, double x, double y){
 		for(MenuThing t : this.things) t.mouseMove(game, x, y);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public final void mouseWheelMove(Game game, double amount){
-		this.mouseWheelMoveO(game, amount);
+	public void mouseWheelMove(Game game, double amount){
 		for(MenuThing t : this.things) t.mouseWheelMove(game, amount);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public final void renderBackground(Game game, Renderer r){
-		this.renderBackgroundO(game, r);
+	public void renderBackground(Game game, Renderer r){
 		for(MenuThing t : this.things) t.renderBackground(game, r);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public final void render(Game game, Renderer r){
-		if(this.getBgAlpha() != 0){
-			r.setColor(this.getBgRed(), this.getBgGreen(), this.getBgBlue(), this.getBgAlpha());
-			r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-		}
-
-		this.renderO(game, r);
+	public void render(Game game, Renderer r){
+		r.setColor(this.border);
+		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+		r.setColor(this.fill);
+		double b = this.getBorderWidth();
+		r.drawRectangle(this.getX() + b, this.getY() + b, this.getWidth() - b * 2, this.getHeight() - b * 2);
 		for(MenuThing t : this.things) t.render(game, r);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public final void renderHud(Game game, Renderer r){
-		this.renderHudO(game, r);
+	public void renderHud(Game game, Renderer r){
 		for(MenuThing t : this.things) t.renderHud(game, r);
-	}
-	
-	/** A version of {@link #tick(Game, double)} which can be overwritten to make this {@link MenuThing} perform actions. Do not call directly */
-	public void tickO(Game game, double dt){
-	}
-	
-	/**
-	 * A version of {@link #keyAction(Game, int, boolean, boolean, boolean, boolean)} which can be overwritten to make this {@link MenuThing} perform actions. Do not call directly
-	 */
-	public void keyActionO(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-	}
-	
-	/**
-	 * A version of {@link #mouseAction(Game, int, boolean, boolean, boolean, boolean)} which can be overwritten to make this {@link MenuThing} perform actions. Do not call
-	 * directly
-	 */
-	public void mouseActionO(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-	}
-	
-	/** A version of {@link #mouseMove(Game, double, double)} which can be overwritten to make this {@link MenuThing} perform actions. Do not call directly */
-	public void mouseMoveO(Game game, double x, double y){
-	}
-	
-	/** A version of {@link #mouseWheelMove(Game, double)} which can be overwritten to make this {@link MenuThing} perform actions. Do not call directly */
-	public void mouseWheelMoveO(Game game, double amount){
-	}
-	
-	/** A version of {@link #renderBackground(Game, Renderer)} which can be overwritten to make this {@link MenuThing} perform actions. Do not call directly */
-	public void renderBackgroundO(Game game, Renderer r){
-	}
-	
-	/** A version of {@link #render(Game, Renderer)} which can be overwritten to make this {@link MenuThing} perform actions. Do not call directly */
-	public void renderO(Game game, Renderer r){
-	}
-	
-	/** A version of {@link #renderHud(Game, Renderer)} which can be overwritten to make this {@link MenuThing} perform actions. Do not call directly */
-	public void renderHudO(Game game, Renderer r){
 	}
 	
 }

@@ -2,6 +2,7 @@ package tester;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
@@ -543,7 +544,7 @@ public class MainTest extends Game{
 			super(100, 200);
 			this.setWidth(800);
 			this.setHeight(300);
-			this.setBg(.1, .1, .2, 1);
+			this.setFill(new ZColor(.1, .1, .2, 1));
 			
 			MenuButton t = new MenuButton(10, 10, 300, 50){
 				@Override
@@ -551,7 +552,7 @@ public class MainTest extends Game{
 					game.setCurrentState(testerState);
 				}
 			};
-			t.setBg(0, .2, .7);
+			t.setFill(new ZColor(0, .2, .7));
 			this.addThing(t);
 			
 			t = new MenuButton(50, 100, 200, 100){
@@ -563,16 +564,16 @@ public class MainTest extends Game{
 				}
 				
 				@Override
-				public void keyActionO(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+				public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 					if(button == GLFW_KEY_1 && !press){
 						MenuButton b = new MenuButton(pos, this.getHeight(), 15, 10);
-						b.setBg(0, 0, (pos / 100) % 1);
+						b.setFill(new ZColor(0, 0, (pos / 100) % 1));
 						this.addThing(b);
 						pos += 20;
 					}
 				}
 			};
-			t.setBg(.5, 0, 0);
+			t.setFill(new ZColor(.5, 0, 0));
 			t.setText("Exit");
 			this.addThing(t);
 		}

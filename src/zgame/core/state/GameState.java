@@ -1,7 +1,7 @@
 package zgame.core.state;
 
 import zgame.core.Game;
-import zgame.core.GameIntractable;
+import zgame.core.GameInteractable;
 import zgame.core.graphics.Renderer;
 
 /**
@@ -9,7 +9,7 @@ import zgame.core.graphics.Renderer;
  * 
  * A state is essentially a separate place where you can easily define what happens for input and rendering
  */
-public abstract class GameState implements GameIntractable{
+public abstract class GameState implements GameInteractable{
 	
 	/** true if this state should use the camera for drawing the main graphics, false otherwise */
 	private boolean useCamera;
