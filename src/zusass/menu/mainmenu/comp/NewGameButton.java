@@ -17,7 +17,7 @@ public class NewGameButton extends MenuButton{
 
 	@Override
 	public void click(Game game){
-		
+		game.enterPlayState();
 	}
 	
 }

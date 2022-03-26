@@ -2,6 +2,7 @@ package zusass;
 
 import zgame.core.Game;
 import zgame.core.window.GameWindow;
+import zusass.game.MainPlay;
 import zusass.menu.mainmenu.MainMenuState;
 
 /**
@@ -19,11 +20,15 @@ public class ZUSASSGame extends Game{
 	/** Create the only instance of ZUSASSGame from this class. This constructor will place the game in the main menu */
 	private ZUSASSGame(){
 		super();
+		// Window and performance settings
 		this.setTps(100);
 		this.setCurrentState(new MainMenuState());
 		GameWindow w = this.getWindow();
 		w.setUseVsync(true);
 		w.center();
+
+		// Play state
+		this.setPlayState(new MainPlay());
 	}
 
 	/** The only instance of {@link ZUSASSGame} which can exist */
