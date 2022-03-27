@@ -3,6 +3,7 @@ package zusass.menu.mainmenu;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.menu.Menu;
+import zusass.menu.mainmenu.comp.ContinueGameButton;
 import zusass.menu.mainmenu.comp.ExitButton;
 import zusass.menu.mainmenu.comp.NewGameButton;
 
@@ -12,6 +13,7 @@ public class MainMenu extends Menu{
 	/** Initialize the {@link MainMenu} */
 	public MainMenu(){
 		this.addThing(new NewGameButton());
+		this.addThing(new ContinueGameButton());
 		this.addThing(new ExitButton());
 	}
 	

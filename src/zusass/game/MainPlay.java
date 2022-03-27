@@ -22,5 +22,5 @@ public class MainPlay extends PlayState{
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(button == GLFW_KEY_ESCAPE) game.setCurrentState(new MainMenuState());
 	}
-	
+
 }

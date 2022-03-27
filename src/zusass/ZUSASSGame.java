@@ -5,6 +5,8 @@ import zgame.core.window.GameWindow;
 import zusass.game.MainPlay;
 import zusass.menu.mainmenu.MainMenuState;
 
+import static org.lwjgl.glfw.GLFW.*;
+
 /**
  * The main class for the ZUSASS Game.
  * ZUSASS is an acronym
@@ -37,6 +39,12 @@ public class ZUSASSGame extends Game{
 	public static void main(String[] args){
 		init();
 		game.start();
+	}
+
+	@Override
+	protected void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyAction(button, press, shift, alt, ctrl);
+		if(button == GLFW_KEY_F11 && !press) game.getWindow().toggleFullscreen();
 	}
 	
 	/** Initialize the object {@link #game} */
