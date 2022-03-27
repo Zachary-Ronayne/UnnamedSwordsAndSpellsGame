@@ -21,5 +21,5 @@ public class MainMenu extends Menu{
 		r.setColor(0.2, 0.2, 0.2);
 		r.fill();
 	}
-
+	
 }

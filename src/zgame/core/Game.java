@@ -335,10 +335,12 @@ public class Game{
 			this.renderBackground(r);
 			
 			// Draw the foreground, i.e. main objects
+			boolean useCam = this.getCurrentState().isUseCamera();
 			glPushMatrix();
-			r.setCamera(this.getCamera());
+			if(useCam) r.setCamera(this.getCamera());
+			else r.setCamera(null);
 			r.drawToRenderer();
-			this.getCamera().transform(this.getWindow());
+			if(useCam) this.getCamera().transform(this.getWindow());
 			render(r);
 			glPopMatrix();
 			
