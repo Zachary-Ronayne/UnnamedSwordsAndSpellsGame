@@ -2,10 +2,16 @@ package zgame.core.graphics;
 
 import static org.lwjgl.opengl.GL30.*;
 
+import org.lwjgl.BufferUtils;
+import org.lwjgl.stb.STBTTAlignedQuad;
+import static org.lwjgl.stb.STBTruetype.*;
+
 import zgame.core.graphics.camera.GameCamera;
+import zgame.core.graphics.font.GameFont;
 import zgame.core.window.GameWindow;
 
 import java.awt.geom.Rectangle2D;
+import java.nio.FloatBuffer;
 
 /**
  * A class that handles OpenGL operations related to drawing objects.
@@ -23,10 +29,19 @@ import java.awt.geom.Rectangle2D;
  */
 public class Renderer{
 	
+	/** The buffer for the x coordinate when rendering text */
+	private FloatBuffer xTextBuff;
+	/** The buffer for the y coordinate when rendering text */
+	private FloatBuffer yTextBuff;
+	/** The STBTTAlignedQuad buffer for the quad for rendering */
+	private STBTTAlignedQuad textQuad;
+	
 	/** The shader used to draw basic shapes, i.e. solid colors */
 	private ShaderProgram shapeShader;
 	/** The shader used to draw textures, i.e. images */
 	private ShaderProgram textureShader;
+	/** The shader used to draw font, i.e. text */
+	private ShaderProgram fontShader;
 	/** The shader used to draw the frame buffer to the screen, as a texture */
 	private ShaderProgram framebufferShader;
 	/** The shader which is currently used */
@@ -44,6 +59,12 @@ public class Renderer{
 	 */
 	private boolean renderOnlyInside;
 	
+	/** The current font of this {@link Renderer}. If this value is null, no text can be drawn */
+	private GameFont font;
+	
+	/** The current size, in pixels, to render font. This size is effected by zooming with the camera */
+	private double fontSize;
+	
 	/**
 	 * Create a new empty renderer
 	 * 
@@ -51,13 +72,24 @@ public class Renderer{
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public Renderer(int width, int height){
+		// General initialization
 		this.camera = null;
 		this.setRenderOnlyInside(true);
 		this.resize(width, height);
 		
+		// Font values
+		this.font = null;
+		this.fontSize = 32;
+		
+		// Buffers
+		this.xTextBuff = BufferUtils.createFloatBuffer(1);
+		this.yTextBuff = BufferUtils.createFloatBuffer(1);
+		this.textQuad = STBTTAlignedQuad.create();
+		
 		// Load shaders
 		this.shapeShader = new ShaderProgram("default");
 		this.textureShader = new ShaderProgram("texture");
+		this.fontShader = new ShaderProgram("font");
 		this.framebufferShader = new ShaderProgram("framebuffer");
 		this.renderModeImage();
 	}
@@ -95,6 +127,11 @@ public class Renderer{
 	/** Call this method before rendering images, i.e. textures */
 	private void renderModeImage(){
 		this.setLoadedShader(this.textureShader);
+	}
+	
+	/** Call this method before rendering font, i.e text */
+	private void renderModeFont(){
+		this.setLoadedShader(this.fontShader);
 	}
 	
 	/** Call this method before rendering a frame buffer in place of a texture */
@@ -191,19 +228,98 @@ public class Renderer{
 	 * @param y The y coordinate of the upper right hand corner of the image
 	 * @param w The width of the image
 	 * @param h The height of the image
+	 * @param img The {@link GameImage} to draw
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawImage(double x, double y, double w, double h, GameImage img){
+		return this.drawImage(x, y, w, h, img.getId());
+	}
+	
+	/**
+	 * Draw a rectangular image at the specified location. All values are in game coordinates.
+	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
+	 * 
+	 * @param x The x coordinate of the upper right hand corner of the image
+	 * @param y The y coordinate of the upper right hand corner of the image
+	 * @param w The width of the image
+	 * @param h The height of the image
+	 * @param img The OpenGL id of the image to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawImage(double x, double y, double w, double h, int img){
 		if(!this.shouldDraw(x, y, w, h)) return false;
 		
 		this.renderModeImage();
 		
 		glPushMatrix();
 		this.positionObject(x, y, w, h);
-		img.use();
+		glBindTexture(GL_TEXTURE_2D, img);
 		DisplayList.texRect();
 		glPopMatrix();
 		
+		return true;
+	}
+	
+	/**
+	 * Draw the given text to the given position
+	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
+	 * i.e. the text starts at the given coordinates and is draw left to right
+	 * 
+	 * @param x The x position of the text
+	 * @param y The y position of the text
+	 * @param text The text to draw
+	 * @return true if the text was drawn, false otherwise
+	 */
+	public boolean drawText(double x, double y, String text){
+		// TODO do a bounds check for drawing the text
+		
+		// Make sure a font exists, then use the font shader
+		GameFont f = this.font;
+		if(f == null) return false;
+		this.renderModeFont();
+		
+		// TODO allow for new line characters to give line breaks
+		// TODO make line break sizes and character spacing parameters
+		
+		// TODO make a new shader for text that sends the current color to the shader
+		
+		// Use the font's bitmap
+		glBindTexture(GL_TEXTURE_2D, f.getBitmapID());
+		
+		// Set up for text position and size
+		this.xTextBuff.put(0, 0.0f);
+		this.yTextBuff.put(0, 0.0f);
+		
+		// Double the total font size because fonts are weird, this times 2 is hacky
+		double posSize = this.getFontSize() * f.getResolutionInverse() * 2;
+		
+		// Position and scale the text
+		glPushMatrix();
+		glScaled(1, -1, 1);
+		this.positionObject(x, -y + this.getHeight(), posSize, posSize);
+		
+		// Draw every character of the text
+		glBegin(GL_QUADS);
+		for(int i = 0; i < text.length(); i++){
+			char c = text.charAt(i);
+			int charIndex = c - f.getFirstChar();
+			// Ensure the character exists in the font, if it doesn't, render the zeroth character
+			if(c < 0 || c >= f.getLoadChars()) charIndex = 0;
+			
+			// Find the vertices and texture coordinates of the character to draw
+			this.textQuad = STBTTAlignedQuad.create();
+			stbtt_GetBakedQuad(f.getCharData(), f.getWidth(), f.getHeight(), charIndex, this.xTextBuff, this.yTextBuff, this.textQuad, true);
+			glTexCoord2f(this.textQuad.s0(), this.textQuad.t0());
+			glVertex2f(this.textQuad.x0(), this.textQuad.y0());
+			glTexCoord2f(this.textQuad.s1(), this.textQuad.t0());
+			glVertex2f(this.textQuad.x1(), this.textQuad.y0());
+			glTexCoord2f(this.textQuad.s1(), this.textQuad.t1());
+			glVertex2f(this.textQuad.x1(), this.textQuad.y1());
+			glTexCoord2f(this.textQuad.s0(), this.textQuad.t1());
+			glVertex2f(this.textQuad.x0(), this.textQuad.y1());
+		}
+		glEnd();
+		glPopMatrix();
 		return true;
 	}
 	
@@ -265,6 +381,26 @@ public class Renderer{
 		glColor4d(r, g, b, a);
 	}
 	
+	/** @return See {@link #font} */
+	public GameFont getFont(){
+		return this.font;
+	}
+	
+	/** @param font See {@link #font} */
+	public void setFont(GameFont font){
+		this.font = font;
+	}
+	
+	/** @return See {@link #fontSize} */
+	public double getFontSize(){
+		return this.fontSize;
+	}
+	
+	/** @param font See {@link #fontSize} */
+	public void setFontSize(double fontSize){
+		this.fontSize = fontSize;
+	}
+	
 	/** @param camera See {@link #camera}. Can also use null to not use a camera for rendering */
 	public void setCamera(GameCamera camera){
 		this.camera = camera;
@@ -289,7 +425,7 @@ public class Renderer{
 	public int getHeight(){
 		return this.screen.getHeight();
 	}
-
+	
 	/** @return A rectangle of the bounds of this {@link Renderer}, i.e. the position will be (0, 0), width will be {@link #getWidth()} and height will be {@link #getHeight()} */
 	public Rectangle2D.Double getBounds(){
 		return new Rectangle2D.Double(0, 0, this.getWidth(), this.getHeight());

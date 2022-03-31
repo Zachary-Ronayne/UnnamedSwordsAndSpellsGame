@@ -43,7 +43,7 @@ public class GameImage{
 		stbi_set_flip_vertically_on_load(true);
 		
 		// Keep everything pixelated
-		this.setPixelSettings();
+		setPixelSettings();
 		
 		// Load the image from the jar
 		ByteBuffer buff = ZAssetUtils.getJarBytes(this.getPath());
@@ -71,22 +71,9 @@ public class GameImage{
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	
-	/** Set the settings of the currently loaded texture as pixelated */
-	private void setPixelSettings(){
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	}
-	
 	/** Erase any resources used by this GameImage */
 	public void delete(){
 		glDeleteTextures(this.getId());
-	}
-	
-	/** Use this GameImage when drawing textures */
-	public void use(){
-		glBindTexture(GL_TEXTURE_2D, this.getId());
 	}
 	
 	/** @return See {@link #id} */
@@ -107,6 +94,14 @@ public class GameImage{
 	 */
 	public static GameImage create(String name){
 		return new GameImage(ZStringUtils.concat(ZFilePaths.IMAGES, name));
+	}
+	
+	/** Set the settings of the currently loaded texture as pixelated */
+	public static void setPixelSettings(){
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	}
 	
 }

@@ -27,6 +27,10 @@ public final class ZFilePaths{
 	/** The location of the main folder containing sound effects */
 	public static final String EFFECTS = SOUND +
 		"effects/";
+
+	/** The location of the main folder containing fonts */
+	public static final String FONTS = ASSETS +
+		"fonts/";
 	
 	/** Cannot instantiate ZFilePaths */
 	private ZFilePaths(){

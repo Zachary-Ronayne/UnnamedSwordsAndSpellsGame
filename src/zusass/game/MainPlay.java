@@ -20,7 +20,7 @@ public class MainPlay extends PlayState{
 	@Override
 	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(game, button, press, shift, alt, ctrl);
-		if(button == GLFW_KEY_ESCAPE) game.setCurrentState(new MainMenuState());
+		if(button == GLFW_KEY_ESCAPE) game.setCurrentState(new MainMenuState(game));
 	}
 
 }

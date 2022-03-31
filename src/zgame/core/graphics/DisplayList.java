@@ -78,7 +78,7 @@ public abstract class DisplayList{
 	private static class TexRectangleList extends DisplayList{
 		@Override
 		public void listFunc(){
-			glBegin(GL_POLYGON);
+			glBegin(GL_QUADS);
 			glTexCoord2d(0, 0);
 			glVertex2d(-1, -1);
 			glTexCoord2d(1, 0);

@@ -37,7 +37,7 @@ public class ImageManager{
 	}
 	
 	/**
-	 * Add the image of the given name to the manager. This method assumes the name corresponds to a .png image in ZFilePaths.IMAGES
+	 * Add the image of the given name to the manager. This method assumes the name corresponds to a .png image in {@link ZFilePaths#IMAGES}
 	 * 
 	 * @param name The name of the image, also use this name to get the image
 	 */

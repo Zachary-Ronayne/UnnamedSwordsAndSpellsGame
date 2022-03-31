@@ -15,7 +15,7 @@ public class LevelRoom extends Room{
 	 * If this value is less than 1, it is set to 1
 	 */
 	private int level;
-
+	
 	/** An array used for displaying the level number in a boolean way */
 	private boolean[] levelDisp;
 	
@@ -49,7 +49,7 @@ public class LevelRoom extends Room{
 	/** @param See {@link #level} */
 	private void setLevel(int level){
 		this.level = Math.max(1, level);
-
+		
 		// Represent the level number as a boolean array
 		this.levelDisp = ZMathUtils.intToBoolArr(this.level);
 	}
@@ -59,7 +59,12 @@ public class LevelRoom extends Room{
 		// Draw a background
 		ZRenderUtils.checkerboard(r, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 10, this.checker1, this.checker2);
 		
-		// Draw a makeshift level counter using a boolean way
+		// Draw the actual level counter
+		r.setColor(.8, .8, .8);
+		r.setFontSize(32);
+		r.drawText(0, -2, Integer.toString(this.getLevel()));
+		
+		// Draw a level counter using a boolean way
 		for(int i = 0; i < this.levelDisp.length; i++){
 			r.setColor(new ZColor(0));
 			r.drawRectangle(10 + 12 * i, 150, 10, 20);

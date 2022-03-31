@@ -6,6 +6,8 @@ import zgame.core.graphics.GameImage;
 import zgame.core.graphics.ImageManager;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.GameCamera;
+import zgame.core.graphics.font.FontManager;
+import zgame.core.graphics.font.GameFont;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.sound.EffectsPlayer;
@@ -42,6 +44,9 @@ public class Game{
 	/** The {@link ImageManager} used by this {@link Game} to load images for ease of use in rendering */
 	private ImageManager images;
 	
+	/** The {@link FontManager} used by this {@link Game} to load fonts for rendering text */
+	private FontManager fonts;
+	
 	/** The looper to run the main OpenGL loop */
 	private GameLooper renderLooper;
 	
@@ -54,7 +59,7 @@ public class Game{
 	private GameState nextCurrentState;
 	/** The {@link PlayState} of this game, should not be null */
 	private PlayState playState;
-
+	
 	/** The {@link GameLooper} which runs the regular time intervals */
 	private GameLooper tickLooper;
 	/** The {@link Thread} which runs the game tick loop. This is a separate thread from the main thread, which the OpenGL loop will run on */
@@ -175,6 +180,11 @@ public class Game{
 		
 		// Init images
 		this.images = new ImageManager();
+		
+		// Init fonts and set the default font
+		this.fonts = new FontManager();
+		this.fonts.addFont("zfont");
+		this.getWindow().getRenderer().setFont(this.getFont("zfont"));
 		
 		// Init camera
 		this.camera = new GameCamera();
@@ -600,6 +610,15 @@ public class Game{
 		return this.getImages().getImage(name);
 	}
 	
+	/** @return See {@link #fonts} */
+	public FontManager getFonts(){
+		return this.fonts;
+	}
+	
+	public GameFont getFont(String font){
+		return this.getFonts().getFont(font);
+	}
+	
 	/**
 	 * @return The maximum number of frames to render per second. Use 0 for unlimited framerate. This value does nothing if vsync is turned on
 	 */
@@ -715,10 +734,7 @@ public class Game{
 	 * @param y The center of the camera y coordinate in game coordinates
 	 */
 	public void centerCamera(double x, double y){
-		this.camera.setPos(
-			this.getScreenWidth() * 0.5 - this.camera.sizeGameToScreenX(x),
-			this.getScreenHeight() * 0.5 - this.camera.sizeGameToScreenY(y)
-		);
+		this.camera.setPos(this.getScreenWidth() * 0.5 - this.camera.sizeGameToScreenX(x), this.getScreenHeight() * 0.5 - this.camera.sizeGameToScreenY(y));
 	}
 	
 	/** @return See {@link #currentState} */
@@ -749,22 +765,22 @@ public class Game{
 	public void enterPlayState(){
 		this.setCurrentState(this.getPlayState());
 	}
-
+	
 	/** @param playState See {@link #playState} */
 	public void setPlayState(PlayState playState){
 		this.playState = playState;
 	}
-
+	
 	/** @return See {@link #playState} */
 	public PlayState getPlayState(){
 		return this.playState;
 	}
-
+	
 	/** @return The {@link Room} that the current {@link #playState} is using */
 	public Room getCurrentRoom(){
 		return this.getPlayState().getCurrentRoom();
 	}
-
+	
 	/**
 	 * Zoom in the screen with {@link #camera} on just the x axis
 	 * The zoom will reposition the camera so that the given coordinates are zoomed towards

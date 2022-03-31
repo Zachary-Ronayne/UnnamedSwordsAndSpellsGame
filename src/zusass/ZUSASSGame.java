@@ -24,23 +24,26 @@ public class ZUSASSGame extends Game{
 		super();
 		// Window and performance settings
 		this.setTps(100);
-		this.setCurrentState(new MainMenuState());
+		this.setCurrentState(new MainMenuState(this));
 		GameWindow w = this.getWindow();
 		w.setUseVsync(true);
 		w.center();
-
+		
+		// Loading assets
+		this.getFonts().addAllFonts();
+		
 		// Play state
 		this.setPlayState(new MainPlay());
 	}
-
+	
 	/** The only instance of {@link ZUSASSGame} which can exist */
 	private static ZUSASSGame game = null;
-
+	
 	public static void main(String[] args){
 		init();
 		game.start();
 	}
-
+	
 	@Override
 	protected void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(button, press, shift, alt, ctrl);
