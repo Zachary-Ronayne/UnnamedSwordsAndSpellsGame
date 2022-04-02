@@ -3,8 +3,6 @@ package zgame.core.graphics.camera;
 import zgame.core.graphics.Renderer;
 import zgame.core.window.GameWindow;
 
-import static org.lwjgl.opengl.GL30.*;
-
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -52,16 +50,17 @@ public class GameCamera{
 		// Find the distance the camera must travel, in OpenGL coordinates
 		double x = window.sizeScreenToGlX(this.getX().getPos());
 		double y = -window.sizeScreenToGlY(this.getY().getPos());
+		Renderer r = window.getRenderer();
 
 		// OpenGL transformations occur in reverse order
 		// Lastly, translate the camera to its actual position
-		glTranslated(x, y, 0);
+		r.translate(x, y);
 		// Third, adjust the camera back so that the upper left hand corner is in the correct position
-		glTranslated(-1, 1, 0);
+		r.translate(-1, 1);
 		// Second, scale to the appropriate size, based on the axis zoom levels
-		glScaled(this.getX().getZoomScale(), this.getY().getZoomScale(), 1);
+		r.scale(this.getX().getZoomScale(), this.getY().getZoomScale());
 		// First, adjust the camera so that the upper left hand corner, i.e. game coordinates (0, 0) is the center to use for scaling
-		glTranslated(1, -1, 0);
+		r.translate(1, -1);
 	}
 	
 	/**

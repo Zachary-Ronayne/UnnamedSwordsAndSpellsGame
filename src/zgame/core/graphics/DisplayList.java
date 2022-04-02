@@ -5,6 +5,8 @@ import static org.lwjgl.opengl.GL30.*;
 /**
  * A class that handles a single OpenGL display list, and also contains basic static display lists to use
  * Must call {@link #initLists()} before using any other static methods in this class
+ * 
+ * @Deprecated This uses outdated OpenGL methods
  */
 public abstract class DisplayList{
 	

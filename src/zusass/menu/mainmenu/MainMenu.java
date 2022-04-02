@@ -21,11 +21,11 @@ public class MainMenu extends Menu{
 	@Override
 	public void renderBackground(Game game, Renderer r){
 		super.renderBackground(game, r);
-
+		
 		// Background color
 		r.setColor(0.2, 0.2, 0.2);
 		r.fill();
-
+		
 		// Title
 		r.setColor(new ZColor(.8));
 		r.setFont(game.getFont("zfont"));

@@ -49,7 +49,10 @@ public class Shader{
 			
 			// Read the entire file and put it into the code variable
 			StringBuilder sb = new StringBuilder("");
-			while(file.hasNextLine()) sb.append(file.nextLine());
+			while(file.hasNextLine()){
+				sb.append(file.nextLine());
+				sb.append("\n");
+			}
 			this.code = sb.toString();
 			if(ZConfig.printSuccess()) ZStringUtils.print("Successfully loaded shader at '", path, "'");
 		}catch(Exception e){

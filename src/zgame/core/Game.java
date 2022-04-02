@@ -330,14 +330,14 @@ public class Game{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
-			// Clear the internal renderer
+			// Clear the internal renderer and set it up to use the renderer's frame buffer to draw to
 			Renderer r = this.getWindow().getRenderer();
 			r.clear();
 			
-			// Render objects on the renderer
+			// Render objects using the renderer
 			
 			// Set up drawing to the buffer
-			glLoadIdentity();
+			r.identityMatrix();
 			glViewport(0, 0, this.getScreenWidth(), this.getScreenHeight());
 			
 			// Draw the background
@@ -345,14 +345,18 @@ public class Game{
 			this.renderBackground(r);
 			
 			// Draw the foreground, i.e. main objects
+			// Set the camera
 			boolean useCam = this.getCurrentState().isUseCamera();
-			glPushMatrix();
 			if(useCam) r.setCamera(this.getCamera());
 			else r.setCamera(null);
+			
+			// Draw the objects and move them based on the camera
+			r.identityMatrix();
 			r.drawToRenderer();
+			r.pushMatrix();
 			if(useCam) this.getCamera().transform(this.getWindow());
-			render(r);
-			glPopMatrix();
+			this.render(r);
+			r.popMatrix();
 			
 			// Draw the hud
 			r.setCamera(null);

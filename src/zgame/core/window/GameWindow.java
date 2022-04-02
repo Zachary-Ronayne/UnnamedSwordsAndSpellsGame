@@ -2,7 +2,6 @@ package zgame.core.window;
 
 import static org.lwjgl.opengl.GL30.*;
 
-import zgame.core.graphics.DisplayList;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
@@ -176,9 +175,6 @@ public abstract class GameWindow{
 		
 		// Set up texture settings for drawing with an alpha channel
 		initTextureSettings();
-		
-		// Set up display lists
-		DisplayList.initLists();
 	}
 	
 	/** Called during object initialization. Must establish window context with OpenGL before further initialization can occur */

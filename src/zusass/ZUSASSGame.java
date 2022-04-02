@@ -19,11 +19,14 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class ZUSASSGame extends Game{
 	
+	// TODO fix issues with unaligned camera and with full screen being empty
+
 	/** Create the only instance of ZUSASSGame from this class. This constructor will place the game in the main menu */
 	private ZUSASSGame(){
 		super();
 		// Window and performance settings
 		this.setTps(100);
+		this.setMaxFps(0);
 		this.setCurrentState(new MainMenuState(this));
 		GameWindow w = this.getWindow();
 		w.setUseVsync(true);
@@ -47,7 +50,9 @@ public class ZUSASSGame extends Game{
 	@Override
 	protected void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(button, press, shift, alt, ctrl);
-		if(button == GLFW_KEY_F11 && !press) game.getWindow().toggleFullscreen();
+		GameWindow w = game.getWindow();
+		if(button == GLFW_KEY_F11 && !press) w.toggleFullscreen();
+		else if(button == GLFW_KEY_F12 && !press) w.setUseVsync(!w.usesVsync());
 	}
 	
 	/** Initialize the object {@link #game} */
