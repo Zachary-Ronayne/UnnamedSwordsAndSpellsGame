@@ -74,9 +74,6 @@ public class Renderer{
 	/** A {@link VertexBuffer} which represents positional values that fill the entire OpenGL screen from (-1, -1) to (1, 1) */
 	private VertexBuffer fillScreenPosBuff;
 	
-	/** A {@link VertexBuffer} which represents the current color to draw in */
-	private VertexBuffer colorBuff;
-	
 	/** A {@link VertexArray} for drawing text */
 	private VertexArray textVertArr;
 	/** A {@link VertexBuffer} which represents positional values for a texture whose positional values will regularly change */
@@ -113,13 +110,10 @@ public class Renderer{
 		// The matrix is 4x4, so 16 floats
 		this.modelViewBuff = BufferUtils.createFloatBuffer(16);
 		this.modelViewStack = new Stack<Matrix4f>();
-		
+
 		// Font values
 		this.font = null;
 		this.fontSize = 32;
-		
-		// Vertex arrays and vertex buffers
-		this.initVertexes();
 		
 		// Text buffers
 		this.xTextBuff = BufferUtils.createFloatBuffer(1);
@@ -132,6 +126,12 @@ public class Renderer{
 		this.fontShader = new ShaderProgram("font");
 		this.framebufferShader = new ShaderProgram("framebuffer");
 		this.renderModeImage();
+		
+		// Vertex arrays and vertex buffers
+		this.initVertexes();
+
+		// Set the default color
+		this.setColor(new ZColor(0));
 		
 		// Init the model view matrix
 		this.identityMatrix();
@@ -152,19 +152,6 @@ public class Renderer{
 			1, 1,
 			// Up Left Corner
 			-1, 1});
-		// Generate a vertex buffer for the color of operations in general
-		// TODO make this only use a single array of 4, not 4 arrays of 4
-		this.colorBuff = new VertexBuffer(1, 4, GL_DYNAMIC_DRAW, new float[]{
-			//
-			0, 0, 0, 1,
-			//
-			0, 0, 0, 1,
-			//
-			0, 0, 0, 1,
-			//
-			0, 0, 0, 1});
-		// Set the default color
-		this.setColor(new ZColor(0));
 		
 		// Generate a vertex array for rendering images
 		this.imgVertArr = new VertexArray();
@@ -188,14 +175,11 @@ public class Renderer{
 		this.posBuff = new VertexBuffer(0, 2, GL_DYNAMIC_DRAW, 4);
 		// Generate a vertex buffer for texture coordinates that regularly change
 		this.changeTexCoordBuff = new VertexBuffer(2, 2, GL_DYNAMIC_DRAW, 4);
-		this.colorBuff.bind();
-		this.colorBuff.applyToVertexArray();
 	}
 	
 	/** Free all resources used by the vertex arrays and vertex buffers */
 	public void destroyVertexes(){
 		this.fillScreenPosBuff.destroy();
-		this.colorBuff.destroy();
 		this.texCoordBuff.destroy();
 		this.posBuff.destroy();
 		this.changeTexCoordBuff.destroy();
@@ -404,8 +388,11 @@ public class Renderer{
 	public boolean drawRectangle(double x, double y, double w, double h){
 		if(!this.shouldDraw(x, y, w, h)) return false;
 		
+		// Use the shape shader and the rectangle vertex array
 		this.renderModeShapes();
 		this.rectVertArr.bind();
+		// Update the current color for this draw operation
+		this.updateColor();
 		
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
@@ -485,6 +472,8 @@ public class Renderer{
 		this.renderModeFont();
 		// Use the font vertex array
 		this.textVertArr.bind();
+		// Update the current color for this draw operation
+		this.updateColor();
 		
 		// TODO allow for new line characters to give line breaks
 		// TODO make line break sizes and character spacing parameters
@@ -593,27 +582,6 @@ public class Renderer{
 	/**
 	 * Set the color currently used to draw basic shapes
 	 * 
-	 * @param color the new color
-	 */
-	public void setColor(ZColor color){
-		this.color = color;
-		
-		float[] c = this.getColor().toFloat();
-		// TODO make this just use 1 vertex
-		this.colorBuff.updateData(new float[]{
-			//
-			c[0], c[1], c[2], c[3],
-			//
-			c[0], c[1], c[2], c[3],
-			//
-			c[0], c[1], c[2], c[3],
-			//
-			c[0], c[1], c[2], c[3]});
-	}
-	
-	/**
-	 * Set the color currently used to draw basic shapes
-	 * 
 	 * @param r The red amount, should be in the range [0-1]
 	 * @param g The green amount, should be in the range [0-1]
 	 * @param b The blue amount, should be in the range [0-1]
@@ -621,6 +589,23 @@ public class Renderer{
 	 */
 	public void setColor(double r, double g, double b, double a){
 		this.setColor(new ZColor(r, g, b, a));
+	}
+	
+	/**
+	 * Set the color currently used to draw basic shapes
+	 * 
+	 * @param color the new color
+	 */
+	public void setColor(ZColor color){
+		this.color = color;
+		this.updateColor();
+	}
+	
+	/** Update the uniform variable used to track the color, with the current value */
+	public void updateColor(){
+		float[] c = this.getColor().toFloat();
+		int loc = glGetUniformLocation(this.loadedShader.getId(), "mainColor");
+		glUniform4fv(loc, c);
 	}
 	
 	/** @return See {@link #font} */
