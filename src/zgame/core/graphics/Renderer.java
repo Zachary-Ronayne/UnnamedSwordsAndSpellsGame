@@ -143,7 +143,7 @@ public class Renderer{
 		// Generate a vertex array for drawing solid colored rectangles
 		this.rectVertArr = new VertexArray();
 		// Generate a vertex buffer for drawing rectangles that fill the entire screen and can be scaled
-		this.fillScreenPosBuff = new VertexBuffer(0, 2, new float[]{
+		this.fillScreenPosBuff = new VertexBuffer(0, 2, GL_STATIC_DRAW, new float[]{
 			// Low Left Corner
 			-1, -1,
 			// Low Right Corner
@@ -154,7 +154,7 @@ public class Renderer{
 			-1, 1});
 		// Generate a vertex buffer for the color of operations in general
 		// TODO make this only use a single array of 4, not 4 arrays of 4
-		this.colorBuff = new VertexBuffer(1, 4, new float[]{
+		this.colorBuff = new VertexBuffer(1, 4, GL_DYNAMIC_DRAW, new float[]{
 			//
 			0, 0, 0, 1,
 			//
@@ -169,7 +169,7 @@ public class Renderer{
 		// Generate a vertex array for rendering images
 		this.imgVertArr = new VertexArray();
 		// Generate a vertex buffer for texture coordinates for rendering images
-		this.texCoordBuff = new VertexBuffer(2, 2, new float[]{
+		this.texCoordBuff = new VertexBuffer(2, 2, GL_STATIC_DRAW, new float[]{
 			// Low Left Corner
 			0, 0,
 			// Low Right Corner
@@ -185,8 +185,9 @@ public class Renderer{
 		// Generate a vertex array for rendering text
 		this.textVertArr = new VertexArray();
 		// Generate a vertex buffer for positional coordinates that regularly change
-		this.posBuff = new VertexBuffer(0, 2, 4);
-		this.changeTexCoordBuff = new VertexBuffer(2, 2, 4);
+		this.posBuff = new VertexBuffer(0, 2, GL_DYNAMIC_DRAW, 4);
+		// Generate a vertex buffer for texture coordinates that regularly change
+		this.changeTexCoordBuff = new VertexBuffer(2, 2, GL_DYNAMIC_DRAW, 4);
 		this.colorBuff.bind();
 		this.colorBuff.applyToVertexArray();
 	}
