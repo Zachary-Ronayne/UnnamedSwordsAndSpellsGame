@@ -118,6 +118,28 @@ public class Renderer{
 		this.font = null;
 		this.fontSize = 32;
 		
+		// Vertex arrays and vertex buffers
+		this.initVertexes();
+		
+		// Text buffers
+		this.xTextBuff = BufferUtils.createFloatBuffer(1);
+		this.yTextBuff = BufferUtils.createFloatBuffer(1);
+		this.textQuad = STBTTAlignedQuad.create();
+		
+		// Load shaders
+		this.shapeShader = new ShaderProgram("default");
+		this.textureShader = new ShaderProgram("texture");
+		this.fontShader = new ShaderProgram("font");
+		this.framebufferShader = new ShaderProgram("framebuffer");
+		this.renderModeImage();
+		
+		// Init the model view matrix
+		this.identityMatrix();
+		this.updateMatrix();
+	}
+	
+	/** Initialize all resources used by the vertex arrays and vertex buffers */
+	public void initVertexes(){
 		// Generate a vertex array for drawing solid colored rectangles
 		this.rectVertArr = new VertexArray();
 		// Generate a vertex buffer for drawing rectangles that fill the entire screen and can be scaled
@@ -167,30 +189,10 @@ public class Renderer{
 		this.changeTexCoordBuff = new VertexBuffer(2, 2, 4);
 		this.colorBuff.bind();
 		this.colorBuff.applyToVertexArray();
-		
-		// Text buffers
-		this.xTextBuff = BufferUtils.createFloatBuffer(1);
-		this.yTextBuff = BufferUtils.createFloatBuffer(1);
-		this.textQuad = STBTTAlignedQuad.create();
-		
-		// Load shaders
-		this.shapeShader = new ShaderProgram("default");
-		this.textureShader = new ShaderProgram("texture");
-		this.fontShader = new ShaderProgram("font");
-		this.framebufferShader = new ShaderProgram("framebuffer");
-		this.renderModeImage();
-		
-		// Init the model view matrix
-		this.identityMatrix();
-		this.updateMatrix();
 	}
 	
-	/** Delete any resources used by this Renderer */
-	public void destroy(){
-		this.screen.destroy();
-		glBindVertexArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		
+	/** Free all resources used by the vertex arrays and vertex buffers */
+	public void destroyVertexes(){
 		this.fillScreenPosBuff.destroy();
 		this.colorBuff.destroy();
 		this.texCoordBuff.destroy();
@@ -200,6 +202,14 @@ public class Renderer{
 		this.rectVertArr.delete();
 		this.imgVertArr.delete();
 		this.textVertArr.delete();
+	}
+	
+	/** Delete any resources used by this Renderer */
+	public void destroy(){
+		this.screen.destroy();
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		this.destroyVertexes();
 	}
 	
 	/**
@@ -385,7 +395,7 @@ public class Renderer{
 		// Bind the vertex array for drawing an image that fills the entire OpenGL space
 		this.imgVertArr.bind();
 		
-		// Position the image and the frame buffer
+		// Position the image and the frame buffer to draw to the window
 		glViewport(window.viewportX(), window.viewportY(), window.viewportW(), window.viewportH());
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		
@@ -393,9 +403,7 @@ public class Renderer{
 		glBindTexture(GL_TEXTURE_2D, this.screen.getTextureID());
 		
 		// Draw the image
-		this.pushMatrix();
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-		this.popMatrix();
 	}
 	
 	/**
@@ -483,7 +491,6 @@ public class Renderer{
 		
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
-		// DisplayList.texRect();
 		
 		// TODO is triangle fan the correct thing to use here?
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -518,8 +525,6 @@ public class Renderer{
 		
 		// TODO allow for new line characters to give line breaks
 		// TODO make line break sizes and character spacing parameters
-		
-		// TODO make a new shader for text that sends the current color to the shader
 		
 		// Use the font's bitmap
 		glBindTexture(GL_TEXTURE_2D, f.getBitmapID());

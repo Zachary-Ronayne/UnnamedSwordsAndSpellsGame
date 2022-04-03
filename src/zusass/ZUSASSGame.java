@@ -19,8 +19,8 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class ZUSASSGame extends Game{
 	
-	// TODO fix issues with unaligned camera and with full screen being empty
-
+	// TODO fix issues with unaligned camera
+	
 	/** Create the only instance of ZUSASSGame from this class. This constructor will place the game in the main menu */
 	private ZUSASSGame(){
 		super();

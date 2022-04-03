@@ -334,13 +334,14 @@ public class Game{
 			Renderer r = this.getWindow().getRenderer();
 			r.clear();
 			
-			// Render objects using the renderer
-			
-			// Set up drawing to the buffer
-			r.identityMatrix();
+			// Set up drawing the buffer to the screen
 			glViewport(0, 0, this.getScreenWidth(), this.getScreenHeight());
 			
+			// Render objects using the renderer's frame buffer
+			r.drawToRenderer();
+
 			// Draw the background
+			r.identityMatrix();
 			r.setCamera(null);
 			this.renderBackground(r);
 			
@@ -349,10 +350,8 @@ public class Game{
 			boolean useCam = this.getCurrentState().isUseCamera();
 			if(useCam) r.setCamera(this.getCamera());
 			else r.setCamera(null);
-			
-			// Draw the objects and move them based on the camera
+			// Move based on the camera, if applicable, and draw the objects
 			r.identityMatrix();
-			r.drawToRenderer();
 			r.pushMatrix();
 			if(useCam) this.getCamera().transform(this.getWindow());
 			this.render(r);
@@ -362,7 +361,7 @@ public class Game{
 			r.setCamera(null);
 			this.renderHud(r);
 			
-			// Draw the renderer to the window
+			// Draw the renderer's frame buffer to the window
 			r.drawToWindow(this.getWindow());
 		}
 		// Update the window

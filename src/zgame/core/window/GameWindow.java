@@ -352,6 +352,10 @@ public abstract class GameWindow{
 			// Put the window back where it was before going to full screen
 			this.setWindowPosition(this.oldPosition.x, this.oldPosition.y);
 		}
+		// Reset the renderer vertex objects
+		this.getRenderer().destroyVertexes();
+		this.getRenderer().initVertexes();
+		
 		// Ensure the current window has the callbacks
 		this.initCallBacks();
 		
