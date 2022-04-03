@@ -258,13 +258,11 @@ public class Renderer{
 	
 	/** Set the modelView matrix to the identity matrix */
 	public void identityMatrix(){
-		// TODO do this without making a new object? Maybe just have a separate identity matrix object that never changes
 		this.setMatrix(new Matrix4f());
 	}
 	
 	/** Push the current state of the transformation matrix onto the matrix stack, i.e. save the current state of the transformations */
 	public void pushMatrix(){
-		// TODO does copying cause performance issues?
 		this.modelViewStack.push(new Matrix4f(this.modelView()));
 	}
 	
@@ -300,48 +298,6 @@ public class Renderer{
 	public void scale(double x, double y){
 		this.modelView().scale((float)x, (float)y, 1);
 		this.updateMatrix();
-	}
-	
-	/**
-	 * Rotate the transformation matrix by the given amount
-	 * 
-	 * @param angle The angle, in radians, to rotate
-	 * @param x The x coordinate to base the rotation
-	 * @param y The y coordinate to base the rotation
-	 */
-	public void rotate(double angle, double x, double y){
-		// TODO make rotations work correctly, read the docs
-		this.modelView().rotate((float)angle, (float)x, (float)y, 0);
-		this.updateMatrix();
-	}
-	
-	/**
-	 * Rotate the transformation matrix by the given amount, centered on (0, 0)
-	 * 
-	 * @param angle The angle, in radians, to rotate
-	 */
-	public void rotate(double angle){
-		this.rotate(angle, 0, 0);
-	}
-	
-	/**
-	 * Rotate the transformation matrix by the given amount
-	 * 
-	 * @param angle The angle, in degrees, to rotate
-	 * @param x The x coordinate to base the rotation
-	 * @param y The y coordinate to base the rotation
-	 */
-	public void rotateDeg(double angle, double x, double y){
-		this.rotate(angle / Math.PI * 180, x, y);
-	}
-	
-	/**
-	 * Rotate the transformation matrix by the given amount, centered on (0, 0)
-	 * 
-	 * @param angle The angle, in degrees, to rotate
-	 */
-	public void rotateDeg(double angle){
-		this.rotateDeg(angle, 0, 0);
 	}
 	
 	/** Call this method before rendering normal shapes, i.e. solid rectangles */
