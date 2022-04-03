@@ -1,6 +1,8 @@
 package zusass.game;
 
 import zgame.core.Game;
+import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
 import zgame.core.state.PlayState;
 import zusass.menu.mainmenu.MainMenuState;
 
@@ -23,4 +25,14 @@ public class MainPlay extends PlayState{
 		if(button == GLFW_KEY_ESCAPE) game.setCurrentState(new MainMenuState(game));
 	}
 
+	@Override
+	public void renderBackground(Game game, Renderer r){
+		// Draw a solid color for the background
+		r.setColor(new ZColor(.05));
+		r.drawRectangle(0, 0, game.getScreenWidth(), game.getScreenHeight());
+
+		// Draw the rest of the background
+		super.renderBackground(game, r);
+	}
+	
 }

@@ -338,11 +338,11 @@ public class Game{
 			glViewport(0, 0, this.getScreenWidth(), this.getScreenHeight());
 			
 			// Render objects using the renderer's frame buffer
-			r.drawToRenderer();
-
+			r.initToDraw();
+			
 			// Draw the background
-			r.identityMatrix();
 			r.setCamera(null);
+			r.identityMatrix();
 			this.renderBackground(r);
 			
 			// Draw the foreground, i.e. main objects
@@ -352,13 +352,12 @@ public class Game{
 			else r.setCamera(null);
 			// Move based on the camera, if applicable, and draw the objects
 			r.identityMatrix();
-			r.pushMatrix();
 			if(useCam) this.getCamera().transform(this.getWindow());
 			this.render(r);
-			r.popMatrix();
 			
 			// Draw the hud
 			r.setCamera(null);
+			r.identityMatrix();
 			this.renderHud(r);
 			
 			// Draw the renderer's frame buffer to the window

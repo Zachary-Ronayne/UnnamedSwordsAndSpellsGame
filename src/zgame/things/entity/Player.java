@@ -12,7 +12,7 @@ public class Player extends MobRectangle{
 	
 	/** true to lock the camera to the center of the player, false otherwise */
 	private boolean lockCamera;
-
+	
 	/**
 	 * Create a new {@link Player} of the given size
 	 * 
@@ -50,17 +50,17 @@ public class Player extends MobRectangle{
 		r.setColor(1, 0, 0);
 		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
-
+	
 	/** @return See {@link #lockCamera} */
 	public boolean isLockCamera(){
 		return this.lockCamera;
 	}
-
+	
 	/** @param lockCamera See {@link #lockCamera} */
 	public void setLockCamera(boolean lockCamera){
 		this.lockCamera = lockCamera;
 	}
-
+	
 	@Override
 	public void enterRoom(Room from, Room to, Game game){
 		super.enterRoom(from, to, game);

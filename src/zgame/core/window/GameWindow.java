@@ -387,6 +387,17 @@ public abstract class GameWindow{
 	 */
 	protected abstract boolean exitFullScreen();
 	
+	/**
+	 * Modify the size of this the screen of {@link #renderer}. This is a costly operation and should not regularly be run
+	 * 
+	 * @param width The width, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
+	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
+	 */
+	public void resizeScreen(int width, int height){
+		this.renderer.resize(width, height);
+		this.updateWindowSize();
+	}
+
 	/** Ensure the current stored width and height of the window match the current window size */
 	public void updateWindowSize(){
 		Dimension s = this.getWindowSize();

@@ -344,25 +344,25 @@ public class Renderer{
 	}
 	
 	/** Call this method before rendering normal shapes, i.e. solid rectangles */
-	private void renderModeShapes(){
+	public void renderModeShapes(){
 		this.setLoadedShader(this.shapeShader);
 	}
 	
 	/** Call this method before rendering images, i.e. textures */
-	private void renderModeImage(){
+	public void renderModeImage(){
 		this.setLoadedShader(this.textureShader);
 	}
 	
 	/** Call this method before rendering font, i.e text */
-	private void renderModeFont(){
+	public void renderModeFont(){
 		this.setLoadedShader(this.fontShader);
 	}
 	
 	/** Call this method before rendering a frame buffer in place of a texture */
-	private void renderModeBuffer(){
+	public void renderModeBuffer(){
 		this.setLoadedShader(this.framebufferShader);
 	}
-	
+
 	/**
 	 * Set the currently used shader
 	 * 
@@ -376,10 +376,16 @@ public class Renderer{
 	}
 	
 	/**
-	 * Make all rendering operations draw to this Renderer
+	 * Make all rendering operations draw to this Renderer and set up this {@link Renderer} to be ready for drawing
 	 */
-	public void drawToRenderer(){
+	public void initToDraw(){
+		// Bind the screen as the frame buffer
 		this.screen.drawToBuffer();
+		// Load the identity matrix before setting a default shader
+		this.identityMatrix();
+		// Bind a default shader
+		this.loadedShader = null;
+		this.setLoadedShader(this.shapeShader);
 	}
 	
 	/**
@@ -520,7 +526,7 @@ public class Renderer{
 		
 		// Use the font shaders
 		this.renderModeFont();
-		// TODO make a vertex array for
+		// Use the font vertex array
 		this.textVertArr.bind();
 		
 		// TODO allow for new line characters to give line breaks

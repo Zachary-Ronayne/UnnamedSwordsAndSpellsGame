@@ -150,7 +150,7 @@ public class MainTest extends Game{
 		engineState = new GameEngineState();
 		testerGame.setPlayState(engineState);
 		menuState = new TesterMenuState();
-		testerGame.setCurrentState(testerState);
+		testerGame.enterPlayState();
 		window = testerGame.getWindow();
 		window.center();
 		
