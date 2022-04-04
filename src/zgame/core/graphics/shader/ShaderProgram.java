@@ -1,4 +1,4 @@
-package zgame.core.graphics;
+package zgame.core.graphics.shader;
 
 import static org.lwjgl.opengl.GL30.*;
 

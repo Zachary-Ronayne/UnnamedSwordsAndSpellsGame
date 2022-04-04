@@ -155,7 +155,7 @@ public class MainTest extends Game{
 		window.center();
 		
 		// Add images
-		testerGame.getImages().addAllImages();
+		testerGame.getImages().addAll();
 		
 		// Add sounds
 		SoundManager sm = testerGame.getSounds();

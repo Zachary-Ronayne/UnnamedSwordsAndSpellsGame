@@ -10,19 +10,17 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTBakedChar;
 import static org.lwjgl.stb.STBTruetype.*;
 
-import zgame.core.graphics.GameImage;
+import zgame.core.asset.Asset;
+import zgame.core.graphics.image.GameImage;
 import zgame.core.utils.ZAssetUtils;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZFilePaths;
 import zgame.core.utils.ZStringUtils;
 
 /** An object that represents a font to be used for rendering */
-public class GameFont{
+public class GameFont extends Asset{
 	
 	// TODO add methods for finding the bounding box, like the total width, height, etc.
-	
-	/** The path to the file which this font was loaded from */
-	private String path;
 	
 	/** The ID of the bitmap of the image holding the font */
 	private int bitmapID;
@@ -87,7 +85,7 @@ public class GameFont{
 	 *        Increase this value if more characters from the bitmap need to be loaded
 	 */
 	public GameFont(String path, int resolution, int loadChars, int sizeRatio){
-		this.path = path;
+		super(path);
 		this.firstChar = 32;
 		this.resolution = resolution;
 		this.resolutionInverse = 1.0 / this.resolution;
@@ -99,8 +97,10 @@ public class GameFont{
 	
 	/** Initialize this {@link GameFont} based on the current path of the image */
 	private void init(){
+		String path = this.getPath();
+
 		// Load the font from the jar
-		ByteBuffer data = ZAssetUtils.getJarBytes(this.getPath());
+		ByteBuffer data = ZAssetUtils.getJarBytes(path);
 		
 		// Check for errors
 		int numFonts = stbtt_GetNumberOfFonts(data);
@@ -131,10 +131,9 @@ public class GameFont{
 		// Unbind the texture
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-	
-	/** @return See {@link #path} */
-	public String getPath(){
-		return this.path;
+
+	@Override
+	public void destroy(){
 	}
 	
 	/** @return See {@link #bitmapID} */

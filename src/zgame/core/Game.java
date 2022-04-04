@@ -2,12 +2,12 @@ package zgame.core;
 
 import static org.lwjgl.opengl.GL30.*;
 
-import zgame.core.graphics.GameImage;
-import zgame.core.graphics.ImageManager;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.font.GameFont;
+import zgame.core.graphics.image.GameImage;
+import zgame.core.graphics.image.ImageManager;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.sound.EffectsPlayer;
@@ -183,7 +183,7 @@ public class Game{
 		
 		// Init fonts and set the default font
 		this.fonts = new FontManager();
-		this.fonts.addFont("zfont");
+		this.fonts.add("zfont");
 		this.getWindow().getRenderer().setFont(this.getFont("zfont"));
 		
 		// Init camera
@@ -257,10 +257,10 @@ public class Game{
 		this.getWindow().end();
 		
 		// Free sounds
-		this.sounds.end();
+		this.sounds.destroy();
 		
 		// Free images
-		this.images.end();
+		this.images.destroy();
 	}
 	
 	/**
@@ -609,7 +609,7 @@ public class Game{
 	
 	/** @return The image from {@link #images} with the given name */
 	public GameImage getImage(String name){
-		return this.getImages().getImage(name);
+		return this.getImages().get(name);
 	}
 	
 	/** @return See {@link #fonts} */
@@ -618,7 +618,7 @@ public class Game{
 	}
 	
 	public GameFont getFont(String font){
-		return this.getFonts().getFont(font);
+		return this.getFonts().get(font);
 	}
 	
 	/**

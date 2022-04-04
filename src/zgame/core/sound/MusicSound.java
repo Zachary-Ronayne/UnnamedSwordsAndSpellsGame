@@ -61,9 +61,9 @@ public class MusicSound extends Sound{
 	}
 	
 	@Override
-	public void end(){
+	public void destroy(){
 		this.pointer.free();
-		super.end();
+		super.destroy();
 	}
 	
 	/**
@@ -136,7 +136,7 @@ public class MusicSound extends Sound{
 	 * @return The loaded sound
 	 */
 	public static MusicSound loadMusic(String name){
-		MusicSound s = new MusicSound(ZStringUtils.concat(ZFilePaths.MUSIC, name, ".ogg"));
+		MusicSound s = new MusicSound(ZStringUtils.concat(ZFilePaths.MUSIC, name));
 		s.load();
 		return s;
 	}

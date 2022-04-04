@@ -13,6 +13,8 @@ import zgame.core.graphics.buffer.VertexArray;
 import zgame.core.graphics.buffer.VertexBuffer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.GameFont;
+import zgame.core.graphics.image.GameImage;
+import zgame.core.graphics.shader.ShaderProgram;
 import zgame.core.window.GameWindow;
 
 import java.awt.geom.Rectangle2D;

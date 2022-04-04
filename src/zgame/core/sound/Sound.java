@@ -8,15 +8,14 @@ import org.lwjgl.PointerBuffer;
 import static org.lwjgl.openal.AL11.*;
 import static org.lwjgl.stb.STBVorbis.*;
 
+import zgame.core.asset.Asset;
 import zgame.core.utils.ZAssetUtils;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
 
 /** A class that represents much of the data needed to keep track of OpenAL sounds, but does not handle tracking an ID */
-public abstract class Sound{
+public abstract class Sound extends Asset{
 	
-	/** The file path to the location of where this sound was loaded */
-	private String path;
 	/** true if this {@link Sound} is in mono, i.e. one channel, or stereo, i.e. two channels */
 	private boolean mono;
 	/** The sample rate of this audio file, i.e. number of samples per second */
@@ -30,7 +29,7 @@ public abstract class Sound{
 	 * @param path The path to load data from
 	 */
 	public Sound(String path){
-		this.path = path;
+		super(path);
 	}
 	
 	/**
@@ -91,17 +90,12 @@ public abstract class Sound{
 	}
 	
 	/** Free any resources used by this {@link Sound} After calling this method, this sound cannot be played */
-	public void end(){
+	public void destroy(){
 		for(int i : this.getIds()) alDeleteBuffers(i);
 	}
 	
 	/** @return The ids used by this {@link Sound} for buffering */
 	public abstract int[] getIds();
-	
-	/** @return See {@link #path} */
-	public String getPath(){
-		return this.path;
-	}
 	
 	/** @return See {@link #mono} */
 	public boolean isMono(){

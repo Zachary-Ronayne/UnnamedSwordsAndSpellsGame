@@ -31,7 +31,7 @@ public class ZUSASSGame extends Game{
 		w.center();
 		
 		// Loading assets
-		this.getFonts().addAllFonts();
+		this.getFonts().addAll();
 		
 		// Play state
 		this.setPlayState(new MainPlay());
