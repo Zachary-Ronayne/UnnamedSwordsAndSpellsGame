@@ -8,10 +8,11 @@ import org.lwjgl.stb.STBTTAlignedQuad;
 
 import static org.lwjgl.stb.STBTruetype.*;
 
+import zgame.core.graphics.buffer.IndexBuffer;
+import zgame.core.graphics.buffer.VertexArray;
+import zgame.core.graphics.buffer.VertexBuffer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.GameFont;
-import zgame.core.graphics.vertex.VertexArray;
-import zgame.core.graphics.vertex.VertexBuffer;
 import zgame.core.window.GameWindow;
 
 import java.awt.geom.Rectangle2D;
@@ -73,6 +74,8 @@ public class Renderer{
 	private VertexArray rectVertArr;
 	/** A {@link VertexBuffer} which represents positional values that fill the entire OpenGL screen from (-1, -1) to (1, 1) */
 	private VertexBuffer fillScreenPosBuff;
+	/** The index buffer that tracks the indexes for drawing a rectangle */
+	private IndexBuffer rectIndexBuff;
 	
 	/** A {@link VertexArray} for drawing text */
 	private VertexArray textVertArr;
@@ -140,6 +143,13 @@ public class Renderer{
 	
 	/** Initialize all resources used by the vertex arrays and vertex buffers */
 	public void initVertexes(){
+		// Generate an index buffer for drawing rectangles
+		this.rectIndexBuff = new IndexBuffer(new byte[]{
+			/////////
+			0, 1, 2,
+			/////////
+			0, 3, 2});
+
 		// Generate a vertex array for drawing solid colored rectangles
 		this.rectVertArr = new VertexArray();
 		// Generate a vertex buffer for drawing rectangles that fill the entire screen and can be scaled
@@ -350,7 +360,7 @@ public class Renderer{
 		glBindTexture(GL_TEXTURE_2D, this.screen.getTextureID());
 		
 		// Draw the image
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 	}
 	
 	/**
@@ -396,12 +406,9 @@ public class Renderer{
 		
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
-		// TODO is triangle fan the correct thing to use here?
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		glBindVertexArray(0);
 		this.popMatrix();
-		
-		// TODO glDrawElements for index buffer? Figure out what this is for
 		
 		return true;
 	}
@@ -441,9 +448,7 @@ public class Renderer{
 		
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
-		
-		// TODO is triangle fan the correct thing to use here?
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		glBindVertexArray(0);
 		
 		this.popMatrix();
@@ -526,7 +531,7 @@ public class Renderer{
 				this.textQuad.s0(), this.textQuad.t1()});
 			
 			// Draw the square
-			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+			glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		}
 		this.popMatrix();
 		
@@ -557,8 +562,7 @@ public class Renderer{
 		
 		this.pushMatrix();
 		this.identityMatrix();
-		// TODO is triangle fans what should be used here?
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		glBindVertexArray(0);
 		this.popMatrix();
 	}
@@ -605,7 +609,7 @@ public class Renderer{
 	public void updateColor(){
 		float[] c = this.getColor().toFloat();
 		int loc = glGetUniformLocation(this.loadedShader.getId(), "mainColor");
-		glUniform4fv(loc, c);
+		if(loc != -1) glUniform4fv(loc, c);
 	}
 	
 	/** @return See {@link #font} */

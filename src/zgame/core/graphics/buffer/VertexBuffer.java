@@ -1,4 +1,4 @@
-package zgame.core.graphics.vertex;
+package zgame.core.graphics.buffer;
 
 import java.nio.FloatBuffer;
 
