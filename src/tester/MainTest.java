@@ -583,11 +583,10 @@ public class MainTest extends Game{
 			super.render(game, r);
 			r.setFont(game.getFont("zfont"));
 			r.setColor(0, 0, 1);
-			r.setFontSize(50);
-			r.drawText(10, 90, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-			r.drawText(10, 180, "abcdefghijklmnopqrstuvwxyz");
-			r.drawText(10, 270, " 0123456789.,“”‘’\"'?!@_*#$%");
-			r.drawText(10, 360, "&()+-/:;<=>[/]^`{|}~");
+			r.setFontSize(30);
+			r.setFontLineSpace(-4);
+			r.setFontCharSpace(17);
+			r.drawText(10, 90, "ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n 0123456789.,“”‘’\"'?!@_*#$\n%&()+-/:;<=>[/]^`{|}~");
 		}
 	}
 	

@@ -98,6 +98,10 @@ public class Renderer{
 	private GameFont font;
 	/** The current size, in pixels, to render font. This size is effected by zooming with the camera */
 	private double fontSize;
+	/** The extra space added between lines of text on top of the font size, can be negative to reduce the space. This amount of space is based on the font size */
+	private double fontLineSpace;
+	/** The extra space added between individual characters of text, can be negative to reduce the space. This amount of space is based on the font size */
+	private double fontCharSpace;
 	
 	/**
 	 * Create a new empty renderer
@@ -119,6 +123,8 @@ public class Renderer{
 		// Font values
 		this.font = null;
 		this.fontSize = 32;
+		this.fontLineSpace = 0;
+		this.fontCharSpace = 0;
 		
 		// Text buffers
 		this.xTextBuff = BufferUtils.createFloatBuffer(1);
@@ -482,15 +488,14 @@ public class Renderer{
 		// Update the current color for this draw operation
 		this.updateColor();
 		
-		// TODO allow for new line characters to give line breaks
-		// TODO make line break sizes and character spacing parameters
-		
 		// Use the font's bitmap
 		glBindTexture(GL_TEXTURE_2D, f.getBitmapID());
 		
 		// Set up for text position and size
 		this.xTextBuff.put(0, 0.0f);
 		this.yTextBuff.put(0, 0.0f);
+		double lineY = 0;
+		boolean newLine = true;
 		
 		// TODO why is this like this?
 		// Double the total font size because fonts are weird, this times 2 is hacky
@@ -504,12 +509,23 @@ public class Renderer{
 		// Draw every character of the text
 		for(int i = 0; i < text.length(); i++){
 			char c = text.charAt(i);
+			// If the character is a new line, then advance the text to a new line
+			if(c == '\n'){
+				lineY += this.getFontSize() + this.getFontLineSpace();
+				this.xTextBuff.put(0, 0.0f);
+				this.yTextBuff.put(0, (float)lineY);
+				newLine = true;
+				continue;
+			}
+
 			int charIndex = c - f.getFirstChar();
 			// Ensure the character exists in the font, if it doesn't, render the zeroth character
 			if(c < 0 || c >= f.getLoadChars()) charIndex = 0;
 			
 			// Find the vertices and texture coordinates of the character to draw
 			this.textQuad = STBTTAlignedQuad.create();
+			if(!newLine && this.getFontCharSpace() != 0) this.xTextBuff.put(0, (float)(this.xTextBuff.get(0) + this.getFontCharSpace()));
+			newLine = false;
 			stbtt_GetBakedQuad(f.getCharData(), f.getWidth(), f.getHeight(), charIndex, this.xTextBuff, this.yTextBuff, this.textQuad, true);
 			
 			// Buffer the new data
@@ -632,6 +648,26 @@ public class Renderer{
 	/** @param font See {@link #fontSize} */
 	public void setFontSize(double fontSize){
 		this.fontSize = fontSize;
+	}
+	
+	/** @return See {@link #fontLineSpace} */
+	public double getFontLineSpace(){
+		return this.fontLineSpace;
+	}
+	
+	/** @param font fontLineSpace {@link #fontLineSpace} */
+	public void setFontLineSpace(double fontLineSpace){
+		this.fontLineSpace = fontLineSpace;
+	}
+	
+	/** @return See {@link #fontCharSpace} */
+	public double getFontCharSpace(){
+		return this.fontCharSpace;
+	}
+	
+	/** @param font fontCharSpace {@link #fontCharSpace} */
+	public void setFontCharSpace(double fontCharSpace){
+		this.fontCharSpace = fontCharSpace;
 	}
 	
 	/** @param camera See {@link #camera}. Can also use null to not use a camera for rendering */
