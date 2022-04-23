@@ -23,6 +23,8 @@ public abstract class MainMenuButton extends MenuButton{
 		this.setFontSize(50);
 		this.setBorderWidth(2);
 		this.setBorder(new ZColor(.6));
+		this.setTextX(10);
+		this.setTextY(80);
 	}
 	
 }

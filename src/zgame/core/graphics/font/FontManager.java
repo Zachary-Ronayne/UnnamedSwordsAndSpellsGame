@@ -4,7 +4,7 @@ import zgame.core.asset.AssetManager;
 import zgame.core.utils.ZFilePaths;
 
 /** A class that keeps track of individual fonts to be used */
-public class FontManager extends AssetManager<GameFont>{
+public class FontManager extends AssetManager<FontAsset>{
 	
 	/** Create a new empty {@link FontManager} */
 	public FontManager(){
@@ -12,7 +12,7 @@ public class FontManager extends AssetManager<GameFont>{
 	}
 
 	@Override
-	public GameFont create(String path){
-		return GameFont.create(path);
+	public FontAsset create(String path){
+		return FontAsset.create(path);
 	}
 }

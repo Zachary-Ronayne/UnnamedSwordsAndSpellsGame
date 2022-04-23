@@ -1,189 +1,200 @@
 package zgame.core.graphics.font;
 
-import static org.lwjgl.opengl.GL30.*;
-
-import static org.lwjgl.stb.STBImage.*;
-
-import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.stb.STBTTBakedChar;
+import org.lwjgl.stb.STBTTAlignedQuad;
+
 import static org.lwjgl.stb.STBTruetype.*;
+import java.awt.geom.Rectangle2D;
 
-import zgame.core.asset.Asset;
-import zgame.core.graphics.image.GameImage;
-import zgame.core.utils.ZAssetUtils;
-import zgame.core.utils.ZConfig;
-import zgame.core.utils.ZFilePaths;
-import zgame.core.utils.ZStringUtils;
-
-/** An object that represents a font to be used for rendering */
-public class GameFont extends Asset{
+/** An object which represents a font to be used for rendering, i.e. a {@link FontAsset} and information like font size */
+public class GameFont{
 	
-	// TODO add methods for finding the bounding box, like the total width, height, etc.
+	/** The font itself to use for rendering */
+	private FontAsset asset;
 	
-	/** The ID of the bitmap of the image holding the font */
-	private int bitmapID;
-	
-	/** The data used by stb_truetype to represent a font */
-	private STBTTBakedChar.Buffer charData;
-	
-	/** The width, in pixels, of the bitmap of this {@link GameFont} */
-	private int width;
-	/** The height, in pixels, of the bitmap of this {@link GameFont} */
-	private int height;
-	
-	/** The first_char value used by stb_truetype for rendering fonts */
-	private int firstChar;
-	
-	/** The resolution of the font, i.e. the number of pixels tall the font has to work with. Higher resolutions look better at larger font sizes, but take up more memory */
-	private int resolution;
-	
-	/** The inverse of {@link #resolution} */
-	private double resolutionInverse;
-	
-	/** The number of characters to load from the font */
-	private int loadChars;
+	/** The current size, in pixels, to render font. This size is effected by zooming with the camera */
+	private double size;
+	/** The extra space added between lines of text on top of the font size, can be negative to reduce the space. This amount of space is based on the font size */
+	private double lineSpace;
+	/** The extra space added between individual characters of text, can be negative to reduce the space. This amount of space is based on the font size */
+	private double charSpace;
 	
 	/**
-	 * Load a font from the given file path
+	 * Create a new font object with default values. After the font is created, the values of this object cannot be modified
 	 * 
-	 * @param path See {@link #path}
+	 * @param asset See {@link #asset}
 	 */
-	public GameFont(String path){
-		this(path, 32);
+	public GameFont(FontAsset asset){
+		this(asset, 32, 0, 0);
 	}
 	
 	/**
-	 * Load a font from the given file path
+	 * Create a new font object. After the font is created, the values of this object cannot be modified
 	 * 
-	 * @param path See {@link #path}
-	 * @param resolution See {@link #resolution}
+	 * @param asset See {@link #asset}
+	 * @param size See {@link #size}
+	 * @param lineSpace See {@link #lineSpace}
+	 * @param charSpace See {@link #charSpace}
 	 */
-	public GameFont(String path, int resolution){
-		this(path, resolution, 128);
+	public GameFont(FontAsset asset, double size, double lineSpace, double charSpace){
+		this.asset = asset;
+		this.size = size;
+		this.lineSpace = lineSpace;
+		this.charSpace = charSpace;
 	}
 	
 	/**
-	 * Load a font from the given file path
+	 * Get the bounds for where to draw a character using this {@link GameFont}
 	 * 
-	 * @param path See {@link #path}
-	 * @param resolution See {@link #resolution}
-	 * @param loadChars See {@link #loadChars}
+	 * @param c The character to get the bounds for rendering
+	 * @param x The float buffer for the x coordinate. This buffer will be updated to the position of the next character
+	 * @param y The float buffer for the y coordinate. This buffer will be updated to the position of the next character
+	 * @param quad The object to place the data for the position and texture coordinates
+	 * @return true if finding this bounding box moved the text to the next line, false otherwise
 	 */
-	public GameFont(String path, int resolution, int loadChars){
-		this(path, resolution, loadChars, 8);
-	}
-	
-	/**
-	 * Load a font from the given file path
-	 * 
-	 * @param path See {@link #path}
-	 * @param resolution See {@link #resolution}
-	 * @param loadChars See {@link #loadChars}
-	 * @param sizeRatio This value is multiplied by the resolution to determine the width and height of the bitmap.
-	 *        Increase this value if more characters from the bitmap need to be loaded
-	 */
-	public GameFont(String path, int resolution, int loadChars, int sizeRatio){
-		super(path);
-		this.firstChar = 32;
-		this.resolution = resolution;
-		this.resolutionInverse = 1.0 / this.resolution;
-		this.width = sizeRatio * this.resolution;
-		this.height = sizeRatio * this.resolution;
-		this.loadChars = loadChars;
-		init();
-	}
-	
-	/** Initialize this {@link GameFont} based on the current path of the image */
-	private void init(){
-		String path = this.getPath();
-
-		// Load the font from the jar
-		ByteBuffer data = ZAssetUtils.getJarBytes(path);
+	public boolean bounds(char c, FloatBuffer x, FloatBuffer y, STBTTAlignedQuad quad){
+		FontAsset a = this.getAsset();
 		
-		// Check for errors
-		int numFonts = stbtt_GetNumberOfFonts(data);
-		boolean success = numFonts != -1;
-		if(ZConfig.printSuccess() && success) ZStringUtils.print("Font '", path, "' loaded successfully. ", numFonts, " total fonts loaded.");
-		else if(ZConfig.printErrors() && !success){
-			ZStringUtils.print("Font '", path, "' failed to load via stb true type");
-			return;
+		// If the character is a new line, then advance the text to a new line
+		boolean newLine = c == '\n';
+		if(newLine){
+			double lineY = this.getSize() + this.getLineSpace();
+			x.put(0, 0.0f);
+			y.put(0, (float)(y.get(0) + lineY));
+			newLine = true;
 		}
-		// Load the font
-		ByteBuffer pixels = BufferUtils.createByteBuffer(this.width * this.height);
-		this.charData = STBTTBakedChar.create(this.loadChars);
-		int numChars = stbtt_BakeFontBitmap(data, this.resolution, pixels, this.width, this.height, firstChar, this.charData);
-		if(ZConfig.printSuccess()){
-			if(numChars > 0) ZStringUtils.print("    First unused row: ", numChars);
-			else if(numChars < 0) ZStringUtils.print("    Characters which fit: ", -numChars);
-			else ZStringUtils.print("    No Characters fit: ");
-		}
-		// Create a texture for the font bitmap
-		this.bitmapID = glGenTextures();
-		glBindTexture(GL_TEXTURE_2D, this.bitmapID);
-		GameImage.setPixelSettings();
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, this.width, this.height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, pixels);
+		if(!newLine && this.getCharSpace() != 0) x.put(0, (float)(x.get(0) + this.getCharSpace()));
 		
-		// Free the data
-		stbi_image_free(pixels);
+		// Get the bounds
+		stbtt_GetBakedQuad(a.getCharData(), a.getWidth(), a.getHeight(), a.charIndex(c), x, y, quad, true);
 		
-		// Unbind the texture
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-
-	@Override
-	public void destroy(){
-	}
-	
-	/** @return See {@link #bitmapID} */
-	public int getBitmapID(){
-		return this.bitmapID;
-	}
-	
-	/** @return See {@link #charData} */
-	public STBTTBakedChar.Buffer getCharData(){
-		return this.charData;
-	}
-	
-	/** @return See {@link #width} */
-	public int getWidth(){
-		return this.width;
-	}
-	
-	/** @return See {@link #height} */
-	public int getHeight(){
-		return this.height;
-	}
-	
-	/** @return See {@link #firstChar} */
-	public int getFirstChar(){
-		return this.firstChar;
-	}
-	
-	/** @return See {@link #resolution} */
-	public int getResolution(){
-		return this.resolution;
-	}
-	
-	/** See {@link #resolutionInverse} */
-	public double getResolutionInverse(){
-		return this.resolutionInverse;
-	}
-	
-	/** @return See {@link #loadChars} */
-	public int getLoadChars(){
-		return this.loadChars;
+		// Return if the character went to a new line
+		return newLine;
 	}
 	
 	/**
-	 * A convenience method which creates a {@link GameFont} with a file of the given name, assuming the file is located in {@link ZFilePaths#FONTS}
+	 * Find the bounds of a string drawn with this font, assuming the text is drawn at (0, 0)
 	 * 
-	 * @param name The name of the file, including file extension
-	 * @return The new font
+	 * @param text The text to find the bounds of
+	 * @return A rectangle with the bounds in game coordinates
 	 */
-	public static GameFont create(String name){
-		return new GameFont(ZStringUtils.concat(ZFilePaths.FONTS, name));
+	public Rectangle2D.Double stringBounds(String text){
+		return this.stringBounds(0, 0, text);
+	}
+	
+	/**
+	 * Find the maximum bounds of a string drawn with this font. This does not guarantee a pixel perfect bounding box,
+	 * i.e. the edges of the bounds may contain pixels which are not a part of the bounds
+	 * 
+	 * @param text The text to find the bounds of
+	 * @param x The x coordinate where the string is drawn, in game coordinates
+	 * @param y The y coordinate where the string is drawn, in game coordinates
+	 * @return A rectangle with the bounds in game coordinates
+	 */
+	public Rectangle2D.Double stringBounds(double x, double y, String text){
+		return this.stringBounds(x, y, text, true);
+	}
+
+	/**
+	 * Find the maximum bounds of a string drawn with this font. This does not guarantee a pixel perfect bounding box,
+	 * i.e. the edges of the bounds may contain pixels which are not a part of the bounds. This is done by adding a small amount of padding to the final bounds.
+	 * If this padding is undesired, pass false for the padding variable
+	 * 
+	 * @param text The text to find the bounds of
+	 * @param x The x coordinate where the string is drawn, in game coordinates
+	 * @param y The y coordinate where the string is drawn, in game coordinates
+	 * @param padding true to add a pixel of padding around the bounds, false to not add it
+	 * @return A rectangle with the bounds in game coordinates
+	 */
+	public Rectangle2D.Double stringBounds(double x, double y, String text, boolean padding){
+		FontAsset a = this.getAsset();
+		
+		// If there is no string, then the rectangle is empty
+		if(text == null || text.isEmpty()) return new Rectangle2D.Double(x, y, 0, 0);
+		
+		// Set up buffers
+		IntBuffer wb = BufferUtils.createIntBuffer(1);
+		IntBuffer bb = BufferUtils.createIntBuffer(1);
+		double w = 0;
+		double h = 0;
+		double pixelRatio = a.pixelRatio(this.getSize());
+		
+		// Go through each letter and find the total width
+		int i = 0;
+		do{
+			stbtt_GetCodepointHMetrics(a.getInfo(), text.charAt(i), wb, bb);
+			w += wb.get(0);
+			i++;
+		}while(i < text.length());
+		// Convert the values to pixel values
+		h = (a.getAscent() - a.getDescent()) * pixelRatio;
+		w *= pixelRatio;
+		y -= a.getAscent() * pixelRatio;
+		
+		// Pad the rectangle by 1 to account for rounding errors
+		if(padding) return new Rectangle2D.Double(x - 1, y - 1, w + 2, h + 2);
+		else return new Rectangle2D.Double(x, y, w, h);
+	}
+	
+	/** @return The value which must be used to scale the font returned by {@link #bounds(char, FloatBuffer, FloatBuffer, STBTTAlignedQuad)} into game coordinates */
+	public double fontScalar(){
+		// The double is because fonts are weird and render as half the size I intend them to. This 2 is very hacky
+		return this.getSize() * this.getAsset().getDoubleResolutionInverse();
+	}
+	
+	/** @return See {@link #asset} */
+	public FontAsset getAsset(){
+		return this.asset;
+	}
+	
+	/** @return See {@link #size} */
+	public double getSize(){
+		return this.size;
+	}
+	
+	/** @return See {@link #lineSpace} */
+	public double getLineSpace(){
+		return this.lineSpace;
+	}
+	
+	/** @return See {@link #charSpace} */
+	public double getCharSpace(){
+		return this.charSpace;
+	}
+	
+	/**
+	 * @return A copy of this {@link GameFont}, but using the given font
+	 * @param asset See {@link #asset}
+	 */
+	public GameFont asset(FontAsset asset){
+		return new GameFont(asset, this.size, this.lineSpace, this.charSpace);
+	}
+	
+	/**
+	 * @return A copy of this {@link GameFont}, but using the given size
+	 * @param size See {@link #size}
+	 */
+	public GameFont size(double size){
+		return new GameFont(this.asset, size, this.lineSpace, this.charSpace);
+	}
+	
+	/**
+	 * @return A copy of this {@link GameFont}, but using the given line spacing
+	 * @param lineSpace See {@link #lineSpace}
+	 */
+	public GameFont lineSpace(double lineSpace){
+		return new GameFont(this.asset, this.size, lineSpace, this.charSpace);
+	}
+	
+	/**
+	 * @return A copy of this {@link GameFont}, but using the given character spacing
+	 * @param charSpace See {@link #charSpace}
+	 */
+	public GameFont charSpace(double charSpace){
+		return new GameFont(this.asset, this.size, this.lineSpace, charSpace);
 	}
 	
 }

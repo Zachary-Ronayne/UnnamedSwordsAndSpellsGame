@@ -6,12 +6,11 @@ import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
 
-import static org.lwjgl.stb.STBTruetype.*;
-
 import zgame.core.graphics.buffer.IndexBuffer;
 import zgame.core.graphics.buffer.VertexArray;
 import zgame.core.graphics.buffer.VertexBuffer;
 import zgame.core.graphics.camera.GameCamera;
+import zgame.core.graphics.font.FontAsset;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.shader.ShaderProgram;
@@ -65,6 +64,11 @@ public class Renderer{
 	private Stack<Matrix4f> modelViewStack;
 	/** The buffer used to track {@link #modelView} */
 	private FloatBuffer modelViewBuff;
+	/**
+	 * true if all render methods should automatically apply transformations to move from game coordinates to OpenGL coordinates, false otherwise.
+	 * Essentially, if this is true, the render methods take game coordinates, if it is false, the render methods take OpenGL coordinates
+	 */
+	private boolean positioningEnabled;
 	
 	/**
 	 * true if objects which would be rendered outside of the bounds of {@link #screen} should not be drawn, false otherwise.
@@ -96,12 +100,6 @@ public class Renderer{
 	
 	/** The current font of this {@link Renderer}. If this value is null, no text can be drawn */
 	private GameFont font;
-	/** The current size, in pixels, to render font. This size is effected by zooming with the camera */
-	private double fontSize;
-	/** The extra space added between lines of text on top of the font size, can be negative to reduce the space. This amount of space is based on the font size */
-	private double fontLineSpace;
-	/** The extra space added between individual characters of text, can be negative to reduce the space. This amount of space is based on the font size */
-	private double fontCharSpace;
 	
 	/**
 	 * Create a new empty renderer
@@ -119,12 +117,10 @@ public class Renderer{
 		// The matrix is 4x4, so 16 floats
 		this.modelViewBuff = BufferUtils.createFloatBuffer(16);
 		this.modelViewStack = new Stack<Matrix4f>();
-
+		this.positioningEnabled = true;
+		
 		// Font values
 		this.font = null;
-		this.fontSize = 32;
-		this.fontLineSpace = 0;
-		this.fontCharSpace = 0;
 		
 		// Text buffers
 		this.xTextBuff = BufferUtils.createFloatBuffer(1);
@@ -140,7 +136,7 @@ public class Renderer{
 		
 		// Vertex arrays and vertex buffers
 		this.initVertexes();
-
+		
 		// Set the default color
 		this.setColor(new ZColor(0));
 		
@@ -157,7 +153,7 @@ public class Renderer{
 			0, 1, 2,
 			/////////
 			0, 3, 2});
-
+		
 		// Generate a vertex array for drawing solid colored rectangles
 		this.rectVertArr = new VertexArray();
 		// Generate a vertex buffer for drawing rectangles that fill the entire screen and can be scaled
@@ -302,6 +298,16 @@ public class Renderer{
 		this.updateMatrix();
 	}
 	
+	/** @return See {@link #positioningEnabled} */
+	public boolean isPositioningEnabled(){
+		return this.positioningEnabled;
+	}
+	
+	/** @param positioningEnabled See {@link #positioningEnabled} */
+	public void setPositioningEnabled(boolean positioningEnabled){
+		this.positioningEnabled = positioningEnabled;
+	}
+	
 	/** Call this method before rendering normal shapes, i.e. solid rectangles */
 	public void renderModeShapes(){
 		this.setLoadedShader(this.shapeShader);
@@ -321,7 +327,7 @@ public class Renderer{
 	public void renderModeBuffer(){
 		this.setLoadedShader(this.framebufferShader);
 	}
-
+	
 	/**
 	 * Set the currently used shader
 	 * 
@@ -382,6 +388,8 @@ public class Renderer{
 	 * @param h The height
 	 */
 	private void positionObject(double x, double y, double w, double h){
+		if(!this.isPositioningEnabled()) return;
+		
 		GameBuffer b = this.screen;
 		
 		double rw = b.getInverseWidth();
@@ -475,12 +483,15 @@ public class Renderer{
 	 * @return true if the text was drawn, false otherwise
 	 */
 	public boolean drawText(double x, double y, String text){
-		// TODO do a bounds check for drawing the text
-		
-		// Make sure a font exists, then use the font shader
+		// Make sure a font exists
 		GameFont f = this.font;
 		if(f == null) return false;
+		FontAsset fa = f.getAsset();
 		
+		// Bounds check for if the text should be drawn
+		Rectangle2D.Double r = f.stringBounds(x, y, text);
+		if(!this.shouldDraw(r.getX(), r.getY(), r.getWidth(), r.getHeight())) return false;
+
 		// Use the font shaders
 		this.renderModeFont();
 		// Use the font vertex array
@@ -489,17 +500,14 @@ public class Renderer{
 		this.updateColor();
 		
 		// Use the font's bitmap
-		glBindTexture(GL_TEXTURE_2D, f.getBitmapID());
+		glBindTexture(GL_TEXTURE_2D, fa.getBitmapID());
 		
 		// Set up for text position and size
 		this.xTextBuff.put(0, 0.0f);
 		this.yTextBuff.put(0, 0.0f);
-		double lineY = 0;
-		boolean newLine = true;
 		
-		// TODO why is this like this?
-		// Double the total font size because fonts are weird, this times 2 is hacky
-		double posSize = this.getFontSize() * f.getResolutionInverse() * 2;
+		// Find the size for positioning the object
+		double posSize = f.fontScalar();
 		
 		// Position and scale the text
 		this.pushMatrix();
@@ -508,26 +516,8 @@ public class Renderer{
 		
 		// Draw every character of the text
 		for(int i = 0; i < text.length(); i++){
-			char c = text.charAt(i);
-			// If the character is a new line, then advance the text to a new line
-			if(c == '\n'){
-				lineY += this.getFontSize() + this.getFontLineSpace();
-				this.xTextBuff.put(0, 0.0f);
-				this.yTextBuff.put(0, (float)lineY);
-				newLine = true;
-				continue;
-			}
-
-			int charIndex = c - f.getFirstChar();
-			// Ensure the character exists in the font, if it doesn't, render the zeroth character
-			if(c < 0 || c >= f.getLoadChars()) charIndex = 0;
-			
 			// Find the vertices and texture coordinates of the character to draw
-			this.textQuad = STBTTAlignedQuad.create();
-			if(!newLine && this.getFontCharSpace() != 0) this.xTextBuff.put(0, (float)(this.xTextBuff.get(0) + this.getFontCharSpace()));
-			newLine = false;
-			stbtt_GetBakedQuad(f.getCharData(), f.getWidth(), f.getHeight(), charIndex, this.xTextBuff, this.yTextBuff, this.textQuad, true);
-			
+			f.bounds(text.charAt(i), this.xTextBuff, this.yTextBuff, this.textQuad);
 			// Buffer the new data
 			this.posBuff.updateData(new float[]{
 				//////////////////////////////////////
@@ -640,34 +630,34 @@ public class Renderer{
 		this.font = font;
 	}
 	
-	/** @return See {@link #fontSize} */
+	/** @return The size of {@link #font}. See {@link GameFont#getSize()} */
 	public double getFontSize(){
-		return this.fontSize;
+		return this.getFont().getSize();
 	}
 	
-	/** @param font See {@link #fontSize} */
-	public void setFontSize(double fontSize){
-		this.fontSize = fontSize;
+	/** @param size Change the current size of the font. See {@link GameFont#getSize()} */
+	public void setFontSize(double size){
+		this.font = this.getFont().size(size);
 	}
 	
-	/** @return See {@link #fontLineSpace} */
+	/** @return The line spacing of {@link #font}. See {@link GameFont#getLineSpace()} */
 	public double getFontLineSpace(){
-		return this.fontLineSpace;
+		return this.getFont().getLineSpace();
 	}
 	
-	/** @param font fontLineSpace {@link #fontLineSpace} */
-	public void setFontLineSpace(double fontLineSpace){
-		this.fontLineSpace = fontLineSpace;
+	/** @param lineSpace Change the current line space of the font. See {@link GameFont#getLineSpace()} */
+	public void setFontLineSpace(double lineSpace){
+		this.font = this.getFont().lineSpace(lineSpace);
 	}
 	
-	/** @return See {@link #fontCharSpace} */
+	/** @return The char spacing of {@link #font}. See {@link GameFont#getCharSpace()} */
 	public double getFontCharSpace(){
-		return this.fontCharSpace;
+		return this.getFont().getCharSpace();
 	}
 	
-	/** @param font fontCharSpace {@link #fontCharSpace} */
-	public void setFontCharSpace(double fontCharSpace){
-		this.fontCharSpace = fontCharSpace;
+	/** @param charSpace Change the current line space of the font. See {@link GameFont#getCharSpace()} */
+	public void setFontCharSpace(double charSpace){
+		this.font = this.getFont().charSpace(charSpace);
 	}
 	
 	/** @param camera See {@link #camera}. Can also use null to not use a camera for rendering */

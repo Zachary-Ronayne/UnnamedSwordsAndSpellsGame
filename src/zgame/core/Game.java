@@ -6,6 +6,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.font.GameFont;
+import zgame.core.graphics.font.FontAsset;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.image.ImageManager;
 import zgame.core.input.keyboard.ZKeyInput;
@@ -617,8 +618,14 @@ public class Game{
 		return this.fonts;
 	}
 	
-	public GameFont getFont(String font){
+	/** @return See {@link FontManager#get(String)} */
+	public FontAsset getFontAsset(String font){
 		return this.getFonts().get(font);
+	}
+
+	/** @return A {@link GameFont} with the given font name */
+	public GameFont getFont(String font){
+		return new GameFont(this.getFonts().get(font));
 	}
 	
 	/**
