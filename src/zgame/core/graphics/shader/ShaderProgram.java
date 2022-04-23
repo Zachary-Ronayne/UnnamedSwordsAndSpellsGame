@@ -1,4 +1,4 @@
-package zgame.core.graphics;
+package zgame.core.graphics.shader;
 
 import static org.lwjgl.opengl.GL30.*;
 
@@ -35,13 +35,13 @@ public class ShaderProgram{
 	
 	/**
 	 * Create a new ShaderProgram based on the name.
-	 * This method assumes that the given name represents two files with the form [name]Fragment.glsl and [name]Vertex.glsl,
+	 * This method assumes that the given name represents two files with the form [name].frag and [name].vert,
 	 * where [name] is the given parameter. These files are assumed to be located in {@link ZFilePaths#SHADERS}
 	 * 
 	 * @param name The name of the shader
 	 */
 	public ShaderProgram(String name){
-		this(ZStringUtils.concat(ZFilePaths.SHADERS, name, "Vertex.glsl"), ZStringUtils.concat(ZFilePaths.SHADERS, name, "Fragment.glsl"));
+		this(ZStringUtils.concat(ZFilePaths.SHADERS, name, ".vert"), ZStringUtils.concat(ZFilePaths.SHADERS, name, ".frag"));
 	}
 	
 	/**

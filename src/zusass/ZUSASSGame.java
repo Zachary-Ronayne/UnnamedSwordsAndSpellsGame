@@ -24,27 +24,33 @@ public class ZUSASSGame extends Game{
 		super();
 		// Window and performance settings
 		this.setTps(100);
-		this.setCurrentState(new MainMenuState());
+		this.setMaxFps(0);
+		this.setCurrentState(new MainMenuState(this));
 		GameWindow w = this.getWindow();
 		w.setUseVsync(true);
 		w.center();
-
+		
+		// Loading assets
+		this.getFonts().addAll();
+		
 		// Play state
 		this.setPlayState(new MainPlay());
 	}
-
+	
 	/** The only instance of {@link ZUSASSGame} which can exist */
 	private static ZUSASSGame game = null;
-
+	
 	public static void main(String[] args){
 		init();
 		game.start();
 	}
-
+	
 	@Override
 	protected void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(button, press, shift, alt, ctrl);
-		if(button == GLFW_KEY_F11 && !press) game.getWindow().toggleFullscreen();
+		GameWindow w = game.getWindow();
+		if(button == GLFW_KEY_F11 && !press) w.toggleFullscreen();
+		else if(button == GLFW_KEY_F12 && !press) w.setUseVsync(!w.usesVsync());
 	}
 	
 	/** Initialize the object {@link #game} */

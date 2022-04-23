@@ -150,17 +150,17 @@ public class MainTest extends Game{
 		engineState = new GameEngineState();
 		testerGame.setPlayState(engineState);
 		menuState = new TesterMenuState();
-		testerGame.enterPlayState();
+		testerGame.setCurrentState(testerState);
 		window = testerGame.getWindow();
 		window.center();
 		
 		// Add images
-		testerGame.getImages().addAllImages();
+		testerGame.getImages().addAll();
 		
 		// Add sounds
 		SoundManager sm = testerGame.getSounds();
 		sm.addAllSounds();
-		
+
 		// Set the sound scaling distance
 		sm.setDistanceScalar(.04);
 		
@@ -541,7 +541,7 @@ public class MainTest extends Game{
 	
 	public static class TesterMenu extends Menu{
 		public TesterMenu(){
-			super(100, 200);
+			super(100, 400);
 			this.setWidth(800);
 			this.setHeight(300);
 			this.setFill(new ZColor(.1, .1, .2, 1));
@@ -576,6 +576,17 @@ public class MainTest extends Game{
 			t.setFill(new ZColor(.5, 0, 0));
 			t.setText("Exit");
 			this.addThing(t);
+		}
+
+		@Override
+		public void render(Game game, Renderer r){
+			super.render(game, r);
+			r.setFont(game.getFont("zfont"));
+			r.setColor(0, 0, 1);
+			r.setFontSize(30);
+			r.setFontLineSpace(-4);
+			r.setFontCharSpace(17);
+			r.drawText(10, 90, "ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n 0123456789.,“”‘’\"'?!@_*#$\n%&()+-/:;<=>[/]^`{|}~");
 		}
 	}
 	

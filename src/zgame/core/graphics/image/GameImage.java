@@ -1,4 +1,4 @@
-package zgame.core.graphics;
+package zgame.core.graphics.image;
 
 import static org.lwjgl.opengl.GL30.*;
 
@@ -9,19 +9,17 @@ import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
 
+import zgame.core.asset.Asset;
 import zgame.core.utils.ZAssetUtils;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZFilePaths;
 import zgame.core.utils.ZStringUtils;
 
 /** An object that manages a single OpenGL texture to be used as an image for rendering in the game */
-public class GameImage{
+public class GameImage extends Asset{
 	
 	/** The OpenGL texture id associated with this {@link GameImage} */
 	private int id;
-	
-	/** The path used to load this {@link GameImage} */
-	private String path;
 	
 	/**
 	 * Create a new GameImage and load it from the given path
@@ -29,12 +27,14 @@ public class GameImage{
 	 * @param path The path to load from
 	 */
 	public GameImage(String path){
-		this.path = path;
+		super(path);
 		this.init();
 	}
 	
 	/** Initialize this {@link GameImage} based on the current path of the image */
 	private void init(){
+		String path = this.getPath();
+
 		// Generate the id and use it
 		this.id = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, id);
@@ -43,7 +43,7 @@ public class GameImage{
 		stbi_set_flip_vertically_on_load(true);
 		
 		// Keep everything pixelated
-		this.setPixelSettings();
+		setPixelSettings();
 		
 		// Load the image from the jar
 		ByteBuffer buff = ZAssetUtils.getJarBytes(this.getPath());
@@ -71,32 +71,15 @@ public class GameImage{
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	
-	/** Set the settings of the currently loaded texture as pixelated */
-	private void setPixelSettings(){
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	}
-	
 	/** Erase any resources used by this GameImage */
-	public void delete(){
+	@Override
+	public void destroy(){
 		glDeleteTextures(this.getId());
-	}
-	
-	/** Use this GameImage when drawing textures */
-	public void use(){
-		glBindTexture(GL_TEXTURE_2D, this.getId());
 	}
 	
 	/** @return See {@link #id} */
 	public int getId(){
 		return this.id;
-	}
-	
-	/** @return See {@link #path} */
-	public String getPath(){
-		return this.path;
 	}
 	
 	/**
@@ -107,6 +90,14 @@ public class GameImage{
 	 */
 	public static GameImage create(String name){
 		return new GameImage(ZStringUtils.concat(ZFilePaths.IMAGES, name));
+	}
+	
+	/** Set the settings of the currently loaded texture as pixelated */
+	public static void setPixelSettings(){
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	}
 	
 }

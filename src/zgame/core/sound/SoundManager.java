@@ -1,15 +1,12 @@
 package zgame.core.sound;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.lwjgl.openal.ALC11.*;
 
 import org.lwjgl.openal.ALUtil;
 
-import zgame.core.utils.ZAssetUtils;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZFilePaths;
 import zgame.core.utils.ZStringUtils;
@@ -46,11 +43,11 @@ public class SoundManager{
 	 */
 	private List<SpeakerDevice> devices;
 	
-	/** A map of every {@link EffectSound} currently available through this {@link SoundManager}. The key is a string representing the name of the sound */
-	private Map<String, EffectSound> effects;
+	/** The object managing every {@link EffectSound} currently available through this {@link SoundManager} */
+	private EffectsManager effectsManager;
 	
-	/** A map of every piece of music currently available through this {@link SoundManager}. The key is a string representing the name of the sound */
-	private Map<String, MusicSound> music;
+	/** The object managing every every piece of music currently available through this {@link SoundManager}. The key is a string representing the name of the sound */
+	private MusicManager musicManager;
 	
 	/** Initialize the {@link SoundManager} to its default state */
 	public SoundManager(){
@@ -64,8 +61,8 @@ public class SoundManager{
 	 */
 	public SoundManager(double distanceScalar){
 		this.distanceScalar = distanceScalar;
-		this.effects = new HashMap<String, EffectSound>();
-		this.music = new HashMap<String, MusicSound>();
+		this.effectsManager = new EffectsManager();
+		this.musicManager = new MusicManager();
 		
 		this.devices = new ArrayList<SpeakerDevice>();
 		this.scanDevices();
@@ -141,10 +138,10 @@ public class SoundManager{
 	}
 	
 	/** Clear any resources used by this {@link SoundManager} */
-	public void end(){
+	public void destroy(){
 		this.closeDevices();
-		if(this.effects != null) for(Map.Entry<String, EffectSound> s : this.effects.entrySet()) s.getValue().end();
-		if(this.music != null) for(Map.Entry<String, MusicSound> s : this.music.entrySet()) s.getValue().end();
+		if(this.effectsManager != null) effectsManager.destroy();
+		if(this.musicManager != null) musicManager.destroy();
 		if(this.musicSource != null) this.musicSource.end();
 	}
 	
@@ -160,17 +157,17 @@ public class SoundManager{
 	}
 	
 	/**
-	 * Add a sound effect used by this {@link SoundManager}. Sounds added here will automatically be deleted when {@link #end()} is called
+	 * Add a sound effect used by this {@link SoundManager}. Sounds added here will automatically be deleted when {@link #destroy()} is called
 	 * 
 	 * @param effect The sound to add
 	 * @param name The name of the sound, use this value when playing sounds
 	 */
 	public void addEffect(EffectSound effect, String name){
-		this.effects.put(name, effect);
+		this.effectsManager.add(effect, name);
 	}
 	
 	/**
-	 * Add a sound effect used by this {@link SoundManager}. Sounds added here will automatically be deleted when {@link #end()} is called
+	 * Add a sound effect used by this {@link SoundManager}. Sounds added here will automatically be deleted when {@link #destroy()} is called
 	 * 
 	 * @param name The name of the sound, which must exist as a .ogg file in {@link ZFilePaths#EFFECTS} use this value when playing sounds
 	 */
@@ -185,21 +182,21 @@ public class SoundManager{
 	 * @param name The name of the sound to use. After calling this method, the sound with the given name will not be able to play
 	 */
 	public void removeEffect(String name){
-		this.effects.remove(name);
+		this.effectsManager.remove(name);
 	}
 	
 	/**
-	 * Add a music sound used by this {@link SoundManager}. Sounds added here will automatically be deleted when {@link #end()} is called
+	 * Add a music sound used by this {@link SoundManager}. Sounds added here will automatically be deleted when {@link #destroy()} is called
 	 * 
 	 * @param music The sound to add
 	 * @param name The name of the sound, use this value when playing sounds
 	 */
 	public void addMusic(MusicSound music, String name){
-		this.music.put(name, music);
+		this.musicManager.add(music, name);
 	}
 	
 	/**
-	 * Add a music sound used by this SoundManager Sounds added here will automatically be deleted when {@link #end()} is called
+	 * Add a music sound used by this SoundManager Sounds added here will automatically be deleted when {@link #destroy()} is called
 	 * 
 	 * @param name The name of the sound, which must exist as a .ogg file in {@link ZFilePaths#MUSIC}, use this value when playing sounds
 	 */
@@ -213,7 +210,7 @@ public class SoundManager{
 	 * @param name The name of the sound to use. After calling this method, the sound with the given name will not be able to play
 	 */
 	public void removeMusic(String name){
-		this.music.remove(name);
+		this.musicManager.remove(name);
 	}
 	
 	/**
@@ -223,17 +220,7 @@ public class SoundManager{
 	 * Then, each of those folders will contain the sound files which will be of the type of the folder they are in
 	 */
 	public void addAllEffects(){
-		// First find all the folders
-		List<String> folders = ZAssetUtils.getAllFolders(ZFilePaths.EFFECTS);
-		
-		// Now for each folder, add every effect in those folders, using the folder as the type
-		for(String f : folders){
-			// Get every file in the folder
-			List<String> names = ZAssetUtils.getAllFiles(ZStringUtils.concat(ZFilePaths.EFFECTS, f), false);
-			
-			// Add each file
-			for(String n : names) this.addEffect(EffectSound.loadSound(ZStringUtils.concat(f, "/", n), f), n);
-		}
+		this.effectsManager.addAll();
 	}
 	
 	/**
@@ -241,8 +228,7 @@ public class SoundManager{
 	 * {@link #playMusic(String)}
 	 */
 	public void addAllMusic(){
-		List<String> names = ZAssetUtils.getNames(ZFilePaths.MUSIC, false);
-		for(String s : names) this.addMusic(s);
+		this.musicManager.addAll();
 	}
 	
 	/**
@@ -262,7 +248,7 @@ public class SoundManager{
 	 * @param name The name of the sound, i.e. the name used when calling {@link #addEffect(EffectSound, String)}
 	 */
 	public void playEffect(SoundSource source, String name){
-		this.getEffectsPlayer().playSound(source, this.effects.get(name));
+		this.getEffectsPlayer().playSound(source, this.effectsManager.get(name));
 	}
 	
 	/**
@@ -271,7 +257,7 @@ public class SoundManager{
 	 * @param name The name of the sound, i.e. the name used when calling {@link #addMusic(EffectSound, String)}
 	 */
 	public void playMusic(String name){
-		this.getMusicPlayer().playSound(this.getMusicSource(), this.music.get(name));
+		this.getMusicPlayer().playSound(this.getMusicSource(), this.musicManager.get(name));
 	}
 	
 	/**

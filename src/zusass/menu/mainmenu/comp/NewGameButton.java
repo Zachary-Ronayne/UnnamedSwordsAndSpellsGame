@@ -6,16 +6,14 @@ import zgame.menu.MenuButton;
 import zusass.game.MainPlay;
 
 /** The {@link MenuButton} in the main menu for creating a new game */
-public class NewGameButton extends MenuButton{
-
+public class NewGameButton extends MainMenuButton{
+	
 	/** Create the {@link NewGameButton} */
-	public NewGameButton(){
-		super(50, 50, 500, 150);
-		this.setBorder(new ZColor(.6));
+	public NewGameButton(Game game){
+		super(50, 50, 500, 150, "New Game", game);
 		this.setFill(new ZColor(.4));
-		this.setBorderWidth(2);
 	}
-
+	
 	@Override
 	public void click(Game game){
 		game.setPlayState(new MainPlay());

@@ -2,6 +2,7 @@ package zusass.menu.mainmenu;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
 import zgame.menu.Menu;
 import zusass.menu.mainmenu.comp.ContinueGameButton;
 import zusass.menu.mainmenu.comp.ExitButton;
@@ -11,17 +12,25 @@ import zusass.menu.mainmenu.comp.NewGameButton;
 public class MainMenu extends Menu{
 	
 	/** Initialize the {@link MainMenu} */
-	public MainMenu(){
-		this.addThing(new NewGameButton());
-		this.addThing(new ContinueGameButton());
-		this.addThing(new ExitButton());
+	public MainMenu(Game game){
+		this.addThing(new NewGameButton(game));
+		this.addThing(new ContinueGameButton(game));
+		this.addThing(new ExitButton(game));
 	}
 	
 	@Override
 	public void renderBackground(Game game, Renderer r){
 		super.renderBackground(game, r);
+		
+		// Background color
 		r.setColor(0.2, 0.2, 0.2);
 		r.fill();
+		
+		// Title
+		r.setColor(new ZColor(.8));
+		r.setFont(game.getFont("zfont"));
+		r.setFontSize(100);
+		r.drawText(600, 110, "ZUSASS");
 	}
 	
 }

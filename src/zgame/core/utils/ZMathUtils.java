@@ -27,6 +27,29 @@ public final class ZMathUtils{
 		}
 		return arr;
 	}
+
+	/**
+	 * Find the minimum of a list of numbers
+	 * @param nums The numbers. This is assumed to have at least one element
+	 * @return The minimum number
+	 */
+	public static double min(double ... nums){
+		double n = nums[0];
+		for(int i = 1; i < nums.length; i++) n = Math.min(n, nums[i]);
+		return n;
+	}
+
+	/**
+	 * Find the maximum of a list of numbers
+	 * 
+	 * @param nums The numbers. This is assumed to have at least one element
+	 * @return The maximum number
+	 */
+	public static double max(double ... nums){
+		double n = nums[0];
+		for(int i = 1; i < nums.length; i++) n = Math.max(n, nums[i]);
+		return n;
+	}
 	
 	/** Cannot instantiate {@link ZMathUtils} */
 	private ZMathUtils(){

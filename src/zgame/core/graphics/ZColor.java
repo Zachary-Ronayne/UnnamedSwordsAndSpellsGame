@@ -81,5 +81,10 @@ public class ZColor{
 	public ZColor solid(){
 		return new ZColor(this.red(), this.green(), this.blue(), 1);
 	}
+
+	/** @return An array of 4 elements containing the red, green, blue, and alpha values of this color, index 0, 1, 2, 3 respectively, as floats */
+	public float[] toFloat(){
+		return new float[]{(float)this.red(), (float)this.green(), (float)this.blue(), (float)this.alpha()};
+	}
 	
 }

@@ -5,14 +5,12 @@ import zgame.core.graphics.ZColor;
 import zgame.menu.MenuButton;
 
 /** The {@link MenuButton} in the main menu for continuing the last opened game */
-public class ContinueGameButton extends MenuButton{
+public class ContinueGameButton extends MainMenuButton{
 	
 	/** Create the {@link ContinueGameButton} */
-	public ContinueGameButton(){
-		super(50, 250, 500, 150);
-		this.setBorder(new ZColor(.6));
+	public ContinueGameButton(Game game){
+		super(50, 250, 500, 150, "Continue", game);
 		this.setFill(new ZColor(.5));
-		this.setBorderWidth(2);
 	}
 	
 	@Override

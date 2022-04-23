@@ -5,6 +5,8 @@ import static org.lwjgl.opengl.GL30.*;
 /**
  * A class that handles a single OpenGL display list, and also contains basic static display lists to use
  * Must call {@link #initLists()} before using any other static methods in this class
+ * 
+ * @deprecated This uses outdated OpenGL methods
  */
 public abstract class DisplayList{
 	
@@ -78,7 +80,7 @@ public abstract class DisplayList{
 	private static class TexRectangleList extends DisplayList{
 		@Override
 		public void listFunc(){
-			glBegin(GL_POLYGON);
+			glBegin(GL_QUADS);
 			glTexCoord2d(0, 0);
 			glVertex2d(-1, -1);
 			glTexCoord2d(1, 0);

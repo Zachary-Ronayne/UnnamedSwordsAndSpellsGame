@@ -23,7 +23,7 @@ public class Hub extends Room{
 		this.player = new Player(0, 875, 75, 125);
 		this.player.setLockCamera(true);
 		this.addThing(this.player);
-
+		
 		Door levelDoor = new Door(500, 850);
 		levelDoor.setLeadRoom(new LevelRoom(1), 0, 375);
 		this.addThing(levelDoor);

@@ -2,10 +2,13 @@ package zgame.core;
 
 import static org.lwjgl.opengl.GL30.*;
 
-import zgame.core.graphics.GameImage;
-import zgame.core.graphics.ImageManager;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.GameCamera;
+import zgame.core.graphics.font.FontManager;
+import zgame.core.graphics.font.GameFont;
+import zgame.core.graphics.font.FontAsset;
+import zgame.core.graphics.image.GameImage;
+import zgame.core.graphics.image.ImageManager;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.sound.EffectsPlayer;
@@ -42,6 +45,9 @@ public class Game{
 	/** The {@link ImageManager} used by this {@link Game} to load images for ease of use in rendering */
 	private ImageManager images;
 	
+	/** The {@link FontManager} used by this {@link Game} to load fonts for rendering text */
+	private FontManager fonts;
+	
 	/** The looper to run the main OpenGL loop */
 	private GameLooper renderLooper;
 	
@@ -54,7 +60,7 @@ public class Game{
 	private GameState nextCurrentState;
 	/** The {@link PlayState} of this game, should not be null */
 	private PlayState playState;
-
+	
 	/** The {@link GameLooper} which runs the regular time intervals */
 	private GameLooper tickLooper;
 	/** The {@link Thread} which runs the game tick loop. This is a separate thread from the main thread, which the OpenGL loop will run on */
@@ -176,6 +182,11 @@ public class Game{
 		// Init images
 		this.images = new ImageManager();
 		
+		// Init fonts and set the default font
+		this.fonts = new FontManager();
+		this.fonts.add("zfont");
+		this.getWindow().getRenderer().setFont(this.getFont("zfont"));
+		
 		// Init camera
 		this.camera = new GameCamera();
 		
@@ -247,10 +258,10 @@ public class Game{
 		this.getWindow().end();
 		
 		// Free sounds
-		this.sounds.end();
+		this.sounds.destroy();
 		
 		// Free images
-		this.images.end();
+		this.images.destroy();
 	}
 	
 	/**
@@ -320,35 +331,37 @@ public class Game{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
-			// Clear the internal renderer
+			// Clear the internal renderer and set it up to use the renderer's frame buffer to draw to
 			Renderer r = this.getWindow().getRenderer();
 			r.clear();
 			
-			// Render objects on the renderer
-			
-			// Set up drawing to the buffer
-			glLoadIdentity();
+			// Set up drawing the buffer to the screen
 			glViewport(0, 0, this.getScreenWidth(), this.getScreenHeight());
+			
+			// Render objects using the renderer's frame buffer
+			r.initToDraw();
 			
 			// Draw the background
 			r.setCamera(null);
+			r.identityMatrix();
 			this.renderBackground(r);
 			
 			// Draw the foreground, i.e. main objects
+			// Set the camera
 			boolean useCam = this.getCurrentState().isUseCamera();
-			glPushMatrix();
 			if(useCam) r.setCamera(this.getCamera());
 			else r.setCamera(null);
-			r.drawToRenderer();
+			// Move based on the camera, if applicable, and draw the objects
+			r.identityMatrix();
 			if(useCam) this.getCamera().transform(this.getWindow());
-			render(r);
-			glPopMatrix();
+			this.render(r);
 			
 			// Draw the hud
 			r.setCamera(null);
+			r.identityMatrix();
 			this.renderHud(r);
 			
-			// Draw the renderer to the window
+			// Draw the renderer's frame buffer to the window
 			r.drawToWindow(this.getWindow());
 		}
 		// Update the window
@@ -597,7 +610,22 @@ public class Game{
 	
 	/** @return The image from {@link #images} with the given name */
 	public GameImage getImage(String name){
-		return this.getImages().getImage(name);
+		return this.getImages().get(name);
+	}
+	
+	/** @return See {@link #fonts} */
+	public FontManager getFonts(){
+		return this.fonts;
+	}
+	
+	/** @return See {@link FontManager#get(String)} */
+	public FontAsset getFontAsset(String font){
+		return this.getFonts().get(font);
+	}
+
+	/** @return A {@link GameFont} with the given font name */
+	public GameFont getFont(String font){
+		return new GameFont(this.getFonts().get(font));
 	}
 	
 	/**
@@ -715,10 +743,7 @@ public class Game{
 	 * @param y The center of the camera y coordinate in game coordinates
 	 */
 	public void centerCamera(double x, double y){
-		this.camera.setPos(
-			this.getScreenWidth() * 0.5 - this.camera.sizeGameToScreenX(x),
-			this.getScreenHeight() * 0.5 - this.camera.sizeGameToScreenY(y)
-		);
+		this.camera.setPos(this.getScreenWidth() * 0.5 - this.camera.sizeGameToScreenX(x), this.getScreenHeight() * 0.5 - this.camera.sizeGameToScreenY(y));
 	}
 	
 	/** @return See {@link #currentState} */
@@ -749,22 +774,22 @@ public class Game{
 	public void enterPlayState(){
 		this.setCurrentState(this.getPlayState());
 	}
-
+	
 	/** @param playState See {@link #playState} */
 	public void setPlayState(PlayState playState){
 		this.playState = playState;
 	}
-
+	
 	/** @return See {@link #playState} */
 	public PlayState getPlayState(){
 		return this.playState;
 	}
-
+	
 	/** @return The {@link Room} that the current {@link #playState} is using */
 	public Room getCurrentRoom(){
 		return this.getPlayState().getCurrentRoom();
 	}
-
+	
 	/**
 	 * Zoom in the screen with {@link #camera} on just the x axis
 	 * The zoom will reposition the camera so that the given coordinates are zoomed towards

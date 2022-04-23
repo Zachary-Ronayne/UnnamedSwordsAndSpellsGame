@@ -1,10 +1,11 @@
-package zgame.core.graphics;
+package zgame.core.graphics.shader;
 
 import static org.lwjgl.opengl.GL30.*;
 
 import java.io.InputStream;
 import java.util.Scanner;
 
+import zgame.core.asset.Asset;
 import zgame.core.utils.ZAssetUtils;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
@@ -13,10 +14,7 @@ import zgame.core.utils.ZStringUtils;
  * A class that handles an individual shader, i.e. a vertex or fragment shader for OpenGL.
  * Mostly a helper class for {@link ShaderProgram}
  */
-public class Shader{
-	
-	/** The path used to get {@link #code} */
-	private String path;
+public class Shader extends Asset{
 	
 	/** The code that runs the shader */
 	private String code;
@@ -28,17 +26,18 @@ public class Shader{
 	private int type;
 	
 	public Shader(String path, int type){
-		this.path = path;
+		super(path);
 		this.type = type;
-		this.load(path);
+		this.load();
 		this.init();
 	}
 	
 	/**
-	 * Load the shader at the given file path, i.e. take the code from that file and use it for this shader.
+	 * Load the shader at the file path of this asset, i.e. take the code from that file and use it for this shader.
 	 * This method does not update the shader itself, it only loads the shader from the file
 	 */
-	public void load(String path){
+	public void load(){
+		String path = this.getPath();
 		Scanner file = null;
 		try{
 			// Get the file from the jar
@@ -49,7 +48,10 @@ public class Shader{
 			
 			// Read the entire file and put it into the code variable
 			StringBuilder sb = new StringBuilder("");
-			while(file.hasNextLine()) sb.append(file.nextLine());
+			while(file.hasNextLine()){
+				sb.append(file.nextLine());
+				sb.append("\n");
+			}
 			this.code = sb.toString();
 			if(ZConfig.printSuccess()) ZStringUtils.print("Successfully loaded shader at '", path, "'");
 		}catch(Exception e){
@@ -74,10 +76,9 @@ public class Shader{
 		String status = success ? "success" : "failure";
 		if(ZConfig.printSuccess() && success || ZConfig.printErrors() && !success){ ZStringUtils.print("Shader at path '", this.getPath(), "' initialize ", status); }
 	}
-	
-	/** @return See {@link #path} */
-	public String getPath(){
-		return this.path;
+
+	@Override
+	public void destroy(){
 	}
 	
 	/** @return See {@link #id} */

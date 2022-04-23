@@ -2,7 +2,6 @@ package zgame.core.window;
 
 import static org.lwjgl.opengl.GL30.*;
 
-import zgame.core.graphics.DisplayList;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
@@ -176,9 +175,6 @@ public abstract class GameWindow{
 		
 		// Set up texture settings for drawing with an alpha channel
 		initTextureSettings();
-		
-		// Set up display lists
-		DisplayList.initLists();
 	}
 	
 	/** Called during object initialization. Must establish window context with OpenGL before further initialization can occur */
@@ -356,6 +352,10 @@ public abstract class GameWindow{
 			// Put the window back where it was before going to full screen
 			this.setWindowPosition(this.oldPosition.x, this.oldPosition.y);
 		}
+		// Reset the renderer vertex objects
+		this.getRenderer().destroyVertexes();
+		this.getRenderer().initVertexes();
+		
 		// Ensure the current window has the callbacks
 		this.initCallBacks();
 		
@@ -387,6 +387,17 @@ public abstract class GameWindow{
 	 */
 	protected abstract boolean exitFullScreen();
 	
+	/**
+	 * Modify the size of this the screen of {@link #renderer}. This is a costly operation and should not regularly be run
+	 * 
+	 * @param width The width, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
+	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
+	 */
+	public void resizeScreen(int width, int height){
+		this.renderer.resize(width, height);
+		this.updateWindowSize();
+	}
+
 	/** Ensure the current stored width and height of the window match the current window size */
 	public void updateWindowSize(){
 		Dimension s = this.getWindowSize();

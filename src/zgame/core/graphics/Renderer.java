@@ -2,15 +2,28 @@ package zgame.core.graphics;
 
 import static org.lwjgl.opengl.GL30.*;
 
+import org.joml.Matrix4f;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.stb.STBTTAlignedQuad;
+
+import zgame.core.graphics.buffer.IndexBuffer;
+import zgame.core.graphics.buffer.VertexArray;
+import zgame.core.graphics.buffer.VertexBuffer;
 import zgame.core.graphics.camera.GameCamera;
+import zgame.core.graphics.font.FontAsset;
+import zgame.core.graphics.font.GameFont;
+import zgame.core.graphics.image.GameImage;
+import zgame.core.graphics.shader.ShaderProgram;
 import zgame.core.window.GameWindow;
 
 import java.awt.geom.Rectangle2D;
+import java.nio.FloatBuffer;
+import java.util.Stack;
 
 /**
  * A class that handles OpenGL operations related to drawing objects.
  * Create an instance of this class and call draw methods to draw to this Renderer,
- * then call drawToScreen to display the contents of this Renderer.
+ * then call drawToWindow to display the contents of this Renderer.
  * This class is dependent on {@link DisplayList}, be sure to initialize that class before using Renderer.
  * DO NOT directly call any OpenGL methods when using this class, otherwise unexpected results could happen.
  * Coordinate explanation:
@@ -23,10 +36,19 @@ import java.awt.geom.Rectangle2D;
  */
 public class Renderer{
 	
+	/** The buffer for the x coordinate when rendering text */
+	private FloatBuffer xTextBuff;
+	/** The buffer for the y coordinate when rendering text */
+	private FloatBuffer yTextBuff;
+	/** The STBTTAlignedQuad buffer for the quad for rendering */
+	private STBTTAlignedQuad textQuad;
+	
 	/** The shader used to draw basic shapes, i.e. solid colors */
 	private ShaderProgram shapeShader;
 	/** The shader used to draw textures, i.e. images */
 	private ShaderProgram textureShader;
+	/** The shader used to draw font, i.e. text */
+	private ShaderProgram fontShader;
 	/** The shader used to draw the frame buffer to the screen, as a texture */
 	private ShaderProgram framebufferShader;
 	/** The shader which is currently used */
@@ -38,11 +60,46 @@ public class Renderer{
 	/** The {@link GameCamera} which determines the relative location and scale of objects drawn in this renderer. If this is null, no transformations will be applied */
 	private GameCamera camera;
 	
+	/** The stack used to keep track of transformations. The last element is always the current model view matrix */
+	private Stack<Matrix4f> modelViewStack;
+	/** The buffer used to track {@link #modelView} */
+	private FloatBuffer modelViewBuff;
+	/**
+	 * true if all render methods should automatically apply transformations to move from game coordinates to OpenGL coordinates, false otherwise.
+	 * Essentially, if this is true, the render methods take game coordinates, if it is false, the render methods take OpenGL coordinates
+	 */
+	private boolean positioningEnabled;
+	
 	/**
 	 * true if objects which would be rendered outside of the bounds of {@link #screen} should not be drawn, false otherwise.
 	 * If this value is false, then all objects will be rendered, even if they should not be visible, which could cause performance issues
 	 */
 	private boolean renderOnlyInside;
+	
+	/** The {@link VertexArray} for drawing plain rectangles */
+	private VertexArray rectVertArr;
+	/** A {@link VertexBuffer} which represents positional values that fill the entire OpenGL screen from (-1, -1) to (1, 1) */
+	private VertexBuffer fillScreenPosBuff;
+	/** The index buffer that tracks the indexes for drawing a rectangle */
+	private IndexBuffer rectIndexBuff;
+	
+	/** A {@link VertexArray} for drawing text */
+	private VertexArray textVertArr;
+	/** A {@link VertexBuffer} which represents positional values for a texture whose positional values will regularly change */
+	private VertexBuffer posBuff;
+	/** A {@link VertexBuffer} which represents texture coordinates for a texture whose texture coordinates will regularly change */
+	private VertexBuffer changeTexCoordBuff;
+	
+	/** The {@link VertexArray} for drawing images */
+	private VertexArray imgVertArr;
+	/** The {@link VertexBuffer} used to track the texture coordinates for drawing the entirety of a texture, i.e. from (0, 0) to (1, 1) */
+	private VertexBuffer texCoordBuff;
+	
+	/** The current color used by this {@link Renderer} */
+	private ZColor color;
+	
+	/** The current font of this {@link Renderer}. If this value is null, no text can be drawn */
+	private GameFont font;
 	
 	/**
 	 * Create a new empty renderer
@@ -51,20 +108,107 @@ public class Renderer{
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public Renderer(int width, int height){
+		// General initialization
 		this.camera = null;
 		this.setRenderOnlyInside(true);
 		this.resize(width, height);
 		
+		// Model view initialization
+		// The matrix is 4x4, so 16 floats
+		this.modelViewBuff = BufferUtils.createFloatBuffer(16);
+		this.modelViewStack = new Stack<Matrix4f>();
+		this.positioningEnabled = true;
+		
+		// Font values
+		this.font = null;
+		
+		// Text buffers
+		this.xTextBuff = BufferUtils.createFloatBuffer(1);
+		this.yTextBuff = BufferUtils.createFloatBuffer(1);
+		this.textQuad = STBTTAlignedQuad.create();
+		
 		// Load shaders
 		this.shapeShader = new ShaderProgram("default");
 		this.textureShader = new ShaderProgram("texture");
+		this.fontShader = new ShaderProgram("font");
 		this.framebufferShader = new ShaderProgram("framebuffer");
 		this.renderModeImage();
+		
+		// Vertex arrays and vertex buffers
+		this.initVertexes();
+		
+		// Set the default color
+		this.setColor(new ZColor(0));
+		
+		// Init the model view matrix
+		this.identityMatrix();
+		this.updateMatrix();
+	}
+	
+	/** Initialize all resources used by the vertex arrays and vertex buffers */
+	public void initVertexes(){
+		// Generate an index buffer for drawing rectangles
+		this.rectIndexBuff = new IndexBuffer(new byte[]{
+			/////////
+			0, 1, 2,
+			/////////
+			0, 3, 2});
+		
+		// Generate a vertex array for drawing solid colored rectangles
+		this.rectVertArr = new VertexArray();
+		// Generate a vertex buffer for drawing rectangles that fill the entire screen and can be scaled
+		this.fillScreenPosBuff = new VertexBuffer(0, 2, GL_STATIC_DRAW, new float[]{
+			// Low Left Corner
+			-1, -1,
+			// Low Right Corner
+			1, -1,
+			// Up Right Corner
+			1, 1,
+			// Up Left Corner
+			-1, 1});
+		
+		// Generate a vertex array for rendering images
+		this.imgVertArr = new VertexArray();
+		// Generate a vertex buffer for texture coordinates for rendering images
+		this.texCoordBuff = new VertexBuffer(2, 2, GL_STATIC_DRAW, new float[]{
+			// Low Left Corner
+			0, 0,
+			// Low Right Corner
+			1, 0,
+			// Up Right Corner
+			1, 1,
+			// Up Left Corner
+			0, 1});
+		// Add the positional data to the image rendering
+		this.fillScreenPosBuff.bind();
+		this.fillScreenPosBuff.applyToVertexArray();
+		
+		// Generate a vertex array for rendering text
+		this.textVertArr = new VertexArray();
+		// Generate a vertex buffer for positional coordinates that regularly change
+		this.posBuff = new VertexBuffer(0, 2, GL_DYNAMIC_DRAW, 4);
+		// Generate a vertex buffer for texture coordinates that regularly change
+		this.changeTexCoordBuff = new VertexBuffer(2, 2, GL_DYNAMIC_DRAW, 4);
+	}
+	
+	/** Free all resources used by the vertex arrays and vertex buffers */
+	public void destroyVertexes(){
+		this.fillScreenPosBuff.destroy();
+		this.texCoordBuff.destroy();
+		this.posBuff.destroy();
+		this.changeTexCoordBuff.destroy();
+		
+		this.rectVertArr.delete();
+		this.imgVertArr.delete();
+		this.textVertArr.delete();
 	}
 	
 	/** Delete any resources used by this Renderer */
 	public void destroy(){
 		this.screen.destroy();
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		this.destroyVertexes();
 	}
 	
 	/**
@@ -87,18 +231,100 @@ public class Renderer{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	
+	/** @return The {@link Matrix4f} of the model view, i.e. the current transformation status of the renderer */
+	public Matrix4f modelView(){
+		return this.modelViewStack.lastElement();
+	}
+	
+	/** Update the data of the model view matrix into OpenGL */
+	public void updateMatrix(){
+		this.modelView().get(this.modelViewBuff);
+		int loc = glGetUniformLocation(this.loadedShader.getId(), "modelView");
+		glUniformMatrix4fv(loc, false, this.modelViewBuff);
+	}
+	
+	/**
+	 * Set the transformation matrix used for rendering
+	 * 
+	 * @param matrix The matrix to use
+	 */
+	public void setMatrix(Matrix4f matrix){
+		if(!modelViewStack.empty()) modelViewStack.pop();
+		modelViewStack.push(matrix);
+		this.updateMatrix();
+	}
+	
+	/** Set the modelView matrix to the identity matrix */
+	public void identityMatrix(){
+		this.setMatrix(new Matrix4f());
+	}
+	
+	/** Push the current state of the transformation matrix onto the matrix stack, i.e. save the current state of the transformations */
+	public void pushMatrix(){
+		this.modelViewStack.push(new Matrix4f(this.modelView()));
+	}
+	
+	/**
+	 * Pop the current state of the transformation matrix, i.e. load the previous state of the transformations and discard the current state.
+	 * This method does nothing if the stack is empty
+	 * 
+	 * @return true if the stack was popped, false if no element could be popped, i.e. the stack was empty
+	 */
+	public boolean popMatrix(){
+		if(this.modelViewStack.size() == 1) this.identityMatrix();
+		this.modelViewStack.pop();
+		return true;
+	}
+	
+	/**
+	 * Translate the transformation matrix by the given amount. The coordinates are based on OpenGL positions
+	 * 
+	 * @param x The amount on the x axis
+	 * @param y The amount on the y axis
+	 */
+	public void translate(double x, double y){
+		this.modelView().translate((float)x, (float)y, 0);
+		this.updateMatrix();
+	}
+	
+	/**
+	 * Scale the transformation matrix by the given amount
+	 * 
+	 * @param x The amount on the x axis
+	 * @param y The amount on the y axis
+	 */
+	public void scale(double x, double y){
+		this.modelView().scale((float)x, (float)y, 1);
+		this.updateMatrix();
+	}
+	
+	/** @return See {@link #positioningEnabled} */
+	public boolean isPositioningEnabled(){
+		return this.positioningEnabled;
+	}
+	
+	/** @param positioningEnabled See {@link #positioningEnabled} */
+	public void setPositioningEnabled(boolean positioningEnabled){
+		this.positioningEnabled = positioningEnabled;
+	}
+	
 	/** Call this method before rendering normal shapes, i.e. solid rectangles */
-	private void renderModeShapes(){
+	public void renderModeShapes(){
 		this.setLoadedShader(this.shapeShader);
 	}
 	
 	/** Call this method before rendering images, i.e. textures */
-	private void renderModeImage(){
+	public void renderModeImage(){
 		this.setLoadedShader(this.textureShader);
 	}
 	
+	/** Call this method before rendering font, i.e text */
+	public void renderModeFont(){
+		this.setLoadedShader(this.fontShader);
+	}
+	
 	/** Call this method before rendering a frame buffer in place of a texture */
-	private void renderModeBuffer(){
+	public void renderModeBuffer(){
 		this.setLoadedShader(this.framebufferShader);
 	}
 	
@@ -115,10 +341,16 @@ public class Renderer{
 	}
 	
 	/**
-	 * Make all rendering operations draw to this Renderer
+	 * Make all rendering operations draw to this Renderer and set up this {@link Renderer} to be ready for drawing
 	 */
-	public void drawToRenderer(){
+	public void initToDraw(){
+		// Bind the screen as the frame buffer
 		this.screen.drawToBuffer();
+		// Load the identity matrix before setting a default shader
+		this.identityMatrix();
+		// Bind a default shader
+		this.loadedShader = null;
+		this.setLoadedShader(this.shapeShader);
 	}
 	
 	/**
@@ -129,13 +361,20 @@ public class Renderer{
 	 * @param window The window to draw to
 	 */
 	public void drawToWindow(GameWindow window){
+		// Set the current shader for drawing a frame buffer
 		this.renderModeBuffer();
-		glPushMatrix();
+		// Bind the vertex array for drawing an image that fills the entire OpenGL space
+		this.imgVertArr.bind();
+		
+		// Position the image and the frame buffer to draw to the window
 		glViewport(window.viewportX(), window.viewportY(), window.viewportW(), window.viewportH());
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		
+		// Use the frame buffer texture
 		glBindTexture(GL_TEXTURE_2D, this.screen.getTextureID());
-		DisplayList.texRect();
-		glPopMatrix();
+		
+		// Draw the image
+		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 	}
 	
 	/**
@@ -149,6 +388,8 @@ public class Renderer{
 	 * @param h The height
 	 */
 	private void positionObject(double x, double y, double w, double h){
+		if(!this.isPositioningEnabled()) return;
+		
 		GameBuffer b = this.screen;
 		
 		double rw = b.getInverseWidth();
@@ -156,8 +397,8 @@ public class Renderer{
 		double hw = b.getInverseHalfWidth();
 		double hh = b.getInverseHalfHeight();
 		
-		glTranslated(-1 + (x + w * .5) * hw, 1 - (y + h * .5) * hh, 0);
-		glScaled(w * rw, h * rh, 1);
+		this.translate(-1 + (x + w * .5) * hw, 1 - (y + h * .5) * hh);
+		this.scale(w * rw, h * rh);
 	}
 	
 	/**
@@ -173,12 +414,17 @@ public class Renderer{
 	public boolean drawRectangle(double x, double y, double w, double h){
 		if(!this.shouldDraw(x, y, w, h)) return false;
 		
+		// Use the shape shader and the rectangle vertex array
 		this.renderModeShapes();
+		this.rectVertArr.bind();
+		// Update the current color for this draw operation
+		this.updateColor();
 		
-		glPushMatrix();
+		this.pushMatrix();
 		this.positionObject(x, y, w, h);
-		DisplayList.rect();
-		glPopMatrix();
+		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
+		glBindVertexArray(0);
+		this.popMatrix();
 		
 		return true;
 	}
@@ -191,18 +437,111 @@ public class Renderer{
 	 * @param y The y coordinate of the upper right hand corner of the image
 	 * @param w The width of the image
 	 * @param h The height of the image
+	 * @param img The {@link GameImage} to draw
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawImage(double x, double y, double w, double h, GameImage img){
+		return this.drawImage(x, y, w, h, img.getId());
+	}
+	
+	/**
+	 * Draw a rectangular image at the specified location. All values are in game coordinates.
+	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
+	 * 
+	 * @param x The x coordinate of the upper right hand corner of the image
+	 * @param y The y coordinate of the upper right hand corner of the image
+	 * @param w The width of the image
+	 * @param h The height of the image
+	 * @param img The OpenGL id of the image to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawImage(double x, double y, double w, double h, int img){
 		if(!this.shouldDraw(x, y, w, h)) return false;
 		
 		this.renderModeImage();
+		this.imgVertArr.bind();
+		glBindTexture(GL_TEXTURE_2D, img);
 		
-		glPushMatrix();
+		this.pushMatrix();
 		this.positionObject(x, y, w, h);
-		img.use();
-		DisplayList.texRect();
-		glPopMatrix();
+		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
+		glBindVertexArray(0);
+		
+		this.popMatrix();
+		
+		return true;
+	}
+	
+	/**
+	 * Draw the given text to the given position
+	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
+	 * i.e. the text starts at the given coordinates and is draw left to right
+	 * 
+	 * @param x The x position of the text
+	 * @param y The y position of the text
+	 * @param text The text to draw
+	 * @return true if the text was drawn, false otherwise
+	 */
+	public boolean drawText(double x, double y, String text){
+		// Make sure a font exists
+		GameFont f = this.font;
+		if(f == null) return false;
+		FontAsset fa = f.getAsset();
+		
+		// Bounds check for if the text should be drawn
+		Rectangle2D.Double r = f.stringBounds(x, y, text);
+		if(!this.shouldDraw(r.getX(), r.getY(), r.getWidth(), r.getHeight())) return false;
+
+		// Use the font shaders
+		this.renderModeFont();
+		// Use the font vertex array
+		this.textVertArr.bind();
+		// Update the current color for this draw operation
+		this.updateColor();
+		
+		// Use the font's bitmap
+		glBindTexture(GL_TEXTURE_2D, fa.getBitmapID());
+		
+		// Set up for text position and size
+		this.xTextBuff.put(0, 0.0f);
+		this.yTextBuff.put(0, 0.0f);
+		
+		// Find the size for positioning the object
+		double posSize = f.fontScalar();
+		
+		// Position and scale the text
+		this.pushMatrix();
+		this.scale(1, -1);
+		this.positionObject(x, -y + this.getHeight(), posSize, posSize);
+		
+		// Draw every character of the text
+		for(int i = 0; i < text.length(); i++){
+			// Find the vertices and texture coordinates of the character to draw
+			f.bounds(text.charAt(i), this.xTextBuff, this.yTextBuff, this.textQuad);
+			// Buffer the new data
+			this.posBuff.updateData(new float[]{
+				//////////////////////////////////////
+				this.textQuad.x0(), this.textQuad.y0(),
+				//////////////////////////////////////
+				this.textQuad.x1(), this.textQuad.y0(),
+				//////////////////////////////////////
+				this.textQuad.x1(), this.textQuad.y1(),
+				//////////////////////////////////////
+				this.textQuad.x0(), this.textQuad.y1()});
+			this.changeTexCoordBuff.updateData(new float[]{
+				//////////////////////////////////////
+				this.textQuad.s0(), this.textQuad.t0(),
+				//////////////////////////////////////
+				this.textQuad.s1(), this.textQuad.t0(),
+				//////////////////////////////////////
+				this.textQuad.s1(), this.textQuad.t1(),
+				//////////////////////////////////////
+				this.textQuad.s0(), this.textQuad.t1()});
+			
+			// Draw the square
+			glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
+		}
+		this.popMatrix();
 		
 		return true;
 	}
@@ -226,11 +565,19 @@ public class Renderer{
 	
 	/** Fill the screen with the current color, regardless of camera position */
 	public void fill(){
-		glPushMatrix();
-		glLoadIdentity();
 		this.renderModeShapes();
-		DisplayList.rect();
-		glPopMatrix();
+		this.rectVertArr.bind();
+		
+		this.pushMatrix();
+		this.identityMatrix();
+		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
+		glBindVertexArray(0);
+		this.popMatrix();
+	}
+	
+	/** @return See {@link #color} */
+	public ZColor getColor(){
+		return this.color;
 	}
 	
 	/**
@@ -247,22 +594,70 @@ public class Renderer{
 	/**
 	 * Set the color currently used to draw basic shapes
 	 * 
-	 * @param c the new color
-	 */
-	public void setColor(ZColor c){
-		this.setColor(c.red(), c.green(), c.blue(), c.alpha());
-	}
-	
-	/**
-	 * Set the color currently used to draw basic shapes
-	 * 
 	 * @param r The red amount, should be in the range [0-1]
 	 * @param g The green amount, should be in the range [0-1]
 	 * @param b The blue amount, should be in the range [0-1]
 	 * @param a The alpha amount (transparency), should be in the range [0-1]
 	 */
 	public void setColor(double r, double g, double b, double a){
-		glColor4d(r, g, b, a);
+		this.setColor(new ZColor(r, g, b, a));
+	}
+	
+	/**
+	 * Set the color currently used to draw basic shapes
+	 * 
+	 * @param color the new color
+	 */
+	public void setColor(ZColor color){
+		this.color = color;
+		this.updateColor();
+	}
+	
+	/** Update the uniform variable used to track the color, with the current value */
+	public void updateColor(){
+		float[] c = this.getColor().toFloat();
+		int loc = glGetUniformLocation(this.loadedShader.getId(), "mainColor");
+		if(loc != -1) glUniform4fv(loc, c);
+	}
+	
+	/** @return See {@link #font} */
+	public GameFont getFont(){
+		return this.font;
+	}
+	
+	/** @param font See {@link #font} */
+	public void setFont(GameFont font){
+		this.font = font;
+	}
+	
+	/** @return The size of {@link #font}. See {@link GameFont#getSize()} */
+	public double getFontSize(){
+		return this.getFont().getSize();
+	}
+	
+	/** @param size Change the current size of the font. See {@link GameFont#getSize()} */
+	public void setFontSize(double size){
+		this.font = this.getFont().size(size);
+	}
+	
+	/** @return The line spacing of {@link #font}. See {@link GameFont#getLineSpace()} */
+	public double getFontLineSpace(){
+		return this.getFont().getLineSpace();
+	}
+	
+	/** @param lineSpace Change the current line space of the font. See {@link GameFont#getLineSpace()} */
+	public void setFontLineSpace(double lineSpace){
+		this.font = this.getFont().lineSpace(lineSpace);
+	}
+	
+	/** @return The char spacing of {@link #font}. See {@link GameFont#getCharSpace()} */
+	public double getFontCharSpace(){
+		return this.getFont().getCharSpace();
+	}
+	
+	/** @param charSpace Change the current line space of the font. See {@link GameFont#getCharSpace()} */
+	public void setFontCharSpace(double charSpace){
+		this.font = this.getFont().charSpace(charSpace);
 	}
 	
 	/** @param camera See {@link #camera}. Can also use null to not use a camera for rendering */
@@ -289,7 +684,7 @@ public class Renderer{
 	public int getHeight(){
 		return this.screen.getHeight();
 	}
-
+	
 	/** @return A rectangle of the bounds of this {@link Renderer}, i.e. the position will be (0, 0), width will be {@link #getWidth()} and height will be {@link #getHeight()} */
 	public Rectangle2D.Double getBounds(){
 		return new Rectangle2D.Double(0, 0, this.getWidth(), this.getHeight());

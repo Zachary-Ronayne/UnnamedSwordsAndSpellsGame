@@ -163,6 +163,9 @@ public final class ZAssetUtils{
 		InputStream stream = null;
 		try{
 			stream = getJarInputStream(path);
+			if(stream == null){
+				throw new IllegalArgumentException("Could not generate an input stream from the jar at location: " + path);
+			}
 			byte[] bytes = stream.readAllBytes();
 			buff = BufferUtils.createByteBuffer(bytes.length);
 			buff.put(bytes);
