@@ -57,6 +57,16 @@ public abstract class PositionedThing extends GameThing implements Positionable{
 	public void setY(double y){
 		this.y = y;
 	}
+
+	/** @return Always 0, can override to give this thing a width, i.e. an amount of space it takes up on the x axis */
+	public double getWidth(){
+		return 0;
+	}
+
+	/** @return Always 0, can override to give this thing a height, i.e. an amount of space it takes up on the y axis */
+	public double getHeight(){
+		return 0;
+	}
 	
 	/**
 	 * Add the given value to {@link #y}

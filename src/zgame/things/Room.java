@@ -6,10 +6,12 @@ import java.util.Collection;
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
 import zgame.things.entity.EntityThing;
+import zgame.things.entity.Tile;
 
 /** An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc. */
-public class Room {
+public class Room implements RectangleBounds{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -31,7 +33,9 @@ public class Room {
 	
 	/** All of the {@link GameThing} objects which will be removed on the next game tick */
 	private Collection<GameThing> thingsToRemove;
-
+	
+	// The 2D grid of {@link Tile} objects defining this {@link Room}
+	private Tile[][] tiles;
 	
 	/** The upper left hand x coordinate of the room. Defaults to 0 */
 	private double x;
@@ -56,23 +60,49 @@ public class Room {
 	/**
 	 * Create a new empty {@link Room}
 	 * 
-	 * @param width See {@link #width}
-	 * @param width See {@link #height}
+	 * @param xTiles The number of tiles on the x axis
+	 * @param yTiles The number of tiles on the y axis
 	 */
-	public Room(double width, double height){
+	public Room(int xTiles, int yTiles){
 		this.things = new ArrayList<GameThing>();
 		this.entities = new ArrayList<EntityThing>();
 		this.hitBoxThings = new ArrayList<HitBox>();
 		this.tickableThings = new ArrayList<GameTickable>();
-
+		
 		this.thingsToRemove = new ArrayList<GameThing>();
 		
 		this.x = 0;
 		this.y = 0;
-		this.width = width;
-		this.height = height;
+		this.initTiles(xTiles, yTiles);
 		
 		this.wallSolid = new boolean[]{true, true, true, true};
+	}
+	
+	/**
+	 * Initialize {@link #tiles} to the given size where every tile is the default tile
+	 * 
+	 * @param xTiles The number of tiles on the x axis
+	 * @param yTiles The number of tiles on the y axis
+	 */
+	public void initTiles(int xTiles, int yTiles){
+		this.initTiles(xTiles, yTiles, new ZColor(1));
+	}
+	/**
+	 * Initialize {@link #tiles} to the given size
+	 * 
+	 * @param xTiles The number of tiles on the x axis
+	 * @param yTiles The number of tiles on the y axis
+	 * @param c The color for every tile
+	 */
+	public void initTiles(int xTiles, int yTiles, ZColor c){
+		this.width = xTiles * Tile.TILE_SIZE;
+		this.height = yTiles * Tile.TILE_SIZE;
+		this.tiles = new Tile[xTiles][yTiles];
+		for(int i = 0; i < xTiles; i++){
+			for(int j = 0; j < yTiles; j++){
+				this.tiles[i][j] = new Tile(i, j, c);
+			}
+		}
 	}
 
 	/** @return See {@link #things}. This is the actual collection holding the things, not a copy */
@@ -84,7 +114,7 @@ public class Room {
 	public Collection<EntityThing> getEntities(){
 		return this.entities;
 	}
-
+	
 	/** @return See {@link #tickableThings}. This is the actual collection holding the things, not a copy */
 	public Collection<GameTickable> getTickableThings(){
 		return this.tickableThings;
@@ -93,6 +123,11 @@ public class Room {
 	/** @return See {@link #hitBoxThings}. This is the actual collection holding the things, not a copy */
 	public Collection<HitBox> getHitBoxThings(){
 		return this.hitBoxThings;
+	}
+
+	/** @return See {@link #tiles} */
+	public Tile[][] getTiles(){
+		return this.tiles;
 	}
 	
 	/**
@@ -115,7 +150,7 @@ public class Room {
 	public void removeThing(GameThing thing){
 		this.thingsToRemove.add(thing);
 	}
-
+	
 	/**
 	 * Update this {@link Room}
 	 * 
@@ -133,7 +168,6 @@ public class Room {
 			if(this.isSolid(WALL_CEILING)){ if(hb.keepBelow(this.getY())){ hb.touchCeiling(); } }
 			if(this.isSolid(WALL_FLOOR)){ if(hb.keepAbove(this.getY() + this.getHeight())){ hb.touchFloor(); } }
 		}
-		
 		// Remove all things that need to be removed
 		for(GameThing thing : this.thingsToRemove){
 			this.things.remove(thing);
@@ -151,6 +185,19 @@ public class Room {
 	 * @param r The {@link Renderer} to draw this {@link Room} on
 	 */
 	public void render(Game game, Renderer r){
+		// TODO a render priority system
+
+		// TODO make this only render the tiles that need to be rendered, like figure out the indexes
+		// Draw all the tiles
+		int xTiles = this.tiles.length;
+		int yTiles = this.tiles[0].length;
+		for(int i = 0; i < xTiles; i++){
+			for(int j = 0; j < yTiles; j++){
+				this.tiles[i][j].render(game, r);
+			}
+		}
+
+		// Draw all the things
 		for(GameThing t : this.things) t.render(game, r);
 	}
 	
@@ -217,7 +264,6 @@ public class Room {
 		if(!this.isValidWall(wall)) return false;
 		return this.wallSolid[wall];
 	}
-
 	
 	/** @return See {@link #x} */
 	public double getX(){
@@ -238,24 +284,17 @@ public class Room {
 	public void setY(double y){
 		this.y = y;
 	}
-
+	
 	/** @return See {@link #width} */
+	@Override
 	public double getWidth(){
 		return this.width;
 	}
 	
-	/** @param width See {@link #width} */
-	public void setWidth(double width){
-		this.width = width;
-	}
-	
 	/** @return See {@link #height} */
+	@Override
 	public double getHeight(){
 		return this.height;
 	}
-	
-	/** @param height See {@link #height} */
-	public void setHeight(double height){
-		this.height = height;
-	}
+
 }

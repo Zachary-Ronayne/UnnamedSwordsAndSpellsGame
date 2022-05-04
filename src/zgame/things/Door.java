@@ -20,7 +20,7 @@ public class Door extends PositionedThing implements RectangleBounds, GameTickab
 	private double height;
 	
 	/** The {@link Room} which this door leads to. Can be null to make this a real fake door */
-	private Room room;
+	private Room leadRoom;
 	/** The x coordinate to place objects which go through this door */
 	private double roomX;
 	/** The y coordinate to place objects which go through this door */
@@ -43,18 +43,43 @@ public class Door extends PositionedThing implements RectangleBounds, GameTickab
 	/**
 	 * Set the place this {@link Door} leads to
 	 * 
-	 * @param r See {@link #room}
+	 * @param r See {@link #leadRoom}
 	 * @param x See {@link #roomX}
 	 * @param y See {@link #roomY}
 	 */
 	public void setLeadRoom(Room r, double x, double y){
-		this.room = r;
+		this.leadRoom = r;
 		this.roomX = x;
 		this.roomY = y;
 	}
 	
+	/** @return See {@link #leadRoom} */
+	public Room getLeadRoom(){
+		return this.leadRoom;
+	}
+	
+	/** @return See {@link #roomX} */
+	public double getRoomX(){
+		return this.roomX;
+	}
+	
+	/** @param roomX See {@link #roomX} */
+	public void setRoomX(double roomX){
+		this.roomX = roomX;
+	}
+	
+	/** @return See {@link #roomY} */
+	public double getRoomY(){
+		return this.roomY;
+	}
+	
+	/** @param roomY See {@link #roomY} */
+	public void setRoomY(double roomY){
+		this.roomY = roomY;
+	}
+
 	/**
-	 * Move the given {@link PositionedThing} from the given room to {@link #room}
+	 * Move the given {@link PositionedThing} from the given room to {@link #leadRoom}
 	 * 
 	 * @param r The room which the thing is coming from, can be null if there is no room the thing is coming from
 	 * @param thing The thing to move
@@ -62,10 +87,10 @@ public class Door extends PositionedThing implements RectangleBounds, GameTickab
 	 */
 	public void enterRoom(Room r, PositionedThing thing, Game game){
 		if(r != null) r.removeThing(thing);
-		if(this.room != null){
+		if(this.leadRoom != null){
 			thing.setX(this.roomX);
 			thing.setY(this.roomY);
-			thing.enterRoom(r, this.room, game);
+			thing.enterRoom(r, this.leadRoom, game);
 		}
 	}
 	

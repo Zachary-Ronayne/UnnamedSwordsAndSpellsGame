@@ -191,6 +191,7 @@ public class MainTest extends Game{
 		
 		public GameEngineState(){
 			super(false);
+			// TODO account for offset in tiles? Or that can be handled in room?
 			Room firstRoom = makeRoom();
 			Room secondRoom = makeRoom();
 			this.setCurrentRoom(firstRoom);
@@ -212,8 +213,7 @@ public class MainTest extends Game{
 			r.makeWallsSolid();
 			r.setX(50);
 			r.setY(100);
-			r.setWidth(800);
-			r.setHeight(520);
+			r.initTiles(15, 9, new ZColor(.3));
 			return r;
 		}
 		
@@ -224,14 +224,6 @@ public class MainTest extends Game{
 			r.fill();
 		}
 
-		@Override
-		public void render(Game game, Renderer r){
-			r.setColor(.2, .2, .2);
-			Room rm = this.getCurrentRoom();
-			r.drawRectangle(rm.getX(), rm.getY(), rm.getWidth(), rm.getHeight());
-			super.render(game, r);
-		}
-		
 		@Override
 		public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 			super.keyAction(game, button, press, shift, alt, ctrl);
