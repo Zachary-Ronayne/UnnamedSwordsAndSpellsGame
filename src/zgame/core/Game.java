@@ -767,6 +767,7 @@ public class Game{
 	private void updateCurrentState(){
 		if(this.nextCurrentState == null) return;
 		this.currentState = this.nextCurrentState;
+		this.currentState.onSet(this);
 		this.nextCurrentState = null;
 	}
 	

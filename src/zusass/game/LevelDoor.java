@@ -12,22 +12,34 @@ public class LevelDoor extends Door{
 	private int level;
 	
 	/**
-	 * Create a new LevelDoor
+	 * Create a new LevelDoor at the default location
 	 * 
 	 * @param level See {@link #level}
 	 * @param room The room which contains this {@link LevelDoor}
 	 */
 	public LevelDoor(int level, Room room){
-		super(600, 0);
+		this(600, 0, level, room);
+		this.setY(room.bottomEdge() - this.getHeight());
+	}
+
+	/**
+	 * Create a new LevelDoor at the given location
+	 * 
+	 * @param x The x coordinate of the door
+	 * @param y The y coordinate of the door
+	 * @param level See {@link #level}
+	 * @param room The room which contains this {@link LevelDoor}
+	 */
+	public LevelDoor(double x, double y, int level, Room room){
+		super(x, y);
 		this.level = level;
-		this.setY(room.getY() + room.getHeight() - this.getHeight());
 	}
 	
 	@Override
 	public void enterRoom(Room r, PositionedThing thing, Game game){
 		// Generate the new room, then enter it
 		this.setLeadRoom(new LevelRoom(this.getLevel()), 0, 0);
-		this.setRoomY(this.getLeadRoom().getY() + this.getLeadRoom().getHeight() - thing.getHeight());
+		this.setRoomY(this.getLeadRoom().bottomEdge() - thing.getHeight());
 		super.enterRoom(r, thing, game);
 	}
 	

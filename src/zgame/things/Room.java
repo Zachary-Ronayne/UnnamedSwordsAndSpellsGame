@@ -37,10 +37,6 @@ public class Room implements RectangleBounds{
 	// The 2D grid of {@link Tile} objects defining this {@link Room}
 	private Tile[][] tiles;
 	
-	/** The upper left hand x coordinate of the room. Defaults to 0 */
-	private double x;
-	/** The upper left hand y coordinate of the room. Defaults to 0 */
-	private double y;
 	/** The width of the room. */
 	private double width;
 	/** The height of the room */
@@ -71,8 +67,6 @@ public class Room implements RectangleBounds{
 		
 		this.thingsToRemove = new ArrayList<GameThing>();
 		
-		this.x = 0;
-		this.y = 0;
 		this.initTiles(xTiles, yTiles);
 		
 		this.wallSolid = new boolean[]{true, true, true, true};
@@ -163,10 +157,10 @@ public class Room implements RectangleBounds{
 		
 		// Keep all objects inside the game bounds, if the walls are enabled
 		for(HitBox hb : this.hitBoxThings){
-			if(this.isSolid(WALL_LEFT)){ if(hb.keepRight(this.getX())){ hb.touchWall(); } }
-			if(this.isSolid(WALL_RIGHT)){ if(hb.keepLeft(this.getX() + this.getWidth())){ hb.touchWall(); } }
-			if(this.isSolid(WALL_CEILING)){ if(hb.keepBelow(this.getY())){ hb.touchCeiling(); } }
-			if(this.isSolid(WALL_FLOOR)){ if(hb.keepAbove(this.getY() + this.getHeight())){ hb.touchFloor(); } }
+			if(this.isSolid(WALL_LEFT)){ if(hb.keepRight(this.leftEdge())){ hb.touchWall(); } }
+			if(this.isSolid(WALL_RIGHT)){ if(hb.keepLeft(this.rightEdge())){ hb.touchWall(); } }
+			if(this.isSolid(WALL_CEILING)){ if(hb.keepBelow(this.topEdge())){ hb.touchCeiling(); } }
+			if(this.isSolid(WALL_FLOOR)){ if(hb.keepAbove(this.bottomEdge())){ hb.touchFloor(); } }
 		}
 		// Remove all things that need to be removed
 		for(GameThing thing : this.thingsToRemove){
@@ -265,26 +259,6 @@ public class Room implements RectangleBounds{
 		return this.wallSolid[wall];
 	}
 	
-	/** @return See {@link #x} */
-	public double getX(){
-		return this.x;
-	}
-	
-	/** @param x See {@link #x} */
-	public void setX(double x){
-		this.x = x;
-	}
-	
-	/** @return See {@link #y} */
-	public double getY(){
-		return this.y;
-	}
-	
-	/** @param y See {@link #y} */
-	public void setY(double y){
-		this.y = y;
-	}
-	
 	/** @return See {@link #width} */
 	@Override
 	public double getWidth(){
@@ -295,6 +269,36 @@ public class Room implements RectangleBounds{
 	@Override
 	public double getHeight(){
 		return this.height;
+	}
+	
+	@Override
+	public double leftEdge(){
+		return 0;
+	}
+	
+	@Override
+	public double rightEdge(){
+		return this.getWidth();
+	}
+	
+	@Override
+	public double topEdge(){
+		return 0;
+	}
+	
+	@Override
+	public double bottomEdge(){
+		return this.getHeight();
+	}
+
+	@Override
+	public double centerX(){
+		return this.getWidth() * 0.5;
+	}
+
+	@Override
+	public double centerY(){
+		return this.getHeight() * 0.5;
 	}
 
 }

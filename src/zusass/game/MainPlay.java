@@ -14,23 +14,27 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class MainPlay extends PlayState{
 	
-	/** Initialize the main play state for the ZUSASS game */
-	public MainPlay(){
-		this.setCurrentRoom(new Hub());
+	/**
+	 * Initialize the main play state for the ZUSASS game
+	 * 
+	 * @param game The {@link Game} using this state
+	 */
+	public MainPlay(Game game){
+		this.setCurrentRoom(new Hub(game));
 	}
-
+	
 	@Override
 	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(button == GLFW_KEY_ESCAPE) game.setCurrentState(new MainMenuState(game));
 	}
-
+	
 	@Override
 	public void renderBackground(Game game, Renderer r){
 		// Draw a solid color for the background
 		r.setColor(new ZColor(.05));
 		r.drawRectangle(0, 0, game.getScreenWidth(), game.getScreenHeight());
-
+		
 		// Draw the rest of the background
 		super.renderBackground(game, r);
 	}

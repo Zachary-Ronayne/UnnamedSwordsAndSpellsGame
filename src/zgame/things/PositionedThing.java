@@ -86,9 +86,16 @@ public abstract class PositionedThing extends GameThing implements Positionable{
 	 */
 	public void enterRoom(Room from, Room to, Game game){
 		if(from != null) from.removeThing(this);
-		if(to != null){
-			to.addThing(this);
-		}
+		if(to != null) to.addThing(this);
+	}
+	
+	/**
+	 * Center the camera of the given {@link Game} to the center of this object
+	 * 
+	 * @param game The game
+	 */
+	public void centerCamera(Game game){
+		game.centerCamera(this.centerX(), this.centerY());
 	}
 
 }

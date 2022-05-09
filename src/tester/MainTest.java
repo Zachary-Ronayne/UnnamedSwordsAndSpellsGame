@@ -191,14 +191,13 @@ public class MainTest extends Game{
 		
 		public GameEngineState(){
 			super(false);
-			// TODO account for offset in tiles? Or that can be handled in room?
 			Room firstRoom = makeRoom();
 			Room secondRoom = makeRoom();
 			this.setCurrentRoom(firstRoom);
 			
 			this.player = new Player(100, 400, 60, 100);
 			firstRoom.addThing(this.player);
-
+			
 			Door d = new Door(700, 400);
 			d.setLeadRoom(secondRoom, 50, 100);
 			firstRoom.addThing(d);
@@ -207,13 +206,16 @@ public class MainTest extends Game{
 			d.setLeadRoom(firstRoom, 100, 400);
 			secondRoom.addThing(d);
 		}
+		
+		@Override
+		public void onSet(Game game){
+			game.getCamera().setPos(50, 100);
+		}
 
 		private Room makeRoom(){
 			Room r = new Room();
 			r.makeWallsSolid();
-			r.setX(50);
-			r.setY(100);
-			r.initTiles(15, 9, new ZColor(.3));
+			r.initTiles(13, 9, new ZColor(.3));
 			return r;
 		}
 		

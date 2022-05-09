@@ -42,13 +42,22 @@ public class Player extends MobRectangle{
 		if(ki.buttonDown(GLFW_KEY_UP)) this.jump();
 		
 		// Center the camera to the player
-		if(this.isLockCamera()) game.centerCamera(this.getCenterX(), this.getCenterY());
+		this.checkCenterCamera(game);
 	}
 	
 	@Override
 	public void render(Game game, Renderer r){
 		r.setColor(1, 0, 0);
 		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+	}
+	
+	/**
+	 * If the camera should be locked to this {@link Player}, then lock the camera, otherwise do nothing
+	 * 
+	 * @param game The game to get the camera from
+	 */
+	public void checkCenterCamera(Game game){
+		if(this.isLockCamera()) this.centerCamera(game);
 	}
 	
 	/** @return See {@link #lockCamera} */
@@ -65,6 +74,9 @@ public class Player extends MobRectangle{
 	public void enterRoom(Room from, Room to, Game game){
 		super.enterRoom(from, to, game);
 		if(to != null) game.getPlayState().setCurrentRoom(to);
+		
+		// Center the camera to the player
+		this.checkCenterCamera(game);
 	}
 	
 }

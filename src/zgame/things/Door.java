@@ -7,17 +7,12 @@ import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.things.entity.EntityThing;
 
-public class Door extends PositionedThing implements RectangleBounds, GameTickable{
+public class Door extends PositionedRectangleThing implements GameTickable{
 	
 	/** The default value of {@link #width} */
 	public static final double WIDTH = 70;
 	/** The default value of {@link #height} */
 	public static final double HEIGHT = 150;
-	
-	/** The width of this door */
-	private double width;
-	/** The height of this door */
-	private double height;
 	
 	/** The {@link Room} which this door leads to. Can be null to make this a real fake door */
 	private Room leadRoom;
@@ -34,8 +29,8 @@ public class Door extends PositionedThing implements RectangleBounds, GameTickab
 	 */
 	public Door(double x, double y){
 		super(x, y);
-		this.width = WIDTH;
-		this.height = HEIGHT;
+		this.setWidth(WIDTH);
+		this.setHeight(HEIGHT);
 		
 		this.setLeadRoom(null, 0, 0);
 	}
@@ -92,16 +87,6 @@ public class Door extends PositionedThing implements RectangleBounds, GameTickab
 			thing.setY(this.roomY);
 			thing.enterRoom(r, this.leadRoom, game);
 		}
-	}
-	
-	@Override
-	public double getWidth(){
-		return this.width;
-	}
-	
-	@Override
-	public double getHeight(){
-		return this.height;
 	}
 	
 	@Override
