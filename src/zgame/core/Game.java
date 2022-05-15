@@ -622,7 +622,7 @@ public class Game{
 	public FontAsset getFontAsset(String font){
 		return this.getFonts().get(font);
 	}
-
+	
 	/** @return A {@link GameFont} with the given font name */
 	public GameFont getFont(String font){
 		return new GameFont(this.getFonts().get(font));
@@ -659,12 +659,12 @@ public class Game{
 	public double getScreenRight(){
 		return this.getScreenLeft() + this.getCamera().sizeScreenToGameX(this.getScreenWidth());
 	}
-
+	
 	/** @return The game y coordinate of the top of what is displayed on the screen */
 	public double getScreenTop(){
 		return this.getCamera().sizeScreenToGameY(-this.getCamera().getY().getPos());
 	}
-
+	
 	/** @return The game y coordinate at the bottom of what is displayed on the screen */
 	public double getScreenBottom(){
 		return this.getScreenTop() + this.getCamera().sizeScreenToGameY(this.getScreenHeight());

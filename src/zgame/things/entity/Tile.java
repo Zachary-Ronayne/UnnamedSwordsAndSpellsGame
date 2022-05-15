@@ -16,7 +16,7 @@ public class Tile extends PositionedRectangleThing{
 	private int xIndex;
 	/** The index of this tile on the y axis */
 	private int yIndex;
-
+	
 	/** The color id of this tile */
 	private ZColor color;
 	
@@ -29,7 +29,7 @@ public class Tile extends PositionedRectangleThing{
 	public Tile(int x, int y){
 		this(0, 0, new ZColor(1));
 	}
-
+	
 	/**
 	 * Make a new tile at the given index and of the given color
 	 * 
@@ -48,7 +48,7 @@ public class Tile extends PositionedRectangleThing{
 	public int getXIndex(){
 		return this.xIndex;
 	}
-
+	
 	/** @return See {@link #yIndex} */
 	public int getYIndex(){
 		return this.yIndex;
@@ -59,7 +59,7 @@ public class Tile extends PositionedRectangleThing{
 		r.setColor(color);
 		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
-
+	
 	/** @return The unit size of a tile */
 	public static double size(){
 		return TILE_SIZE;

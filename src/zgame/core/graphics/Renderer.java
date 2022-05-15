@@ -491,7 +491,7 @@ public class Renderer{
 		// Bounds check for if the text should be drawn
 		Rectangle2D.Double r = f.stringBounds(x, y, text);
 		if(!this.shouldDraw(r.getX(), r.getY(), r.getWidth(), r.getHeight())) return false;
-
+		
 		// Use the font shaders
 		this.renderModeFont();
 		// Use the font vertex array

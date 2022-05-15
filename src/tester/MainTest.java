@@ -234,7 +234,7 @@ public class MainTest extends Game{
 			r.setColor(.1, .1, .1);
 			r.fill();
 		}
-
+		
 		@Override
 		public void render(Game game, Renderer r){
 			super.render(game, r);

@@ -51,7 +51,7 @@ public class GameCamera{
 		double x = window.sizeScreenToGlX(this.getX().getPos());
 		double y = -window.sizeScreenToGlY(this.getY().getPos());
 		Renderer r = window.getRenderer();
-
+		
 		// OpenGL transformations occur in reverse order
 		// Lastly, translate the camera to its actual position
 		r.translate(x, y);
@@ -130,7 +130,7 @@ public class GameCamera{
 		this.getX().shift(x);
 		this.getY().shift(y);
 	}
-
+	
 	/**
 	 * Set the position of both axes
 	 * 

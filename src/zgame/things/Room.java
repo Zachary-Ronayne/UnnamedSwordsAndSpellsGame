@@ -7,6 +7,7 @@ import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.utils.ZArrayUtils;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.Tile;
 
@@ -23,7 +24,7 @@ public class Room implements RectangleBounds{
 	public static final int WALL_FLOOR = 3;
 	
 	/** All of the {@link GameThing} objects which exist in in the game */
-	private Collection<GameThing> things;
+	private ArrayList<GameThing> things;
 	/** All of the {@link EntityThing} objects which exist in in the game */
 	private Collection<EntityThing> entities;
 	/** All of the {@link HitBox} objects which exist in in the game */
@@ -81,6 +82,7 @@ public class Room implements RectangleBounds{
 	public void initTiles(int xTiles, int yTiles){
 		this.initTiles(xTiles, yTiles, new ZColor(1));
 	}
+	
 	/**
 	 * Initialize {@link #tiles} to the given size
 	 * 
@@ -92,13 +94,9 @@ public class Room implements RectangleBounds{
 		this.width = xTiles * Tile.TILE_SIZE;
 		this.height = yTiles * Tile.TILE_SIZE;
 		this.tiles = new Tile[xTiles][yTiles];
-		for(int i = 0; i < xTiles; i++){
-			for(int j = 0; j < yTiles; j++){
-				this.tiles[i][j] = new Tile(i, j, c);
-			}
-		}
+		for(int i = 0; i < xTiles; i++){ for(int j = 0; j < yTiles; j++){ this.tiles[i][j] = new Tile(i, j, c); } }
 	}
-
+	
 	/** @return See {@link #things}. This is the actual collection holding the things, not a copy */
 	public Collection<GameThing> getThings(){
 		return this.things;
@@ -118,7 +116,7 @@ public class Room implements RectangleBounds{
 	public Collection<HitBox> getHitBoxThings(){
 		return this.hitBoxThings;
 	}
-
+	
 	/** @return See {@link #tiles} */
 	public Tile[][] getTiles(){
 		return this.tiles;
@@ -130,7 +128,7 @@ public class Room implements RectangleBounds{
 	 * @param thing The {@link GameThing} to add
 	 */
 	public void addThing(GameThing thing){
-		this.things.add(thing);
+		ZArrayUtils.insertSorted(this.things, thing);
 		if(thing instanceof EntityThing) this.entities.add((EntityThing)thing);
 		if(thing instanceof GameTickable) this.tickableThings.add((GameTickable)thing);
 		if(thing instanceof HitBox) this.hitBoxThings.add((HitBox)thing);
@@ -171,7 +169,7 @@ public class Room implements RectangleBounds{
 		}
 		this.thingsToRemove.clear();
 	}
-
+	
 	/**
 	 * Draw this {@link Room} to the given {@link Renderer}
 	 * 
@@ -179,8 +177,6 @@ public class Room implements RectangleBounds{
 	 * @param r The {@link Renderer} to draw this {@link Room} on
 	 */
 	public void render(Game game, Renderer r){
-		// TODO a render priority system
-
 		// Determine the indexes of the tiles that need to be rendered
 		int xTiles = this.tiles.length;
 		int yTiles = this.tiles[0].length;
@@ -189,12 +185,8 @@ public class Room implements RectangleBounds{
 		int startY = Math.max(0, (int)Math.floor(game.getScreenTop() / Tile.size()));
 		int endY = Math.min(yTiles, (int)Math.ceil(game.getScreenBottom() / Tile.size()));
 		// Draw all the tiles
-		for(int i = startX; i < endX; i++){
-			for(int j = startY; j < endY; j++){
-				this.tiles[i][j].render(game, r);
-			}
-		}
-
+		for(int i = startX; i < endX; i++) for(int j = startY; j < endY; j++) this.tiles[i][j].render(game, r);
+		
 		// Draw all the things
 		for(GameThing t : this.things) t.render(game, r);
 	}
@@ -294,15 +286,15 @@ public class Room implements RectangleBounds{
 	public double bottomEdge(){
 		return this.getHeight();
 	}
-
+	
 	@Override
 	public double centerX(){
 		return this.getWidth() * 0.5;
 	}
-
+	
 	@Override
 	public double centerY(){
 		return this.getHeight() * 0.5;
 	}
-
+	
 }

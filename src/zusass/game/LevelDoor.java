@@ -48,4 +48,9 @@ public class LevelDoor extends Door{
 		return this.level;
 	}
 	
+	@Override
+	public int getRenderPriority(){
+		return -100;
+	}
+
 }
