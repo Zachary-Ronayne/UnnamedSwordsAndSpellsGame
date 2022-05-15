@@ -181,12 +181,16 @@ public class Room implements RectangleBounds{
 	public void render(Game game, Renderer r){
 		// TODO a render priority system
 
-		// TODO make this only render the tiles that need to be rendered, like figure out the indexes
-		// Draw all the tiles
+		// Determine the indexes of the tiles that need to be rendered
 		int xTiles = this.tiles.length;
 		int yTiles = this.tiles[0].length;
-		for(int i = 0; i < xTiles; i++){
-			for(int j = 0; j < yTiles; j++){
+		int startX = Math.max(0, (int)Math.floor(game.getScreenLeft() / Tile.size()));
+		int endX = Math.min(xTiles, (int)Math.ceil(game.getScreenRight() / Tile.size()));
+		int startY = Math.max(0, (int)Math.floor(game.getScreenTop() / Tile.size()));
+		int endY = Math.min(yTiles, (int)Math.ceil(game.getScreenBottom() / Tile.size()));
+		// Draw all the tiles
+		for(int i = startX; i < endX; i++){
+			for(int j = startY; j < endY; j++){
 				this.tiles[i][j].render(game, r);
 			}
 		}

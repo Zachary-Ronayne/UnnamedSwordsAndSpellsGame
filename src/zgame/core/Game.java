@@ -650,6 +650,26 @@ public class Game{
 		return this.getWindow().getScreenHeight();
 	}
 	
+	/** @return The game x coordinate on the left side of what is displayed on the screen */
+	public double getScreenLeft(){
+		return this.getCamera().sizeScreenToGameX(-this.getCamera().getX().getPos());
+	}
+	
+	/** @return The game x coordinate on the right side of what is displayed on the screen */
+	public double getScreenRight(){
+		return this.getScreenLeft() + this.getCamera().sizeScreenToGameX(this.getScreenWidth());
+	}
+
+	/** @return The game y coordinate of the top of what is displayed on the screen */
+	public double getScreenTop(){
+		return this.getCamera().sizeScreenToGameY(-this.getCamera().getY().getPos());
+	}
+
+	/** @return The game y coordinate at the bottom of what is displayed on the screen */
+	public double getScreenBottom(){
+		return this.getScreenTop() + this.getCamera().sizeScreenToGameY(this.getScreenHeight());
+	}
+	
 	/** @return See {@link #renderLooper} */
 	public GameLooper getRenderLooper(){
 		return this.renderLooper;

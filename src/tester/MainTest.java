@@ -19,6 +19,7 @@ import zgame.menu.MenuButton;
 import zgame.things.Door;
 import zgame.things.Room;
 import zgame.things.entity.Player;
+import zgame.things.entity.Tile;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -160,7 +161,7 @@ public class MainTest extends Game{
 		// Add sounds
 		SoundManager sm = testerGame.getSounds();
 		sm.addAllSounds();
-
+		
 		// Set the sound scaling distance
 		sm.setDistanceScalar(.04);
 		
@@ -211,11 +212,19 @@ public class MainTest extends Game{
 		public void onSet(Game game){
 			game.getCamera().setPos(50, 100);
 		}
-
+		
 		private Room makeRoom(){
 			Room r = new Room();
 			r.makeWallsSolid();
 			r.initTiles(13, 9, new ZColor(.3));
+			Tile[][] ts = r.getTiles();
+			for(int i = 0; i < ts.length; i++){
+				for(int j = 0; j < ts[i].length; j++){
+					boolean i0 = i % 2 == 0;
+					boolean j0 = j % 2 == 0;
+					if(i0 == j0) ts[i][j] = new Tile(i, j, new ZColor(.6));
+				}
+			}
 			return r;
 		}
 		
@@ -226,6 +235,13 @@ public class MainTest extends Game{
 			r.fill();
 		}
 
+		@Override
+		public void render(Game game, Renderer r){
+			super.render(game, r);
+			r.setColor(1, 1, 1);
+			r.drawRectangle(990, 0, 20, 500);
+		}
+		
 		@Override
 		public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 			super.keyAction(game, button, press, shift, alt, ctrl);
@@ -240,9 +256,15 @@ public class MainTest extends Game{
 			else if(button == GLFW_KEY_D) r.makeWallState(Room.WALL_RIGHT, !r.isSolid(Room.WALL_RIGHT));
 			else if(button == GLFW_KEY_MINUS) player.setJumpPower(player.getJumpPower() - 10);
 			else if(button == GLFW_KEY_EQUAL) player.setJumpPower(player.getJumpPower() + 10);
-			else if(button == GLFW_KEY_L) player.setLockCamera(!player.isLockCamera());
+			else if(shift && button == GLFW_KEY_L) player.setLockCamera(!player.isLockCamera());
+			else if(button == GLFW_KEY_9) game.getCamera().zoom(-.5);
+			else if(button == GLFW_KEY_0) game.getCamera().zoom(.5);
+			else if(button == GLFW_KEY_J) game.getCamera().getX().shift(-50);
+			else if(button == GLFW_KEY_L) game.getCamera().getX().shift(50);
+			else if(button == GLFW_KEY_I) game.getCamera().getY().shift(-50);
+			else if(button == GLFW_KEY_K) game.getCamera().getY().shift(50);
 		}
-
+		
 		@Override
 		public void mouseWheelMove(Game game, double amount){
 			super.mouseWheelMove(game, amount);
@@ -571,7 +593,7 @@ public class MainTest extends Game{
 			t.setText("Exit");
 			this.addThing(t);
 		}
-
+		
 		@Override
 		public void render(Game game, Renderer r){
 			super.render(game, r);
