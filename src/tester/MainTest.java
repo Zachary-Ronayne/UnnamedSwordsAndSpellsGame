@@ -19,7 +19,8 @@ import zgame.menu.MenuButton;
 import zgame.things.Door;
 import zgame.things.Room;
 import zgame.things.entity.Player;
-import zgame.things.entity.Tile;
+import zgame.things.tiles.BaseTiles;
+import zgame.things.tiles.Tile;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -216,13 +217,13 @@ public class MainTest extends Game{
 		private Room makeRoom(){
 			Room r = new Room();
 			r.makeWallsSolid();
-			r.initTiles(13, 9, new ZColor(.3));
+			r.initTiles(13, 9, BaseTiles.BACK_DARK);
 			Tile[][] ts = r.getTiles();
 			for(int i = 0; i < ts.length; i++){
 				for(int j = 0; j < ts[i].length; j++){
 					boolean i0 = i % 2 == 0;
 					boolean j0 = j % 2 == 0;
-					if(i0 == j0) ts[i][j] = new Tile(i, j, new ZColor(.6));
+					if(i0 == j0) ts[i][j] = new Tile(i, j, BaseTiles.BACK_LIGHT);
 				}
 			}
 			return r;

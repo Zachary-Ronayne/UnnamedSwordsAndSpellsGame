@@ -2,10 +2,10 @@ package zusass.game;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.core.graphics.ZColor;
 import zgame.things.Room;
 import zgame.things.entity.Player;
-import zgame.things.entity.Tile;
+import zgame.things.tiles.BaseTiles;
+import zgame.things.tiles.Tile;
 
 /** The {@link Room} which represents the main hub of the game, i.e. where the player can enter levels, make items, etc. */
 public class Hub extends Room{
@@ -31,7 +31,7 @@ public class Hub extends Room{
 			for(int j = 0; j < Y_TILES; j++){
 				boolean i0 = i % 2 == 0;
 				boolean j0 = j % 2 == 0;
-				this.getTiles()[i][j] = new Tile(i, j, (i0 == j0) ? new ZColor(.2) : new ZColor(.3));
+				this.getTiles()[i][j] = new Tile(i, j, (i0 == j0) ? BaseTiles.BACK_LIGHT : BaseTiles.BACK_DARK);
 			}
 		}
 		this.player = new Player(0, 875, 75, 125);

@@ -1,8 +1,7 @@
-package zgame.things.entity;
+package zgame.things.tiles;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.core.graphics.ZColor;
 import zgame.things.GameThing;
 import zgame.things.PositionedRectangleThing;
 
@@ -17,8 +16,8 @@ public class Tile extends PositionedRectangleThing{
 	/** The index of this tile on the y axis */
 	private int yIndex;
 	
-	/** The color id of this tile */
-	private ZColor color;
+	/** The type of this tile */
+	private TileType type;
 	
 	/**
 	 * Make a new tile at the given index of the default color
@@ -27,7 +26,7 @@ public class Tile extends PositionedRectangleThing{
 	 * @param y See {@link #yIndex}
 	 */
 	public Tile(int x, int y){
-		this(0, 0, new ZColor(1));
+		this(0, 0, BaseTiles.AIR);
 	}
 	
 	/**
@@ -35,13 +34,13 @@ public class Tile extends PositionedRectangleThing{
 	 * 
 	 * @param x See {@link #xIndex}
 	 * @param y See {@link #yIndex}
-	 * @param color See {@link #color}
+	 * @param type See {@link #type}
 	 */
-	public Tile(int x, int y, ZColor color){
+	public Tile(int x, int y, TileType type){
 		super(x * size(), y * size(), size(), size());
 		this.xIndex = x;
 		this.yIndex = y;
-		this.color = color;
+		this.type = type;
 	}
 	
 	/** @return See {@link #xIndex} */
@@ -54,10 +53,14 @@ public class Tile extends PositionedRectangleThing{
 		return this.yIndex;
 	}
 	
+	/** @return See {@link TileType} */
+	public TileType getType(){
+		return type;
+	}
+	
 	@Override
 	public void render(Game game, Renderer r){
-		r.setColor(color);
-		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+		this.getType().render(this, game, r);
 	}
 	
 	/** @return The unit size of a tile */

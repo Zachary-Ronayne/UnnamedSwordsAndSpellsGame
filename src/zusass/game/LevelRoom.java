@@ -5,7 +5,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZMathUtils;
 import zgame.things.Room;
-import zgame.things.entity.Tile;
+import zgame.things.tiles.Tile;
 
 /** A {@link Room} which represents a randomly generated level for the infinite dungeons */
 public class LevelRoom extends Room{
@@ -14,7 +14,7 @@ public class LevelRoom extends Room{
 	private static final int X_TILES = 15;
 	/** The number of tiles in a {@link LevelRoom} on the y axis */
 	private static final int Y_TILES = 8;
-
+	
 	/**
 	 * The numerical value of the level, i.e. level 1 is the easiest, level 2 is harder, etc.
 	 * If this value is less than 1, it is set to 1
@@ -44,13 +44,22 @@ public class LevelRoom extends Room{
 			for(int j = 0; j < Y_TILES; j++){
 				boolean i0 = i % 2 == 0;
 				boolean j0 = j % 2 == 0;
-				this.getTiles()[i][j] = new Tile(i, j, (i0 == j0) ? this.checker1 : this.checker2);
+				this.getTiles()[i][j] = new Tile(i, j, (i0 == j0) ? ZUSASSColorTiles.BACK_COLOR : ZUSASSColorTiles.BACK_COLOR_DARK);
 			}
 		}
-
 		this.setLevel(level);
 		
 		this.addThing(new LevelDoor(this.getLevel() + 1, this));
+	}
+	
+	/** @return See {@link #checker1} */
+	public ZColor getChecker1(){
+		return this.checker1;
+	}
+
+	/** @return See {@link #checker2} */
+	public ZColor getChecker2(){
+		return this.checker2;
 	}
 	
 	/** @return See {@link #level} */
@@ -68,9 +77,11 @@ public class LevelRoom extends Room{
 	
 	@Override
 	public void render(Game game, Renderer r){
+		ZUSASSColorTiles.setColors(this.checker1, this.checker2);
+
 		// Draw the main rendering
 		super.render(game, r);
-
+		
 		// Draw the actual level counter
 		r.setColor(.8, .8, .8);
 		r.setFontSize(32);

@@ -6,10 +6,11 @@ import java.util.Collection;
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
-import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZArrayUtils;
 import zgame.things.entity.EntityThing;
-import zgame.things.entity.Tile;
+import zgame.things.tiles.BaseTiles;
+import zgame.things.tiles.Tile;
+import zgame.things.tiles.TileType;
 
 /** An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc. */
 public class Room implements RectangleBounds{
@@ -80,7 +81,7 @@ public class Room implements RectangleBounds{
 	 * @param yTiles The number of tiles on the y axis
 	 */
 	public void initTiles(int xTiles, int yTiles){
-		this.initTiles(xTiles, yTiles, new ZColor(1));
+		this.initTiles(xTiles, yTiles, BaseTiles.AIR);
 	}
 	
 	/**
@@ -90,11 +91,11 @@ public class Room implements RectangleBounds{
 	 * @param yTiles The number of tiles on the y axis
 	 * @param c The color for every tile
 	 */
-	public void initTiles(int xTiles, int yTiles, ZColor c){
+	public void initTiles(int xTiles, int yTiles, TileType t){
 		this.width = xTiles * Tile.TILE_SIZE;
 		this.height = yTiles * Tile.TILE_SIZE;
 		this.tiles = new Tile[xTiles][yTiles];
-		for(int i = 0; i < xTiles; i++){ for(int j = 0; j < yTiles; j++){ this.tiles[i][j] = new Tile(i, j, c); } }
+		for(int i = 0; i < xTiles; i++){ for(int j = 0; j < yTiles; j++){ this.tiles[i][j] = new Tile(i, j, t); } }
 	}
 	
 	/** @return See {@link #things}. This is the actual collection holding the things, not a copy */
