@@ -152,7 +152,7 @@ public class MainTest extends Game{
 		engineState = new GameEngineState();
 		testerGame.setPlayState(engineState);
 		menuState = new TesterMenuState();
-		testerGame.setCurrentState(testerState);
+		testerGame.enterPlayState();
 		window = testerGame.getWindow();
 		window.center();
 		
@@ -198,6 +198,7 @@ public class MainTest extends Game{
 			this.setCurrentRoom(firstRoom);
 			
 			this.player = new Player(100, 400, 60, 100);
+			this.player.setJumpPower(350);
 			firstRoom.addThing(this.player);
 			
 			Door d = new Door(700, 400);
@@ -226,6 +227,9 @@ public class MainTest extends Game{
 					if(i0 == j0) ts[i][j] = new Tile(i, j, BaseTiles.BACK_LIGHT);
 				}
 			}
+
+			for(int i = 0; i < 4; i++) ts[4 + i][6] = new Tile(4 + i, 6, BaseTiles.WALL_DARK);
+
 			return r;
 		}
 		

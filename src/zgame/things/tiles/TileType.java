@@ -11,22 +11,29 @@ public abstract class TileType{
 	/** The hitbox of this tile type */
 	private TileHitbox hitbox;
 
-	/** The unique string that identifies this {@link TileType} from others with the same {@link #getOrigin()} */
+	/** The unique string that identifies this {@link TileType} from others with the same {@link #origin} */
 	private String id;
+
+	/**
+	 * The name of the place where this {@link TileType} comes from. Use "base" for tiles inherent to the base game engine, and create a custom origin for new sets of
+	 * tiles. For instance, individual games might want to use different origin names
+	 */
+	private String origin;
 	
 	/**
 	 * Create a new tile type
 	 * @param id See {@link #id}
 	 * @param hitbox See {@link #hitbox}
 	 */
-	protected TileType(String id, TileHitbox hitbox){
+	protected TileType(String id, String origin, TileHitbox hitbox){
 		this.id = id;
+		this.origin = origin;
 		this.hitbox = hitbox;
 	}
 	
 	/** See {@link TileType#collideRect(Tile, double, double, double, double, double, double)} */
 	public Point2D.Double collideRect(Tile t, double x, double y, double w, double h, double px, double py){
-		return this.hitbox.collideRect(t, x, y, w, h, px, py);
+		return this.getHitbox().collideRect(t, x, y, w, h, px, py);
 	}
 	
 	/** @return The unique identifier for this {@link TileType} */
@@ -34,11 +41,10 @@ public abstract class TileType{
 		return this.id;
 	}
 	
-	/**
-	 * @return The name of the place where this {@link TileType} comes from. Use "base" for tiles inherent to the base game engine, and create a custom origin for new sets of
-	 *         tiles. For instance, individual games might want to use different origin names
-	 */
-	public abstract String getOrigin();
+	/** @return See {@link #origin} */
+	public String getOrigin(){
+		return this.origin;
+	}
 	
 	/** @return The full name of this TileType in the format of origin.id. If origin is myGame, and id is stone, then this method will return "myGame.stone" */
 	public String getName(){
