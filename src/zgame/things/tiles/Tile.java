@@ -2,6 +2,7 @@ package zgame.things.tiles;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.physics.collision.CollisionResponse;
 import zgame.things.GameThing;
 import zgame.things.PositionedRectangleThing;
 
@@ -10,7 +11,10 @@ public class Tile extends PositionedRectangleThing{
 	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 64;
-	
+
+	/** The inverse of {@link #TILE_SIZE} */
+	public static final double TILE_SIZE_INVERSE = 1.0 / TILE_SIZE;
+
 	/** The index of this tile on the x axis */
 	private int xIndex;
 	/** The index of this tile on the y axis */
@@ -58,6 +62,22 @@ public class Tile extends PositionedRectangleThing{
 		return type;
 	}
 	
+	/**
+	 * Based on the given rectangular bounds, determine the new position of the rectangle when it collides with this tile
+	 * The coordinates in this method are treated as the upper left hand corner of the rectangle
+	 * 
+	 * @param x The x coordinate of the bounds
+	 * @param y The y coordinate of the bounds
+	 * @param w The width of the bounds
+	 * @param h The height of the bounds
+	 * @param px The x coordinate of the location of the bounds in the previous instance of time
+	 * @param py The y coordinate of the location of the bounds in the previous instance of time
+	 * @return A point to reposition the rectangle to
+	 */
+	public CollisionResponse collideRect(double x, double y, double w, double h, double px, double py){
+		return this.getType().getHitbox().collideRect(this, x, y, w, h, px, py);
+	}
+	
 	@Override
 	public void render(Game game, Renderer r){
 		this.getType().render(this, game, r);
@@ -66,6 +86,11 @@ public class Tile extends PositionedRectangleThing{
 	/** @return The unit size of a tile */
 	public static double size(){
 		return TILE_SIZE;
+	}
+
+	/** @return The inverse of {@link #size()} */
+	public static double inverseSize(){
+		return TILE_SIZE_INVERSE;
 	}
 	
 }

@@ -1,6 +1,7 @@
 package zgame.things.tiles;
 
-import java.awt.geom.Point2D;
+import zgame.physics.collision.CollisionResponse;
+import zgame.physics.collision.ZCollision;
 
 /** An enum that represents the hitbox of a tile, i.e., what parts of the tile have collision */
 public interface TileHitbox{
@@ -21,21 +22,22 @@ public interface TileHitbox{
 	 * @param py The y coordinate of the location of the bounds in the previous instance of time
 	 * @return A point to reposition the rectangle to
 	 */
-	public Point2D.Double collideRect(Tile t, double x, double y, double w, double h, double px, double py);
+	public CollisionResponse collideRect(Tile t, double x, double y, double w, double h, double px, double py);
 
 	/** For tiles with no collision */
 	public static class None implements TileHitbox{
 		@Override
-		public Point2D.Double collideRect(Tile t, double x, double y, double w, double h, double px, double py){
-			return new Point2D.Double(x, y);
+		public CollisionResponse collideRect(Tile t, double x, double y, double w, double h, double px, double py){
+			return new CollisionResponse();
 		}
 	}
 
 	/** For tiles whose hitbox takes up the entire tile */
 	public static class Full implements TileHitbox{
 		@Override
-		public Point2D.Double collideRect(Tile t, double x, double y, double w, double h, double px, double py){
-			return new Point2D.Double(x, y);
+		public CollisionResponse collideRect(Tile t, double x, double y, double w, double h, double px, double py){
+			CollisionResponse r = ZCollision.rectToRectBasic(t.getX(), t.getY(), t.getWidth(), t.getHeight(), x, y, w, h);
+			return r;
 		}
 	}
 

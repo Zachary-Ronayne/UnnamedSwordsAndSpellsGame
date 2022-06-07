@@ -1,7 +1,5 @@
 package zgame.things.tiles;
 
-import java.awt.geom.Point2D;
-
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 
@@ -29,11 +27,6 @@ public abstract class TileType{
 		this.id = id;
 		this.origin = origin;
 		this.hitbox = hitbox;
-	}
-	
-	/** See {@link TileType#collideRect(Tile, double, double, double, double, double, double)} */
-	public Point2D.Double collideRect(Tile t, double x, double y, double w, double h, double px, double py){
-		return this.getHitbox().collideRect(t, x, y, w, h, px, py);
 	}
 	
 	/** @return The unique identifier for this {@link TileType} */

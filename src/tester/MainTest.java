@@ -229,6 +229,7 @@ public class MainTest extends Game{
 			}
 
 			for(int i = 0; i < 4; i++) ts[4 + i][6] = new Tile(4 + i, 6, BaseTiles.WALL_DARK);
+			ts[11][3] = new Tile(11, 3, BaseTiles.WALL_LIGHT);
 
 			return r;
 		}

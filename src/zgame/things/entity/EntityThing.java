@@ -116,6 +116,16 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		this.forces.add(force);
 	}
 
+	/** @return The x coordinate of this {@link EntityThing} where it was in the previous instance of time, based on its current velocity */
+	public double getPX(){
+		return this.getX() - this.getVelocity().getX();
+	}
+
+	/** @return The y coordinate of this {@link EntityThing} where it was in the previous instance of time, based on its current velocity */
+	public double getPY(){
+		return this.getY() - this.getVelocity().getY();
+	}
+
 	/**
 	 * Determine if this {@link EntityThing} intersects the given rectangular bounds
 	 * 

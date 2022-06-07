@@ -7,6 +7,9 @@ import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZArrayUtils;
+import zgame.core.utils.ZLambdaUtils;
+import zgame.core.utils.ZMathUtils;
+import zgame.physics.collision.CollisionResponse;
 import zgame.things.entity.EntityThing;
 import zgame.things.tiles.BaseTiles;
 import zgame.things.tiles.Tile;
@@ -124,6 +127,27 @@ public class Room implements RectangleBounds{
 	}
 	
 	/**
+	 * Iterate over a subsection of {@link #tiles} which intersect the given bounds
+	 * 
+	 * @param x The x coordinate of the upper left hand corner of the bounds
+	 * @param y The y coordinate of the upper left hand corner of the bounds
+	 * @param w The width of the bounds
+	 * @param h The height of the bounds
+	 * @param func The function to run for each tile. The parameters are the x and y indexes of {@link Tile} of that iteration
+	 */
+	public void applyToTileBounds(double x, double y, double w, double h, ZLambdaUtils.TwoInt func){
+		int x1 = (int)ZMathUtils.minMax(0, this.tiles.length, Math.floor(x * Tile.inverseSize()));
+		int y1 = (int)ZMathUtils.minMax(0, this.tiles[0].length, Math.floor(y * Tile.inverseSize()));
+		int x2 = (int)ZMathUtils.minMax(0, this.tiles.length, Math.ceil((x + w) * Tile.inverseSize()));
+		int y2 = (int)ZMathUtils.minMax(0, this.tiles[0].length, Math.ceil((y + h) * Tile.inverseSize()));
+		for(int lx = x1; lx < x2; lx++){
+			for(int ly = y1; ly < y2; ly++){
+				func.run(lx, ly);
+			}
+		}
+	}
+	
+	/**
 	 * Add a {@link GameThing} to this {@link Room}
 	 * 
 	 * @param thing The {@link GameThing} to add
@@ -153,13 +177,26 @@ public class Room implements RectangleBounds{
 	public void tick(Game game, double dt){
 		// Update all updatable objects
 		for(GameTickable t : this.tickableThings) t.tick(game, dt);
+
+		// Collide things with hitboxes against tiles
+		for(EntityThing obj : this.entities){
+			// Find touching tiles and collide with them
+			this.applyToTileBounds(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight(), (x, y) -> {
+				CollisionResponse collide = tiles[x][y].collideRect(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight(), obj.getPX(), obj.getPY());
+				obj.addX(collide.x());
+				obj.addY(collide.y());
+				if(collide.wall()) obj.touchWall();
+				if(collide.ceiling()) obj.touchCeiling();
+				if(collide.floor()) obj.touchFloor();
+			});
+		}
 		
 		// Keep all objects inside the game bounds, if the walls are enabled
 		for(HitBox hb : this.hitBoxThings){
-			if(this.isSolid(WALL_LEFT)){ if(hb.keepRight(this.leftEdge())){ hb.touchWall(); } }
-			if(this.isSolid(WALL_RIGHT)){ if(hb.keepLeft(this.rightEdge())){ hb.touchWall(); } }
-			if(this.isSolid(WALL_CEILING)){ if(hb.keepBelow(this.topEdge())){ hb.touchCeiling(); } }
-			if(this.isSolid(WALL_FLOOR)){ if(hb.keepAbove(this.bottomEdge())){ hb.touchFloor(); } }
+			if(this.isSolid(WALL_LEFT) && hb.keepRight(this.leftEdge())) hb.touchWall();
+			if(this.isSolid(WALL_RIGHT) && hb.keepLeft(this.rightEdge())) hb.touchWall();
+			if(this.isSolid(WALL_CEILING) && hb.keepBelow(this.topEdge())) hb.touchCeiling();
+			if(this.isSolid(WALL_FLOOR) && hb.keepAbove(this.bottomEdge())) hb.touchFloor();
 		}
 		// Remove all things that need to be removed
 		for(GameThing thing : this.thingsToRemove){
