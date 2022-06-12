@@ -36,7 +36,8 @@ public interface TileHitbox{
 	public static class Full implements TileHitbox{
 		@Override
 		public CollisionResponse collideRect(Tile t, double x, double y, double w, double h, double px, double py){
-			CollisionResponse r = ZCollision.rectToRectBasic(t.getX(), t.getY(), t.getWidth(), t.getHeight(), x, y, w, h);
+			// CollisionResponse r = ZCollision.rectToRectBasic(t.getX(), t.getY(), t.getWidth(), t.getHeight(), x, y, w, h);
+			CollisionResponse r = ZCollision.rectToRect(t.getX(), t.getY(), t.getWidth(), t.getHeight(), x, y, w, h, px, py);
 			return r;
 		}
 	}
