@@ -9,7 +9,6 @@ import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZArrayUtils;
 import zgame.core.utils.ZLambdaUtils;
 import zgame.core.utils.ZMathUtils;
-import zgame.physics.collision.CollisionResponse;
 import zgame.things.entity.EntityThing;
 import zgame.things.tiles.BaseTiles;
 import zgame.things.tiles.Tile;
@@ -140,11 +139,7 @@ public class Room implements RectangleBounds{
 		int y1 = (int)ZMathUtils.minMax(0, this.tiles[0].length, Math.floor(y * Tile.inverseSize()));
 		int x2 = (int)ZMathUtils.minMax(0, this.tiles.length, Math.ceil((x + w) * Tile.inverseSize()));
 		int y2 = (int)ZMathUtils.minMax(0, this.tiles[0].length, Math.ceil((y + h) * Tile.inverseSize()));
-		for(int lx = x1; lx < x2; lx++){
-			for(int ly = y1; ly < y2; ly++){
-				func.run(lx, ly);
-			}
-		}
+		for(int lx = x1; lx < x2; lx++) for(int ly = y1; ly < y2; ly++) func.run(lx, ly);
 	}
 	
 	/**
@@ -177,20 +172,15 @@ public class Room implements RectangleBounds{
 	public void tick(Game game, double dt){
 		// Update all updatable objects
 		for(GameTickable t : this.tickableThings) t.tick(game, dt);
-
+		
 		// Collide things with hitboxes against tiles
 		for(EntityThing obj : this.entities){
 			// Find touching tiles and collide with them
 			this.applyToTileBounds(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight(), (x, y) -> {
-				CollisionResponse collide = tiles[x][y].collideRect(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight(), obj.getPX(), obj.getPY());
-				obj.addX(collide.x());
-				obj.addY(collide.y());
-				if(collide.wall()) obj.touchWall();
-				if(collide.ceiling()) obj.touchCeiling();
-				if(collide.floor()) obj.touchFloor();
+				// Collide the entity with the tile
+				obj.collide(tiles[x][y].collideRect(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight(), obj.getPX(), obj.getPY()));
 			});
 		}
-		
 		// Keep all objects inside the game bounds, if the walls are enabled
 		for(HitBox hb : this.hitBoxThings){
 			if(this.isSolid(WALL_LEFT) && hb.keepRight(this.leftEdge())) hb.touchWall();

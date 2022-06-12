@@ -6,6 +6,7 @@ import java.util.Collection;
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.physics.ZVector;
+import zgame.physics.collision.CollisionResponse;
 import zgame.things.HitBox;
 import zgame.things.PositionedThing;
 
@@ -69,15 +70,24 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		// Reset the y velocity to 0, only if the entity is moving downwards
 		if(this.velocity.getY() > 0) this.velocity = new ZVector(this.velocity.getX(), 0);
 	}
-
+	
 	@Override
 	public void touchCeiling(){
 		// Reset the y velocity to 0, only if the entity is moving upwards
 		if(this.velocity.getY() < 0) this.velocity = new ZVector(this.velocity.getX(), 0);
 	}
-
+	
 	@Override
 	public void touchWall(){
+	}
+	
+	@Override
+	public void collide(CollisionResponse r){
+		this.addX(r.x());
+		this.addY(r.y());
+		if(r.wall()) this.touchWall();
+		if(r.ceiling()) this.touchCeiling();
+		if(r.floor()) this.touchFloor();
 	}
 	
 	/**
@@ -115,17 +125,17 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public void addForce(ZVector force){
 		this.forces.add(force);
 	}
-
+	
 	/** @return The x coordinate of this {@link EntityThing} where it was in the previous instance of time, based on its current velocity */
 	public double getPX(){
 		return this.getX() - this.getVelocity().getX();
 	}
-
+	
 	/** @return The y coordinate of this {@link EntityThing} where it was in the previous instance of time, based on its current velocity */
 	public double getPY(){
 		return this.getY() - this.getVelocity().getY();
 	}
-
+	
 	/**
 	 * Determine if this {@link EntityThing} intersects the given rectangular bounds
 	 * 

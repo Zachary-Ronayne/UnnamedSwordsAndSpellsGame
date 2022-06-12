@@ -9,16 +9,17 @@ public abstract class PositionedThing extends GameThing implements Positionable{
 	private double x;
 	/** The y coordinate of this {@link PositionedThing} */
 	private double y;
-
+	
 	/**
 	 * Create a new {@link PositionedThing} at (0, 0)
 	 */
 	public PositionedThing(){
 		this(0, 0);
 	}
-
+	
 	/**
 	 * Create a new {@link PositionedThing}
+	 * 
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 */
@@ -27,7 +28,7 @@ public abstract class PositionedThing extends GameThing implements Positionable{
 		this.x = x;
 		this.y = y;
 	}
-
+	
 	@Override
 	/** @return See {@link #x} */
 	public double getX(){
@@ -38,9 +39,10 @@ public abstract class PositionedThing extends GameThing implements Positionable{
 	public void setX(double x){
 		this.x = x;
 	}
-
+	
 	/**
 	 * Add the given value to {@link #x}
+	 * 
 	 * @param x The value to add
 	 */
 	public void addX(double x){
@@ -57,12 +59,12 @@ public abstract class PositionedThing extends GameThing implements Positionable{
 	public void setY(double y){
 		this.y = y;
 	}
-
+	
 	/** @return Always 0, can override to give this thing a width, i.e. an amount of space it takes up on the x axis */
 	public double getWidth(){
 		return 0;
 	}
-
+	
 	/** @return Always 0, can override to give this thing a height, i.e. an amount of space it takes up on the y axis */
 	public double getHeight(){
 		return 0;
@@ -76,7 +78,7 @@ public abstract class PositionedThing extends GameThing implements Positionable{
 	public void addY(double y){
 		this.setY(this.getY() + y);
 	}
-
+	
 	/**
 	 * Take this {@link PositionedThing} from the given room, and place it in the other given room
 	 * 
@@ -97,5 +99,5 @@ public abstract class PositionedThing extends GameThing implements Positionable{
 	public void centerCamera(Game game){
 		game.centerCamera(this.centerX(), this.centerY());
 	}
-
+	
 }

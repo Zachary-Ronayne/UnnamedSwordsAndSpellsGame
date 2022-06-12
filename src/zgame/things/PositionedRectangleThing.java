@@ -1,5 +1,7 @@
 package zgame.things;
 
+import zgame.physics.collision.CollisionResponse;
+
 /** A {@link PositionedThing} which also has a rectangular hitbox */
 public abstract class PositionedRectangleThing extends PositionedThing implements RectangleBounds{
 	
@@ -31,6 +33,21 @@ public abstract class PositionedRectangleThing extends PositionedThing implement
 		this.width = w;
 		this.height = h;
 	}
+	
+	/**
+	 * Based on the given rectangular bounds, determine the new position of the given rectangle when it collides with this thing
+	 * The coordinates in this method are treated as the upper left hand corner of the rectangle. 
+	 * Depending on implementation, this method can return an empty {@link CollisionResponse}, representing that this object doesn't have collision
+	 * 
+	 * @param x The x coordinate of the bounds
+	 * @param y The y coordinate of the bounds
+	 * @param w The width of the bounds
+	 * @param h The height of the bounds
+	 * @param px The x coordinate of the location of the bounds in the previous instance of time
+	 * @param py The y coordinate of the location of the bounds in the previous instance of time
+	 * @return A {@link CollisionResponse} representing what happened during the collision
+	 */
+	public abstract CollisionResponse collideRect(double x, double y, double w, double h, double px, double py);
 
 	/** @return See {@link #width} */
 	@Override

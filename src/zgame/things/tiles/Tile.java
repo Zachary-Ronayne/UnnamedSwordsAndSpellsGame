@@ -62,18 +62,7 @@ public class Tile extends PositionedRectangleThing{
 		return type;
 	}
 	
-	/**
-	 * Based on the given rectangular bounds, determine the new position of the rectangle when it collides with this tile
-	 * The coordinates in this method are treated as the upper left hand corner of the rectangle
-	 * 
-	 * @param x The x coordinate of the bounds
-	 * @param y The y coordinate of the bounds
-	 * @param w The width of the bounds
-	 * @param h The height of the bounds
-	 * @param px The x coordinate of the location of the bounds in the previous instance of time
-	 * @param py The y coordinate of the location of the bounds in the previous instance of time
-	 * @return A point to reposition the rectangle to
-	 */
+	@Override
 	public CollisionResponse collideRect(double x, double y, double w, double h, double px, double py){
 		return this.getType().getHitbox().collideRect(this, x, y, w, h, px, py);
 	}
