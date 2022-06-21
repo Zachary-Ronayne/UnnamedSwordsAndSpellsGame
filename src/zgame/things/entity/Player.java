@@ -32,11 +32,23 @@ public class Player extends MobRectangle{
 		
 		// Move left and right
 		ZKeyInput ki = game.getKeyInput();
-		double speed = dt * 300;
+		// TODO make this walking thing in the mob class or maybe the entity class, and make variables for walking speed / acceleration
+		double speed = dt * 80000;
 		double move = 0;
 		if(ki.buttonDown(GLFW_KEY_LEFT)) move = -speed;
 		else if(ki.buttonDown(GLFW_KEY_RIGHT)) move = speed;
-		this.setX(this.getX() + move);
+		// this.setX(this.getX() + move);
+		// If the mob is moving faster than the maximum walking speed, don't add any more speed
+		double maxSpeed = 300;
+		if(Math.abs(this.getVelocity().getX()) > maxSpeed) move = 0;
+		// If the mob is on the ground, then slow the mob down
+		/*
+		 * TODO make this like a friction constant
+		 * It should be based on the thing it is colliding with
+		 * The first number is the mob trying to stop moving, the second is the friction of the ground
+		 */
+		if(this.isOnGround()) this.addVelocityX(-this.getVelocity().getX() * ((move == 0) ? 0.1 : 0.01));
+		this.setWalkingForce(move);
 		
 		// Jump
 		if(ki.buttonDown(GLFW_KEY_UP)) this.jump();

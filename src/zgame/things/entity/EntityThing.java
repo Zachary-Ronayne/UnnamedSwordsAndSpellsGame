@@ -24,6 +24,9 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	/** Every force currently acting on this {@link EntityThing} */
 	private Collection<ZVector> forces;
+
+	/** true if this {@link EntityThing} was on the ground in the past {@link #tick(Game, double)}, false otherwise */
+	private boolean onGround;
 	
 	/**
 	 * Create a new empty entity at (0, 0)
@@ -43,6 +46,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		this.velocity = new ZVector(0, 0);
 		this.forces = new ArrayList<ZVector>();
 		this.addForce(GRAVITY);
+		this.onGround = false;
 	}
 	
 	@Override
@@ -64,11 +68,24 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public ZVector getVelocity(){
 		return this.velocity;
 	}
+
+	/** @return See {@link #onGround} */
+	public boolean isOnGround(){
+		return this.onGround;
+	}
+
+	@Override
+	public void leaveFloor(){
+		this.onGround = false;
+	}
 	
 	@Override
 	public void touchFloor(){
 		// Reset the y velocity to 0, only if the entity is moving downwards
 		if(this.velocity.getY() > 0) this.velocity = new ZVector(this.velocity.getX(), 0);
+
+		// Touching a floor means this entity is on the ground
+		this.onGround = true;
 	}
 	
 	@Override
@@ -124,6 +141,30 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	 */
 	public void addForce(ZVector force){
 		this.forces.add(force);
+	}
+
+	/**
+	 * Remove the specified {@link ZForce} object from this {@link EntityThing}'s forces
+	 * 
+	 * @param force The force to remove
+	 */
+	public void removeForce(ZVector force){
+		this.forces.remove(force);
+	}
+
+	/**
+	 * Replace the given force with a force build from the given components
+	 * 
+	 * @param force The force object to remove
+	 * @param x The x component
+	 * @param y The y component
+	 * @return The newly added vector object
+	 */
+	public ZVector replaceForce(ZVector force, double x, double y){
+		this.removeForce(force);
+		ZVector v = new ZVector(x, y);
+		this.addForce(v);
+		return v;
 	}
 	
 	/** @return The x coordinate of this {@link EntityThing} where it was in the previous instance of time, based on its current velocity */

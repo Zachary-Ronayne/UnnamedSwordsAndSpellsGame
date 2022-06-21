@@ -1,5 +1,7 @@
 package zgame.things.entity;
 
+import zgame.physics.ZVector;
+
 /** An {@link EntityThing} which represents some kind of creature which can walk around, i.e. the player, an enemy, an animal, a monster, any NPC, etc. */
 public abstract class MobThing extends EntityThing{
 	
@@ -8,6 +10,9 @@ public abstract class MobThing extends EntityThing{
 	
 	/** true if this {@link MobThing} is in a position where it is allowed to jump, false otherwise */
 	private boolean canJump;
+	
+	/** The vector keeping track of the force of this {@link MobThing} walking */
+	private ZVector walkingForce;
 	
 	/**
 	 * Create a new {@link MobThing} at the given position
@@ -19,6 +24,8 @@ public abstract class MobThing extends EntityThing{
 		super(x, y);
 		this.canJump = false;
 		this.jumpPower = 300;
+		this.walkingForce = new ZVector(0, 0);
+		this.addForce(this.walkingForce);
 	}
 	
 	/** Cause this mob to jump upwards, if the mob is in a position to jump */
@@ -34,6 +41,13 @@ public abstract class MobThing extends EntityThing{
 		super.touchFloor();
 		this.canJump = true;
 	}
+
+	@Override
+	public void touchWall(){
+		super.touchWall();
+		// TODO make this based on a bounce amount based on the thing collided with
+		this.addVelocityX(-this.getVelocity().getX() * 1.2);
+	}
 	
 	/** @return See {@link #jumpPower} */
 	public double getJumpPower(){
@@ -43,6 +57,16 @@ public abstract class MobThing extends EntityThing{
 	/** @param jumpPower See {@link #jumpPower} */
 	public void setJumpPower(double jumpPower){
 		this.jumpPower = jumpPower;
+	}
+
+	/** @return See {@link #walkingForce} */
+	public ZVector getWalkingForce(){
+		return this.walkingForce;
+	}
+
+	/** @param movement The amount of force applied to the x axis when this mob is walking */
+	public void setWalkingForce(double movement){
+		this.walkingForce = this.replaceForce(this.walkingForce, movement, 0);
 	}
 	
 }

@@ -9,6 +9,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZArrayUtils;
 import zgame.core.utils.ZLambdaUtils;
 import zgame.core.utils.ZMathUtils;
+import zgame.physics.collision.CollisionResponse;
 import zgame.things.entity.EntityThing;
 import zgame.things.tiles.BaseTiles;
 import zgame.things.tiles.Tile;
@@ -132,14 +133,17 @@ public class Room implements RectangleBounds{
 	 * @param y The y coordinate of the upper left hand corner of the bounds
 	 * @param w The width of the bounds
 	 * @param h The height of the bounds
-	 * @param func The function to run for each tile. The parameters are the x and y indexes of {@link Tile} of that iteration
+	 * @param func The function to run for each tile. The parameters are the x and y indexes of {@link Tile} of that iteration. The function returns an integer
+	 * @return The total of every iteration of the given function added together
 	 */
-	public void applyToTileBounds(double x, double y, double w, double h, ZLambdaUtils.TwoInt func){
+	public int applyToTileBounds(double x, double y, double w, double h, ZLambdaUtils.TwoIntRetInt func){
 		int x1 = (int)ZMathUtils.minMax(0, this.tiles.length, Math.floor(x * Tile.inverseSize()));
 		int y1 = (int)ZMathUtils.minMax(0, this.tiles[0].length, Math.floor(y * Tile.inverseSize()));
 		int x2 = (int)ZMathUtils.minMax(0, this.tiles.length, Math.ceil((x + w) * Tile.inverseSize()));
 		int y2 = (int)ZMathUtils.minMax(0, this.tiles[0].length, Math.ceil((y + h) * Tile.inverseSize()));
-		for(int lx = x1; lx < x2; lx++) for(int ly = y1; ly < y2; ly++) func.run(lx, ly);
+		int total = 0;
+		for(int lx = x1; lx < x2; lx++) for(int ly = y1; ly < y2; ly++) total += func.run(lx, ly);
+		return total;
 	}
 	
 	/**
@@ -176,10 +180,14 @@ public class Room implements RectangleBounds{
 		// Collide things with hitboxes against tiles
 		for(EntityThing obj : this.entities){
 			// Find touching tiles and collide with them
-			this.applyToTileBounds(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight(), (x, y) -> {
+			int total = this.applyToTileBounds(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight(), (x, y) -> {
 				// Collide the entity with the tile
-				obj.collide(tiles[x][y].collideRect(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight(), obj.getPX(), obj.getPY()));
+				CollisionResponse res = tiles[x][y].collideRect(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight(), obj.getPX(), obj.getPY());
+				obj.collide(res);
+				return (res.x() != 0 || res.y() != 0) ? 1 : 0;
 			});
+			// If at no tiles were touched, the entity is not on the floor
+			if(total == 0) obj.leaveFloor();
 		}
 		// Keep all objects inside the game bounds, if the walls are enabled
 		for(HitBox hb : this.hitBoxThings){

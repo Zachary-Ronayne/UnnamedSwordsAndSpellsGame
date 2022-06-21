@@ -54,6 +54,9 @@ public interface HitBox{
 	
 	/** A method that defines what this object does when it touches a floor */
 	public void touchFloor();
+
+	/** A method that defines what this object does when it leaves the floor, i.e. is not touching the floor */
+	public void leaveFloor();
 	
 	/** A method that defines what this object does when it touches a ceiling */
 	public void touchCeiling();

@@ -24,6 +24,11 @@ public final class ZLambdaUtils{
 		public void run(int a, int b);
 	}
 	
+	/** A lambda that takes 2 integers and returns an integer */
+	public interface TwoIntRetInt{
+		public int run(int a, int b);
+	}
+	
 	/** Cannot instantiate this class */
 	private ZLambdaUtils(){
 	};
