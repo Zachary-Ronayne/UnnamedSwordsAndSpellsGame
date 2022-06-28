@@ -1,7 +1,6 @@
 package zgame.things.tiles;
 
 import zgame.physics.collision.CollisionResponse;
-import zgame.physics.collision.ZCollision;
 import zgame.things.HitBox;
 
 /** An enum that represents the hitbox of a tile, i.e., what parts of the tile have collision */
@@ -32,13 +31,7 @@ public interface TileHitbox{
 	public static class Full implements TileHitbox{
 		@Override
 		public CollisionResponse collide(Tile t, HitBox obj){
-			CollisionResponse r = ZCollision.rectToRectBasic(t.getX(), t.getY(), t.getWidth(), t.getHeight(), obj.getX(), obj.getY(), obj.getMX() - obj.getX(),
-					obj.getMY() - obj.getY());
-			// CollisionResponse r = ZCollision.rectToRectAprox(t.getX(), t.getY(), t.getWidth(), t.getHeight(), obj.getX(), obj.getX(), obj.getMX() - obj.getX(),
-			// 		obj.getMY() - obj.getY(), obj.getPX(), obj.getPY(), 5);
-			// CollisionResponse r = ZCollision.rectToRect(t.getX(), t.getY(), t.getWidth(), t.getHeight(), obj.getX(), obj.getX(), obj.getMX() - obj.getX(),
-			// 		obj.getMY() - obj.getY(), obj.getPX(), obj.getPY());
-			return r;
+			return obj.calculateRectCollision(t.getX(), t.getY(), t.getWidth(), t.getHeight());
 		}
 	}
 
