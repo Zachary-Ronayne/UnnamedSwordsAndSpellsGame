@@ -9,6 +9,7 @@ import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResponse;
 import zgame.things.HitBox;
 import zgame.things.PositionedThing;
+import zgame.things.Room;
 
 /**
  * A {@link PositionedThing} which keeps track of an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
@@ -17,7 +18,7 @@ import zgame.things.PositionedThing;
 public abstract class EntityThing extends PositionedThing implements GameTickable, HitBox{
 	
 	/** The ZVector determining how fast gravity applies to objects */
-	public static final ZVector GRAVITY = new ZVector(0, 1000);
+	public static final ZVector GRAVITY = new ZVector(0, 800);
 	
 	/** The current velocity of this Entity */
 	private ZVector velocity;
@@ -28,6 +29,11 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	/** true if this {@link EntityThing} was on the ground in the past {@link #tick(Game, double)}, false otherwise */
 	private boolean onGround;
 	
+	/** The value of {@link #getX()} from the last tick */
+	private double px;
+	/** The value of {@link #getY()} from the last tick */
+	private double py;
+
 	/**
 	 * Create a new empty entity at (0, 0)
 	 */
@@ -45,8 +51,10 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		super(x, y);
 		this.velocity = new ZVector(0, 0);
 		this.forces = new ArrayList<ZVector>();
-		this.addForce(GRAVITY);
+		this.addForce(GRAVITY); // TODO add terminal velocity for gravity
 		this.onGround = false;
+		this.px = this.getX();
+		this.py = this.getY();
 	}
 	
 	@Override
@@ -59,9 +67,14 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		this.addVelocity(acceleration.scale(dt));
 		
 		// Move the entity based on the current velocity and acceleration
+		this.px = this.getX();
+		this.py = this.getY();
 		ZVector moveVec = this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5));
 		this.addX(moveVec.getX());
 		this.addY(moveVec.getY());
+
+		// Now check the collision
+		this.checkCollision(game.getCurrentRoom());
 	}
 	
 	/** @return See {@link #velocity} */
@@ -96,6 +109,17 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	@Override
 	public void touchWall(){
+		// TODO make this based on a bounce amount based on the thing collided with
+		this.addVelocityX(-this.getVelocity().getX() * 1.2);
+	}
+	
+	/**
+	 * Collide this {@link EntityThing} with the given room. Can override this to perform custom collision
+	 * 
+	 * @param room The room to collide with
+	 */
+	public void checkCollision(Room room){
+		room.collide(this);
 	}
 	
 	@Override
@@ -169,12 +193,12 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	/** @return The x coordinate of this {@link EntityThing} where it was in the previous instance of time, based on its current velocity */
 	public double getPX(){
-		return this.getX() - this.getVelocity().getX();
+		return px;
 	}
 	
 	/** @return The y coordinate of this {@link EntityThing} where it was in the previous instance of time, based on its current velocity */
 	public double getPY(){
-		return this.getY() - this.getVelocity().getY();
+		return py;
 	}
 	
 	/**

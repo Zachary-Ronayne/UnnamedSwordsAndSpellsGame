@@ -198,7 +198,7 @@ public class MainTest extends Game{
 			this.setCurrentRoom(firstRoom);
 			
 			this.player = new Player(100, 400, 60, 100);
-			this.player.setJumpPower(350);
+			this.player.setJumpPower(600);
 			firstRoom.addThing(this.player);
 			
 			Door d = new Door(700, 400);
@@ -228,7 +228,9 @@ public class MainTest extends Game{
 				}
 			}
 
+			// TODO abstract setting a tile out, directly using this list shouldn't be allowed
 			for(int i = 0; i < 4; i++) ts[4 + i][6] = new Tile(4 + i, 6, BaseTiles.WALL_DARK);
+			ts[7][5] = new Tile(7, 5, BaseTiles.WALL_DARK);
 			ts[11][3] = new Tile(11, 3, BaseTiles.WALL_LIGHT);
 
 			return r;

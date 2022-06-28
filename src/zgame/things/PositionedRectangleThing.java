@@ -1,7 +1,5 @@
 package zgame.things;
 
-import zgame.physics.collision.CollisionResponse;
-
 /** A {@link PositionedThing} which also has a rectangular hitbox */
 public abstract class PositionedRectangleThing extends PositionedThing implements RectangleBounds{
 	
@@ -47,7 +45,7 @@ public abstract class PositionedRectangleThing extends PositionedThing implement
 	 * @param py The y coordinate of the location of the bounds in the previous instance of time
 	 * @return A {@link CollisionResponse} representing what happened during the collision
 	 */
-	public abstract CollisionResponse collideRect(double x, double y, double w, double h, double px, double py);
+	// public abstract CollisionResponse collideRect(double x, double y, double w, double h, double px, double py);
 
 	/** @return See {@link #width} */
 	@Override

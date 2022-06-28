@@ -5,7 +5,6 @@ import java.util.Collection;
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
-import zgame.physics.collision.CollisionResponse;
 import zgame.things.entity.EntityThing;
 
 public class Door extends PositionedRectangleThing implements GameTickable{
@@ -88,11 +87,6 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 			thing.setY(this.roomY);
 			thing.enterRoom(r, this.leadRoom, game);
 		}
-	}
-	
-	@Override
-	public CollisionResponse collideRect(double x, double y, double w, double h, double px, double py){
-		return new CollisionResponse();
 	}
 
 	@Override

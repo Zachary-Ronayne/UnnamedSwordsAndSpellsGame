@@ -7,7 +7,6 @@ import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZArrayUtils;
-import zgame.core.utils.ZLambdaUtils;
 import zgame.core.utils.ZMathUtils;
 import zgame.physics.collision.CollisionResponse;
 import zgame.things.entity.EntityThing;
@@ -127,26 +126,6 @@ public class Room implements RectangleBounds{
 	}
 	
 	/**
-	 * Iterate over a subsection of {@link #tiles} which intersect the given bounds
-	 * 
-	 * @param x The x coordinate of the upper left hand corner of the bounds
-	 * @param y The y coordinate of the upper left hand corner of the bounds
-	 * @param w The width of the bounds
-	 * @param h The height of the bounds
-	 * @param func The function to run for each tile. The parameters are the x and y indexes of {@link Tile} of that iteration. The function returns an integer
-	 * @return The total of every iteration of the given function added together
-	 */
-	public int applyToTileBounds(double x, double y, double w, double h, ZLambdaUtils.TwoIntRetInt func){
-		int x1 = (int)ZMathUtils.minMax(0, this.tiles.length, Math.floor(x * Tile.inverseSize()));
-		int y1 = (int)ZMathUtils.minMax(0, this.tiles[0].length, Math.floor(y * Tile.inverseSize()));
-		int x2 = (int)ZMathUtils.minMax(0, this.tiles.length, Math.ceil((x + w) * Tile.inverseSize()));
-		int y2 = (int)ZMathUtils.minMax(0, this.tiles[0].length, Math.ceil((y + h) * Tile.inverseSize()));
-		int total = 0;
-		for(int lx = x1; lx < x2; lx++) for(int ly = y1; ly < y2; ly++) total += func.run(lx, ly);
-		return total;
-	}
-	
-	/**
 	 * Add a {@link GameThing} to this {@link Room}
 	 * 
 	 * @param thing The {@link GameThing} to add
@@ -166,6 +145,66 @@ public class Room implements RectangleBounds{
 	public void removeThing(GameThing thing){
 		this.thingsToRemove.add(thing);
 	}
+
+	/**
+	 * Collide the given {@link EntityThing} with this room. Essentially, attempt to move the given object so that it no longer intersects with anything in this room.
+	 * 
+	 * @param obj The object to collide
+	 * 
+	 * @return The CollisionResponse representing the final collision that took place
+	 */
+	public CollisionResponse collide(HitBox obj){
+		
+		// TODO Room should handle all collision by taking a HitBox object
+		// TODO Try doing this to collide, first move on only the x axis, then check for collision, then move only on the y axis. This should happen when the x and y velocity is updated in tick
+		// TODO Docs on the set and add x and y methods saying that they should not be used to simulate the object moving via physics, that should be done via forces and velocity
+		// TODO give entities a mass variable that is used in the calculations for applying forces
+		// TODO The tiles object should not be accessible outside this room class, like, remove the getter
+
+		// Find touching tiles and collide with them
+		int minX = this.tileX(obj.getX());
+		int minY = this.tileY(obj.getY());
+		int maxX = this.tileX(obj.getMX());
+		int maxY = this.tileY(obj.getMY());
+
+		double mx = 0;
+		double my = 0;
+		boolean collided = false;
+		boolean left = false;
+		boolean right = false;
+		boolean top = false;
+		boolean bot = false;
+
+		for(int x = minX; x <= maxX; x++){
+			for(int y = minY; y <= maxY; y++){
+				Tile t = this.tiles[x][y];
+				CollisionResponse res = t.collide(obj);
+				// Keep track of if a tile was touched
+				if(res.x() != 0 || res.y() != 0) collided = true;
+
+				mx += res.x();
+				my += res.y();
+				if(res.left()) left = true;
+				if(res.right()) right = true;
+				if(res.ceiling()) top = true;
+				if(res.floor()) bot = true;
+			}
+		}
+		// If at no tiles were touched, the entity is not on the floor
+		if(!collided) obj.leaveFloor();
+
+		// Determine the final collision
+		CollisionResponse res = new CollisionResponse(mx, my, left, right, top, bot);
+		obj.collide(res);
+
+		// Keep the object inside the game bounds, if the walls are enabled
+		if(this.isSolid(WALL_LEFT) && obj.keepRight(this.leftEdge())) obj.touchWall();
+		if(this.isSolid(WALL_RIGHT) && obj.keepLeft(this.rightEdge())) obj.touchWall();
+		if(this.isSolid(WALL_CEILING) && obj.keepBelow(this.topEdge())) obj.touchCeiling();
+		if(this.isSolid(WALL_FLOOR) && obj.keepAbove(this.bottomEdge())) obj.touchFloor();
+
+		return res;
+	}
 	
 	/**
 	 * Update this {@link Room}
@@ -177,25 +216,6 @@ public class Room implements RectangleBounds{
 		// Update all updatable objects
 		for(GameTickable t : this.tickableThings) t.tick(game, dt);
 		
-		// Collide things with hitboxes against tiles
-		for(EntityThing obj : this.entities){
-			// Find touching tiles and collide with them
-			int total = this.applyToTileBounds(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight(), (x, y) -> {
-				// Collide the entity with the tile
-				CollisionResponse res = tiles[x][y].collideRect(obj.getX(), obj.getY(), obj.getWidth(), obj.getHeight(), obj.getPX(), obj.getPY());
-				obj.collide(res);
-				return (res.x() != 0 || res.y() != 0) ? 1 : 0;
-			});
-			// If at no tiles were touched, the entity is not on the floor
-			if(total == 0) obj.leaveFloor();
-		}
-		// Keep all objects inside the game bounds, if the walls are enabled
-		for(HitBox hb : this.hitBoxThings){
-			if(this.isSolid(WALL_LEFT) && hb.keepRight(this.leftEdge())) hb.touchWall();
-			if(this.isSolid(WALL_RIGHT) && hb.keepLeft(this.rightEdge())) hb.touchWall();
-			if(this.isSolid(WALL_CEILING) && hb.keepBelow(this.topEdge())) hb.touchCeiling();
-			if(this.isSolid(WALL_FLOOR) && hb.keepAbove(this.bottomEdge())) hb.touchFloor();
-		}
 		// Remove all things that need to be removed
 		for(GameThing thing : this.thingsToRemove){
 			this.things.remove(thing);
@@ -333,4 +353,23 @@ public class Room implements RectangleBounds{
 		return this.getHeight() * 0.5;
 	}
 	
+	/**
+	 * Find the index in the x axis of {@link #tiles} which contains the given coordinate
+	 * 
+	 * @param x The coordinate
+	 * @return The index, or if the coordinate is outside the bounds, then the index of the closest tile to the side the coordinate is out of bounds on
+	 */
+	public int tileX(double x){
+		return (int)ZMathUtils.minMax(0, this.tiles.length - 1, Math.floor(x * Tile.inverseSize()));
+	}
+	
+	/**
+	 * Find the index in the y axis of {@link #tiles} which contains the given coordinate
+	 * 
+	 * @param y The coordinate
+	 * @return The index, or if the coordinate is outside the bounds, then the index of the closest tile to the side the coordinate is out of bounds on
+	 */
+	public int tileY(double y){
+		return (int)ZMathUtils.minMax(0, this.tiles[0].length - 1, Math.floor(y * Tile.inverseSize()));
+	}
 }

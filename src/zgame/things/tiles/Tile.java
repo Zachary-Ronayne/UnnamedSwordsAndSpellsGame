@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.collision.CollisionResponse;
 import zgame.things.GameThing;
+import zgame.things.HitBox;
 import zgame.things.PositionedRectangleThing;
 
 /** A {@link GameThing} with a rectangular hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
@@ -62,9 +63,8 @@ public class Tile extends PositionedRectangleThing{
 		return type;
 	}
 	
-	@Override
-	public CollisionResponse collideRect(double x, double y, double w, double h, double px, double py){
-		return this.getType().getHitbox().collideRect(this, x, y, w, h, px, py);
+	public CollisionResponse collide(HitBox obj){
+		return this.getType().getHitbox().collide(this, obj);
 	}
 	
 	@Override

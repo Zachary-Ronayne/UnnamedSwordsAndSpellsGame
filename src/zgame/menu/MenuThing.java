@@ -4,8 +4,8 @@ import zgame.core.Game;
 import zgame.core.GameInteractable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.utils.ZRect;
 
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -123,9 +123,9 @@ public abstract class MenuThing implements GameInteractable{
 		this.height = height;
 	}
 	
-	/** @return A {@link Rectangle2D} containing the position and size of this {@link MenuThing} */
-	public Rectangle2D.Double getBounds(){
-		return new Rectangle2D.Double(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+	/** @return A {@link ZRect} containing the position and size of this {@link MenuThing} */
+	public ZRect getBounds(){
+		return new ZRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
 	/** @return See {@link #fill} */

@@ -28,16 +28,15 @@ public class Player extends MobRectangle{
 	
 	@Override
 	public void tick(Game game, double dt){
-		super.tick(game, dt);
+		// First handle player movement
 		
 		// Move left and right
 		ZKeyInput ki = game.getKeyInput();
 		// TODO make this walking thing in the mob class or maybe the entity class, and make variables for walking speed / acceleration
-		double speed = dt * 80000;
+		double speed = dt * 200000;
 		double move = 0;
 		if(ki.buttonDown(GLFW_KEY_LEFT)) move = -speed;
 		else if(ki.buttonDown(GLFW_KEY_RIGHT)) move = speed;
-		// this.setX(this.getX() + move);
 		// If the mob is moving faster than the maximum walking speed, don't add any more speed
 		double maxSpeed = 300;
 		if(Math.abs(this.getVelocity().getX()) > maxSpeed) move = 0;
@@ -47,7 +46,9 @@ public class Player extends MobRectangle{
 		 * It should be based on the thing it is colliding with
 		 * The first number is the mob trying to stop moving, the second is the friction of the ground
 		 */
-		if(this.isOnGround()) this.addVelocityX(-this.getVelocity().getX() * ((move == 0) ? 0.1 : 0.01));
+		if(this.isOnGround()) this.addVelocityX(-this.getVelocity().getX() * ((move == 0) ? 0.1 : 0.05));
+		// TODO make this a variable controlling how much you can control walking speed while jumping
+		else move *= 0.5;
 		this.setWalkingForce(move);
 		
 		// Jump
@@ -55,6 +56,9 @@ public class Player extends MobRectangle{
 		
 		// Center the camera to the player
 		this.checkCenterCamera(game);
+
+		// Lastly, perform the normal game tick on the plater
+		super.tick(game, dt);
 	}
 	
 	@Override

@@ -1,5 +1,6 @@
 package zgame.things.entity;
 
+import zgame.core.Game;
 import zgame.physics.ZVector;
 
 /** An {@link EntityThing} which represents some kind of creature which can walk around, i.e. the player, an enemy, an animal, a monster, any NPC, etc. */
@@ -28,6 +29,12 @@ public abstract class MobThing extends EntityThing{
 		this.addForce(this.walkingForce);
 	}
 	
+	@Override
+	public void tick(Game game, double dt){
+		super.tick(game, dt);
+		if(!this.isOnGround()) this.canJump = false;
+	}
+	
 	/** Cause this mob to jump upwards, if the mob is in a position to jump */
 	public void jump(){
 		if(!canJump) return;
@@ -40,13 +47,6 @@ public abstract class MobThing extends EntityThing{
 	public void touchFloor(){
 		super.touchFloor();
 		this.canJump = true;
-	}
-
-	@Override
-	public void touchWall(){
-		super.touchWall();
-		// TODO make this based on a bounce amount based on the thing collided with
-		this.addVelocityX(-this.getVelocity().getX() * 1.2);
 	}
 	
 	/** @return See {@link #jumpPower} */

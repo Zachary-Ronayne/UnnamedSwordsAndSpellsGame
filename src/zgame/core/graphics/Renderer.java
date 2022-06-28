@@ -14,9 +14,9 @@ import zgame.core.graphics.font.FontAsset;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.shader.ShaderProgram;
+import zgame.core.utils.ZRect;
 import zgame.core.window.GameWindow;
 
-import java.awt.geom.Rectangle2D;
 import java.nio.FloatBuffer;
 import java.util.Stack;
 
@@ -489,7 +489,7 @@ public class Renderer{
 		FontAsset fa = f.getAsset();
 		
 		// Bounds check for if the text should be drawn
-		Rectangle2D.Double r = f.stringBounds(x, y, text);
+		ZRect r = f.stringBounds(x, y, text);
 		if(!this.shouldDraw(r.getX(), r.getY(), r.getWidth(), r.getHeight())) return false;
 		
 		// Use the font shaders
@@ -558,7 +558,7 @@ public class Renderer{
 	 */
 	public boolean shouldDraw(double x, double y, double w, double h){
 		if(!this.isRenderOnlyInside()) return true;
-		Rectangle2D.Double r = this.getBounds();
+		ZRect r = this.getBounds();
 		if(this.camera == null) return r.intersects(x, y, w, h);
 		else return r.intersects(this.camera.boundsGameToScreen(x, y, w, h));
 	}
@@ -686,8 +686,8 @@ public class Renderer{
 	}
 	
 	/** @return A rectangle of the bounds of this {@link Renderer}, i.e. the position will be (0, 0), width will be {@link #getWidth()} and height will be {@link #getHeight()} */
-	public Rectangle2D.Double getBounds(){
-		return new Rectangle2D.Double(0, 0, this.getWidth(), this.getHeight());
+	public ZRect getBounds(){
+		return new ZRect(0, 0, this.getWidth(), this.getHeight());
 	}
 	
 	/** @return The ratio of the size of the internal buffer, i.e. the width divided by the height */

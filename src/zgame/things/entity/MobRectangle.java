@@ -1,8 +1,9 @@
 package zgame.things.entity;
 
+import zgame.core.utils.ZRect;
+import zgame.physics.collision.CollisionResponse;
+import zgame.physics.collision.ZCollision;
 import zgame.things.RectangleHitBox;
-
-import java.awt.geom.Rectangle2D;
 
 /** A {@link MobThing} which has a rectangular hit box */
 public abstract class MobRectangle extends MobThing implements RectangleHitBox{
@@ -78,7 +79,22 @@ public abstract class MobRectangle extends MobThing implements RectangleHitBox{
 	
 	@Override
 	public boolean intersects(double x, double y, double w, double h){
-		return new Rectangle2D.Double(this.getX(), this.getY(), this.getWidth(), this.getHeight()).intersects(x, y, w, h);
+		return new ZRect(this.getX(), this.getY(), this.getWidth(), this.getHeight()).intersects(x, y, w, h);
+	}
+
+	@Override
+	public CollisionResponse calculateRectCollision(double x, double y, double w, double h){
+		return ZCollision.rectToRectBasic(x, y, w, h, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+	}
+
+	@Override
+	public double getMX(){
+		return this.rightEdge();
+	}
+
+	@Override
+	public double getMY(){
+		return this.bottomEdge();
 	}
 
 	@Override

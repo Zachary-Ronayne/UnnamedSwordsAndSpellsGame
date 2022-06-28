@@ -81,10 +81,10 @@ public final class ZMathUtils{
 	 * @param y The x coordinate of the base of the angle
 	 * @param px The x coordinate of where to go to find the angle
 	 * @param py The y coordinate of where to go to find the angle
-	 * @return The angle
+	 * @return The angle, in radians
 	 */
 	public static double lineAngle(double x, double y, double px, double py){
-		return Math.atan2(y - py, x - px);
+		return Math.atan2(py - y, px - x);
 	}
 	
 	/**
@@ -148,6 +148,17 @@ public final class ZMathUtils{
 	 */
 	public static double yIntercept(Line2D.Double line, double slope){
 		return line.y1 - slope * line.x1;
+	}
+
+	/**
+	 * Given two lengths for the non hypotenuse sides of a right triangle, return the length of the hypotenuse
+	 * 
+	 * @param w The first size
+	 * @param h The second size
+	 * @return The hypotenuse
+	 */
+	public static double hypot(double w, double h){
+		return Math.sqrt(w * w + h * h);
 	}
 	
 	/** Cannot instantiate {@link ZMathUtils} */
