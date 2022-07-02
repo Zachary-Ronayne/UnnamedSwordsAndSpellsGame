@@ -40,6 +40,12 @@ public class Room implements RectangleBounds{
 	
 	// The 2D grid of {@link Tile} objects defining this {@link Room}
 	private Tile[][] tiles;
+
+	// The number of tiles wide this room is, i.e. the number of tiles on the x axis
+	private int xTiles;
+
+	// The number of tiles high this room is, i.e. the number of tiles on the y axis
+	private int yTiles;
 	
 	/** The width of the room. */
 	private double width;
@@ -94,6 +100,8 @@ public class Room implements RectangleBounds{
 	 * @param c The color for every tile
 	 */
 	public void initTiles(int xTiles, int yTiles, TileType t){
+		this.xTiles = xTiles;
+		this.yTiles = yTiles;
 		this.width = xTiles * Tile.TILE_SIZE;
 		this.height = yTiles * Tile.TILE_SIZE;
 		this.tiles = new Tile[xTiles][yTiles];
@@ -118,11 +126,6 @@ public class Room implements RectangleBounds{
 	/** @return See {@link #hitBoxThings}. This is the actual collection holding the things, not a copy */
 	public Collection<HitBox> getHitBoxThings(){
 		return this.hitBoxThings;
-	}
-	
-	/** @return See {@link #tiles} */
-	public Tile[][] getTiles(){
-		return this.tiles;
 	}
 	
 	/**
@@ -155,7 +158,6 @@ public class Room implements RectangleBounds{
 	 */
 	public CollisionResponse collide(HitBox obj){
 		// TODO give entities a mass variable that is used in the calculations for applying forces
-		// TODO The tiles object should not be accessible outside this room class, like, remove the getter
 
 		// Find touching tiles and collide with them
 		int minX = this.tileX(obj.getX());
@@ -230,12 +232,10 @@ public class Room implements RectangleBounds{
 	 */
 	public void render(Game game, Renderer r){
 		// Determine the indexes of the tiles that need to be rendered
-		int xTiles = this.tiles.length;
-		int yTiles = this.tiles[0].length;
 		int startX = Math.max(0, (int)Math.floor(game.getScreenLeft() / Tile.size()));
-		int endX = Math.min(xTiles, (int)Math.ceil(game.getScreenRight() / Tile.size()));
+		int endX = Math.min(this.getXTiles(), (int)Math.ceil(game.getScreenRight() / Tile.size()));
 		int startY = Math.max(0, (int)Math.floor(game.getScreenTop() / Tile.size()));
-		int endY = Math.min(yTiles, (int)Math.ceil(game.getScreenBottom() / Tile.size()));
+		int endY = Math.min(this.getYTiles(), (int)Math.ceil(game.getScreenBottom() / Tile.size()));
 		// Draw all the tiles
 		for(int i = startX; i < endX; i++) for(int j = startY; j < endY; j++) this.tiles[i][j].render(game, r);
 		
@@ -318,6 +318,16 @@ public class Room implements RectangleBounds{
 	public double getHeight(){
 		return this.height;
 	}
+
+	/** @return See {@link #xTiles} */
+	public int getXTiles(){
+		return this.xTiles;
+	}
+
+	/** @return See {@link #yTiles} */
+	public int getYTiles(){
+		return this.yTiles;
+	}
 	
 	@Override
 	public double leftEdge(){
@@ -348,6 +358,20 @@ public class Room implements RectangleBounds{
 	public double centerY(){
 		return this.getHeight() * 0.5;
 	}
+
+	/**
+	 * Set the tile at the specified index
+	 * 
+	 * @param x The x index
+	 * @param y The y index
+	 * @param t The type of tile to set
+	 * @return true if the tile was set, false if it was not i.e. the indexes were outside the grid
+	 */
+	public boolean setTile(int x, int y, TileType t){
+		if(!this.inTiles(x, y)) return false;
+		this.tiles[x][y] = new Tile(x, y, t);
+		return true;
+	}
 	
 	/**
 	 * Find the index in the x axis of {@link #tiles} which contains the given coordinate
@@ -356,7 +380,7 @@ public class Room implements RectangleBounds{
 	 * @return The index, or if the coordinate is outside the bounds, then the index of the closest tile to the side the coordinate is out of bounds on
 	 */
 	public int tileX(double x){
-		return (int)ZMathUtils.minMax(0, this.tiles.length - 1, Math.floor(x * Tile.inverseSize()));
+		return (int)ZMathUtils.minMax(0, this.getXTiles() - 1, Math.floor(x * Tile.inverseSize()));
 	}
 	
 	/**
@@ -366,6 +390,35 @@ public class Room implements RectangleBounds{
 	 * @return The index, or if the coordinate is outside the bounds, then the index of the closest tile to the side the coordinate is out of bounds on
 	 */
 	public int tileY(double y){
-		return (int)ZMathUtils.minMax(0, this.tiles[0].length - 1, Math.floor(y * Tile.inverseSize()));
+		return (int)ZMathUtils.minMax(0, this.getYTiles() - 1, Math.floor(y * Tile.inverseSize()));
 	}
+
+	/**
+	 * Determine if the given index is within the tile bounds
+	 * @param x The index to check
+	 * @return true if the index is in the x axis range of the tile grid
+	 */
+	public boolean inTilesX(int x){
+		return x >= 0 && x < this.getXTiles();
+	}
+	/**
+	 * Determine if the given index is within the tile bounds
+	 * @param y The index to check
+	 * @return true if the index is in the y axis range of the tile grid
+	 */
+	public boolean inTilesY(int y){
+		return y >= 0 && y < this.getYTiles();
+	}
+	
+	/**
+	 * Determine if the given indexes are within the tile bounds
+	 * 
+	 * @param x The x index to check
+	 * @param y The y index to check
+	 * @return true if the index is in the y axis range of the tile grid
+	 */
+	public boolean inTiles(int x, int y){
+		return this.inTilesX(x) && this.inTilesY(y);
+	}
+
 }

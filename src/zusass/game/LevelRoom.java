@@ -5,7 +5,6 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZMathUtils;
 import zgame.things.Room;
-import zgame.things.tiles.Tile;
 import zusass.game.tiles.ZUSASSColorTiles;
 
 /** A {@link Room} which represents a randomly generated level for the infinite dungeons */
@@ -45,7 +44,7 @@ public class LevelRoom extends Room{
 			for(int j = 0; j < Y_TILES; j++){
 				boolean i0 = i % 2 == 0;
 				boolean j0 = j % 2 == 0;
-				this.getTiles()[i][j] = new Tile(i, j, (i0 == j0) ? ZUSASSColorTiles.BACK_COLOR : ZUSASSColorTiles.BACK_COLOR_DARK);
+				this.setTile(i, j, (i0 == j0) ? ZUSASSColorTiles.BACK_COLOR : ZUSASSColorTiles.BACK_COLOR_DARK);
 			}
 		}
 		this.setLevel(level);

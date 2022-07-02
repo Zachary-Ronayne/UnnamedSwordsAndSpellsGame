@@ -20,7 +20,6 @@ import zgame.things.Door;
 import zgame.things.Room;
 import zgame.things.entity.Player;
 import zgame.things.tiles.BaseTiles;
-import zgame.things.tiles.Tile;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -219,19 +218,16 @@ public class MainTest extends Game{
 			Room r = new Room();
 			r.makeWallsSolid();
 			r.initTiles(13, 9, BaseTiles.BACK_DARK);
-			Tile[][] ts = r.getTiles();
-			for(int i = 0; i < ts.length; i++){
-				for(int j = 0; j < ts[i].length; j++){
+			for(int i = 0; i < r.getXTiles(); i++){
+				for(int j = 0; j < r.getYTiles(); j++){
 					boolean i0 = i % 2 == 0;
 					boolean j0 = j % 2 == 0;
-					if(i0 == j0) ts[i][j] = new Tile(i, j, BaseTiles.BACK_LIGHT);
+					if(i0 == j0) r.setTile(i, j, BaseTiles.BACK_LIGHT);
 				}
 			}
-
-			// TODO abstract setting a tile out, directly using this list shouldn't be allowed
-			for(int i = 0; i < 4; i++) ts[4 + i][6] = new Tile(4 + i, 6, BaseTiles.WALL_DARK);
-			ts[7][5] = new Tile(7, 5, BaseTiles.WALL_DARK);
-			ts[11][3] = new Tile(11, 3, BaseTiles.WALL_LIGHT);
+			for(int i = 0; i < 4; i++) r.setTile(4 + i, 6, BaseTiles.WALL_DARK);
+			r.setTile(7, 5, BaseTiles.WALL_DARK);
+			r.setTile(11, 3, BaseTiles.WALL_LIGHT);
 
 			return r;
 		}
