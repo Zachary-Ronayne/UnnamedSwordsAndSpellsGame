@@ -131,30 +131,17 @@ public final class ZCollision{
 		boolean onlyY = y == py;
 		if(onlyX && onlyY) return rectToRectBasic(cx, cy, cw, ch, x, y, w, h);
 		
-		// TODO abstract this block out
 		// If the rectangles do not intersect, then there was no collision
 		ZRect unmoving = new ZRect(cx, cy, cw, ch);
-		if(!unmoving.intersects(x, y, w, h)){
-			var r = new CollisionResponse();
-			return r;
-		}
+		if(!unmoving.intersects(x, y, w, h)) return new CollisionResponse();
 		// Initial Variable values
 		double xDis = 0;
 		double yDis = 0;
-		boolean left = false;
-		boolean right = false;
-		boolean top = false;
-		boolean bottom = false;
-		
-		// TODO Abstract this out
-		boolean toLeft = x < cx;
-		boolean toRight = x + w > cx + cw;
-		boolean above = y < cy;
-		boolean below = y + h > cy + ch;
-		if(toLeft) left = true;
-		if(toRight) right = true;
-		if(above) bottom = true;
-		if(below) top = true;
+		boolean[] b = orientation(x, y, w, h, cx, cy, cw, ch);
+		boolean left = b[0];
+		boolean right = b[1];
+		boolean top = b[2];
+		boolean bottom = b[3];
 		
 		// Handle purely horizontal and purely vertical cases, i.e. only need to reposition based on one axis
 		// If the x values are the same, it is only horizontal motion
@@ -306,7 +293,7 @@ public final class ZCollision{
 		double cosA = Math.cos(angle);
 		
 		// If the previous bounds intersects the colliding bounds, the bounds will be moved from the current position to somewhere guaranteed to not intersect
-		if(prevMoving.intersects(colliding)) {
+		if(prevMoving.intersects(colliding)){
 			// If the moving bounds entirely contained by the colliding bounds, then base the new position on the colliding bounds
 			if(moving.contains(colliding)) dist = ZMathUtils.hypot(cw, ch);
 			// Otherwise, base it on the moving bounds
@@ -316,7 +303,6 @@ public final class ZCollision{
 		}
 		// Otherwise, use the previous bounds as the starting point
 		else newMoving = prevMoving;
-		
 		// For the number of given iterations, move the new moving bounds closer to the colliding bounds, ensuring they don't touch at the end of the method
 		ZRect nearBounds = moving;
 		ZRect farBounds = newMoving;
@@ -333,13 +319,11 @@ public final class ZCollision{
 		yDis = farBounds.y - moving.y;
 		
 		// Determine which walls were touched
-		// TODO Abstract this out
-		boolean toLeft = x < cx;
-		boolean toRight = x + w > cx + cw;
-		boolean above = y < cy;
-		boolean below = y + h > cy + ch;
-		// TODO maybe these don't return booleans, but floating point values
-		// TODO use only the angle, not the toLeft, toRight, etc stuff
+		boolean[] b = orientation(x, y, w, h, cx, cy, cw, ch);
+		boolean toLeft = b[0];
+		boolean toRight = b[1];
+		boolean above = b[2];
+		boolean below = b[3];
 		if(Math.abs(sinA) > .5){
 			if(above) bottom = true;
 			if(below) top = true;
@@ -348,12 +332,91 @@ public final class ZCollision{
 			if(toLeft) left = true;
 			if(toRight) right = true;
 		}
-		// if(left) ZStringUtils.prints("left"); // TODO Remove
-		// if(right) ZStringUtils.prints("right"); // TODO Remove
-		
 		// Return response
 		return new CollisionResponse(xDis, yDis, left, right, top, bottom);
 		
+	}
+	
+	/**
+	 * Determine the relative orientation of two rectangles
+	 * 
+	 * @param x The upper left hand x coordinate of the first rectangle
+	 * @param y The upper left hand y coordinate of the first rectangle
+	 * @param w The width of the first rectangle
+	 * @param h The height of the first rectangle
+	 * @param cx The upper left hand x coordinate of the second rectangle
+	 * @param cy The upper left hand x coordinate of the second rectangle
+	 * @param cw The width of the second rectangle
+	 * @param ch The height of the second rectangle
+	 * @return An array of 4 booleans, indexed as:
+	 *         0: first is left of second
+	 *         1: first is right of second
+	 *         2: first is above second
+	 *         3: first is below second
+	 */
+	public static boolean[] orientation(double x, double y, double w, double h, double cx, double cy, double cw, double ch){
+		boolean[] b = new boolean[]{toLeft(x, cx), toRight(x, w, cx, cw), above(y, cy), below(y, h, cy, ch)};
+		return b;
+	}
+	
+	/**
+	 * Determine if a bounds is to the left of another
+	 * See {@link #big(double, double, double, double)} for details
+	 */
+	public static boolean toLeft(double x, double cx){
+		return small(x, cx);
+	}
+	
+	/**
+	 * Determine if a bounds is to the right of another
+	 * See {@link #big(double, double, double, double)} for details
+	 */
+	public static boolean toRight(double x, double w, double cx, double cw){
+		return big(x, w, cx, cw);
+	}
+	
+	/**
+	 * Determine if a bounds is above another
+	 * See {@link #big(double, double, double, double)} for details
+	 */
+	public static boolean above(double y, double cy){
+		return small(y, cy);
+	}
+	
+	/**
+	 * Determine if a bounds is below another
+	 * See {@link #big(double, double, double, double)} for details
+	 */
+	public static boolean below(double y, double h, double cy, double ch){
+		return big(y, h, cy, ch);
+	}
+	
+	/**
+	 * Treat n and cn as the lower coordinate of two rectangle's axis, and determine if n is smaller than cn.
+	 * Used for determining if the relative position of rectangles.
+	 * Essentially, check if n is to the left or above c
+	 * 
+	 * @param n The coordinate of the rectangle to check
+	 * @param cn The coordinate of the rectangle to check against
+	 * @return true if n is smaller, false otherwise
+	 */
+	private static boolean small(double n, double cn){
+		return n < cn;
+	}
+	
+	/**
+	 * Treat n and cn as the lower coordinate of two rectangle's axis, and s and cs as the sizes, and determine if n is larger than cn.
+	 * Used for determining if the relative position of rectangles
+	 * Essentially, check if n is to the right or below cn
+	 * 
+	 * @param n The coordinate of the rectangle to check
+	 * @param cn The coordinate of the rectangle to check against
+	 * @param s The size of the rectangle to check
+	 * @param cs The size of the rectangle to check against
+	 * @return true if n is smaller, false otherwise
+	 */
+	private static boolean big(double n, double s, double cn, double cs){
+		return n + s > cn + cs;
 	}
 	
 	/** Cannot instantiate {@link ZCollision} */
