@@ -114,7 +114,7 @@ public abstract class MobThing extends EntityThing{
 			if(Math.abs(vx) > this.getWalkSpeedMax() && ZMathUtils.sameSign(vx, walkForce)) walkForce = 0;
 
 			// TODO The force should just be a constant of either left, none, or right, the rest of this logic should be elsewhere
-			// TOOD fix issue where acceleration higher than speed for movement makes for jittery movement
+			// TODO fix issue where acceleration higher than speed for movement makes for jittery movement
 			// Set the amount the mob is walking
 			this.setWalkingForce(walkForce);
 		}

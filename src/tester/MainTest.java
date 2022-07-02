@@ -197,6 +197,7 @@ public class MainTest extends Game{
 			this.setCurrentRoom(firstRoom);
 			
 			this.player = new Player(100, 400, 60, 100);
+			this.player.setMass(50);
 			firstRoom.addThing(this.player);
 			
 			Door d = new Door(700, 400);

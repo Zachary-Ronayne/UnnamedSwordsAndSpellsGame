@@ -17,11 +17,14 @@ import zgame.things.Room;
  */
 public abstract class EntityThing extends PositionedThing implements GameTickable, HitBox{
 	
-	/** The ZVector determining how fast gravity applies to objects */
-	public static final ZVector GRAVITY = new ZVector(0, 800);
+	/** The acceleration of gravity */
+	public static final double GRAVITY_ACCELERATION = 800;
 	
-	/** The current velocity of this Entity */
+	/** The current velocity of this {@link EntityThing} */
 	private ZVector velocity;
+	
+	/** The current force of gravity on this {@link EntityThing} */
+	private ZVector gravity;
 	
 	/** Every force currently acting on this {@link EntityThing} */
 	private Collection<ZVector> forces;
@@ -65,7 +68,8 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		super(x, y);
 		this.velocity = new ZVector(0, 0);
 		this.forces = new ArrayList<ZVector>();
-		this.addForce(GRAVITY); // TODO add terminal velocity for gravity
+		this.gravity = new ZVector(0, 0);
+		this.addForce(gravity); // TODO add terminal velocity for gravity
 		this.setMass(mass);
 		this.onGround = false;
 		this.px = this.getX();
@@ -97,6 +101,11 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		return this.velocity;
 	}
 	
+	/** @return See {@link #gravity} */
+	public ZVector getGravity(){
+		return this.gravity;
+	}
+	
 	/** @return See {@link #mass} */
 	public double getMass(){
 		return this.mass;
@@ -105,7 +114,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	/** @param mass See {@link #mass} */
 	public void setMass(double mass){
 		this.mass = mass;
-		this.replaceForce(GRAVITY, 0, GRAVITY.getY() * mass);
+		this.gravity = this.replaceForce(this.gravity, 0, GRAVITY_ACCELERATION * this.getMass());
 	}
 	
 	/** @return See {@link #onGround} */
