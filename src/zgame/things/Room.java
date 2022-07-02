@@ -154,10 +154,6 @@ public class Room implements RectangleBounds{
 	 * @return The CollisionResponse representing the final collision that took place
 	 */
 	public CollisionResponse collide(HitBox obj){
-		
-		// TODO Room should handle all collision by taking a HitBox object
-		// TODO Try doing this to collide, first move on only the x axis, then check for collision, then move only on the y axis. This should happen when the x and y velocity is updated in tick
-		// TODO Docs on the set and add x and y methods saying that they should not be used to simulate the object moving via physics, that should be done via forces and velocity
 		// TODO give entities a mass variable that is used in the calculations for applying forces
 		// TODO The tiles object should not be accessible outside this room class, like, remove the getter
 

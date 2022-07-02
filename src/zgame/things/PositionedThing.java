@@ -1,15 +1,15 @@
 package zgame.things;
 
 import zgame.core.Game;
+import zgame.things.entity.EntityThing;
 
 /** A {@link GameThing} which uses x and y coordinates */
 public abstract class PositionedThing extends GameThing implements Positionable{
 	
-	/** The x coordinate of this {@link PositionedThing} */
+	/** The x coordinate of this {@link PositionedThing}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link EntityThing} */
 	private double x;
-	/** The y coordinate of this {@link PositionedThing} */
+	/** The y coordinate of this {@link PositionedThing}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link EntityThing} */
 	private double y;
-	
 	/**
 	 * Create a new {@link PositionedThing} at (0, 0)
 	 */

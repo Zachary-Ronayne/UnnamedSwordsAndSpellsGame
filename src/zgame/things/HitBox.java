@@ -77,6 +77,7 @@ public interface HitBox{
 	/** A method that defines what this object does when it touches a wall */
 	public void touchWall();
 	
+	// TODO maybe use these methods, or similar, when determining if something should render
 	/** @return The minimum x coordinate of the bounds of this {@link HitBox} */
 	public double getX();
 	

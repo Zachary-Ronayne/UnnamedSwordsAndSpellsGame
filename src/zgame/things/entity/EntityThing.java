@@ -94,6 +94,8 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	@Override
 	public void touchFloor(){
+		// TODO add bouncing on the floor
+
 		// Reset the y velocity to 0, only if the entity is moving downwards
 		if(this.velocity.getY() > 0) this.velocity = new ZVector(this.velocity.getX(), 0);
 
@@ -103,6 +105,8 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	@Override
 	public void touchCeiling(){
+		// TODO add bouncing on the ceiling
+
 		// Reset the y velocity to 0, only if the entity is moving upwards
 		if(this.velocity.getY() < 0) this.velocity = new ZVector(this.velocity.getX(), 0);
 	}
