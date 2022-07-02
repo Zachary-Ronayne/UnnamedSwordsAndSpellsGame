@@ -197,7 +197,6 @@ public class MainTest extends Game{
 			this.setCurrentRoom(firstRoom);
 			
 			this.player = new Player(100, 400, 60, 100);
-			this.player.setJumpPower(600);
 			firstRoom.addThing(this.player);
 			
 			Door d = new Door(700, 400);
@@ -228,7 +227,7 @@ public class MainTest extends Game{
 			for(int i = 0; i < 4; i++) r.setTile(4 + i, 6, BaseTiles.WALL_DARK);
 			r.setTile(7, 5, BaseTiles.WALL_DARK);
 			r.setTile(11, 3, BaseTiles.WALL_LIGHT);
-
+			
 			return r;
 		}
 		

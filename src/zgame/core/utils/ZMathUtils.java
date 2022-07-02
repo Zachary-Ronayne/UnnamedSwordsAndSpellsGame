@@ -75,6 +75,17 @@ public final class ZMathUtils{
 	}
 
 	/**
+	 * Determine if two numbers have the same sign.
+	 * Behavior of this method is not guaranteed for weird values, i.e. infinity and NaN
+	 * @param a The first number
+	 * @param b The second number
+	 * @return true if they have the same sign, false otherwise.
+	 */
+	public static boolean sameSign(double a, double b){
+		return a == b || (a < 0 && b < 0) || (a > 0 && b > 0);
+	}
+
+	/**
 	 * Find the angle from the point (x, y) to the point (px, py)
 	 * 
 	 * @param x The x coordinate of the base of the angle

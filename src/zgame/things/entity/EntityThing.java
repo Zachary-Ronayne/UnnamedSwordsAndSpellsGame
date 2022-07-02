@@ -25,7 +25,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	/** Every force currently acting on this {@link EntityThing} */
 	private Collection<ZVector> forces;
-
+	
 	/** true if this {@link EntityThing} was on the ground in the past {@link #tick(Game, double)}, false otherwise */
 	private boolean onGround;
 	
@@ -33,12 +33,25 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	private double px;
 	/** The value of {@link #getY()} from the last tick */
 	private double py;
-
+	
+	/** The mass, i.e. weight, of this {@link EntityThing} */
+	private double mass;
+	
 	/**
-	 * Create a new empty entity at (0, 0)
+	 * Create a new empty entity at (0, 0) with a mass of 1
 	 */
 	public EntityThing(){
 		this(0, 0);
+	}
+	
+	/**
+	 * Create a new empty entity with a mass of 100
+	 * 
+	 * @param x The x coordinate of the entity
+	 * @param y The y coordinate of the entity
+	 */
+	public EntityThing(double x, double y){
+		this(x, y, 100);
 	}
 	
 	/**
@@ -46,12 +59,14 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	 * 
 	 * @param x The x coordinate of the entity
 	 * @param y The y coordinate of the entity
+	 * @param mass See {@link #mass}
 	 */
-	public EntityThing(double x, double y){
+	public EntityThing(double x, double y, double mass){
 		super(x, y);
 		this.velocity = new ZVector(0, 0);
 		this.forces = new ArrayList<ZVector>();
 		this.addForce(GRAVITY); // TODO add terminal velocity for gravity
+		this.setMass(mass);
 		this.onGround = false;
 		this.px = this.getX();
 		this.py = this.getY();
@@ -61,7 +76,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public void tick(Game game, double dt){
 		// Find the current acceleration
 		ZVector acceleration = new ZVector(0, 0);
-		for(ZVector f : this.forces) acceleration = acceleration.add(f);
+		for(ZVector f : this.forces) acceleration = acceleration.add(f.scale(1.0 / this.getMass()));
 		
 		// Add the acceleration to the current velocity
 		this.addVelocity(acceleration.scale(dt));
@@ -72,7 +87,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		ZVector moveVec = this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5));
 		this.addX(moveVec.getX());
 		this.addY(moveVec.getY());
-
+		
 		// Now check the collision
 		this.checkCollision(game.getCurrentRoom());
 	}
@@ -81,12 +96,23 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public ZVector getVelocity(){
 		return this.velocity;
 	}
-
+	
+	/** @return See {@link #mass} */
+	public double getMass(){
+		return this.mass;
+	}
+	
+	/** @param mass See {@link #mass} */
+	public void setMass(double mass){
+		this.mass = mass;
+		this.replaceForce(GRAVITY, 0, GRAVITY.getY() * mass);
+	}
+	
 	/** @return See {@link #onGround} */
 	public boolean isOnGround(){
 		return this.onGround;
 	}
-
+	
 	@Override
 	public void leaveFloor(){
 		this.onGround = false;
@@ -95,10 +121,10 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	@Override
 	public void touchFloor(){
 		// TODO add bouncing on the floor
-
+		
 		// Reset the y velocity to 0, only if the entity is moving downwards
-		if(this.velocity.getY() > 0) this.velocity = new ZVector(this.velocity.getX(), 0);
-
+		if(this.getVY() > 0) this.velocity = new ZVector(this.getVX(), 0);
+		
 		// Touching a floor means this entity is on the ground
 		this.onGround = true;
 	}
@@ -106,15 +132,15 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	@Override
 	public void touchCeiling(){
 		// TODO add bouncing on the ceiling
-
+		
 		// Reset the y velocity to 0, only if the entity is moving upwards
-		if(this.velocity.getY() < 0) this.velocity = new ZVector(this.velocity.getX(), 0);
+		if(this.getVY() < 0) this.velocity = new ZVector(this.getVX(), 0);
 	}
 	
 	@Override
 	public void touchWall(){
 		// TODO make this based on a bounce amount based on the thing collided with
-		this.addVelocityX(-this.getVelocity().getX() * 1.2);
+		this.addVX(-this.getVelocity().getX() * 1.2);
 	}
 	
 	/**
@@ -135,6 +161,26 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		if(r.floor()) this.touchFloor();
 	}
 	
+	/** @return The velocity of this {@link EntityThing} on the x axis */
+	public double getVX(){
+		return this.getVelocity().getX();
+	}
+	
+	/** @return The velocity of this {@link EntityThing} on the y axis */
+	public double getVY(){
+		return this.getVelocity().getY();
+	}
+	
+	/** @param x the new x velocity of this {@link EntityThing} */
+	public void setVX(double x){
+		this.velocity = new ZVector(x, this.getVY());
+	}
+	
+	/** @param y the new y velocity of this {@link EntityThing} */
+	public void setVY(double y){
+		this.velocity = new ZVector(this.getVX(), y);
+	}
+	
 	/**
 	 * Add the given velocity to {@link #velocity}
 	 * 
@@ -149,7 +195,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	 * 
 	 * @param x The velocity to add
 	 */
-	public void addVelocityX(double x){
+	public void addVX(double x){
 		this.addVelocity(new ZVector(x, 0));
 	}
 	
@@ -158,7 +204,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	 * 
 	 * @param y The velocity to add
 	 */
-	public void addVelocityY(double y){
+	public void addVY(double y){
 		this.addVelocity(new ZVector(0, y));
 	}
 	
@@ -170,7 +216,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public void addForce(ZVector force){
 		this.forces.add(force);
 	}
-
+	
 	/**
 	 * Remove the specified {@link ZForce} object from this {@link EntityThing}'s forces
 	 * 
@@ -179,7 +225,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public void removeForce(ZVector force){
 		this.forces.remove(force);
 	}
-
+	
 	/**
 	 * Replace the given force with a force build from the given components
 	 * 

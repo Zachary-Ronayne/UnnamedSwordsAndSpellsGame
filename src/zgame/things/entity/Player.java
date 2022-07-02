@@ -3,6 +3,7 @@ package zgame.things.entity;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.keyboard.ZKeyInput;
+import zgame.core.utils.ZMathUtils;
 import zgame.things.Room;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -28,36 +29,51 @@ public class Player extends MobRectangle{
 	
 	@Override
 	public void tick(Game game, double dt){
-		// First handle player movement
+		// TODO move this to the mob class, abstract out moving left and right
+		// First handle mob movement
+		double mass = this.getMass();
+		double acceleration = this.getWalkAcceleration();
+		double walkForce = acceleration * mass;
 		
 		// Move left and right
 		ZKeyInput ki = game.getKeyInput();
-		// TODO make this walking thing in the mob class or maybe the entity class, and make variables for walking speed / acceleration
-		double speed = dt * 200000;
-		double move = 0;
-		if(ki.buttonDown(GLFW_KEY_LEFT)) move = -speed;
-		else if(ki.buttonDown(GLFW_KEY_RIGHT)) move = speed;
-		// If the mob is moving faster than the maximum walking speed, don't add any more speed
-		double maxSpeed = 300;
-		if(Math.abs(this.getVelocity().getX()) > maxSpeed) move = 0;
-		// If the mob is on the ground, then slow the mob down
+		if(ki.buttonDown(GLFW_KEY_LEFT)) walkForce = -acceleration;
+		else if(ki.buttonDown(GLFW_KEY_RIGHT)) walkForce = acceleration;
+		else walkForce = 0;
+		boolean walking = walkForce != 0;
+
 		/*
 		 * TODO make this like a friction constant
 		 * It should be based on the thing it is colliding with
 		 * The first number is the mob trying to stop moving, the second is the friction of the ground
 		 */
-		if(this.isOnGround()) this.addVelocityX(-this.getVelocity().getX() * ((move == 0) ? 0.1 : 0.05));
-		// TODO make this a variable controlling how much you can control walking speed while jumping
-		else move *= 0.5;
-		this.setWalkingForce(move);
+		// If the mob is on the ground, then slow the mob down
+		double frictionMove = 0;
+		if(this.isOnGround()) frictionMove = -this.getVX() * (walking ? 0.05 : 0.1);
+		// Otherwise, modify the movement based on the amount of control in the air
+		else walkForce *= this.getWalkAirControl();
+		this.addVX(frictionMove);
+		
+		// If the mob is not trying to move and is moving so slowly that the friction would stop it, then set the x velocity to zero
+		// TODO make this a friction value in a material
+		if(!walking && Math.abs(this.getVX()) < 0.00000001) this.setVX(0);
+		// Otherwise, the mob should walk
+		else{
+			// If walking speed is already at max, and walking would increase the x axis speed, don't move at all
+			double vx = this.getVX();
+			if(Math.abs(vx) > this.getWalkSpeedMax() && ZMathUtils.sameSign(vx, walkForce)) walkForce = 0;
+			
+			// Set the amount the mob is walking
+			this.setWalkingForce(walkForce);
+		}
 		
 		// Jump
 		if(ki.buttonDown(GLFW_KEY_UP)) this.jump();
 		
 		// Center the camera to the player
 		this.checkCenterCamera(game);
-
-		// Lastly, perform the normal game tick on the plater
+		
+		// Lastly, perform the normal game tick on the player
 		super.tick(game, dt);
 	}
 	
