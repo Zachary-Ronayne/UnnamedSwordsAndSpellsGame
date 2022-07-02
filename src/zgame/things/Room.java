@@ -40,10 +40,10 @@ public class Room implements RectangleBounds{
 	
 	// The 2D grid of {@link Tile} objects defining this {@link Room}
 	private Tile[][] tiles;
-
+	
 	// The number of tiles wide this room is, i.e. the number of tiles on the x axis
 	private int xTiles;
-
+	
 	// The number of tiles high this room is, i.e. the number of tiles on the y axis
 	private int yTiles;
 	
@@ -148,7 +148,7 @@ public class Room implements RectangleBounds{
 	public void removeThing(GameThing thing){
 		this.thingsToRemove.add(thing);
 	}
-
+	
 	/**
 	 * Collide the given {@link EntityThing} with this room. Essentially, attempt to move the given object so that it no longer intersects with anything in this room.
 	 * 
@@ -157,14 +157,12 @@ public class Room implements RectangleBounds{
 	 * @return The CollisionResponse representing the final collision that took place
 	 */
 	public CollisionResponse collide(HitBox obj){
-		// TODO give entities a mass variable that is used in the calculations for applying forces
-
 		// Find touching tiles and collide with them
 		int minX = this.tileX(obj.getX());
 		int minY = this.tileY(obj.getY());
 		int maxX = this.tileX(obj.getMX());
 		int maxY = this.tileY(obj.getMY());
-
+		
 		double mx = 0;
 		double my = 0;
 		boolean collided = false;
@@ -172,14 +170,14 @@ public class Room implements RectangleBounds{
 		boolean right = false;
 		boolean top = false;
 		boolean bot = false;
-
+		
 		for(int x = minX; x <= maxX; x++){
 			for(int y = minY; y <= maxY; y++){
 				Tile t = this.tiles[x][y];
 				CollisionResponse res = t.collide(obj);
 				// Keep track of if a tile was touched
 				if(res.x() != 0 || res.y() != 0) collided = true;
-
+				
 				mx += res.x();
 				my += res.y();
 				if(res.left()) left = true;
@@ -191,16 +189,16 @@ public class Room implements RectangleBounds{
 		}
 		// If at no tiles were touched, the entity is not on the floor
 		if(!collided) obj.leaveFloor();
-
+		
 		// Determine the final collision
 		CollisionResponse res = new CollisionResponse(mx, my, left, right, top, bot);
-
+		
 		// Keep the object inside the game bounds, if the walls are enabled
 		if(this.isSolid(WALL_LEFT) && obj.keepRight(this.leftEdge())) obj.touchWall();
 		if(this.isSolid(WALL_RIGHT) && obj.keepLeft(this.rightEdge())) obj.touchWall();
 		if(this.isSolid(WALL_CEILING) && obj.keepBelow(this.topEdge())) obj.touchCeiling();
 		if(this.isSolid(WALL_FLOOR) && obj.keepAbove(this.bottomEdge())) obj.touchFloor();
-
+		
 		return res;
 	}
 	
@@ -318,12 +316,12 @@ public class Room implements RectangleBounds{
 	public double getHeight(){
 		return this.height;
 	}
-
+	
 	/** @return See {@link #xTiles} */
 	public int getXTiles(){
 		return this.xTiles;
 	}
-
+	
 	/** @return See {@link #yTiles} */
 	public int getYTiles(){
 		return this.yTiles;
@@ -358,7 +356,7 @@ public class Room implements RectangleBounds{
 	public double centerY(){
 		return this.getHeight() * 0.5;
 	}
-
+	
 	/**
 	 * Set the tile at the specified index
 	 * 
@@ -392,17 +390,20 @@ public class Room implements RectangleBounds{
 	public int tileY(double y){
 		return (int)ZMathUtils.minMax(0, this.getYTiles() - 1, Math.floor(y * Tile.inverseSize()));
 	}
-
+	
 	/**
 	 * Determine if the given index is within the tile bounds
+	 * 
 	 * @param x The index to check
 	 * @return true if the index is in the x axis range of the tile grid
 	 */
 	public boolean inTilesX(int x){
 		return x >= 0 && x < this.getXTiles();
 	}
+	
 	/**
 	 * Determine if the given index is within the tile bounds
+	 * 
 	 * @param y The index to check
 	 * @return true if the index is in the y axis range of the tile grid
 	 */
@@ -420,5 +421,5 @@ public class Room implements RectangleBounds{
 	public boolean inTiles(int x, int y){
 		return this.inTilesX(x) && this.inTilesY(y);
 	}
-
+	
 }

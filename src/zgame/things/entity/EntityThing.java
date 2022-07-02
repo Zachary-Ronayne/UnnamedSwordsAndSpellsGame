@@ -141,6 +141,8 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public void touchWall(){
 		// TODO make this based on a bounce amount based on the thing collided with
 		this.addVX(-this.getVelocity().getX() * 1.2);
+		
+		// TODO add the ability to slide down a wall based on a value?
 	}
 	
 	/**
