@@ -186,6 +186,7 @@ public class Room implements RectangleBounds{
 				if(res.right()) right = true;
 				if(res.ceiling()) top = true;
 				if(res.floor()) bot = true;
+				obj.collide(res);
 			}
 		}
 		// If at no tiles were touched, the entity is not on the floor
@@ -193,7 +194,6 @@ public class Room implements RectangleBounds{
 
 		// Determine the final collision
 		CollisionResponse res = new CollisionResponse(mx, my, left, right, top, bot);
-		obj.collide(res);
 
 		// Keep the object inside the game bounds, if the walls are enabled
 		if(this.isSolid(WALL_LEFT) && obj.keepRight(this.leftEdge())) obj.touchWall();

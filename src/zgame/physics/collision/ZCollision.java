@@ -104,6 +104,10 @@ public final class ZCollision{
 			}
 			else yDis = 0;
 		}
+		if(top || bottom){
+			left = false;
+			right = false;
+		}
 		return new CollisionResponse(xDis, yDis, left, right, top, bottom);
 	}
 	
