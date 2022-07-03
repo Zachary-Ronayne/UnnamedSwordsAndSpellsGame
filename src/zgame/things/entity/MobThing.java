@@ -121,6 +121,9 @@ public abstract class MobThing extends EntityThing{
 		double acceleration = this.getWalkAcceleration();
 		double walkForce = acceleration * mass * this.getWalkingDirection();
 		boolean walking = walkForce != 0;
+
+		// If the mob is not on the ground, it's movement force is modified by the air control
+		if(!this.isOnGround()) walkForce *= this.getWalkAirControl();
 		
 		// If the mob is not trying to move and is moving so slowly that the friction would stop it, then set the x velocity to zero
 		// TODO make this a friction value in a material? Or should the friction value it be in mob? Or should this check for velocity be in EntityThing?
