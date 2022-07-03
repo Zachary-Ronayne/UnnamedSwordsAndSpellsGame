@@ -16,9 +16,9 @@ public abstract class MobThing extends EntityThing{
 	/** The default value of {@link #walkAirControl} */
 	public static final double DEFAULT_WALK_AIR_CONTROL = 0.5;
 	/** The default value of {@link #walkFriction} */
-	public static final double DEFAULT_WALK_FRICTION = 1;
+	public static final double DEFAULT_WALK_FRICTION = 0;
 	/** The default value of {@link #walkStopFriction} */
-	public static final double DEFAULT_WALK_STOP_FRICTION = 100;
+	public static final double DEFAULT_WALK_STOP_FRICTION = 1;
 	
 	/** The velocity added during a jump */
 	private double jumpPower;
@@ -31,16 +31,24 @@ public abstract class MobThing extends EntityThing{
 	
 	/** The ratio of speed this {@link MobThing} can use to walk when it is airborne, i.e. not on the ground */
 	private double walkAirControl;
-
-	/** The frictional constant used to slow down this {@link MobThing} when it is trying to move */
+	
+	/**
+	 * The frictional constant used to slow down this {@link MobThing} when it is trying to move.
+	 * This value represents the amount of the surface's friction which is applied.
+	 * Zero means no friction is applied while walking. One means apply the same amount of friction as normal, higher than 1 means apply extra friction
+	 */
 	private double walkFriction;
-
-	/** The frictional constant used to slow down this {@link MobThing} when it is trying to stop moving */
+	
+	/**
+	 * The frictional constant used to slow down this {@link MobThing} when it is trying to stop moving
+	 * This value represents the amount of the surface's friction which is applied.
+	 * Zero means no friction is applied while not walking. One means apply the same amount of friction as normal, higher than 1 means apply extra friction
+	 */
 	private double walkStopFriction;
 	
 	/** true if this {@link MobThing} is in a position where it is allowed to jump, false otherwise */
 	private boolean canJump;
-
+	
 	// TODO make jumping a force?
 	
 	/** The vector keeping track of the force of this {@link MobThing} walking */
@@ -121,7 +129,6 @@ public abstract class MobThing extends EntityThing{
 			// TODO this amount of force should be such that on the next update, it will move the velocity to exactly max speed, need to add dt
 			if(Math.abs(vx) > this.getWalkSpeedMax() && ZMathUtils.sameSign(vx, walkForce)) walkForce = 0;
 		}
-		
 		// Set the amount the mob is walking
 		this.setWalkingForce(walkForce);
 	}

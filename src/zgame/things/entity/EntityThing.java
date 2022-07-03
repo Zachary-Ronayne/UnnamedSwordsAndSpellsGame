@@ -124,20 +124,20 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		
 		// TODO Base these numbers on the material the EntityThing is on, including air friction as air resistance
 		// Find the total constant for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
-		double surfaceFriction = this.isOnGround() ? 10.0 : 0.0;
-		// TODO docs for the friction constants, saying they represent acceleration. It's different for surfaces vs getFrictionConstant()?
+		double surfaceFriction = this.isOnGround() ? 500.0 : 0.0;
 		double newFrictionForce = (this.getFrictionConstant() * surfaceFriction) * mass;
 		
 		// If the total force is positive, then the constant needs to be negative, it will otherwise remain positive for a negative total force
 		if(moveDirection > 0) newFrictionForce *= -1;
 		
-		// TODO make mass * dt * dt a variable
+		double forceFactor = dt * dt / mass;
+		double velFactor = vx * dt;
 		// Find the signed distance that will be traveled if friction is not applied
-		double oldDist = xf / mass * dt * dt + vx * dt;
+		double oldDist = xf * forceFactor  + velFactor;
 		// Find the signed distance that will be traveled if friction is applied
-		double newDist = (newFrictionForce + xf) / mass * dt * dt + vx * dt;
+		double newDist = (newFrictionForce + xf) * forceFactor + velFactor;
 		// If those distances are in opposing directions, then the frictional force should be such that it stops all velocity on the next tick
-		if(!ZMathUtils.sameSign(newDist, oldDist) && Math.abs(newDist) > Math.abs(oldDist)) newFrictionForce = (-oldDist) / dt / dt * mass;
+		if(!ZMathUtils.sameSign(newDist, oldDist) && Math.abs(newDist) > Math.abs(oldDist)) newFrictionForce = -oldDist / forceFactor;
 		
 		// Apply the new friction
 		this.frictionForce = this.replaceForce(this.frictionForce, newFrictionForce, 0);
