@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
+import zgame.core.utils.ZMathUtils;
 import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResponse;
 import zgame.things.HitBox;
@@ -28,7 +29,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	/** The current force of friction on this {@link EntityThing} */
 	private ZVector frictionForce;
-
+	
 	/** Every force currently acting on this {@link EntityThing} */
 	private Collection<ZVector> forces;
 	
@@ -88,8 +89,8 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	@Override
 	public void tick(Game game, double dt){
 		// Account for frictional force based on current velocity
-		this.updateFrictionForce();
-
+		this.updateFrictionForce(dt);
+		
 		// Find the current acceleration
 		ZVector acceleration = this.getForce().scale(1.0 / this.getMass());
 		
@@ -103,37 +104,41 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		this.addX(moveVec.getX());
 		this.addY(moveVec.getY());
 		
-		// Now check the collision
+		// Now check the collision for what the entity is colliding with
 		this.checkCollision(game.getCurrentRoom());
 	}
 	
 	/**
 	 * Determine the current amount of friction on this {@link EntityThing} and update the force
+	 * 
+	 * @param dt The amount of time that will pass the next time the frictional force is applied
 	 */
-	public void updateFrictionForce(){
+	public void updateFrictionForce(double dt){
 		// Determining direction
+		double mass = this.getMass();
 		ZVector force = this.getForce();
 		double vx = this.getVX();
 		double moveDirection = vx;
-		double xForce = force.getX() - frictionForce.getX();
-		if(moveDirection == 0) moveDirection = xForce;
-
+		double xf = force.getX() - this.frictionForce.getX();
+		if(moveDirection == 0) moveDirection = xf;
+		
 		// TODO Base these numbers on the material the EntityThing is on, including air friction as air resistance
 		// Find the total constant for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
-		double surfaceFriction = this.isOnGround() ? 1000.0 : 0.0;
-		// TODO should these be added or multiplied?
-		double newFrictionForce = this.getFrictionConstant() * surfaceFriction;
+		double surfaceFriction = this.isOnGround() ? 10.0 : 0.0;
+		// TODO docs for the friction constants, saying they represent acceleration. It's different for surfaces vs getFrictionConstant()?
+		double newFrictionForce = (this.getFrictionConstant() * surfaceFriction) * mass;
 		
-		double fMag = Math.abs(xForce);
-		// If the friction is greater than the current opposing force, then it should equal that force
-		if(vx != 0); // TODO cap newFrictionForce, based on the velocity, basically, ensure frictional force doesn't exceed the
-		else if(fMag < newFrictionForce) newFrictionForce = fMag;
-		// If there is no velocity and no force, then there is no frictional force applied
-		if(fMag == 0 && vx == 0) newFrictionForce = 0;
-
 		// If the total force is positive, then the constant needs to be negative, it will otherwise remain positive for a negative total force
 		if(moveDirection > 0) newFrictionForce *= -1;
-
+		
+		// TODO make mass * dt * dt a variable
+		// Find the signed distance that will be traveled if friction is not applied
+		double oldDist = xf / mass * dt * dt + vx * dt;
+		// Find the signed distance that will be traveled if friction is applied
+		double newDist = (newFrictionForce + xf) / mass * dt * dt + vx * dt;
+		// If those distances are in opposing directions, then the frictional force should be such that it stops all velocity on the next tick
+		if(!ZMathUtils.sameSign(newDist, oldDist) && Math.abs(newDist) > Math.abs(oldDist)) newFrictionForce = (-oldDist) / dt / dt * mass;
+		
 		// Apply the new friction
 		this.frictionForce = this.replaceForce(this.frictionForce, newFrictionForce, 0);
 	}
@@ -151,7 +156,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		for(ZVector f : this.forces) force = force.add(f);
 		return force;
 	}
-
+	
 	/** @return See {@link #velocity} */
 	public ZVector getVelocity(){
 		return this.velocity;

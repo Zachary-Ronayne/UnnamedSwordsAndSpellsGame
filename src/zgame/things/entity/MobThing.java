@@ -18,7 +18,7 @@ public abstract class MobThing extends EntityThing{
 	/** The default value of {@link #walkFriction} */
 	public static final double DEFAULT_WALK_FRICTION = 1;
 	/** The default value of {@link #walkStopFriction} */
-	public static final double DEFAULT_WALK_STOP_FRICTION = 70;
+	public static final double DEFAULT_WALK_STOP_FRICTION = 100;
 	
 	/** The velocity added during a jump */
 	private double jumpPower;
@@ -113,16 +113,17 @@ public abstract class MobThing extends EntityThing{
 		
 		// If the mob is not trying to move and is moving so slowly that the friction would stop it, then set the x velocity to zero
 		// TODO make this a friction value in a material? Or should the friction value it be in mob? Or should this check for velocity be in EntityThing?
-		if(!walking && Math.abs(this.getVX()) < 0.00000001) this.setVX(0);
+		if(!walking && Math.abs(this.getVX()) < 0.00000001);// this.setVX(0); // TODO add this back in
 		// Otherwise, the mob should walk
 		else{
 			// If already moving at or beyond maximum walking speed, and walking would increase the x axis speed, don't continue to walk
 			double vx = this.getVX();
+			// TODO this amount of force should be such that on the next update, it will move the velocity to exactly max speed, need to add dt
 			if(Math.abs(vx) > this.getWalkSpeedMax() && ZMathUtils.sameSign(vx, walkForce)) walkForce = 0;
-			
-			// Set the amount the mob is walking
-			this.setWalkingForce(walkForce);
 		}
+		
+		// Set the amount the mob is walking
+		this.setWalkingForce(walkForce);
 	}
 	
 	@Override
@@ -136,6 +137,7 @@ public abstract class MobThing extends EntityThing{
 		if(!canJump) return;
 		
 		canJump = false;
+		// TODO should this be setting velocitym, or just adding?
 		this.setVY(-this.getJumpPower());
 	}
 	
