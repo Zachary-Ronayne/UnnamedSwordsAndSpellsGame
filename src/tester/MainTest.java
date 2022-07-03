@@ -198,6 +198,7 @@ public class MainTest extends Game{
 			
 			this.player = new Player(100, 400, 60, 100);
 			this.player.setMass(50);
+			// this.player.setWalkAcceleration(100000);
 			firstRoom.addThing(this.player);
 			
 			Door d = new Door(700, 400);

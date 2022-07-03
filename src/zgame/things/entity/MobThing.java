@@ -15,6 +15,10 @@ public abstract class MobThing extends EntityThing{
 	public static final double DEFAULT_WALK_SPEED_MAX = 300;
 	/** The default value of {@link #walkAirControl} */
 	public static final double DEFAULT_WALK_AIR_CONTROL = 0.5;
+	/** The default value of {@link #walkFriction} */
+	public static final double DEFAULT_WALK_FRICTION = 1;
+	/** The default value of {@link #walkStopFriction} */
+	public static final double DEFAULT_WALK_STOP_FRICTION = 70;
 	
 	/** The velocity added during a jump */
 	private double jumpPower;
@@ -27,9 +31,17 @@ public abstract class MobThing extends EntityThing{
 	
 	/** The ratio of speed this {@link MobThing} can use to walk when it is airborne, i.e. not on the ground */
 	private double walkAirControl;
+
+	/** The frictional constant used to slow down this {@link MobThing} when it is trying to move */
+	private double walkFriction;
+
+	/** The frictional constant used to slow down this {@link MobThing} when it is trying to stop moving */
+	private double walkStopFriction;
 	
 	/** true if this {@link MobThing} is in a position where it is allowed to jump, false otherwise */
 	private boolean canJump;
+
+	// TODO make jumping a force?
 	
 	/** The vector keeping track of the force of this {@link MobThing} walking */
 	private ZVector walkingForce;
@@ -52,6 +64,8 @@ public abstract class MobThing extends EntityThing{
 		this.walkAcceleration = DEFAULT_WALK_ACCELERATION;
 		this.walkSpeedMax = DEFAULT_WALK_SPEED_MAX;
 		this.walkAirControl = DEFAULT_WALK_AIR_CONTROL;
+		this.walkFriction = DEFAULT_WALK_FRICTION;
+		this.walkStopFriction = DEFAULT_WALK_STOP_FRICTION;
 		
 		this.walkingForce = new ZVector(0, 0);
 		this.addForce(this.walkingForce);
@@ -59,12 +73,17 @@ public abstract class MobThing extends EntityThing{
 	
 	@Override
 	public void tick(Game game, double dt){
+		// Determine the new walking force
 		this.updateWalkForce();
-		super.tick(game, dt);
+		
+		// Being off the ground means the mob cannot jump
 		if(!this.isOnGround()) this.canJump = false;
+		
+		// Do the normal game update
+		super.tick(game, dt);
 	}
 	
-	/** @return SEe {@link #walkingDirection} */
+	/** @return See {@link #walkingDirection} */
 	public int getWalkingDirection(){
 		return this.walkingDirection;
 	}
@@ -92,32 +111,24 @@ public abstract class MobThing extends EntityThing{
 		double walkForce = acceleration * mass * this.getWalkingDirection();
 		boolean walking = walkForce != 0;
 		
-		/*
-		 * TODO make this like a friction constant
-		 * It should be based on the thing it is colliding with
-		 * The first number is the mob trying to stop moving, the second is the friction of the ground
-		 */
-		// If the mob is on the ground, then slow the mob down
-		double frictionMove = 0;
-		if(this.isOnGround()) frictionMove = -this.getVX() * (walking ? 0.05 : 0.1);
-		// Otherwise, modify the movement based on the amount of control in the air
-		else walkForce *= this.getWalkAirControl();
-		this.addVX(frictionMove);
-		
 		// If the mob is not trying to move and is moving so slowly that the friction would stop it, then set the x velocity to zero
-		// TODO make this a friction value in a material
+		// TODO make this a friction value in a material? Or should the friction value it be in mob? Or should this check for velocity be in EntityThing?
 		if(!walking && Math.abs(this.getVX()) < 0.00000001) this.setVX(0);
 		// Otherwise, the mob should walk
 		else{
-			// If already moving at maximum walking speed, and walking would increase the x axis speed, don't move at all
+			// If already moving at or beyond maximum walking speed, and walking would increase the x axis speed, don't continue to walk
 			double vx = this.getVX();
 			if(Math.abs(vx) > this.getWalkSpeedMax() && ZMathUtils.sameSign(vx, walkForce)) walkForce = 0;
-
-			// TODO The force should just be a constant of either left, none, or right, the rest of this logic should be elsewhere
-			// TODO fix issue where acceleration higher than speed for movement makes for jittery movement
+			
 			// Set the amount the mob is walking
 			this.setWalkingForce(walkForce);
 		}
+	}
+	
+	@Override
+	public double getFrictionConstant(){
+		// The first number is the the friction while trying to move, the second is trying to stop
+		return (this.getWalkingDirection() != 0) ? getWalkFriction() : getWalkStopFriction();
 	}
 	
 	/** Cause this mob to jump upwards, if the mob is in a position to jump */
@@ -172,6 +183,26 @@ public abstract class MobThing extends EntityThing{
 	/** @param See {@link #walkAirControl} */
 	public void setWalkAirControl(double walkAirControl){
 		this.walkAirControl = walkAirControl;
+	}
+	
+	/** @return See {@link #walkFriction} */
+	public double getWalkFriction(){
+		return walkFriction;
+	}
+	
+	/** @param See {@link #walkFriction} */
+	public void setWalkFriction(double walkFriction){
+		this.walkFriction = walkFriction;
+	}
+	
+	/** @return See {@link #walkStopFriction} */
+	public double getWalkStopFriction(){
+		return walkStopFriction;
+	}
+	
+	/** @param See {@link #walkStopFriction} */
+	public void setWalkStopFriction(double walkStopFriction){
+		this.walkStopFriction = walkStopFriction;
 	}
 	
 	/** @return See {@link #walkingForce} */

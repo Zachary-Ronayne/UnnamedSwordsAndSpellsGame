@@ -26,6 +26,9 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	/** The current force of gravity on this {@link EntityThing} */
 	private ZVector gravity;
 	
+	/** The current force of friction on this {@link EntityThing} */
+	private ZVector frictionForce;
+
 	/** Every force currently acting on this {@link EntityThing} */
 	private Collection<ZVector> forces;
 	
@@ -67,10 +70,16 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public EntityThing(double x, double y, double mass){
 		super(x, y);
 		this.velocity = new ZVector(0, 0);
+		
 		this.forces = new ArrayList<ZVector>();
+		
 		this.gravity = new ZVector(0, 0);
 		this.addForce(gravity); // TODO add terminal velocity for gravity
 		this.setMass(mass);
+		
+		this.frictionForce = new ZVector(0, 0);
+		this.addForce(frictionForce);
+		
 		this.onGround = false;
 		this.px = this.getX();
 		this.py = this.getY();
@@ -78,9 +87,11 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	@Override
 	public void tick(Game game, double dt){
+		// Account for frictional force based on current velocity
+		this.updateFrictionForce();
+
 		// Find the current acceleration
-		ZVector acceleration = new ZVector(0, 0);
-		for(ZVector f : this.forces) acceleration = acceleration.add(f.scale(1.0 / this.getMass()));
+		ZVector acceleration = this.getForce().scale(1.0 / this.getMass());
 		
 		// Add the acceleration to the current velocity
 		this.addVelocity(acceleration.scale(dt));
@@ -96,6 +107,51 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		this.checkCollision(game.getCurrentRoom());
 	}
 	
+	/**
+	 * Determine the current amount of friction on this {@link EntityThing} and update the force
+	 */
+	public void updateFrictionForce(){
+		// Determining direction
+		ZVector force = this.getForce();
+		double vx = this.getVX();
+		double moveDirection = vx;
+		double xForce = force.getX() - frictionForce.getX();
+		if(moveDirection == 0) moveDirection = xForce;
+
+		// TODO Base these numbers on the material the EntityThing is on, including air friction as air resistance
+		// Find the total constant for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
+		double surfaceFriction = this.isOnGround() ? 1000.0 : 0.0;
+		// TODO should these be added or multiplied?
+		double newFrictionForce = this.getFrictionConstant() * surfaceFriction;
+		
+		double fMag = Math.abs(xForce);
+		// If the friction is greater than the current opposing force, then it should equal that force
+		if(vx != 0); // TODO cap newFrictionForce, based on the velocity, basically, ensure frictional force doesn't exceed the
+		else if(fMag < newFrictionForce) newFrictionForce = fMag;
+		// If there is no velocity and no force, then there is no frictional force applied
+		if(fMag == 0 && vx == 0) newFrictionForce = 0;
+
+		// If the total force is positive, then the constant needs to be negative, it will otherwise remain positive for a negative total force
+		if(moveDirection > 0) newFrictionForce *= -1;
+
+		// Apply the new friction
+		this.frictionForce = this.replaceForce(this.frictionForce, newFrictionForce, 0);
+	}
+	
+	/**
+	 * @return The number determining how much friction applies to this {@link EntityThing}.
+	 *         Higher values mean more friction, lower values mean less friction, 0 means no friction, 1 means no movement on a surface can occur.
+	 *         Behavior is undefined for negative return values
+	 */
+	public abstract double getFrictionConstant();
+	
+	/** @return A {@link ZVector} representing the total of all forces on this object */
+	public ZVector getForce(){
+		ZVector force = new ZVector(0, 0);
+		for(ZVector f : this.forces) force = force.add(f);
+		return force;
+	}
+
 	/** @return See {@link #velocity} */
 	public ZVector getVelocity(){
 		return this.velocity;
@@ -217,6 +273,16 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	 */
 	public void addVY(double y){
 		this.addVelocity(new ZVector(0, y));
+	}
+	
+	/**
+	 * Determine if this {@link EntityThing} has the given force object
+	 * 
+	 * @param force The object to check for
+	 * @return true if this {@link EntityThing} has the given force, false otherwise
+	 */
+	public boolean hasForce(ZVector force){
+		return this.forces.contains(force);
 	}
 	
 	/**
