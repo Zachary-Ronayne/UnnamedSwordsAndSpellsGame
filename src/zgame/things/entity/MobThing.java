@@ -16,9 +16,9 @@ public abstract class MobThing extends EntityThing{
 	/** The default value of {@link #walkAirControl} */
 	public static final double DEFAULT_WALK_AIR_CONTROL = 0.5;
 	/** The default value of {@link #walkFriction} */
-	public static final double DEFAULT_WALK_FRICTION = 0;
+	public static final double DEFAULT_WALK_FRICTION = 1;
 	/** The default value of {@link #walkStopFriction} */
-	public static final double DEFAULT_WALK_STOP_FRICTION = 1;
+	public static final double DEFAULT_WALK_STOP_FRICTION = 10;
 	
 	/** The velocity added during a jump */
 	private double jumpPower;
@@ -36,13 +36,16 @@ public abstract class MobThing extends EntityThing{
 	 * The frictional constant used to slow down this {@link MobThing} when it is trying to move.
 	 * This value represents the amount of the surface's friction which is applied.
 	 * Zero means no friction is applied while walking. One means apply the same amount of friction as normal, higher than 1 means apply extra friction
+	 * Generally should be 1.
 	 */
 	private double walkFriction;
 	
 	/**
 	 * The frictional constant used to slow down this {@link MobThing} when it is trying to stop moving
 	 * This value represents the amount of the surface's friction which is applied.
-	 * Zero means no friction is applied while not walking. One means apply the same amount of friction as normal, higher than 1 means apply extra friction
+	 * Zero means no friction is applied while not walking. One means apply the same amount of friction as normal, higher than 1 means apply extra friction.
+	 * Use a high value to make stopping walking happen quickly, use a low value to make stopping walking slow, and use zero to make it impossible to stop.
+	 * This friction only applies while on the ground. A value of 1 is used while in the air, regardless of if this MobThing is walking or not.
 	 */
 	private double walkStopFriction;
 	
@@ -135,8 +138,8 @@ public abstract class MobThing extends EntityThing{
 	
 	@Override
 	public double getFrictionConstant(){
-		// The first number is the the friction while trying to move, the second is trying to stop
-		return (this.getWalkingDirection() != 0) ? getWalkFriction() : getWalkStopFriction();
+		// If not on the ground, use the normal amount of friction, otherwise, if currently walking, return walk friction, otherwise, return stop friction
+		return !this.isOnGround() ? 1 : (this.getWalkingDirection() != 0) ? getWalkFriction() : getWalkStopFriction();
 	}
 	
 	/** Cause this mob to jump upwards, if the mob is in a position to jump */

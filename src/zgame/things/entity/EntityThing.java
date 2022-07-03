@@ -124,7 +124,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		
 		// TODO Base these numbers on the material the EntityThing is on, including air friction as air resistance
 		// Find the total constant for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
-		double surfaceFriction = this.isOnGround() ? 500.0 : 0.0;
+		double surfaceFriction = this.isOnGround() ? 100.0 : 0.1;
 		double newFrictionForce = (this.getFrictionConstant() * surfaceFriction) * mass;
 		
 		// If the total force is positive, then the constant needs to be negative, it will otherwise remain positive for a negative total force
@@ -133,7 +133,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		double forceFactor = dt * dt / mass;
 		double velFactor = vx * dt;
 		// Find the signed distance that will be traveled if friction is not applied
-		double oldDist = xf * forceFactor  + velFactor;
+		double oldDist = xf * forceFactor + velFactor;
 		// Find the signed distance that will be traveled if friction is applied
 		double newDist = (newFrictionForce + xf) * forceFactor + velFactor;
 		// If those distances are in opposing directions, then the frictional force should be such that it stops all velocity on the next tick
@@ -296,6 +296,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	 * @param force The force to add
 	 */
 	public void addForce(ZVector force){
+		// TODO make this keep track of the total force as a separate variable, and update the force variable when things change
 		this.forces.add(force);
 	}
 	
