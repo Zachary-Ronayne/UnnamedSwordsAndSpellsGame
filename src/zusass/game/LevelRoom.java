@@ -4,7 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZMathUtils;
-import zgame.things.Room;
+import zgame.world.Room;
 import zusass.game.tiles.ZUSASSColorTiles;
 
 /** A {@link Room} which represents a randomly generated level for the infinite dungeons */

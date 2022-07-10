@@ -17,9 +17,9 @@ import zgame.core.window.GameWindow;
 import zgame.menu.Menu;
 import zgame.menu.MenuButton;
 import zgame.things.Door;
-import zgame.things.Room;
 import zgame.things.entity.Player;
 import zgame.things.tiles.BaseTiles;
+import zgame.world.Room;
 
 import static org.lwjgl.glfw.GLFW.*;
 

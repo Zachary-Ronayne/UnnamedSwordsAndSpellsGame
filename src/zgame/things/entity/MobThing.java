@@ -52,7 +52,7 @@ public abstract class MobThing extends EntityThing{
 	/** true if this {@link MobThing} is in a position where it is allowed to jump, false otherwise */
 	private boolean canJump;
 	
-	// TODO make jumping a force?
+	// TODO make jumping a force? Also make it that you can control how high you jump, options for in air or for holding down the button
 	
 	/** The vector keeping track of the force of this {@link MobThing} walking */
 	private ZVector walkingForce;
@@ -150,7 +150,7 @@ public abstract class MobThing extends EntityThing{
 		if(!canJump) return;
 		
 		canJump = false;
-		// TODO should this be setting velocitym, or just adding?
+		// TODO should this be setting velocity, or just adding?
 		this.setVY(-this.getJumpPower());
 	}
 	

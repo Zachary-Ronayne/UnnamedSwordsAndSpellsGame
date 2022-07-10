@@ -10,7 +10,7 @@ import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResponse;
 import zgame.things.HitBox;
 import zgame.things.PositionedThing;
-import zgame.things.Room;
+import zgame.world.Room;
 
 /**
  * A {@link PositionedThing} which keeps track of an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.

@@ -3,7 +3,7 @@ package zgame.things.entity;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.keyboard.ZKeyInput;
-import zgame.things.Room;
+import zgame.world.Room;
 
 import static org.lwjgl.glfw.GLFW.*;
 

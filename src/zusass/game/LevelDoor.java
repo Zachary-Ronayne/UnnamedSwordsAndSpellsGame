@@ -3,7 +3,7 @@ package zusass.game;
 import zgame.core.Game;
 import zgame.things.Door;
 import zgame.things.PositionedThing;
-import zgame.things.Room;
+import zgame.world.Room;
 
 /** A {@link Door} used by the infinitely generating levels */
 public class LevelDoor extends Door{

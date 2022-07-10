@@ -1,4 +1,4 @@
-package zgame.things;
+package zgame.world;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,6 +9,9 @@ import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZArrayUtils;
 import zgame.core.utils.ZMathUtils;
 import zgame.physics.collision.CollisionResponse;
+import zgame.things.GameThing;
+import zgame.things.HitBox;
+import zgame.things.RectangleBounds;
 import zgame.things.entity.EntityThing;
 import zgame.things.tiles.BaseTiles;
 import zgame.things.tiles.Tile;

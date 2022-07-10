@@ -6,6 +6,7 @@ import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.things.entity.EntityThing;
+import zgame.world.Room;
 
 public class Door extends PositionedRectangleThing implements GameTickable{
 	

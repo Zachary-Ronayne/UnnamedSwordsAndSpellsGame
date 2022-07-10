@@ -2,9 +2,9 @@ package zusass.game;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.things.Room;
 import zgame.things.entity.Player;
 import zgame.things.tiles.BaseTiles;
+import zgame.world.Room;
 
 /** The {@link Room} which represents the main hub of the game, i.e. where the player can enter levels, make items, etc. */
 public class Hub extends Room{

@@ -21,7 +21,7 @@ import zgame.core.state.PlayState;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GLFWWindow;
 import zgame.core.window.GameWindow;
-import zgame.things.Room;
+import zgame.world.Room;
 
 /**
  * The central class used to create a game. Create an extension of this class to begin making a game

@@ -2,6 +2,7 @@ package zgame.things;
 
 import zgame.core.Game;
 import zgame.things.entity.EntityThing;
+import zgame.world.Room;
 
 /** A {@link GameThing} which uses x and y coordinates */
 public abstract class PositionedThing extends GameThing implements Positionable{
