@@ -8,6 +8,8 @@ import zgame.core.GameTickable;
 import zgame.core.utils.ZMathUtils;
 import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResponse;
+import zgame.physics.material.Material;
+import zgame.physics.material.Materials;
 import zgame.things.HitBox;
 import zgame.things.PositionedThing;
 import zgame.world.Room;
@@ -43,6 +45,9 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	/** The mass, i.e. weight, of this {@link EntityThing} */
 	private double mass;
+
+	/** The Material which this {@link EntityThing} is made of */
+	private Material material;
 	
 	/**
 	 * Create a new empty entity at (0, 0) with a mass of 1
@@ -77,6 +82,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		this.gravity = new ZVector(0, 0);
 		this.addForce(gravity); // TODO add terminal velocity for gravity
 		this.setMass(mass);
+		this.material = Materials.DEFAULT;
 		
 		this.frictionForce = new ZVector(0, 0);
 		this.addForce(frictionForce);
@@ -150,6 +156,11 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	 */
 	public abstract double getFrictionConstant();
 	
+	@Override
+	public Material getMaterial(){
+		return this.material;
+	}
+
 	/** @return A {@link ZVector} representing the total of all forces on this object */
 	public ZVector getForce(){
 		ZVector force = new ZVector(0, 0);

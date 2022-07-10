@@ -2,9 +2,10 @@ package zgame.things.tiles;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.things.Materialable;
 
 /** An enum that defines tiles that can exist. Extend this enum to add new tile types */
-public abstract class TileType{
+public abstract class TileType implements Materialable{
 	
 	/** The hitbox of this tile type */
 	private TileHitbox hitbox;

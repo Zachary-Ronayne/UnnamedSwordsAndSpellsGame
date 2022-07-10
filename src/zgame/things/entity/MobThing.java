@@ -125,11 +125,8 @@ public abstract class MobThing extends EntityThing{
 		// If the mob is not on the ground, it's movement force is modified by the air control
 		if(!this.isOnGround()) walkForce *= this.getWalkAirControl();
 		
-		// If the mob is not trying to move and is moving so slowly that the friction would stop it, then set the x velocity to zero
-		// TODO make this a friction value in a material? Or should the friction value it be in mob? Or should this check for velocity be in EntityThing?
-		if(!walking && Math.abs(this.getVX()) < 0.00000001);// this.setVX(0); // TODO add this back in
-		// Otherwise, the mob should walk
-		else{
+		// Only make the walking happen if there is any walking force
+		if(walking){
 			// If already moving at or beyond maximum walking speed, and walking would increase the x axis speed, don't continue to walk
 			double vx = this.getVX();
 			// TODO this amount of force should be such that on the next update, it will move the velocity to exactly max speed, need to add dt

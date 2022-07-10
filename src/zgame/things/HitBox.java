@@ -3,7 +3,7 @@ package zgame.things;
 import zgame.physics.collision.CollisionResponse;
 
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
-public interface HitBox{
+public interface HitBox extends Materialable{
 	
 	/**
 	 * Apply the given {@link CollisionResponse} to this object
@@ -24,7 +24,7 @@ public interface HitBox{
 	 * @return The information about the collision
 	 */
 	public CollisionResponse calculateRectCollision(double x, double y, double w, double h);
-
+	
 	/**
 	 * Reposition this object so that it is to the left of the given x coordinate.
 	 * If the object is already to the left of the coordinate, this method should do nothing.
