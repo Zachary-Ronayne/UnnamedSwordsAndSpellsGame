@@ -3,12 +3,14 @@ package zgame.things.tiles;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.collision.CollisionResponse;
+import zgame.physics.material.Material;
 import zgame.things.GameThing;
 import zgame.things.HitBox;
+import zgame.things.Materialable;
 import zgame.things.PositionedRectangleThing;
 
 /** A {@link GameThing} with a rectangular hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
-public class Tile extends PositionedRectangleThing{
+public class Tile extends PositionedRectangleThing implements Materialable{
 	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 64;
@@ -61,6 +63,11 @@ public class Tile extends PositionedRectangleThing{
 	/** @return See {@link TileType} */
 	public TileType getType(){
 		return type;
+	}
+
+	@Override
+	public Material getMaterial(){
+		return this.getType().getMaterial();
 	}
 	
 	public CollisionResponse collide(HitBox obj){
