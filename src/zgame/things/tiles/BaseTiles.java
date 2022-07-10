@@ -1,6 +1,7 @@
 package zgame.things.tiles;
 
 import zgame.core.graphics.ZColor;
+import zgame.physics.material.Materials;
 
 /** A class containing base generic tiles for the game */
 public final class BaseTiles{
@@ -18,6 +19,10 @@ public final class BaseTiles{
 	public static final ColorTile WALL_DARK = new ColorTile("wallDark", BASE_ORIGIN, TileHitbox.FULL, new ZColor(.55));
 	/** A tile with a solid hitbox that displays as a light solid color */
 	public static final ColorTile WALL_LIGHT = new ColorTile("wallLight", BASE_ORIGIN, TileHitbox.FULL, new ZColor(.65));
+	/** A pink tile with a lot of bounciness */
+	public static final ColorTile BOUNCY = new ColorTile("bouncy", BASE_ORIGIN, TileHitbox.FULL, new ZColor(1, .5, .5), Materials.BOUNCE);
+	/** A brown tile with a huge friction value */
+	public static final ColorTile HIGH_FRICTION = new ColorTile("high_friction", BASE_ORIGIN, TileHitbox.FULL, new ZColor(.25, .125, .0625), Materials.HIGH_FRICTION);
 	
 	/** Cannot instantiate {@link BaseTiles} */
 	private BaseTiles(){

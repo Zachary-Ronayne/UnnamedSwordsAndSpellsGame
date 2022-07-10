@@ -82,7 +82,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		this.gravity = new ZVector(0, 0);
 		this.addForce(gravity); // TODO add terminal velocity for gravity
 		this.setMass(mass);
-		this.material = Materials.DEFAULT;
+		this.material = Materials.DEFAULT_ENTITY;
 		
 		this.frictionForce = new ZVector(0, 0);
 		this.addForce(frictionForce);
@@ -206,27 +206,26 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	@Override
 	public void touchFloor(Material touched){
-		// TODO add bouncing on the floor
-		
-		// Reset the y velocity to 0, only if the entity is moving downwards
-		if(this.getVY() > 0) this.velocity = new ZVector(this.getVX(), 0);
-		
 		// Touching a floor means this entity is on the ground
 		this.groundMaterial = touched;
+		
+		// Bounce off the floor, or reset the y velocity to 0 if either material has no floor bounciness
+		double bounce = touched == null ? 0 : touched.getFloorBounce();
+		this.setVY(-this.getVY() * bounce * this.getMaterial().getFloorBounce());
 	}
 	
 	@Override
 	public void touchCeiling(Material touched){
-		// TODO add bouncing on the ceiling
-		
-		// Reset the y velocity to 0, only if the entity is moving upwards
-		if(this.getVY() < 0) this.velocity = new ZVector(this.getVX(), 0);
+		// Bounce off the ceiling, or reset the y velocity to 0 if either material has no ceiling bounciness
+		double bounce = touched == null ? 0 : touched.getCeilingBounce();
+		this.setVY(-this.getVY() * bounce * this.getMaterial().getCeilingBounce());
 	}
 	
 	@Override
 	public void touchWall(Material touched){
-		// TODO make this based on a bounce amount based on the thing collided with
-		this.addVX(-this.getVelocity().getX() * 1.2);
+		// Bounce off the wall based on the touched material and this entity thing
+		double bounce = touched == null ? 0 : touched.getWallBounce();
+		this.setVX(-this.getVX() * bounce * this.getMaterial().getWallBounce());
 		
 		// TODO add the ability to slide down a wall based on a value?
 	}

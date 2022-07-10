@@ -193,7 +193,11 @@ public class MainTest extends Game{
 		public GameEngineState(){
 			super(false);
 			Room firstRoom = makeRoom();
+			firstRoom.setTile(0, 4, BaseTiles.BOUNCY);
+			firstRoom.setTile(1, 4, BaseTiles.BOUNCY);
 			Room secondRoom = makeRoom();
+			secondRoom.setTile(0, 4, BaseTiles.HIGH_FRICTION);
+			secondRoom.setTile(1, 4, BaseTiles.HIGH_FRICTION);
 			this.setCurrentRoom(firstRoom);
 			
 			this.player = new Player(100, 400, 60, 100);

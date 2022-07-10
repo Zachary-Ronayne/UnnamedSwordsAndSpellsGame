@@ -70,7 +70,7 @@ public interface HitBox extends Materialable{
 	/**
 	 * A method that defines what this object does when it touches a floor
 	 * 
-	 * @param The Material which this {@link HitBox} touched
+	 * @param touched The Material which this {@link HitBox} touched
 	 */
 	public void touchFloor(Material touched);
 	
@@ -80,14 +80,14 @@ public interface HitBox extends Materialable{
 	/**
 	 * A method that defines what this object does when it touches a ceiling
 	 * 
-	 * @param The Material which this {@link HitBox} touched
+	 * @param touched The Material which this {@link HitBox} touched
 	 */
 	public void touchCeiling(Material touched);
 	
 	/**
 	 * A method that defines what this object does when it touches a wall
 	 * 
-	 * @param The Material which this {@link HitBox} touched
+	 * @param touched The Material which this {@link HitBox} touched
 	 */
 	public void touchWall(Material touched);
 	

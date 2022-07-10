@@ -11,14 +11,7 @@ public interface Material{
 	 *         0 means no bounce, 1 means bounce with the full ratio.
 	 *         Should generally never be greater than 1
 	 */
-	public double getLeftWallBounce();
-	
-	/**
-	 * @return When an object collides with something by moving to the right into it, it will bounce off it with ratio of the amount of velocity in the opposite direction.
-	 *         0 means no bounce, 1 means bounce with the full ratio.
-	 *         Should generally never be greater than 1
-	 */
-	public double getRightWallBounce();
+	public double getWallBounce();
 	
 	/**
 	 * @return When an object collides with something by moving down into the ground, it will bounce off it with ratio of the amount of velocity in the opposite direction.
