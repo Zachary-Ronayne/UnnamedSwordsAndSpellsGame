@@ -31,7 +31,7 @@ public interface TileHitbox{
 	public static class Full implements TileHitbox{
 		@Override
 		public CollisionResponse collide(Tile t, HitBox obj){
-			return obj.calculateRectCollision(t.getX(), t.getY(), t.getWidth(), t.getHeight());
+			return obj.calculateRectCollision(t.getX(), t.getY(), t.getWidth(), t.getHeight(), t.getType().getMaterial());
 		}
 	}
 

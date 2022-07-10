@@ -1,6 +1,7 @@
 package zgame.things;
 
 import zgame.physics.collision.CollisionResponse;
+import zgame.physics.material.Material;
 
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
 public interface HitBox extends Materialable{
@@ -20,10 +21,11 @@ public interface HitBox extends Materialable{
 	 * @param y The y coordinate of the upper left hand corner of the bounds
 	 * @param w The width of the bounds
 	 * @param h The height of the bounds
+	 * @param m The material which was collided with
 	 * 
 	 * @return The information about the collision
 	 */
-	public CollisionResponse calculateRectCollision(double x, double y, double w, double h);
+	public CollisionResponse calculateRectCollision(double x, double y, double w, double h, Material m);
 	
 	/**
 	 * Reposition this object so that it is to the left of the given x coordinate.
@@ -65,17 +67,29 @@ public interface HitBox extends Materialable{
 	 */
 	public boolean keepBelow(double y);
 	
-	/** A method that defines what this object does when it touches a floor */
-	public void touchFloor();
+	/**
+	 * A method that defines what this object does when it touches a floor
+	 * 
+	 * @param The Material which this {@link HitBox} touched
+	 */
+	public void touchFloor(Material touched);
 	
 	/** A method that defines what this object does when it leaves the floor, i.e. is not touching the floor */
 	public void leaveFloor();
 	
-	/** A method that defines what this object does when it touches a ceiling */
-	public void touchCeiling();
+	/**
+	 * A method that defines what this object does when it touches a ceiling
+	 * 
+	 * @param The Material which this {@link HitBox} touched
+	 */
+	public void touchCeiling(Material touched);
 	
-	/** A method that defines what this object does when it touches a wall */
-	public void touchWall();
+	/**
+	 * A method that defines what this object does when it touches a wall
+	 * 
+	 * @param The Material which this {@link HitBox} touched
+	 */
+	public void touchWall(Material touched);
 	
 	// TODO maybe use these methods, or similar, when determining if something should render
 	/** @return The minimum x coordinate of the bounds of this {@link HitBox} */

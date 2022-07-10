@@ -9,6 +9,8 @@ import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZArrayUtils;
 import zgame.core.utils.ZMathUtils;
 import zgame.physics.collision.CollisionResponse;
+import zgame.physics.material.Material;
+import zgame.physics.material.Materials;
 import zgame.things.GameThing;
 import zgame.things.HitBox;
 import zgame.things.RectangleBounds;
@@ -157,7 +159,7 @@ public class Room implements RectangleBounds{
 	 * 
 	 * @param obj The object to collide
 	 * 
-	 * @return The CollisionResponse representing the final collision that took place
+	 * @return The CollisionResponse representing the final collision that took place, where the collision material is the floor collision, if one took place
 	 */
 	public CollisionResponse collide(HitBox obj){
 		// Find touching tiles and collide with them
@@ -173,6 +175,7 @@ public class Room implements RectangleBounds{
 		boolean right = false;
 		boolean top = false;
 		boolean bot = false;
+		Material material = null;
 		
 		for(int x = minX; x <= maxX; x++){
 			for(int y = minY; y <= maxY; y++){
@@ -188,19 +191,25 @@ public class Room implements RectangleBounds{
 				if(res.ceiling()) top = true;
 				if(res.floor()) bot = true;
 				obj.collide(res);
+
+				// Record the material collided with
+				if(collided){
+					// Set the material if there is none yet, or the floor
+					if(material == null || bot) material = res.material();
+				}
 			}
 		}
 		// If at no tiles were touched, the entity is not on the floor
 		if(!collided) obj.leaveFloor();
 		
 		// Determine the final collision
-		CollisionResponse res = new CollisionResponse(mx, my, left, right, top, bot);
+		CollisionResponse res = new CollisionResponse(mx, my, left, right, top, bot, material);
 		
 		// Keep the object inside the game bounds, if the walls are enabled
-		if(this.isSolid(WALL_LEFT) && obj.keepRight(this.leftEdge())) obj.touchWall();
-		if(this.isSolid(WALL_RIGHT) && obj.keepLeft(this.rightEdge())) obj.touchWall();
-		if(this.isSolid(WALL_CEILING) && obj.keepBelow(this.topEdge())) obj.touchCeiling();
-		if(this.isSolid(WALL_FLOOR) && obj.keepAbove(this.bottomEdge())) obj.touchFloor();
+		if(this.isSolid(WALL_LEFT) && obj.keepRight(this.leftEdge())) obj.touchWall(Materials.BOUNDARY);
+		if(this.isSolid(WALL_RIGHT) && obj.keepLeft(this.rightEdge())) obj.touchWall(Materials.BOUNDARY);
+		if(this.isSolid(WALL_CEILING) && obj.keepBelow(this.topEdge())) obj.touchCeiling(Materials.BOUNDARY);
+		if(this.isSolid(WALL_FLOOR) && obj.keepAbove(this.bottomEdge())) obj.touchFloor(Materials.BOUNDARY);
 		
 		return res;
 	}

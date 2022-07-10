@@ -3,6 +3,7 @@ package zgame.things.entity;
 import zgame.core.Game;
 import zgame.core.utils.ZMathUtils;
 import zgame.physics.ZVector;
+import zgame.physics.material.Material;
 
 /** An {@link EntityThing} which represents some kind of creature which can walk around, i.e. the player, an enemy, an animal, a monster, any NPC, etc. */
 public abstract class MobThing extends EntityThing{
@@ -152,8 +153,8 @@ public abstract class MobThing extends EntityThing{
 	}
 	
 	@Override
-	public void touchFloor(){
-		super.touchFloor();
+	public void touchFloor(Material m){
+		super.touchFloor(m);
 		this.canJump = true;
 	}
 	

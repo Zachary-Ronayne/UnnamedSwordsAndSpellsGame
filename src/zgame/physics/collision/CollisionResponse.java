@@ -1,6 +1,7 @@
 package zgame.physics.collision;
 
 import zgame.core.utils.ZStringUtils;
+import zgame.physics.material.Material;
 
 /** An object containing values for what should happen to an object when it collides with something */
 public class CollisionResponse{
@@ -18,10 +19,12 @@ public class CollisionResponse{
 	private boolean ceiling;
 	/** true if the collision was into a floor below, false otherwise */
 	private boolean floor;
+	/** The material which was hit during this collision, or null if no collision took place */
+	private Material material;
 	
 	/** A response representing no collision occurring */
 	public CollisionResponse(){
-		this(0, 0);
+		this(0, 0, null);
 	}
 	
 	/**
@@ -30,8 +33,8 @@ public class CollisionResponse{
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 */
-	public CollisionResponse(double x, double y){
-		this(x, y, false, false, false, false);
+	public CollisionResponse(double x, double y, Material material){
+		this(x, y, false, false, false, false, material);
 	}
 	
 	/**
@@ -44,13 +47,14 @@ public class CollisionResponse{
 	 * @param ceiling See {@link #ceiling}
 	 * @param floor See {@link #floor}
 	 */
-	public CollisionResponse(double x, double y, boolean left, boolean right, boolean ceiling, boolean floor){
+	public CollisionResponse(double x, double y, boolean left, boolean right, boolean ceiling, boolean floor, Material material){
 		this.x = x;
 		this.y = y;
 		this.left = left;
 		this.right = right;
 		this.ceiling = ceiling;
 		this.floor = floor;
+		this.material = material;
 	}
 	
 	/** @return See {@link #x} */
@@ -92,11 +96,16 @@ public class CollisionResponse{
 	public boolean hit(){
 		return this.wall() || this.ceiling() || this.floor();
 	}
+
+	/** @return See {@link #material} */
+	public Material material(){
+		return this.material;
+	}
 	
 	@Override
 	public String toString(){
 		return ZStringUtils.concat("[CollisionResponse: x: ", this.x(), ", y: ", this.y(), ", left: ", this.left(), ", right: ", this.right(), ", ceiling: ", this.ceiling(),
-				", floor: ", this.floor, "]");
+				", floor: ", this.floor(), ", material: ", this.material(), "]");
 	}
 	
 }

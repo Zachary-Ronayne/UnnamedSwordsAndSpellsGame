@@ -35,8 +35,8 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	/** Every force currently acting on this {@link EntityThing} */
 	private Collection<ZVector> forces;
 	
-	/** true if this {@link EntityThing} was on the ground in the past {@link #tick(Game, double)}, false otherwise */
-	private boolean onGround;
+	/** The material which this {@link EntityThing} is standing on, or null if it is not standing on anything */
+	private Material groundMaterial;
 	
 	/** The value of {@link #getX()} from the last tick */
 	private double px;
@@ -87,7 +87,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		this.frictionForce = new ZVector(0, 0);
 		this.addForce(frictionForce);
 		
-		this.onGround = false;
+		this.groundMaterial = null;
 		this.px = this.getX();
 		this.py = this.getY();
 	}
@@ -128,9 +128,9 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		double xf = force.getX() - this.frictionForce.getX();
 		if(moveDirection == 0) moveDirection = xf;
 		
-		// TODO Base these numbers on the material the EntityThing is on, including air friction as air resistance
+		// TODO Base air friction as air resistance on something
 		// Find the total constant for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
-		double surfaceFriction = this.isOnGround() ? 100.0 : 0.1;
+		double surfaceFriction = this.isOnGround() ? this.getGroundMaterial().getFriction() : 0.1;
 		double newFrictionForce = (this.getFrictionConstant() * surfaceFriction) * mass;
 		
 		// If the total force is positive, then the constant needs to be negative, it will otherwise remain positive for a negative total force
@@ -188,30 +188,35 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		this.mass = mass;
 		this.gravity = this.replaceForce(this.gravity, 0, GRAVITY_ACCELERATION * this.getMass());
 	}
+
+	/** @return See {@link #groundMaterial} */
+	public Material getGroundMaterial(){
+		return this.groundMaterial;
+	}
 	
-	/** @return See {@link #onGround} */
+	/** @return true if this {@link EntityThing} was on the ground in the past {@link #tick(Game, double)}, false otherwise */
 	public boolean isOnGround(){
-		return this.onGround;
+		return this.groundMaterial != null;
 	}
 	
 	@Override
 	public void leaveFloor(){
-		this.onGround = false;
+		this.groundMaterial = null;
 	}
 	
 	@Override
-	public void touchFloor(){
+	public void touchFloor(Material touched){
 		// TODO add bouncing on the floor
 		
 		// Reset the y velocity to 0, only if the entity is moving downwards
 		if(this.getVY() > 0) this.velocity = new ZVector(this.getVX(), 0);
 		
 		// Touching a floor means this entity is on the ground
-		this.onGround = true;
+		this.groundMaterial = touched;
 	}
 	
 	@Override
-	public void touchCeiling(){
+	public void touchCeiling(Material touched){
 		// TODO add bouncing on the ceiling
 		
 		// Reset the y velocity to 0, only if the entity is moving upwards
@@ -219,7 +224,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	}
 	
 	@Override
-	public void touchWall(){
+	public void touchWall(Material touched){
 		// TODO make this based on a bounce amount based on the thing collided with
 		this.addVX(-this.getVelocity().getX() * 1.2);
 		
@@ -239,9 +244,9 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public void collide(CollisionResponse r){
 		this.addX(r.x());
 		this.addY(r.y());
-		if(r.wall()) this.touchWall();
-		if(r.ceiling()) this.touchCeiling();
-		if(r.floor()) this.touchFloor();
+		if(r.wall()) this.touchWall(r.material());
+		if(r.ceiling()) this.touchCeiling(r.material());
+		if(r.floor()) this.touchFloor(r.material());
 	}
 	
 	/** @return The velocity of this {@link EntityThing} on the x axis */

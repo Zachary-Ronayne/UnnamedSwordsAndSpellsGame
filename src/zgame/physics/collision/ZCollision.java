@@ -5,6 +5,7 @@ import java.awt.geom.Point2D;
 
 import zgame.core.utils.ZMathUtils;
 import zgame.core.utils.ZRect;
+import zgame.physics.material.Material;
 
 /** A class containing methods for calculating where objects should move when colliding */
 public final class ZCollision{
@@ -23,9 +24,10 @@ public final class ZCollision{
 	 * @param y The y coordinate of the bounds to collide
 	 * @param w The width of the bounds to collide
 	 * @param h The height of the bounds to collide
+	 * @param m The {@link Material} which was collided with
 	 * @return A {@link CollisionResponse} representing the collision
 	 */
-	public static CollisionResponse rectToRectBasic(double cx, double cy, double cw, double ch, double x, double y, double w, double h){
+	public static CollisionResponse rectToRectBasic(double cx, double cy, double cw, double ch, double x, double y, double w, double h, Material m){
 		// If the rectangles do not intersect, then there was no collision
 		ZRect unmoving = new ZRect(cx, cy, cw, ch);
 		if(!unmoving.intersects(x, y, w, h)){
@@ -108,7 +110,7 @@ public final class ZCollision{
 			left = false;
 			right = false;
 		}
-		return new CollisionResponse(xDis, yDis, left, right, top, bottom);
+		return new CollisionResponse(xDis, yDis, left, right, top, bottom, m);
 	}
 	
 	/**
@@ -127,13 +129,14 @@ public final class ZCollision{
 	 * @param h The height of the bounds to collide
 	 * @param px The x coordinate of the location of the bounds in the previous instance of time
 	 * @param py The y coordinate of the location of the bounds in the previous instance of time
+	 * @param m The {@link Material} which was collided with
 	 * @return A {@link CollisionResponse} representing the collision
 	 */
-	public static CollisionResponse rectToRect(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py){
+	public static CollisionResponse rectToRect(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, Material m){
 		// If the current and previous positions of the colliding bounds are the same, then use the basic algorithm
 		boolean onlyX = x == px;
 		boolean onlyY = y == py;
-		if(onlyX && onlyY) return rectToRectBasic(cx, cy, cw, ch, x, y, w, h);
+		if(onlyX && onlyY) return rectToRectBasic(cx, cy, cw, ch, x, y, w, h, m);
 		
 		// If the rectangles do not intersect, then there was no collision
 		ZRect unmoving = new ZRect(cx, cy, cw, ch);
@@ -216,7 +219,7 @@ public final class ZCollision{
 			yDis += movePoint.y - y;
 		}
 		// Return response
-		return new CollisionResponse(xDis, yDis, left, right, top, bottom);
+		return new CollisionResponse(xDis, yDis, left, right, top, bottom, m);
 	}
 	
 	/**
@@ -243,9 +246,9 @@ public final class ZCollision{
 		return null;
 	}
 	
-	/** @return {@link #rectToRectAprox(double, double, double, double, double, double, double, double, double, double, int)} with a default of 5 iterations. */
-	public static CollisionResponse rectToRectAprox(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py){
-		return rectToRectAprox(cx, cy, cw, ch, x, y, w, h, px, py, 5);
+	/** @return {@link #rectToRectAprox(double, double, double, double, double, double, double, double, double, double, Material) with a default of 5 iterations. */
+	public static CollisionResponse rectToRectAprox(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, Material m){
+		return rectToRectAprox(cx, cy, cw, ch, x, y, w, h, px, py, 5, m);
 	}
 	
 	/**
@@ -269,11 +272,12 @@ public final class ZCollision{
 	 * @param px The x coordinate of the location of the bounds in the previous instance of time
 	 * @param py The y coordinate of the location of the bounds in the previous instance of time
 	 * @param iterations The number of times to apply the algorithm to approximate the new position
+	 * @param m The {@link Material} which was collided with
 	 * @return A {@link CollisionResponse} representing the collision
 	 */
-	public static CollisionResponse rectToRectAprox(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, int iterations){
+	public static CollisionResponse rectToRectAprox(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, int iterations, Material m){
 		// If the new and old positions are the same, use the basic collision
-		if(x == px && y == py) return rectToRectBasic(cx, cy, cw, ch, x, y, w, h);
+		if(x == px && y == py) return rectToRectBasic(cx, cy, cw, ch, x, y, w, h, m);
 		
 		// Find the bounds
 		ZRect moving = new ZRect(x, y, w, h);
@@ -337,7 +341,7 @@ public final class ZCollision{
 			if(toRight) right = true;
 		}
 		// Return response
-		return new CollisionResponse(xDis, yDis, left, right, top, bottom);
+		return new CollisionResponse(xDis, yDis, left, right, top, bottom, m);
 		
 	}
 	
