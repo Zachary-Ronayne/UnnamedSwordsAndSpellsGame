@@ -2,6 +2,7 @@ package zgame.physics.collision;
 
 import zgame.core.utils.ZStringUtils;
 import zgame.physics.material.Material;
+import zgame.physics.material.Materials;
 
 /** An object containing values for what should happen to an object when it collides with something */
 public class CollisionResponse{
@@ -32,6 +33,7 @@ public class CollisionResponse{
 	 * 
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
+	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
 	 */
 	public CollisionResponse(double x, double y, Material material){
 		this(x, y, false, false, false, false, material);
@@ -46,6 +48,7 @@ public class CollisionResponse{
 	 * @param right See {@link #right}
 	 * @param ceiling See {@link #ceiling}
 	 * @param floor See {@link #floor}
+	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
 	 */
 	public CollisionResponse(double x, double y, boolean left, boolean right, boolean ceiling, boolean floor, Material material){
 		this.x = x;
@@ -54,7 +57,8 @@ public class CollisionResponse{
 		this.right = right;
 		this.ceiling = ceiling;
 		this.floor = floor;
-		this.material = material;
+		// Set the ma
+		this.material = (material == null) ? Materials.NONE : material;
 	}
 	
 	/** @return See {@link #x} */

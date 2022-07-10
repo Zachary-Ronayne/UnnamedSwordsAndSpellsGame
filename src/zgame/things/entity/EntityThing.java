@@ -35,8 +35,11 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	/** Every force currently acting on this {@link EntityThing} */
 	private Collection<ZVector> forces;
 	
-	/** The material which this {@link EntityThing} is standing on, or null if it is not standing on anything */
+	/** The material which this {@link EntityThing} is standing on, or {@link Materials#NONE} if no material is being touched*/
 	private Material groundMaterial;
+
+	/** true if this {@link EntityThing} is on the ground, false otherwise */
+	private boolean onGround;
 	
 	/** The value of {@link #getX()} from the last tick */
 	private double px;
@@ -87,16 +90,16 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		this.frictionForce = new ZVector(0, 0);
 		this.addForce(frictionForce);
 		
-		this.groundMaterial = null;
+		this.leaveFloor();
 		this.px = this.getX();
 		this.py = this.getY();
 	}
 	
 	@Override
 	public void tick(Game game, double dt){
-		// Account for frictional force based on current velocity
+		// Account for frictional force based on current ground material
 		this.updateFrictionForce(dt);
-		
+
 		// Find the current acceleration
 		ZVector acceleration = this.getForce().scale(1.0 / this.getMass());
 		
@@ -120,18 +123,18 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	 * @param dt The amount of time that will pass the next time the frictional force is applied
 	 */
 	public void updateFrictionForce(double dt){
+		// TODO fix weird issue with high friction where the friction velocity carries after moving off a platform
+
 		// Determining direction
 		double mass = this.getMass();
 		ZVector force = this.getForce();
 		double vx = this.getVX();
-		double moveDirection = vx;
 		double xf = force.getX() - this.frictionForce.getX();
-		if(moveDirection == 0) moveDirection = xf;
+		double moveDirection = xf;
+		if(moveDirection == 0) moveDirection = vx;
 		
-		// TODO Base air friction as air resistance on something
 		// Find the total constant for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
-		double surfaceFriction = this.isOnGround() ? this.getGroundMaterial().getFriction() : 0.1;
-		double newFrictionForce = (this.getFrictionConstant() * surfaceFriction) * mass;
+		double newFrictionForce = (this.getFrictionConstant() * this.getGroundMaterial().getFriction()) * mass;
 		
 		// If the total force is positive, then the constant needs to be negative, it will otherwise remain positive for a negative total force
 		if(moveDirection > 0) newFrictionForce *= -1;
@@ -177,6 +180,11 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public ZVector getGravity(){
 		return this.gravity;
 	}
+
+	/** @return See {@link #frictionForce} */
+	public ZVector getFriction(){
+		return this.frictionForce;
+	}
 	
 	/** @return See {@link #mass} */
 	public double getMass(){
@@ -196,36 +204,35 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	/** @return true if this {@link EntityThing} was on the ground in the past {@link #tick(Game, double)}, false otherwise */
 	public boolean isOnGround(){
-		return this.groundMaterial != null;
+		return this.onGround;
 	}
 	
 	@Override
 	public void leaveFloor(){
-		this.groundMaterial = null;
+		this.groundMaterial = Materials.NONE;
+		this.onGround = false;
 	}
 	
 	@Override
 	public void touchFloor(Material touched){
 		// Touching a floor means this entity is on the ground
 		this.groundMaterial = touched;
+		this.onGround = true;
 		
 		// Bounce off the floor, or reset the y velocity to 0 if either material has no floor bounciness
-		double bounce = touched == null ? 0 : touched.getFloorBounce();
-		this.setVY(-this.getVY() * bounce * this.getMaterial().getFloorBounce());
+		this.setVY(-this.getVY() * touched.getFloorBounce() * this.getMaterial().getFloorBounce());
 	}
 	
 	@Override
 	public void touchCeiling(Material touched){
 		// Bounce off the ceiling, or reset the y velocity to 0 if either material has no ceiling bounciness
-		double bounce = touched == null ? 0 : touched.getCeilingBounce();
-		this.setVY(-this.getVY() * bounce * this.getMaterial().getCeilingBounce());
+		this.setVY(-this.getVY() * touched.getCeilingBounce() * this.getMaterial().getCeilingBounce());
 	}
 	
 	@Override
 	public void touchWall(Material touched){
 		// Bounce off the wall based on the touched material and this entity thing
-		double bounce = touched == null ? 0 : touched.getWallBounce();
-		this.setVX(-this.getVX() * bounce * this.getMaterial().getWallBounce());
+		this.setVX(-this.getVX() * touched.getWallBounce() * this.getMaterial().getWallBounce());
 		
 		// TODO add the ability to slide down a wall based on a value?
 	}

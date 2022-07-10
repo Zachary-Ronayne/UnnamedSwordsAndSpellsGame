@@ -1,5 +1,7 @@
 package zgame.physics.material;
 
+import zgame.core.utils.ZStringUtils;
+
 /** An implementation of {@link Material} which uses constant values */
 public class MaterialConst implements Material{
 	
@@ -72,6 +74,12 @@ public class MaterialConst implements Material{
 	@Override
 	public double getCeilingBounce(){
 		return this.ceilingBounce;
+	}
+	
+	@Override
+	public String toString(){
+		return ZStringUtils.concat("[MaterialConst | friction: ", this.getFriction(), ", wallBounce: ", this.getWallBounce(), ", floorBounce: ", this.getFloorBounce(),
+				", ceilingBounce: ", this.getCeilingBounce(), "]");
 	}
 	
 }

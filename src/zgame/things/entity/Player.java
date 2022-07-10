@@ -44,6 +44,7 @@ public class Player extends MobRectangle{
 		super.tick(game, dt);
 	}
 	
+	
 	@Override
 	public void render(Game game, Renderer r){
 		r.setColor(1, 0, 0);
