@@ -7,6 +7,9 @@ import zgame.physics.material.Material;
 
 /** An {@link EntityThing} which represents some kind of creature which can walk around, i.e. the player, an enemy, an animal, a monster, any NPC, etc. */
 public abstract class MobThing extends EntityThing{
+
+	/** The string used to identify the force used to make this {@link MobThing} walk */
+	public static final String FORCE_NAME_WALKING = "walking";
 	
 	/** The default value of {@link #jumpPower} */
 	public static final double DEFAULT_JUMP_POWER = 600;
@@ -80,7 +83,7 @@ public abstract class MobThing extends EntityThing{
 		this.walkStopFriction = DEFAULT_WALK_STOP_FRICTION;
 		
 		this.walkingForce = new ZVector(0, 0);
-		this.addForce(this.walkingForce);
+		this.addForce(FORCE_NAME_WALKING, this.walkingForce);
 	}
 	
 	@Override
@@ -148,6 +151,7 @@ public abstract class MobThing extends EntityThing{
 		if(!canJump) return;
 		
 		canJump = false;
+		// TODO make jumping also adjust the size, as if the mob is leaning down and then jumping
 		// TODO should this be setting velocity, or just adding?
 		this.setVY(-this.getJumpPower());
 	}
@@ -225,7 +229,7 @@ public abstract class MobThing extends EntityThing{
 	
 	/** @param movement The amount of force applied to the x axis when this mob is walking */
 	public void setWalkingForce(double movement){
-		this.walkingForce = this.replaceForce(this.walkingForce, movement, 0);
+		this.walkingForce = this.replaceForce(FORCE_NAME_WALKING, movement, 0);
 	}
 	
 }

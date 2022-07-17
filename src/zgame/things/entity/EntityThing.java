@@ -1,7 +1,7 @@
 package zgame.things.entity;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
@@ -20,6 +20,11 @@ import zgame.world.Room;
  */
 public abstract class EntityThing extends PositionedThing implements GameTickable, HitBox{
 	
+	/** The string used to identify the force of gravity in {@link #forces} */
+	public static final String FORCE_NAME_GRAVITY = "gravity";
+	/** The string used to identify the force of friction in {@link #forces} */
+	public static final String FORCE_NAME_FRICTION = "friction";
+	
 	/** The acceleration of gravity */
 	public static final double GRAVITY_ACCELERATION = 800;
 	
@@ -32,12 +37,15 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	/** The current force of friction on this {@link EntityThing} */
 	private ZVector frictionForce;
 	
-	/** Every force currently acting on this {@link EntityThing} */
-	private Collection<ZVector> forces;
+	/** Every force currently acting on this {@link EntityThing}, mapped by a name */
+	private Map<String, ZVector> forces;
 	
-	/** The material which this {@link EntityThing} is standing on, or {@link Materials#NONE} if no material is being touched*/
+	/** A {@link ZVector} representing the total force acting on this {@link EntityThing} */
+	private ZVector totalForce;
+	
+	/** The material which this {@link EntityThing} is standing on, or {@link Materials#NONE} if no material is being touched */
 	private Material groundMaterial;
-
+	
 	/** true if this {@link EntityThing} is on the ground, false otherwise */
 	private boolean onGround;
 	
@@ -48,7 +56,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	/** The mass, i.e. weight, of this {@link EntityThing} */
 	private double mass;
-
+	
 	/** The Material which this {@link EntityThing} is made of */
 	private Material material;
 	
@@ -80,15 +88,16 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		super(x, y);
 		this.velocity = new ZVector(0, 0);
 		
-		this.forces = new ArrayList<ZVector>();
+		this.forces = new HashMap<String, ZVector>();
+		this.totalForce = new ZVector(0, 0);
 		
 		this.gravity = new ZVector(0, 0);
-		this.addForce(gravity); // TODO add terminal velocity for gravity
+		this.addForce(FORCE_NAME_GRAVITY, gravity); // TODO add terminal velocity for gravity
 		this.setMass(mass);
 		this.material = Materials.DEFAULT_ENTITY;
 		
 		this.frictionForce = new ZVector(0, 0);
-		this.addForce(frictionForce);
+		this.addForce(FORCE_NAME_FRICTION, frictionForce);
 		
 		this.leaveFloor();
 		this.px = this.getX();
@@ -99,7 +108,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public void tick(Game game, double dt){
 		// Account for frictional force based on current ground material
 		this.updateFrictionForce(dt);
-
+		
 		// Find the current acceleration
 		ZVector acceleration = this.getForce().scale(1.0 / this.getMass());
 		
@@ -124,7 +133,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	 */
 	public void updateFrictionForce(double dt){
 		// TODO fix weird issue with high friction where the friction velocity carries after moving off a platform
-
+		
 		// Determining direction
 		double mass = this.getMass();
 		ZVector force = this.getForce();
@@ -149,7 +158,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		if(!ZMathUtils.sameSign(newDist, oldDist) && Math.abs(newDist) > Math.abs(oldDist)) newFrictionForce = -oldDist / forceFactor;
 		
 		// Apply the new friction
-		this.frictionForce = this.replaceForce(this.frictionForce, newFrictionForce, 0);
+		this.frictionForce = this.replaceForce(FORCE_NAME_FRICTION, newFrictionForce, 0);
 	}
 	
 	/**
@@ -163,12 +172,10 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public Material getMaterial(){
 		return this.material;
 	}
-
+	
 	/** @return A {@link ZVector} representing the total of all forces on this object */
 	public ZVector getForce(){
-		ZVector force = new ZVector(0, 0);
-		for(ZVector f : this.forces) force = force.add(f);
-		return force;
+		return this.totalForce;
 	}
 	
 	/** @return See {@link #velocity} */
@@ -180,7 +187,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public ZVector getGravity(){
 		return this.gravity;
 	}
-
+	
 	/** @return See {@link #frictionForce} */
 	public ZVector getFriction(){
 		return this.frictionForce;
@@ -194,9 +201,9 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	/** @param mass See {@link #mass} */
 	public void setMass(double mass){
 		this.mass = mass;
-		this.gravity = this.replaceForce(this.gravity, 0, GRAVITY_ACCELERATION * this.getMass());
+		this.gravity = this.replaceForce(FORCE_NAME_GRAVITY, 0, GRAVITY_ACCELERATION * this.getMass());
 	}
-
+	
 	/** @return See {@link #groundMaterial} */
 	public Material getGroundMaterial(){
 		return this.groundMaterial;
@@ -303,46 +310,58 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	}
 	
 	/**
-	 * Determine if this {@link EntityThing} has the given force object
+	 * Determine if this {@link EntityThing} has the force object mapped to the given name
 	 * 
-	 * @param force The object to check for
+	 * @param name The object to check for
 	 * @return true if this {@link EntityThing} has the given force, false otherwise
 	 */
-	public boolean hasForce(ZVector force){
-		return this.forces.contains(force);
+	public boolean hasForce(String name){
+		return this.forces.containsKey(name);
 	}
 	
 	/**
-	 * Add the given {@link ZForce} to the forces acting on this {@link EntityThing}
+	 * Add the given {@link ZForce} to the forces acting on this {@link EntityThing}. This method does nothing if the given force name is already used by the entity. To modify the
+	 * value of a force, use {@link #replaceForce(String, double, double)}
 	 * 
 	 * @param force The force to add
+	 * @param name The name of this force, used to identity the force
+	 * @return true if the force was added, false otherwise
 	 */
-	public void addForce(ZVector force){
-		// TODO make this keep track of the total force as a separate variable, and update the force variable when things change
-		this.forces.add(force);
+	public boolean addForce(String name, ZVector force){
+		if(this.hasForce(name)) return false;
+		
+		this.forces.put(name, force);
+		this.totalForce = totalForce.add(force);
+		return true;
 	}
 	
 	/**
-	 * Remove the specified {@link ZForce} object from this {@link EntityThing}'s forces
+	 * Remove the {@link ZForce} with the specified name object from this {@link EntityThing}'s forces
 	 * 
-	 * @param force The force to remove
+	 * @param name The name of the force to remove
+	 * 
+	 * @return The removed force vector, or null if the given force was not found
 	 */
-	public void removeForce(ZVector force){
-		this.forces.remove(force);
+	public ZVector removeForce(String name){
+		ZVector removed = this.forces.remove(name);
+		if(removed == null) return null;
+		this.totalForce = this.totalForce.add(removed.scale(-1));
+		return removed;
 	}
 	
 	/**
-	 * Replace the given force with a force build from the given components
+	 * Replace the given force with a force build from the given components. If the given name doesn't have a force mapped to it yet, then this method automatically adds it to the
+	 * map
 	 * 
-	 * @param force The force object to remove
+	 * @param name The name of the force to replace
 	 * @param x The x component
 	 * @param y The y component
 	 * @return The newly added vector object
 	 */
-	public ZVector replaceForce(ZVector force, double x, double y){
-		this.removeForce(force);
+	public ZVector replaceForce(String name, double x, double y){
+		this.removeForce(name);
 		ZVector v = new ZVector(x, y);
-		this.addForce(v);
+		this.addForce(name, v);
 		return v;
 	}
 	
