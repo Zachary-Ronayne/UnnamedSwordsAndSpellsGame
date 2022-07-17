@@ -18,7 +18,9 @@ public abstract class MobThing extends EntityThing{
 	/** The default value of {@link #jumpPower} */
 	public static final double DEFAULT_JUMP_POWER = 60000;
 	/** The default value of {@link #jumpStopPower} */
-	public static final double DEFAULT_JUMP_STOP_POWER = 60000;
+	public static final double DEFAULT_JUMP_STOP_POWER = 5000;
+	/** The default value of {@link #canStopJump} */
+	public static final boolean DEFAULT_CAN_STOP_JUMP = true;
 	/** The default value of {@link #walkAcceleration} */
 	public static final double DEFAULT_WALK_ACCELERATION = 2000;
 	/** The default value of {@link #walkSpeedMax} */
@@ -38,9 +40,9 @@ public abstract class MobThing extends EntityThing{
 	
 	/** In the same units as {@link #jumpPower}, the power at which this {@link MobThing} is able to stop jumping while in the air */
 	private double jumpStopPower;
-	
-	/** true if this job is currently jumping, false otherwise */
-	private boolean jumping;
+
+	/** true if this mob has the ability to stop jumping while it's in the air, false otherwise */
+	private boolean canStopJump;
 	
 	/** The acceleration of this {@link MobThing} while walking, i.e., how fast it gets to #walkSpeedMax */
 	private double walkAcceleration;
@@ -71,11 +73,12 @@ public abstract class MobThing extends EntityThing{
 	/** true if this {@link MobThing} is in a position where it is allowed to jump, false otherwise */
 	private boolean canJump;
 	
-	// TODO make jumping a force? Also make it that you can control how high you jump, options for in air or for holding down the button
+	/** true if this job is currently jumping, false otherwise */
+	private boolean jumping;
 	
 	/** The force of jumping on this {@link MobThing} */
 	private ZVector jumpingForce;
-	
+
 	/**
 	 * The force used to make you stop jumping. Physics wise doesn't make any sense, but it's to give an option to control jump height by holding down or letting go of a jump
 	 * button
@@ -111,6 +114,7 @@ public abstract class MobThing extends EntityThing{
 		
 		this.jumpPower = DEFAULT_JUMP_POWER;
 		this.jumpStopPower = DEFAULT_JUMP_STOP_POWER;
+		this.canStopJump = DEFAULT_CAN_STOP_JUMP;
 		this.walkAcceleration = DEFAULT_WALK_ACCELERATION;
 		this.walkSpeedMax = DEFAULT_WALK_SPEED_MAX;
 		this.walkAirControl = DEFAULT_WALK_AIR_CONTROL;
@@ -207,6 +211,12 @@ public abstract class MobThing extends EntityThing{
 		if(!this.isOnGround()) this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, 0);
 		
 		if(this.isStoppingJump()){
+			// Can only stop jumping if it's allowed
+			if(!this.isCanStopJump()){
+				this.jumpingStopForce = this.replaceForce(FORCE_NAME_JUMPING_STOP, 0, 0);
+				return;
+			}
+
 			// Only need to stop jumping if the mob is moving up
 			double vy = this.getVY();
 			if(vy < 0){
@@ -241,7 +251,7 @@ public abstract class MobThing extends EntityThing{
 		this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, jumpAmount);
 	}
 	
-	/** Cause this {@link MobThing} to stop jumping */
+	/** Cause this {@link MobThing} to stop jumping.  */
 	public void stopJump(){
 		this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, 0);
 		this.jumping = false;
@@ -252,7 +262,8 @@ public abstract class MobThing extends EntityThing{
 	public void touchFloor(Material m){
 		super.touchFloor(m);
 		this.canJump = true;
-		this.stopJump();
+		this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, 0);
+		this.jumping = false;
 	}
 	
 	/** @return See {@link #jumpPower} */
@@ -273,6 +284,16 @@ public abstract class MobThing extends EntityThing{
 	/** @param jumpStopPower See {@link #jumpStopPower} */
 	public void setJumpStopPower(double jumpStopPower){
 		this.jumpStopPower = jumpStopPower;
+	}
+	
+	/** @return See {@link #canStopJump} */
+	public boolean isCanStopJump(){
+		return this.canStopJump;
+	}
+	
+	/** @param canStopJump See {@link #canStopJump} */
+	public void setCanStopJump(boolean canStopJump){
+		this.canStopJump = canStopJump;
 	}
 	
 	/** @return See {@link #walkAcceleration} */
