@@ -210,6 +210,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	}
 	
 	/** @return true if this {@link EntityThing} was on the ground in the past {@link #tick(Game, double)}, false otherwise */
+	@Override
 	public boolean isOnGround(){
 		return this.onGround;
 	}

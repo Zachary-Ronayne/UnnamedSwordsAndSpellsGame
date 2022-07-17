@@ -90,6 +90,9 @@ public interface HitBox extends Materialable{
 	 * @param touched The Material which this {@link HitBox} touched
 	 */
 	public void touchWall(Material touched);
+
+	/** @return true if this {@link HitBox} is on the ground, false otherwise i.e. it's in the air */
+	public boolean isOnGround();
 	
 	// TODO maybe use these methods, or similar, when determining if something should render
 	/** @return The minimum x coordinate of the bounds of this {@link HitBox} */

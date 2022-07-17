@@ -36,16 +36,20 @@ public class Player extends MobRectangle{
 		
 		// Jump if holding the jump button
 		if(ki.buttonDown(GLFW_KEY_UP)) this.jump(dt);
-		// If not holding the jump button and currently jumping, stop jumping
-		else if(this.isJumping()) this.stopJump();
-		
+		// For not holding the button
+		else{
+			// if jumps should be instant, or no jump time is being built up, then stop the jump
+			if(this.jumpsAreInstant() || this.getJumpTimeBuilt() == 0) this.stopJump();
+			// Otherwise, perform the built up jump
+			else this.jumpFromBuiltUp(dt);
+			
+		}
 		// Center the camera to the player
 		this.checkCenterCamera(game);
 		
 		// Lastly, perform the normal game tick on the player
 		super.tick(game, dt);
 	}
-	
 	
 	@Override
 	public void render(Game game, Renderer r){

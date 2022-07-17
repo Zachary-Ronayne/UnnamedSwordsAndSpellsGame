@@ -168,9 +168,9 @@ public class Room implements RectangleBounds{
 		int maxX = this.tileX(obj.getMX());
 		int maxY = this.tileY(obj.getMY());
 		
+		boolean wasOnGround = obj.isOnGround();
 		double mx = 0;
 		double my = 0;
-		boolean collided = false;
 		boolean left = false;
 		boolean right = false;
 		boolean top = false;
@@ -183,7 +183,6 @@ public class Room implements RectangleBounds{
 				CollisionResponse res = t.collide(obj);
 				// Keep track of if a tile was touched
 				boolean currentCollided = res.x() != 0 || res.y() != 0;
-				if(currentCollided) collided = true;
 
 				mx += res.x();
 				my += res.y();
@@ -200,17 +199,30 @@ public class Room implements RectangleBounds{
 				}
 			}
 		}
-		// If at no tiles were touched, the entity is not on the floor
-		if(!collided) obj.leaveFloor();
 		
 		// Determine the final collision
 		CollisionResponse res = new CollisionResponse(mx, my, left, right, top, bot, material);
 		
 		// Keep the object inside the game bounds, if the walls are enabled
-		if(this.isSolid(WALL_LEFT) && obj.keepRight(this.leftEdge())) obj.touchWall(Materials.BOUNDARY);
-		if(this.isSolid(WALL_RIGHT) && obj.keepLeft(this.rightEdge())) obj.touchWall(Materials.BOUNDARY);
-		if(this.isSolid(WALL_CEILING) && obj.keepBelow(this.topEdge())) obj.touchCeiling(Materials.BOUNDARY);
-		if(this.isSolid(WALL_FLOOR) && obj.keepAbove(this.bottomEdge())) obj.touchFloor(Materials.BOUNDARY);
+		if(this.isSolid(WALL_LEFT) && obj.keepRight(this.leftEdge())){
+			left = true;
+			obj.touchWall(Materials.BOUNDARY);
+		}
+		if(this.isSolid(WALL_RIGHT) && obj.keepLeft(this.rightEdge())){
+			right = true;
+			obj.touchWall(Materials.BOUNDARY);
+		}
+		if(this.isSolid(WALL_CEILING) && obj.keepBelow(this.topEdge())){
+			top = true;
+			obj.touchCeiling(Materials.BOUNDARY);
+		}
+		if(this.isSolid(WALL_FLOOR) && obj.keepAbove(this.bottomEdge())){
+			bot = true;
+			obj.touchFloor(Materials.BOUNDARY);
+		}
+
+		// If no tiles were touched on the ground and the object was on the ground, the entity has left the floor
+		if(!bot && wasOnGround) obj.leaveFloor();
 		
 		return res;
 	}

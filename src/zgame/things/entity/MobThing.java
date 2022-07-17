@@ -21,6 +21,10 @@ public abstract class MobThing extends EntityThing{
 	public static final double DEFAULT_JUMP_STOP_POWER = 5000;
 	/** The default value of {@link #canStopJump} */
 	public static final boolean DEFAULT_CAN_STOP_JUMP = true;
+	/** The default value of {@link #jumpBuildTime} */
+	public static final double DEFAULT_JUMP_BUILD_TIME = 0;
+	/** The default value of {@link #jumpAfterBuildUp} */
+	public static final boolean DEFAULT_JUMP_AFTER_BUILD_UP = true;
 	/** The default value of {@link #walkAcceleration} */
 	public static final double DEFAULT_WALK_ACCELERATION = 2000;
 	/** The default value of {@link #walkSpeedMax} */
@@ -40,9 +44,15 @@ public abstract class MobThing extends EntityThing{
 	
 	/** In the same units as {@link #jumpPower}, the power at which this {@link MobThing} is able to stop jumping while in the air */
 	private double jumpStopPower;
-
+	
 	/** true if this mob has the ability to stop jumping while it's in the air, false otherwise */
 	private boolean canStopJump;
+	
+	/** The amount of time, in seconds, it takes the mob to build up to a full jump, use 0 to make jumping instant */
+	private double jumpBuildTime;
+	
+	/** true if after building up a jump to max power, the mob should immediately jump, false to make it that it has to wait to jump */
+	private boolean jumpAfterBuildUp;
 	
 	/** The acceleration of this {@link MobThing} while walking, i.e., how fast it gets to #walkSpeedMax */
 	private double walkAcceleration;
@@ -78,15 +88,21 @@ public abstract class MobThing extends EntityThing{
 	
 	/** The force of jumping on this {@link MobThing} */
 	private ZVector jumpingForce;
-
+	
+	/** The amount of time, in seconds, this {@link MobThing} has built up their jump height */
+	private double jumpTimeBuilt;
+	
+	/** true if this {@link MobThing} is currently building up a jump, false otherwise */
+	private boolean buildingJump;
+	
+	/** true if this {@link MobThing} is currently stopping its jump, false otherwise */
+	private boolean stoppingJump;
+	
 	/**
 	 * The force used to make you stop jumping. Physics wise doesn't make any sense, but it's to give an option to control jump height by holding down or letting go of a jump
 	 * button
 	 */
 	private ZVector jumpingStopForce;
-	
-	/** true if this {@link MobThing} is currently stopping its jump, false otherwise */
-	private boolean stoppingJump;
 	
 	/** The vector keeping track of the force of this {@link MobThing} walking */
 	private ZVector walkingForce;
@@ -105,6 +121,7 @@ public abstract class MobThing extends EntityThing{
 		this.canJump = false;
 		this.jumping = false;
 		this.stoppingJump = false;
+		this.jumpTimeBuilt = 0;
 		this.stopWalking();
 		
 		this.jumpingForce = new ZVector();
@@ -115,6 +132,8 @@ public abstract class MobThing extends EntityThing{
 		this.jumpPower = DEFAULT_JUMP_POWER;
 		this.jumpStopPower = DEFAULT_JUMP_STOP_POWER;
 		this.canStopJump = DEFAULT_CAN_STOP_JUMP;
+		this.jumpBuildTime = DEFAULT_JUMP_BUILD_TIME;
+		this.jumpAfterBuildUp = DEFAULT_JUMP_AFTER_BUILD_UP;
 		this.walkAcceleration = DEFAULT_WALK_ACCELERATION;
 		this.walkSpeedMax = DEFAULT_WALK_SPEED_MAX;
 		this.walkAirControl = DEFAULT_WALK_AIR_CONTROL;
@@ -130,11 +149,8 @@ public abstract class MobThing extends EntityThing{
 		// Determine the new walking force
 		this.updateWalkForce(dt);
 		
-		// Being off the ground means the mob cannot jump
-		if(!this.isOnGround()) this.canJump = false;
-		
 		// Update the state of the jumping force
-		this.updateJumpForce(dt);
+		this.updateJumpState(dt);
 		
 		// Do the normal game update
 		super.tick(game, dt);
@@ -191,6 +207,11 @@ public abstract class MobThing extends EntityThing{
 		// If not on the ground, use the normal amount of friction, otherwise, if currently walking, return walk friction, otherwise, return stop friction
 		return !this.isOnGround() ? 1 : (this.getWalkingDirection() != 0) ? getWalkFriction() : getWalkStopFriction();
 	}
+
+	/** @return See {@link #canJump} */
+	public boolean isCanJump(){
+		return this.canJump;
+	}
 	
 	/** @return See {@link #jumping} */
 	public boolean isJumping(){
@@ -202,12 +223,37 @@ public abstract class MobThing extends EntityThing{
 		return this.stoppingJump;
 	}
 	
+	/** @return See {@link #jumpTimeBuilt} */
+	public double getJumpTimeBuilt(){
+		return this.jumpTimeBuilt;
+	}
+	
+	/** @return See {@link #buildingJump} */
+	public boolean isBuildingJump(){
+		return this.buildingJump;
+	}
+	
+	/** Remove any jump time built up */
+	public void cancelJump(){
+		this.buildingJump = false;
+		this.jumpTimeBuilt = 0;
+	}
+	
 	/**
 	 * Update the value of {@link #jumpingForce} and {@link #jumpingStopForce} based on the current state of this {@link MobThing}
 	 * 
-	 * @param dt The amount of time that will pass in the next tick when this {@link MobThing} stops jumping
+	 * @param dt The amount of time, in seconds, that will pass in the next tick when this {@link MobThing} stops jumping
 	 */
-	public void updateJumpForce(double dt){
+	public void updateJumpState(double dt){
+		// Being off the ground means the mob cannot jump
+		if(!this.isOnGround()) this.canJump = false;
+		
+		// If building a jump, and able to jump, then add the time
+		if(this.isBuildingJump() && this.isCanJump()){
+			this.jumpTimeBuilt += dt;
+			// If the jump time threshold has been met, and this mob is set to jump right away, then perform the jump now
+			if(this.getJumpTimeBuilt() >= this.getJumpBuildTime() && this.isJumpAfterBuildUp()) this.jumpFromBuiltUp(dt);
+		}
 		if(!this.isOnGround()) this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, 0);
 		
 		if(this.isStoppingJump()){
@@ -216,7 +262,6 @@ public abstract class MobThing extends EntityThing{
 				this.jumpingStopForce = this.replaceForce(FORCE_NAME_JUMPING_STOP, 0, 0);
 				return;
 			}
-
 			// Only need to stop jumping if the mob is moving up
 			double vy = this.getVY();
 			if(vy < 0){
@@ -226,7 +271,7 @@ public abstract class MobThing extends EntityThing{
 				// If the jump force would add extra velocity making its total velocity downwards,
 				// then the jump stop force should be such that the y velocity will be 0 on the next tick
 				if(vy + newStopJumpVel > 0) newStopJumpForce = -vy * mass / dt;
-
+				
 				this.jumpingStopForce = this.replaceForce(FORCE_NAME_JUMPING_STOP, 0, newStopJumpForce);
 			}
 			// Otherwise it is no longer stopping its jump, so remove the stopping force amount
@@ -238,20 +283,40 @@ public abstract class MobThing extends EntityThing{
 	}
 	
 	/**
-	 * Cause this mob to jump upwards, if the mob is in a position to jump
+	 * Cause this mob to start jumping or instantly jump if {@link #jumpBuildTime} is 0, or to build up a jump if it is greater than zero.
+	 * Only runs if the mob is in a position to jump, has not begun to build up jump time, and is not already jumping
 	 * 
-	 * @param dt The amount of time that will pass in one tick after the mob jumps off the ground
+	 * @param dt The amount of time, in seconds, that will pass in one tick after the mob jumps off the ground
 	 */
 	public void jump(double dt){
-		if(!canJump) return;
+		if(!this.canJump || this.getJumpTimeBuilt() > 0 || this.isJumping()) return;
 		
-		this.jumping = true;
-		canJump = false;
-		double jumpAmount = -this.jumpPower / dt;
-		this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, jumpAmount);
+		// If it takes no time to jump, jump right away
+		if(this.jumpsAreInstant()) this.jumpFromBuiltUp(dt);
+		// Otherwise, start building up a jump
+		else this.buildingJump = true;
 	}
 	
-	/** Cause this {@link MobThing} to stop jumping.  */
+	/**
+	 * Cause this mob to instantly jump with the currently built power, only if it is allowed to jump
+	 * 
+	 * @param dt The amount of time, in seconds, that will pass in one tick after the mob jumps off the ground
+	 */
+	public void jumpFromBuiltUp(double dt){
+		if(!this.canJump) return;
+		
+		this.jumping = true;
+		this.canJump = false;
+		
+		// The jump power is either itself if jumping is instant, or multiplied by the ratio of jump time built and the total time to build a jump, keeping it at most 1
+		double power =  this.jumpPower * (this.jumpsAreInstant() ?  1 : Math.min(1, this.getJumpTimeBuilt() / this.getJumpBuildTime()));
+		double jumpAmount = -power / dt;
+		this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, jumpAmount);
+		this.jumpTimeBuilt = 0;
+		this.buildingJump = false;
+	}
+	
+	/** Cause this {@link MobThing} to stop jumping. */
 	public void stopJump(){
 		this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, 0);
 		this.jumping = false;
@@ -264,6 +329,19 @@ public abstract class MobThing extends EntityThing{
 		this.canJump = true;
 		this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, 0);
 		this.jumping = false;
+	}
+	
+	@Override
+	public void leaveFloor(){
+		super.leaveFloor();
+		
+		// Any jump that was being built up is no longer being built up after leaving the floor
+		this.cancelJump();
+	}
+
+	/** @return true if this {@link MobThing} jumps instantly, false if it has to build up a jump */
+	public boolean jumpsAreInstant(){
+		return this.jumpBuildTime == 0;
 	}
 	
 	/** @return See {@link #jumpPower} */
@@ -294,6 +372,26 @@ public abstract class MobThing extends EntityThing{
 	/** @param canStopJump See {@link #canStopJump} */
 	public void setCanStopJump(boolean canStopJump){
 		this.canStopJump = canStopJump;
+	}
+	
+	/** @return See {@link #jumpBuildTime} */
+	public double getJumpBuildTime(){
+		return this.jumpBuildTime;
+	}
+	
+	/** @param jumpBuildTime See {@link #jumpBuildTime} */
+	public void setJumpBuildTime(double jumpBuildTime){
+		this.jumpBuildTime = jumpBuildTime;
+	}
+	
+	/** @return See {@link #jumpAfterBuildUp} */
+	public boolean isJumpAfterBuildUp(){
+		return this.jumpAfterBuildUp;
+	}
+	
+	/** @param jumpAfterBuildUp See {@link #jumpAfterBuildUp} */
+	public void setJumpAfterBuildUp(boolean jumpAfterBuildUp){
+		this.jumpAfterBuildUp = jumpAfterBuildUp;
 	}
 	
 	/** @return See {@link #walkAcceleration} */
