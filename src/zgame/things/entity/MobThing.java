@@ -7,12 +7,18 @@ import zgame.physics.material.Material;
 
 /** An {@link EntityThing} which represents some kind of creature which can walk around, i.e. the player, an enemy, an animal, a monster, any NPC, etc. */
 public abstract class MobThing extends EntityThing{
-
+	
 	/** The string used to identify the force used to make this {@link MobThing} walk */
 	public static final String FORCE_NAME_WALKING = "walking";
+	/** The string used to identify the force used to make this {@link MobThing} jump */
+	public static final String FORCE_NAME_JUMPING = "jumping";
+	/** The string used to identify the force used to make this {@link MobThing} stop jumping */
+	public static final String FORCE_NAME_JUMPING_STOP = "jumpingStop";
 	
 	/** The default value of {@link #jumpPower} */
-	public static final double DEFAULT_JUMP_POWER = 600;
+	public static final double DEFAULT_JUMP_POWER = 60000;
+	/** The default value of {@link #jumpStopPower} */
+	public static final double DEFAULT_JUMP_STOP_POWER = 60000;
 	/** The default value of {@link #walkAcceleration} */
 	public static final double DEFAULT_WALK_ACCELERATION = 2000;
 	/** The default value of {@link #walkSpeedMax} */
@@ -24,8 +30,17 @@ public abstract class MobThing extends EntityThing{
 	/** The default value of {@link #walkStopFriction} */
 	public static final double DEFAULT_WALK_STOP_FRICTION = 10;
 	
-	/** The velocity added during a jump */
+	/**
+	 * The magnitude of how much a mob can jump in units of momentum, i.e. mass * velocity,
+	 * i.e, higher mass makes for lower jumps, lower mass makes for higher jumps
+	 */
 	private double jumpPower;
+	
+	/** In the same units as {@link #jumpPower}, the power at which this {@link MobThing} is able to stop jumping while in the air */
+	private double jumpStopPower;
+	
+	/** true if this job is currently jumping, false otherwise */
+	private boolean jumping;
 	
 	/** The acceleration of this {@link MobThing} while walking, i.e., how fast it gets to #walkSpeedMax */
 	private double walkAcceleration;
@@ -58,6 +73,18 @@ public abstract class MobThing extends EntityThing{
 	
 	// TODO make jumping a force? Also make it that you can control how high you jump, options for in air or for holding down the button
 	
+	/** The force of jumping on this {@link MobThing} */
+	private ZVector jumpingForce;
+	
+	/**
+	 * The force used to make you stop jumping. Physics wise doesn't make any sense, but it's to give an option to control jump height by holding down or letting go of a jump
+	 * button
+	 */
+	private ZVector jumpingStopForce;
+	
+	/** true if this {@link MobThing} is currently stopping its jump, false otherwise */
+	private boolean stoppingJump;
+	
 	/** The vector keeping track of the force of this {@link MobThing} walking */
 	private ZVector walkingForce;
 	
@@ -73,26 +100,37 @@ public abstract class MobThing extends EntityThing{
 	public MobThing(double x, double y){
 		super(x, y);
 		this.canJump = false;
+		this.jumping = false;
+		this.stoppingJump = false;
 		this.stopWalking();
 		
+		this.jumpingForce = new ZVector();
+		this.addForce(FORCE_NAME_JUMPING, this.jumpingForce);
+		this.jumpingStopForce = new ZVector();
+		this.addForce(FORCE_NAME_JUMPING_STOP, this.jumpingStopForce);
+		
 		this.jumpPower = DEFAULT_JUMP_POWER;
+		this.jumpStopPower = DEFAULT_JUMP_STOP_POWER;
 		this.walkAcceleration = DEFAULT_WALK_ACCELERATION;
 		this.walkSpeedMax = DEFAULT_WALK_SPEED_MAX;
 		this.walkAirControl = DEFAULT_WALK_AIR_CONTROL;
 		this.walkFriction = DEFAULT_WALK_FRICTION;
 		this.walkStopFriction = DEFAULT_WALK_STOP_FRICTION;
 		
-		this.walkingForce = new ZVector(0, 0);
+		this.walkingForce = new ZVector();
 		this.addForce(FORCE_NAME_WALKING, this.walkingForce);
 	}
 	
 	@Override
 	public void tick(Game game, double dt){
 		// Determine the new walking force
-		this.updateWalkForce();
+		this.updateWalkForce(dt);
 		
 		// Being off the ground means the mob cannot jump
 		if(!this.isOnGround()) this.canJump = false;
+		
+		// Update the state of the jumping force
+		this.updateJumpForce(dt);
 		
 		// Do the normal game update
 		super.tick(game, dt);
@@ -118,14 +156,18 @@ public abstract class MobThing extends EntityThing{
 		this.walkingDirection = 0;
 	}
 	
-	/** Update the value of {@link #walkingForce} based on the current state of this {@link MobThing} */
-	public void updateWalkForce(){
+	/**
+	 * Update the value of {@link #walkingForce} based on the current state of this {@link MobThing}
+	 * 
+	 * @param dt The amount of time that will pass in the next tick when this {@link MobThing} walks
+	 */
+	public void updateWalkForce(double dt){
 		// First handle mob movement
 		double mass = this.getMass();
 		double acceleration = this.getWalkAcceleration();
 		double walkForce = acceleration * mass * this.getWalkingDirection();
 		boolean walking = walkForce != 0;
-
+		
 		// If the mob is not on the ground, it's movement force is modified by the air control
 		if(!this.isOnGround()) walkForce *= this.getWalkAirControl();
 		
@@ -146,20 +188,71 @@ public abstract class MobThing extends EntityThing{
 		return !this.isOnGround() ? 1 : (this.getWalkingDirection() != 0) ? getWalkFriction() : getWalkStopFriction();
 	}
 	
-	/** Cause this mob to jump upwards, if the mob is in a position to jump */
-	public void jump(){
+	/** @return See {@link #jumping} */
+	public boolean isJumping(){
+		return this.jumping;
+	}
+	
+	/** @return See {@link #stoppingJump} */
+	public boolean isStoppingJump(){
+		return this.stoppingJump;
+	}
+	
+	/**
+	 * Update the value of {@link #jumpingForce} and {@link #jumpingStopForce} based on the current state of this {@link MobThing}
+	 * 
+	 * @param dt The amount of time that will pass in the next tick when this {@link MobThing} stops jumping
+	 */
+	public void updateJumpForce(double dt){
+		if(!this.isOnGround()) this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, 0);
+		
+		if(this.isStoppingJump()){
+			// Only need to stop jumping if the mob is moving up
+			double vy = this.getVY();
+			if(vy < 0){
+				double mass = this.getMass();
+				double newStopJumpVel = this.getJumpStopPower() / mass;
+				double newStopJumpForce = this.getJumpStopPower() / dt;
+				// If the jump force would add extra velocity making its total velocity downwards,
+				// then the jump stop force should be such that the y velocity will be 0 on the next tick
+				if(vy + newStopJumpVel > 0) newStopJumpForce = -vy * mass / dt;
+
+				this.jumpingStopForce = this.replaceForce(FORCE_NAME_JUMPING_STOP, 0, newStopJumpForce);
+			}
+			// Otherwise it is no longer stopping its jump, so remove the stopping force amount
+			else{
+				this.stoppingJump = false;
+				this.jumpingStopForce = this.replaceForce(FORCE_NAME_JUMPING_STOP, 0, 0);
+			}
+		}
+	}
+	
+	/**
+	 * Cause this mob to jump upwards, if the mob is in a position to jump
+	 * 
+	 * @param dt The amount of time that will pass in one tick after the mob jumps off the ground
+	 */
+	public void jump(double dt){
 		if(!canJump) return;
 		
+		this.jumping = true;
 		canJump = false;
-		// TODO make jumping also adjust the size, as if the mob is leaning down and then jumping
-		// TODO should this be setting velocity, or just adding?
-		this.setVY(-this.getJumpPower());
+		double jumpAmount = -this.jumpPower / dt;
+		this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, jumpAmount);
+	}
+	
+	/** Cause this {@link MobThing} to stop jumping */
+	public void stopJump(){
+		this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, 0);
+		this.jumping = false;
+		this.stoppingJump = true;
 	}
 	
 	@Override
 	public void touchFloor(Material m){
 		super.touchFloor(m);
 		this.canJump = true;
+		this.stopJump();
 	}
 	
 	/** @return See {@link #jumpPower} */
@@ -170,6 +263,16 @@ public abstract class MobThing extends EntityThing{
 	/** @param jumpPower See {@link #jumpPower} */
 	public void setJumpPower(double jumpPower){
 		this.jumpPower = jumpPower;
+	}
+	
+	/** @return See {@link #jumpStopPower} */
+	public double getJumpStopPower(){
+		return this.jumpStopPower;
+	}
+	
+	/** @param jumpStopPower See {@link #jumpStopPower} */
+	public void setJumpStopPower(double jumpStopPower){
+		this.jumpStopPower = jumpStopPower;
 	}
 	
 	/** @return See {@link #walkAcceleration} */

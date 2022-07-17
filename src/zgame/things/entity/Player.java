@@ -34,8 +34,11 @@ public class Player extends MobRectangle{
 		else if(ki.buttonDown(GLFW_KEY_RIGHT)) this.walkRight();
 		else this.stopWalking();
 		
-		// Jump
-		if(ki.buttonDown(GLFW_KEY_UP)) this.jump();
+		// Jump if holding the jump button
+		if(ki.buttonDown(GLFW_KEY_UP)) this.jump(dt);
+		// If not holding the jump button and currently jumping, stop jumping
+		// TODO make it an option if the mob has the ability to stop mid jump
+		else if(this.isJumping()) this.stopJump();
 		
 		// Center the camera to the player
 		this.checkCenterCamera(game);
