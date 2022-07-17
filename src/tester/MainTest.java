@@ -202,7 +202,6 @@ public class MainTest extends Game{
 			
 			this.player = new Player(100, 400, 60, 100);
 			this.player.setMass(100);
-			this.player.setLockCamera(true);
 			firstRoom.addThing(this.player);
 			
 			Door d = new Door(700, 400);
@@ -222,7 +221,7 @@ public class MainTest extends Game{
 		private Room makeRoom(){
 			Room r = new Room();
 			r.makeWallsSolid();
-			r.initTiles(13, 90, BaseTiles.BACK_DARK);
+			r.initTiles(13, 9, BaseTiles.BACK_DARK);
 			for(int i = 0; i < r.getXTiles(); i++){
 				for(int j = 0; j < r.getYTiles(); j++){
 					boolean i0 = i % 2 == 0;

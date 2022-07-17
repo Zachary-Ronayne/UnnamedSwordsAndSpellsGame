@@ -1,7 +1,6 @@
 package zgame.things.entity;
 
 import zgame.core.Game;
-import zgame.core.utils.ZMathUtils;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 
@@ -187,18 +186,27 @@ public abstract class MobThing extends EntityThing{
 		double acceleration = this.getWalkAcceleration();
 		double walkForce = acceleration * mass * this.getWalkingDirection();
 		boolean walking = walkForce != 0;
+		double maxSpeed = this.getWalkSpeedMax();
 		
 		// If the mob is not on the ground, it's movement force is modified by the air control
 		if(!this.isOnGround()) walkForce *= this.getWalkAirControl();
 		
-		// Only make the walking happen if there is any walking force
+		// Only check the walking speed if there is any walking force
 		if(walking){
-			// If already moving at or beyond maximum walking speed, and walking would increase the x axis speed, don't continue to walk
 			double vx = this.getVX();
-			// TODO this amount of force should be such that on the next update, it will move the velocity to exactly max speed, need to add dt
-			// basically the same kind of thing as for friction and jump stopping
-			if(Math.abs(vx) > this.getWalkSpeedMax() && ZMathUtils.sameSign(vx, walkForce)) walkForce = 0;
+			// Find the total velocity if the new walking force is applied on the next tick
+			double sign = walkForce;
+			double newVel = vx + walkForce * dt / mass;
+			
+			// If that velocity is greater than the maximum speed, then apply a force such that it will bring the velocity exactly to the maximum speed
+			if(Math.abs(newVel) > maxSpeed){
+				// Need to account for the sign of max speed depending on the direction of the new desired walking force
+				walkForce = Math.abs(maxSpeed * ((sign > 0) ? 1 : -1) - vx) / dt * mass;
+				// Need to adjust the sign depending on the direction of the original walk force
+				if(sign < 0) walkForce *= -1;
+			}
 		}
+
 		// Set the amount the mob is walking
 		this.setWalkingForce(walkForce);
 	}
