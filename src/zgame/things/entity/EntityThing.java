@@ -24,6 +24,8 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public static final String FORCE_NAME_GRAVITY = "gravity";
 	/** The string used to identify the force of friction in {@link #forces} */
 	public static final String FORCE_NAME_FRICTION = "friction";
+	/** The string used to identify the force of friction in {@link #forces} */
+	public static final String FORCE_NAME_GRAVITY_DRAG = "gravityDrag";
 	
 	/** The acceleration of gravity */
 	public static final double GRAVITY_ACCELERATION = 800;
@@ -34,8 +36,11 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	/** The current force of gravity on this {@link EntityThing} */
 	private ZVector gravity;
 	
-	/** The current force of friction on this {@link EntityThing} */
+	/** The current force of friction on this {@link EntityThing}. */
 	private ZVector frictionForce;
+	
+	/** The current force of drag acting against gravity on this {@link #EntityThing()} */
+	private ZVector gravityDragForce;
 	
 	/** Every force currently acting on this {@link EntityThing}, mapped by a name */
 	private Map<String, ZVector> forces;
@@ -86,18 +91,21 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	 */
 	public EntityThing(double x, double y, double mass){
 		super(x, y);
-		this.velocity = new ZVector(0, 0);
+		this.velocity = new ZVector();
 		
 		this.forces = new HashMap<String, ZVector>();
-		this.totalForce = new ZVector(0, 0);
+		this.totalForce = new ZVector();
 		
-		this.gravity = new ZVector(0, 0);
-		this.addForce(FORCE_NAME_GRAVITY, gravity); // TODO add terminal velocity for gravity
+		this.gravity = new ZVector();
+		this.addForce(FORCE_NAME_GRAVITY, gravity);
 		this.setMass(mass);
 		this.material = Materials.DEFAULT_ENTITY;
 		
-		this.frictionForce = new ZVector(0, 0);
+		this.frictionForce = new ZVector();
 		this.addForce(FORCE_NAME_FRICTION, frictionForce);
+		
+		this.gravityDragForce = new ZVector();
+		this.addForce(FORCE_NAME_GRAVITY_DRAG, this.gravityDragForce);
 		
 		this.leaveFloor();
 		this.px = this.getX();
@@ -108,6 +116,9 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public void tick(Game game, double dt){
 		// Account for frictional force based on current ground material
 		this.updateFrictionForce(dt);
+		
+		// Account for drag going down for terminal velocity
+		this.updateGravityDragForce(dt);
 		
 		// Find the current acceleration
 		ZVector acceleration = this.getForce().scale(1.0 / this.getMass());
@@ -129,7 +140,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	/**
 	 * Determine the current amount of friction on this {@link EntityThing} and update the force
 	 * 
-	 * @param dt The amount of time that will pass the next time the frictional force is applied
+	 * @param dt The amount of time, in seconds, that will pass the next time the frictional force is applied
 	 */
 	public void updateFrictionForce(double dt){
 		// TODO fix weird issue with high friction where the friction velocity carries after moving off a platform
@@ -158,7 +169,53 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		if(!ZMathUtils.sameSign(newDist, oldDist) && Math.abs(newDist) > Math.abs(oldDist)) newFrictionForce = -oldDist / forceFactor;
 		
 		// Apply the new friction
-		this.frictionForce = this.replaceForce(FORCE_NAME_FRICTION, newFrictionForce, 0);
+		this.frictionForce = this.replaceForceX(FORCE_NAME_FRICTION, newFrictionForce);
+	}
+	
+	/**
+	 * Determine the current amount of drag on this {@link EntityThing} counteracting the force of gravity
+	 * 
+	 * @param dt The amount of time, in seconds, that will pass the next time the drag force is applied
+	 */
+	public void updateGravityDragForce(double dt){
+		// Determine terminal velocity
+		double terminalVelocity = this.getTerminalVelocity();
+		
+		// If downward velocity exceeds terminal velocity, and terminal velocity is not negative, set the vector to be equal and opposite to gravity
+		if(this.getVY() >= terminalVelocity && terminalVelocity > 0){
+			// Only set the value if it is not equal and opposite to gravity
+			double gravityForce = -this.getGravity().getY();
+			if(this.getGravityDragForce().getY() != gravityForce) this.gravityDragForce = this.replaceForceY(FORCE_NAME_GRAVITY_DRAG, gravityForce);
+		}
+		// Otherwise, set remove the force
+		else{
+			// Only remove the force if it is not already zero
+			if(this.getGravityDragForce().getY() != 0) this.gravityDragForce = this.replaceForceY(FORCE_NAME_GRAVITY_DRAG, 0);
+		}
+	}
+	
+	/**
+	 * @return The terminal velocity of this {@link EntityThing}. By default, based on the mass, the acceleration of gravity, the value of {@link #getSurfaceArea()},
+	 *         and the friction of the ground material, which is also the air material when this {@link EntityThing} is not on the ground.
+	 *         Returns 0 if this {@link EntityThing} is on the ground.
+	 *         If {@link #getSurfaceArea()} returns 0, or is negative, then the value is ignored in the calculation.
+	 *         If this method is made to return a negative value, terminal velocity is removed, i.e. the force of gravity will continue to accelerate
+	 */
+	public double getTerminalVelocity(){
+		if(this.isOnGround()) return 0;
+		
+		Material m = this.getGroundMaterial();
+		double s = this.getSurfaceArea();
+		double surfaceArea = (s <= 0) ? 1 : s;
+		
+		// Multiplied by 2.0 because the internet says that constant is there for the equation is for terminal velocity
+		// Multiplied by 0.01 as a placeholder for density. For now, everything entities fall through is considered to have that same constant density
+		return Math.sqrt(Math.abs((2.0 * this.getMass() * GRAVITY_ACCELERATION) / (m.getFriction() * surfaceArea * 0.01)));
+	}
+
+	/** @return The surface area of this {@link EntityThing}, by default returns {@link #getWidth()}. Can override to create a custom surface area */
+	public double getSurfaceArea(){
+		return this.getWidth();
 	}
 	
 	/**
@@ -191,6 +248,11 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	/** @return See {@link #frictionForce} */
 	public ZVector getFriction(){
 		return this.frictionForce;
+	}
+	
+	/** @return SEE {@link #gravityDragForce} */
+	public ZVector getGravityDragForce(){
+		return this.gravityDragForce;
 	}
 	
 	/** @return See {@link #mass} */
@@ -364,6 +426,24 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		ZVector v = new ZVector(x, y);
 		this.addForce(name, v);
 		return v;
+	}
+	
+	/**
+	 * The same as see {@link #replaceForce(String, double, double)}, except only modify the x value, keep the y value the same.
+	 * If the force does not already exist, a force is created with the given name using a zero for the y value
+	 */
+	public ZVector replaceForceX(String name, double x){
+		ZVector v = this.forces.get(name);
+		return this.replaceForce(name, x, (v == null) ? 0 : v.getY());
+	}
+	
+	/**
+	 * The same as see {@link #replaceForce(String, double, double)}, except only modify the y coordinate, keep the x coordinate the same.
+	 * If the force does not already exist, a force is created with the given name using a zero for the x value
+	 */
+	public ZVector replaceForceY(String name, double y){
+		ZVector v = this.forces.get(name);
+		return this.replaceForce(name, (v == null) ? 0 : v.getX(), y);
 	}
 	
 	/** @return The x coordinate of this {@link EntityThing} where it was in the previous instance of time, based on its current velocity */

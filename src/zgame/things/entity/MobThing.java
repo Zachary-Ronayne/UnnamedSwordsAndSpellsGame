@@ -196,6 +196,7 @@ public abstract class MobThing extends EntityThing{
 			// If already moving at or beyond maximum walking speed, and walking would increase the x axis speed, don't continue to walk
 			double vx = this.getVX();
 			// TODO this amount of force should be such that on the next update, it will move the velocity to exactly max speed, need to add dt
+			// basically the same kind of thing as for friction and jump stopping
 			if(Math.abs(vx) > this.getWalkSpeedMax() && ZMathUtils.sameSign(vx, walkForce)) walkForce = 0;
 		}
 		// Set the amount the mob is walking

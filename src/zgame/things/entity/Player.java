@@ -44,11 +44,12 @@ public class Player extends MobRectangle{
 			else this.jumpFromBuiltUp(dt);
 			
 		}
-		// Center the camera to the player
-		this.checkCenterCamera(game);
 		
 		// Lastly, perform the normal game tick on the player
 		super.tick(game, dt);
+
+		// Now the camera to the player after repositioning the player
+		this.checkCenterCamera(game);
 	}
 	
 	@Override
