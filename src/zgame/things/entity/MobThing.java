@@ -17,7 +17,7 @@ public abstract class MobThing extends EntityThing{
 	/** The default value of {@link #jumpPower} */
 	public static final double DEFAULT_JUMP_POWER = 60000;
 	/** The default value of {@link #jumpStopPower} */
-	public static final double DEFAULT_JUMP_STOP_POWER = 5000;
+	public static final double DEFAULT_JUMP_STOP_POWER = 3000;
 	/** The default value of {@link #canStopJump} */
 	public static final boolean DEFAULT_CAN_STOP_JUMP = true;
 	/** The default value of {@link #jumpBuildTime} */

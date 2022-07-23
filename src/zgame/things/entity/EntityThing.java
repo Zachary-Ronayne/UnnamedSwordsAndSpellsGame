@@ -143,34 +143,39 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	 * @param dt The amount of time, in seconds, that will pass the next time the frictional force is applied
 	 */
 	public void updateFrictionForce(double dt){
-		// TODO fix weird issue with high friction where the friction velocity carries after moving off a platform
-		//		maybe it should just remove the friction force if the entity isn't on the ground
-
-		// TODO fix issue where moving to the right with a low mass can make you move faster than max speed
-
+		// TODO fix weird issue with high friction and mass where the friction velocity carries after moving off a platform
+		// maybe it should just remove the friction force if the entity isn't on the ground and make air resistance a separate force
+		
 		// Determining direction
 		double mass = this.getMass();
 		ZVector force = this.getForce();
 		double vx = this.getVX();
-		double xf = force.getX() - this.frictionForce.getX();
-		double moveDirection = xf;
-		if(moveDirection == 0) moveDirection = vx;
+		double fx = force.getX() - this.frictionForce.getX();
+		// Movement direction is based on velocity direction, or if the entity is not moving, the force direction
+		double moveDirection = vx;
+		if(moveDirection == 0) moveDirection = fx;
 		
 		// Find the total constant for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
 		double newFrictionForce = (this.getFrictionConstant() * this.getGroundMaterial().getFriction()) * Math.abs(this.getGravity().getY());
 		
-		// If the total force is positive, then the constant needs to be negative, it will otherwise remain positive for a negative total force
+		// Need to make the force of friction move in the opposite direction of movement, so make it negative if the direction is positive, otherwise leave it positive
 		if(moveDirection > 0) newFrictionForce *= -1;
 		
 		double forceFactor = dt * dt / mass;
 		double velFactor = vx * dt;
 		// Find the signed distance that will be traveled if friction is not applied
-		double oldDist = xf * forceFactor + velFactor;
+		double oldDist = fx * forceFactor + velFactor;
 		// Find the signed distance that will be traveled if friction is applied
-		double newDist = (newFrictionForce + xf) * forceFactor + velFactor;
+		double newDist = (newFrictionForce + fx) * forceFactor + velFactor;
 		// If those distances are in opposing directions, then the frictional force should be such that it stops all velocity on the next tick
-		if(!ZMathUtils.sameSign(newDist, oldDist) && Math.abs(newDist) > Math.abs(oldDist)) newFrictionForce = -oldDist / forceFactor;
-		
+		boolean sameSign = ZMathUtils.sameSign(newDist, oldDist);
+		boolean newBigger = Math.abs(newDist) > Math.abs(oldDist);
+		if(!sameSign){
+			if(newBigger) newFrictionForce = -oldDist / forceFactor;
+		}
+		else{
+			if(!newBigger) newFrictionForce = -(oldDist - newDist) / forceFactor;
+		}
 		// Apply the new friction
 		this.frictionForce = this.replaceForceX(FORCE_NAME_FRICTION, newFrictionForce);
 	}
@@ -215,7 +220,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		// Multiplied by 0.01 as a placeholder for density. For now, everything entities fall through is considered to have that same constant density
 		return Math.sqrt(Math.abs((2.0 * this.getMass() * GRAVITY_ACCELERATION) / (m.getFriction() * surfaceArea * 0.01)));
 	}
-
+	
 	/** @return The surface area of this {@link EntityThing}, by default returns {@link #getWidth()}. Can override to create a custom surface area */
 	public double getSurfaceArea(){
 		return this.getWidth();
@@ -332,6 +337,19 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		if(r.floor()) this.touchFloor(r.material());
 	}
 	
+	/** @param The new current velocity of this {@link EntityThing} */
+	public void setVelocity(ZVector velocity){
+		this.velocity = velocity;
+	}
+	
+	/**
+	 * @param x The new x velocity of this {@link EntityThing}
+	 * @param x The new y velocity of this {@link EntityThing}
+	 */
+	public void setVelocity(double x, double y){
+		this.setVelocity(new ZVector(x, y));
+	}
+	
 	/** @return The velocity of this {@link EntityThing} on the x axis */
 	public double getVX(){
 		return this.getVelocity().getX();
@@ -344,12 +362,12 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	/** @param x the new x velocity of this {@link EntityThing} */
 	public void setVX(double x){
-		this.velocity = new ZVector(x, this.getVY());
+		this.setVelocity(x, this.getVY());
 	}
 	
 	/** @param y the new y velocity of this {@link EntityThing} */
 	public void setVY(double y){
-		this.velocity = new ZVector(this.getVX(), y);
+		this.setVelocity(this.getVX(), y);
 	}
 	
 	/**
