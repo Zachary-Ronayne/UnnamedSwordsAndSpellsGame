@@ -145,8 +145,6 @@ public abstract class MobThing extends EntityThing{
 	
 	@Override
 	public void tick(Game game, double dt){
-		// TODO fix bouncing on bouncy material not being vert bouncy
-
 		// Determine the new walking force
 		this.updateWalkForce(dt);
 		
@@ -269,10 +267,7 @@ public abstract class MobThing extends EntityThing{
 		
 		if(this.isStoppingJump()){
 			// Can only stop jumping if it's allowed
-			if(!this.isCanStopJump()){
-				this.jumpingStopForce = this.replaceForce(FORCE_NAME_JUMPING_STOP, 0, 0);
-				return;
-			}
+			if(!this.isCanStopJump()) return;
 			// Only need to stop jumping if the mob is moving up
 			double vy = this.getVY();
 			if(vy < 0){
@@ -327,8 +322,9 @@ public abstract class MobThing extends EntityThing{
 		this.buildingJump = false;
 	}
 	
-	/** Cause this {@link MobThing} to stop jumping. */
+	/** Cause this {@link MobThing} to stop jumping. Does nothing if the mob is not currently jumping */
 	public void stopJump(){
+		if(!this.isJumping()) return;
 		this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, 0);
 		this.jumping = false;
 		this.stoppingJump = true;

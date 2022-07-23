@@ -311,6 +311,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		// Essentially, do this, but with forces
 		// this.setVY(Math.min(this.getVY(), 100));
 		// TODO make this also involved with terminal velocity?
+		// TODO also add methods for leave ceiling and leave walls
 	}
 	
 	/**
