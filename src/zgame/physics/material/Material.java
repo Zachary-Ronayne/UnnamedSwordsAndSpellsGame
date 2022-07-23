@@ -3,7 +3,7 @@ package zgame.physics.material;
 /** An object representing the attributes of the physics of an object */
 public interface Material{
 	
-	/** @return The acceleration of friction on this object */
+	/** @return The friction constant for this object */
 	public double getFriction();
 	
 	/**

@@ -144,7 +144,10 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	 */
 	public void updateFrictionForce(double dt){
 		// TODO fix weird issue with high friction where the friction velocity carries after moving off a platform
-		
+		//		maybe it should just remove the friction force if the entity isn't on the ground
+
+		// TODO fix issue where moving to the right with a low mass can make you move faster than max speed
+
 		// Determining direction
 		double mass = this.getMass();
 		ZVector force = this.getForce();
@@ -154,7 +157,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		if(moveDirection == 0) moveDirection = vx;
 		
 		// Find the total constant for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
-		double newFrictionForce = (this.getFrictionConstant() * this.getGroundMaterial().getFriction()) * mass;
+		double newFrictionForce = (this.getFrictionConstant() * this.getGroundMaterial().getFriction()) * Math.abs(this.getGravity().getY());
 		
 		// If the total force is positive, then the constant needs to be negative, it will otherwise remain positive for a negative total force
 		if(moveDirection > 0) newFrictionForce *= -1;
@@ -305,6 +308,9 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		this.setVX(-this.getVX() * touched.getWallBounce() * this.getMaterial().getWallBounce());
 		
 		// TODO add the ability to slide down a wall based on a value?
+		// Essentially, do this, but with forces
+		// this.setVY(Math.min(this.getVY(), 100));
+		// TODO make this also involved with terminal velocity?
 	}
 	
 	/**

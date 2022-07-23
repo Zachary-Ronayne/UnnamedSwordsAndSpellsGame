@@ -5,21 +5,21 @@ import zgame.core.utils.ZStringUtils;
 /** An implementation of {@link Material} which uses constant values */
 public class MaterialConst implements Material{
 	
-	public static final double DEFAULT_FRICTION = 100.0;
+	public static final double DEFAULT_FRICTION = 0.1;
 	public static final double DEFAULT_WALL_BOUNCE = 0.5;
 	public static final double DEFAULT_FLOOR_BOUNCE = 0;
 	public static final double DEFAULT_CEILING_BOUNCE = 0;
 	
-	/** See {@link #getFriction()} */
+	/** See {@link Material#getFriction()} */
 	private double friction;
 	
-	/** See {@link #getWallBounce()} */
+	/** See {@link Material#getWallBounce()} */
 	private double wallBounce;
 	
-	/** See {@link #getFloorBounce()} */
+	/** See {@link Material#getFloorBounce()} */
 	private double floorBounce;
 	
-	/** See {@link #getCeilingBounce()} */
+	/** See {@link Material#getCeilingBounce()} */
 	private double ceilingBounce;
 	
 	/** Create a new material with all the default values */
@@ -52,25 +52,25 @@ public class MaterialConst implements Material{
 		this.ceilingBounce = ceilingBounce;
 	}
 	
-	/** @return See {@link #friction} */
+	/** @return See {@link Material#getFriction()} */
 	@Override
 	public double getFriction(){
 		return this.friction;
 	}
 	
-	/** @return See {@link #wallBounce} */
+	/** @return See {@link Material#getWallBounce()} */
 	@Override
 	public double getWallBounce(){
 		return this.wallBounce;
 	}
 	
-	/** @return See {@link #floorBounce} */
+	/** @return See {@link Material#getFloorBounce()} */
 	@Override
 	public double getFloorBounce(){
 		return this.floorBounce;
 	}
 	
-	/** @return See {@link #ceilingBounce} */
+	/** @return See {@link Material#getCeilingBounce()} */
 	@Override
 	public double getCeilingBounce(){
 		return this.ceilingBounce;
