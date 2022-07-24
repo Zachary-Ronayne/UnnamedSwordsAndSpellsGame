@@ -93,7 +93,7 @@ public abstract class MobThing extends EntityThing{
 	
 	/** The amount of time, in seconds, after touching a wall that this {@link MobThing} has to jump. -1 to make jumping only allowed while touching a wall */
 	private double wallJumpTime;
-
+	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/** true if this {@link MobThing} is in a position where it is allowed to jump, false otherwise */
@@ -357,16 +357,16 @@ public abstract class MobThing extends EntityThing{
 		this.jumping = true;
 		
 		// If this mob is on a wall and not on the ground, this counts a wall jump
-		if(this.isOnWall() && !this.isOnGround()) this.wallJumpAvailable = false;
+		if(!this.hasTimeToFloorJump() && this.hasTimeToWallJump()) this.wallJumpAvailable = false;
 		
 		// The jump power is either itself if jumping is instant, or multiplied by the ratio of jump time built and the total time to build a jump, keeping it at most 1
 		double power = this.jumpPower * (this.jumpsAreInstant() ? 1 : Math.min(1, this.getJumpTimeBuilt() / this.getJumpBuildTime()));
 		double jumpAmount = -power / dt;
-
+		
 		// If falling downwards, add additional force so that the jump force will counteract the current downwards force
 		double vy = this.getVY();
 		if(vy > 0) jumpAmount -= vy / dt * this.getMass();
-
+		
 		this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, jumpAmount);
 		this.jumpTimeBuilt = 0;
 		this.buildingJump = false;

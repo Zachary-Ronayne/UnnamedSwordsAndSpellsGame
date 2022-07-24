@@ -185,7 +185,7 @@ public class Room implements RectangleBounds{
 				CollisionResponse res = t.collide(obj);
 				// Keep track of if a tile was touched
 				boolean currentCollided = res.x() != 0 || res.y() != 0;
-
+				
 				mx += res.x();
 				my += res.y();
 				if(res.left()) left = true;
@@ -193,7 +193,7 @@ public class Room implements RectangleBounds{
 				if(res.ceiling()) top = true;
 				if(res.floor()) bot = true;
 				obj.collide(res);
-
+				
 				// Record the material collided with, only if this tile was collided with
 				if(currentCollided){
 					// Set the material if there is none yet, or the floor
@@ -201,7 +201,6 @@ public class Room implements RectangleBounds{
 				}
 			}
 		}
-		
 		// Determine the final collision
 		CollisionResponse res = new CollisionResponse(mx, my, left, right, top, bot, material);
 		
@@ -222,7 +221,6 @@ public class Room implements RectangleBounds{
 			bot = true;
 			obj.touchFloor(Materials.BOUNDARY);
 		}
-
 		// If no tiles were touched on the ground and the object was on the ground, the entity has left the floor
 		if(!bot && wasOnGround) obj.leaveFloor();
 		// Same thing, but for the walls and for the ceiling

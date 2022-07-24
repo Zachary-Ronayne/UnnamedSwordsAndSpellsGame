@@ -96,13 +96,13 @@ public interface HitBox extends Materialable{
 	
 	/** A method that defines what this object does when it leaves a wall, i.e. it goes from touching a wall to not touching a wall */
 	public void leaveWall();
-
+	
 	/** @return true if this {@link HitBox} is on the ground, false otherwise i.e. it's in the air */
 	public boolean isOnGround();
-
+	
 	/** @return true if this {@link HitBox} is touching a ceiling, false otherwise */
 	public boolean isOnCeiling();
-
+	
 	/** @return true if this {@link HitBox} is touching a wall, false otherwise */
 	public boolean isOnWall();
 	
