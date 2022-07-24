@@ -274,6 +274,9 @@ public abstract class MobThing extends EntityThing{
 	 * @param dt The amount of time, in seconds, that will pass in the next tick when this {@link MobThing} stops jumping
 	 */
 	public void updateJumpState(double dt){
+		// TODO give wall jump a period of time where the mob can still jump even if it's not touching the wall
+		//	make onWall, onFloor, onCeiling stored as numbers, not booleans, then isOnThing methods determine if the values are within a threshold
+
 		// The mob can jump if it's on the ground, or if it can wall jump and is on a wall
 		this.canJump = this.isOnGround() || this.isCanWallJump() && this.isOnWall() && this.isWallJumpAvailable();
 		

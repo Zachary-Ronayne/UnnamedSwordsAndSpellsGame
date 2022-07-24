@@ -141,6 +141,9 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		
 		// Account for drag going down for terminal velocity
 		this.updateGravityDragForce(dt);
+
+		// Account for sliding down walls
+		this.updateWallSideForce(dt);
 		
 		// Find the current acceleration
 		ZVector acceleration = this.getForce().scale(1.0 / this.getMass());
@@ -184,6 +187,9 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 			
 			// If applying the new force of friction would make the velocity go in the opposite direction, then the force should be such that it will bring the velocity to zero
 			double massTime = dt / mass;
+			// TODO why can you still move a bit after landing until you stop moving? on really high friction forces
+			// 	is this actually accounting for the amount of velocity added based on acceleration?
+			//	or is it that it needs to account for a change in acceleration, like when the walk force changes?
 			double oldVel = vx + fx * massTime;
 			double newVel = vx + (fx + newFrictionForce) * massTime;
 			if(!ZMath.sameSign(oldVel, newVel)){
@@ -191,11 +197,10 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 			}
 		}
 		this.frictionForce = this.setForceX(FORCE_NAME_FRICTION, newFrictionForce);
-		// TODO why can you still move a bit after landing until you stop moving? on really high friction forces
 	}
 	
 	/**
-	 * Determine the current amount of drag on this {@link EntityThing} counteracting the force of gravity
+	 * Update the current amount of drag on this {@link EntityThing} counteracting the force of gravity
 	 * 
 	 * @param dt The amount of time, in seconds, that will pass the next time the drag force is applied
 	 */
@@ -209,11 +214,46 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 			double gravityForce = -this.getGravity().getY();
 			if(this.getGravityDragForce().getY() != gravityForce) this.gravityDragForce = this.setForceY(FORCE_NAME_GRAVITY_DRAG, gravityForce);
 		}
-		// Otherwise, set remove the force
+		// Otherwise, remove the force
 		else{
 			// Only remove the force if it is not already zero
 			if(this.getGravityDragForce().getY() != 0) this.gravityDragForce = this.setForceY(FORCE_NAME_GRAVITY_DRAG, 0);
 		}
+	}
+	
+	/**
+	 * Update the amount of force applied against gravity on this {@link EntityThing} from sliding down walls
+	 * 
+	 * @param dt The amount of time, in seconds, that will pass the next time the wall slide force is applied
+	 */
+	public void updateWallSideForce(double dt){
+		// TODO base this on materials
+		double maxSlideVel = 100;
+		
+		// The slide force is always zero if the entity is moving upwards or not on a wall or slower than the max slide velocity
+		double vy = this.getVY();
+		if(vy <= maxSlideVel || !this.isOnWall()){
+			this.setForceY(FORCE_NAME_WALL_SLIDE, 0);
+			return;
+		}
+
+		// The base amount of force to apply for sliding is the opposite of gravity
+		double slideForce = -this.getGravity().getY();
+		double mass = this.getMass();
+		// TODO base this on materials, it should be in terms of acceleration?
+		double slideStopForce = 1000 * mass;
+		
+		// If falling faster than the maximum sliding speed, increase the slide force to slow the falling (slideForce will be a negative number)
+		if(vy > maxSlideVel){
+			slideForce -= slideStopForce;
+			
+			// If the new slide force would put the velocity below the maximum sliding speed, adjust the force such that the next tick will put it on the sliding speed
+			double newVel = vy + slideForce / mass * dt;
+			if(newVel < maxSlideVel) slideForce = (maxSlideVel - vy) / dt * mass;
+		}
+		
+		// Set the force
+		this.setForceY(FORCE_NAME_WALL_SLIDE, slideForce);
 	}
 	
 	/**
@@ -367,13 +407,6 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 
 		// Bounce off the wall based on the touched material and this entity thing
 		this.setVX(-this.getVX() * touched.getWallBounce() * this.getMaterial().getWallBounce());
-		
-		// TODO add the ability to slide down a wall based on a value?
-		// Essentially, do this, but with forces
-		// this.setVY(Math.min(this.getVY(), 100));
-		double slideAmount = -this.getGravity().getY();
-		if(this.getVY() <= 0) slideAmount = 0;
-		this.setForceY(FORCE_NAME_WALL_SLIDE, slideAmount);
 	}
 	
 	/**
