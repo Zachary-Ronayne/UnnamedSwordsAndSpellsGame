@@ -53,20 +53,20 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	/** A {@link ZVector} representing the total force acting on this {@link EntityThing} */
 	private ZVector totalForce;
 	
+	/** The amount of time in seconds since this {@link EntityThing} last touched the ground, or -1 if it is currently on the ground */
+	private double groundTime;
+	
 	/** The material which this {@link EntityThing} is standing on, or {@link Materials#NONE} if no material is being touched */
 	private Material groundMaterial;
 	
-	/** true if this {@link EntityThing} is on the ground, false otherwise */
-	private boolean onGround;
-	
-	/** true if this {@link EntityThing} is holding onto a ceiling, false otherwise */
-	private boolean onCeiling;
+	/** The amount of time in seconds since this {@link EntityThing} last touched a ceiling, or -1 if it is currently touching a ceiling */
+	private double ceilingTime;
 	
 	/** The material which this {@link EntityThing} is holding onto from the ceiling, or {@link Materials#NONE} if no ceiling is touched */
 	private Material ceilingMaterial;
 	
-	/** true if this {@link EntityThing} is holding onto a wall, false otherwise */
-	private boolean onWall;
+	/** The amount of time in seconds since this {@link EntityThing} last touched a wall, or -1 if it is currently touching a wall */
+	private double wallTime;
 	
 	/** The material which this {@link EntityThing} is holding on a wall, or {@link Materials#NONE} if no wall is touched */
 	private Material wallMaterial;
@@ -136,6 +136,11 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	@Override
 	public void tick(Game game, double dt){
+		// Update the amount of time the entity has been on the ground, walls, and ceiling
+		if(this.groundTime != -1) this.groundTime += dt;
+		if(this.ceilingTime != -1) this.ceilingTime += dt;
+		if(this.wallTime != -1) this.wallTime += dt;
+		
 		// Account for frictional force based on current ground material
 		this.updateFrictionForce(dt);
 		
@@ -345,32 +350,47 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	/** @return true if this {@link EntityThing} was on the ground in the past {@link #tick(Game, double)}, false otherwise */
 	@Override
 	public boolean isOnGround(){
-		return this.onGround;
+		return this.groundTime == -1;
+	}
+	
+	/** @return See {@link #groundTime} */
+	public double getGroundTime(){
+		return this.groundTime;
+	}
+	
+	/** @return See {@link #ceilingTime} */
+	public double getCeilingTime(){
+		return this.ceilingTime;
+	}
+	
+	/** @return See {@link #wallTime} */
+	public double getWallTime(){
+		return this.wallTime;
 	}
 	
 	/** @return true if this {@link EntityThing} was on a ceiling in the past {@link #tick(Game, double)}, false otherwise */
 	@Override
 	public boolean isOnCeiling(){
-		return this.onCeiling;
+		return this.ceilingTime == -1;
 	}
 	
 	/** @return true if this {@link EntityThing} was touching a wall in the past {@link #tick(Game, double)}, false otherwise */
 	@Override
 	public boolean isOnWall(){
-		return this.onWall;
+		return this.wallTime == -1;
 	}
 	
 	@Override
 	public void leaveFloor(){
 		this.groundMaterial = Materials.NONE;
-		this.onGround = false;
+		this.groundTime = 0;
 	}
 	
 	@Override
 	public void touchFloor(Material touched){
 		// Touching a floor means this entity is on the ground
 		this.groundMaterial = touched;
-		this.onGround = true;
+		this.groundTime = -1;
 		
 		// Bounce off the floor, or reset the y velocity to 0 if either material has no floor bounciness
 		this.setVY(-this.getVY() * touched.getFloorBounce() * this.getMaterial().getFloorBounce());
@@ -379,13 +399,13 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	@Override
 	public void leaveCeiling(){
 		this.ceilingMaterial = Materials.NONE;
-		this.onCeiling = false;
+		this.ceilingTime = 0;
 	}
 	
 	@Override
 	public void touchCeiling(Material touched){
 		this.ceilingMaterial = touched;
-		this.onCeiling = true;
+		this.ceilingTime = -1;
 		
 		// Bounce off the ceiling, or reset the y velocity to 0 if either material has no ceiling bounciness
 		this.setVY(-this.getVY() * touched.getCeilingBounce() * this.getMaterial().getCeilingBounce());
@@ -394,7 +414,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	@Override
 	public void leaveWall(){
 		this.wallMaterial = Materials.NONE;
-		this.onWall = false;
+		this.wallTime = 0;
 		
 		this.setForceY(FORCE_NAME_WALL_SLIDE, 0);
 	}
@@ -402,7 +422,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	@Override
 	public void touchWall(Material touched){
 		this.wallMaterial = touched;
-		this.onWall = true;
+		this.wallTime = -1;
 		
 		// Bounce off the wall based on the touched material and this entity thing
 		this.setVX(-this.getVX() * touched.getWallBounce() * this.getMaterial().getWallBounce());

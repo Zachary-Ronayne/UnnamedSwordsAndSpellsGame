@@ -36,6 +36,8 @@ public abstract class MobThing extends EntityThing{
 	public static final double DEFAULT_WALK_STOP_FRICTION = 10;
 	/** The default value of {@link #canWallJump} */
 	public static final boolean DEFAULT_CAN_WALL_JUMP = false;
+	/** The default value of {@link #wallJumpTime} */
+	public static final double DEFAULT_WALL_JUMP_TIME = .25;
 	
 	/**
 	 * The magnitude of how much a mob can jump in units of momentum, i.e. mass * velocity,
@@ -81,8 +83,11 @@ public abstract class MobThing extends EntityThing{
 	 */
 	private double walkStopFriction;
 	
-	/** True if this {@link MobThing} can jump off walls while touching one, otherwise, false */
+	/** true if this {@link MobThing} can jump off walls while touching one, otherwise, false */
 	private boolean canWallJump;
+	
+	/** The amount of time, in seconds, after touching a wall that this {@link MobThing} has to jump. -1 to make jumping only allowed while touching a wall */
+	private double wallJumpTime;
 	
 	/** true if this {@link MobThing} is in a position where it is allowed to jump, false otherwise */
 	private boolean canJump;
@@ -149,6 +154,7 @@ public abstract class MobThing extends EntityThing{
 		this.walkFriction = DEFAULT_WALK_FRICTION;
 		this.walkStopFriction = DEFAULT_WALK_STOP_FRICTION;
 		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
+		this.wallJumpTime = DEFAULT_WALL_JUMP_TIME;
 		
 		this.walkingForce = new ZVector();
 		this.setForce(FORCE_NAME_WALKING, this.walkingForce);
@@ -164,7 +170,7 @@ public abstract class MobThing extends EntityThing{
 		
 		// Do the normal game update
 		super.tick(game, dt);
-
+		
 		// After doing the normal tick and update with the mob's position and velocity and adding the jump velocity, reset the jump force to 0
 		this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, 0);
 	}
@@ -261,6 +267,12 @@ public abstract class MobThing extends EntityThing{
 		return this.wallJumpAvailable;
 	}
 	
+	/** @return true if this {@link MobThing} is able to perform a wall jump based on the amount of time since it last touched a wall, false otherwise */
+	public boolean hasTimeToWallJump(){
+		if(this.getWallJumpTime() == -1) return this.getWallTime() == -1;
+		return this.getWallTime() <= this.getWallJumpTime();
+	}
+	
 	/** Remove any jump time built up */
 	public void cancelJump(){
 		this.buildingJump = false;
@@ -273,11 +285,8 @@ public abstract class MobThing extends EntityThing{
 	 * @param dt The amount of time, in seconds, that will pass in the next tick when this {@link MobThing} stops jumping
 	 */
 	public void updateJumpState(double dt){
-		// TODO give wall jump a period of time where the mob can still jump even if it's not touching the wall
-		//	make onWall, onFloor, onCeiling stored as numbers, not booleans, then isOnThing methods determine if the values are within a threshold
-
 		// The mob can jump if it's on the ground, or if it can wall jump and is on a wall
-		this.canJump = this.isOnGround() || this.isCanWallJump() && this.isOnWall() && this.isWallJumpAvailable();
+		this.canJump = this.isOnGround() || this.isCanWallJump() && this.hasTimeToWallJump() && this.isWallJumpAvailable();
 		
 		// If building a jump, and able to jump, then add the time
 		if(this.isBuildingJump() && this.isCanJump()){
@@ -285,7 +294,6 @@ public abstract class MobThing extends EntityThing{
 			// If the jump time threshold has been met, and this mob is set to jump right away, then perform the jump now
 			if(this.getJumpTimeBuilt() >= this.getJumpBuildTime() && this.isJumpAfterBuildUp()) this.jumpFromBuiltUp(dt);
 		}
-		
 		if(this.isStoppingJump()){
 			// Can only stop jumping if it's allowed
 			if(!this.isCanStopJump()) return;
@@ -333,7 +341,6 @@ public abstract class MobThing extends EntityThing{
 		if(!this.canJump) return;
 		
 		this.jumping = true;
-		this.canJump = false;
 		
 		// If this mob is on a wall and not on the ground, this counts a wall jump
 		if(this.isOnWall() && !this.isOnGround()) this.wallJumpAvailable = false;
@@ -341,6 +348,11 @@ public abstract class MobThing extends EntityThing{
 		// The jump power is either itself if jumping is instant, or multiplied by the ratio of jump time built and the total time to build a jump, keeping it at most 1
 		double power = this.jumpPower * (this.jumpsAreInstant() ? 1 : Math.min(1, this.getJumpTimeBuilt() / this.getJumpBuildTime()));
 		double jumpAmount = -power / dt;
+
+		// If falling downwards, add additional force so that the jump force will counteract the current downwards force
+		double vy = this.getVY();
+		if(vy > 0) jumpAmount -= vy / dt * this.getMass();
+
 		this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, jumpAmount);
 		this.jumpTimeBuilt = 0;
 		this.buildingJump = false;
@@ -490,6 +502,16 @@ public abstract class MobThing extends EntityThing{
 	/** @param canWallJump See {@link #canWallJump} */
 	public void setCanWallJump(boolean canWallJump){
 		this.canWallJump = canWallJump;
+	}
+	
+	/** @return See {@link #wallJumpTime} */
+	public double getWallJumpTime(){
+		return this.wallJumpTime;
+	}
+	
+	/** @param wallJumpTime See {@link #wallJumpTime} */
+	public void setWallJumpTime(double wallJumpTime){
+		this.wallJumpTime = wallJumpTime;
 	}
 	
 	/** @return See {@link #walkingForce} */
