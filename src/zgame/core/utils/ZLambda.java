@@ -3,7 +3,7 @@ package zgame.core.utils;
 /**
  * A class containing interfaces for simple lambda functions
  */
-public final class ZLambdaUtils{
+public final class ZLambda{
 	
 	/** A simple lambda function that takes no parameters */
 	public interface EmptyFunc{
@@ -25,6 +25,6 @@ public final class ZLambdaUtils{
 	}
 	
 	/** Cannot instantiate this class */
-	private ZLambdaUtils(){
+	private ZLambda(){
 	};
 }

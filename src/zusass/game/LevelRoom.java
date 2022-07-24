@@ -3,7 +3,7 @@ package zusass.game;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
-import zgame.core.utils.ZMathUtils;
+import zgame.core.utils.ZMath;
 import zgame.world.Room;
 import zusass.game.tiles.ZUSASSColorTiles;
 
@@ -72,7 +72,7 @@ public class LevelRoom extends Room{
 		this.level = Math.max(1, level);
 		
 		// Represent the level number as a boolean array
-		this.levelDisp = ZMathUtils.intToBoolArr(this.level);
+		this.levelDisp = ZMath.intToBoolArr(this.level);
 	}
 	
 	@Override

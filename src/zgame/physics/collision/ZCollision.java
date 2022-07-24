@@ -3,7 +3,7 @@ package zgame.physics.collision;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
-import zgame.core.utils.ZMathUtils;
+import zgame.core.utils.ZMath;
 import zgame.core.utils.ZRect;
 import zgame.physics.material.Material;
 
@@ -167,7 +167,7 @@ public final class ZCollision{
 		}
 		else{
 			// Find the movement angle
-			double angle = ZMathUtils.lineAngle(x, y, px, py);
+			double angle = ZMath.lineAngle(x, y, px, py);
 			double reverseAngle = angle + Math.PI;
 			
 			// Find the corner in the new bounds which should be compared, based on the direction of movement
@@ -177,13 +177,13 @@ public final class ZCollision{
 			double cornerPX = px;
 			double cornerPY = py;
 			// Upper right hand corner i.e. movement is in the first quadrant
-			if(0 < angle && angle < ZMathUtils.PI_BY_4){
+			if(0 < angle && angle < ZMath.PI_BY_4){
 				cornerX = x + w;
 				cornerPX = px + w;
 				xDis = -w;
 			}
 			// Lower right hand corner i.e. movement is in the fourth quadrant
-			else if(-ZMathUtils.PI_BY_4 < angle && angle < 0){
+			else if(-ZMath.PI_BY_4 < angle && angle < 0){
 				cornerX = x + w;
 				cornerY = y + h;
 				cornerPX = px + w;
@@ -192,7 +192,7 @@ public final class ZCollision{
 				yDis = -h;
 			}
 			// Lower left hand corner i.e. movement is in the third quadrant
-			else if(-ZMathUtils.PI_BY_2 < angle && angle < -ZMathUtils.PI_BY_4){
+			else if(-ZMath.PI_BY_2 < angle && angle < -ZMath.PI_BY_4){
 				cornerY = y + h;
 				cornerPY = py + h;
 				yDis = -h;
@@ -234,12 +234,12 @@ public final class ZCollision{
 	 */
 	private static Point2D.Double rectToRectHelper(Line2D.Double line, Line2D.Double moveLine, double cornerX, double cornerY, double reverseAngle){
 		// Find the intersection point for each line
-		Point2D.Double intersection = ZMathUtils.lineIntersection(line, moveLine);
+		Point2D.Double intersection = ZMath.lineIntersection(line, moveLine);
 		if(intersection == null) return null;
 		
 		// Determine which of those points is on the rectangle
 		// Find that the angle to the point is in the direction of the ray, and the same coordinate as the unmoving bounds
-		double angle = ZMathUtils.lineAngle(cornerX, cornerY, intersection.x, intersection.y);
+		double angle = ZMath.lineAngle(cornerX, cornerY, intersection.x, intersection.y);
 		boolean angleCorrect = angle == reverseAngle;
 		boolean in = line.y1 <= intersection.y && intersection.y <= line.y2;
 		if(angleCorrect && in) return intersection;
@@ -296,16 +296,16 @@ public final class ZCollision{
 		boolean bottom = false;
 		ZRect newMoving;
 		double dist;
-		double angle = ZMathUtils.lineAngle(x, y, px, py);
+		double angle = ZMath.lineAngle(x, y, px, py);
 		double sinA = Math.sin(angle);
 		double cosA = Math.cos(angle);
 		
 		// If the previous bounds intersects the colliding bounds, the bounds will be moved from the current position to somewhere guaranteed to not intersect
 		if(prevMoving.intersects(colliding)){
 			// If the moving bounds entirely contained by the colliding bounds, then base the new position on the colliding bounds
-			if(moving.contains(colliding)) dist = ZMathUtils.hypot(cw, ch);
+			if(moving.contains(colliding)) dist = ZMath.hypot(cw, ch);
 			// Otherwise, base it on the moving bounds
-			else dist = ZMathUtils.hypot(w, h);
+			else dist = ZMath.hypot(w, h);
 			// Find the new moving bounds
 			newMoving = new ZRect(x + cosA * dist, y + sinA * dist, w, h);
 		}
@@ -317,7 +317,7 @@ public final class ZCollision{
 		ZRect newBounds;
 		for(int i = 0; i < iterations; i++){
 			/// Finding half the distance between the bounds
-			dist = ZMathUtils.hypot(nearBounds.x - farBounds.x, nearBounds.y - farBounds.y) * .5;
+			dist = ZMath.hypot(nearBounds.x - farBounds.x, nearBounds.y - farBounds.y) * .5;
 			newBounds = new ZRect(nearBounds.x + cosA * dist, nearBounds.y + sinA * dist, w, h);
 			if(colliding.intersects(newBounds)) nearBounds = newBounds;
 			else farBounds = newBounds;

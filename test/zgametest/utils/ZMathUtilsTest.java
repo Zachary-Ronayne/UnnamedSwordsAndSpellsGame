@@ -2,7 +2,7 @@ package zgametest.utils;
 
 import org.junit.jupiter.api.*;
 
-import zgame.core.utils.ZMathUtils;
+import zgame.core.utils.ZMath;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,14 +23,14 @@ public class ZMathUtilsTest{
 	
 	@Test
 	public void testLineAngle(){
-		assertEquals(0, ZMathUtils.lineAngle(1, 10, 2, 10), DELTA);
-		assertEquals(Math.PI * 0.25, ZMathUtils.lineAngle(1, 10, 2, 11), DELTA);
-		assertEquals(Math.PI * 0.5, ZMathUtils.lineAngle(1, 10, 1, 11), DELTA);
-		assertEquals(Math.PI * 0.75, ZMathUtils.lineAngle(2, 10, 1, 11), DELTA);
-		assertEquals(Math.PI, ZMathUtils.lineAngle(2, 10, 1, 10), DELTA);
-		assertEquals(-Math.PI * .75, ZMathUtils.lineAngle(2, 11, 1, 10), DELTA);
-		assertEquals(-Math.PI * .5, ZMathUtils.lineAngle(1, 11, 1, 10), DELTA);
-		assertEquals(-Math.PI * .25, ZMathUtils.lineAngle(1, 11, 2, 10), DELTA);
+		assertEquals(0, ZMath.lineAngle(1, 10, 2, 10), DELTA);
+		assertEquals(Math.PI * 0.25, ZMath.lineAngle(1, 10, 2, 11), DELTA);
+		assertEquals(Math.PI * 0.5, ZMath.lineAngle(1, 10, 1, 11), DELTA);
+		assertEquals(Math.PI * 0.75, ZMath.lineAngle(2, 10, 1, 11), DELTA);
+		assertEquals(Math.PI, ZMath.lineAngle(2, 10, 1, 10), DELTA);
+		assertEquals(-Math.PI * .75, ZMath.lineAngle(2, 11, 1, 10), DELTA);
+		assertEquals(-Math.PI * .5, ZMath.lineAngle(1, 11, 1, 10), DELTA);
+		assertEquals(-Math.PI * .25, ZMath.lineAngle(1, 11, 2, 10), DELTA);
 	}
 	
 	/** Run after each test runs, use to clean up resources */

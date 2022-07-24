@@ -7,7 +7,7 @@ import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZArrayUtils;
-import zgame.core.utils.ZMathUtils;
+import zgame.core.utils.ZMath;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
@@ -403,7 +403,7 @@ public class Room implements RectangleBounds{
 	 * @return The index, or if the coordinate is outside the bounds, then the index of the closest tile to the side the coordinate is out of bounds on
 	 */
 	public int tileX(double x){
-		return (int)ZMathUtils.minMax(0, this.getXTiles() - 1, Math.floor(x * Tile.inverseSize()));
+		return (int)ZMath.minMax(0, this.getXTiles() - 1, Math.floor(x * Tile.inverseSize()));
 	}
 	
 	/**
@@ -413,7 +413,7 @@ public class Room implements RectangleBounds{
 	 * @return The index, or if the coordinate is outside the bounds, then the index of the closest tile to the side the coordinate is out of bounds on
 	 */
 	public int tileY(double y){
-		return (int)ZMathUtils.minMax(0, this.getYTiles() - 1, Math.floor(y * Tile.inverseSize()));
+		return (int)ZMath.minMax(0, this.getYTiles() - 1, Math.floor(y * Tile.inverseSize()));
 	}
 	
 	/**

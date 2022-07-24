@@ -4,7 +4,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
 /** A class containing misc methods for math stuff */
-public final class ZMathUtils{
+public final class ZMath{
 	
 	/** One fourth of the mathematical value for pi */
 	public static final double PI_BY_4 = Math.PI * 0.25;
@@ -172,8 +172,8 @@ public final class ZMathUtils{
 		return Math.sqrt(w * w + h * h);
 	}
 	
-	/** Cannot instantiate {@link ZMathUtils} */
-	private ZMathUtils(){
+	/** Cannot instantiate {@link ZMath} */
+	private ZMath(){
 	}
 	
 }

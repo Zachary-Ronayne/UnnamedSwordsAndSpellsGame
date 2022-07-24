@@ -5,7 +5,7 @@ import java.util.Map;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
-import zgame.core.utils.ZMathUtils;
+import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
@@ -38,7 +38,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	/** The current force of friction on this {@link EntityThing}. */
 	private ZVector frictionForce;
-	
+
 	/** The current force of drag acting against gravity on this {@link #EntityThing()} */
 	private ZVector gravityDragForce;
 	
@@ -151,24 +151,23 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		// Find the total constant for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
 		double newFrictionForce = (this.getFrictionConstant() * this.getGroundMaterial().getFriction()) * Math.abs(this.getGravity().getY());
 		
-		// Movement direction is based on velocity direction
-		double moveDirection = vx;
 		// If there is no velocity, then the force of friction is equal and opposite to the current total force without friction, and will not exceed the value based on gravity
-		if(moveDirection == 0){
+		if(vx == 0){
 			newFrictionForce = Math.min(newFrictionForce, Math.abs(fx));
 			if(fx > 0) newFrictionForce *= -1;
-			this.frictionForce = this.setForceX(FORCE_NAME_FRICTION, newFrictionForce);
-			return;
 		}
-
-		// Need to make the force of friction move in the opposite direction of movement, so make it negative if the direction is positive, otherwise leave it positive
-		if(moveDirection > 0) newFrictionForce *= -1;
-		
-		// If applying the new force would make the velocity go in the opposite direction, then the force should be such that the velocity will be zero
-		double oldVel = vx + fx / mass * dt;
-		double newVel = vx + (fx + newFrictionForce) / mass * dt;
-		if(!ZMathUtils.sameSign(oldVel, newVel)) newFrictionForce = -vx / dt * mass;
-		
+		else{
+			// Need to make the force of friction move in the opposite direction of movement, so make it negative if the direction is positive, otherwise leave it positive
+			if(vx > 0) newFrictionForce *= -1;
+			
+			// If applying the new force of friction would make the velocity go in the opposite direction, then the force should be such that it will bring the velocity to zero
+			double massTime = dt / mass;
+			double oldVel = vx + fx * massTime;
+			double newVel = vx + (fx + newFrictionForce) * massTime;
+			if(!ZMath.sameSign(oldVel, newVel)){
+				newFrictionForce = -vx / massTime;
+			}
+		}
 		this.frictionForce = this.setForceX(FORCE_NAME_FRICTION, newFrictionForce);
 		// TODO why can you still move a bit after landing until you stop moving? on really high friction forces
 	}

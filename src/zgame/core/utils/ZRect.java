@@ -6,6 +6,7 @@ import java.awt.geom.Rectangle2D;
 public class ZRect extends Rectangle2D.Double{
 
 	public ZRect(){
+		super();
 	}
 
 	public ZRect(double x, double y, double w, double h){

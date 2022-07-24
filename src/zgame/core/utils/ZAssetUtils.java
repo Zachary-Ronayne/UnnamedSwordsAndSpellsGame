@@ -80,7 +80,7 @@ public final class ZAssetUtils{
 			if(fileSystem != null) fileSystem.close();
 		}catch(URISyntaxException | IOException e){
 			if(ZConfig.printErrors()){
-				ZStringUtils.prints("Error in AssetUtils in loading files");
+				ZStringUtils.prints("Error in ZAssetUtils in loading files");
 				e.printStackTrace();
 			}
 		}finally{
@@ -177,7 +177,7 @@ public final class ZAssetUtils{
 		return buff;
 	}
 	
-	/** Cannot instantiate {@link #AssetUtils()} */
+	/** Cannot instantiate {@link #ZAssetUtils()} */
 	private ZAssetUtils(){
 	}
 }
