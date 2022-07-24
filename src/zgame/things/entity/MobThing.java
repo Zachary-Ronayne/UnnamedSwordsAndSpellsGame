@@ -124,9 +124,9 @@ public abstract class MobThing extends EntityThing{
 		this.stopWalking();
 		
 		this.jumpingForce = new ZVector();
-		this.addForce(FORCE_NAME_JUMPING, this.jumpingForce);
+		this.setForce(FORCE_NAME_JUMPING, this.jumpingForce);
 		this.jumpingStopForce = new ZVector();
-		this.addForce(FORCE_NAME_JUMPING_STOP, this.jumpingStopForce);
+		this.setForce(FORCE_NAME_JUMPING_STOP, this.jumpingStopForce);
 		
 		this.jumpPower = DEFAULT_JUMP_POWER;
 		this.jumpStopPower = DEFAULT_JUMP_STOP_POWER;
@@ -140,7 +140,7 @@ public abstract class MobThing extends EntityThing{
 		this.walkStopFriction = DEFAULT_WALK_STOP_FRICTION;
 		
 		this.walkingForce = new ZVector();
-		this.addForce(FORCE_NAME_WALKING, this.walkingForce);
+		this.setForce(FORCE_NAME_WALKING, this.walkingForce);
 	}
 	
 	@Override
@@ -263,7 +263,7 @@ public abstract class MobThing extends EntityThing{
 			// If the jump time threshold has been met, and this mob is set to jump right away, then perform the jump now
 			if(this.getJumpTimeBuilt() >= this.getJumpBuildTime() && this.isJumpAfterBuildUp()) this.jumpFromBuiltUp(dt);
 		}
-		if(!this.isOnGround()) this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, 0);
+		if(!this.isOnGround()) this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, 0);
 		
 		if(this.isStoppingJump()){
 			// Can only stop jumping if it's allowed
@@ -278,12 +278,12 @@ public abstract class MobThing extends EntityThing{
 				// then the jump stop force should be such that the y velocity will be 0 on the next tick
 				if(vy + newStopJumpVel > 0) newStopJumpForce = -vy * mass / dt;
 				
-				this.jumpingStopForce = this.replaceForce(FORCE_NAME_JUMPING_STOP, 0, newStopJumpForce);
+				this.jumpingStopForce = this.setForce(FORCE_NAME_JUMPING_STOP, 0, newStopJumpForce);
 			}
 			// Otherwise it is no longer stopping its jump, so remove the stopping force amount
 			else{
 				this.stoppingJump = false;
-				this.jumpingStopForce = this.replaceForce(FORCE_NAME_JUMPING_STOP, 0, 0);
+				this.jumpingStopForce = this.setForce(FORCE_NAME_JUMPING_STOP, 0, 0);
 			}
 		}
 	}
@@ -317,7 +317,7 @@ public abstract class MobThing extends EntityThing{
 		// The jump power is either itself if jumping is instant, or multiplied by the ratio of jump time built and the total time to build a jump, keeping it at most 1
 		double power =  this.jumpPower * (this.jumpsAreInstant() ?  1 : Math.min(1, this.getJumpTimeBuilt() / this.getJumpBuildTime()));
 		double jumpAmount = -power / dt;
-		this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, jumpAmount);
+		this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, jumpAmount);
 		this.jumpTimeBuilt = 0;
 		this.buildingJump = false;
 	}
@@ -325,7 +325,7 @@ public abstract class MobThing extends EntityThing{
 	/** Cause this {@link MobThing} to stop jumping. Does nothing if the mob is not currently jumping */
 	public void stopJump(){
 		if(!this.isJumping()) return;
-		this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, 0);
+		this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, 0);
 		this.jumping = false;
 		this.stoppingJump = true;
 	}
@@ -334,7 +334,7 @@ public abstract class MobThing extends EntityThing{
 	public void touchFloor(Material m){
 		super.touchFloor(m);
 		this.canJump = true;
-		this.jumpingForce = this.replaceForce(FORCE_NAME_JUMPING, 0, 0);
+		this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, 0);
 		this.jumping = false;
 	}
 	
@@ -458,7 +458,7 @@ public abstract class MobThing extends EntityThing{
 	
 	/** @param movement The amount of force applied to the x axis when this mob is walking */
 	public void setWalkingForce(double movement){
-		this.walkingForce = this.replaceForce(FORCE_NAME_WALKING, movement, 0);
+		this.walkingForce = this.setForce(FORCE_NAME_WALKING, movement, 0);
 	}
 	
 }

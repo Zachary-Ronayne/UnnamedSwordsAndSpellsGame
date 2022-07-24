@@ -196,8 +196,7 @@ public class MainTest extends Game{
 			firstRoom.setTile(0, 4, BaseTiles.BOUNCY);
 			firstRoom.setTile(1, 4, BaseTiles.BOUNCY);
 			Room secondRoom = makeRoom();
-			secondRoom.setTile(0, 4, BaseTiles.HIGH_FRICTION);
-			secondRoom.setTile(1, 4, BaseTiles.HIGH_FRICTION);
+			for(int i = 0; i < 2; i++) secondRoom.setTile(i, 4, BaseTiles.HIGH_FRICTION);
 			this.setCurrentRoom(firstRoom);
 			
 			this.player = new Player(100, 400, 60, 100);

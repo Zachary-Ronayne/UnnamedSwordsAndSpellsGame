@@ -24,6 +24,16 @@ public final class ZStringUtils{
 	}
 	
 	/**
+	 * Print, to the main System.out, the string representation of a list of objects on one line using efficient string concatenation, with the given string between them
+	 * 
+	 * @param sep The string to put between each object
+	 * @param objs The objects to print
+	 */
+	public static void printSep(String sep, Object ... objs){
+		System.out.println(concatSep(sep, objs));
+	}
+	
+	/**
 	 * Get a string representation of a list of objects concatenated together using efficient string concatenation, with a space between each element
 	 * 
 	 * @param separator An object to put between each object in the string, but not after the last element

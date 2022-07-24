@@ -97,15 +97,15 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		this.totalForce = new ZVector();
 		
 		this.gravity = new ZVector();
-		this.addForce(FORCE_NAME_GRAVITY, gravity);
+		this.setForce(FORCE_NAME_GRAVITY, gravity);
 		this.setMass(mass);
 		this.material = Materials.DEFAULT_ENTITY;
 		
 		this.frictionForce = new ZVector();
-		this.addForce(FORCE_NAME_FRICTION, frictionForce);
+		this.setForce(FORCE_NAME_FRICTION, frictionForce);
 		
 		this.gravityDragForce = new ZVector();
-		this.addForce(FORCE_NAME_GRAVITY_DRAG, this.gravityDragForce);
+		this.setForce(FORCE_NAME_GRAVITY_DRAG, this.gravityDragForce);
 		
 		this.leaveFloor();
 		this.px = this.getX();
@@ -143,41 +143,34 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	 * @param dt The amount of time, in seconds, that will pass the next time the frictional force is applied
 	 */
 	public void updateFrictionForce(double dt){
-		// TODO fix weird issue with high friction and mass where the friction velocity carries after moving off a platform
-		// maybe it should just remove the friction force if the entity isn't on the ground and make air resistance a separate force
-		
 		// Determining direction
 		double mass = this.getMass();
 		ZVector force = this.getForce();
 		double vx = this.getVX();
 		double fx = force.getX() - this.frictionForce.getX();
-		// Movement direction is based on velocity direction, or if the entity is not moving, the force direction
-		double moveDirection = vx;
-		if(moveDirection == 0) moveDirection = fx;
-		
 		// Find the total constant for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
 		double newFrictionForce = (this.getFrictionConstant() * this.getGroundMaterial().getFriction()) * Math.abs(this.getGravity().getY());
 		
+		// Movement direction is based on velocity direction
+		double moveDirection = vx;
+		// If there is no velocity, then the force of friction is equal and opposite to the current total force without friction, and will not exceed the value based on gravity
+		if(moveDirection == 0){
+			newFrictionForce = Math.min(newFrictionForce, Math.abs(fx));
+			if(fx > 0) newFrictionForce *= -1;
+			this.frictionForce = this.setForceX(FORCE_NAME_FRICTION, newFrictionForce);
+			return;
+		}
+
 		// Need to make the force of friction move in the opposite direction of movement, so make it negative if the direction is positive, otherwise leave it positive
 		if(moveDirection > 0) newFrictionForce *= -1;
 		
-		double forceFactor = dt * dt / mass;
-		double velFactor = vx * dt;
-		// Find the signed distance that will be traveled if friction is not applied
-		double oldDist = fx * forceFactor + velFactor;
-		// Find the signed distance that will be traveled if friction is applied
-		double newDist = (newFrictionForce + fx) * forceFactor + velFactor;
-		// If those distances are in opposing directions, then the frictional force should be such that it stops all velocity on the next tick
-		boolean sameSign = ZMathUtils.sameSign(newDist, oldDist);
-		boolean newBigger = Math.abs(newDist) > Math.abs(oldDist);
-		if(!sameSign){
-			if(newBigger) newFrictionForce = -oldDist / forceFactor;
-		}
-		else{
-			if(!newBigger) newFrictionForce = -(oldDist - newDist) / forceFactor;
-		}
-		// Apply the new friction
-		this.frictionForce = this.replaceForceX(FORCE_NAME_FRICTION, newFrictionForce);
+		// If applying the new force would make the velocity go in the opposite direction, then the force should be such that the velocity will be zero
+		double oldVel = vx + fx / mass * dt;
+		double newVel = vx + (fx + newFrictionForce) / mass * dt;
+		if(!ZMathUtils.sameSign(oldVel, newVel)) newFrictionForce = -vx / dt * mass;
+		
+		this.frictionForce = this.setForceX(FORCE_NAME_FRICTION, newFrictionForce);
+		// TODO why can you still move a bit after landing until you stop moving? on really high friction forces
 	}
 	
 	/**
@@ -193,12 +186,12 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		if(this.getVY() >= terminalVelocity && terminalVelocity > 0){
 			// Only set the value if it is not equal and opposite to gravity
 			double gravityForce = -this.getGravity().getY();
-			if(this.getGravityDragForce().getY() != gravityForce) this.gravityDragForce = this.replaceForceY(FORCE_NAME_GRAVITY_DRAG, gravityForce);
+			if(this.getGravityDragForce().getY() != gravityForce) this.gravityDragForce = this.setForceY(FORCE_NAME_GRAVITY_DRAG, gravityForce);
 		}
 		// Otherwise, set remove the force
 		else{
 			// Only remove the force if it is not already zero
-			if(this.getGravityDragForce().getY() != 0) this.gravityDragForce = this.replaceForceY(FORCE_NAME_GRAVITY_DRAG, 0);
+			if(this.getGravityDragForce().getY() != 0) this.gravityDragForce = this.setForceY(FORCE_NAME_GRAVITY_DRAG, 0);
 		}
 	}
 	
@@ -271,7 +264,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	/** @param mass See {@link #mass} */
 	public void setMass(double mass){
 		this.mass = mass;
-		this.gravity = this.replaceForce(FORCE_NAME_GRAVITY, 0, GRAVITY_ACCELERATION * this.getMass());
+		this.gravity = this.setForce(FORCE_NAME_GRAVITY, 0, GRAVITY_ACCELERATION * this.getMass());
 	}
 	
 	/** @return See {@link #groundMaterial} */
@@ -315,8 +308,8 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		// TODO add the ability to slide down a wall based on a value?
 		// Essentially, do this, but with forces
 		// this.setVY(Math.min(this.getVY(), 100));
-		// TODO make this also involved with terminal velocity?
-		// TODO also add methods for leave ceiling and leave walls
+		// make this also involved with terminal velocity?
+		// also add methods for leave ceiling and leave walls
 	}
 	
 	/**
@@ -408,22 +401,6 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	}
 	
 	/**
-	 * Add the given {@link ZForce} to the forces acting on this {@link EntityThing}. This method does nothing if the given force name is already used by the entity. To modify the
-	 * value of a force, use {@link #replaceForce(String, double, double)}
-	 * 
-	 * @param force The force to add
-	 * @param name The name of this force, used to identity the force
-	 * @return true if the force was added, false otherwise
-	 */
-	public boolean addForce(String name, ZVector force){
-		if(this.hasForce(name)) return false;
-		
-		this.forces.put(name, force);
-		this.totalForce = totalForce.add(force);
-		return true;
-	}
-	
-	/**
 	 * Remove the {@link ZForce} with the specified name object from this {@link EntityThing}'s forces
 	 * 
 	 * @param name The name of the force to remove
@@ -438,45 +415,59 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	}
 	
 	/**
-	 * Replace the given force with a force build from the given components. If the given name doesn't have a force mapped to it yet, then this method automatically adds it to the
+	 * Set the given force name with a force built from the given components. If the given name doesn't have a force mapped to it yet, then this method automatically adds it to the
 	 * map
 	 * 
-	 * @param name The name of the force to replace
+	 * @param name The name of the force to set
 	 * @param x The x component
 	 * @param y The y component
-	 * @return The newly added vector object
+	 * @return The newly set vector object
 	 */
-	public ZVector replaceForce(String name, double x, double y){
-		this.removeForce(name);
-		ZVector v = new ZVector(x, y);
-		this.addForce(name, v);
-		return v;
+	public ZVector setForce(String name, double x, double y){
+		return setForce(name, new ZVector(x, y));
 	}
 	
 	/**
-	 * The same as see {@link #replaceForce(String, double, double)}, except only modify the x value, keep the y value the same.
+	 * Set the given force name to the given force. If the given name doesn't have a force mapped to it yet, then this method automatically adds it to the
+	 * map
+	 * 
+	 * @param name The name of the force to set
+	 * @param force The force object to set
+	 * @return force
+	 */
+	public ZVector setForce(String name, ZVector force){
+		this.removeForce(name);
+		this.forces.put(name, force);
+		this.totalForce = totalForce.add(force);
+		return force;
+	}
+	
+	/**
+	 * The same as see {@link #setForce(String, double, double)}, except only modify the x value, keep the y value the same.
 	 * If the force does not already exist, a force is created with the given name using a zero for the y value
 	 */
-	public ZVector replaceForceX(String name, double x){
+	public ZVector setForceX(String name, double x){
 		ZVector v = this.forces.get(name);
-		return this.replaceForce(name, x, (v == null) ? 0 : v.getY());
+		return this.setForce(name, x, (v == null) ? 0 : v.getY());
 	}
 	
 	/**
-	 * The same as see {@link #replaceForce(String, double, double)}, except only modify the y coordinate, keep the x coordinate the same.
+	 * The same as see {@link #setForce(String, double, double)}, except only modify the y coordinate, keep the x coordinate the same.
 	 * If the force does not already exist, a force is created with the given name using a zero for the x value
 	 */
-	public ZVector replaceForceY(String name, double y){
+	public ZVector setForceY(String name, double y){
 		ZVector v = this.forces.get(name);
-		return this.replaceForce(name, (v == null) ? 0 : v.getX(), y);
+		return this.setForce(name, (v == null) ? 0 : v.getX(), y);
 	}
 	
 	/** @return The x coordinate of this {@link EntityThing} where it was in the previous instance of time, based on its current velocity */
+	@Override
 	public double getPX(){
 		return px;
 	}
 	
 	/** @return The y coordinate of this {@link EntityThing} where it was in the previous instance of time, based on its current velocity */
+	@Override
 	public double getPY(){
 		return py;
 	}
