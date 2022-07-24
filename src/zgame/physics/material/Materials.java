@@ -13,11 +13,11 @@ public final class Materials{
 	/** A {@link Material} using all the default values. Mainly for simple walls, floors, and ceilings */
 	public static final Material DEFAULT = new MaterialConst();
 	/** A {@link Material} meant for {@link EntityThing}s, essentially means the entity will react to the properties of what the entity interacts with */
-	public static final Material DEFAULT_ENTITY = new MaterialConst(1, 1, 1, 1);
+	public static final Material DEFAULT_ENTITY = new MaterialConst(1, 1, 1, 1, 1, 1);
 	/** A {@link Material} with high bounce values */
 	public static final Material BOUNCE = new MaterialConst(MaterialConst.DEFAULT_FRICTION, 0.9, 0.9, 0.9);
 	/** A {@link Material} with a very large friction constant */
-	public static final Material HIGH_FRICTION = new MaterialConst(1000, 0);
+	public static final Material HIGH_FRICTION = new MaterialConst(1000, 0, 0, 0, -1, -1);
 	
 	/** Cannot instantiate {@link Materials} */
 	private Materials(){

@@ -40,10 +40,10 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	/** The current force of friction on this {@link EntityThing}. */
 	private ZVector frictionForce;
-
+	
 	/** Thg current force which is causing this {@link EntityThing} to slide down a wall */
 	private ZVector wallSlideForce;
-
+	
 	/** The current force of drag acting against gravity on this {@link #EntityThing()} */
 	private ZVector gravityDragForce;
 	
@@ -64,11 +64,11 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	/** The material which this {@link EntityThing} is holding onto from the ceiling, or {@link Materials#NONE} if no ceiling is touched */
 	private Material ceilingMaterial;
-
+	
 	/** true if this {@link EntityThing} is holding onto a wall, false otherwise */
 	private boolean onWall;
 	
-	/** The material which this {@link EntityThing} is holding on a wall, or {@link Materials#NONE} if no wall is touched  */
+	/** The material which this {@link EntityThing} is holding on a wall, or {@link Materials#NONE} if no wall is touched */
 	private Material wallMaterial;
 	
 	/** The value of {@link #getX()} from the last tick */
@@ -123,7 +123,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		
 		this.gravityDragForce = new ZVector();
 		this.setForce(FORCE_NAME_GRAVITY_DRAG, this.gravityDragForce);
-
+		
 		this.wallSlideForce = new ZVector();
 		this.setForce(FORCE_NAME_WALL_SLIDE, this.wallSlideForce);
 		
@@ -141,7 +141,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		
 		// Account for drag going down for terminal velocity
 		this.updateGravityDragForce(dt);
-
+		
 		// Account for sliding down walls
 		this.updateWallSideForce(dt);
 		
@@ -188,13 +188,11 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 			// If applying the new force of friction would make the velocity go in the opposite direction, then the force should be such that it will bring the velocity to zero
 			double massTime = dt / mass;
 			// TODO why can you still move a bit after landing until you stop moving? on really high friction forces
-			// 	is this actually accounting for the amount of velocity added based on acceleration?
-			//	or is it that it needs to account for a change in acceleration, like when the walk force changes?
+			// is this actually accounting for the amount of velocity added based on acceleration?
+			// or is it that it needs to account for a change in acceleration, like when the walk force changes?
 			double oldVel = vx + fx * massTime;
 			double newVel = vx + (fx + newFrictionForce) * massTime;
-			if(!ZMath.sameSign(oldVel, newVel)){
-				newFrictionForce = -vx / massTime;
-			}
+			if(!ZMath.sameSign(oldVel, newVel)){ newFrictionForce = -vx / massTime; }
 		}
 		this.frictionForce = this.setForceX(FORCE_NAME_FRICTION, newFrictionForce);
 	}
@@ -227,22 +225,24 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	 * @param dt The amount of time, in seconds, that will pass the next time the wall slide force is applied
 	 */
 	public void updateWallSideForce(double dt){
-		// TODO base this on materials
-		double maxSlideVel = 100;
+		Material wall = this.getWallMaterial();
+		Material mat = this.getMaterial();
 		
-		// The slide force is always zero if the entity is moving upwards or not on a wall or slower than the max slide velocity
+		// The maximum speed that can be slid down the wall
+		double maxSlideVel = wall.getSlipperinessSpeed() * mat.getSlipperinessSpeed();
+		// The amount of force used to slow down
+		double slideStopForce = wall.getSlipperinessAcceleration() * mat.getSlipperinessAcceleration() / mass;
+		
+		// The slide force is always zero if the entity is not on a wall or is slower than the max slide velocity
+		// or the max slide velocity is negative or the slideStopForce is negative
 		double vy = this.getVY();
-		if(vy <= maxSlideVel || !this.isOnWall()){
+		if(maxSlideVel < 0 || slideStopForce < 0 || vy <= maxSlideVel || !this.isOnWall()){
 			this.setForceY(FORCE_NAME_WALL_SLIDE, 0);
 			return;
 		}
-
 		// The base amount of force to apply for sliding is the opposite of gravity
 		double slideForce = -this.getGravity().getY();
 		double mass = this.getMass();
-		// TODO base this on materials, it should be in terms of acceleration?
-		double slideStopForce = 1000 * mass;
-		
 		// If falling faster than the maximum sliding speed, increase the slide force to slow the falling (slideForce will be a negative number)
 		if(vy > maxSlideVel){
 			slideForce -= slideStopForce;
@@ -251,7 +251,6 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 			double newVel = vy + slideForce / mass * dt;
 			if(newVel < maxSlideVel) slideForce = (maxSlideVel - vy) / dt * mass;
 		}
-		
 		// Set the force
 		this.setForceY(FORCE_NAME_WALL_SLIDE, slideForce);
 	}
@@ -332,12 +331,12 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public Material getGroundMaterial(){
 		return this.groundMaterial;
 	}
-
+	
 	/** @return See {@link #ceilingMaterial} */
 	public Material getCeilingMaterial(){
 		return this.ceilingMaterial;
 	}
-
+	
 	/** @return See {@link #wallMaterial} */
 	public Material getWallMaterial(){
 		return this.wallMaterial;
@@ -360,7 +359,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public boolean isOnWall(){
 		return this.onWall;
 	}
-
+	
 	@Override
 	public void leaveFloor(){
 		this.groundMaterial = Materials.NONE;
@@ -387,7 +386,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public void touchCeiling(Material touched){
 		this.ceilingMaterial = touched;
 		this.onCeiling = true;
-
+		
 		// Bounce off the ceiling, or reset the y velocity to 0 if either material has no ceiling bounciness
 		this.setVY(-this.getVY() * touched.getCeilingBounce() * this.getMaterial().getCeilingBounce());
 	}
@@ -396,7 +395,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public void leaveWall(){
 		this.wallMaterial = Materials.NONE;
 		this.onWall = false;
-
+		
 		this.setForceY(FORCE_NAME_WALL_SLIDE, 0);
 	}
 	
@@ -404,7 +403,7 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public void touchWall(Material touched){
 		this.wallMaterial = touched;
 		this.onWall = true;
-
+		
 		// Bounce off the wall based on the touched material and this entity thing
 		this.setVX(-this.getVX() * touched.getWallBounce() * this.getMaterial().getWallBounce());
 	}

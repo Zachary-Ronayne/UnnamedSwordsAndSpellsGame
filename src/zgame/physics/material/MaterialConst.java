@@ -5,10 +5,18 @@ import zgame.core.utils.ZStringUtils;
 /** An implementation of {@link Material} which uses constant values */
 public class MaterialConst implements Material{
 	
+	/** The default value of {@link #friction} */
 	public static final double DEFAULT_FRICTION = 0.1;
+	/** The default value of {@link #wallBounce} */
 	public static final double DEFAULT_WALL_BOUNCE = 0.5;
+	/** The default value of {@link #floorBounce} */
 	public static final double DEFAULT_FLOOR_BOUNCE = 0;
+	/** The default value of {@link #ceilingBounce} */
 	public static final double DEFAULT_CEILING_BOUNCE = 0;
+	/** The default value of {@link #slipperinessSpeed} */
+	public static final double DEFAULT_SLIPPERINESS_SPEED = 100;
+	/** The default value of {@link #slipperinessAcceleration} */
+	public static final double DEFAULT_SLIPPERINESS_ACCELERATION = 400000;
 	
 	/** See {@link Material#getFriction()} */
 	private double friction;
@@ -22,9 +30,15 @@ public class MaterialConst implements Material{
 	/** See {@link Material#getCeilingBounce()} */
 	private double ceilingBounce;
 	
+	/** See {@link Material#getSlipperinessSpeed()} */
+	private double slipperinessSpeed;
+	
+	/** See {@link Material#getSlipperinessAcceleration()} */
+	private double slipperinessAcceleration;
+	
 	/** Create a new material with all the default values */
 	public MaterialConst(){
-		this(DEFAULT_FRICTION, DEFAULT_WALL_BOUNCE, DEFAULT_FLOOR_BOUNCE, DEFAULT_CEILING_BOUNCE);
+		this(DEFAULT_FRICTION, DEFAULT_WALL_BOUNCE);
 	}
 	
 	/**
@@ -34,11 +48,11 @@ public class MaterialConst implements Material{
 	 * @param wallBounce The value for {@link #leftWallBounce} and {@link #rightWallBounce}
 	 */
 	public MaterialConst(double friction, double wallBounce){
-		this(friction, wallBounce, DEFAULT_FLOOR_BOUNCE, DEFAULT_CEILING_BOUNCE);
+		this(friction, wallBounce, DEFAULT_FLOOR_BOUNCE, DEFAULT_CEILING_BOUNCE, DEFAULT_SLIPPERINESS_SPEED, DEFAULT_SLIPPERINESS_ACCELERATION);
 	}
 	
 	/**
-	 * Create a new material using the given fields, with the same left and right wall bounce values
+	 * Create a new material using the given fields
 	 * 
 	 * @param friction See {@link #friction}
 	 * @param wallBounce The value for {@link #leftWallBounce} and {@link #rightWallBounce}
@@ -46,10 +60,25 @@ public class MaterialConst implements Material{
 	 * @param ceilingBounce See {@link #ceilingBounce}
 	 */
 	public MaterialConst(double friction, double wallBounce, double floorBounce, double ceilingBounce){
+		this(friction, wallBounce, floorBounce, ceilingBounce, DEFAULT_SLIPPERINESS_SPEED, DEFAULT_SLIPPERINESS_ACCELERATION);
+	}
+	
+	/**
+	 * Create a new material using the given fields
+	 * 
+	 * @param friction See {@link #friction}
+	 * @param wallBounce The value for {@link #leftWallBounce} and {@link #rightWallBounce}
+	 * @param floorBounce See {@link #floorBounce}
+	 * @param ceilingBounce See {@link #ceilingBounce}
+	 * @param slipperinessSpeed See {@link #slipperinessSpeed}
+	 */
+	public MaterialConst(double friction, double wallBounce, double floorBounce, double ceilingBounce, double slipperinessSpeed, double slipperinessAcceleration){
 		this.friction = friction;
 		this.wallBounce = wallBounce;
 		this.floorBounce = floorBounce;
 		this.ceilingBounce = ceilingBounce;
+		this.slipperinessSpeed = slipperinessSpeed;
+		this.slipperinessAcceleration = slipperinessAcceleration;
 	}
 	
 	/** @return See {@link Material#getFriction()} */
@@ -76,10 +105,23 @@ public class MaterialConst implements Material{
 		return this.ceilingBounce;
 	}
 	
+	/** @return See {@link Material#getSlipperinessSpeed()()} */
+	@Override
+	public double getSlipperinessSpeed(){
+		return this.slipperinessSpeed;
+	}
+	
+	/** @return See {@link Material#getSlipperinessAcceleration()()} */
+	@Override
+	public double getSlipperinessAcceleration(){
+		return this.slipperinessAcceleration;
+	}
+	
 	@Override
 	public String toString(){
 		return ZStringUtils.concat("[MaterialConst | friction: ", this.getFriction(), ", wallBounce: ", this.getWallBounce(), ", floorBounce: ", this.getFloorBounce(),
-				", ceilingBounce: ", this.getCeilingBounce(), "]");
+				", ceilingBounce: ", this.getCeilingBounce(), ", slipperiness speed: ", this.getSlipperinessSpeed(), ", slipperiness acceleration: ",
+				this.getSlipperinessAcceleration(), "]");
 	}
 	
 }
