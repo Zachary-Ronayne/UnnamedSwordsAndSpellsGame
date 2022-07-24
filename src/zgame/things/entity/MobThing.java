@@ -36,6 +36,8 @@ public abstract class MobThing extends EntityThing{
 	public static final double DEFAULT_WALK_STOP_FRICTION = 10;
 	/** The default value of {@link #canWallJump} */
 	public static final boolean DEFAULT_CAN_WALL_JUMP = false;
+	/** The default value of {@link #normalJumpTime} */
+	public static final double DEFAULT_NORMAL_JUMP_TIME = .1;
 	/** The default value of {@link #wallJumpTime} */
 	public static final double DEFAULT_WALL_JUMP_TIME = .25;
 	
@@ -86,8 +88,13 @@ public abstract class MobThing extends EntityThing{
 	/** true if this {@link MobThing} can jump off walls while touching one, otherwise, false */
 	private boolean canWallJump;
 	
+	/** The amount of time, in seconds, after touching the ground that this {@link MobThing} has to jump. -1 to make jumping only allowed while touching the ground */
+	private double normalJumpTime;
+	
 	/** The amount of time, in seconds, after touching a wall that this {@link MobThing} has to jump. -1 to make jumping only allowed while touching a wall */
 	private double wallJumpTime;
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/** true if this {@link MobThing} is in a position where it is allowed to jump, false otherwise */
 	private boolean canJump;
@@ -154,6 +161,7 @@ public abstract class MobThing extends EntityThing{
 		this.walkFriction = DEFAULT_WALK_FRICTION;
 		this.walkStopFriction = DEFAULT_WALK_STOP_FRICTION;
 		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
+		this.normalJumpTime = DEFAULT_NORMAL_JUMP_TIME;
 		this.wallJumpTime = DEFAULT_WALL_JUMP_TIME;
 		
 		this.walkingForce = new ZVector();
@@ -267,6 +275,12 @@ public abstract class MobThing extends EntityThing{
 		return this.wallJumpAvailable;
 	}
 	
+	/** @return true if this {@link MobThing} is able to perform a normal jump off the ground based on the amount of time since it last touched a wall, false otherwise */
+	public boolean hasTimeToFloorJump(){
+		if(this.getNormalJumpTime() == -1) return this.getGroundTime() == -1;
+		return this.getGroundTime() <= this.getNormalJumpTime();
+	}
+	
 	/** @return true if this {@link MobThing} is able to perform a wall jump based on the amount of time since it last touched a wall, false otherwise */
 	public boolean hasTimeToWallJump(){
 		if(this.getWallJumpTime() == -1) return this.getWallTime() == -1;
@@ -286,7 +300,7 @@ public abstract class MobThing extends EntityThing{
 	 */
 	public void updateJumpState(double dt){
 		// The mob can jump if it's on the ground, or if it can wall jump and is on a wall
-		this.canJump = this.isOnGround() || this.isCanWallJump() && this.hasTimeToWallJump() && this.isWallJumpAvailable();
+		this.canJump = this.hasTimeToFloorJump() || this.isCanWallJump() && this.hasTimeToWallJump() && this.isWallJumpAvailable();
 		
 		// If building a jump, and able to jump, then add the time
 		if(this.isBuildingJump() && this.isCanJump()){
@@ -502,6 +516,16 @@ public abstract class MobThing extends EntityThing{
 	/** @param canWallJump See {@link #canWallJump} */
 	public void setCanWallJump(boolean canWallJump){
 		this.canWallJump = canWallJump;
+	}
+	
+	/** @return See {@link #normalJumpTime} */
+	public double getNormalJumpTime(){
+		return this.normalJumpTime;
+	}
+	
+	/** @param normalJumpTime See {@link #normalJumpTime} */
+	public void setNormalJumpTime(double normalJumpTime){
+		this.normalJumpTime = normalJumpTime;
 	}
 	
 	/** @return See {@link #wallJumpTime} */
