@@ -74,7 +74,7 @@ public interface HitBox extends Materialable{
 	 */
 	public void touchFloor(Material touched);
 	
-	/** A method that defines what this object does when it leaves the floor, i.e. is not touching the floor */
+	/** A method that defines what this object does when it leaves the floor, i.e. it goes from touching the floor to not touching the floor */
 	public void leaveFloor();
 	
 	/**
@@ -84,15 +84,27 @@ public interface HitBox extends Materialable{
 	 */
 	public void touchCeiling(Material touched);
 	
+	/** A method that defines what this object does when it leaves a ceiling, i.e. it goes from touching a wall to not touching a ceiling */
+	public void leaveCeiling();
+	
 	/**
 	 * A method that defines what this object does when it touches a wall
 	 * 
 	 * @param touched The Material which this {@link HitBox} touched
 	 */
 	public void touchWall(Material touched);
+	
+	/** A method that defines what this object does when it leaves a wall, i.e. it goes from touching a wall to not touching a wall */
+	public void leaveWall();
 
 	/** @return true if this {@link HitBox} is on the ground, false otherwise i.e. it's in the air */
 	public boolean isOnGround();
+
+	/** @return true if this {@link HitBox} is touching a ceiling, false otherwise */
+	public boolean isOnCeiling();
+
+	/** @return true if this {@link HitBox} is touching a wall, false otherwise */
+	public boolean isOnWall();
 	
 	// TODO maybe use these methods, or similar, when determining if something should render
 	/** @return The minimum x coordinate of the bounds of this {@link HitBox} */

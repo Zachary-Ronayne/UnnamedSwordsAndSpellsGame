@@ -34,6 +34,8 @@ public abstract class MobThing extends EntityThing{
 	public static final double DEFAULT_WALK_FRICTION = 1;
 	/** The default value of {@link #walkStopFriction} */
 	public static final double DEFAULT_WALK_STOP_FRICTION = 10;
+	/** The default value of {@link #canWallJump} */
+	public static final boolean DEFAULT_CAN_WALL_JUMP = false;
 	
 	/**
 	 * The magnitude of how much a mob can jump in units of momentum, i.e. mass * velocity,
@@ -79,11 +81,17 @@ public abstract class MobThing extends EntityThing{
 	 */
 	private double walkStopFriction;
 	
+	/** True if this {@link MobThing} can jump off walls while touching one, otherwise, false */
+	private boolean canWallJump;
+	
 	/** true if this {@link MobThing} is in a position where it is allowed to jump, false otherwise */
 	private boolean canJump;
 	
-	/** true if this job is currently jumping, false otherwise */
+	/** true if this mob is currently jumping, false otherwise */
 	private boolean jumping;
+	
+	/** true if this mob is able to wall jump, i.e. it has touched the ground since its last wall jump */
+	private boolean wallJumpAvailable;
 	
 	/** The force of jumping on this {@link MobThing} */
 	private ZVector jumpingForce;
@@ -121,6 +129,8 @@ public abstract class MobThing extends EntityThing{
 		this.jumping = false;
 		this.stoppingJump = false;
 		this.jumpTimeBuilt = 0;
+		this.wallJumpAvailable = false;
+		
 		this.stopWalking();
 		
 		this.jumpingForce = new ZVector();
@@ -138,6 +148,7 @@ public abstract class MobThing extends EntityThing{
 		this.walkAirControl = DEFAULT_WALK_AIR_CONTROL;
 		this.walkFriction = DEFAULT_WALK_FRICTION;
 		this.walkStopFriction = DEFAULT_WALK_STOP_FRICTION;
+		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
 		
 		this.walkingForce = new ZVector();
 		this.setForce(FORCE_NAME_WALKING, this.walkingForce);
@@ -153,6 +164,10 @@ public abstract class MobThing extends EntityThing{
 		
 		// Do the normal game update
 		super.tick(game, dt);
+
+		// After doing the normal tick and updating the mob's position and velocity,
+		// if the mob is not on a surface allowing it to jump, then remove all jump force
+		if(!(this.isOnGround() || this.isCanWallJump() && this.isWallJumpAvailable() && this.isOnWall())) this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, 0);
 	}
 	
 	/** @return See {@link #walkingDirection} */
@@ -198,6 +213,7 @@ public abstract class MobThing extends EntityThing{
 			double sign = walkForce;
 			double newVel = vx + walkForce * dt / mass;
 			
+			// TODO fix this, it's not always setting it to the exact max speed, usually slightly below it, probably related to the friction issue
 			// If that velocity is greater than the maximum speed, then apply a force such that it will bring the velocity exactly to the maximum speed
 			if(Math.abs(newVel) > maxSpeed){
 				// Need to account for the sign of max speed depending on the direction of the new desired walking force
@@ -206,7 +222,6 @@ public abstract class MobThing extends EntityThing{
 				if(sign < 0) walkForce *= -1;
 			}
 		}
-
 		// Set the amount the mob is walking
 		this.setWalkingForce(walkForce);
 	}
@@ -216,7 +231,7 @@ public abstract class MobThing extends EntityThing{
 		// If not on the ground, use the normal amount of friction, otherwise, if currently walking, return walk friction, otherwise, return stop friction
 		return !this.isOnGround() ? 1 : (this.getWalkingDirection() != 0) ? getWalkFriction() : getWalkStopFriction();
 	}
-
+	
 	/** @return See {@link #canJump} */
 	public boolean isCanJump(){
 		return this.canJump;
@@ -242,6 +257,11 @@ public abstract class MobThing extends EntityThing{
 		return this.buildingJump;
 	}
 	
+	/** @return See {@link #wallJumpAvailable} */
+	public boolean isWallJumpAvailable(){
+		return this.wallJumpAvailable;
+	}
+	
 	/** Remove any jump time built up */
 	public void cancelJump(){
 		this.buildingJump = false;
@@ -254,8 +274,8 @@ public abstract class MobThing extends EntityThing{
 	 * @param dt The amount of time, in seconds, that will pass in the next tick when this {@link MobThing} stops jumping
 	 */
 	public void updateJumpState(double dt){
-		// Being off the ground means the mob cannot jump
-		if(!this.isOnGround()) this.canJump = false;
+		// The mob can jump if it's on the ground, or if it can wall jump and is on a wall
+		this.canJump = this.isOnGround() || this.isCanWallJump() && this.isOnWall() && this.isWallJumpAvailable();
 		
 		// If building a jump, and able to jump, then add the time
 		if(this.isBuildingJump() && this.isCanJump()){
@@ -263,7 +283,6 @@ public abstract class MobThing extends EntityThing{
 			// If the jump time threshold has been met, and this mob is set to jump right away, then perform the jump now
 			if(this.getJumpTimeBuilt() >= this.getJumpBuildTime() && this.isJumpAfterBuildUp()) this.jumpFromBuiltUp(dt);
 		}
-		if(!this.isOnGround()) this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, 0);
 		
 		if(this.isStoppingJump()){
 			// Can only stop jumping if it's allowed
@@ -314,8 +333,11 @@ public abstract class MobThing extends EntityThing{
 		this.jumping = true;
 		this.canJump = false;
 		
+		// If this mob is on a wall, this counts a wall jump
+		if(this.isOnWall()) this.wallJumpAvailable = false;
+		
 		// The jump power is either itself if jumping is instant, or multiplied by the ratio of jump time built and the total time to build a jump, keeping it at most 1
-		double power =  this.jumpPower * (this.jumpsAreInstant() ?  1 : Math.min(1, this.getJumpTimeBuilt() / this.getJumpBuildTime()));
+		double power = this.jumpPower * (this.jumpsAreInstant() ? 1 : Math.min(1, this.getJumpTimeBuilt() / this.getJumpBuildTime()));
 		double jumpAmount = -power / dt;
 		this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, jumpAmount);
 		this.jumpTimeBuilt = 0;
@@ -333,9 +355,9 @@ public abstract class MobThing extends EntityThing{
 	@Override
 	public void touchFloor(Material m){
 		super.touchFloor(m);
-		this.canJump = true;
 		this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, 0);
 		this.jumping = false;
+		this.wallJumpAvailable = true;
 	}
 	
 	@Override
@@ -345,7 +367,14 @@ public abstract class MobThing extends EntityThing{
 		// Any jump that was being built up is no longer being built up after leaving the floor
 		this.cancelJump();
 	}
-
+	
+	@Override
+	public void leaveWall(){
+		super.leaveWall();
+		
+		this.cancelJump();
+	}
+	
 	/** @return true if this {@link MobThing} jumps instantly, false if it has to build up a jump */
 	public boolean jumpsAreInstant(){
 		return this.jumpBuildTime == 0;
@@ -406,7 +435,7 @@ public abstract class MobThing extends EntityThing{
 		return this.walkAcceleration;
 	}
 	
-	/** @param See {@link #walkAcceleration} */
+	/** @param walkAcceleration See {@link #walkAcceleration} */
 	public void setWalkAcceleration(double walkAcceleration){
 		this.walkAcceleration = walkAcceleration;
 	}
@@ -416,7 +445,7 @@ public abstract class MobThing extends EntityThing{
 		return this.walkSpeedMax;
 	}
 	
-	/** @param See {@link #walkSpeedMax} */
+	/** @param walkSpeedMax See {@link #walkSpeedMax} */
 	public void setWalkSpeedMax(double walkSpeedMax){
 		this.walkSpeedMax = walkSpeedMax;
 	}
@@ -426,7 +455,7 @@ public abstract class MobThing extends EntityThing{
 		return this.walkAirControl;
 	}
 	
-	/** @param See {@link #walkAirControl} */
+	/** @param walkAirControl See {@link #walkAirControl} */
 	public void setWalkAirControl(double walkAirControl){
 		this.walkAirControl = walkAirControl;
 	}
@@ -436,7 +465,7 @@ public abstract class MobThing extends EntityThing{
 		return walkFriction;
 	}
 	
-	/** @param See {@link #walkFriction} */
+	/** @param walkFriction See {@link #walkFriction} */
 	public void setWalkFriction(double walkFriction){
 		this.walkFriction = walkFriction;
 	}
@@ -446,9 +475,19 @@ public abstract class MobThing extends EntityThing{
 		return walkStopFriction;
 	}
 	
-	/** @param See {@link #walkStopFriction} */
+	/** @param walkStopFriction See {@link #walkStopFriction} */
 	public void setWalkStopFriction(double walkStopFriction){
 		this.walkStopFriction = walkStopFriction;
+	}
+	
+	/** @return See {@link #canWallJump} */
+	public boolean isCanWallJump(){
+		return this.canWallJump;
+	}
+	
+	/** @param canWallJump See {@link #canWallJump} */
+	public void setCanWallJump(boolean canWallJump){
+		this.canWallJump = canWallJump;
 	}
 	
 	/** @return See {@link #walkingForce} */

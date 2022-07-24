@@ -26,6 +26,8 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public static final String FORCE_NAME_FRICTION = "friction";
 	/** The string used to identify the force of friction in {@link #forces} */
 	public static final String FORCE_NAME_GRAVITY_DRAG = "gravityDrag";
+	/** The string used to identify the force of sticking to a wall in {@link #forces} */
+	public static final String FORCE_NAME_WALL_SLIDE = "wallSlide";
 	
 	/** The acceleration of gravity */
 	public static final double GRAVITY_ACCELERATION = 800;
@@ -38,6 +40,9 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	/** The current force of friction on this {@link EntityThing}. */
 	private ZVector frictionForce;
+
+	/** Thg current force which is causing this {@link EntityThing} to slide down a wall */
+	private ZVector wallSlideForce;
 
 	/** The current force of drag acting against gravity on this {@link #EntityThing()} */
 	private ZVector gravityDragForce;
@@ -53,6 +58,18 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	
 	/** true if this {@link EntityThing} is on the ground, false otherwise */
 	private boolean onGround;
+	
+	/** true if this {@link EntityThing} is holding onto a ceiling, false otherwise */
+	private boolean onCeiling;
+	
+	/** The material which this {@link EntityThing} is holding onto from the ceiling, or {@link Materials#NONE} if no ceiling is touched */
+	private Material ceilingMaterial;
+
+	/** true if this {@link EntityThing} is holding onto a wall, false otherwise */
+	private boolean onWall;
+	
+	/** The material which this {@link EntityThing} is holding on a wall, or {@link Materials#NONE} if no wall is touched  */
+	private Material wallMaterial;
 	
 	/** The value of {@link #getX()} from the last tick */
 	private double px;
@@ -106,8 +123,13 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		
 		this.gravityDragForce = new ZVector();
 		this.setForce(FORCE_NAME_GRAVITY_DRAG, this.gravityDragForce);
+
+		this.wallSlideForce = new ZVector();
+		this.setForce(FORCE_NAME_WALL_SLIDE, this.wallSlideForce);
 		
 		this.leaveFloor();
+		this.leaveCeiling();
+		this.leaveWall();
 		this.px = this.getX();
 		this.py = this.getY();
 	}
@@ -270,6 +292,16 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	public Material getGroundMaterial(){
 		return this.groundMaterial;
 	}
+
+	/** @return See {@link #ceilingMaterial} */
+	public Material getCeilingMaterial(){
+		return this.ceilingMaterial;
+	}
+
+	/** @return See {@link #wallMaterial} */
+	public Material getWallMaterial(){
+		return this.wallMaterial;
+	}
 	
 	/** @return true if this {@link EntityThing} was on the ground in the past {@link #tick(Game, double)}, false otherwise */
 	@Override
@@ -277,6 +309,18 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 		return this.onGround;
 	}
 	
+	/** @return true if this {@link EntityThing} was on a ceiling in the past {@link #tick(Game, double)}, false otherwise */
+	@Override
+	public boolean isOnCeiling(){
+		return this.onCeiling;
+	}
+	
+	/** @return true if this {@link EntityThing} was touching a wall in the past {@link #tick(Game, double)}, false otherwise */
+	@Override
+	public boolean isOnWall(){
+		return this.onWall;
+	}
+
 	@Override
 	public void leaveFloor(){
 		this.groundMaterial = Materials.NONE;
@@ -294,21 +338,42 @@ public abstract class EntityThing extends PositionedThing implements GameTickabl
 	}
 	
 	@Override
+	public void leaveCeiling(){
+		this.ceilingMaterial = Materials.NONE;
+		this.onCeiling = false;
+	}
+	
+	@Override
 	public void touchCeiling(Material touched){
+		this.ceilingMaterial = touched;
+		this.onCeiling = true;
+
 		// Bounce off the ceiling, or reset the y velocity to 0 if either material has no ceiling bounciness
 		this.setVY(-this.getVY() * touched.getCeilingBounce() * this.getMaterial().getCeilingBounce());
 	}
 	
 	@Override
+	public void leaveWall(){
+		this.wallMaterial = Materials.NONE;
+		this.onWall = false;
+
+		this.setForceY(FORCE_NAME_WALL_SLIDE, 0);
+	}
+	
+	@Override
 	public void touchWall(Material touched){
+		this.wallMaterial = touched;
+		this.onWall = true;
+
 		// Bounce off the wall based on the touched material and this entity thing
 		this.setVX(-this.getVX() * touched.getWallBounce() * this.getMaterial().getWallBounce());
 		
 		// TODO add the ability to slide down a wall based on a value?
 		// Essentially, do this, but with forces
 		// this.setVY(Math.min(this.getVY(), 100));
-		// make this also involved with terminal velocity?
-		// also add methods for leave ceiling and leave walls
+		double slideAmount = -this.getGravity().getY();
+		if(this.getVY() <= 0) slideAmount = 0;
+		this.setForceY(FORCE_NAME_WALL_SLIDE, slideAmount);
 	}
 	
 	/**

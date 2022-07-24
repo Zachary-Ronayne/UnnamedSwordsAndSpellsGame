@@ -202,6 +202,7 @@ public class MainTest extends Game{
 			this.player = new Player(100, 400, 60, 100);
 			this.player.setMass(100);
 			this.player.setLockCamera(true);
+			this.player.setCanWallJump(true);
 			firstRoom.addThing(this.player);
 			
 			Door d = new Door(700, 400);

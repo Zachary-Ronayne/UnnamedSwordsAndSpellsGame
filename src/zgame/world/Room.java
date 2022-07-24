@@ -169,6 +169,8 @@ public class Room implements RectangleBounds{
 		int maxY = this.tileY(obj.getMY());
 		
 		boolean wasOnGround = obj.isOnGround();
+		boolean wasOnCeiling = obj.isOnCeiling();
+		boolean wasOnWall = obj.isOnWall();
 		double mx = 0;
 		double my = 0;
 		boolean left = false;
@@ -223,6 +225,9 @@ public class Room implements RectangleBounds{
 
 		// If no tiles were touched on the ground and the object was on the ground, the entity has left the floor
 		if(!bot && wasOnGround) obj.leaveFloor();
+		// Same thing, but for the walls and for the ceiling
+		if(!top && wasOnCeiling) obj.leaveCeiling();
+		if(!left && !right && wasOnWall) obj.leaveWall();
 		
 		return res;
 	}
