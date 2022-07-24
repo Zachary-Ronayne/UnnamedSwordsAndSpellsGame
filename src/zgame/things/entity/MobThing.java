@@ -165,9 +165,8 @@ public abstract class MobThing extends EntityThing{
 		// Do the normal game update
 		super.tick(game, dt);
 
-		// After doing the normal tick and updating the mob's position and velocity,
-		// if the mob is not on a surface allowing it to jump, then remove all jump force
-		if(!(this.isOnGround() || this.isCanWallJump() && this.isWallJumpAvailable() && this.isOnWall())) this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, 0);
+		// After doing the normal tick and update with the mob's position and velocity and adding the jump velocity, reset the jump force to 0
+		this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, 0);
 	}
 	
 	/** @return See {@link #walkingDirection} */
@@ -336,8 +335,8 @@ public abstract class MobThing extends EntityThing{
 		this.jumping = true;
 		this.canJump = false;
 		
-		// If this mob is on a wall, this counts a wall jump
-		if(this.isOnWall()) this.wallJumpAvailable = false;
+		// If this mob is on a wall and not on the ground, this counts a wall jump
+		if(this.isOnWall() && !this.isOnGround()) this.wallJumpAvailable = false;
 		
 		// The jump power is either itself if jumping is instant, or multiplied by the ratio of jump time built and the total time to build a jump, keeping it at most 1
 		double power = this.jumpPower * (this.jumpsAreInstant() ? 1 : Math.min(1, this.getJumpTimeBuilt() / this.getJumpBuildTime()));
