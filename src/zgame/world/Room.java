@@ -263,7 +263,7 @@ public class Room implements RectangleBounds{
 		for(int i = startX; i < endX; i++) for(int j = startY; j < endY; j++) this.tiles[i][j].render(game, r);
 		
 		// Draw all the things
-		for(GameThing t : this.things) t.render(game, r);
+		for(int i = 0; i < this.things.size(); i++) this.things.get(i).render(game, r);
 	}
 	
 	/** Cause every wall to be solid. See {@link #wallSolid} for details */
