@@ -2,7 +2,7 @@ package zgame.core.state;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.things.Room;
+import zgame.world.Room;
 
 /** A {@link GameState} which is designed for game play, i.e. controlling a character in a world, not a menu */
 public class PlayState extends GameState{

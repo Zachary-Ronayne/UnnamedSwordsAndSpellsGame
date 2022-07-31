@@ -27,7 +27,7 @@ public abstract class GameState implements GameInteractable{
 	public GameState(boolean useCamera){
 		this.setUseCamera(useCamera);
 	}
-	
+
 	/** @return See {@link #useCamera} */
 	public boolean isUseCamera(){
 		return this.useCamera;
@@ -36,6 +36,16 @@ public abstract class GameState implements GameInteractable{
 	/** @param useCamera See {@link #useCamera} */
 	public void setUseCamera(boolean useCamera){
 		this.useCamera = useCamera;
+	}
+
+	/**
+	 * A method called when a {@link Game} sets its current state to this {@link GameState}. 
+	 * Override this method to do something when it happens. Does nothing by default
+	 * 
+	 * @param game The {@link Game} which set its current state
+	 */
+	public void onSet(Game game){
+
 	}
 	
 	@Override

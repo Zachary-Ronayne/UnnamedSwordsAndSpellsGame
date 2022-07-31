@@ -1,8 +1,10 @@
 package zgame.things.entity;
 
-import zgame.things.RectangleHitBox;
-
-import java.awt.geom.Rectangle2D;
+import zgame.core.utils.ZRect;
+import zgame.physics.collision.CollisionResponse;
+import zgame.physics.collision.ZCollision;
+import zgame.physics.material.Material;
+import zgame.things.type.RectangleHitBox;
 
 /** A {@link MobThing} which has a rectangular hit box */
 public abstract class MobRectangle extends MobThing implements RectangleHitBox{
@@ -23,6 +25,28 @@ public abstract class MobRectangle extends MobThing implements RectangleHitBox{
 	public MobRectangle(double x, double y, double width, double height){
 		super(x, y);
 		this.width = width;
+		this.height = height;
+	}
+	
+	@Override
+	/** @return See {@link #width} */
+	public double getWidth(){
+		return this.width;
+	}
+	
+	/** @param width See {@link #width} */
+	public void setWidth(double width){
+		this.width = width;
+	}
+	
+	@Override
+	/** @return See {@link #height} */
+	public double getHeight(){
+		return this.height;
+	}
+	
+	/** @param height See {@link #height} */
+	public void setHeight(double height){
 		this.height = height;
 	}
 	
@@ -54,41 +78,24 @@ public abstract class MobRectangle extends MobThing implements RectangleHitBox{
 		return true;
 	}
 	
-	/** @return The center x coordinate of this {@link MobRectangle} */
-	public double getCenterX(){
-		return this.getX() + this.getWidth() * 0.5;
-	}
-	
-	/** @return The center y coordinate of this {@link MobRectangle} */
-	public double getCenterY(){
-		return this.getY() + this.getHeight() * 0.5;
-	}
-	
-	@Override
-	/** @return See {@link #width} */
-	public double getWidth(){
-		return this.width;
-	}
-	
-	/** @param width See {@link #width} */
-	public void setWidth(double width){
-		this.width = width;
-	}
-	
-	@Override
-	/** @return See {@link #height} */
-	public double getHeight(){
-		return this.height;
-	}
-	
-	/** @param height See {@link #height} */
-	public void setHeight(double height){
-		this.height = height;
-	}
-	
 	@Override
 	public boolean intersects(double x, double y, double w, double h){
-		return new Rectangle2D.Double(this.getX(), this.getY(), this.getWidth(), this.getHeight()).intersects(x, y, w, h);
+		return new ZRect(this.getX(), this.getY(), this.getWidth(), this.getHeight()).intersects(x, y, w, h);
+	}
+
+	@Override
+	public CollisionResponse calculateRectCollision(double x, double y, double w, double h, Material m){
+		return ZCollision.rectToRectBasic(x, y, w, h, this.getX(), this.getY(), this.getWidth(), this.getHeight(), m);
+	}
+
+	@Override
+	public double maxX(){
+		return this.getX() + this.getWidth();
+	}
+
+	@Override
+	public double maxY(){
+		return this.getY() + this.getHeight();
 	}
 	
 }

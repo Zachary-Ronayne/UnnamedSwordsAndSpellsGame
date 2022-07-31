@@ -6,8 +6,9 @@ import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
 
+import zgame.core.utils.ZRect;
+
 import static org.lwjgl.stb.STBTruetype.*;
-import java.awt.geom.Rectangle2D;
 
 /** An object which represents a font to be used for rendering, i.e. a {@link FontAsset} and information like font size */
 public class GameFont{
@@ -81,7 +82,7 @@ public class GameFont{
 	 * @param text The text to find the bounds of
 	 * @return A rectangle with the bounds in game coordinates
 	 */
-	public Rectangle2D.Double stringBounds(String text){
+	public ZRect stringBounds(String text){
 		return this.stringBounds(0, 0, text);
 	}
 	
@@ -94,7 +95,7 @@ public class GameFont{
 	 * @param y The y coordinate where the string is drawn, in game coordinates
 	 * @return A rectangle with the bounds in game coordinates
 	 */
-	public Rectangle2D.Double stringBounds(double x, double y, String text){
+	public ZRect stringBounds(double x, double y, String text){
 		return this.stringBounds(x, y, text, true);
 	}
 
@@ -109,11 +110,11 @@ public class GameFont{
 	 * @param padding true to add a pixel of padding around the bounds, false to not add it
 	 * @return A rectangle with the bounds in game coordinates
 	 */
-	public Rectangle2D.Double stringBounds(double x, double y, String text, boolean padding){
+	public ZRect stringBounds(double x, double y, String text, boolean padding){
 		FontAsset a = this.getAsset();
 		
 		// If there is no string, then the rectangle is empty
-		if(text == null || text.isEmpty()) return new Rectangle2D.Double(x, y, 0, 0);
+		if(text == null || text.isEmpty()) return new ZRect(x, y, 0, 0);
 		
 		// Set up buffers
 		IntBuffer wb = BufferUtils.createIntBuffer(1);
@@ -135,8 +136,8 @@ public class GameFont{
 		y -= a.getAscent() * pixelRatio;
 		
 		// Pad the rectangle by 1 to account for rounding errors
-		if(padding) return new Rectangle2D.Double(x - 1, y - 1, w + 2, h + 2);
-		else return new Rectangle2D.Double(x, y, w, h);
+		if(padding) return new ZRect(x - 1, y - 1, w + 2, h + 2);
+		else return new ZRect(x, y, w, h);
 	}
 	
 	/** @return The value which must be used to scale the font returned by {@link #bounds(char, FloatBuffer, FloatBuffer, STBTTAlignedQuad)} into game coordinates */

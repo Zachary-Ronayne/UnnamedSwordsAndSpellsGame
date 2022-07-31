@@ -1,9 +1,8 @@
 package zgame.core.graphics.camera;
 
 import zgame.core.graphics.Renderer;
+import zgame.core.utils.ZRect;
 import zgame.core.window.GameWindow;
-
-import java.awt.geom.Rectangle2D;
 
 /**
  * A class used by {@link Renderer} to track the location of where objects should be drawn, based on their position in the game.
@@ -51,7 +50,7 @@ public class GameCamera{
 		double x = window.sizeScreenToGlX(this.getX().getPos());
 		double y = -window.sizeScreenToGlY(this.getY().getPos());
 		Renderer r = window.getRenderer();
-
+		
 		// OpenGL transformations occur in reverse order
 		// Lastly, translate the camera to its actual position
 		r.translate(x, y);
@@ -130,7 +129,7 @@ public class GameCamera{
 		this.getX().shift(x);
 		this.getY().shift(y);
 	}
-
+	
 	/**
 	 * Set the position of both axes
 	 * 
@@ -170,8 +169,8 @@ public class GameCamera{
 	 * @param h The height of the rectangle
 	 * @return The converted bounds
 	 */
-	public Rectangle2D.Double boundsGameToScreen(double x, double y, double w, double h){
-		return new Rectangle2D.Double(this.gameToScreenX(x), this.gameToScreenY(y), this.sizeGameToScreenX(w), this.sizeGameToScreenY(h));
+	public ZRect boundsGameToScreen(double x, double y, double w, double h){
+		return new ZRect(this.gameToScreenX(x), this.gameToScreenY(y), this.sizeGameToScreenX(w), this.sizeGameToScreenY(h));
 	}
 	
 	/**
@@ -243,8 +242,8 @@ public class GameCamera{
 	 * @param h The height of the rectangle
 	 * @return The converted bounds
 	 */
-	public Rectangle2D.Double boundsScreenToGame(double x, double y, double w, double h){
-		return new Rectangle2D.Double(this.screenToGameX(x), this.screenToGameY(y), this.sizeScreenToGameX(w), this.sizeScreenToGameY(h));
+	public ZRect boundsScreenToGame(double x, double y, double w, double h){
+		return new ZRect(this.screenToGameX(x), this.screenToGameY(y), this.sizeScreenToGameX(w), this.sizeScreenToGameY(h));
 	}
 	
 	/** @return See {@link #x} */

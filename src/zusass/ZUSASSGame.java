@@ -34,7 +34,7 @@ public class ZUSASSGame extends Game{
 		this.getFonts().addAll();
 		
 		// Play state
-		this.setPlayState(new MainPlay());
+		this.setPlayState(new MainPlay(this));
 	}
 	
 	/** The only instance of {@link ZUSASSGame} which can exist */

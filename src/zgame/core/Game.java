@@ -21,7 +21,7 @@ import zgame.core.state.PlayState;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GLFWWindow;
 import zgame.core.window.GameWindow;
-import zgame.things.Room;
+import zgame.world.Room;
 
 /**
  * The central class used to create a game. Create an extension of this class to begin making a game
@@ -622,7 +622,7 @@ public class Game{
 	public FontAsset getFontAsset(String font){
 		return this.getFonts().get(font);
 	}
-
+	
 	/** @return A {@link GameFont} with the given font name */
 	public GameFont getFont(String font){
 		return new GameFont(this.getFonts().get(font));
@@ -648,6 +648,26 @@ public class Game{
 	/** @return The height, in pixels, of the internal buffer */
 	public int getScreenHeight(){
 		return this.getWindow().getScreenHeight();
+	}
+	
+	/** @return The game x coordinate on the left side of what is displayed on the screen */
+	public double getScreenLeft(){
+		return this.getCamera().sizeScreenToGameX(-this.getCamera().getX().getPos());
+	}
+	
+	/** @return The game x coordinate on the right side of what is displayed on the screen */
+	public double getScreenRight(){
+		return this.getScreenLeft() + this.getCamera().sizeScreenToGameX(this.getScreenWidth());
+	}
+	
+	/** @return The game y coordinate of the top of what is displayed on the screen */
+	public double getScreenTop(){
+		return this.getCamera().sizeScreenToGameY(-this.getCamera().getY().getPos());
+	}
+	
+	/** @return The game y coordinate at the bottom of what is displayed on the screen */
+	public double getScreenBottom(){
+		return this.getScreenTop() + this.getCamera().sizeScreenToGameY(this.getScreenHeight());
 	}
 	
 	/** @return See {@link #renderLooper} */
@@ -767,6 +787,7 @@ public class Game{
 	private void updateCurrentState(){
 		if(this.nextCurrentState == null) return;
 		this.currentState = this.nextCurrentState;
+		this.currentState.onSet(this);
 		this.nextCurrentState = null;
 	}
 	

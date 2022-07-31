@@ -16,7 +16,7 @@ public class NewGameButton extends MainMenuButton{
 	
 	@Override
 	public void click(Game game){
-		game.setPlayState(new MainPlay());
+		game.setPlayState(new MainPlay(game));
 		game.enterPlayState();
 	}
 	

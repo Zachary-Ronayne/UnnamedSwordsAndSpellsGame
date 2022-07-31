@@ -3,12 +3,18 @@ package zusass.game;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
-import zgame.core.utils.ZMathUtils;
-import zgame.core.utils.ZRenderUtils;
-import zgame.things.Room;
+import zgame.core.utils.ZMath;
+import zgame.world.Room;
+import zusass.game.things.LevelDoor;
+import zusass.game.things.tiles.ZUSASSColorTiles;
 
 /** A {@link Room} which represents a randomly generated level for the infinite dungeons */
 public class LevelRoom extends Room{
+	
+	/** The number of tiles in a {@link LevelRoom} on the x axis */
+	private static final int X_TILES = 15;
+	/** The number of tiles in a {@link LevelRoom} on the y axis */
+	private static final int Y_TILES = 8;
 	
 	/**
 	 * The numerical value of the level, i.e. level 1 is the easiest, level 2 is harder, etc.
@@ -30,15 +36,31 @@ public class LevelRoom extends Room{
 	 * @param level See {@link #level}
 	 */
 	public LevelRoom(int level){
-		super();
-		this.setLevel(level);
-		this.setWidth(1000);
-		this.setHeight(500);
+		super(X_TILES, Y_TILES);
 		
+		// Set up the tiles
 		this.checker1 = new ZColor(0.2 + Math.random() * 0.5, 0.2 + Math.random() * 0.5, 0.2 + Math.random() * 0.5);
 		this.checker2 = new ZColor(checker1.red() * 0.5, checker1.green() * 0.5, checker1.blue() * 0.5);
+		for(int i = 0; i < X_TILES; i++){
+			for(int j = 0; j < Y_TILES; j++){
+				boolean i0 = i % 2 == 0;
+				boolean j0 = j % 2 == 0;
+				this.setTile(i, j, (i0 == j0) ? ZUSASSColorTiles.BACK_COLOR : ZUSASSColorTiles.BACK_COLOR_DARK);
+			}
+		}
+		this.setLevel(level);
 		
-		this.addThing(new LevelDoor(this.getLevel() + 1));
+		this.addThing(new LevelDoor(this.getLevel() + 1, this));
+	}
+	
+	/** @return See {@link #checker1} */
+	public ZColor getChecker1(){
+		return this.checker1;
+	}
+
+	/** @return See {@link #checker2} */
+	public ZColor getChecker2(){
+		return this.checker2;
 	}
 	
 	/** @return See {@link #level} */
@@ -51,13 +73,15 @@ public class LevelRoom extends Room{
 		this.level = Math.max(1, level);
 		
 		// Represent the level number as a boolean array
-		this.levelDisp = ZMathUtils.intToBoolArr(this.level);
+		this.levelDisp = ZMath.intToBoolArr(this.level);
 	}
 	
 	@Override
 	public void render(Game game, Renderer r){
-		// Draw a background
-		ZRenderUtils.checkerboard(r, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 10, this.checker1, this.checker2);
+		ZUSASSColorTiles.setColors(this.checker1, this.checker2);
+
+		// Draw the main rendering
+		super.render(game, r);
 		
 		// Draw the actual level counter
 		r.setColor(.8, .8, .8);
@@ -73,9 +97,6 @@ public class LevelRoom extends Room{
 				r.drawRectangle(12 + 12 * i, 152, 6, 16);
 			}
 		}
-		
-		// Draw the main rendering
-		super.render(game, r);
 	}
 	
 }

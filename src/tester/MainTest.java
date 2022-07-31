@@ -16,9 +16,10 @@ import zgame.core.state.PlayState;
 import zgame.core.window.GameWindow;
 import zgame.menu.Menu;
 import zgame.menu.MenuButton;
-import zgame.things.Door;
-import zgame.things.Room;
 import zgame.things.entity.Player;
+import zgame.things.still.Door;
+import zgame.things.still.tiles.BaseTiles;
+import zgame.world.Room;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -150,7 +151,7 @@ public class MainTest extends Game{
 		engineState = new GameEngineState();
 		testerGame.setPlayState(engineState);
 		menuState = new TesterMenuState();
-		testerGame.setCurrentState(testerState);
+		testerGame.enterPlayState();
 		window = testerGame.getWindow();
 		window.center();
 		
@@ -160,7 +161,7 @@ public class MainTest extends Game{
 		// Add sounds
 		SoundManager sm = testerGame.getSounds();
 		sm.addAllSounds();
-
+		
 		// Set the sound scaling distance
 		sm.setDistanceScalar(.04);
 		
@@ -192,12 +193,18 @@ public class MainTest extends Game{
 		public GameEngineState(){
 			super(false);
 			Room firstRoom = makeRoom();
+			firstRoom.setTile(0, 4, BaseTiles.BOUNCY);
+			firstRoom.setTile(1, 4, BaseTiles.BOUNCY);
 			Room secondRoom = makeRoom();
+			for(int i = 0; i < 2; i++) secondRoom.setTile(i, 4, BaseTiles.HIGH_FRICTION);
 			this.setCurrentRoom(firstRoom);
 			
 			this.player = new Player(100, 400, 60, 100);
+			this.player.setMass(100);
+			this.player.setLockCamera(true);
+			this.player.setCanWallJump(true);
 			firstRoom.addThing(this.player);
-
+			
 			Door d = new Door(700, 400);
 			d.setLeadRoom(secondRoom, 50, 100);
 			firstRoom.addThing(d);
@@ -206,14 +213,27 @@ public class MainTest extends Game{
 			d.setLeadRoom(firstRoom, 100, 400);
 			secondRoom.addThing(d);
 		}
-
+		
+		@Override
+		public void onSet(Game game){
+			game.getCamera().setPos(50, 100);
+		}
+		
 		private Room makeRoom(){
 			Room r = new Room();
 			r.makeWallsSolid();
-			r.setX(50);
-			r.setY(100);
-			r.setWidth(800);
-			r.setHeight(520);
+			r.initTiles(13, 9, BaseTiles.BACK_DARK);
+			for(int i = 0; i < r.getXTiles(); i++){
+				for(int j = 0; j < r.getYTiles(); j++){
+					boolean i0 = i % 2 == 0;
+					boolean j0 = j % 2 == 0;
+					if(i0 == j0) r.setTile(i, j, BaseTiles.BACK_LIGHT);
+				}
+			}
+			for(int i = 0; i < 4; i++) r.setTile(4 + i, 6, BaseTiles.WALL_DARK);
+			r.setTile(7, 5, BaseTiles.WALL_DARK);
+			r.setTile(11, 3, BaseTiles.WALL_LIGHT);
+			
 			return r;
 		}
 		
@@ -223,13 +243,12 @@ public class MainTest extends Game{
 			r.setColor(.1, .1, .1);
 			r.fill();
 		}
-
+		
 		@Override
 		public void render(Game game, Renderer r){
-			r.setColor(.2, .2, .2);
-			Room rm = this.getCurrentRoom();
-			r.drawRectangle(rm.getX(), rm.getY(), rm.getWidth(), rm.getHeight());
 			super.render(game, r);
+			r.setColor(1, 1, 1);
+			r.drawRectangle(990, 0, 20, 500);
 		}
 		
 		@Override
@@ -246,9 +265,15 @@ public class MainTest extends Game{
 			else if(button == GLFW_KEY_D) r.makeWallState(Room.WALL_RIGHT, !r.isSolid(Room.WALL_RIGHT));
 			else if(button == GLFW_KEY_MINUS) player.setJumpPower(player.getJumpPower() - 10);
 			else if(button == GLFW_KEY_EQUAL) player.setJumpPower(player.getJumpPower() + 10);
-			else if(button == GLFW_KEY_L) player.setLockCamera(!player.isLockCamera());
+			else if(shift && button == GLFW_KEY_L) player.setLockCamera(!player.isLockCamera());
+			else if(button == GLFW_KEY_9) game.getCamera().zoom(-.5);
+			else if(button == GLFW_KEY_0) game.getCamera().zoom(.5);
+			else if(button == GLFW_KEY_J) game.getCamera().getX().shift(-50);
+			else if(button == GLFW_KEY_L) game.getCamera().getX().shift(50);
+			else if(button == GLFW_KEY_I) game.getCamera().getY().shift(-50);
+			else if(button == GLFW_KEY_K) game.getCamera().getY().shift(50);
 		}
-
+		
 		@Override
 		public void mouseWheelMove(Game game, double amount){
 			super.mouseWheelMove(game, amount);
@@ -577,7 +602,7 @@ public class MainTest extends Game{
 			t.setText("Exit");
 			this.addThing(t);
 		}
-
+		
 		@Override
 		public void render(Game game, Renderer r){
 			super.render(game, r);

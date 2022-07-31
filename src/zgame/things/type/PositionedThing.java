@@ -1,24 +1,26 @@
-package zgame.things;
+package zgame.things.type;
 
 import zgame.core.Game;
+import zgame.things.entity.EntityThing;
+import zgame.world.Room;
 
 /** A {@link GameThing} which uses x and y coordinates */
-public abstract class PositionedThing extends GameThing implements Positionable{
+public abstract class PositionedThing extends GameThing implements Position{
 	
-	/** The x coordinate of this {@link PositionedThing} */
+	/** The x coordinate of this {@link PositionedThing}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link EntityThing} */
 	private double x;
-	/** The y coordinate of this {@link PositionedThing} */
+	/** The y coordinate of this {@link PositionedThing}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link EntityThing} */
 	private double y;
-
 	/**
 	 * Create a new {@link PositionedThing} at (0, 0)
 	 */
 	public PositionedThing(){
 		this(0, 0);
 	}
-
+	
 	/**
 	 * Create a new {@link PositionedThing}
+	 * 
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 */
@@ -27,7 +29,7 @@ public abstract class PositionedThing extends GameThing implements Positionable{
 		this.x = x;
 		this.y = y;
 	}
-
+	
 	@Override
 	/** @return See {@link #x} */
 	public double getX(){
@@ -38,9 +40,10 @@ public abstract class PositionedThing extends GameThing implements Positionable{
 	public void setX(double x){
 		this.x = x;
 	}
-
+	
 	/**
 	 * Add the given value to {@link #x}
+	 * 
 	 * @param x The value to add
 	 */
 	public void addX(double x){
@@ -66,7 +69,7 @@ public abstract class PositionedThing extends GameThing implements Positionable{
 	public void addY(double y){
 		this.setY(this.getY() + y);
 	}
-
+	
 	/**
 	 * Take this {@link PositionedThing} from the given room, and place it in the other given room
 	 * 
@@ -76,9 +79,16 @@ public abstract class PositionedThing extends GameThing implements Positionable{
 	 */
 	public void enterRoom(Room from, Room to, Game game){
 		if(from != null) from.removeThing(this);
-		if(to != null){
-			to.addThing(this);
-		}
+		if(to != null) to.addThing(this);
 	}
-
+	
+	/**
+	 * Center the camera of the given {@link Game} to the center of this object
+	 * 
+	 * @param game The game
+	 */
+	public void centerCamera(Game game){
+		game.centerCamera(this.centerX(), this.centerY());
+	}
+	
 }

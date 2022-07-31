@@ -13,6 +13,11 @@ public class ZVector{
 	/** The magnitude, i.e. length or distance, of this {@link ZVector} */
 	private double magnitude;
 	
+	/** Create a {@link ZVector} with a magnitude of 0 */
+	public ZVector(){
+		this(0, 0);
+	}
+
 	/**
 	 * Create a new ZVector with the given component values
 	 * 

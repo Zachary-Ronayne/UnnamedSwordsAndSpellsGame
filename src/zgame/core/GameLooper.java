@@ -1,10 +1,10 @@
 package zgame.core;
 
 import zgame.core.utils.ZConfig;
-import zgame.core.utils.ZLambdaUtils;
+import zgame.core.utils.ZLambda;
 import zgame.core.utils.ZStringUtils;
-import zgame.core.utils.ZLambdaUtils.EmptyFunc;
-import zgame.core.utils.ZLambdaUtils.BooleanFunc;
+import zgame.core.utils.ZLambda.EmptyFunc;
+import zgame.core.utils.ZLambda.BooleanFunc;
 
 /**
  * A class that handles running a loop at a consistent interval, primarily the main OpenGL loop and the tick loop for updating the game
@@ -216,7 +216,7 @@ public class GameLooper{
 	
 	/** @param runFunc See {@link #runFunc} */
 	public void setRunFunc(EmptyFunc runFunc){
-		if(runFunc == null) runFunc = ZLambdaUtils::emptyMethod;
+		if(runFunc == null) runFunc = ZLambda::emptyMethod;
 		this.runFunc = runFunc;
 	}
 	

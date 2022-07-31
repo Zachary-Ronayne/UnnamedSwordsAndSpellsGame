@@ -14,9 +14,9 @@ import zgame.core.graphics.font.FontAsset;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.shader.ShaderProgram;
+import zgame.core.utils.ZRect;
 import zgame.core.window.GameWindow;
 
-import java.awt.geom.Rectangle2D;
 import java.nio.FloatBuffer;
 import java.util.Stack;
 
@@ -24,7 +24,6 @@ import java.util.Stack;
  * A class that handles OpenGL operations related to drawing objects.
  * Create an instance of this class and call draw methods to draw to this Renderer,
  * then call drawToWindow to display the contents of this Renderer.
- * This class is dependent on {@link DisplayList}, be sure to initialize that class before using Renderer.
  * DO NOT directly call any OpenGL methods when using this class, otherwise unexpected results could happen.
  * Coordinate explanation:
  * OpenGL space: the coordinate system used by OpenGL, i.e. the upper left hand corner is (-1, 1) and the lower right hand corner is (1, -1)
@@ -489,9 +488,9 @@ public class Renderer{
 		FontAsset fa = f.getAsset();
 		
 		// Bounds check for if the text should be drawn
-		Rectangle2D.Double r = f.stringBounds(x, y, text);
+		ZRect r = f.stringBounds(x, y, text);
 		if(!this.shouldDraw(r.getX(), r.getY(), r.getWidth(), r.getHeight())) return false;
-
+		
 		// Use the font shaders
 		this.renderModeFont();
 		// Use the font vertex array
@@ -558,7 +557,7 @@ public class Renderer{
 	 */
 	public boolean shouldDraw(double x, double y, double w, double h){
 		if(!this.isRenderOnlyInside()) return true;
-		Rectangle2D.Double r = this.getBounds();
+		ZRect r = this.getBounds();
 		if(this.camera == null) return r.intersects(x, y, w, h);
 		else return r.intersects(this.camera.boundsGameToScreen(x, y, w, h));
 	}
@@ -686,8 +685,8 @@ public class Renderer{
 	}
 	
 	/** @return A rectangle of the bounds of this {@link Renderer}, i.e. the position will be (0, 0), width will be {@link #getWidth()} and height will be {@link #getHeight()} */
-	public Rectangle2D.Double getBounds(){
-		return new Rectangle2D.Double(0, 0, this.getWidth(), this.getHeight());
+	public ZRect getBounds(){
+		return new ZRect(0, 0, this.getWidth(), this.getHeight());
 	}
 	
 	/** @return The ratio of the size of the internal buffer, i.e. the width divided by the height */
@@ -700,6 +699,17 @@ public class Renderer{
 		return this.screen.getRatioHW();
 	}
 	
+	/**
+	 * Determine if the given bounds are in the bounds of this {@link Renderer}
+	 * @param bounds The bounds to check, in game coordinates
+	 * @return true if they intersect, i.e. return true if any part of the given bounds is in this {@link Renderer}'s bounds, false otherwise
+	 */
+	public boolean gameBoundsInScreen(ZRect bounds){
+		ZRect rBounds = this.getBounds();
+		ZRect gBounds = camera.boundsScreenToGame(rBounds.getX(), rBounds.getBounds().getY(), rBounds.getBounds().getWidth(), rBounds.getBounds().getHeight());
+		return gBounds.intersects(bounds);
+	}
+
 	/**
 	 * Convert an x coordinate value in window space, to a coordinate in screen space coordinates
 	 * 
