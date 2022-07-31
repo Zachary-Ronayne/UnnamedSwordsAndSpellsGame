@@ -263,10 +263,10 @@ public class Room implements RectangleBounds{
 		int startY = Math.max(0, (int)Math.floor(game.getScreenTop() / Tile.size()));
 		int endY = Math.min(this.getYTiles(), (int)Math.ceil(game.getScreenBottom() / Tile.size()));
 		// Draw all the tiles
-		for(int i = startX; i < endX; i++) for(int j = startY; j < endY; j++) this.tiles[i][j].render(game, r);
+		for(int i = startX; i < endX; i++) for(int j = startY; j < endY; j++) this.tiles[i][j].renderWithCheck(game, r);
 		
 		// Draw all the things
-		for(int i = 0; i < this.things.size(); i++) this.things.get(i).render(game, r);
+		for(int i = 0; i < this.things.size(); i++) this.things.get(i).renderWithCheck(game, r);
 	}
 	
 	/** Cause every wall to be solid. See {@link #wallSolid} for details */

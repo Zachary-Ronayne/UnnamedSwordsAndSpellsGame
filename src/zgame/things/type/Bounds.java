@@ -1,9 +1,10 @@
 package zgame.things.type;
 
+import zgame.core.utils.ZRect;
+
 /** An object which has a bounds that can be defined in a 2D space */
 public interface Bounds extends Position{
 	
-	// TODO maybe use these methods, or similar, when determining if something should render
 	/** @return The maximum x coordinate of this bounds */
 	public double maxX();
 	
@@ -28,6 +29,11 @@ public interface Bounds extends Position{
 	/** @return The center y coordinate of this bounds */
 	public default double centerY(){
 		return this.getY() + getHeight() * 0.5;
+	}
+
+	/** @return A rectangle representing the full bounds which this {@link Bounds} takes up */
+	public default ZRect getBounds(){
+		return new ZRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 
 }

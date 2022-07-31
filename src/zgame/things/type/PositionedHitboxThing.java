@@ -1,5 +1,8 @@
 package zgame.things.type;
 
+import zgame.core.Game;
+import zgame.core.graphics.Renderer;
+
 /** A thing which has a position and a hitbox */
 public abstract class PositionedHitboxThing extends PositionedThing implements HitBox{
 	
@@ -15,6 +18,11 @@ public abstract class PositionedHitboxThing extends PositionedThing implements H
 	 */
 	public PositionedHitboxThing(double x, double y){
 		super(x, y);
+	}
+
+	@Override
+	public boolean shouldRender(Game game, Renderer r){
+		return r.gameBoundsInScreen(this.getBounds());
 	}
 	
 }
