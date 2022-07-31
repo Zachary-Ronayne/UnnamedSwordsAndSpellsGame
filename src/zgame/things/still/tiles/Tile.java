@@ -1,13 +1,13 @@
-package zgame.things.tiles;
+package zgame.things.still.tiles;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
-import zgame.things.GameThing;
-import zgame.things.HitBox;
-import zgame.things.Materialable;
-import zgame.things.PositionedRectangleThing;
+import zgame.things.type.GameThing;
+import zgame.things.type.HitBox;
+import zgame.things.type.Materialable;
+import zgame.things.type.PositionedRectangleThing;
 
 /** A {@link GameThing} with a rectangular hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
 public class Tile extends PositionedRectangleThing implements Materialable{

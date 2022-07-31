@@ -1,7 +1,7 @@
-package zgame.things.tiles;
+package zgame.things.still.tiles;
 
 import zgame.physics.collision.CollisionResponse;
-import zgame.things.HitBox;
+import zgame.things.type.HitBox;
 
 /** An enum that represents the hitbox of a tile, i.e., what parts of the tile have collision */
 public interface TileHitbox{

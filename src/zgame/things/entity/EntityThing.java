@@ -10,15 +10,15 @@ import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
-import zgame.things.HitBox;
-import zgame.things.PositionedThing;
+import zgame.things.type.PositionedHitboxThing;
+import zgame.things.type.PositionedThing;
 import zgame.world.Room;
 
 /**
  * A {@link PositionedThing} which keeps track of an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
  * This is for things like creatures, dropped items, projectiles, etc.
  */
-public abstract class EntityThing extends PositionedThing implements GameTickable, HitBox{
+public abstract class EntityThing extends PositionedHitboxThing implements GameTickable {
 	
 	/** The string used to identify the force of gravity in {@link #forces} */
 	public static final String FORCE_NAME_GRAVITY = "gravity";

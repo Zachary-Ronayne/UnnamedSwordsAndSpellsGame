@@ -1,6 +1,6 @@
-package zgame.things;
+package zgame.things.type;
 
-/** A {@link PositionedThing} which also has a rectangular hitbox */
+/** A {@link PositionedThing} which also has a rectangular bounds */
 public abstract class PositionedRectangleThing extends PositionedThing implements RectangleBounds{
 	
 	/** The width of this thing */
@@ -70,32 +70,13 @@ public abstract class PositionedRectangleThing extends PositionedThing implement
 	}
 	
 	@Override
-	public double leftEdge(){
-		return this.getX();
-	}
-	
-	@Override
-	public double rightEdge(){
+	public double maxX(){
 		return this.getX() + this.getWidth();
 	}
 	
 	@Override
-	public double topEdge(){
-		return this.getY();
-	}
-	
-	@Override
-	public double bottomEdge(){
+	public double maxY(){
 		return this.getY() + this.getHeight();
 	}
 	
-	@Override
-	public double centerX(){
-		return this.getX() + this.getWidth() * 0.5;
-	}
-	
-	@Override
-	public double centerY(){
-		return this.getY() + this.getHeight() * 0.5;
-	}
 }

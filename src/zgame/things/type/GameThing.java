@@ -1,4 +1,4 @@
-package zgame.things;
+package zgame.things.type;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;

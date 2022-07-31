@@ -1,4 +1,4 @@
-package zgame.things;
+package zgame.things.type;
 
 import zgame.physics.material.Material;
 

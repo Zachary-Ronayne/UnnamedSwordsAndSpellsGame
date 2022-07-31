@@ -4,7 +4,7 @@ import zgame.core.utils.ZRect;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
-import zgame.things.RectangleHitBox;
+import zgame.things.type.RectangleHitBox;
 
 /** A {@link MobThing} which has a rectangular hit box */
 public abstract class MobRectangle extends MobThing implements RectangleHitBox{
@@ -89,43 +89,13 @@ public abstract class MobRectangle extends MobThing implements RectangleHitBox{
 	}
 
 	@Override
-	public double getMX(){
-		return this.rightEdge();
-	}
-
-	@Override
-	public double getMY(){
-		return this.bottomEdge();
-	}
-
-	@Override
-	public double leftEdge(){
-		return this.getX();
-	}
-	
-	@Override
-	public double rightEdge(){
+	public double maxX(){
 		return this.getX() + this.getWidth();
 	}
-	
+
 	@Override
-	public double topEdge(){
-		return this.getY();
-	}
-	
-	@Override
-	public double bottomEdge(){
+	public double maxY(){
 		return this.getY() + this.getHeight();
-	}
-	
-	@Override
-	public double centerX(){
-		return this.getX() + this.getWidth() * 0.5;
-	}
-	
-	@Override
-	public double centerY(){
-		return this.getY() + this.getHeight() * 0.5;
 	}
 	
 }

@@ -1,11 +1,11 @@
-package zgame.things;
+package zgame.things.type;
 
 import zgame.core.Game;
 import zgame.things.entity.EntityThing;
 import zgame.world.Room;
 
 /** A {@link GameThing} which uses x and y coordinates */
-public abstract class PositionedThing extends GameThing implements Positionable{
+public abstract class PositionedThing extends GameThing implements Position{
 	
 	/** The x coordinate of this {@link PositionedThing}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link EntityThing} */
 	private double x;
@@ -59,16 +59,6 @@ public abstract class PositionedThing extends GameThing implements Positionable{
 	/** @param y See {@link #y} */
 	public void setY(double y){
 		this.y = y;
-	}
-	
-	/** @return Always 0, can override to give this thing a width, i.e. an amount of space it takes up on the x axis */
-	public double getWidth(){
-		return 0;
-	}
-	
-	/** @return Always 0, can override to give this thing a height, i.e. an amount of space it takes up on the y axis */
-	public double getHeight(){
-		return 0;
 	}
 	
 	/**

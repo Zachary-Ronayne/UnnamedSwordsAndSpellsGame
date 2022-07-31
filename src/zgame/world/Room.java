@@ -11,13 +11,13 @@ import zgame.core.utils.ZMath;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
-import zgame.things.GameThing;
-import zgame.things.HitBox;
-import zgame.things.RectangleBounds;
 import zgame.things.entity.EntityThing;
-import zgame.things.tiles.BaseTiles;
-import zgame.things.tiles.Tile;
-import zgame.things.tiles.TileType;
+import zgame.things.still.tiles.BaseTiles;
+import zgame.things.still.tiles.Tile;
+import zgame.things.still.tiles.TileType;
+import zgame.things.type.GameThing;
+import zgame.things.type.HitBox;
+import zgame.things.type.RectangleBounds;
 
 /** An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc. */
 public class Room implements RectangleBounds{
@@ -165,8 +165,8 @@ public class Room implements RectangleBounds{
 		// Find touching tiles and collide with them
 		int minX = this.tileX(obj.getX());
 		int minY = this.tileY(obj.getY());
-		int maxX = this.tileX(obj.getMX());
-		int maxY = this.tileY(obj.getMY());
+		int maxX = this.tileX(obj.maxX());
+		int maxY = this.tileY(obj.maxY());
 		
 		boolean wasOnGround = obj.isOnGround();
 		boolean wasOnCeiling = obj.isOnCeiling();
@@ -205,19 +205,19 @@ public class Room implements RectangleBounds{
 		CollisionResponse res = new CollisionResponse(mx, my, left, right, top, bot, material);
 		
 		// Keep the object inside the game bounds, if the walls are enabled
-		if(this.isSolid(WALL_LEFT) && obj.keepRight(this.leftEdge())){
+		if(this.isSolid(WALL_LEFT) && obj.keepRight(this.getX())){
 			left = true;
 			obj.touchWall(Materials.BOUNDARY);
 		}
-		if(this.isSolid(WALL_RIGHT) && obj.keepLeft(this.rightEdge())){
+		if(this.isSolid(WALL_RIGHT) && obj.keepLeft(this.maxX())){
 			right = true;
 			obj.touchWall(Materials.BOUNDARY);
 		}
-		if(this.isSolid(WALL_CEILING) && obj.keepBelow(this.topEdge())){
+		if(this.isSolid(WALL_CEILING) && obj.keepBelow(this.getY())){
 			top = true;
 			obj.touchCeiling(Materials.BOUNDARY);
 		}
-		if(this.isSolid(WALL_FLOOR) && obj.keepAbove(this.bottomEdge())){
+		if(this.isSolid(WALL_FLOOR) && obj.keepAbove(this.maxY())){
 			bot = true;
 			obj.touchFloor(Materials.BOUNDARY);
 		}
@@ -356,22 +356,22 @@ public class Room implements RectangleBounds{
 	}
 	
 	@Override
-	public double leftEdge(){
+	public double getX(){
 		return 0;
 	}
 	
 	@Override
-	public double rightEdge(){
+	public double maxX(){
 		return this.getWidth();
 	}
 	
 	@Override
-	public double topEdge(){
+	public double getY(){
 		return 0;
 	}
 	
 	@Override
-	public double bottomEdge(){
+	public double maxY(){
 		return this.getHeight();
 	}
 	

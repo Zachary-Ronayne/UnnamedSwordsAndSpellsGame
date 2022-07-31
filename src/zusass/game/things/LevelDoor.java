@@ -1,9 +1,10 @@
-package zusass.game;
+package zusass.game.things;
 
 import zgame.core.Game;
-import zgame.things.Door;
-import zgame.things.PositionedThing;
+import zgame.things.still.Door;
+import zgame.things.type.PositionedHitboxThing;
 import zgame.world.Room;
+import zusass.game.LevelRoom;
 
 /** A {@link Door} used by the infinitely generating levels */
 public class LevelDoor extends Door{
@@ -19,7 +20,7 @@ public class LevelDoor extends Door{
 	 */
 	public LevelDoor(int level, Room room){
 		this(600, 0, level, room);
-		this.setY(room.bottomEdge() - this.getHeight());
+		this.setY(room.maxY() - this.getHeight());
 	}
 
 	/**
@@ -36,10 +37,10 @@ public class LevelDoor extends Door{
 	}
 	
 	@Override
-	public void enterRoom(Room r, PositionedThing thing, Game game){
+	public void enterRoom(Room r, PositionedHitboxThing thing, Game game){
 		// Generate the new room, then enter it
 		this.setLeadRoom(new LevelRoom(this.getLevel()), 0, 0);
-		this.setRoomY(this.getLeadRoom().bottomEdge() - thing.getHeight());
+		this.setRoomY(this.getLeadRoom().maxY() - thing.getHeight());
 		super.enterRoom(r, thing, game);
 	}
 	

@@ -5,7 +5,8 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZMath;
 import zgame.world.Room;
-import zusass.game.tiles.ZUSASSColorTiles;
+import zusass.game.things.LevelDoor;
+import zusass.game.things.tiles.ZUSASSColorTiles;
 
 /** A {@link Room} which represents a randomly generated level for the infinite dungeons */
 public class LevelRoom extends Room{

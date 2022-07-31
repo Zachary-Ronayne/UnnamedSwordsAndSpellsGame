@@ -1,10 +1,10 @@
-package zgame.things;
+package zgame.things.type;
 
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
-public interface HitBox extends Materialable{
+public interface HitBox extends Bounds, Materialable {
 	
 	/**
 	 * Apply the given {@link CollisionResponse} to this object
@@ -106,23 +106,10 @@ public interface HitBox extends Materialable{
 	/** @return true if this {@link HitBox} is touching a wall, false otherwise */
 	public boolean isOnWall();
 	
-	// TODO maybe use these methods, or similar, when determining if something should render
-	/** @return The minimum x coordinate of the bounds of this {@link HitBox} */
-	public double getX();
-	
-	/** @return The minimum y coordinate of the bounds of this {@link HitBox} */
-	public double getY();
-	
 	/** @return The previous value of {@link #getX()} before the last time it was moved with velocity */
 	public double getPX();
 	
 	/** @return The previous value of {@link #getY()} before the last time it was moved with velocity */
 	public double getPY();
-	
-	/** @return The maximum x coordinate of the bounds of this {@link HitBox} */
-	public double getMX();
-	
-	/** @return The maximum y coordinate of the bounds of this {@link HitBox} */
-	public double getMY();
 	
 }

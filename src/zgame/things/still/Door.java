@@ -1,4 +1,4 @@
-package zgame.things;
+package zgame.things.still;
 
 import java.util.Collection;
 
@@ -6,6 +6,8 @@ import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.things.entity.EntityThing;
+import zgame.things.type.PositionedHitboxThing;
+import zgame.things.type.PositionedRectangleThing;
 import zgame.world.Room;
 
 public class Door extends PositionedRectangleThing implements GameTickable{
@@ -75,13 +77,13 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	}
 
 	/**
-	 * Move the given {@link PositionedThing} from the given room to {@link #leadRoom}
+	 * Move the given {@link PositionedHitboxThing} from the given room to {@link #leadRoom}
 	 * 
 	 * @param r The room which the thing is coming from, can be null if there is no room the thing is coming from
 	 * @param thing The thing to move
 	 * @param game The {@link Game} where this room entering takes place
 	 */
-	public void enterRoom(Room r, PositionedThing thing, Game game){
+	public void enterRoom(Room r, PositionedHitboxThing thing, Game game){
 		if(r != null) r.removeThing(thing);
 		if(this.leadRoom != null){
 			thing.setX(this.roomX);

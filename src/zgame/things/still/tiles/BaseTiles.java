@@ -1,4 +1,4 @@
-package zgame.things.tiles;
+package zgame.things.still.tiles;
 
 import zgame.core.graphics.ZColor;
 import zgame.physics.material.Materials;

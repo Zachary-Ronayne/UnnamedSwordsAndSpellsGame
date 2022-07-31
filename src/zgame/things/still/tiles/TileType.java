@@ -1,8 +1,8 @@
-package zgame.things.tiles;
+package zgame.things.still.tiles;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.things.Materialable;
+import zgame.things.type.Materialable;
 
 /** An enum that defines tiles that can exist. Extend this enum to add new tile types */
 public abstract class TileType implements Materialable{
@@ -45,7 +45,7 @@ public abstract class TileType implements Materialable{
 		return String.join(".", this.getOrigin(), this.getId());
 	}
 	
-	/** @return See {@link zgame.things.HitBox} */
+	/** @return See {@link zgame.things.type.HitBox} */
 	public TileHitbox getHitbox(){
 		return this.hitbox;
 	}

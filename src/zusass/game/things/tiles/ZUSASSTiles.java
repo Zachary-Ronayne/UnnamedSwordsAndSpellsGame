@@ -1,8 +1,8 @@
-package zusass.game.tiles;
+package zusass.game.things.tiles;
 
 import zgame.core.graphics.ZColor;
-import zgame.things.tiles.ColorTile;
-import zgame.things.tiles.TileHitbox;
+import zgame.things.still.tiles.ColorTile;
+import zgame.things.still.tiles.TileHitbox;
 
 /** The class containing the tiles for the ZUSASS game */
 public final class ZUSASSTiles{
