@@ -192,7 +192,6 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 			
 			// If applying the new force of friction would make the velocity go in the opposite direction, then the force should be such that it will bring the velocity to zero
 			double massTime = dt / mass;
-			// TODO why can you still move a bit after landing until you stop moving? on really high friction forces
 			// is this actually accounting for the amount of velocity added based on acceleration?
 			// or is it that it needs to account for a change in acceleration, like when the walk force changes?
 			double oldVel = vx + fx * massTime;
