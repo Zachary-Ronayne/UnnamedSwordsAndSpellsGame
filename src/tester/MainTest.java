@@ -25,6 +25,8 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import java.awt.Rectangle;
 
+import com.google.gson.JsonObject;
+
 /**
  * A simple main class used for testing the game code
  * WASD = move camera
@@ -77,6 +79,8 @@ import java.awt.Rectangle;
  * shift + F12 = increase TPS
  * space = toggle between the demo state and menu state
  * shift + space = toggle between the game play state and the demo state
+ * ctrl + c = save gave to file
+ * ctrl + v = load game from file
  * 
  * Indicators in the upper left hand corner for muted/paused: black = neither, red = muted, blue = paused, magenta = both muted and paused.
  * The size of the box represents the volume, a bigger box means higher volume
@@ -185,6 +189,20 @@ public class MainTest extends Game{
 		SoundManager sm = testerGame.getSounds();
 		winSource = sm.createSource(playerX, playerY);
 		loseSource = sm.createSource(0, 200);
+	}
+	
+	@Override
+	public boolean save(JsonObject obj){
+		obj.addProperty("playerX", playerX);
+		obj.addProperty("playerY", playerY);
+		return true;
+	}
+	
+	@Override
+	public boolean load(JsonObject obj) throws ClassCastException, IllegalStateException{
+		playerX = obj.get("playerX").getAsDouble();
+		playerY = obj.get("playerY").getAsDouble();
+		return true;
 	}
 	
 	public static class GameEngineState extends PlayState{
@@ -327,7 +345,8 @@ public class MainTest extends Game{
 					if(shift) game.setCurrentState(engineState);
 					else game.setCurrentState(menuState);
 				}
-				
+				else if(key == GLFW_KEY_C && keys.ctrl()) game.saveGame("./saves/testGame");
+				else if(key == GLFW_KEY_V && keys.ctrl()) game.loadGame("./saves/testGame");
 			}
 		}
 		

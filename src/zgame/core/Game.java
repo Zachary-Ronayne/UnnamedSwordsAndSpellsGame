@@ -2,6 +2,10 @@ package zgame.core;
 
 import static org.lwjgl.opengl.GL30.*;
 
+import com.google.gson.JsonObject;
+
+import zgame.core.file.Saveable;
+import zgame.core.file.ZJsonFile;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.FontManager;
@@ -19,6 +23,7 @@ import zgame.core.state.DefaultState;
 import zgame.core.state.GameState;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZConfig;
+import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GLFWWindow;
 import zgame.core.window.GameWindow;
 import zgame.world.Room;
@@ -26,7 +31,7 @@ import zgame.world.Room;
 /**
  * The central class used to create a game. Create an extension of this class to begin making a game
  */
-public class Game{
+public class Game implements Saveable{
 	
 	/**
 	 * By default, the number of times a second the sound will be updated, i.e. updating streaming sounds, checking if sounds are still playing, checking which sounds need to play,
@@ -577,6 +582,68 @@ public class Game{
 	/** @return See {@link #window} */
 	public GameWindow getWindow(){
 		return window;
+	}
+	
+	/**
+	 * Load the necessary contents of this {@link Game} from a json file at the given path
+	 * 
+	 * @param path The path to load from, no file extension
+	 * @return true if the load was successful, false otherwise
+	 */
+	public final boolean loadGame(String path){
+		ZJsonFile file = new ZJsonFile(ZStringUtils.concat(path, ".json"));
+		JsonObject data = file.load();
+		if(data == null) return false;
+		try{
+			return this.load(data);
+		}catch(ClassCastException | IllegalStateException e){
+			if(ZConfig.printErrors()){
+				ZStringUtils.prints("Failed to load a json object because it had invalid formatting. Object data:\n", data);
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Save the necessary contents of this {@link Game} to a json file at the given path
+	 * 
+	 * @param path The path to save to
+	 * @return true if the save was successful, false otherwise
+	 */
+	public final boolean saveGame(String path){
+		ZJsonFile file = new ZJsonFile(ZStringUtils.concat(path, ".json"));
+		JsonObject data = file.getData();
+		this.save(data);
+		file.setData(data);
+		return file.save();
+	}
+	
+	/**
+	 * Load the necessary contents of this {@link Game} from the given {@link JsonObject}.
+	 * Does nothing and returns true by default, can override to load custom data from obj
+	 * 
+	 * @param obj The object to load data from
+	 * @return true if the load was successful, false otherwise
+	 * 
+	 * @throws ClassCastException If a property loaded is not a valid value for the type requested
+	 * @throws IllegalStateException If the property loaded is a JsonArray but contains more than a single element
+	 */
+	@Override
+	public boolean load(JsonObject obj) throws ClassCastException, IllegalStateException{
+		return true;
+	}
+	
+	/**
+	 * Save the necessary contents of this {@link Game} to the given {@link JsonObject}.
+	 * Does nothing and returns true by default, can override to save custom data to obj
+	 * 
+	 * @param obj The object to save data to
+	 * @return true if the save was successful, false otherwise
+	 */
+	@Override
+	public boolean save(JsonObject obj){
+		return true;
 	}
 	
 	/** @return See {@link #sounds} */

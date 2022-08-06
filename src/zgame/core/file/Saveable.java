@@ -18,7 +18,10 @@ public interface Saveable{
 	 * 
 	 * @param obj The object to load from
 	 * @return true if the load was successful, false otherwise
+	 * 
+	 * @throws ClassCastException If a property loaded is not a valid value for the type requested
+	 * @throws IllegalStateException If the property loaded is a JsonArray but contains more than a single element
 	 */
-	public boolean load(JsonObject obj);
+	public boolean load(JsonObject obj) throws ClassCastException, IllegalStateException;
 	
 }

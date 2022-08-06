@@ -24,6 +24,7 @@ public class ZJsonFile{
 	/** Create a new {@link ZJsonFile} with the given {@link #path} */
 	public ZJsonFile(String path){
 		this.path = path;
+		this.data = new JsonObject();
 	}
 	
 	/**
