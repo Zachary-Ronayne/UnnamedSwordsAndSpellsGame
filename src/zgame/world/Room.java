@@ -192,6 +192,7 @@ public class Room implements RectangleBounds{
 				if(res.right()) right = true;
 				if(res.ceiling()) top = true;
 				if(res.floor()) bot = true;
+				// TODO try making it do only one final collision operation at the end
 				obj.collide(res);
 				
 				// Record the material collided with, only if this tile was collided with
