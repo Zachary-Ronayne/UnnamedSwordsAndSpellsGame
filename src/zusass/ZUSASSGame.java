@@ -7,6 +7,8 @@ import zusass.menu.mainmenu.MainMenuState;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import com.google.gson.JsonObject;
+
 /**
  * The main class for the ZUSASS Game.
  * ZUSASS is an acronym
@@ -17,7 +19,10 @@ import static org.lwjgl.glfw.GLFW.*;
  * Spells
  * Sandbox
  */
-public class ZUSASSGame extends Game{
+public class ZUSASSGame extends Game<ZUSASSData>{
+
+	/** The json key used to store the main chunk of data about the game */
+	public final static String DATA_KEY = "data";
 	
 	/** Create the only instance of ZUSASSGame from this class. This constructor will place the game in the main menu */
 	private ZUSASSGame(){
@@ -32,6 +37,9 @@ public class ZUSASSGame extends Game{
 		
 		// Loading assets
 		this.getFonts().addAll();
+
+		// Initialize the base data object
+		this.setData(new ZUSASSData());
 		
 		// Play state
 		this.setPlayState(new MainPlay(this));
@@ -43,6 +51,18 @@ public class ZUSASSGame extends Game{
 	public static void main(String[] args){
 		init();
 		game.start();
+	}
+
+	@Override
+	public JsonObject save(JsonObject obj){
+		obj.add(DATA_KEY, this.getData().save());
+		return obj;
+	}
+
+	@Override
+	public JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException{
+		this.getData().load(DATA_KEY, obj);
+		return obj;
 	}
 	
 	@Override

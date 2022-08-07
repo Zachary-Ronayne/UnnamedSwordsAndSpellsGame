@@ -9,8 +9,12 @@ import zgame.core.utils.ZRect;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/** An object which can be contained by a Menu */
-public abstract class MenuThing implements GameInteractable{
+/**
+ * An object which can be contained by a Menu
+ * 
+ * @param <D> The type of data that can be stored alongside the associated {@link Game}
+ */
+public abstract class MenuThing<D> implements GameInteractable<D>{
 	
 	/** The x coordinate of the {@link MenuThing}, in screen coordinates, relative to {@link #parent}, or relative to (0, 0) if {@link #parent} is null */
 	private double relX;
@@ -29,10 +33,10 @@ public abstract class MenuThing implements GameInteractable{
 	private double borderWidth;
 	
 	/** The {@link MenuThing} which holds this {@link MenuThing}. Can be null if this {@link MenuThing} has no parent */
-	private MenuThing parent;
+	private MenuThing<D> parent;
 	
 	/** A collection of every {@link MenuThing} in this {@link Menu} */
-	private Collection<MenuThing> things;
+	private Collection<MenuThing<D>> things;
 	
 	/**
 	 * Create a {@link MenuThing} with no size or position
@@ -70,7 +74,7 @@ public abstract class MenuThing implements GameInteractable{
 		this.borderWidth = 0;
 		
 		this.parent = null;
-		this.things = new ArrayList<MenuThing>();
+		this.things = new ArrayList<MenuThing<D>>();
 	}
 	
 	/** @return The actual x coordinate of this {@link MenuThing}, based on the position of its parent */
@@ -160,7 +164,7 @@ public abstract class MenuThing implements GameInteractable{
 
 	
 	/** @return See {@link #parent} */
-	public MenuThing getParent(){
+	public MenuThing<D> getParent(){
 		return this.parent;
 	}
 	
@@ -175,7 +179,7 @@ public abstract class MenuThing implements GameInteractable{
 	}
 	
 	/** @param parent See {@link #parent} */
-	public void setParent(MenuThing parent){
+	public void setParent(MenuThing<D> parent){
 		this.parent = parent;
 	}
 	
@@ -189,7 +193,7 @@ public abstract class MenuThing implements GameInteractable{
 	 * @param thing The thing to add
 	 * @return true if the thing was added, false otherwise
 	 */
-	public boolean addThing(MenuThing thing){
+	public boolean addThing(MenuThing<D> thing){
 		if(this == thing) return false;
 		this.things.add(thing);
 		thing.setParent(this);
@@ -202,62 +206,62 @@ public abstract class MenuThing implements GameInteractable{
 	 * @param thing The thing to remove
 	 * @return true if the thing was removed, false otherwise
 	 */
-	public boolean removeThing(MenuThing thing){
+	public boolean removeThing(MenuThing<D> thing){
 		if(thing.getParent() == this) thing.setParent(null);
 		return this.things.remove(thing);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public void tick(Game game, double dt){
-		for(MenuThing t : this.things) t.tick(game, dt);
+	public void tick(Game<D> game, double dt){
+		for(MenuThing<D> t : this.things) t.tick(game, dt);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		for(MenuThing t : this.things) t.keyAction(game, button, press, shift, alt, ctrl);
+	public void keyAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		for(MenuThing<D> t : this.things) t.keyAction(game, button, press, shift, alt, ctrl);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		for(MenuThing t : this.things) t.mouseAction(game, button, press, shift, alt, ctrl);
+	public void mouseAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		for(MenuThing<D> t : this.things) t.mouseAction(game, button, press, shift, alt, ctrl);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public void mouseMove(Game game, double x, double y){
-		for(MenuThing t : this.things) t.mouseMove(game, x, y);
+	public void mouseMove(Game<D> game, double x, double y){
+		for(MenuThing<D> t : this.things) t.mouseMove(game, x, y);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public void mouseWheelMove(Game game, double amount){
-		for(MenuThing t : this.things) t.mouseWheelMove(game, amount);
+	public void mouseWheelMove(Game<D> game, double amount){
+		for(MenuThing<D> t : this.things) t.mouseWheelMove(game, amount);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public void renderBackground(Game game, Renderer r){
-		for(MenuThing t : this.things) t.renderBackground(game, r);
+	public void renderBackground(Game<D> game, Renderer r){
+		for(MenuThing<D> t : this.things) t.renderBackground(game, r);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public void render(Game game, Renderer r){
+	public void render(Game<D> game, Renderer r){
 		r.setColor(this.border);
 		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 		r.setColor(this.fill);
 		double b = this.getBorderWidth();
 		r.drawRectangle(this.getX() + b, this.getY() + b, this.getWidth() - b * 2, this.getHeight() - b * 2);
-		for(MenuThing t : this.things) t.render(game, r);
+		for(MenuThing<D> t : this.things) t.render(game, r);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public void renderHud(Game game, Renderer r){
-		for(MenuThing t : this.things) t.renderHud(game, r);
+	public void renderHud(Game<D> game, Renderer r){
+		for(MenuThing<D> t : this.things) t.renderHud(game, r);
 	}
 	
 }

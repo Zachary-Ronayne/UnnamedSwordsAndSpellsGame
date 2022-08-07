@@ -75,7 +75,7 @@ public class Tile extends PositionedRectangleThing implements Materialable{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
+	public void render(Game<?> game, Renderer r){
 		this.getType().render(this, game, r);
 	}
 	

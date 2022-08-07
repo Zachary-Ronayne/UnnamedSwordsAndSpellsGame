@@ -4,7 +4,7 @@ import zgame.core.Game;
 import zgame.core.input.mouse.ZMouseInput;
 
 /** A {@link MenuText} which can be clicked to perform an action */
-public class MenuButton extends MenuText{
+public class MenuButton<D> extends MenuText<D>{
 	
 	/**
 	 * Create a blank {@link MenuButton} at the given position and size
@@ -35,7 +35,7 @@ public class MenuButton extends MenuText{
 	 * Call {@link #click()} if the mouse was released while on top of this button
 	 */
 	@Override
-	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void mouseAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.mouseAction(game, button, press, shift, alt, ctrl);
 		ZMouseInput mi = game.getMouseInput();
 		if(this.getBounds().contains(mi.x(), mi.y())){
@@ -49,7 +49,7 @@ public class MenuButton extends MenuText{
 	 * 
 	 * @param game The {@link Game} which was used when the button was clicked
 	 */
-	public void click(Game game){
+	public void click(Game<D> game){
 
 	}
 

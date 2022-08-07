@@ -5,8 +5,12 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.font.GameFont;
 
-/** A {@link MenuThing} that holds text */
-public class MenuText extends MenuThing{
+/**
+ * A {@link MenuThing} that holds text
+ * 
+ * @param <D> The type of data that can be stored alongside the associated {@link Game}
+ */
+public class MenuText<D> extends MenuThing<D>{
 	
 	/** The x coordinate of the text, relative to this {@link MenuThing} */
 	private double textX;
@@ -124,7 +128,7 @@ public class MenuText extends MenuThing{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
+	public void render(Game<D> game, Renderer r){
 		super.render(game, r);
 		
 		if(this.getFont() != null) r.setFont(this.getFont());

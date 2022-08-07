@@ -169,7 +169,7 @@ public abstract class MobThing extends EntityThing{
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
+	public void tick(Game<?> game, double dt){
 		// Determine the new walking force
 		this.updateWalkForce(dt);
 		

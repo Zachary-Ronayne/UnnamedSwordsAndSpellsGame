@@ -27,7 +27,7 @@ public class Player extends MobRectangle{
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
+	public void tick(Game<?> game, double dt){
 		// Move left and right
 		ZKeyInput ki = game.getKeyInput();
 		if(ki.buttonDown(GLFW_KEY_LEFT)) this.walkLeft();
@@ -52,7 +52,7 @@ public class Player extends MobRectangle{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
+	public void render(Game<?> game, Renderer r){
 		r.setColor(1, 0, 0);
 		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
@@ -62,7 +62,7 @@ public class Player extends MobRectangle{
 	 * 
 	 * @param game The game to get the camera from
 	 */
-	public void checkCenterCamera(Game game){
+	public void checkCenterCamera(Game<?> game){
 		if(this.isLockCamera()) this.centerCamera(game);
 	}
 	
@@ -77,7 +77,7 @@ public class Player extends MobRectangle{
 	}
 	
 	@Override
-	public void enterRoom(Room from, Room to, Game game){
+	public void enterRoom(Room<?> from, Room<?> to, Game<?> game){
 		super.enterRoom(from, to, game);
 		if(to != null) game.getPlayState().setCurrentRoom(to);
 		

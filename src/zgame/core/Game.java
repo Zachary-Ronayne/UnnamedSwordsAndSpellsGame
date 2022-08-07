@@ -30,8 +30,10 @@ import zgame.world.Room;
 
 /**
  * The central class used to create a game. Create an extension of this class to begin making a game
+ * 
+ * @param <D> The type of data that can be stored alongside this {@link Game}
  */
-public class Game implements Saveable{
+public class Game<D> implements Saveable{
 	
 	/**
 	 * By default, the number of times a second the sound will be updated, i.e. updating streaming sounds, checking if sounds are still playing, checking which sounds need to play,
@@ -53,6 +55,12 @@ public class Game implements Saveable{
 	/** The {@link FontManager} used by this {@link Game} to load fonts for rendering text */
 	private FontManager fonts;
 	
+	/**
+	 * An object that holds custom data which can be used by this {@link Game} and accessed at any time.
+	 * Must manually initialize via {@link #setData(Object)} before using
+	 */
+	private D data;
+	
 	/** The looper to run the main OpenGL loop */
 	private GameLooper renderLooper;
 	
@@ -60,11 +68,11 @@ public class Game implements Saveable{
 	private GameCamera camera;
 	
 	/** The {@link GameState} which this game is currently in */
-	private GameState currentState;
+	private GameState<D> currentState;
 	/** The {@link GameState} which this game will update to in the next tick, or null if the state will not update */
-	private GameState nextCurrentState;
+	private GameState<D> nextCurrentState;
 	/** The {@link PlayState} of this game, should not be null */
-	private PlayState playState;
+	private PlayState<D> playState;
 	
 	/** The {@link GameLooper} which runs the regular time intervals */
 	private GameLooper tickLooper;
@@ -174,9 +182,9 @@ public class Game implements Saveable{
 		this.musicPaused = false;
 		this.updateSoundState = false;
 		
-		this.currentState = new DefaultState();
+		this.currentState = new DefaultState<D>();
 		this.nextCurrentState = null;
-		this.playState = new PlayState();
+		this.playState = new PlayState<D>();
 		
 		// Init sound
 		this.sounds = new SoundManager();
@@ -595,7 +603,7 @@ public class Game implements Saveable{
 		JsonObject data = file.load();
 		if(data == null) return false;
 		try{
-			return this.load(data);
+			return this.load(data) != null;
 		}catch(ClassCastException | IllegalStateException e){
 			if(ZConfig.printErrors()){
 				ZStringUtils.prints("Failed to load a json object because it had invalid formatting. Object data:\n", data);
@@ -619,31 +627,14 @@ public class Game implements Saveable{
 		return file.save();
 	}
 	
-	/**
-	 * Load the necessary contents of this {@link Game} from the given {@link JsonObject}.
-	 * Does nothing and returns true by default, can override to load custom data from obj
-	 * 
-	 * @param obj The object to load data from
-	 * @return true if the load was successful, false otherwise
-	 * 
-	 * @throws ClassCastException If a property loaded is not a valid value for the type requested
-	 * @throws IllegalStateException If the property loaded is a JsonArray but contains more than a single element
-	 */
-	@Override
-	public boolean load(JsonObject obj) throws ClassCastException, IllegalStateException{
-		return true;
+	/** @return See {@link #data} */
+	public D getData(){
+		return this.data;
 	}
 	
-	/**
-	 * Save the necessary contents of this {@link Game} to the given {@link JsonObject}.
-	 * Does nothing and returns true by default, can override to save custom data to obj
-	 * 
-	 * @param obj The object to save data to
-	 * @return true if the save was successful, false otherwise
-	 */
-	@Override
-	public boolean save(JsonObject obj){
-		return true;
+	/** @param data See {@link #data} Must call this method before {@link #getData()} will return anything but null */
+	public void setData(D data){
+		this.data = data;
 	}
 	
 	/** @return See {@link #sounds} */
@@ -834,7 +825,7 @@ public class Game implements Saveable{
 	}
 	
 	/** @return See {@link #currentState} */
-	public GameState getCurrentState(){
+	public GameState<D> getCurrentState(){
 		return this.currentState;
 	}
 	
@@ -844,7 +835,7 @@ public class Game implements Saveable{
 	 * 
 	 * @param newState See {@link #currentState}
 	 */
-	public void setCurrentState(GameState newState){
+	public void setCurrentState(GameState<D> newState){
 		this.nextCurrentState = newState;
 	}
 	
@@ -864,17 +855,17 @@ public class Game implements Saveable{
 	}
 	
 	/** @param playState See {@link #playState} */
-	public void setPlayState(PlayState playState){
+	public void setPlayState(PlayState<D> playState){
 		this.playState = playState;
 	}
 	
 	/** @return See {@link #playState} */
-	public PlayState getPlayState(){
+	public PlayState<D> getPlayState(){
 		return this.playState;
 	}
 	
 	/** @return The {@link Room} that the current {@link #playState} is using */
-	public Room getCurrentRoom(){
+	public Room<D> getCurrentRoom(){
 		return this.getPlayState().getCurrentRoom();
 	}
 	

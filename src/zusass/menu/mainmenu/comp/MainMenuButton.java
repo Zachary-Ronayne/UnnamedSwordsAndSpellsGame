@@ -3,9 +3,10 @@ package zusass.menu.mainmenu.comp;
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuButton;
+import zusass.ZUSASSData;
 
 /** A class used to define similarities between buttons for the main menu */
-public abstract class MainMenuButton extends MenuButton{
+public abstract class MainMenuButton extends MenuButton<ZUSASSData>{
 
 	/**
 	 * Create a main menu button with the appropriate parameters
@@ -16,7 +17,7 @@ public abstract class MainMenuButton extends MenuButton{
 	 * @param h See {@link #getHeight()}
 	 * @param text The text to display
 	 */
-	public MainMenuButton(double x, double y, double w, double h, String text, Game game){
+	public MainMenuButton(double x, double y, double w, double h, String text, Game<ZUSASSData> game){
 		super(x, y, w, h, text);
 		this.setFont(game.getFont("zfont"));
 		this.setFontColor(new ZColor(.2));

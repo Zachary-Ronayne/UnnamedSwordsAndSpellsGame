@@ -6,10 +6,12 @@ import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.things.entity.EntityThing;
+import zgame.things.type.GameThing;
 import zgame.things.type.PositionedHitboxThing;
 import zgame.things.type.PositionedRectangleThing;
 import zgame.world.Room;
 
+/** An object that allows other {@link GameThing}s to enter another {@link Room} */
 public class Door extends PositionedRectangleThing implements GameTickable{
 	
 	/** The default value of {@link #width} */
@@ -18,7 +20,7 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	public static final double HEIGHT = 150;
 	
 	/** The {@link Room} which this door leads to. Can be null to make this a real fake door */
-	private Room leadRoom;
+	private Room<?> leadRoom;
 	/** The x coordinate to place objects which go through this door */
 	private double roomX;
 	/** The y coordinate to place objects which go through this door */
@@ -45,14 +47,14 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	 * @param x See {@link #roomX}
 	 * @param y See {@link #roomY}
 	 */
-	public void setLeadRoom(Room r, double x, double y){
+	public void setLeadRoom(Room<?> r, double x, double y){
 		this.leadRoom = r;
 		this.roomX = x;
 		this.roomY = y;
 	}
 	
 	/** @return See {@link #leadRoom} */
-	public Room getLeadRoom(){
+	public Room<?> getLeadRoom(){
 		return this.leadRoom;
 	}
 	
@@ -83,7 +85,7 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	 * @param thing The thing to move
 	 * @param game The {@link Game} where this room entering takes place
 	 */
-	public void enterRoom(Room r, PositionedHitboxThing thing, Game game){
+	public void enterRoom(Room<?> r, PositionedHitboxThing thing, Game<?> game){
 		if(r != null) r.removeThing(thing);
 		if(this.leadRoom != null){
 			thing.setX(this.roomX);
@@ -93,14 +95,14 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	}
 
 	@Override
-	public void tick(Game game, double dt){
+	public void tick(Game<?> game, double dt){
 		Collection<EntityThing> entities = game.getCurrentRoom().getEntities();
 		// Check every entity and if it touches this door, move it to this Room
 		for(EntityThing e : entities) if(e.intersects(this.getX(), this.getY(), this.getWidth(), this.getHeight())) this.enterRoom(game.getCurrentRoom(), e, game);
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
+	public void render(Game<?> game, Renderer r){
 		r.setColor(.25, .125, 0);
 		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}

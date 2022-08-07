@@ -77,7 +77,7 @@ public abstract class PositionedThing extends GameThing implements Position{
 	 * @param to The room to move the thing to, i.e. the thing is now in this room. Can be null if the thing isn't going to a room
 	 * @param game The {@link Game} where this thing entered the room
 	 */
-	public void enterRoom(Room from, Room to, Game game){
+	public void enterRoom(Room<?> from, Room<?> to, Game<?> game){
 		if(from != null) from.removeThing(this);
 		if(to != null) to.addThing(this);
 	}
@@ -87,7 +87,7 @@ public abstract class PositionedThing extends GameThing implements Position{
 	 * 
 	 * @param game The game
 	 */
-	public void centerCamera(Game game){
+	public void centerCamera(Game<?> game){
 		game.centerCamera(this.centerX(), this.centerY());
 	}
 	

@@ -2,8 +2,10 @@ package zgame.menu;
 
 /**
  * An object which represents a single {@link Menu}. A menu is a simple object used to group together other {@link MenuThing} objects
+ * 
+ * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
-public class Menu extends MenuThing{
+public class Menu<D> extends MenuThing<D>{
 	
 	/** Create an empty menu at (0, 0) */
 	public Menu(){
