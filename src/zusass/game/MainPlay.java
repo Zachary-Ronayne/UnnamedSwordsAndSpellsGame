@@ -56,6 +56,8 @@ public class MainPlay extends PlayState<ZUSASSData>{
 	
 	@Override
 	public void renderBackground(Game<ZUSASSData> game, Renderer r){
+		super.renderBackground(game, r);
+
 		// Draw a solid color for the background
 		r.setColor(new ZColor(.05));
 		r.drawRectangle(0, 0, game.getScreenWidth(), game.getScreenHeight());

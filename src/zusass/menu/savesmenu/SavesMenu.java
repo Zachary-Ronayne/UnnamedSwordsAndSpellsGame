@@ -1,14 +1,20 @@
 package zusass.menu.savesmenu;
 
 import zgame.core.Game;
-import zgame.menu.Menu;
 import zusass.ZUSASSData;
+import zusass.menu.ZUSASSMenu;
+import zusass.menu.savesmenu.comp.SavesBackButton;
 
-/** A {@link Menu} for managing game saves */
-public class SavesMenu extends Menu<ZUSASSData>{
-
+/** A {@link ZUSASSMenu} for managing game saves */
+public class SavesMenu extends ZUSASSMenu{
+	
+	/**
+	 * Create a new blank {@link SavesMenu}
+	 * @param game The game that uses this menu
+	 */
 	public SavesMenu(Game<ZUSASSData> game){
-		super();
+		super("Saves");
+		this.addThing(new SavesBackButton(game));
 	}
 	
 }
