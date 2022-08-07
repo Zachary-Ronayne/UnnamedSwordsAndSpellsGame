@@ -595,11 +595,11 @@ public class Game<D> implements Saveable{
 	/**
 	 * Load the necessary contents of this {@link Game} from a json file at the given path
 	 * 
-	 * @param path The path to load from, no file extension
+	 * @param path The path to load from, including file extension
 	 * @return true if the load was successful, false otherwise
 	 */
 	public final boolean loadGame(String path){
-		ZJsonFile file = new ZJsonFile(ZStringUtils.concat(path, ".json"));
+		ZJsonFile file = new ZJsonFile(path);
 		JsonObject data = file.load();
 		if(data == null) return false;
 		try{
@@ -616,11 +616,11 @@ public class Game<D> implements Saveable{
 	/**
 	 * Save the necessary contents of this {@link Game} to a json file at the given path
 	 * 
-	 * @param path The path to save to
+	 * @param path The path to save to, including file extension
 	 * @return true if the save was successful, false otherwise
 	 */
 	public final boolean saveGame(String path){
-		ZJsonFile file = new ZJsonFile(ZStringUtils.concat(path, ".json"));
+		ZJsonFile file = new ZJsonFile(path);
 		JsonObject data = file.getData();
 		this.save(data);
 		file.setData(data);

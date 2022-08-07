@@ -98,7 +98,6 @@ public abstract class MenuScroller<D>extends MenuThing<D>{
 			things.addAll(oldThings);
 		}
 		else{
-			// TODO make options for x or y axis
 			// Update the position and add the button back
 			this.basePosition = this.button.findBasePosition(thing);
 			things.add(this.button);

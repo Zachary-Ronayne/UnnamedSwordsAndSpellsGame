@@ -4,7 +4,11 @@ import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuThing;
 
-/** A class representing the clickable portion of a {@link MenuScroller} showing how much has been scrolled */
+/**
+ * A class representing the clickable portion of a {@link MenuScroller} showing how much has been scrolled
+ * 
+ * @param <D> The type of data that can be stored alongside the associated {@link Game}
+ */
 public abstract class MenuScrollerButton<D>extends MenuThing<D>{
 	
 	/** true if the mouse has clicked this button and is anchored down to start moving */

@@ -22,6 +22,8 @@ public class SavesMenuButton extends ZUSASSButton{
 		this.setFontSize(40);
 		this.setTextY(40);
 		this.setFill(new ZColor(.6));
+		this.setBorder(new ZColor(0.8));
+		this.setBorderWidth(1);
 	}
 	
 }

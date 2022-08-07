@@ -4,8 +4,10 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.state.PlayState;
+import zgame.core.utils.ZStringUtils;
 import zusass.ZUSASSData;
 import zusass.menu.mainmenu.MainMenuState;
+import zusass.utils.ZUSASSConfig;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -50,8 +52,8 @@ public class MainPlay extends PlayState<ZUSASSData>{
 			if(shift) this.enterMainMenu(game);
 			else this.enterHub(game);
 		}
-		else if(button == GLFW_KEY_S && ctrl) game.saveGame("./saves/zusassSave");
-		else if(button == GLFW_KEY_L && ctrl) game.loadGame("./saves/zusassSave");
+		// TODO make proper saving with checking if the file location exists
+		else if(button == GLFW_KEY_S && ctrl) game.saveGame(ZStringUtils.concat(ZUSASSConfig.getSavesLocation(), ZUSASSConfig.createSaveFileSuffix("zusassSave")));
 	}
 	
 	@Override

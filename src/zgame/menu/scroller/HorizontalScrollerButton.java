@@ -3,7 +3,11 @@ package zgame.menu.scroller;
 import zgame.core.Game;
 import zgame.menu.MenuThing;
 
-/** An implementation of {@link MenuScrollerButton} for a horizontal scroll bar */
+/**
+ * An implementation of {@link MenuScrollerButton} for a horizontal scroll bar
+ * 
+ * @param <D> The type of data that can be stored alongside the associated {@link Game}
+ */
 public class HorizontalScrollerButton<D>extends MenuScrollerButton<D>{
 	
 	/**

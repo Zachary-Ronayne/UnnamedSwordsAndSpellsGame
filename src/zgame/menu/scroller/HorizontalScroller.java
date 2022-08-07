@@ -1,6 +1,10 @@
 package zgame.menu.scroller;
 
-/** An implementation of {@link MenuScroller} for a horizontal scroll bar */
+/**
+ * An implementation of {@link MenuScroller} for a horizontal scroll bar
+ * 
+ * @param <D> The type of data that can be stored alongside the associated {@link Game}
+ */
 public class HorizontalScroller<D> extends MenuScroller<D>{
 	
 	/**
