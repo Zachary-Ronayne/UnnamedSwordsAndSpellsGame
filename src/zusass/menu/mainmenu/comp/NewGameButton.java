@@ -11,7 +11,7 @@ public class NewGameButton extends MainMenuButton{
 	
 	/** Create the {@link NewGameButton} */
 	public NewGameButton(Game<ZUSASSData> game){
-		super(50, 50, 500, 150, "New Game", game);
+		super(50, 350, "New Game", game);
 		this.setFill(new ZColor(.4));
 	}
 	

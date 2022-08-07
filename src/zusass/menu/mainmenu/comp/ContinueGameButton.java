@@ -11,7 +11,7 @@ public class ContinueGameButton extends MainMenuButton{
 	
 	/** Create the {@link ContinueGameButton} */
 	public ContinueGameButton(Game<ZUSASSData> game){
-		super(50, 250, 500, 150, "Continue", game);
+		super(50, 50, "Continue", game);
 		this.setFill(new ZColor(.5));
 	}
 	

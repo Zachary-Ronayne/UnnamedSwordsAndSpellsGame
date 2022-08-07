@@ -10,7 +10,7 @@ public class ExitButton extends MainMenuButton{
 	
 	/** Create the {@link NewGameButton} */
 	public ExitButton(Game<ZUSASSData> game){
-		super(50, 450, 500, 150, "Exit", game);
+		super(50, 500, "Exit", game);
 		this.setFill(new ZColor(.7, .4, .4));
 	}
 	

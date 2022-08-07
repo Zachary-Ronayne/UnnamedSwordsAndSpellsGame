@@ -7,6 +7,7 @@ import zgame.menu.Menu;
 import zusass.ZUSASSData;
 import zusass.menu.mainmenu.comp.ContinueGameButton;
 import zusass.menu.mainmenu.comp.ExitButton;
+import zusass.menu.mainmenu.comp.LoadGameButton;
 import zusass.menu.mainmenu.comp.NewGameButton;
 
 /** The {@link Menu} for the main menu of the game */
@@ -14,8 +15,9 @@ public class MainMenu extends Menu<ZUSASSData>{
 	
 	/** Initialize the {@link MainMenu} */
 	public MainMenu(Game<ZUSASSData> game){
-		this.addThing(new NewGameButton(game));
 		this.addThing(new ContinueGameButton(game));
+		this.addThing(new LoadGameButton(game));
+		this.addThing(new NewGameButton(game));
 		this.addThing(new ExitButton(game));
 	}
 	
