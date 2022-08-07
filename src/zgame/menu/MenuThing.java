@@ -87,6 +87,16 @@ public abstract class MenuThing<D> implements GameInteractable<D>{
 		return this.getParentY() + this.getRelY();
 	}
 	
+	/** @return The actual x coordinate of the center of this {@link MenuThing}, based on the position of its parent */
+	public double centerX(){
+		return this.getX() + this.getWidth() * 0.5;
+	}
+	
+	/** @return The actual y coordinate of the center of this {@link MenuThing}, based on the position of its parent */
+	public double centerY(){
+		return this.getY() + this.getHeight() * 0.5;
+	}
+	
 	/** @return See {@link #relX} */
 	public double getRelX(){
 		return this.relX;
@@ -95,6 +105,16 @@ public abstract class MenuThing<D> implements GameInteractable<D>{
 	/** @return See {@link #relY} */
 	public double getRelY(){
 		return this.relY;
+	}
+	
+	/** @return The x coordinate of the center of this {@link MenuThing}, relative to the position of its parent */
+	public double centerRelX(){
+		return this.getRelX() + this.getWidth() * 0.5;
+	}
+	
+	/** @return The y coordinate of the center of this {@link MenuThing}, relative to the position of its parent */
+	public double centerRelY(){
+		return this.getRelY() + this.getHeight() * 0.5;
 	}
 	
 	/** @param x See {@link #relX} */

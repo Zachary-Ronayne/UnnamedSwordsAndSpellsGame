@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.List;
 
 import zgame.core.Game;
-import zgame.core.graphics.Renderer;
-import zgame.core.graphics.ZColor;
 import zgame.menu.MenuThing;
 
 /**
@@ -25,21 +23,40 @@ public class MenuScroller<D>extends MenuThing<D>{
 
 	/** The position of the child element of this {@link MenuScroller} */
 	private double basePosition;
+
+	/** The button to use for scrolling */
+	private MenuScrollerButton<D> button;
+
+	/** The degree to which the scroll wheel will scroll. Also see {@link #scrollWheelAsPercent} */
+	private double scrollWheelStrength;
+	/** true if {@link #scrollWheelStrength} is the percentage of the scroll bat that should move per mouse wheel, false if it should be a distance */
+	private boolean scrollWheelAsPercent;
+	/** true if the scroll wheel's direction should be inverted, false otherwise */
+	private boolean scrollWheelInverse;
+	/** true if this scroll wheel should interact, false otherwise */
+	private boolean scrollWheelEnabled;
 	
 	/**
 	 * Create a new {@link MenuScroller} at the specified location and min and max
 	 * 
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
+	 * @param w See {@link #getWidth()}
+	 * @param See {@link #getHeight()}
 	 * @param amount See {@link #amount}
 	 */
-	public MenuScroller(double x, double y, double amount){
+	public MenuScroller(double x, double y, double w, double h, double amount){
 		super(x, y);
-		// TODO make these options
-		this.setWidth(20);
-		this.setHeight(350);
+		this.scrollWheelStrength = 0.1;
+		this.scrollWheelAsPercent = true;
+		this.scrollWheelInverse = true;
+		this.scrollWheelEnabled = true;
+		this.setWidth(w);
+		this.setHeight(h);
 		this.amount = amount;
 		this.scroller = new ScrollAxis();
+		this.button = new MenuScrollerButton<D>(this, w, w * 2);
+		this.addThing(button);
 	}
 
 	@Override
@@ -48,21 +65,18 @@ public class MenuScroller<D>extends MenuThing<D>{
 		for(MenuThing<D> thing : this.getThings()){
 			// TODO split this into two classes, one for vertical, one for horizontal
 			thing.setRelY(this.getBasePosition() + this.getScrolledAmount());
+			this.button.setRelY(this.getPercent() * (this.getHeight() - this.button.getHeight()));
 		}
 	}
 	
 	@Override
-	public void render(Game<D> game, Renderer r){
-		super.render(game, r);
-		// TODO make all of these colors and stuff options
-		r.setColor(new ZColor(0));
-		r.drawRectangle(this.getX(), this.getY() + (this.getPercent() * (this.getHeight() - this.getWidth())), this.getWidth(), this.getWidth());
-	}
-	
-	@Override
 	public void mouseWheelMove(Game<D> game, double amount){
+		if(!this.isScrollWheelEnabled()) return;
 		super.mouseWheelMove(game, amount);
-		this.scroller.scroll(amount * -0.1);
+		amount *= this.getScrollWheelStrength();
+		if(this.isScrollWheelInverse()) amount = -amount;
+		if(!this.isScrollWheelAsPercent()) amount = this.button.scrollToPercent(amount);
+		this.scroll(amount);
 	}
 
 	/**
@@ -76,11 +90,11 @@ public class MenuScroller<D>extends MenuThing<D>{
 		// Save the current things
 		Collection<MenuThing<D>> things = this.getThings();
 		Collection<MenuThing<D>> oldThings = List.copyOf(things);
-
+		
 		// Clear out the old things and add the new thing
 		things.clear();
 		boolean success = super.addThing(thing);
-
+		
 		// If the new thing failed to add, empty out the things and add the old things back
 		if(!success){
 			things.clear();
@@ -88,10 +102,16 @@ public class MenuScroller<D>extends MenuThing<D>{
 		}
 		else{
 			// TODO make options for x or y axis
+			// Update the position and add the button back
 			this.basePosition = thing.getRelY();
+			things.add(this.button);
 		}
-
 		return success;
+	}
+	
+	/** @param amount The amount to scroll this menu scroller by, as a percentage */
+	public void scroll(double amount){
+		this.scroller.scroll(amount);
 	}
 	
 	/** @return See {@link #amount} */
@@ -117,6 +137,46 @@ public class MenuScroller<D>extends MenuThing<D>{
 	/** @return See {@link #basePosition} */
 	public double getBasePosition(){
 		return this.basePosition;
+	}
+	
+	/** @return See {@link #scrollWheelStrength} */
+	public double getScrollWheelStrength(){
+		return this.scrollWheelStrength;
+	}
+	
+	/** @param scrollWheelStrength See {@link #scrollWheelStrength} */
+	public void setScrollWheelStrength(double scrollWheelStrength){
+		this.scrollWheelStrength = scrollWheelStrength;
+	}
+
+	/** @return See {@link #scrollWheelAsPercent} */
+	public boolean isScrollWheelAsPercent(){
+		return this.scrollWheelAsPercent;
+	}
+	
+	/** @param scrollWheelAsPercent See {@link #scrollWheelAsPercent} */
+	public void setScrollWheelAsPercent(boolean scrollWheelAsPercent){
+		this.scrollWheelAsPercent = scrollWheelAsPercent;
+	}
+	
+	/** @return See {@link #scrollWheelInverse} */
+	public boolean isScrollWheelInverse(){
+		return this.scrollWheelInverse;
+	}
+	
+	/** @param scrollWheelInverse See {@link #scrollWheelInverse} */
+	public void setScrollWheelInverse(boolean scrollWheelInverse){
+		this.scrollWheelInverse = scrollWheelInverse;
+	}
+	
+	/** @return See {@link #scrollWheelEnabled} */
+	public boolean isScrollWheelEnabled(){
+		return this.scrollWheelEnabled;
+	}
+	
+	/** @param enabled See {@link #scrollWheelEnabled} */
+	public void setEnabled(boolean enabled){
+		this.scrollWheelEnabled = enabled;
 	}
 
 }

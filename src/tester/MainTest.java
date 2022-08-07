@@ -16,7 +16,6 @@ import zgame.core.state.PlayState;
 import zgame.core.window.GameWindow;
 import zgame.menu.Menu;
 import zgame.menu.MenuButton;
-import zgame.menu.MenuThing;
 import zgame.menu.scroller.MenuScroller;
 import zgame.things.entity.Player;
 import zgame.things.still.Door;
@@ -592,7 +591,7 @@ public class MainTest extends Game<TestData>{
 			this.setHeight(350);
 			this.setFill(new ZColor(.1, .1, .2, 1));
 			
-			MenuScroller<TestData> scroll = new MenuScroller<>(820, 0, 100);
+			MenuScroller<TestData> scroll = new MenuScroller<>(820, 0, 20, 350, 100);
 			this.addThing(scroll);
 			
 			Menu<TestData> base = new Menu<TestData>();
