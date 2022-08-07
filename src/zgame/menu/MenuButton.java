@@ -38,7 +38,7 @@ public class MenuButton<D> extends MenuText<D>{
 	public void mouseAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.mouseAction(game, button, press, shift, alt, ctrl);
 		ZMouseInput mi = game.getMouseInput();
-		if(this.getBounds().contains(mi.x(), mi.y())){
+		if(!press && this.getBounds().contains(mi.x(), mi.y())){
 			this.click(game);
 		}
 	}
