@@ -16,7 +16,9 @@ import zgame.core.state.PlayState;
 import zgame.core.window.GameWindow;
 import zgame.menu.Menu;
 import zgame.menu.MenuButton;
+import zgame.menu.scroller.HorizontalScroller;
 import zgame.menu.scroller.MenuScroller;
+import zgame.menu.scroller.VerticalScroller;
 import zgame.things.entity.Player;
 import zgame.things.still.Door;
 import zgame.things.still.tiles.BaseTiles;
@@ -586,18 +588,36 @@ public class MainTest extends Game<TestData>{
 	
 	public static class TesterMenu extends Menu<TestData>{
 		public TesterMenu(){
-			super(100, 300);
+			super(100, 250);
 			this.setWidth(800);
 			this.setHeight(350);
 			this.setFill(new ZColor(.1, .1, .2, 1));
 			
-			MenuScroller<TestData> scroll = new MenuScroller<>(820, 0, 20, 350, 100);
-			this.addThing(scroll);
+			MenuScroller<TestData> scrollX = new HorizontalScroller<>(0, 370, 800, 20, 200){
+				@Override
+				public void keyAction(Game<TestData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+					super.keyAction(game, button, press, shift, alt, ctrl);
+					setScrollWheelEnabled(shift);
+				}
+			};
+			scrollX.setScrollWheelEnabled(false);
+			scrollX.setScrollWheelAsPercent(false);
+			scrollX.setScrollWheelStrength(10);
+			this.addThing(scrollX);
+			MenuScroller<TestData> scrollY = new VerticalScroller<>(820, 0, 20, 350, 100){
+				@Override
+				public void keyAction(Game<TestData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+					super.keyAction(game, button, press, shift, alt, ctrl);
+					setScrollWheelEnabled(!shift);
+				}
+			};
+			this.addThing(scrollY);
 			
 			Menu<TestData> base = new Menu<TestData>();
 			base.setRelX(-820);
 			base.setRelY(20);
-			scroll.addThing(base);
+			scrollX.addThing(base);
+			scrollY.addThing(base);
 
 			MenuButton<TestData> t = new MenuButton<TestData>(10, 10, 300, 50){
 				@Override

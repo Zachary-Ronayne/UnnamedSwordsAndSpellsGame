@@ -13,20 +13,20 @@ import zgame.menu.MenuThing;
  * 
  * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
-public class MenuScroller<D>extends MenuThing<D>{
+public abstract class MenuScroller<D>extends MenuThing<D>{
 	
 	/** The amount scrolled */
 	private ScrollAxis scroller;
 	
 	/** The amount this scroller can move on its axis {@link MenuThing}s to */
 	private double amount;
-
+	
 	/** The position of the child element of this {@link MenuScroller} */
 	private double basePosition;
-
+	
 	/** The button to use for scrolling */
 	private MenuScrollerButton<D> button;
-
+	
 	/** The degree to which the scroll wheel will scroll. Also see {@link #scrollWheelAsPercent} */
 	private double scrollWheelStrength;
 	/** true if {@link #scrollWheelStrength} is the percentage of the scroll bat that should move per mouse wheel, false if it should be a distance */
@@ -55,33 +55,30 @@ public class MenuScroller<D>extends MenuThing<D>{
 		this.setHeight(h);
 		this.amount = amount;
 		this.scroller = new ScrollAxis();
-		this.button = new MenuScrollerButton<D>(this, w, w * 2);
+		this.button = this.generateButton();
 		this.addThing(button);
 	}
-
+	
 	@Override
 	public void tick(Game<D> game, double dt){
 		super.tick(game, dt);
-		for(MenuThing<D> thing : this.getThings()){
-			// TODO split this into two classes, one for vertical, one for horizontal
-			thing.setRelY(this.getBasePosition() + this.getScrolledAmount());
-			this.button.setRelY(this.getPercent() * (this.getHeight() - this.button.getHeight()));
-		}
+		for(MenuThing<D> thing : this.getThings()) this.button.updateRelativePosition(thing);
 	}
 	
 	@Override
 	public void mouseWheelMove(Game<D> game, double amount){
-		if(!this.isScrollWheelEnabled()) return;
 		super.mouseWheelMove(game, amount);
+		
+		if(!this.isScrollWheelEnabled()) return;
 		amount *= this.getScrollWheelStrength();
 		if(this.isScrollWheelInverse()) amount = -amount;
 		if(!this.isScrollWheelAsPercent()) amount = this.button.scrollToPercent(amount);
 		this.scroll(amount);
 	}
-
+	
 	/**
 	 * See {@link MenuThing#addThing(MenuThing)}
-	 * For a {@link MenuScroller}, adding a new thing will remove all existing things, as this thing can only hold one child thing. 
+	 * For a {@link MenuScroller}, adding a new thing will remove all existing things, as this thing can only hold one child thing.
 	 * Successfully adding a new thing will also set the current position of thing as {@link #basePosition}.
 	 * From there, that will be the minimum value it will scroll to from this {@link MenuScroller}, and adding {@link #amount} will be the maximum it will scroll to
 	 */
@@ -103,11 +100,14 @@ public class MenuScroller<D>extends MenuThing<D>{
 		else{
 			// TODO make options for x or y axis
 			// Update the position and add the button back
-			this.basePosition = thing.getRelY();
+			this.basePosition = this.button.findBasePosition(thing);
 			things.add(this.button);
 		}
 		return success;
 	}
+
+	/** @return A MenuScrollerButton implemented to move the scroll button around in the desired way */
+	public abstract MenuScrollerButton<D> generateButton();
 	
 	/** @param amount The amount to scroll this menu scroller by, as a percentage */
 	public void scroll(double amount){
@@ -123,12 +123,17 @@ public class MenuScroller<D>extends MenuThing<D>{
 	public void setAmount(double amount){
 		this.amount = amount;
 	}
-
+	
+	/** @return See {@link #button} */
+	public MenuScrollerButton<D> getButton(){
+		return this.button;
+	}
+	
 	/** @return The amount of distance the child of this {@link MenuScroller} currently has scrolled */
 	public double getScrolledAmount(){
 		return this.getPercent() * this.getAmount();
 	}
-
+	
 	/** @return The percentage of the way down this {@link MenuScroller} has moved, in the range [0, 1] */
 	public double getPercent(){
 		return this.scroller.getAmount();
@@ -148,7 +153,7 @@ public class MenuScroller<D>extends MenuThing<D>{
 	public void setScrollWheelStrength(double scrollWheelStrength){
 		this.scrollWheelStrength = scrollWheelStrength;
 	}
-
+	
 	/** @return See {@link #scrollWheelAsPercent} */
 	public boolean isScrollWheelAsPercent(){
 		return this.scrollWheelAsPercent;
@@ -175,8 +180,8 @@ public class MenuScroller<D>extends MenuThing<D>{
 	}
 	
 	/** @param enabled See {@link #scrollWheelEnabled} */
-	public void setEnabled(boolean enabled){
+	public void setScrollWheelEnabled(boolean enabled){
 		this.scrollWheelEnabled = enabled;
 	}
-
+	
 }
