@@ -79,19 +79,35 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	}
 
 	/**
-	 * Move the given {@link PositionedHitboxThing} from the given room to {@link #leadRoom}
+	 * Move the given {@link PositionedHitboxThing} from the given room to {@link #leadRoom}, only if it's able to enter this door
 	 * 
-	 * @param r The room which the thing is coming from, can be null if there is no room the thing is coming from
+	 * @param r The room which  thing is coming from, can be null if there is no room the thing is coming from
 	 * @param thing The thing to move
 	 * @param game The {@link Game} where this room entering takes place
+	 * @return true if thing entered this room, false otherwise
 	 */
-	public void enterRoom(Room<?> r, PositionedHitboxThing thing, Game<?> game){
+	public boolean enterRoom(Room<?> r, PositionedHitboxThing thing, Game<?> game){
+		if(!this.canEnter(thing)) return false;
 		if(r != null) r.removeThing(thing);
 		if(this.leadRoom != null){
 			thing.setX(this.roomX);
 			thing.setY(this.roomY);
 			thing.enterRoom(r, this.leadRoom, game);
 		}
+		else return false;
+		return true;
+	}
+
+
+	/**
+	 * Determine if thing is able to enter this door.
+	 * Always returns true by default, can override to implement custom behavior
+	 * 
+	 * @param thing The thing
+	 * @return true if thing can enter the door, false otherwise
+	 */
+	public boolean canEnter(PositionedHitboxThing thing){
+		return true;
 	}
 
 	@Override
