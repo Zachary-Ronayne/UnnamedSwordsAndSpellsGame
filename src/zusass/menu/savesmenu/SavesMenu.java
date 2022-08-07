@@ -15,6 +15,7 @@ public class SavesMenu extends ZUSASSMenu{
 	public SavesMenu(Game<ZUSASSData> game){
 		super("Saves");
 		this.addThing(new SavesBackButton(game));
+		this.setTitleX(50);
 	}
 	
 }

@@ -63,7 +63,7 @@ public final class ZMath{
 	}
 	
 	/**
-	 * Return x, but if x is less than a, return a, and if x is less than b, return b
+	 * Return x, but if x is less than a, return a, and if x is greater than b, return b
 	 * 
 	 * @param a The lowest number this method should return
 	 * @param b The highest number this method should return

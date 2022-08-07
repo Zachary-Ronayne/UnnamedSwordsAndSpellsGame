@@ -210,6 +210,11 @@ public abstract class MenuThing<D> implements GameInteractable<D>{
 		if(thing.getParent() == this) thing.setParent(null);
 		return this.things.remove(thing);
 	}
+
+	/** @return See {@link #things} */
+	public Collection<MenuThing<D>> getThings(){
+		return this.things;
+	}
 	
 	/** Do not call directly */
 	@Override

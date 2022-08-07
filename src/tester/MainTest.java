@@ -16,6 +16,8 @@ import zgame.core.state.PlayState;
 import zgame.core.window.GameWindow;
 import zgame.menu.Menu;
 import zgame.menu.MenuButton;
+import zgame.menu.MenuThing;
+import zgame.menu.scroller.MenuScroller;
 import zgame.things.entity.Player;
 import zgame.things.still.Door;
 import zgame.things.still.tiles.BaseTiles;
@@ -155,7 +157,7 @@ public class MainTest extends Game<TestData>{
 		engineState = new GameEngineState();
 		testerGame.setPlayState(engineState);
 		menuState = new TesterMenuState();
-		testerGame.enterPlayState();
+		testerGame.setCurrentState(menuState);
 		window = testerGame.getWindow();
 		window.center();
 		
@@ -585,11 +587,19 @@ public class MainTest extends Game<TestData>{
 	
 	public static class TesterMenu extends Menu<TestData>{
 		public TesterMenu(){
-			super(100, 400);
+			super(100, 300);
 			this.setWidth(800);
-			this.setHeight(300);
+			this.setHeight(350);
 			this.setFill(new ZColor(.1, .1, .2, 1));
 			
+			MenuScroller<TestData> scroll = new MenuScroller<>(820, 0, 100);
+			this.addThing(scroll);
+			
+			Menu<TestData> base = new Menu<TestData>();
+			base.setRelX(-820);
+			base.setRelY(20);
+			scroll.addThing(base);
+
 			MenuButton<TestData> t = new MenuButton<TestData>(10, 10, 300, 50){
 				@Override
 				public void click(Game<TestData> game){
@@ -597,7 +607,7 @@ public class MainTest extends Game<TestData>{
 				}
 			};
 			t.setFill(new ZColor(0, .2, .7));
-			this.addThing(t);
+			base.addThing(t);
 			
 			t = new MenuButton<TestData>(50, 100, 200, 100){
 				double pos = 0;
@@ -619,7 +629,7 @@ public class MainTest extends Game<TestData>{
 			};
 			t.setFill(new ZColor(.5, 0, 0));
 			t.setText("Exit");
-			this.addThing(t);
+			base.addThing(t);
 		}
 		
 		@Override
