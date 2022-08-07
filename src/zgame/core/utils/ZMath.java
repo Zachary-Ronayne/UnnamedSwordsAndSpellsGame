@@ -75,6 +75,17 @@ public final class ZMath{
 	}
 
 	/**
+	 * Determine if a number is between two other numbers
+	 * @param a The lower number to check
+	 * @param b The middle number
+	 * @param c The higher number
+	 * @return true if b is between or equal to a and c, false otherwise
+	 */
+	public static boolean in(int a, int b, int c){
+		return a <= b && b <= c;
+	}
+
+	/**
 	 * Determine if two numbers have the same sign.
 	 * Behavior of this method is not guaranteed for weird values, i.e. infinity and NaN
 	 * @param a The first number

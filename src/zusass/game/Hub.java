@@ -3,6 +3,7 @@ package zusass.game;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.things.still.tiles.BaseTiles;
+import zgame.things.still.tiles.Tile;
 import zgame.world.Room;
 import zusass.ZUSASSData;
 import zusass.game.things.LevelDoor;
@@ -35,14 +36,29 @@ public class Hub extends Room<ZUSASSData>{
 				this.setTile(i, j, (i0 == j0) ? BaseTiles.BACK_LIGHT : BaseTiles.BACK_DARK);
 			}
 		}
+		// The door to start at the highest level gotten to
+		this.setTile(9, 10, BaseTiles.WALL_DARK);
+		this.setTile(6, 11, BaseTiles.WALL_DARK);
+		Tile t = this.getTile(9, 10);
+
+		double doorX = t.getX();
+		ZUSASSData data = (ZUSASSData)game.getData();
+		LevelDoor highDoor = new LevelDoor(doorX, 0, data.getHighestRoomLevel(), this);
+		highDoor.setY(t.getY() - highDoor.getHeight());
+		this.addThing(highDoor);
+		
+		// The door to start from level 1
+		LevelDoor levelDoor = new LevelDoor(doorX, 0, 1, this);
+		levelDoor.setY(this.maxY() - levelDoor.getHeight());
+		this.addThing(levelDoor);
+		
+		// Placing the player
 		this.player = new ZUSASSPlayer();
+		this.player.setX(20);
+		this.player.setY(this.maxY() - this.player.getHeight());
 		this.player.setLockCamera(true);
 		this.addThing(this.player);
 		this.player.centerCamera(game);
-		
-		LevelDoor levelDoor = new LevelDoor(500, 0, 1, this);
-		levelDoor.setY(this.maxY() - levelDoor.getHeight());
-		this.addThing(levelDoor);
 	}
 	
 	@Override

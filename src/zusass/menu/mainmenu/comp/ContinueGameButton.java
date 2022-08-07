@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuButton;
 import zusass.ZUSASSData;
+import zusass.game.MainPlay;
 
 /** The {@link MenuButton} in the main menu for continuing the last opened game */
 public class ContinueGameButton extends MainMenuButton{
@@ -16,7 +17,11 @@ public class ContinueGameButton extends MainMenuButton{
 	
 	@Override
 	public void click(Game<ZUSASSData> game){
-		// TODO make this load the most recently saved file
+		// TODO make this load the most recently saved file, not this hard coded one
+		game.loadGame("./saves/zusassSave");
+		MainPlay play = new MainPlay(game);
+		play.enterHub(game);
+		game.setPlayState(play);
 		game.enterPlayState();
 	}
 

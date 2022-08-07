@@ -21,13 +21,35 @@ public class MainPlay extends PlayState<ZUSASSData>{
 	 * @param game The {@link Game} using this state
 	 */
 	public MainPlay(Game<ZUSASSData> game){
+		this.enterHub(game);
+	}
+	
+	/**
+	 * Set the current room of the game to the main hub
+	 * 
+	 * @param game The {@link Game} using this state
+	 */
+	public void enterHub(Game<ZUSASSData> game){
 		this.setCurrentRoom(new Hub(game));
+	}
+	
+	/**
+	 * Set the current state of the game to the main menu
+	 * 
+	 * @param game The {@link Game} using this state
+	 */
+	public void enterMainMenu(Game<ZUSASSData> game){
+		game.setCurrentState(new MainMenuState(game));
 	}
 	
 	@Override
 	public void keyAction(Game<ZUSASSData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(game, button, press, shift, alt, ctrl);
-		if(button == GLFW_KEY_ESCAPE) game.setCurrentState(new MainMenuState(game));
+		if(press) return;
+		if(button == GLFW_KEY_ESCAPE){
+			if(shift) this.enterMainMenu(game);
+			else this.enterHub(game);
+		}
 		else if(button == GLFW_KEY_S && ctrl) game.saveGame("./saves/zusassSave");
 		else if(button == GLFW_KEY_L && ctrl) game.loadGame("./saves/zusassSave");
 	}

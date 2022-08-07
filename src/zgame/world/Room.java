@@ -390,6 +390,17 @@ public class Room<G> implements RectangleBounds, Saveable{
 	public double centerY(){
 		return this.getHeight() * 0.5;
 	}
+
+	/**
+	 * Get the tile at the specified index
+	 * @param x The tile index on the x axis
+	 * @param y The tile on the y axis
+	 * @return The tile, or null if the tile is outside of the range of the grid
+	 */
+	public Tile getTile(int x, int y){
+		if(!ZMath.in(0, x, this.tiles.size() - 1) || !ZMath.in(0, y, this.tiles.get(x).size() - 1)) return null;
+		return this.tiles.get(x).get(y);
+	}
 	
 	/**
 	 * Set the tile at the specified index

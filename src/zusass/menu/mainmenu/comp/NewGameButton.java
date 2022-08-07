@@ -17,8 +17,10 @@ public class NewGameButton extends MainMenuButton{
 	
 	@Override
 	public void click(Game<ZUSASSData> game){
-		game.setPlayState(new MainPlay(game));
 		game.setData(new ZUSASSData());
+		MainPlay play = new MainPlay(game);
+		play.enterHub(game);
+		game.setPlayState(play);
 		game.enterPlayState();
 	}
 	
