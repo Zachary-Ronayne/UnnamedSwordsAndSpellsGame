@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import zgame.core.Game;
-import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
 import zgame.menu.MenuThing;
 import zusass.ZUSASSData;
@@ -20,7 +19,7 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 	
 	/** The buttons displayed */
 	private List<LoadSaveButton> buttons;
-
+	
 	/** The button in the list which is currently selected, or null if no button is selected */
 	private LoadSaveButton selected;
 	
@@ -47,31 +46,21 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 	public boolean populate(Game<ZUSASSData> game){
 		// Find all files and make sure they exist
 		String path = ZUSASSConfig.getSavesLocation();
-		String[] files = null;
-		try{
-			File file = new File(path);
-			if(!file.isDirectory()) return false;
-			files = file.list();
-			
-		}catch(NullPointerException | SecurityException e){
-			if(ZConfig.printErrors()){
-				ZStringUtils.prints("Failed to find file location for saves at:", path);
-				e.printStackTrace();
-			}
-			return false;
-		}
+		List<File> files = ZUSASSConfig.getAllFiles();
 		if(files == null) return false;
 		
 		// Populate the button array
 		this.buttons = new ArrayList<LoadSaveButton>();
 		int i = 0;
-		for(String file : files){
+		for(File file : files){
+			String name = file.getName();
+			
 			// Make sure to only include files which count as save files
-			if(!ZUSASSConfig.validSaveFileName(file)) continue;
+			if(!ZUSASSConfig.validSaveFileName(name)) continue;
 			
 			// Add the actual button
-			this.addThing(new LoadSaveButton(-LoadSaveButton.WIDTH - 10, i * LoadSaveButton.TOTAL_SPACE, file.replace(ZUSASSConfig.SAVE_FILE_SUFFIX, ""),
-					ZStringUtils.concat(path, file), this.menu, game));
+			this.addThing(new LoadSaveButton(-LoadSaveButton.WIDTH - 10, i * LoadSaveButton.TOTAL_SPACE, name.replace(ZUSASSConfig.SAVE_FILE_SUFFIX, ""),
+					ZStringUtils.concat(path, name), this.menu, game));
 			i++;
 		}
 		// Set the scrollable size to the space the buttons go off screen
@@ -91,16 +80,16 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 		this.buttons.add(button);
 		return super.addThing(thing);
 	}
-
+	
 	/** @return See {@link #selected} */
 	public LoadSaveButton getSelected(){
 		return this.selected;
 	}
-
+	
 	/** @param selected See {@link #selected} */
 	public void setSelected(LoadSaveButton selected){
 		this.selected = selected;
 		this.menu.showExtraButtons(this.selected != null);
 	}
-
+	
 }

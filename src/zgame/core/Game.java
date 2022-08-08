@@ -599,6 +599,7 @@ public class Game<D> implements Saveable{
 	 * @return true if the load was successful, false otherwise
 	 */
 	public final boolean loadGame(String path){
+		if(path == null) return false;
 		ZJsonFile file = new ZJsonFile(path);
 		JsonObject data = file.load();
 		if(data == null) return false;
@@ -620,6 +621,7 @@ public class Game<D> implements Saveable{
 	 * @return true if the save was successful, false otherwise
 	 */
 	public final boolean saveGame(String path){
+		if(path == null) return false;
 		ZJsonFile file = new ZJsonFile(path);
 		JsonObject data = file.getData();
 		this.save(data);

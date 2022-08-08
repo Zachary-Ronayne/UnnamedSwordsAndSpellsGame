@@ -1,5 +1,11 @@
 package zusass.utils;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
 
 /** A class containing utilities for getting things like file locations of saves */
@@ -40,8 +46,42 @@ public final class ZUSASSConfig{
 	
 	/** @return The most recently saved file path, or null if no files exist */
 	public static String getMostRecentSave(){
-		// TODO make this load the most recently saved file, not this hard coded one
-		return createSaveFileSuffix(ZStringUtils.concat(getSavesLocation(), "zusassSave"));
+		List<File> files = getAllFiles();
+		if(files == null || files.isEmpty()) return null;
+		return createSaveFileSuffix(files.get(0).getPath());
+	}
+
+	/**
+	 * Get all files in the saves location of the ZUSASS game
+	 * @return The list of files, or null if an error was encountered
+	 */
+	public static List<File> getAllFiles(){
+		String path = ZUSASSConfig.getSavesLocation();
+		List<File> files = new ArrayList<File>();
+		try{
+			// Find all files
+			File file = new File(path);
+			if(!file.isDirectory()) return null;
+			File[] loadedFiles = file.listFiles();
+			
+			// Sort files by last modified
+			files.addAll(Arrays.asList(loadedFiles));
+			files.sort((a, b) -> {
+				double aDate = a.lastModified();
+				double bDate = b.lastModified();
+				if(aDate < bDate) return 1;
+				if(aDate > bDate) return -1;
+				return 0;
+			});
+			
+		}catch(NullPointerException | SecurityException e){
+			if(ZConfig.printErrors()){
+				ZStringUtils.prints("Failed to find file location for saves at:", path);
+				e.printStackTrace();
+			}
+			return null;
+		}
+		return files;
 	}
 	
 	/** Cannot instantiate {@link ZUSASSConfig} */
