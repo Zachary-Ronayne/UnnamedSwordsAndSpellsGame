@@ -1,11 +1,15 @@
 package zusass;
 
 import zgame.core.Game;
+import zgame.core.utils.ZConfig;
+import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
 import zusass.game.MainPlay;
 import zusass.menu.mainmenu.MainMenuState;
 
 import static org.lwjgl.glfw.GLFW.*;
+
+import java.io.File;
 
 import com.google.gson.JsonObject;
 
@@ -64,7 +68,42 @@ public class ZUSASSGame extends Game<ZUSASSData>{
 		this.getData().load(DATA_KEY, obj);
 		return obj;
 	}
+
+	@Override
+	public boolean loadGame(String path){
+		boolean success = super.loadGame(path);
+		if(success) this.getData().setLoadedFile(path);
+		return success;
+	}
+
+	@Override
+	public boolean saveGame(String path){
+		// If the path doesn't already exist, create it
+		File file = new File(path);
+		File directory = file.getParentFile();
+		if(!directory.exists()){
+			try{
+				directory.mkdirs();
+			}catch(SecurityException e){
+				if(ZConfig.printErrors()){
+					ZStringUtils.prints("Couldn't make directories. Failed to save file at path:", path);
+					e.printStackTrace();
+				}
+			}
+		}
+		return super.saveGame(path);
+	}
 	
+	/**
+	 * Save the currently loaded game to its save file. Does nothing if no file is loaded
+	 * @return true if the save was successful, false otherwise
+	 */
+	public boolean saveLoadedGame(){
+		String path = this.getData().getLoadedFile();
+		if(path == null) return false;
+		return this.saveGame(path);
+	}
+
 	@Override
 	protected void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(button, press, shift, alt, ctrl);

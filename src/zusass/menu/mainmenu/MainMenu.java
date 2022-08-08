@@ -18,6 +18,7 @@ public class MainMenu extends ZUSASSMenu{
 		this.addThing(new LoadGameButton(game));
 		this.addThing(new NewGameButton(game));
 		this.addThing(new ExitButton(game));
+		// TODO hide continue / load buttons if there are no files to load
 	}
 	
 }

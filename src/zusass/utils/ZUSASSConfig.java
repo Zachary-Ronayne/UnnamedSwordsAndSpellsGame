@@ -36,6 +36,15 @@ public final class ZUSASSConfig{
 	}
 
 	/**
+	 * Make a path to a save file in the saves location
+	 * @param name The name of the save file, no path or extension
+	 * @return The path based on the name
+	 */
+	public static String createSaveFilePath(String name){
+		return ZStringUtils.concat(getSavesLocation(), createSaveFileSuffix(name));
+	}
+
+	/**
 	 * Determine if the given file name is valid for a save file
 	 * @param file The file to check
 	 * @return true if it is a valid save file name, false otherwise

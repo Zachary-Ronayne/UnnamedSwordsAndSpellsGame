@@ -15,12 +15,15 @@ public class ZUSASSData implements Saveable{
 	
 	/** The highest level the player has gotten to in the infinitely randomly generated rooms */
 	private int highestRoomLevel;
+
+	/** The path to the file which is currently loaded as the play state */
+	private String loadedFile;
 	
 	/** Initialize this {@link ZUSASSData} to it's default state */
 	public ZUSASSData(){
 		this.highestRoomLevel = 0;
 	}
-	
+
 	@Override
 	public JsonObject save(JsonObject obj){
 		JsonObject generalData = new JsonObject();
@@ -47,6 +50,16 @@ public class ZUSASSData implements Saveable{
 	 */
 	public void updatedHighestRoomLevel(int highestRoomLevel){
 		this.highestRoomLevel = Math.max(highestRoomLevel, this.getHighestRoomLevel());
+	}
+
+	/** @return See {@link #loadedFile} */
+	public String getLoadedFile(){
+		return this.loadedFile;
+	}
+
+	/** @param loadedFile See {@link #loadedFile} */
+	public void setLoadedFile(String loadedFile){
+		this.loadedFile = loadedFile;
 	}
 	
 }
