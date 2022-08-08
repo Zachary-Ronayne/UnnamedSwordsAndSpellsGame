@@ -60,7 +60,7 @@ public class ZUSASSGame extends Game<ZUSASSData>{
 	}
 
 	@Override
-	public JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException{
+	public JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException, NullPointerException{
 		this.getData().load(DATA_KEY, obj);
 		return obj;
 	}

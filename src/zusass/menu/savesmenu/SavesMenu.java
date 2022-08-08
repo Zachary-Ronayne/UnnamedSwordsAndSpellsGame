@@ -3,24 +3,30 @@ package zusass.menu.savesmenu;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.menu.MenuThing;
 import zusass.ZUSASSData;
 import zusass.menu.ZUSASSMenu;
 import zusass.menu.savesmenu.comp.LoadSaveButtonList;
 import zusass.menu.savesmenu.comp.SavesBackButton;
+import zusass.menu.savesmenu.comp.SavesDeleteButton;
+import zusass.menu.savesmenu.comp.SavesLoadButton;
 import zusass.menu.savesmenu.comp.SavesMenuScroller;
 
 /** A {@link ZUSASSMenu} for managing game saves */
 public class SavesMenu extends ZUSASSMenu{
-
+	
 	/** The number of seconds to display {@link #messageText} */
 	public static final double MESSAGE_TIME = 4;
-
+	
 	/** The list of buttons used to load and save files */
-	LoadSaveButtonList loadButtons;
-
+	private LoadSaveButtonList loadButtons;
+	
 	/** The scroller that allows the list of buttons to move up and down */
-	SavesMenuScroller scroller;
+	private SavesMenuScroller scroller;
 
+	/** An object to hold the buttons that will be hidden when no file is selected  */
+	private MenuThing<ZUSASSData> extraButtonHolder;
+	
 	/** Text to display for a temporary amount of time */
 	private String messageText;
 	/** The amount of time remaining to display {@link #messageText} */
@@ -28,17 +34,22 @@ public class SavesMenu extends ZUSASSMenu{
 
 	/**
 	 * Create a new blank {@link SavesMenu}
+	 * 
 	 * @param game The game that uses this menu
 	 */
 	public SavesMenu(Game<ZUSASSData> game){
 		super("Saves");
 		this.setTitleX(50);
 		
-		this.addThing(new SavesBackButton(game));
+		this.addThing(new SavesBackButton(this, game));
 		
 		this.scroller = new SavesMenuScroller();
-		this.loadButtons = new LoadSaveButtonList(this, this.scroller, game);
+		this.loadButtons = new LoadSaveButtonList(this, game);
 		this.addThing(scroller);
+
+		this.extraButtonHolder = new MenuThing<ZUSASSData>();
+		this.extraButtonHolder.addThing(new SavesLoadButton(this, game));
+		this.extraButtonHolder.addThing(new SavesDeleteButton(this, game));
 		
 		this.messageText = "";
 		this.messageTimer = 0;
@@ -49,7 +60,7 @@ public class SavesMenu extends ZUSASSMenu{
 		super.tick(game, dt);
 		if(this.messageTimer > 0) this.messageTimer -= dt;
 	}
-
+	
 	@Override
 	public void renderBackground(Game<ZUSASSData> game, Renderer r){
 		super.renderBackground(game, r);
@@ -60,9 +71,28 @@ public class SavesMenu extends ZUSASSMenu{
 			r.drawText(10, 700, this.messageText);
 		}
 	}
+	
+	/** @return See {@link #scroller} */
+	public SavesMenuScroller getScroller(){
+		return this.scroller;
+	}
+	
+	/** @return See {@link #loadButtons} */
+	public LoadSaveButtonList getLoadButtons(){
+		return this.loadButtons;
+	}
 
+	/** Show or hide the extra buttons for loading and deleting files
+	 * @param show true to show the buttons, false to hide
+	 */
+	public void showExtraButtons(boolean show){
+		if(show) this.addThing(this.extraButtonHolder);
+		else this.removeThing(this.extraButtonHolder);
+	}
+	
 	/**
 	 * Display a temporary message to the menu
+	 * 
 	 * @param message The message text to display
 	 */
 	public void showMessage(String message){
@@ -72,5 +102,3 @@ public class SavesMenu extends ZUSASSMenu{
 	
 }
 
-// TODO add a system to have menus display on top of others, have the bottom still render, but only the top one tick and take input, basically a popup
-// use this as a way to allow files to be deleted from in the menu

@@ -35,8 +35,9 @@ public interface Saveable{
 	 * 
 	 * @throws ClassCastException If a property loaded is not a valid value for the type requested
 	 * @throws IllegalStateException If the property loaded is a JsonArray but contains more than a single element
+	 * @throws NullPointerException If a property returns null and is attempted to be accessed
 	 */
-	public default JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException{
+	public default JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException, NullPointerException{
 		return obj;
 	}
 
@@ -48,7 +49,7 @@ public interface Saveable{
 	 * @param obj The object to check in
 	 * @return The loaded object if the load was successful, null otherwise
 	 */
-	public default JsonObject load(String key, JsonObject obj){
+	public default JsonObject load(String key, JsonObject obj) throws ClassCastException, IllegalStateException, NullPointerException{
 		return this.load(obj.get(key).getAsJsonObject());
 	}
 	

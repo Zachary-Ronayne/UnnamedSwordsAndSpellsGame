@@ -18,11 +18,11 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 	/** The {@link SavesMenu} using this list */
 	private SavesMenu menu;
 	
-	/** The scroller which will interact with this list */
-	private SavesMenuScroller scroller;
-	
 	/** The buttons displayed */
 	private List<LoadSaveButton> buttons;
+
+	/** The button in the list which is currently selected, or null if no button is selected */
+	private LoadSaveButton selected;
 	
 	/**
 	 * Create a new {@link LoadButtonList} at the specified location
@@ -30,12 +30,12 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 	 * @param scroller See {@link #scroller}
 	 * @param game The game that uses this list
 	 */
-	public LoadSaveButtonList(SavesMenu menu, SavesMenuScroller scroller, Game<ZUSASSData> game){
+	public LoadSaveButtonList(SavesMenu menu, Game<ZUSASSData> game){
 		super();
 		this.menu = menu;
-		this.scroller = scroller;
+		this.selected = null;
 		this.populate(game);
-		this.scroller.addThing(this);
+		this.menu.getScroller().addThing(this);
 	}
 	
 	/**
@@ -75,7 +75,7 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 			i++;
 		}
 		// Set the scrollable size to the space the buttons go off screen
-		this.scroller.setAmount(Math.min(0, game.getScreenHeight() - (this.buttons.size() + 1) * LoadSaveButton.TOTAL_SPACE - LoadSaveButton.SPACE));
+		this.menu.getScroller().setAmount(Math.min(0, game.getScreenHeight() - (this.buttons.size() + 1) * LoadSaveButton.TOTAL_SPACE - LoadSaveButton.SPACE));
 		
 		return true;
 	}
@@ -91,4 +91,16 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 		this.buttons.add(button);
 		return super.addThing(thing);
 	}
+
+	/** @return See {@link #selected} */
+	public LoadSaveButton getSelected(){
+		return this.selected;
+	}
+
+	/** @param selected See {@link #selected} */
+	public void setSelected(LoadSaveButton selected){
+		this.selected = selected;
+		this.menu.showExtraButtons(this.selected != null);
+	}
+
 }

@@ -1,7 +1,7 @@
 package zgame.world;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
@@ -33,16 +33,16 @@ public class Room<G> implements RectangleBounds, Saveable{
 	public static final int WALL_FLOOR = 3;
 	
 	/** All of the {@link GameThing} objects which exist in in the game */
-	private ArrayList<GameThing> things;
+	private List<GameThing> things;
 	/** All of the {@link EntityThing} objects which exist in in the game */
-	private Collection<EntityThing> entities;
+	private List<EntityThing> entities;
 	/** All of the {@link HitBox} objects which exist in in the game */
-	private Collection<HitBox> hitBoxThings;
+	private List<HitBox> hitBoxThings;
 	/** All of the {@link GameTickable} objects which exist in in the game */
-	private Collection<GameTickable> tickableThings;
+	private List<GameTickable> tickableThings;
 	
 	/** All of the {@link GameThing} objects which will be removed on the next game tick */
-	private Collection<GameThing> thingsToRemove;
+	private List<GameThing> thingsToRemove;
 	
 	// The 2D grid of {@link Tile} objects defining this {@link Room}
 	private ArrayList<ArrayList<Tile>> tiles;
@@ -119,22 +119,22 @@ public class Room<G> implements RectangleBounds, Saveable{
 	}
 	
 	/** @return See {@link #things}. This is the actual collection holding the things, not a copy */
-	public Collection<GameThing> getThings(){
+	public List<GameThing> getThings(){
 		return this.things;
 	}
 	
 	/** @return See {@link #entities}. This is the actual collection holding the things, not a copy */
-	public Collection<EntityThing> getEntities(){
+	public List<EntityThing> getEntities(){
 		return this.entities;
 	}
 	
 	/** @return See {@link #tickableThings}. This is the actual collection holding the things, not a copy */
-	public Collection<GameTickable> getTickableThings(){
+	public List<GameTickable> getTickableThings(){
 		return this.tickableThings;
 	}
 	
 	/** @return See {@link #hitBoxThings}. This is the actual collection holding the things, not a copy */
-	public Collection<HitBox> getHitBoxThings(){
+	public List<HitBox> getHitBoxThings(){
 		return this.hitBoxThings;
 	}
 	
@@ -244,7 +244,10 @@ public class Room<G> implements RectangleBounds, Saveable{
 	 */
 	public void tick(Game<?> game, double dt){
 		// Update all updatable objects
-		for(GameTickable t : this.tickableThings) t.tick(game, dt);
+		for(int i = 0; i < this.tickableThings.size(); i++){
+			GameTickable t = this.tickableThings.get(i);
+			t.tick(game, dt);
+		}
 		
 		// Remove all things that need to be removed
 		for(GameThing thing : this.thingsToRemove){

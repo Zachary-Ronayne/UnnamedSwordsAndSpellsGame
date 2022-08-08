@@ -3,12 +3,18 @@ package zusass.menu.savesmenu.comp;
 import zgame.core.Game;
 import zusass.ZUSASSData;
 import zusass.menu.mainmenu.MainMenuState;
+import zusass.menu.savesmenu.SavesMenu;
 
 /** The {@link SavesMenuButton} that goes back to the main menu */
 public class SavesBackButton extends SavesMenuButton{
 	
-	public SavesBackButton(Game<ZUSASSData> game){
-		super(50, 600, "Back", game);
+	/** Create the {@link SavesBackButton}
+	 * 
+	 * @param menu See {@link #getMenu()}
+	 * @param game The {@link Game} associated with this button
+	 */
+	public SavesBackButton(SavesMenu menu, Game<ZUSASSData> game){
+		super(20, 600, "Back", menu, game);
 	}
 	
 	@Override

@@ -10,7 +10,7 @@ import zgame.core.graphics.font.GameFont;
  * 
  * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
-public class MenuText<D> extends MenuThing<D>{
+public class MenuText<D>extends MenuThing<D>{
 	
 	/** The x coordinate of the text, relative to this {@link MenuThing} */
 	private double textX;

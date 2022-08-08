@@ -30,7 +30,7 @@ public class ZUSASSData implements Saveable{
 	}
 	
 	@Override
-	public JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException{
+	public JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException, NullPointerException{
 		JsonObject generalData = obj.getAsJsonObject(GENERAL_DATA_KEY);
 		this.highestRoomLevel = generalData.get(HIGHEST_ROOM_LEVEL_KEY).getAsInt();
 		return obj;

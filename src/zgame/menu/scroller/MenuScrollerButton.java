@@ -2,6 +2,7 @@ package zgame.menu.scroller;
 
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
+import zgame.menu.MenuButton;
 import zgame.menu.MenuThing;
 
 /**
@@ -9,7 +10,7 @@ import zgame.menu.MenuThing;
  * 
  * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
-public abstract class MenuScrollerButton<D>extends MenuThing<D>{
+public abstract class MenuScrollerButton<D>extends MenuButton<D>{
 	
 	/** true if the mouse has clicked this button and is anchored down to start moving */
 	private boolean anchored;
@@ -28,10 +29,8 @@ public abstract class MenuScrollerButton<D>extends MenuThing<D>{
 	 * @param h See {@link #getHeight()}
 	 */
 	public MenuScrollerButton(MenuScroller<D> scroller, double w, double h){
-		super();
+		super(0, 0, w, h);
 		this.scroller = scroller;
-		this.setWidth(w);
-		this.setHeight(h);
 		this.setFill(new ZColor(0));
 		this.anchored = false;
 		this.anchorOffset = 0;
@@ -55,6 +54,11 @@ public abstract class MenuScrollerButton<D>extends MenuThing<D>{
 	public void mouseMove(Game<D> game, double x, double y){
 		super.mouseMove(game, x, y);
 		if(this.anchored) this.scroller.scroll(this.scrollToPercent(this.mouseOffset(game) - this.anchorOffset));
+	}
+
+	@Override
+	public boolean showHighlight(Game<D> game){
+		return super.showHighlight(game) || this.anchored;
 	}
 	
 	/**

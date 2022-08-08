@@ -62,7 +62,11 @@ public abstract class MenuScroller<D>extends MenuThing<D>{
 	@Override
 	public void tick(Game<D> game, double dt){
 		super.tick(game, dt);
-		for(MenuThing<D> thing : this.getThings()) this.button.updateRelativePosition(thing);
+		List<MenuThing<D>> things = this.getThings();
+		for(int i = 0; i < things.size(); i++){
+			MenuThing<D> thing = things.get(i);
+			this.button.updateRelativePosition(thing);
+		}
 	}
 	
 	@Override

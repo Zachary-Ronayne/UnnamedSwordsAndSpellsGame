@@ -1,6 +1,8 @@
 package zusass.menu.savesmenu.comp;
 
 import zgame.core.Game;
+import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZStringUtils;
 import zusass.ZUSASSData;
 import zusass.ZUSASSGame;
@@ -23,9 +25,6 @@ public class LoadSaveButton extends SavesMenuButton{
 	/** The path to the file that this button should load */
 	private String path;
 
-	/** The {@link SavesMenu} using this button */
-	private SavesMenu menu;
-
 	/**
 	 * Create a new {@link LoadSaveButton} with the specified values
 	 * 
@@ -36,8 +35,7 @@ public class LoadSaveButton extends SavesMenuButton{
 	 * @param game The {@link ZUSASSGame} associated with this button
 	 */
 	public LoadSaveButton(double x, double y, String text, String path, SavesMenu menu, Game<ZUSASSData> game){
-		super(x, y, text, game);
-		this.menu = menu;
+		super(x, y, text, menu, game);
 		this.path = path;
 		this.setWidth(WIDTH);
 		this.setHeight(HEIGHT);
@@ -47,8 +45,28 @@ public class LoadSaveButton extends SavesMenuButton{
 	}
 
 	@Override
+	public void render(Game<ZUSASSData> game, Renderer r){
+		super.render(game, r);
+		// If this button is selected, draw an additional highlight
+		if(this.getMenu().getLoadButtons().getSelected() == this){
+			r.setColor(new ZColor(.2, .2, .5, .3));
+			r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+		}
+	}
+
+	@Override
 	public void click(Game<ZUSASSData> game){
-		// TODO make clicking a file once select it and show an option to open it, and clicking it twice will open it automatically
+		// TODO double click to automatically load
+		this.getMenu().getLoadButtons().setSelected(this);
+	}
+
+	/**
+	 * Attempt to load the file at {@link #path} into the game
+	 * 
+	 * @param game The game to load into
+	 * @return true if the file loaded, false otherwise
+	 */
+	public boolean attemptLoad(Game<ZUSASSData> game){
 		boolean success = game.loadGame(ZUSASSConfig.createSaveFileSuffix(path));
 		// If the load was successful, enter the play state
 		if(success){
@@ -56,13 +74,8 @@ public class LoadSaveButton extends SavesMenuButton{
 			game.enterPlayState();
 		}
 		// Otherwise, say that it failed to load
-		this.menu.showMessage(ZStringUtils.concat("Load failed for: ", this.getText()));
-	}
-
-	@Override
-	public void mouseMove(Game<ZUSASSData> game, double x, double y){
-		super.mouseMove(game, x, y);
-		// TODO make hovering a file select it, then give a delete button option to delete the file
+		else this.getMenu().showMessage(ZStringUtils.concat("Load failed for: ", this.getText()));
+		return success;
 	}
 
 	/** @return See {@link #path} */

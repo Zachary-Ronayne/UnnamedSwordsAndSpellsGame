@@ -604,7 +604,7 @@ public class Game<D> implements Saveable{
 		if(data == null) return false;
 		try{
 			return this.load(data) != null;
-		}catch(ClassCastException | IllegalStateException e){
+		}catch(ClassCastException | IllegalStateException | NullPointerException e){
 			if(ZConfig.printErrors()){
 				ZStringUtils.prints("Failed to load a json object because it had invalid formatting. Object data:\n", data);
 				e.printStackTrace();
