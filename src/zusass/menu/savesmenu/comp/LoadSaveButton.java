@@ -56,8 +56,12 @@ public class LoadSaveButton extends SavesMenuButton{
 
 	@Override
 	public void click(Game<ZUSASSData> game){
-		// TODO double click to automatically load
 		this.getMenu().getLoadButtons().setSelected(this);
+	}
+
+	@Override
+	public void doubleClick(Game<ZUSASSData> game){
+		this.attemptLoad(game);
 	}
 
 	/**
