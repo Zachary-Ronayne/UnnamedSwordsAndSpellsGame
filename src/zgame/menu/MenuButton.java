@@ -67,7 +67,7 @@ public class MenuButton<D>extends MenuText<D>{
 		ZMouseInput mi = game.getMouseInput();
 		if(!press && this.getBounds().contains(mi.x(), mi.y())){
 			if(System.currentTimeMillis() - this.getLastClick() <= this.getDoubleClickThreshold()) this.doubleClick(game);
-			else this.click(game);
+			this.click(game);
 			this.lastClick = System.currentTimeMillis();
 		}
 	}

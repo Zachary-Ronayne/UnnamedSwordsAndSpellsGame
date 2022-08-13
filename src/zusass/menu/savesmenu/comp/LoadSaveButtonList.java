@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import zgame.core.Game;
+import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZStringUtils;
 import zgame.menu.MenuThing;
 import zusass.ZUSASSData;
@@ -30,11 +31,10 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 	 * @param game The game that uses this list
 	 */
 	public LoadSaveButtonList(SavesMenu menu, Game<ZUSASSData> game){
-		super();
+		super(SavesMenuScroller.X, SavesMenuScroller.Y);
 		this.menu = menu;
 		this.selected = null;
 		this.populate(game);
-		this.menu.getScroller().addThing(this);
 	}
 	
 	/**
@@ -49,7 +49,7 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 		this.removeAll();
 		if(this.buttons != null) this.buttons.forEach(b -> removeThing(b));
 		this.buttons = new ArrayList<LoadSaveButton>();
-
+		
 		// Find all files and make sure they exist
 		String path = ZUSASSConfig.getSavesLocation();
 		List<File> files = ZUSASSConfig.getAllFiles();
@@ -97,4 +97,9 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 		this.menu.showExtraButtons(this.selected != null);
 	}
 	
+	@Override
+	public void render(Game<ZUSASSData> game, Renderer r){
+		super.render(game, r);
+	}
+
 }

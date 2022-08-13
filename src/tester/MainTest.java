@@ -13,9 +13,11 @@ import zgame.core.sound.SoundSource;
 import zgame.core.state.GameState;
 import zgame.core.state.MenuState;
 import zgame.core.state.PlayState;
+import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
 import zgame.menu.Menu;
 import zgame.menu.MenuButton;
+import zgame.menu.MenuTextBox;
 import zgame.menu.scroller.HorizontalScroller;
 import zgame.menu.scroller.MenuScroller;
 import zgame.menu.scroller.VerticalScroller;
@@ -575,7 +577,7 @@ public class MainTest extends Game<TestData>{
 		@Override
 		public void keyAction(Game<TestData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 			super.keyAction(game, button, press, shift, alt, ctrl);
-			if(!press && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
+			if(!press && alt && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
 		}
 		
 		@Override
@@ -614,10 +616,9 @@ public class MainTest extends Game<TestData>{
 			this.addThing(scrollY);
 			
 			Menu<TestData> base = new Menu<TestData>();
-			base.setRelX(-820);
-			base.setRelY(20);
-			scrollX.addThing(base);
-			scrollY.addThing(base);
+			this.addThing(base);
+			scrollX.setMovingThing(base);
+			scrollY.setMovingThing(base);
 
 			MenuButton<TestData> t = new MenuButton<TestData>(10, 10, 300, 50){
 				@Override
@@ -649,6 +650,14 @@ public class MainTest extends Game<TestData>{
 			t.setFill(new ZColor(.5, 0, 0));
 			t.setText("Exit");
 			base.addThing(t);
+
+			MenuTextBox<TestData> textBox = new MenuTextBox<>(300, 100, 300, 50){
+				@Override
+				public void click(Game<TestData> game){
+					ZStringUtils.prints(this.getText());
+				}
+			};
+			base.addThing(textBox);
 		}
 		
 		@Override

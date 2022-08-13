@@ -8,9 +8,14 @@ import zusass.ZUSASSData;
 /** A {@link VerticalScroller} made for the saves menu */
 public class SavesMenuScroller extends VerticalScroller<ZUSASSData>{
 
+	/** The x coordinate of this {@link SavesMenuScroller} */
+	public static final double X = 1200;
+	/** The y coordinate of this {@link SavesMenuScroller} */
+	public static final double Y = 20;
+
 	/** Create the {@link SavesMenuScroller} */
 	public SavesMenuScroller(){
-		super(1200, 20, 25, 680, 0);
+		super(X, Y, 25, 680, 0);
 		this.setFill(new ZColor(.8));
 		this.setBorder(new ZColor(0.8));
 		this.setBorderWidth(1);

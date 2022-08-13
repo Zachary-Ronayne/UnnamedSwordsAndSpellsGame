@@ -208,16 +208,16 @@ public class MenuThing<D> implements GameInteractable<D>{
 	 * Should avoid adding things in a circular manor, i.e. if thing1 contains thing2 and thing2 contains thing3, the thing3 should not contain thing1.
 	 * If things are added in a circular manor, infinite recursion will occur.
 	 * Once added, any actions which apply to this {@link MenuThing} will also apply to the given thing. This means input, rendering, and game ticks
-	 * If thing is already in this, thing will not be added
+	 * If thing already is in something else, i.e. it already has a parent, thing will not be added.
+	 * First remove thing from it's current parent using {@link #removeThing(MenuThing)}, then call {@link #addThing(MenuThing)}
 	 * 
 	 * @param thing The thing to add
 	 * @return true if the thing was added, false otherwise
 	 */
 	public boolean addThing(MenuThing<D> thing){
-		if(this == thing || this.things.contains(thing)) return false;
-		this.things.add(thing);
+		if(this == thing || this.things.contains(thing) || thing.getParent() != null) return false;
 		thing.setParent(this);
-		return true;
+		return this.things.add(thing);
 	}
 	
 	/**

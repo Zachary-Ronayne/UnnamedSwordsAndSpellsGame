@@ -49,7 +49,9 @@ public class SavesMenu extends ZUSASSMenu{
 		
 		this.scroller = new SavesMenuScroller();
 		this.loadButtons = new LoadSaveButtonList(this, game);
-		this.addThing(scroller);
+		this.scroller.setMovingThing(this.loadButtons);
+		this.addThing(this.scroller);
+		this.addThing(this.loadButtons);
 
 		this.extraButtonHolder = new MenuThing<ZUSASSData>();
 		this.extraButtonHolder.addThing(new SavesLoadButton(this, game));

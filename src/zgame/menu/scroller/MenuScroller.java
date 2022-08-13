@@ -1,8 +1,5 @@
 package zgame.menu.scroller;
 
-import java.util.Collection;
-import java.util.List;
-
 import zgame.core.Game;
 import zgame.menu.MenuThing;
 
@@ -23,6 +20,9 @@ public abstract class MenuScroller<D>extends MenuThing<D>{
 	
 	/** The position of the child element of this {@link MenuScroller} */
 	private double basePosition;
+	
+	/** The {@link MenuThing} which will be moved by this {@link MenuScroller} */
+	private MenuThing<D> movingThing;
 	
 	/** The button to use for scrolling */
 	private MenuScrollerButton<D> button;
@@ -56,17 +56,15 @@ public abstract class MenuScroller<D>extends MenuThing<D>{
 		this.amount = amount;
 		this.scroller = new ScrollAxis();
 		this.button = this.generateButton();
-		this.addThing(button);
+		super.addThing(button);
+		this.movingThing = null;
 	}
 	
 	@Override
 	public void tick(Game<D> game, double dt){
 		super.tick(game, dt);
-		List<MenuThing<D>> things = this.getThings();
-		for(int i = 0; i < things.size(); i++){
-			MenuThing<D> thing = things.get(i);
-			this.button.updateRelativePosition(thing);
-		}
+		MenuThing<D> thing = this.getMovingThing();
+		if(thing != null) this.button.updateRelativePosition(thing);
 	}
 	
 	@Override
@@ -80,35 +78,18 @@ public abstract class MenuScroller<D>extends MenuThing<D>{
 		this.scroll(amount);
 	}
 	
-	/**
-	 * See {@link MenuThing#addThing(MenuThing)}
-	 * For a {@link MenuScroller}, adding a new thing will remove all existing things, as this thing can only hold one child thing.
-	 * Successfully adding a new thing will also set the current position of thing as {@link #basePosition}.
-	 * From there, that will be the minimum value it will scroll to from this {@link MenuScroller}, and adding {@link #amount} will be the maximum it will scroll to
-	 */
-	@Override
-	public boolean addThing(MenuThing<D> thing){
-		// Save the current things
-		Collection<MenuThing<D>> things = this.getThings();
-		Collection<MenuThing<D>> oldThings = List.copyOf(things);
-		
-		// Clear out the old things and add the new thing
-		things.clear();
-		boolean success = super.addThing(thing);
-		
-		// If the new thing failed to add, empty out the things and add the old things back
-		if(!success){
-			things.clear();
-			things.addAll(oldThings);
-		}
-		else{
-			// Update the position and add the button back
-			this.basePosition = this.button.findBasePosition(thing);
-			things.add(this.button);
-		}
-		return success;
+	/** @param See {@link #movingThing} */
+	public void setMovingThing(MenuThing<D> thing){
+		this.movingThing = thing;
+		// Update the position of this scroller
+		this.basePosition = this.button.findBasePosition(thing);
 	}
-
+	
+	/** @return See {@link #movingThing} */
+	public MenuThing<D> getMovingThing(){
+		return this.movingThing;
+	}
+	
 	/** @return A MenuScrollerButton implemented to move the scroll button around in the desired way */
 	public abstract MenuScrollerButton<D> generateButton();
 	
