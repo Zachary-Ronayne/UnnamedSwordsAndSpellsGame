@@ -1,5 +1,7 @@
 package zusass.menu.savesmenu;
 
+import static org.lwjgl.glfw.GLFW.*;
+
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
@@ -72,6 +74,12 @@ public class SavesMenu extends ZUSASSMenu{
 			r.setColor(new ZColor(.8));
 			r.drawText(10, 700, this.messageText);
 		}
+	}
+	
+	@Override
+	public void keyAction(Game<ZUSASSData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyAction(game, button, press, shift, alt, ctrl);
+		if(!press && button == GLFW_KEY_F5) this.getLoadButtons().populate(game);
 	}
 	
 	/** @return See {@link #scroller} */

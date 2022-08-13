@@ -53,11 +53,13 @@ public final class ZUSASSConfig{
 		return file.endsWith(SAVE_FILE_SUFFIX);
 	}
 	
-	/** @return The most recently saved file path, or null if no files exist */
+	/** @return The most recently saved valid file, or null if no valid files exist */
 	public static String getMostRecentSave(){
 		List<File> files = getAllFiles();
 		if(files == null || files.isEmpty()) return null;
-		return createSaveFileSuffix(files.get(0).getPath());
+		String path = files.get(0).getPath();
+		if(!validSaveFileName(path)) return null;
+		return path;
 	}
 
 	/**
