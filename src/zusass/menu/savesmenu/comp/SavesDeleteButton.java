@@ -22,7 +22,6 @@ public class SavesDeleteButton extends SavesMenuButton{
 
 	@Override
 	public void click(Game<ZUSASSData> game){
-		// TODO make it actually delete the file and the button and reset stuff
 		LoadSaveButton button = this.getMenu().getLoadButtons().getSelected();
 		if(button == null) return;
 		String path = button.getPath();

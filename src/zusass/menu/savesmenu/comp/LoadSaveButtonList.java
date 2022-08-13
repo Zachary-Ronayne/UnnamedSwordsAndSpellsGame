@@ -50,6 +50,7 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 		if(files == null) return false;
 		
 		// Populate the button array
+		if(this.buttons != null) this.buttons.forEach(b -> removeThing(b));
 		this.buttons = new ArrayList<LoadSaveButton>();
 		int i = 0;
 		for(File file : files){
