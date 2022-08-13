@@ -8,12 +8,13 @@ import static org.lwjgl.glfw.GLFW.*;
  * A {@link MenuThing} that can be used to have a user type things in
  */
 public class MenuTextBox<D>extends MenuButton<D>{
-
+	
 	/** true if this {@link MenuTextBox} is selected and will accept text input, false otherwise */
 	private boolean selected;
-
+	
 	/**
 	 * Create a new {@link MenuTextBox} with the given values
+	 * 
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}
@@ -26,24 +27,25 @@ public class MenuTextBox<D>extends MenuButton<D>{
 		this.setTextY(this.getHeight() - 5);
 		this.setFontSize(20);
 	}
-
+	
 	@Override
 	public void mouseAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.mouseAction(game, button, press, shift, alt, ctrl);
 		this.setSelected(this.getBounds().contains(game.mouseSX(), game.mouseSY()));
 	}
-
+	
 	@Override
 	public void keyAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(!this.isSelected()) return;
 		if(press) return;
-
+		
 		if(button == GLFW_KEY_BACKSPACE){
 			String t = this.getText();
 			if(t.length() > 0) this.setText(t.substring(0, t.length() - 1));
 			return;
 		}
+		// I'm aware GLFW key integers generally match ASCII, but doing it this way gives me more explicit control over what keys type what
 		Character toAdd = null;
 		switch(button){
 			case GLFW_KEY_A -> toAdd = 'a';
@@ -73,18 +75,41 @@ public class MenuTextBox<D>extends MenuButton<D>{
 			case GLFW_KEY_Y -> toAdd = 'y';
 			case GLFW_KEY_Z -> toAdd = 'z';
 			case GLFW_KEY_SPACE -> toAdd = ' ';
+			case GLFW_KEY_GRAVE_ACCENT -> toAdd = shift ? '~' : '`';
+			case GLFW_KEY_1 -> toAdd = shift ? '!' : '1';
+			case GLFW_KEY_2 -> toAdd = shift ? '@' : '2';
+			case GLFW_KEY_3 -> toAdd = shift ? '#' : '3';
+			case GLFW_KEY_4 -> toAdd = shift ? '$' : '4';
+			case GLFW_KEY_5 -> toAdd = shift ? '%' : '5';
+			case GLFW_KEY_6 -> toAdd = shift ? '^' : '6';
+			case GLFW_KEY_7 -> toAdd = shift ? '&' : '7';
+			case GLFW_KEY_8 -> toAdd = shift ? '*' : '8';
+			case GLFW_KEY_9 -> toAdd = shift ? '(' : '9';
+			case GLFW_KEY_0 -> toAdd = shift ? ')' : '0';
+			case GLFW_KEY_MINUS -> toAdd = shift ? '_' : '-';
+			case GLFW_KEY_EQUAL -> toAdd = shift ? '+' : '=';
+			case GLFW_KEY_LEFT_BRACKET -> toAdd = shift ? '{' : '[';
+			case GLFW_KEY_RIGHT_BRACKET -> toAdd = shift ? '}' : '}';
+			case GLFW_KEY_BACKSLASH -> toAdd = shift ? '|' : '\\';
+			case GLFW_KEY_SEMICOLON -> toAdd = shift ? ':' : ';';
+			case GLFW_KEY_APOSTROPHE -> toAdd = shift ? '"' : '\'';
+			case GLFW_KEY_COMMA -> toAdd = shift ? '<' : ',';
+			case GLFW_KEY_PERIOD -> toAdd = shift ? '>' : '.';
+			case GLFW_KEY_SLASH -> toAdd = shift ? '?' : '/';
 		}
 		if(toAdd != null){
-			if(shift) toAdd = Character.toUpperCase(toAdd);
+			if(shift){
+				if('a' <= toAdd && toAdd <= 'z') toAdd = Character.toUpperCase(toAdd);
+			}
 			this.setText(this.getText() + toAdd);
 		}
 	}
-
+	
 	/** @return See {@link #selected} */
 	public boolean isSelected(){
 		return this.selected;
 	}
-
+	
 	/** @param selected See {@link #selected} */
 	public void setSelected(boolean selected){
 		this.selected = selected;
