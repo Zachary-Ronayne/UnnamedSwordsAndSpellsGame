@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera;
+import zgame.core.graphics.font.GameFont;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.sound.EffectsPlayer;
@@ -159,7 +160,7 @@ public class MainTest extends Game<TestData>{
 		testerState = new TesterGameState();
 		engineState = new GameEngineState();
 		testerGame.setPlayState(engineState);
-		menuState = new TesterMenuState();
+		menuState = new TesterMenuState(testerGame);
 		testerGame.setCurrentState(menuState);
 		window = testerGame.getWindow();
 		window.center();
@@ -570,8 +571,8 @@ public class MainTest extends Game<TestData>{
 	}
 	
 	public static class TesterMenuState extends MenuState<TestData>{
-		public TesterMenuState(){
-			super(new TesterMenu());
+		public TesterMenuState(Game<TestData> game){
+			super(new TesterMenu(game));
 		}
 		
 		@Override
@@ -589,7 +590,7 @@ public class MainTest extends Game<TestData>{
 	}
 	
 	public static class TesterMenu extends Menu<TestData>{
-		public TesterMenu(){
+		public TesterMenu(Game<TestData> game){
 			super(100, 250);
 			this.setWidth(800);
 			this.setHeight(350);
@@ -657,6 +658,7 @@ public class MainTest extends Game<TestData>{
 					ZStringUtils.prints(this.getText());
 				}
 			};
+			textBox.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
 			base.addThing(textBox);
 		}
 		

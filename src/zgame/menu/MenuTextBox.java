@@ -1,6 +1,8 @@
 package zgame.menu;
 
 import zgame.core.Game;
+import zgame.core.graphics.font.GameFont;
+import zgame.core.utils.ZStringUtils;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -25,7 +27,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 		this.selected = false;
 		this.setTextX(5);
 		this.setTextY(this.getHeight() - 5);
-		this.setFontSize(20);
+		this.setFont(new GameFont(null, 20, 0, 0));
 	}
 	
 	@Override
@@ -89,7 +91,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 			case GLFW_KEY_MINUS -> toAdd = shift ? '_' : '-';
 			case GLFW_KEY_EQUAL -> toAdd = shift ? '+' : '=';
 			case GLFW_KEY_LEFT_BRACKET -> toAdd = shift ? '{' : '[';
-			case GLFW_KEY_RIGHT_BRACKET -> toAdd = shift ? '}' : '}';
+			case GLFW_KEY_RIGHT_BRACKET -> toAdd = shift ? '}' : ']';
 			case GLFW_KEY_BACKSLASH -> toAdd = shift ? '|' : '\\';
 			case GLFW_KEY_SEMICOLON -> toAdd = shift ? ':' : ';';
 			case GLFW_KEY_APOSTROPHE -> toAdd = shift ? '"' : '\'';
@@ -101,7 +103,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 			if(shift){
 				if('a' <= toAdd && toAdd <= 'z') toAdd = Character.toUpperCase(toAdd);
 			}
-			this.setText(this.getText() + toAdd);
+			this.setText(ZStringUtils.concat(this.getText(), toAdd));
 		}
 	}
 	

@@ -124,6 +124,7 @@ public class MenuText<D>extends MenuThing<D>{
 	
 	/** @param fontSize See {@link #fontSize} */
 	public void setFontSize(double fontSize){
+		if(this.getFont() != null) this.setFont(this.getFont().size(fontSize));
 		this.fontSize = fontSize;
 	}
 	
