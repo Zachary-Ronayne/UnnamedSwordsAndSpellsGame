@@ -44,14 +44,18 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 	 * @return true if the files were found, false otherwise
 	 */
 	public boolean populate(Game<ZUSASSData> game){
+		// Reset the button array
+		this.setSelected(null);
+		this.removeAll();
+		if(this.buttons != null) this.buttons.forEach(b -> removeThing(b));
+		this.buttons = new ArrayList<LoadSaveButton>();
+
 		// Find all files and make sure they exist
 		String path = ZUSASSConfig.getSavesLocation();
 		List<File> files = ZUSASSConfig.getAllFiles();
 		if(files == null) return false;
 		
 		// Populate the button array
-		if(this.buttons != null) this.buttons.forEach(b -> removeThing(b));
-		this.buttons = new ArrayList<LoadSaveButton>();
 		int i = 0;
 		for(File file : files){
 			String name = file.getName();

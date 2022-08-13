@@ -227,8 +227,14 @@ public class MenuThing<D> implements GameInteractable<D>{
 	 * @return true if the thing was removed, false otherwise
 	 */
 	public boolean removeThing(MenuThing<D> thing){
+		if(thing == null) return false;
 		if(thing.getParent() == this) thing.setParent(null);
 		return this.things.remove(thing);
+	}
+
+	/** Removes everything currently in this {@link MenuThing} */
+	public void removeAll(){
+		this.things.clear();
 	}
 	
 	/** @return See {@link #things} */

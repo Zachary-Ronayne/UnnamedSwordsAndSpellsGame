@@ -11,6 +11,7 @@ import zusass.menu.savesmenu.comp.SavesBackButton;
 import zusass.menu.savesmenu.comp.SavesDeleteButton;
 import zusass.menu.savesmenu.comp.SavesLoadButton;
 import zusass.menu.savesmenu.comp.SavesMenuScroller;
+import zusass.menu.savesmenu.comp.SavesRefreshButton;
 
 /** A {@link ZUSASSMenu} for managing game saves */
 public class SavesMenu extends ZUSASSMenu{
@@ -42,12 +43,11 @@ public class SavesMenu extends ZUSASSMenu{
 		this.setTitleX(50);
 		
 		this.addThing(new SavesBackButton(this, game));
+		this.addThing(new SavesRefreshButton(this, game));
 		
 		this.scroller = new SavesMenuScroller();
 		this.loadButtons = new LoadSaveButtonList(this, game);
 		this.addThing(scroller);
-
-		// TODO add reload files button
 
 		this.extraButtonHolder = new MenuThing<ZUSASSData>();
 		this.extraButtonHolder.addThing(new SavesLoadButton(this, game));

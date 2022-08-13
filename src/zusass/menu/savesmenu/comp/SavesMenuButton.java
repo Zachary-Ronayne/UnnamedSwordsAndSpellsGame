@@ -9,6 +9,11 @@ import zusass.menu.savesmenu.SavesMenu;
 /** A {@link ZUSASSButton} for navigating the {@link SavesMenu} */
 public class SavesMenuButton extends ZUSASSButton{
 
+	/** The width of every {@link SavesMenuButton} */
+	public static final double WIDTH = 160;
+	/** The height of every {@link SavesMenuButton} */
+	public static final double HEIGHT = 40;
+
 	// The {@link SavesMenu} associated with this button
 	private SavesMenu menu;
 	
@@ -21,7 +26,7 @@ public class SavesMenuButton extends ZUSASSButton{
 	 * @param game The {@link Game} that uses this button
 	 */
 	public SavesMenuButton(double x, double y, String text, SavesMenu menu, Game<ZUSASSData> game){
-		super(x, y, 150, 40, text, game);
+		super(x, y, WIDTH, HEIGHT, text, game);
 		this.menu = menu;
 		this.setFontSize(30);
 		this.setTextY(35);
