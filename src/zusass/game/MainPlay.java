@@ -48,6 +48,8 @@ public class MainPlay extends PlayState<ZUSASSData>{
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(press) return;
 		if(button == GLFW_KEY_ESCAPE){
+			ZUSASSData d = game.getData();
+			d.checkAutoSave(game);
 			if(shift) this.enterMainMenu(game);
 			else this.enterHub(game);
 		}

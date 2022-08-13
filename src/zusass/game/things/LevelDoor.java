@@ -5,7 +5,6 @@ import zgame.things.still.Door;
 import zgame.things.type.PositionedHitboxThing;
 import zgame.world.Room;
 import zusass.ZUSASSData;
-import zusass.ZUSASSGame;
 import zusass.game.LevelRoom;
 import zusass.game.things.entities.ZUSASSPlayer;
 
@@ -48,10 +47,9 @@ public class LevelDoor extends Door{
 		
 		// Update the highest level room the player has been in
 		if(success){
-			// TODO add an option for autosaving on or off
 			ZUSASSData d = (ZUSASSData)game.getData();
 			d.updatedHighestRoomLevel(this.getLevel());
-			((ZUSASSGame)game).saveLoadedGame();
+			d.checkAutoSave(game);
 		}
 		return success;
 	}
