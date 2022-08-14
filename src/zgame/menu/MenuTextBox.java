@@ -4,7 +4,6 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.font.GameFont;
-import zgame.core.utils.ZRect;
 import zgame.core.utils.ZStringUtils;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -19,7 +18,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	
 	/** The amount of distance the text of this {@link MenuTextBox} will render to modify what part of the string is visible */
 	private double textOffset;
-
+	
 	/** The current width of the text of this text box */
 	private double textWidth;
 	
@@ -43,6 +42,12 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	
 	/** true if the cursor will currently display, false otherwise */
 	private boolean blinkCursor;
+	
+	/** The index of the current text where new text will be inserted */
+	private int cursorIndex;
+	
+	/** The distance the cursor will be drawn from the beginning of the string */
+	private double cursorLocation;
 	
 	/**
 	 * Create a new {@link MenuTextBox} with the given values
@@ -70,6 +75,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 		this.blinkTime = .7;
 		this.currentBlinkTime = 0;
 		this.blinkCursor = false;
+		this.setCursorIndex(-1);
 	}
 	
 	@Override
@@ -96,7 +102,15 @@ public class MenuTextBox<D>extends MenuButton<D>{
 		
 		if(button == GLFW_KEY_BACKSPACE){
 			String t = this.getText();
-			if(t.length() > 0) this.setText(t.substring(0, t.length() - 1));
+			if(this.getCursorIndex() < t.length() && this.cursorIndex >= 0){
+				this.setText(ZStringUtils.removeChar(t, this.getCursorIndex()));
+				this.cursorLeft();
+			}
+			return;
+		}
+		else if(button == GLFW_KEY_DELETE){
+			String t = this.getText();
+			if(this.getCursorIndex() + 1 < t.length()) this.setText(ZStringUtils.removeChar(t, this.getCursorIndex() + 1));
 			return;
 		}
 		// I'm aware GLFW key integers generally match ASCII, but doing it this way gives me more explicit control over what keys type what
@@ -150,10 +164,13 @@ public class MenuTextBox<D>extends MenuButton<D>{
 			case GLFW_KEY_COMMA -> toAdd = shift ? '<' : ',';
 			case GLFW_KEY_PERIOD -> toAdd = shift ? '>' : '.';
 			case GLFW_KEY_SLASH -> toAdd = shift ? '?' : '/';
+			case GLFW_KEY_LEFT -> this.cursorLeft();
+			case GLFW_KEY_RIGHT -> this.cursorRight();
 		}
 		if(toAdd != null){
-			if(shift){ if('a' <= toAdd && toAdd <= 'z') toAdd = Character.toUpperCase(toAdd); }
-			this.setText(ZStringUtils.concat(this.getText(), toAdd));
+			if(shift && 'a' <= toAdd && toAdd <= 'z') toAdd = Character.toUpperCase(toAdd);
+			this.setText(ZStringUtils.insertString(this.getText(), Math.max(0, this.getCursorIndex() + 1), toAdd));
+			this.cursorRight();
 		}
 	}
 	
@@ -171,16 +188,15 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	public void render(Game<D> game, Renderer r){
 		this.updateTextOffset(r);
 		super.render(game, r);
-
+		
 		if(this.getText().isEmpty()){
 			r.setColor(this.getHintColor());
 			this.drawText(r, this.getHint());
 		}
-		
 		if(this.isSelected() && this.isBlinkCursor()){
 			r.setColor(this.getCursorColor());
 			double fontSize = this.getFontSize();
-			r.drawRectangle(this.getX() + this.getTextX() + this.getTextWidth(), this.getY() + this.getTextY() - fontSize, this.getCursorWidth(), fontSize);
+			r.drawRectangle(this.getX() + this.getTextX() + this.getCursorLocation(), this.getY() + this.getTextY() - fontSize, this.getCursorWidth(), fontSize);
 		}
 	}
 	
@@ -204,13 +220,13 @@ public class MenuTextBox<D>extends MenuButton<D>{
 		double w = this.getWidth();
 		return Math.max(w - 10, w * 0.9) - this.getCursorWidth();
 	}
-
+	
 	@Override
 	public void setText(String text){
 		super.setText(text);
 		this.textWidth = this.getFont().stringWidth(this.getText());
 	}
-
+	
 	/** @return See {@link #textWidth} */
 	public double getTextWidth(){
 		return this.textWidth;
@@ -274,6 +290,39 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	/** @return See {@link #blinkCursor} */
 	public boolean isBlinkCursor(){
 		return this.blinkCursor;
+	}
+	
+	/** @return See {@link #cursorIndex} */
+	public int getCursorIndex(){
+		return this.cursorIndex;
+	}
+	
+	/** @param See {@link #cursorIndex}. If the index is out of bounds of {@link #getText()}, it goes on the end of the string it's closest to */
+	public void setCursorIndex(int cursorIndex){
+		if(cursorIndex < -1) cursorIndex = -1;
+		if(cursorIndex >= this.getText().length()) cursorIndex = this.getText().length() - 1;
+		if(cursorIndex != this.cursorIndex){
+			this.blinkCursor = true;
+			this.currentBlinkTime = 0;
+		}
+		this.cursorIndex = cursorIndex;
+		this.cursorLocation = this.cursorIndex < 0 ? 
+		0 : this.getFont().stringWidth(this.getText().substring(0, this.getCursorIndex() + 1));
+	}
+	
+	/** Move the cursor one character left. Does nothing if the cursor is already all the way left */
+	public void cursorLeft(){
+		this.setCursorIndex(this.getCursorIndex() - 1);
+	}
+	
+	/** Move the cursor one character right. Does nothing if the cursor is already all the way right */
+	public void cursorRight(){
+		this.setCursorIndex(this.getCursorIndex() + 1);
+	}
+	
+	/** @return See {@link #cursorLocation} */
+	public double getCursorLocation(){
+		return this.cursorLocation;
 	}
 	
 }

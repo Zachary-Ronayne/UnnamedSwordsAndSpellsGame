@@ -30,6 +30,7 @@ public class NewGamePopup extends Menu<ZUSASSData>{
 		this.addThing(textBox);
 		textBox.centerHorizontal();
 		
+		// TODO hide this button until a name is entered
 		ZUSASSButton create = new CreateGameButton(textBox, game);
 		this.addThing(create);
 		create.centerHorizontal();
