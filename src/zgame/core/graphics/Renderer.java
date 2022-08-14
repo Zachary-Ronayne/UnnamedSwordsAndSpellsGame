@@ -566,6 +566,8 @@ public class Renderer{
 	public void fill(){
 		this.renderModeShapes();
 		this.rectVertArr.bind();
+		// Update the current color for this draw operation
+		this.updateColor();
 		
 		this.pushMatrix();
 		this.identityMatrix();
