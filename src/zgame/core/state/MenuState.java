@@ -130,16 +130,16 @@ public abstract class MenuState<D>extends GameState<D>{
 	
 	@Override
 	public void render(Game<D> game, Renderer r){
-		Menu<D> menu = this.getTopMenu();
-		menu.renderBackground(game, r);
-		menu.render(game, r);
-		menu.renderHud(game, r);
 		for(int i = 0; i < this.menuStack.size() - 1; i++){
 			MenuNode<D> m = this.menuStack.get(i);
 			m.renderBackground(game, r);
 			m.render(game, r);
 			m.renderHud(game, r);
 		}
+		Menu<D> menu = this.getTopMenu();
+		menu.renderBackground(game, r);
+		menu.render(game, r);
+		menu.renderHud(game, r);
 	}
 	
 	/** Does nothing for MenuState */
