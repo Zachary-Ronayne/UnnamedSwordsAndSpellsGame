@@ -1,7 +1,9 @@
 package zgame.menu;
 
 import zgame.core.Game;
+import zgame.core.graphics.Renderer;
 import zgame.core.graphics.font.GameFont;
+import zgame.core.utils.ZRect;
 import zgame.core.utils.ZStringUtils;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -13,6 +15,9 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	
 	/** true if this {@link MenuTextBox} is selected and will accept text input, false otherwise */
 	private boolean selected;
+	
+	/** The amount of distance the text of this {@link MenuTextBox} will render to modify what part of the string is visible */
+	private double textOffset;
 	
 	/**
 	 * Create a new {@link MenuTextBox} with the given values
@@ -28,6 +33,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 		this.setTextX(5);
 		this.setTextY(this.getHeight() - 5);
 		this.setFont(new GameFont(null, 20, 0, 0));
+		this.textOffset = 0;
 	}
 	
 	@Override
@@ -100,9 +106,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 			case GLFW_KEY_SLASH -> toAdd = shift ? '?' : '/';
 		}
 		if(toAdd != null){
-			if(shift){
-				if('a' <= toAdd && toAdd <= 'z') toAdd = Character.toUpperCase(toAdd);
-			}
+			if(shift){ if('a' <= toAdd && toAdd <= 'z') toAdd = Character.toUpperCase(toAdd); }
 			this.setText(ZStringUtils.concat(this.getText(), toAdd));
 		}
 	}
@@ -115,6 +119,34 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	/** @param selected See {@link #selected} */
 	public void setSelected(boolean selected){
 		this.selected = selected;
+	}
+	
+	@Override
+	public void render(Game<D> game, Renderer r){
+		this.updateTextOffset(r);
+		super.render(game, r);
+	}
+	
+	/**
+	 * Update the current value of {@link #textOffset} based on the state of the given {@link Renderer}
+	 * 
+	 * @param r The renderer
+	 */
+	public void updateTextOffset(Renderer r){
+		ZRect sBounds = r.getFont().stringBounds(this.getText());
+		if(sBounds.width > this.getTextLimit()) this.textOffset = this.getTextLimit() - sBounds.width;
+		else this.textOffset = 0;
+	}
+	
+	@Override
+	public double getTextX(){
+		return super.getTextX() + this.textOffset;
+	}
+	
+	/** @return The space between the end of this text box and where the string will start to shift over to the left to keep the end of the string visible */
+	public double getTextLimit(){
+		double w = this.getWidth();
+		return Math.max(w - 10, w * 0.9);
 	}
 	
 }
