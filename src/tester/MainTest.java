@@ -114,7 +114,7 @@ import com.google.gson.JsonObject;
  * L = toggle lock camera to player
  */
 public class MainTest extends Game<TestData>{
-
+	
 	public static Game<TestData> testerGame;
 	public static GameState<TestData> testerState;
 	public static PlayState<TestData> engineState;
@@ -573,6 +573,7 @@ public class MainTest extends Game<TestData>{
 	public static class TesterMenuState extends MenuState<TestData>{
 		public TesterMenuState(Game<TestData> game){
 			super(new TesterMenu(game));
+			((TesterMenu)this.getMenu()).state = this;
 		}
 		
 		@Override
@@ -582,14 +583,16 @@ public class MainTest extends Game<TestData>{
 		}
 		
 		@Override
-		public void renderBackground(Game<TestData> game, Renderer r){
+		public void render(Game<TestData> game, Renderer r){
 			r.setColor(.1, .1, .1);
 			r.fill();
-			super.renderBackground(game, r);
+			super.render(game, r);
 		}
 	}
 	
 	public static class TesterMenu extends Menu<TestData>{
+		public TesterMenuState state;
+		
 		public TesterMenu(Game<TestData> game){
 			super(100, 250);
 			this.setWidth(800);
@@ -620,7 +623,7 @@ public class MainTest extends Game<TestData>{
 			this.addThing(base);
 			scrollX.setMovingThing(base);
 			scrollY.setMovingThing(base);
-
+			
 			MenuButton<TestData> t = new MenuButton<TestData>(10, 10, 300, 50){
 				@Override
 				public void click(Game<TestData> game){
@@ -651,7 +654,18 @@ public class MainTest extends Game<TestData>{
 			t.setFill(new ZColor(.5, 0, 0));
 			t.setText("Exit");
 			base.addThing(t);
-
+			
+			t = new MenuButton<TestData>(50, 220, 200, 50){
+				@Override
+				public void click(Game<TestData> game){
+					createPopup(game);
+				}
+			};
+			t.setText("popup");
+			t.setTextY(45);
+			t.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
+			base.addThing(t);
+			
 			MenuTextBox<TestData> textBox = new MenuTextBox<>(300, 100, 300, 50){
 				@Override
 				public void click(Game<TestData> game){
@@ -660,6 +674,27 @@ public class MainTest extends Game<TestData>{
 			};
 			textBox.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
 			base.addThing(textBox);
+		}
+		
+		public void createPopup(Game<TestData> game){
+			Menu<TestData> menu = new Menu<TestData>();
+			MenuButton<TestData> b = new MenuButton<>(100, 100, 300, 100){
+				@Override
+				public void renderBackground(Game<TestData> game, Renderer r){
+					super.renderBackground(game, r);
+					r.setColor(.2, .2, .4, .3);
+					r.fill();
+				}
+				@Override
+				public void click(Game<TestData> game){
+					state.removeTopMenu();
+				}
+			};
+			b.setText("exit popup");
+			b.setTextY(90);
+			b.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
+			menu.addThing(b);
+			this.state.popupMenu(menu);
 		}
 		
 		@Override
