@@ -299,6 +299,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	
 	/** @param See {@link #cursorIndex}. If the index is out of bounds of {@link #getText()}, it goes on the end of the string it's closest to */
 	public void setCursorIndex(int cursorIndex){
+		// TODO set the cursor based on clicking
 		if(cursorIndex < -1) cursorIndex = -1;
 		if(cursorIndex >= this.getText().length()) cursorIndex = this.getText().length() - 1;
 		if(cursorIndex != this.cursorIndex){
