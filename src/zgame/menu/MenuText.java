@@ -135,7 +135,16 @@ public class MenuText<D>extends MenuThing<D>{
 		if(this.getFont() != null) r.setFont(this.getFont());
 		r.setColor(this.getFontColor());
 		r.setFontSize(this.getFontSize());
-		r.drawText(this.getX() + getTextX(), this.getY() + getTextY(), this.getText(), this.getBounds());
+		this.drawText(r, this.getText());
+	}
+
+	/**
+	 * Draw the given text on this menu at it's intended location
+	 * @param r The Renderer to use to draw the text
+	 * @param text The text to draw
+	 */
+	public void drawText(Renderer r, String text){
+		r.drawText(this.getX() + getTextX(), this.getY() + getTextY(), text, this.getBounds());
 	}
 	
 }

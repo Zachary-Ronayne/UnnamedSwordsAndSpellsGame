@@ -2,6 +2,7 @@ package zgame.menu;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.utils.ZRect;
 import zgame.core.utils.ZStringUtils;
@@ -18,6 +19,12 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	
 	/** The amount of distance the text of this {@link MenuTextBox} will render to modify what part of the string is visible */
 	private double textOffset;
+
+	/** The text to show as a hint of what should be typed in the text box */
+	private String hint;
+
+	/** The color to use for {@link #hint} */
+	private ZColor hintColor;
 	
 	/**
 	 * Create a new {@link MenuTextBox} with the given values
@@ -34,6 +41,8 @@ public class MenuTextBox<D>extends MenuButton<D>{
 		this.setTextY(this.getHeight() - 5);
 		this.setFont(new GameFont(null, 20, 0, 0));
 		this.textOffset = 0;
+		this.hint = "";
+		this.hintColor = new ZColor(.5);
 	}
 	
 	@Override
@@ -125,6 +134,10 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	public void render(Game<D> game, Renderer r){
 		this.updateTextOffset(r);
 		super.render(game, r);
+		if(this.getText().isEmpty()){
+			r.setColor(this.getHintColor());
+			this.drawText(r, this.getHint());
+		}
 	}
 	
 	/**
@@ -147,6 +160,26 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	public double getTextLimit(){
 		double w = this.getWidth();
 		return Math.max(w - 10, w * 0.9);
+	}
+
+	/** @return See {@link #hint} */
+	public String getHint(){
+		return this.hint;
+	}
+	
+	/** @param hint See {@link #hint} */
+	public void setHint(String hint){
+		this.hint = hint;
+	}
+	
+	/** @return See {@link #hintColor} */
+	public ZColor getHintColor(){
+		return this.hintColor;
+	}
+	
+	/** @param hintColor See {@link #hintColor} */
+	public void setHintColor(ZColor hintColor){
+		this.hintColor = hintColor;
 	}
 	
 }

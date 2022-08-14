@@ -299,9 +299,9 @@ public class MenuThing<D> implements GameInteractable<D>{
 	/** Do not call directly */
 	@Override
 	public void render(Game<D> game, Renderer r){
-		r.setColor(this.border);
+		r.setColor(this.getBorder());
 		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-		r.setColor(this.fill);
+		r.setColor(this.getFill());
 		double b = this.getBorderWidth();
 		r.drawRectangle(this.getX() + b, this.getY() + b, this.getWidth() - b * 2, this.getHeight() - b * 2);
 		for(int i = 0; i < this.things.size(); i++){

@@ -114,7 +114,7 @@ public class GameFont{
 		FontAsset a = this.getAsset();
 		
 		// If there is no string, then the rectangle is empty
-		if(text == null || text.isEmpty()) return new ZRect(x, y, 0, 0);
+		if(a == null || text == null || text.isEmpty()) return new ZRect(x, y, 0, 0);
 		
 		// Set up buffers
 		IntBuffer wb = BufferUtils.createIntBuffer(1);

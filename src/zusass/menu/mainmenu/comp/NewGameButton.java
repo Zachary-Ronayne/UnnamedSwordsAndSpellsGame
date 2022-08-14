@@ -4,13 +4,17 @@ import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuButton;
 import zusass.ZUSASSData;
-import zusass.game.MainPlay;
-import zusass.utils.ZUSASSConfig;
+import zusass.menu.mainmenu.comp.newgamemenu.NewGamePopup;
 
 /** The {@link MenuButton} in the main menu for creating a new game */
 public class NewGameButton extends MainMenuButton{
 	
-	/** Create the {@link NewGameButton} */
+	/**
+	 * Create the {@link NewGameButton}
+	 * 
+	 * @param game The ZUSASS game associated with this button
+	 * @param state see {@link #state}
+	 */
 	public NewGameButton(Game<ZUSASSData> game){
 		super(50, 350, "New Game", game);
 		this.setFill(new ZColor(.4));
@@ -18,15 +22,7 @@ public class NewGameButton extends MainMenuButton{
 	
 	@Override
 	public void click(Game<ZUSASSData> game){
-		ZUSASSData data = new ZUSASSData();
-		// TODO make an actual way of giving the save files a name, a text box, the nanotime thing is just a simple temporary way to make names
-		data.setLoadedFile(ZUSASSConfig.createSaveFilePath(System.nanoTime() + ""));
-		game.setData(data);
-
-		MainPlay play = new MainPlay(game);
-		play.enterHub(game);
-		game.setPlayState(play);
-		game.enterPlayState();
+		game.getCurrentState().popupMenu(new NewGamePopup(this, game));
 	}
 	
 }

@@ -13,16 +13,20 @@ import zusass.utils.ZUSASSConfig;
 
 /** The {@link ZUSASSMenu} for the main menu of the game */
 public class MainMenu extends ZUSASSMenu{
-
-	/** Initialize the {@link MainMenu} */
+	
+	/**
+	 * Initialize the {@link MainMenu}
+	 * 
+	 * @param game The ZUSASS game associated with this {@link MainMenu}
+	 */
 	public MainMenu(Game<ZUSASSData> game){
 		super("ZUSASS");
-		
 		this.initButtons(game);
 	}
-
+	
 	/**
 	 * Initialize this menu to a default state
+	 * 
 	 * @param game The game to base the buttons on
 	 */
 	public void initButtons(Game<ZUSASSData> game){
@@ -35,7 +39,7 @@ public class MainMenu extends ZUSASSMenu{
 		this.addThing(new NewGameButton(game));
 		this.addThing(new ExitButton(game));
 	}
-
+	
 	@Override
 	public void keyAction(Game<ZUSASSData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(game, button, press, shift, alt, ctrl);
