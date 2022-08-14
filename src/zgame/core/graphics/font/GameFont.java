@@ -75,6 +75,16 @@ public class GameFont{
 		// Return if the character went to a new line
 		return newLine;
 	}
+
+	/**
+	 * Find the length of text in pixels
+	 * 
+	 * @param text The text to check
+	 * @return The length
+	 */
+	public double stringWidth(String text){
+		return this.stringBounds(text).width;
+	}
 	
 	/**
 	 * Find the bounds of a string drawn with this font, assuming the text is drawn at (0, 0)

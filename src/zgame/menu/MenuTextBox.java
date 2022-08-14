@@ -20,11 +20,29 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	/** The amount of distance the text of this {@link MenuTextBox} will render to modify what part of the string is visible */
 	private double textOffset;
 
+	/** The current width of the text of this text box */
+	private double textWidth;
+	
 	/** The text to show as a hint of what should be typed in the text box */
 	private String hint;
-
+	
 	/** The color to use for {@link #hint} */
 	private ZColor hintColor;
+	
+	/** The size of the blinking cursor showing where the text will be typed */
+	private double cursorWidth;
+	
+	/** The color of the cursor showing where the text will be typed */
+	private ZColor cursorColor;
+	
+	/** The amount of time, in seconds, to keep the cursor hidden or blinked on */
+	private double blinkTime;
+	
+	/** The current count of time until the next cursor blink needs to happen */
+	private double currentBlinkTime;
+	
+	/** true if the cursor will currently display, false otherwise */
+	private boolean blinkCursor;
 	
 	/**
 	 * Create a new {@link MenuTextBox} with the given values
@@ -42,8 +60,26 @@ public class MenuTextBox<D>extends MenuButton<D>{
 		this.setTextY(this.getHeight() - 5);
 		this.setFont(new GameFont(null, 20, 0, 0));
 		this.textOffset = 0;
+		this.textWidth = 0;
+		
 		this.hint = "";
 		this.hintColor = new ZColor(.5);
+		
+		this.cursorWidth = 5;
+		this.cursorColor = new ZColor(0, .5);
+		this.blinkTime = .7;
+		this.currentBlinkTime = 0;
+		this.blinkCursor = false;
+	}
+	
+	@Override
+	public void tick(Game<D> game, double dt){
+		super.tick(game, dt);
+		this.currentBlinkTime += dt;
+		if(this.getCurrentBlinkTime() > this.getBlinkTime()){
+			this.blinkCursor = !this.blinkCursor;
+			this.currentBlinkTime -= this.getBlinkTime();
+		}
 	}
 	
 	@Override
@@ -135,9 +171,16 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	public void render(Game<D> game, Renderer r){
 		this.updateTextOffset(r);
 		super.render(game, r);
+
 		if(this.getText().isEmpty()){
 			r.setColor(this.getHintColor());
 			this.drawText(r, this.getHint());
+		}
+		
+		if(this.isSelected() && this.isBlinkCursor()){
+			r.setColor(this.getCursorColor());
+			double fontSize = this.getFontSize();
+			r.drawRectangle(this.getX() + this.getTextX() + this.getTextWidth(), this.getY() + this.getTextY() - fontSize, this.getCursorWidth(), fontSize);
 		}
 	}
 	
@@ -146,9 +189,8 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	 * 
 	 * @param r The renderer
 	 */
-	public void updateTextOffset(Renderer r){
-		ZRect sBounds = r.getFont().stringBounds(this.getText());
-		if(sBounds.width > this.getTextLimit()) this.textOffset = this.getTextLimit() - sBounds.width;
+	private void updateTextOffset(Renderer r){
+		if(this.getTextWidth() > this.getTextLimit()) this.textOffset = this.getTextLimit() - this.getTextWidth();
 		else this.textOffset = 0;
 	}
 	
@@ -160,9 +202,20 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	/** @return The space between the end of this text box and where the string will start to shift over to the left to keep the end of the string visible */
 	public double getTextLimit(){
 		double w = this.getWidth();
-		return Math.max(w - 10, w * 0.9);
+		return Math.max(w - 10, w * 0.9) - this.getCursorWidth();
 	}
 
+	@Override
+	public void setText(String text){
+		super.setText(text);
+		this.textWidth = this.getFont().stringWidth(this.getText());
+	}
+
+	/** @return See {@link #textWidth} */
+	public double getTextWidth(){
+		return this.textWidth;
+	}
+	
 	/** @return See {@link #hint} */
 	public String getHint(){
 		return this.hint;
@@ -181,6 +234,46 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	/** @param hintColor See {@link #hintColor} */
 	public void setHintColor(ZColor hintColor){
 		this.hintColor = hintColor;
+	}
+	
+	/** @return See {@link #cursorWidth} */
+	public double getCursorWidth(){
+		return this.cursorWidth;
+	}
+	
+	/** @param cursorWidth See {@link #cursorWidth} */
+	public void setCursorWidth(double cursorWidth){
+		this.cursorWidth = cursorWidth;
+	}
+	
+	/** @return See {@link #cursorColor} */
+	public ZColor getCursorColor(){
+		return this.cursorColor;
+	}
+	
+	/** @param cursorWidth See {@link #cursorColor} */
+	public void setCursorColor(ZColor cursorColor){
+		this.cursorColor = cursorColor;
+	}
+	
+	/** @return See {@link #blinkTime} */
+	public double getBlinkTime(){
+		return this.blinkTime;
+	}
+	
+	/** @param cursorWidth See {@link #blinkTime} */
+	public void setBlinkTime(double blinkTime){
+		this.blinkTime = blinkTime;
+	}
+	
+	/** @return See {@link #currentBlinkTime} */
+	public double getCurrentBlinkTime(){
+		return this.currentBlinkTime;
+	}
+	
+	/** @return See {@link #blinkCursor} */
+	public boolean isBlinkCursor(){
+		return this.blinkCursor;
 	}
 	
 }
