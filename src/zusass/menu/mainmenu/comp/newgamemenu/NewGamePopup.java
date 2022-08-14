@@ -33,6 +33,7 @@ public class NewGamePopup extends Menu<ZUSASSData>{
 		ZUSSASSMenuText title = new ZUSSASSMenuText(100, 20, 600, 100, "Create new Game", game);
 		title.setFill(new ZColor(1, .5));
 		title.setBorder(new ZColor(0, 0));
+		title.centerText();
 		this.addThing(title);
 	}
 

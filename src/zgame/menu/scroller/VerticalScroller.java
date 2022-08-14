@@ -1,5 +1,7 @@
 package zgame.menu.scroller;
 
+import zgame.core.Game;
+
 /**
  * An implementation of {@link MenuScroller} for a vertical scroll bar
  * 
@@ -15,14 +17,15 @@ public class VerticalScroller<D> extends MenuScroller<D>{
 	 * @param w See {@link #getWidth()}
 	 * @param See {@link #getHeight()}
 	 * @param amount See {@link #amount}
+	 * @param game The game associated with this thing
 	 */
-	public VerticalScroller(double x, double y, double w, double h, double amount){
-		super(x, y, w, h, amount);
+	public VerticalScroller(double x, double y, double w, double h, double amount, Game<D> game){
+		super(x, y, w, h, amount, game);
 	}
 
 	@Override
-	public MenuScrollerButton<D> generateButton(){
-		return new VerticalScrollerButton<D>(this, this.getWidth(), this.getWidth() * 2);
+	public MenuScrollerButton<D> generateButton(Game<D> game){
+		return new VerticalScrollerButton<D>(this, this.getWidth(), this.getWidth() * 2, game);
 	}
 	
 }

@@ -18,7 +18,7 @@ public abstract class ZUSASSButton extends MenuButton<ZUSASSData>{
 	 * @param game The {@link Game} that uses this button
 	 */
 	public ZUSASSButton(double x, double y, double w, double h, String text, Game<ZUSASSData> game){
-		super(x, y, w, h, text);
+		super(x, y, w, h, text, game);
 		ZUSASSStyle.applyStyle(game, this);
 	}
 	

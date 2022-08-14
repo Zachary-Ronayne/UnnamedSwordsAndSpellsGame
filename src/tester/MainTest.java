@@ -607,7 +607,7 @@ public class MainTest extends Game<TestData>{
 			this.setHeight(350);
 			this.setFill(new ZColor(.1, .1, .2, 1));
 			
-			MenuScroller<TestData> scrollX = new HorizontalScroller<>(0, 370, 800, 20, 200){
+			MenuScroller<TestData> scrollX = new HorizontalScroller<>(0, 370, 800, 20, 200, game){
 				@Override
 				public void keyAction(Game<TestData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 					super.keyAction(game, button, press, shift, alt, ctrl);
@@ -618,7 +618,7 @@ public class MainTest extends Game<TestData>{
 			scrollX.setScrollWheelAsPercent(false);
 			scrollX.setScrollWheelStrength(10);
 			this.addThing(scrollX);
-			MenuScroller<TestData> scrollY = new VerticalScroller<>(820, 0, 20, 350, 100){
+			MenuScroller<TestData> scrollY = new VerticalScroller<>(820, 0, 20, 350, 100, game){
 				@Override
 				public void keyAction(Game<TestData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 					super.keyAction(game, button, press, shift, alt, ctrl);
@@ -632,7 +632,7 @@ public class MainTest extends Game<TestData>{
 			scrollX.setMovingThing(base);
 			scrollY.setMovingThing(base);
 			
-			MenuButton<TestData> t = new MenuButton<TestData>(10, 10, 300, 50){
+			MenuButton<TestData> t = new MenuButton<TestData>(10, 10, 300, 50, game){
 				@Override
 				public void click(Game<TestData> game){
 					game.setCurrentState(testerState);
@@ -641,7 +641,7 @@ public class MainTest extends Game<TestData>{
 			t.setFill(new ZColor(0, .2, .7));
 			base.addThing(t);
 			
-			t = new MenuButton<TestData>(50, 100, 200, 100){
+			t = new MenuButton<TestData>(50, 100, 200, 100, game){
 				double pos = 0;
 				
 				@Override
@@ -652,7 +652,7 @@ public class MainTest extends Game<TestData>{
 				@Override
 				public void keyAction(Game<TestData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 					if(button == GLFW_KEY_1 && !press){
-						MenuButton<TestData> b = new MenuButton<TestData>(pos, this.getHeight(), 15, 10);
+						MenuButton<TestData> b = new MenuButton<TestData>(pos, this.getHeight(), 15, 10, game);
 						b.setFill(new ZColor(0, 0, (pos / 100) % 1));
 						this.addThing(b);
 						pos += 20;
@@ -663,7 +663,7 @@ public class MainTest extends Game<TestData>{
 			t.setText("Exit");
 			base.addThing(t);
 			
-			t = new MenuButton<TestData>(50, 220, 200, 50){
+			t = new MenuButton<TestData>(50, 220, 200, 50, game){
 				@Override
 				public void click(Game<TestData> game){
 					createPopup(game);
@@ -674,7 +674,7 @@ public class MainTest extends Game<TestData>{
 			t.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
 			base.addThing(t);
 			
-			MenuTextBox<TestData> textBox = new MenuTextBox<>(300, 100, 300, 50){
+			MenuTextBox<TestData> textBox = new MenuTextBox<>(300, 100, 300, 50, game){
 				@Override
 				public void click(Game<TestData> game){
 					ZStringUtils.prints(this.getText());
@@ -686,7 +686,7 @@ public class MainTest extends Game<TestData>{
 		
 		public void createPopup(Game<TestData> game){
 			Menu<TestData> menu = new Menu<TestData>();
-			MenuButton<TestData> b = new MenuButton<>(100, 100, 300, 100){
+			MenuButton<TestData> b = new MenuButton<>(100, 100, 300, 100, game){
 				@Override
 				public void renderBackground(Game<TestData> game, Renderer r){
 					super.renderBackground(game, r);

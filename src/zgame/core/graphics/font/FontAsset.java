@@ -53,7 +53,7 @@ public class FontAsset extends Asset{
 	/** The number of characters to load from the font */
 	private int loadChars;
 	
-	/** The amount a character goes up from the line where it is drawn. This value must be scaled via */
+	/** The amount a character goes up from the line where it is drawn. This value must be scaled */
 	private int ascent;
 	/** The amount a character goes below the line where it is drawn, usually negative */
 	private int descent;

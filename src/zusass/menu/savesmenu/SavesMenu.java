@@ -47,7 +47,7 @@ public class SavesMenu extends ZUSASSMenu{
 		this.addThing(new SavesBackButton(this, game));
 		this.addThing(new SavesRefreshButton(this, game));
 		
-		this.scroller = new SavesMenuScroller();
+		this.scroller = new SavesMenuScroller(game);
 		this.loadButtons = new LoadSaveButtonList(this, game);
 		this.scroller.setMovingThing(this.loadButtons);
 		this.addThing(this.scroller);

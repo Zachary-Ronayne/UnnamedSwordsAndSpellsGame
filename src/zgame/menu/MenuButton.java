@@ -27,9 +27,10 @@ public class MenuButton<D>extends MenuText<D>{
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
+	 * @param game The game associated with this thing
 	 */
-	public MenuButton(double x, double y, double w, double h){
-		this(x, y, w, h, "");
+	public MenuButton(double x, double y, double w, double h, Game<D> game){
+		this(x, y, w, h, "", game);
 	}
 	
 	/**
@@ -40,9 +41,10 @@ public class MenuButton<D>extends MenuText<D>{
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 * @param text The text to display
+	 * @param game The game associated with this thing
 	 */
-	public MenuButton(double x, double y, double w, double h, String text){
-		super(x, y, w, h, text);
+	public MenuButton(double x, double y, double w, double h, String text, Game<D> game){
+		super(x, y, w, h, text, game);
 		this.highlightColor = new ZColor(0, .2);
 
 		this.lastClick = -1;

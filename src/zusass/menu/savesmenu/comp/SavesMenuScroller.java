@@ -1,5 +1,6 @@
 package zusass.menu.savesmenu.comp;
 
+import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.scroller.MenuScrollerButton;
 import zgame.menu.scroller.VerticalScroller;
@@ -13,9 +14,13 @@ public class SavesMenuScroller extends VerticalScroller<ZUSASSData>{
 	/** The y coordinate of this {@link SavesMenuScroller} */
 	public static final double Y = 20;
 
-	/** Create the {@link SavesMenuScroller} */
-	public SavesMenuScroller(){
-		super(X, Y, 25, 680, 0);
+	/**
+	 * Create the {@link SavesMenuScroller}
+	 * 
+	 * @param game The game associated with this thing
+	 */
+	public SavesMenuScroller(Game<ZUSASSData> game){
+		super(X, Y, 25, 680, 0, game);
 		this.setFill(new ZColor(.8));
 		this.setBorder(new ZColor(0.8));
 		this.setBorderWidth(1);

@@ -17,7 +17,7 @@ public class ZUSASSTextBox extends MenuTextBox<ZUSASSData>{
 	 * @param h See {@link #getHeight()}
 	 */
 	public ZUSASSTextBox(double x, double y, double w, double h, Game<ZUSASSData> game){
-		super(x, y, w, h);
+		super(x, y, w, h, game);
 		ZUSASSStyle.applyStyle(game, this);
 	}
 	

@@ -27,9 +27,10 @@ public abstract class MenuScrollerButton<D>extends MenuButton<D>{
 	 * @param scroller See {@link #scroller}
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
+	 * @param game The game associated with this thing
 	 */
-	public MenuScrollerButton(MenuScroller<D> scroller, double w, double h){
-		super(0, 0, w, h);
+	public MenuScrollerButton(MenuScroller<D> scroller, double w, double h, Game<D> game){
+		super(0, 0, w, h, game);
 		this.scroller = scroller;
 		this.setFill(new ZColor(0));
 		this.anchored = false;

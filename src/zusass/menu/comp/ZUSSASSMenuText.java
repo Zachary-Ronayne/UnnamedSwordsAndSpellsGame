@@ -18,7 +18,7 @@ public class ZUSSASSMenuText extends MenuText<ZUSASSData>{
 	 * @param game The game associated with this text
 	 */
 	public ZUSSASSMenuText(double x, double y, double w, double h, String text, Game<ZUSASSData> game){
-		super(x, y, w, h, text);
+		super(x, y, w, h, text, game);
 		ZUSASSStyle.applyStyle(game, this);
 	}
 	

@@ -33,9 +33,10 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
+	 * @param game The game associated with this thing
 	 */
-	public MenuTextBox(double x, double y, double w, double h){
-		super(x, y, w, h);
+	public MenuTextBox(double x, double y, double w, double h, Game<D> game){
+		super(x, y, w, h, game);
 		this.selected = false;
 		this.setTextX(5);
 		this.setTextY(this.getHeight() - 5);

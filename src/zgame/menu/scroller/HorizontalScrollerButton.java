@@ -16,9 +16,10 @@ public class HorizontalScrollerButton<D>extends MenuScrollerButton<D>{
 	 * @param scroller See {@link #scroller}
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
+	 * @param game The game associated with this thing
 	 */
-	public HorizontalScrollerButton(MenuScroller<D> scroller, double w, double h){
-		super(scroller, w, h);
+	public HorizontalScrollerButton(MenuScroller<D> scroller, double w, double h, Game<D> game){
+		super(scroller, w, h, game);
 	}
 	
 	@Override
