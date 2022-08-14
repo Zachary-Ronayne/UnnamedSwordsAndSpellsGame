@@ -6,6 +6,7 @@ import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.Menu;
 import zusass.ZUSASSData;
+import zusass.menu.comp.ZUSASSButton;
 import zusass.menu.comp.ZUSSASSMenuText;
 import zusass.menu.mainmenu.comp.NewGameButton;
 
@@ -27,16 +28,27 @@ public class NewGamePopup extends Menu<ZUSASSData>{
 		
 		NewGameTextBox textBox = new NewGameTextBox(game);
 		this.addThing(textBox);
-
-		this.addThing(new CreateGameButton(textBox, game));
-		this.addThing(new CancelGameButton(game));
-		ZUSSASSMenuText title = new ZUSSASSMenuText(100, 20, 600, 100, "Create new Game", game);
-		title.setFill(new ZColor(1, .5));
-		title.setBorder(new ZColor(0, 0));
-		title.centerText();
+		textBox.centerHorizontal();
+		
+		ZUSASSButton create = new CreateGameButton(textBox, game);
+		this.addThing(create);
+		create.centerHorizontal();
+		create.moveX(-(create.getWidth() * .5 + 10));
+		
+		ZUSASSButton cancel = new CancelGameButton(game);
+		this.addThing(cancel);
+		cancel.centerHorizontal();
+		cancel.moveX(cancel.getWidth() * .5 + 10);
+		
+		ZUSSASSMenuText title = new ZUSSASSMenuText(100, 100, 600, 100, "Create new Game", game);
 		this.addThing(title);
+		title.setFill(new ZColor(.5, .8));
+		title.setBorder(new ZColor(0, 0));
+		title.setFontSize(50);
+		title.centerText();
+		title.centerHorizontal();
 	}
-
+	
 	@Override
 	public void keyAction(Game<ZUSASSData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(game, button, press, shift, alt, ctrl);

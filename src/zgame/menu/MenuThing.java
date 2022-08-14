@@ -121,10 +121,20 @@ public class MenuThing<D> implements GameInteractable<D>{
 	public void setRelX(double x){
 		this.relX = x;
 	}
+
+	/** @param x The amount to move this thing on the x axis */
+	public void moveX(double x){
+		this.setRelX(this.getRelX() + x);
+	}
 	
 	/** @param y See {@link #relY} */
 	public void setRelY(double y){
 		this.relY = y;
+	}
+	
+	/** @param y The amount to move this thing on the x axis */
+	public void moveY(double y){
+		this.setRelY(this.getRelY() + y);
 	}
 	
 	/** @return See {@link #width} */
@@ -231,7 +241,7 @@ public class MenuThing<D> implements GameInteractable<D>{
 		if(thing.getParent() == this) thing.setParent(null);
 		return this.things.remove(thing);
 	}
-
+	
 	/** Removes everything currently in this {@link MenuThing} */
 	public void removeAll(){
 		this.things.clear();
@@ -240,6 +250,24 @@ public class MenuThing<D> implements GameInteractable<D>{
 	/** @return See {@link #things} */
 	public List<MenuThing<D>> getThings(){
 		return this.things;
+	}
+	
+	/** Move this {@link MenuThing} to the center bounds of it's parent. Does nothing if this thing has no parent */
+	public void center(){
+		centerHorizontal();
+		centerVertical();
+	}
+	
+	/** Move this {@link MenuThing} to the center horizontal bounds of it's parent. Does nothing if this thing has no parent */
+	public void centerHorizontal(){
+		if(this.parent == null) return;
+		this.setRelX((this.parent.getWidth() - this.getWidth()) * 0.5);
+	}
+	
+	/** Move this {@link MenuThing} to the center vertical bounds of it's parent. Does nothing if this thing has no parent */
+	public void centerVertical(){
+		if(this.parent == null) return;
+		this.setRelY((this.parent.getHeight() - this.getHeight()) * 0.5);
 	}
 	
 	/** Do not call directly */

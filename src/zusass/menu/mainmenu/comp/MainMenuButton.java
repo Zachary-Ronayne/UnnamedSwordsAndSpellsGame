@@ -17,6 +17,7 @@ public abstract class MainMenuButton extends ZUSASSButton{
 	 */
 	public MainMenuButton(double x, double y, String text, Game<ZUSASSData> game){
 		super(x, y, 500, 120, text, game);
+		this.setFontSize(40);
 	}
 	
 }
