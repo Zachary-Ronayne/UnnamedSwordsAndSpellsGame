@@ -41,7 +41,6 @@ public class SavesDeleteButton extends SavesMenuButton{
 
 
 		// TODO make this show a popup confirming to delete the file
-		// TODO add a system to have menus display on top of others, have the bottom still render, but only the top one tick and take input, basically a popup
 	}
 
 }
