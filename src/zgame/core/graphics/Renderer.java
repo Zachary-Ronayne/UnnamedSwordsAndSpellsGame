@@ -375,6 +375,41 @@ public class Renderer{
 		// Draw the image
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 	}
+
+	/**
+	 * Make this {@link Renderer} only draw things in the given bounds. Call {@link #unlimitBounds()} to turn this off.
+	 * This is off by default
+	 * @param bounds The bounds to limit to, in game coordinates
+	 */
+	public void limitBounds(ZRect bounds){
+		this.limitBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+	}
+
+	/**
+	 * Make this {@link Renderer} only draw things in the given bounds. Call {@link #unlimitBounds()} to turn this off.
+	 * This is off by default
+	 * All values are in game coordinates
+	 * @param x The upper left hand x coordinate of the bounds
+	 * @param y The upper left hand y coordinate of the bounds
+	 * @param w The width of the bounds
+	 * @param h The height of the bounds
+	 */
+	public void limitBounds(double x, double y, double w, double h){
+		y = y + h;
+		if(this.camera != null){
+			x = this.camera.gameToScreenX(x);
+			y = this.camera.gameToScreenY(y);
+			w = this.camera.sizeGameToScreenX(w);
+			h = this.camera.sizeGameToScreenY(h);
+		}
+		glEnable(GL_SCISSOR_TEST);
+		glScissor((int)Math.round(x), (int)Math.round(this.getHeight() - y), (int)Math.round(w), (int)Math.round(h));
+	}
+
+	/** Allow this {@link Renderer} to render anywhere on the screen, i.e. disable {@link #limitBounds(ZRect)}. */
+	public void unlimitBounds(){
+		glDisable(GL_SCISSOR_TEST);
+	}
 	
 	/**
 	 * Call OpenGL operations that transform to draw to a location in game coordinates.
@@ -475,6 +510,7 @@ public class Renderer{
 	 * Draw the given text to the given position
 	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
 	 * i.e. the text starts at the given coordinates and is draw left to right
+	 * All values are in game coordinates.
 	 * 
 	 * @param x The x position of the text
 	 * @param y The y position of the text
@@ -482,6 +518,22 @@ public class Renderer{
 	 * @return true if the text was drawn, false otherwise
 	 */
 	public boolean drawText(double x, double y, String text){
+		return drawText(x, y, text, null);
+	}
+	
+	/**
+	 * Draw the given text to the given position
+	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
+	 * i.e. the text starts at the given coordinates and is draw left to right
+	 * All values are in game coordinates.
+	 * 
+	 * @param x The x position of the text
+	 * @param y The y position of the text
+	 * @param text The text to draw
+	 * @param bounds The bounds which the text must stay in. Any text rendered outside this bounds will not be rendered. Use null to not use a bounds
+	 * @return true if the text was drawn, false otherwise
+	 */
+	public boolean drawText(double x, double y, String text, ZRect bounds){
 		// Make sure a font exists
 		GameFont f = this.font;
 		if(f == null) return false;
@@ -491,6 +543,8 @@ public class Renderer{
 		ZRect r = f.stringBounds(x, y, text);
 		if(!this.shouldDraw(r.getX(), r.getY(), r.getWidth(), r.getHeight())) return false;
 		
+		// Mark the drawing bounds
+		if(bounds != null) this.limitBounds(bounds);
 		// Use the font shaders
 		this.renderModeFont();
 		// Use the font vertex array
@@ -541,6 +595,9 @@ public class Renderer{
 			glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		}
 		this.popMatrix();
+		
+		// Disable scissor test again if it was enabled
+		if(bounds != null) this.unlimitBounds();
 		
 		return true;
 	}
@@ -611,7 +668,6 @@ public class Renderer{
 	 */
 	public void setColor(ZColor color){
 		this.color = color;
-		this.updateColor();
 	}
 	
 	/** Update the uniform variable used to track the color, with the current value */
@@ -703,6 +759,7 @@ public class Renderer{
 	
 	/**
 	 * Determine if the given bounds are in the bounds of this {@link Renderer}
+	 * 
 	 * @param bounds The bounds to check, in game coordinates
 	 * @return true if they intersect, i.e. return true if any part of the given bounds is in this {@link Renderer}'s bounds, false otherwise
 	 */
@@ -711,7 +768,7 @@ public class Renderer{
 		ZRect gBounds = camera.boundsScreenToGame(rBounds.getX(), rBounds.getBounds().getY(), rBounds.getBounds().getWidth(), rBounds.getBounds().getHeight());
 		return gBounds.intersects(bounds);
 	}
-
+	
 	/**
 	 * Convert an x coordinate value in window space, to a coordinate in screen space coordinates
 	 * 

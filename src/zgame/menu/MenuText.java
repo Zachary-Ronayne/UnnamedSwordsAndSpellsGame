@@ -135,7 +135,7 @@ public class MenuText<D>extends MenuThing<D>{
 		if(this.getFont() != null) r.setFont(this.getFont());
 		r.setColor(this.getFontColor());
 		r.setFontSize(this.getFontSize());
-		r.drawText(this.getX() + getTextX(), this.getY() + getTextY(), this.getText());
+		r.drawText(this.getX() + getTextX(), this.getY() + getTextY(), this.getText(), this.getBounds());
 	}
 	
 }

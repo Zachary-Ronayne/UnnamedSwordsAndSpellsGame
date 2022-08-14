@@ -14,6 +14,7 @@ import zgame.core.sound.SoundSource;
 import zgame.core.state.GameState;
 import zgame.core.state.MenuState;
 import zgame.core.state.PlayState;
+import zgame.core.utils.ZRect;
 import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
 import zgame.menu.Menu;
@@ -407,6 +408,13 @@ public class MainTest extends Game<TestData>{
 			
 			r.setColor(0, 0, 1, 0.5);
 			r.drawRectangle(140, 70, 90, 400);
+			
+			r.setColor(new ZColor(.9, .9, .9));
+			r.drawRectangle(0, -100, 250, 100);
+			r.setColor(new ZColor(0));
+			r.setFont(game.getFont("zfont"));
+			r.setFontSize(40);
+			r.drawText(0, -10, "a long string that should get cut off", new ZRect(0, -100, 250, 100));
 		}
 		
 		@Override
@@ -685,6 +693,7 @@ public class MainTest extends Game<TestData>{
 					r.setColor(.2, .2, .4, .3);
 					r.fill();
 				}
+				
 				@Override
 				public void click(Game<TestData> game){
 					state.removeTopMenu();
