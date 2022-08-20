@@ -75,7 +75,7 @@ public class GameFont{
 		// Return if the character went to a new line
 		return newLine;
 	}
-
+	
 	/**
 	 * Find the length of text in pixels
 	 * 
@@ -108,7 +108,7 @@ public class GameFont{
 	public ZRect stringBounds(double x, double y, String text){
 		return this.stringBounds(x, y, text, true);
 	}
-
+	
 	/**
 	 * Find the maximum bounds of a string drawn with this font. This does not guarantee a pixel perfect bounding box,
 	 * i.e. the edges of the bounds may contain pixels which are not a part of the bounds. This is done by adding a small amount of padding to the final bounds.
