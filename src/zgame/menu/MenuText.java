@@ -22,6 +22,9 @@ public class MenuText<D>extends MenuThing<D>{
 	
 	/** The {@link ZColor} to use to color {@link #text} */
 	private ZColor fontColor;
+
+	/** The text to display for this menu */
+	private String text;
 	
 	/**
 	 * Create a blank {@link MenuText} at the given position and size
@@ -47,9 +50,9 @@ public class MenuText<D>extends MenuThing<D>{
 	 */
 	public MenuText(double x, double y, double w, double h, String text, Game<D> game){
 		super(x, y, w, h);
+		this.text = text;
 		// Using zfont by default
 		this.buffer = new TextBuffer(w, h, game.getFont("zfont"));
-		this.buffer.setText(text);
 		this.buffer.setTextX(10);
 		this.buffer.setTextY(this.getHeight() * .9);
 		
@@ -66,40 +69,40 @@ public class MenuText<D>extends MenuThing<D>{
 	
 	/** @return See {@link #text} */
 	public String getText(){
-		return this.getBuffer().getText();
+		return this.text;
 	}
 	
 	/** @param text See {@link #text} */
 	public void setText(String text){
-		this.getBuffer().setText(text);
+		this.text = text;
 	}
 	
-	/** @return See {@link #textX} */
+	/** @return See {@link TextBuffer#textX} */
 	public double getTextX(){
 		return this.getBuffer().getTextX();
 	}
 	
-	/** @param textX See {@link #textX} */
+	/** @param textX See {@link TextBuffer#textX} */
 	public void setTextX(double textX){
 		this.getBuffer().setTextX(textX);
 	}
 	
-	/** @return See {@link #textY} */
+	/** @return See {@link TextBuffer#textY} */
 	public double getTextY(){
 		return this.getBuffer().getTextY();
 	}
 	
-	/** @param textY See {@link #textY} */
+	/** @param textY See {@link TextBuffer#textY} */
 	public void setTextY(double textY){
 		this.getBuffer().setTextY(textY);
 	}
 	
-	/** @return See {@link #font} */
+	/** @return See {@link TextBuffer#font} */
 	public GameFont getFont(){
 		return this.getBuffer().getFont();
 	}
 	
-	/** @param font See {@link #font} */
+	/** @param font See {@link TextBuffer#font} */
 	public void setFont(GameFont font){
 		this.getBuffer().setFont(font);
 	}
