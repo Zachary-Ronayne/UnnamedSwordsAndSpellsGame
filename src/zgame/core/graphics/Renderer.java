@@ -12,6 +12,7 @@ import zgame.core.graphics.buffer.VertexBuffer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.FontAsset;
 import zgame.core.graphics.font.GameFont;
+import zgame.core.graphics.font.TextBuffer;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.shader.ShaderProgram;
 import zgame.core.utils.ZRect;
@@ -33,7 +34,12 @@ import java.util.Stack;
  * and the lower right hand corner is always (Renderer.screen.width, Renderer.screen.height)
  * Game coordinates: The actual position of something in the game, regardless of where it would be rendered
  */
-public class Renderer{
+public class Renderer implements Destroyable{
+
+	/** The vertex buffer index for positional coordinates */
+	public static final int VERTEX_POS_INDEX = 0;
+	/** The vertex buffer index for texture coordinates */
+	public static final int VERTEX_TEX_INDEX = 1;
 	
 	/** The buffer for the x coordinate when rendering text */
 	private FloatBuffer xTextBuff;
@@ -155,8 +161,9 @@ public class Renderer{
 		
 		// Generate a vertex array for drawing solid colored rectangles
 		this.rectVertArr = new VertexArray();
+		this.rectVertArr.bind();
 		// Generate a vertex buffer for drawing rectangles that fill the entire screen and can be scaled
-		this.fillScreenPosBuff = new VertexBuffer(0, 2, GL_STATIC_DRAW, new float[]{
+		this.fillScreenPosBuff = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_STATIC_DRAW, new float[]{
 			// Low Left Corner
 			-1, -1,
 			// Low Right Corner
@@ -168,8 +175,9 @@ public class Renderer{
 		
 		// Generate a vertex array for rendering images
 		this.imgVertArr = new VertexArray();
+		this.imgVertArr.bind();
 		// Generate a vertex buffer for texture coordinates for rendering images
-		this.texCoordBuff = new VertexBuffer(2, 2, GL_STATIC_DRAW, new float[]{
+		this.texCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_STATIC_DRAW, new float[]{
 			// Low Left Corner
 			0, 0,
 			// Low Right Corner
@@ -184,10 +192,13 @@ public class Renderer{
 		
 		// Generate a vertex array for rendering text
 		this.textVertArr = new VertexArray();
+		this.textVertArr.bind();
 		// Generate a vertex buffer for positional coordinates that regularly change
-		this.posBuff = new VertexBuffer(0, 2, GL_DYNAMIC_DRAW, 4);
+		this.posBuff = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_DYNAMIC_DRAW, 4);
+		this.posBuff.applyToVertexArray();
 		// Generate a vertex buffer for texture coordinates that regularly change
-		this.changeTexCoordBuff = new VertexBuffer(2, 2, GL_DYNAMIC_DRAW, 4);
+		this.changeTexCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_DYNAMIC_DRAW, 4);
+		this.changeTexCoordBuff.applyToVertexArray();
 	}
 	
 	/** Free all resources used by the vertex arrays and vertex buffers */
@@ -197,12 +208,13 @@ public class Renderer{
 		this.posBuff.destroy();
 		this.changeTexCoordBuff.destroy();
 		
-		this.rectVertArr.delete();
-		this.imgVertArr.delete();
-		this.textVertArr.delete();
+		this.rectVertArr.destroy();
+		this.imgVertArr.destroy();
+		this.textVertArr.destroy();
 	}
 	
 	/** Delete any resources used by this Renderer */
+	@Override
 	public void destroy(){
 		this.screen.destroy();
 		glBindVertexArray(0);
@@ -218,7 +230,7 @@ public class Renderer{
 	 */
 	public void resize(int width, int height){
 		if(this.screen != null) this.screen.destroy();
-		this.screen = new GameBuffer(width, height);
+		this.screen = new GameBuffer(width, height, true);
 	}
 	
 	/**
@@ -375,20 +387,22 @@ public class Renderer{
 		// Draw the image
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 	}
-
+	
 	/**
 	 * Make this {@link Renderer} only draw things in the given bounds. Call {@link #unlimitBounds()} to turn this off.
 	 * This is off by default
+	 * 
 	 * @param bounds The bounds to limit to, in game coordinates
 	 */
 	public void limitBounds(ZRect bounds){
 		this.limitBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 	}
-
+	
 	/**
 	 * Make this {@link Renderer} only draw things in the given bounds. Call {@link #unlimitBounds()} to turn this off.
 	 * This is off by default
 	 * All values are in game coordinates
+	 * 
 	 * @param x The upper left hand x coordinate of the bounds
 	 * @param y The upper left hand y coordinate of the bounds
 	 * @param w The width of the bounds
@@ -405,7 +419,7 @@ public class Renderer{
 		glEnable(GL_SCISSOR_TEST);
 		glScissor((int)Math.round(x), (int)Math.round(this.getHeight() - y), (int)Math.round(w), (int)Math.round(h));
 	}
-
+	
 	/** Allow this {@link Renderer} to render anywhere on the screen, i.e. disable {@link #limitBounds(ZRect)}. */
 	public void unlimitBounds(){
 		glDisable(GL_SCISSOR_TEST);
@@ -437,7 +451,18 @@ public class Renderer{
 	
 	/**
 	 * Draw a rectangle, of the current color of this Renderer, at the specified location. All values are in game coordinates
-	 * Coordinates are in camera coordinates
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * 
+	 * @param x The bounds
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawRectangle(ZRect r){
+		return this.drawRectangle(r, this.screen);
+	}
+	
+	/**
+	 * Draw a rectangle, of the current color of this Renderer, at the specified location. All values are in game coordinates
+	 * Coordinate types depend on {@link #positioningEnabled}
 	 * 
 	 * @param x The x coordinate of the upper left hand corner of the rectangle
 	 * @param y The y coordinate of the upper left hand corner of the rectangle
@@ -446,7 +471,37 @@ public class Renderer{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawRectangle(double x, double y, double w, double h){
-		if(!this.shouldDraw(x, y, w, h)) return false;
+		return this.drawRectangle(x, y, w, h, this.screen);
+	}
+	
+	/**
+	 * Draw a rectangle, of the current color of this Renderer, at the specified location, to the given buffer. All values are in game coordinates
+	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * 
+	 * @param r Thw bounds
+	 * @param b The {@link GameBuffer} to draw to
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawRectangle(ZRect r, GameBuffer b){
+		return this.drawRectangle(r.getX(), r.getY(), r.getWidth(), r.getHeight(), this.screen);
+	}
+	
+	/**
+	 * Draw a rectangle, of the current color of this Renderer, at the specified location, to the given buffer. All values are in game coordinates
+	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * 
+	 * @param x The x coordinate of the upper left hand corner of the rectangle
+	 * @param y The y coordinate of the upper left hand corner of the rectangle
+	 * @param w The width of the rectangle
+	 * @param h The height of the rectangle
+	 * @param b The {@link GameBuffer} to draw to
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawRectangle(double x, double y, double w, double h, GameBuffer b){
+		// TODO make these work properly with any given buffer
+		if(!this.shouldDraw(x, y, w, h, b)) return false;
 		
 		// Use the shape shader and the rectangle vertex array
 		this.renderModeShapes();
@@ -464,11 +519,120 @@ public class Renderer{
 	}
 	
 	/**
-	 * Draw a rectangular image at the specified location. All values are in game coordinates.
-	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
+	 * Draw a rectangular buffer at the specified location.
+	 * If the given dimensions have a different aspect ratio that those of the given buffer, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabled}
 	 * 
-	 * @param x The x coordinate of the upper right hand corner of the image
-	 * @param y The y coordinate of the upper right hand corner of the image
+	 * @param r The bounds
+	 * @param b The {@link GameBuffer} to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawBuffer(ZRect r, GameBuffer b){
+		return this.drawBuffer(r, b, this.screen);
+	}
+	
+	/**
+	 * Draw a rectangular buffer at the specified location.
+	 * If the given dimensions have a different aspect ratio that those of the given buffer, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * 
+	 * @param x The x coordinate of the upper left hand corner of the buffer
+	 * @param y The y coordinate of the upper left hand corner of the buffer
+	 * @param w The width of the image
+	 * @param h The height of the image
+	 * @param b The {@link GameBuffer} to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawBuffer(double x, double y, double w, double h, GameBuffer b){
+		return this.drawImage(x, y, w, h, b.getTextureID());
+	}
+	
+	/**
+	 * Draw a rectangular buffer at the specified location on the given buffer
+	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
+	 * If the given dimensions have a different aspect ratio that those of the given buffer, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * 
+	 * @param r The bounds
+	 * @param b The {@link GameBuffer} to draw
+	 * @param drawTo The {@link GameBuffer} to draw to
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawBuffer(ZRect r, GameBuffer b, GameBuffer drawTo){
+		return this.drawBuffer(r.getX(), r.getY(), r.getWidth(), r.getHeight(), b);
+	}
+	
+	/**
+	 * Draw a rectangular buffer at the specified location on the given buffer
+	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
+	 * If the given dimensions have a different aspect ratio that those of the given buffer, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * 
+	 * @param x The x coordinate of the upper left hand corner of the buffer
+	 * @param y The y coordinate of the upper left hand corner of the buffer
+	 * @param w The width of the image
+	 * @param h The height of the image
+	 * @param b The {@link GameBuffer} to draw
+	 * @param drawTo The {@link GameBuffer} to draw to
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawBuffer(double x, double y, double w, double h, GameBuffer b, GameBuffer drawTo){
+		return this.drawImage(x, y, w, h, b.getTextureID(), drawTo);
+	}
+	
+	/**
+	 * Draw a rectangular image at the specified location using the given buffer.
+	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
+	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * 
+	 * @param r The bounds
+	 * @param img The {@link GameImage} to draw
+	 * @param b The buffer to draw to
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawImage(ZRect r, GameImage img, GameBuffer b){
+		return this.drawImage(r, img.getId(), b);
+	}
+	
+	/**
+	 * Draw a rectangular image at the specified location using the given buffer.
+	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
+	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * 
+	 * @param x The x coordinate of the upper left hand corner of the image
+	 * @param y The y coordinate of the upper left hand corner of the image
+	 * @param w The width of the image
+	 * @param h The height of the image
+	 * @param img The {@link GameImage} to draw
+	 * @param b The buffer to draw to
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawImage(double x, double y, double w, double h, GameImage img, GameBuffer b){
+		return this.drawImage(x, y, w, h, img.getId(), b);
+	}
+	
+	/**
+	 * Draw a rectangular image at the specified location.
+	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * 
+	 * @param r The bounds
+	 * @param img The {@link GameImage} to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawImage(ZRect r, GameImage img){
+		return this.drawImage(r, img.getId());
+	}
+	
+	/**
+	 * Draw a rectangular image at the specified location.
+	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * 
+	 * @param x The x coordinate of the upper left hand corner of the image
+	 * @param y The y coordinate of the upper left hand corner of the image
 	 * @param w The width of the image
 	 * @param h The height of the image
 	 * @param img The {@link GameImage} to draw
@@ -479,18 +643,70 @@ public class Renderer{
 	}
 	
 	/**
-	 * Draw a rectangular image at the specified location. All values are in game coordinates.
+	 * Draw a rectangular image at the specified location.
+	 * Draw a rectangular image at the specified location on the given buffer
 	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabled}
 	 * 
-	 * @param x The x coordinate of the upper right hand corner of the image
-	 * @param y The y coordinate of the upper right hand corner of the image
+	 * @param x The x coordinate of the upper left hand corner of the image
+	 * @param y The y coordinate of the upper left hand corner of the image
+	 * @param w The width of the image
+	 * @param h The height of the image
+	 * @param img The OpenGL id of the image to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawImage(ZRect r, int img){
+		return this.drawImage(r, img, this.screen);
+	}
+	
+	/**
+	 * Draw a rectangular image at the specified location.
+	 * Draw a rectangular image at the specified location on the given buffer
+	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * 
+	 * @param x The x coordinate of the upper left hand corner of the image
+	 * @param y The y coordinate of the upper left hand corner of the image
 	 * @param w The width of the image
 	 * @param h The height of the image
 	 * @param img The OpenGL id of the image to draw
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawImage(double x, double y, double w, double h, int img){
-		if(!this.shouldDraw(x, y, w, h)) return false;
+		return this.drawImage(x, y, w, h, img, this.screen);
+	}
+	
+	/**
+	 * Draw a rectangular image at the specified location using the given buffer.
+	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
+	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * 
+	 * @param r The bounds
+	 * @param img The OpenGL id of the image to draw
+	 * @param b The buffer to draw to
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawImage(ZRect r, int img, GameBuffer b){
+		return this.drawImage(r.getX(), r.getY(), r.getWidth(), r.getHeight(), img);
+	}
+	
+	/**
+	 * Draw a rectangular image at the specified location using the given buffer.
+	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
+	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * 
+	 * @param x The x coordinate of the upper left hand corner of the image
+	 * @param y The y coordinate of the upper left hand corner of the image
+	 * @param w The width of the image
+	 * @param h The height of the image
+	 * @param img The OpenGL id of the image to draw
+	 * @param b The buffer to draw to
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawImage(double x, double y, double w, double h, int img, GameBuffer b){
+		if(!this.shouldDraw(x, y, w, h, b)) return false;
 		
 		this.renderModeImage();
 		this.imgVertArr.bind();
@@ -510,7 +726,8 @@ public class Renderer{
 	 * Draw the given text to the given position
 	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
 	 * i.e. the text starts at the given coordinates and is draw left to right
-	 * All values are in game coordinates.
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
 	 * 
 	 * @param x The x position of the text
 	 * @param y The y position of the text
@@ -525,7 +742,8 @@ public class Renderer{
 	 * Draw the given text to the given position
 	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
 	 * i.e. the text starts at the given coordinates and is draw left to right
-	 * All values are in game coordinates.
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
 	 * 
 	 * @param x The x position of the text
 	 * @param y The y position of the text
@@ -534,14 +752,50 @@ public class Renderer{
 	 * @return true if the text was drawn, false otherwise
 	 */
 	public boolean drawText(double x, double y, String text, ZRect bounds){
+		return this.drawText(x, y, text, bounds, this.screen, this.getFont());
+	}
+	
+	/**
+	 * Draw the given text to the given position
+	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
+	 * i.e. the text starts at the given coordinates and is draw left to right
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
+	 * 
+	 * @param x The x position of the text
+	 * @param y The y position of the text
+	 * @param text The text to draw
+	 * @param b The {@link GameBuffer} to draw to
+	 * @param f The font to use for drawing
+	 * @return true if the text was drawn, false otherwise
+	 */
+	public boolean drawText(double x, double y, String text, GameBuffer b, GameFont f){
+		return this.drawText(x, y, text, null, b, f);
+	}
+	
+	/**
+	 * Draw the given text to the given position
+	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
+	 * i.e. the text starts at the given coordinates and is draw left to right
+	 * Coordinate types depend on {@link #positioningEnabled}
+	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
+	 * 
+	 * @param x The x position of the text
+	 * @param y The y position of the text
+	 * @param text The text to draw
+	 * @param bounds The bounds which the text must stay in. Any text rendered outside this bounds will not be rendered. Use null to not use a bounds
+	 * @param buffer The buffer to draw the text to
+	 * @param f The font to use for drawing
+	 * @return true if the text was drawn, false otherwise
+	 */
+	private boolean drawText(double x, double y, String text, ZRect bounds, GameBuffer buffer, GameFont f){
 		// Make sure a font exists
-		GameFont f = this.font;
 		if(f == null) return false;
 		FontAsset fa = f.getAsset();
 		
 		// Bounds check for if the text should be drawn
 		ZRect r = f.stringBounds(x, y, text);
-		if(!this.shouldDraw(r.getX(), r.getY(), r.getWidth(), r.getHeight())) return false;
+		if(!this.shouldDraw(r.getX(), r.getY(), r.getWidth(), r.getHeight(), buffer)) return false;
 		
 		// Mark the drawing bounds
 		if(bounds != null) this.limitBounds(bounds);
@@ -565,12 +819,20 @@ public class Renderer{
 		// Position and scale the text
 		this.pushMatrix();
 		this.scale(1, -1);
-		this.positionObject(x, -y + this.getHeight(), posSize, posSize);
-		
+		this.positionObject(x, -y + buffer.getHeight(), posSize, posSize);
+
 		// Draw every character of the text
 		for(int i = 0; i < text.length(); i++){
+			char c = text.charAt(i);
+			
 			// Find the vertices and texture coordinates of the character to draw
-			f.bounds(text.charAt(i), this.xTextBuff, this.yTextBuff, this.textQuad);
+			// Must do this regardless to ensure the text moves over even if a character does not get drawn
+			f.bounds(c, this.xTextBuff, this.yTextBuff, this.textQuad);
+			
+			// Only draw the character if it will be in the bounds of the buffer
+			ZRect sb = f.stringBounds(this.xTextBuff.get(0), this.yTextBuff.get(0), Character.toString(text.charAt(i)));
+			if(!this.shouldDraw(sb.getX(), sb.getY(), sb.getWidth(), sb.getHeight(), buffer)) continue;
+			
 			// Buffer the new data
 			this.posBuff.updateData(new float[]{
 				//////////////////////////////////////
@@ -581,6 +843,7 @@ public class Renderer{
 				this.textQuad.x1(), this.textQuad.y1(),
 				//////////////////////////////////////
 				this.textQuad.x0(), this.textQuad.y1()});
+
 			this.changeTexCoordBuff.updateData(new float[]{
 				//////////////////////////////////////
 				this.textQuad.s0(), this.textQuad.t0(),
@@ -605,6 +868,7 @@ public class Renderer{
 	/**
 	 * Determine if the given bounds are contained within the current state of this {@link Renderer}
 	 * i.e. find out if something drawn within the given bounds would appear on the screen
+	 * This method accounts for the camera repositioning elements, i.e., if the camera will make something off the screen, this method accounts for that
 	 * 
 	 * @param x The upper left hand corner x coordinate of the object, in game coordinates
 	 * @param y The upper left hand corner y coordinate of the object, in game coordinates
@@ -613,8 +877,24 @@ public class Renderer{
 	 * @return true if the bounds should be drawn, false otherwise
 	 */
 	public boolean shouldDraw(double x, double y, double w, double h){
+		return shouldDraw(x, y, w, h, this.getBuffer());
+	}
+	
+	/**
+	 * Determine if the given bounds are contained within the bounds of the given buffer
+	 * i.e. find out if something drawn within the given bounds would appear on the buffer
+	 * This method accounts for the camera repositioning elements, i.e., if the camera will make something off the screen, this method accounts for that
+	 * 
+	 * @param x The upper left hand corner x coordinate of the object, in game coordinates
+	 * @param y The upper left hand corner y coordinate of the object, in game coordinates
+	 * @param w The width of the object, in game coordinates
+	 * @param h The height of the object, in game coordinates
+	 * @param buffer The buffer to check
+	 * @return true if the bounds should be drawn, false otherwise
+	 */
+	public boolean shouldDraw(double x, double y, double w, double h, GameBuffer buffer){
 		if(!this.isRenderOnlyInside()) return true;
-		ZRect r = this.getBounds();
+		ZRect r = buffer.getBounds();
 		if(this.camera == null) return r.intersects(x, y, w, h);
 		else return r.intersects(this.camera.boundsGameToScreen(x, y, w, h));
 	}
@@ -717,6 +997,11 @@ public class Renderer{
 		this.font = this.getFont().charSpace(charSpace);
 	}
 	
+	/** @return See {@link #camera} */
+	public GameCamera getCamera(){
+		return this.camera;
+	}
+	
 	/** @param camera See {@link #camera}. Can also use null to not use a camera for rendering */
 	public void setCamera(GameCamera camera){
 		this.camera = camera;
@@ -744,7 +1029,7 @@ public class Renderer{
 	
 	/** @return A rectangle of the bounds of this {@link Renderer}, i.e. the position will be (0, 0), width will be {@link #getWidth()} and height will be {@link #getHeight()} */
 	public ZRect getBounds(){
-		return new ZRect(0, 0, this.getWidth(), this.getHeight());
+		return this.screen.getBounds();
 	}
 	
 	/** @return The ratio of the size of the internal buffer, i.e. the width divided by the height */
@@ -755,6 +1040,16 @@ public class Renderer{
 	/** @return The ratio of the size of the internal buffer, i.e. the height divided by the width */
 	public double getRatioHW(){
 		return this.screen.getRatioHW();
+	}
+	
+	/** @return The OpenGL id used by this {@link Renderer}s {@link #screen} */
+	public int getBufferId(){
+		return screen.getTextureID();
+	}
+	
+	/** @return See {@link #screen} */
+	public GameBuffer getBuffer(){
+		return this.screen;
 	}
 	
 	/**

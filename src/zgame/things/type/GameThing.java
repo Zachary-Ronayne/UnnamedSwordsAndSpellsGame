@@ -2,14 +2,20 @@ package zgame.things.type;
 
 import zgame.core.Game;
 import zgame.core.file.Saveable;
+import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 
 /** An object which exists in the game */
-public abstract class GameThing implements Comparable<GameThing>, Saveable{
+public abstract class GameThing implements Comparable<GameThing>, Saveable, Destroyable{
 	
 	/** Create an empty {@link GameThing} */
 	public GameThing(){
 	}
+
+	/** Override this method if this {@link GameThing} uses any resources that must be freed when it is no longer in use */
+	@Override
+	public void destroy(){
+	}	
 	
 	/**
 	 * Draw this {@link GameThing} to the given {@link Renderer}

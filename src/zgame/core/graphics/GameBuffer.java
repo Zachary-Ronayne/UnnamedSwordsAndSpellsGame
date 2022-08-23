@@ -6,13 +6,15 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
 
+import zgame.core.graphics.image.GameImage;
 import zgame.core.utils.ZConfig;
+import zgame.core.utils.ZRect;
 import zgame.core.utils.ZStringUtils;
 
 /**
  * A class that manages an OpenGL Framebuffer for a Renderer to draw to
  */
-public class GameBuffer{
+public class GameBuffer implements Destroyable{
 	
 	/** The OpenGL texture ID used to track texture used by this GameBuffer's Framebuffer */
 	private int textureID;
@@ -38,15 +40,24 @@ public class GameBuffer{
 	private double ratioWH;
 	/** Stores the ratio of {@link #height} divided by {@link #width} */
 	private double ratioHW;
+
+	/** true if the buffer has been generated, false otherwise */
+	private boolean bufferGenerated;
 	
 	/**
 	 * Create a GameBuffer of the given size
 	 * 
 	 * @param width See {@link #width}
 	 * @param height See {@link #height}
+	 * @param true if the buffer should generate right away, false to not generate it
 	 */
-	public GameBuffer(int width, int height){
-		this.regenerateBuffer(width, height);
+	public GameBuffer(int width, int height, boolean generate){
+		this.bufferGenerated = false;
+		if(generate) this.regenerateBuffer(width, height);
+		else{
+			this.width = width;
+			this.height = height;
+		}
 	}
 	
 	/**
@@ -57,7 +68,7 @@ public class GameBuffer{
 	 * @return true if the buffer was created, false otherwise
 	 */
 	public boolean regenerateBuffer(int width, int height){
-		this.destroy();
+		if(this.bufferGenerated) this.destroy();
 		
 		this.width = 1;
 		this.height = 1;
@@ -69,10 +80,7 @@ public class GameBuffer{
 		glBindTexture(GL_TEXTURE_2D, this.textureID);
 		
 		// Keep everything pixelated
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		GameImage.setPixelSettings();
 		
 		// Create the buffer
 		ByteBuffer buff = BufferUtils.createByteBuffer(this.getWidth() * this.getHeight() * 4);
@@ -95,22 +103,45 @@ public class GameBuffer{
 		// Bind the framebuffer to the previous buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, oldBuffer);
 		
+		this.bufferGenerated = true;
 		return success;
 	}
-
+	
+	/** Erase all resources associated with this GameBuffer. After calling this method, this object should not be used */
+	@Override
+	public void destroy(){
+		this.bufferGenerated = false;
+		// Delete the buffer
+		// TODO need to delete the ids properly, it's broken when doing a popup?
+		// glDeleteFramebuffers(this.getFrameID());
+		// glDeleteTextures(this.getTextureID());
+	}
+	
+	/**
+	 * Draw the currently drawn content of this buffer to the given {@link Renderer}
+	 * Coordinates are in game coordinates
+	 * 
+	 * @param x The x coordinate to draw the upper left hand corner of the buffer
+	 * @param y The y coordinate to draw the upper left hand corner of the buffer
+	 * @param r The {@link Renderer} to use
+	 */
+	public void draw(double x, double y, Renderer r){
+		r.drawBuffer(x, y, this.getWidth(), this.getHeight(), this);
+	}
+	
 	/**
 	 * After calling this method, all further OpenGL rendering operations will draw to this GameBuffer
 	 */
 	public void drawToBuffer(){
 		glBindFramebuffer(GL_FRAMEBUFFER, this.getFrameID());
 	}
-	
-	/** Erase all resources associated with this GameBuffer. After calling this method, this object should not be used */
-	public void destroy(){
-		glDeleteTextures(this.getTextureID());
-		glDeleteFramebuffers(this.getFrameID());
+
+	/** Set the OpenGL clear color to fully transparent, then clear the currently bound buffer. Generally should call {@link #drawToBuffer()} before calling this method */
+	public void clear(){
+		glClearColor(0, 0, 0, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
-	
+
 	/** @return See {@link #textureID} */
 	public int getTextureID(){
 		return this.textureID;
@@ -189,6 +220,16 @@ public class GameBuffer{
 	/** @return See {@link #ratioHW} */
 	public double getRatioHW(){
 		return this.ratioHW;
+	}
+
+	/** @return The bounds of this {@link GameBuffer}, i.e., a rectangle positioned at (0, 0) with the dimensions of this buffer */
+	public ZRect getBounds(){
+		return new ZRect(0, 0, this.getWidth(), this.getHeight());
+	}
+
+	/** @return See {@link #isBufferGenerated()} */
+	public boolean isBufferGenerated(){
+		return this.bufferGenerated;
 	}
 	
 }

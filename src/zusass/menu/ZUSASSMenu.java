@@ -33,6 +33,7 @@ public abstract class ZUSASSMenu extends Menu<ZUSASSData>{
 	 * @param y See {@link #titleY}
 	 */
 	public ZUSASSMenu(String title, double x, double y){
+		// TODO make title a buffer
 		this.title = title;
 		this.titleX = x;
 		this.titleY = y;

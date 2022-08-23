@@ -12,7 +12,7 @@ import zusass.utils.ZUSASSConfig;
 
 /** A specific {@link SavesMenuButton} to manage a save file */
 public class LoadSaveButton extends SavesMenuButton{
-
+	
 	/** The width of a {@link SavesMenuButton} */
 	public static final double WIDTH = 400;
 	/** The height of a {@link SavesMenuButton} */
@@ -21,10 +21,10 @@ public class LoadSaveButton extends SavesMenuButton{
 	public static final double SPACE = 5;
 	/** The total of the space between two {@link SavesMenuButton}s and the height of one */
 	public static final double TOTAL_SPACE = SPACE + HEIGHT;
-
+	
 	/** The path to the file that this button should load */
 	private String path;
-
+	
 	/**
 	 * Create a new {@link LoadSaveButton} with the specified values
 	 * 
@@ -43,7 +43,7 @@ public class LoadSaveButton extends SavesMenuButton{
 		this.setTextX(5);
 		this.setTextY(HEIGHT * 0.7);
 	}
-
+	
 	@Override
 	public void render(Game<ZUSASSData> game, Renderer r){
 		super.render(game, r);
@@ -53,17 +53,17 @@ public class LoadSaveButton extends SavesMenuButton{
 			r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 		}
 	}
-
+	
 	@Override
 	public void click(Game<ZUSASSData> game){
 		this.getMenu().getLoadButtons().setSelected(this);
 	}
-
+	
 	@Override
 	public void doubleClick(Game<ZUSASSData> game){
 		this.attemptLoad(game);
 	}
-
+	
 	/**
 	 * Attempt to load the file at {@link #path} into the game
 	 * 
@@ -73,15 +73,13 @@ public class LoadSaveButton extends SavesMenuButton{
 	public boolean attemptLoad(Game<ZUSASSData> game){
 		boolean success = game.loadGame(ZUSASSConfig.createSaveFileSuffix(path));
 		// If the load was successful, enter the play state
-		if(success){
-			game.setPlayState(new MainPlay(game));
-			game.enterPlayState();
-		}
+		if(success) game.setCurrentState(new MainPlay(game));
+		
 		// Otherwise, say that it failed to load
 		else this.getMenu().showMessage(ZStringUtils.concat("Load failed for: ", this.getText()));
 		return success;
 	}
-
+	
 	/** @return See {@link #path} */
 	public String getPath(){
 		return this.path;

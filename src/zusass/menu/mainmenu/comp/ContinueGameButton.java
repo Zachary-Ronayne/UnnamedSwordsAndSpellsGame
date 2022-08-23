@@ -22,7 +22,6 @@ public class ContinueGameButton extends MainMenuButton{
 		if(!success) return;
 		MainPlay play = new MainPlay(game);
 		play.enterHub(game);
-		game.setPlayState(play);
-		game.enterPlayState();
+		game.setCurrentState(play);
 	}
 }

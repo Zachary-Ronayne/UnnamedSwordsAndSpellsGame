@@ -2,12 +2,13 @@ package zgame.core.sound;
 
 import static org.lwjgl.openal.AL11.*;
 
+import zgame.core.graphics.Destroyable;
 import zgame.core.utils.ZConfig;
 
 /**
  * A class that tracks a single source in OpenAL
  */
-public class SoundSource extends SoundLocation{
+public class SoundSource extends SoundLocation implements Destroyable{
 	
 	/** The id used by OpenAL to track this source */
 	private int id;
@@ -106,7 +107,8 @@ public class SoundSource extends SoundLocation{
 	}
 	
 	/** Free any resources used by this {@link SoundSource} */
-	public void end(){
+	@Override
+	public void destroy(){
 		alDeleteSources(this.getId());
 	}
 	

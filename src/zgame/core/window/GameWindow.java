@@ -2,6 +2,7 @@ package zgame.core.window;
 
 import static org.lwjgl.opengl.GL30.*;
 
+import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
@@ -18,7 +19,7 @@ import java.awt.Dimension;
  * A class that handles one central window.
  * This includes an option to move to full screen
  */
-public abstract class GameWindow{
+public abstract class GameWindow implements Destroyable{
 	
 	/** The title displayed on the window */
 	private String windowTitle;
@@ -201,7 +202,8 @@ public abstract class GameWindow{
 	public abstract void swapBuffers();
 	
 	/** End the program, freeing all resources. Do not call directly outside of the main loop */
-	public void end(){
+	@Override
+	public void destroy(){
 		this.getRenderer().destroy();
 	}
 	

@@ -6,6 +6,7 @@ import java.util.List;
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.file.Saveable;
+import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZArrayUtils;
 import zgame.core.utils.ZMath;
@@ -21,7 +22,7 @@ import zgame.things.type.HitBox;
 import zgame.things.type.RectangleBounds;
 
 /** An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc. */
-public class Room<G> implements RectangleBounds, Saveable{
+public class Room<G> implements RectangleBounds, Saveable, Destroyable{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -86,6 +87,11 @@ public class Room<G> implements RectangleBounds, Saveable{
 		this.initTiles(xTiles, yTiles);
 		
 		this.wallSolid = new boolean[]{true, true, true, true};
+	}
+
+	@Override
+	public void destroy(){
+		for(int i = 0; i < this.things.size(); i++) this.things.get(i).destroy();
 	}
 	
 	/**

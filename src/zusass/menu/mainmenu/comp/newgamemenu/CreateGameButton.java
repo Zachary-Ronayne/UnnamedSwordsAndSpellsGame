@@ -35,9 +35,7 @@ public class CreateGameButton extends ZUSASSButton{
 		game.setData(data);
 		
 		MainPlay play = new MainPlay(game);
-		play.enterHub(game);
-		game.setPlayState(play);
-		game.enterPlayState();
+		game.setCurrentState(play);
 		data.checkAutoSave(game);
 	}
 	

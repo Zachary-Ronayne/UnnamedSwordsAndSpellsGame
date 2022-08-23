@@ -129,8 +129,8 @@ public class GLFWWindow extends GameWindow{
 	
 	/** End the program, freeing all resources */
 	@Override
-	public void end(){
-		super.end();
+	public void destroy(){
+		super.destroy();
 		// Free memory / destroy callbacks
 		long w = this.getWindowID();
 		glfwFreeCallbacks(w);

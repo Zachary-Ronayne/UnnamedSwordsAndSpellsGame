@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 
 import zgame.core.file.Saveable;
 import zgame.core.file.ZJsonFile;
+import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.FontManager;
@@ -33,7 +34,7 @@ import zgame.world.Room;
  * 
  * @param <D> The type of data that can be stored alongside this {@link Game}
  */
-public class Game<D> implements Saveable{
+public class Game<D> implements Saveable, Destroyable{
 	
 	/**
 	 * By default, the number of times a second the sound will be updated, i.e. updating streaming sounds, checking if sounds are still playing, checking which sounds need to play,
@@ -71,8 +72,10 @@ public class Game<D> implements Saveable{
 	private GameState<D> currentState;
 	/** The {@link GameState} which this game will update to in the next tick, or null if the state will not update */
 	private GameState<D> nextCurrentState;
-	/** The {@link PlayState} of this game, should not be null */
+	/** The {@link PlayState} of this game, can be null if there is currently no play state */
 	private PlayState<D> playState;
+	/** A {@link GameState} that needs to be destroyed on the next OpenGL loop, or null if one doesn't need to be destroyed */
+	private GameState<D> destroyState;
 	
 	/** The {@link GameLooper} which runs the regular time intervals */
 	private GameLooper tickLooper;
@@ -184,7 +187,8 @@ public class Game<D> implements Saveable{
 		
 		this.currentState = new DefaultState<D>();
 		this.nextCurrentState = null;
-		this.playState = new PlayState<D>();
+		this.playState = null;
+		this.destroyState = null;
 		
 		// Init sound
 		this.sounds = new SoundManager();
@@ -263,12 +267,17 @@ public class Game<D> implements Saveable{
 	 * End the program, freeing all resources
 	 */
 	private void end(){
+		this.destroy();
+	}
+	
+	@Override
+	public void destroy(){
 		// End the loopers
 		this.renderLooper.end();
 		this.tickLooper.end();
 		
 		// Free memory / destroy callbacks
-		this.getWindow().end();
+		this.getWindow().destroy();
 		
 		// Free sounds
 		this.sounds.destroy();
@@ -331,6 +340,9 @@ public class Game<D> implements Saveable{
 	 * This handles calling all the appropriate rendering methods and associated window methods for the main loop
 	 */
 	private void loopFunction(){
+		// Update the state of the game
+		this.updateCurrentState();
+
 		boolean focused = this.getWindow().isFocused();
 		boolean minimized = this.getWindow().isMinimized();
 		
@@ -379,6 +391,9 @@ public class Game<D> implements Saveable{
 		}
 		// Update the window
 		this.getWindow().swapBuffers();
+		
+		// Check if a state needs to be destroyed
+		if(this.destroyState != null) this.destroyState.destroy();
 	}
 	
 	/**
@@ -451,9 +466,6 @@ public class Game<D> implements Saveable{
 		// If the game should pause when unfocused or minimized, then do nothing
 		if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized) return;
 		this.tick(this.getTickLooper().getRateTime() * this.getGameSpeed());
-		
-		// Update the state of the game
-		this.updateCurrentState();
 	}
 	
 	/**
@@ -833,7 +845,8 @@ public class Game<D> implements Saveable{
 	
 	/**
 	 * If the state should do nothing, use a {@link DefaultState}
-	 * This method updates the state on the next game tick
+	 * This method updates the state on the next OpenGL loop. The previously existing state will be destroyed and no longer usable
+	 * This method should only ever set the state with a new instance of a state object
 	 * 
 	 * @param newState See {@link #currentState}
 	 */
@@ -842,23 +855,16 @@ public class Game<D> implements Saveable{
 	}
 	
 	/**
-	 * This method instantly updates the state. Do not call this method outside of the main tick loop
+	 * This method instantly updates the state. Do not call this method outside of the main OpenGL loop
 	 */
 	private void updateCurrentState(){
 		if(this.nextCurrentState == null) return;
+		this.destroyState = this.currentState;
 		this.currentState = this.nextCurrentState;
+		if(this.currentState instanceof PlayState) this.playState = (PlayState<D>)this.currentState;
+		else this.playState = null;
 		this.currentState.onSet(this);
 		this.nextCurrentState = null;
-	}
-	
-	/** Set this {@link Game} to its {@link #playState} */
-	public void enterPlayState(){
-		this.setCurrentState(this.getPlayState());
-	}
-	
-	/** @param playState See {@link #playState} */
-	public void setPlayState(PlayState<D> playState){
-		this.playState = playState;
 	}
 	
 	/** @return See {@link #playState} */
@@ -866,8 +872,10 @@ public class Game<D> implements Saveable{
 		return this.playState;
 	}
 	
-	/** @return The {@link Room} that the current {@link #playState} is using */
+	/** @return The {@link Room} that the current {@link #playState} is using, or null if there is no play state */
 	public Room<D> getCurrentRoom(){
+		PlayState<D> p = this.getPlayState();
+		if(p == null) return null;
 		return this.getPlayState().getCurrentRoom();
 	}
 	

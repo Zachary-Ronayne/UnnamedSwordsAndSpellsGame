@@ -4,10 +4,12 @@ import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
 
+import zgame.core.graphics.Destroyable;
+
 import static org.lwjgl.opengl.GL30.*;
 
 /** A class that handles tracking a single OpenGL vertex buffer, i.e. a block of data on the GPU */
-public class VertexBuffer{
+public class VertexBuffer implements Destroyable{
 	
 	/** The id used by OpenGL to track this {@link VertexBuffer} */
 	private int id;
@@ -80,10 +82,12 @@ public class VertexBuffer{
 		this.id = glGenBuffers();
 		this.buff = BufferUtils.createFloatBuffer(data.length);
 		this.updateData(data);
+		glBufferData(GL_ARRAY_BUFFER, this.buff, this.drawMode);
 		this.applyToVertexArray();
 	}
 	
 	/** Clear up any resources used by this {@link VertexBuffer} */
+	@Override
 	public void destroy(){
 		glDeleteBuffers(this.id);
 	}
@@ -97,7 +101,10 @@ public class VertexBuffer{
 		this.data = data;
 		this.bind();
 		this.buff.put(this.data).flip();
-		glBufferData(GL_ARRAY_BUFFER, this.buff, this.drawMode);
+		this.buff.position(0);
+		// For some reason I'm too stupid to understand, if this is glBufferData, then using this object to render text breaks, but only sometimes,
+		// glBufferSubData makes it work, all the time?
+		glBufferSubData(GL_ARRAY_BUFFER, 0, this.buff);
 	}
 	
 	/** Put this {@link VertexBuffer} into the currently bound vertex array */

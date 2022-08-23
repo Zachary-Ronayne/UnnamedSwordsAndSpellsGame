@@ -4,7 +4,6 @@ import zgame.core.Game;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
-import zusass.game.MainPlay;
 import zusass.menu.mainmenu.MainMenuState;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -44,9 +43,6 @@ public class ZUSASSGame extends Game<ZUSASSData>{
 
 		// Initialize the base data object
 		this.setData(new ZUSASSData());
-		
-		// Play state
-		this.setPlayState(new MainPlay(this));
 	}
 	
 	/** The only instance of {@link ZUSASSGame} which can exist */

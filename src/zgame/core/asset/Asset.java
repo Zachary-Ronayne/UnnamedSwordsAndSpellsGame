@@ -1,7 +1,9 @@
 package zgame.core.asset;
 
+import zgame.core.graphics.Destroyable;
+
 /** An object contains common functionality for assets. An Asset is some kind of file loaded from the .jar  */
-public abstract class Asset{
+public abstract class Asset implements Destroyable{
 	
 	/** The path used to obtain this asset */
 	private String path;
@@ -18,8 +20,5 @@ public abstract class Asset{
 	public String getPath(){
 		return this.path;
 	}
-
-	/** Free any resources used by this {@link Asset} */
-	public abstract void destroy();
 	
 }

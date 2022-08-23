@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import zgame.core.graphics.Destroyable;
 import zgame.core.utils.ZAssetUtils;
 import zgame.core.utils.ZStringUtils;
 
@@ -13,7 +14,7 @@ import zgame.core.utils.ZStringUtils;
  * 
  * @param <A> The type of asset to manage
  */
-public abstract class AssetManager<A extends Asset>{
+public abstract class AssetManager<A extends Asset> implements Destroyable{
 	
 	/** A map containing all assets handled by this {@link AssetManager} */
 	private Map<String, A> assets;
@@ -93,6 +94,7 @@ public abstract class AssetManager<A extends Asset>{
 	public abstract A create(String path);
 	
 	/** Free any resources used by this {@link AssetManager} */
+	@Override
 	public void destroy(){
 		for(A a : this.getAll()) a.destroy();
 	}

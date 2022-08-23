@@ -53,8 +53,6 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	/** The bounds of each letter rendered, from the beginning of the text to that letter */
 	private ZRect[] letterBounds;
 	
-	// TODO figure out the low FPS issues, could be from memory leaks, or too many calls to finding a text bounds
-	
 	/**
 	 * Create a new {@link MenuTextBox} with the given values
 	 * 
@@ -121,6 +119,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	
 	@Override
 	public void keyAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		// TODO why does the buffer flash the screen transparent every time a letter is typed?
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(!this.isSelected()) return;
 		if(press) return;
@@ -363,6 +362,8 @@ public class MenuTextBox<D>extends MenuButton<D>{
 			or if the mouse moved it,
 				meaning keep textOffset the same, and move cursorLocation
 			Just rename this method and give it all the needed parameters
+		
+			Also need to account for the space between characters based on the font
 		*/
 		// if(this.getCursorLocation() < this.getTextLimit()) this.textOffset = 0;
 		// else this.textOffset = -this.cursorLocation;

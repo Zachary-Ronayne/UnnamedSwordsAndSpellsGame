@@ -60,6 +60,12 @@ public abstract class MenuScroller<D>extends MenuThing<D>{
 		super.addThing(button);
 		this.movingThing = null;
 	}
+
+	@Override
+	public void destroy(){
+		super.destroy();
+		this.button.destroy();
+	}
 	
 	@Override
 	public void tick(Game<D> game, double dt){

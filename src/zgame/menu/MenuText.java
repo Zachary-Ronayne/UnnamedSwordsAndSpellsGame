@@ -4,29 +4,21 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.font.GameFont;
+import zgame.core.graphics.font.TextBuffer;
 import zgame.core.utils.ZRect;
 
 /**
  * A {@link MenuThing} that holds text
+ * Note, for this class and anything that extends it, calls to updating the width and height will not update the text buffer's width and height beyond what was given to the
+ * constructor. Must call {@link #getBuffer()} and call {@link TextBuffer#regenerateBuffer(int, int)} on it to resize where the text is drawn. It is not recommended to call this
+ * method frequently, as it is a very expensive operation
  * 
  * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
 public class MenuText<D>extends MenuThing<D>{
 	
-	/** The x coordinate of the text, relative to this {@link MenuThing} */
-	private double textX;
-	
-	/**
-	 * The y coordinate of the text, relative to this {@link MenuThing}.
-	 * This y coordinate represents the baseline of where the text will be drawn, not the upper left hand corner like normal
-	 */
-	private double textY;
-	
-	/** The text held by this {@link MenuText} */
-	private String text;
-	
-	/** The {@link GameFont} to use when drawing {@link #text}. If this value is null, whatever font is in the {@link Renderer} will be used */
-	private GameFont font;
+	/** The {@link TextBuffer} which this {@link MenuText} will use to draw text */
+	private TextBuffer buffer;
 	
 	/** The {@link ZColor} to use to color {@link #text} */
 	private ZColor fontColor;
@@ -55,55 +47,66 @@ public class MenuText<D>extends MenuThing<D>{
 	 */
 	public MenuText(double x, double y, double w, double h, String text, Game<D> game){
 		super(x, y, w, h);
-		this.text = text;
-		this.textX = 10;
-		this.textY = this.getHeight() * .9;
+		// Using zfont by default
+		this.buffer = new TextBuffer(w, h, game.getFont("zfont"));
+		this.buffer.setText(text);
+		this.buffer.setTextX(10);
+		this.buffer.setTextY(this.getHeight() * .9);
 		
 		this.setFill(this.getFill().solid());
 		
-		// Using zfont by default
-		this.font = game.getFont("zfont");
 		this.fontColor = new ZColor(0);
+	}
+	
+	@Override
+	public void destroy(){
+		super.destroy();
+		this.buffer.destroy();
 	}
 	
 	/** @return See {@link #text} */
 	public String getText(){
-		return this.text;
+		return this.getBuffer().getText();
 	}
 	
 	/** @param text See {@link #text} */
 	public void setText(String text){
-		this.text = text;
+		this.getBuffer().setText(text);
 	}
 	
 	/** @return See {@link #textX} */
 	public double getTextX(){
-		return this.textX;
+		return this.getBuffer().getTextX();
 	}
 	
 	/** @param textX See {@link #textX} */
 	public void setTextX(double textX){
-		this.textX = textX;
+		this.getBuffer().setTextX(textX);
 	}
 	
 	/** @return See {@link #textY} */
 	public double getTextY(){
-		return this.textY;
+		return this.getBuffer().getTextY();
 	}
 	
 	/** @param textY See {@link #textY} */
 	public void setTextY(double textY){
-		this.textY = textY;
+		this.getBuffer().setTextY(textY);
 	}
 	
 	/** @return See {@link #font} */
 	public GameFont getFont(){
-		return this.font;
+		return this.getBuffer().getFont();
 	}
 	
 	/** @param font See {@link #font} */
 	public void setFont(GameFont font){
-		this.font = font;
+		this.getBuffer().setFont(font);
+	}
+	
+	/** @return See {@link #buffer} */
+	public TextBuffer getBuffer(){
+		return this.buffer;
 	}
 	
 	/** @return See {@link #fontColor} */
@@ -172,6 +175,7 @@ public class MenuText<D>extends MenuThing<D>{
 		if(this.getFont() != null) r.setFont(this.getFont());
 		r.setColor(this.getFontColor());
 		r.setFontSize(this.getFontSize());
+		
 		this.drawText(r, this.getText());
 	}
 	
@@ -182,7 +186,9 @@ public class MenuText<D>extends MenuThing<D>{
 	 * @param text The text to draw
 	 */
 	public void drawText(Renderer r, String text){
-		r.drawText(this.getX() + getTextX(), this.getY() + getTextY(), text, this.getBounds());
+		// TODO make this work properly with text boxes when there's a text hint. Store text separately
+		this.buffer.setText(text);
+		this.buffer.draw(this.getX(), this.getY(), r);
 	}
 	
 }

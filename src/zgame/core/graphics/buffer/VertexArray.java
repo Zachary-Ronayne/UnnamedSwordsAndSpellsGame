@@ -15,7 +15,7 @@ public class VertexArray{
 	}
 
 	/** Clear any resources used by this {@link VertexArray} */
-	public void delete(){
+	public void destroy(){
 		glDeleteVertexArrays(this.id);
 	}
 

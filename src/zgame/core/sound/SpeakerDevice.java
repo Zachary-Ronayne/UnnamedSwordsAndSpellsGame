@@ -7,6 +7,7 @@ import static org.lwjgl.openal.ALC11.*;
 import org.lwjgl.openal.ALCapabilities;
 import org.lwjgl.system.MemoryUtil;
 
+import zgame.core.graphics.Destroyable;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
 
@@ -18,7 +19,7 @@ import java.nio.IntBuffer;
 /**
  * A class that represents a single device which can produce sound, i.e. a speaker, headphones, audio interface, but not a microphone
  */
-public class SpeakerDevice{
+public class SpeakerDevice implements Destroyable{
 	
 	/** The id used by OpenAL to represent this {@link SpeakerDevice} */
 	private long id;
@@ -72,7 +73,8 @@ public class SpeakerDevice{
 	}
 	
 	/** Free any resources used by this SpeakerDevice */
-	public void end(){
+	@Override
+	public void destroy(){
 		alcMakeContextCurrent(MemoryUtil.NULL);
 		if(this.getContext() != NULL) alcDestroyContext(this.getContext());
 		boolean success = alcCloseDevice(this.getId());

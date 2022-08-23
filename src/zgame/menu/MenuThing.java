@@ -2,6 +2,7 @@ package zgame.menu;
 
 import zgame.core.Game;
 import zgame.core.GameInteractable;
+import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZRect;
@@ -14,7 +15,9 @@ import java.util.List;
  * 
  * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
-public class MenuThing<D> implements GameInteractable<D>{
+public class MenuThing<D> implements GameInteractable<D>, Destroyable{
+
+	// TODO make every menu thing optionally use a buffer to keep track of everything it's drawing, should be off by default
 	
 	/** The x coordinate of the {@link MenuThing}, in screen coordinates, relative to {@link #parent}, or relative to (0, 0) if {@link #parent} is null */
 	private double relX;
@@ -75,6 +78,11 @@ public class MenuThing<D> implements GameInteractable<D>{
 		
 		this.parent = null;
 		this.things = new ArrayList<MenuThing<D>>();
+	}
+
+	@Override
+	public void destroy(){
+		for(int i = 0; i < this.things.size(); i++) this.things.get(i).destroy();
 	}
 	
 	/** @return The actual x coordinate of this {@link MenuThing}, based on the position of its parent */
@@ -237,6 +245,7 @@ public class MenuThing<D> implements GameInteractable<D>{
 	 * @return true if the thing was removed, false otherwise
 	 */
 	public boolean removeThing(MenuThing<D> thing){
+		// TODO make it that when things are removed, or removeAll, they also get destroyed depending on a parameter?
 		if(thing == null) return false;
 		if(thing.getParent() == this) thing.setParent(null);
 		return this.things.remove(thing);

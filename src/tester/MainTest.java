@@ -5,6 +5,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.GameFont;
+import zgame.core.graphics.font.TextBuffer;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.sound.EffectsPlayer;
@@ -117,9 +118,6 @@ import com.google.gson.JsonObject;
 public class MainTest extends Game<TestData>{
 	
 	public static Game<TestData> testerGame;
-	public static GameState<TestData> testerState;
-	public static PlayState<TestData> engineState;
-	public static MenuState<TestData> menuState;
 	public static GameWindow window;
 	
 	public static double camSpeed = 400;
@@ -158,11 +156,11 @@ public class MainTest extends Game<TestData>{
 	public static void main(String[] args){
 		// Set up game
 		testerGame = new MainTest();
-		testerState = new TesterGameState();
-		engineState = new GameEngineState();
-		testerGame.setPlayState(engineState);
-		menuState = new TesterMenuState(testerGame);
-		testerGame.setCurrentState(menuState);
+		// TODO When the camera is moved, then the state changes, then it goes back again, text from a buffer gets all messed up
+		testerGame.setCurrentState(new TesterGameState(testerGame));
+		// testerGame.setCurrentState(new TesterMenuState(testerGame));
+		// testerGame.setCurrentState(new GameEngineState());
+
 		window = testerGame.getWindow();
 		window.center();
 		
@@ -181,8 +179,8 @@ public class MainTest extends Game<TestData>{
 		testerGame.start();
 		
 		// Close sound sources
-		winSource.end();
-		loseSource.end();
+		winSource.destroy();
+		loseSource.destroy();
 	}
 	
 	public static void reset(){
@@ -191,8 +189,8 @@ public class MainTest extends Game<TestData>{
 		changeRect = new Rectangle(600, 20, 200, 200);
 		testerGame.getCamera().reset();
 		
-		if(winSource != null) winSource.end();
-		if(loseSource != null) loseSource.end();
+		if(winSource != null) winSource.destroy();
+		if(loseSource != null) loseSource.destroy();
 		SoundManager sm = testerGame.getSounds();
 		winSource = sm.createSource(playerX, playerY);
 		loseSource = sm.createSource(0, 200);
@@ -281,7 +279,7 @@ public class MainTest extends Game<TestData>{
 			super.keyAction(game, button, press, shift, alt, ctrl);
 			if(press) return;
 			
-			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
+			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState(game));
 			
 			Room<?> r = getCurrentRoom();
 			if(button == GLFW_KEY_W) r.makeWallState(Room.WALL_CEILING, !r.isSolid(Room.WALL_CEILING));
@@ -307,6 +305,25 @@ public class MainTest extends Game<TestData>{
 	}
 	
 	public static class TesterGameState extends GameState<TestData>{
+		
+		private TextBuffer textBuffer;
+
+		private static final ZRect bufferBounds = new ZRect(0, 500, 500, 150);
+
+		public TesterGameState(Game<TestData> game){
+			this.textBuffer = new TextBuffer(bufferBounds.width, bufferBounds.height, game.getFont("zfont"));
+			this.textBuffer.setText("Text from a buffer");
+			this.textBuffer.setTextX(10);
+			this.textBuffer.setTextY(50);
+			this.textBuffer.setFont(this.textBuffer.getFont().size(40));
+		}
+
+		@Override
+		public void destroy(){
+			super.destroy();
+			this.textBuffer.destroy();
+		}
+
 		@Override
 		public void keyAction(Game<TestData> game, int key, boolean press, boolean shift, boolean alt, boolean ctrl){
 			ZKeyInput keys = game.getKeyInput();
@@ -349,8 +366,8 @@ public class MainTest extends Game<TestData>{
 					else game.setGameSpeed(game.getGameSpeed() + 0.1);
 				}
 				else if(key == GLFW_KEY_SPACE){
-					if(shift) game.setCurrentState(engineState);
-					else game.setCurrentState(menuState);
+					if(shift) game.setCurrentState(new GameEngineState());
+					else game.setCurrentState(new TesterMenuState(game));
 				}
 				else if(key == GLFW_KEY_C && keys.ctrl()) game.saveGame("./saves/testGame");
 				else if(key == GLFW_KEY_V && keys.ctrl()) game.loadGame("./saves/testGame");
@@ -402,6 +419,11 @@ public class MainTest extends Game<TestData>{
 			
 			r.setColor(red, green, blue);
 			r.drawRectangle(100, 50, 400, 100);
+
+			r.setColor(1, 1, 1);
+			r.drawRectangle(bufferBounds);
+			r.setColor(1, 0, 0);
+			this.textBuffer.draw(bufferBounds.x, bufferBounds.y, r);
 			
 			r.drawImage(550, 100, 50, 50, game.getImage("goal"));
 			r.drawImage(playerX, playerY, 150, 150, game.getImage("player"));
@@ -579,6 +601,7 @@ public class MainTest extends Game<TestData>{
 	}
 	
 	public static class TesterMenuState extends MenuState<TestData>{
+		
 		public TesterMenuState(Game<TestData> game){
 			super(new TesterMenu(game));
 			((TesterMenu)this.getMenu()).state = this;
@@ -587,7 +610,7 @@ public class MainTest extends Game<TestData>{
 		@Override
 		public void keyAction(Game<TestData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 			super.keyAction(game, button, press, shift, alt, ctrl);
-			if(!press && alt && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
+			if(!press && alt && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState(game));
 		}
 		
 		@Override
@@ -626,19 +649,23 @@ public class MainTest extends Game<TestData>{
 				}
 			};
 			this.addThing(scrollY);
+
+			MenuButton<TestData> t;
 			
 			Menu<TestData> base = new Menu<TestData>();
 			this.addThing(base);
 			scrollX.setMovingThing(base);
 			scrollY.setMovingThing(base);
 			
-			MenuButton<TestData> t = new MenuButton<TestData>(10, 10, 300, 50, game){
+			t = new MenuButton<TestData>(10, 10, 300, 50, game){
 				@Override
 				public void click(Game<TestData> game){
-					game.setCurrentState(testerState);
+					game.setCurrentState(new TesterGameState(game));
 				}
 			};
 			t.setFill(new ZColor(0, .2, .7));
+			t.setText("12345");
+			// t.setText("Back");
 			base.addThing(t);
 			
 			t = new MenuButton<TestData>(50, 100, 200, 100, game){
@@ -661,6 +688,7 @@ public class MainTest extends Game<TestData>{
 			};
 			t.setFill(new ZColor(.5, 0, 0));
 			t.setText("Exit");
+			t.setFont(new GameFont(game.getFontAsset("zfont"), 50, 0, 0));
 			base.addThing(t);
 			
 			t = new MenuButton<TestData>(50, 220, 200, 50, game){
@@ -671,7 +699,7 @@ public class MainTest extends Game<TestData>{
 			};
 			t.setText("popup");
 			t.setTextY(45);
-			t.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
+			t.setFont(new GameFont(game.getFontAsset("zfont"), 25, 0, 0));
 			base.addThing(t);
 			
 			MenuTextBox<TestData> textBox = new MenuTextBox<>(300, 100, 300, 50, game){

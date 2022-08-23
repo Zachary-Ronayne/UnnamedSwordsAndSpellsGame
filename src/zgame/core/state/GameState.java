@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import zgame.core.Game;
 import zgame.core.GameInteractable;
 import zgame.core.file.Saveable;
+import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.menu.Menu;
 
@@ -13,7 +14,7 @@ import zgame.menu.Menu;
  * 
  * A state is essentially a separate place where you can easily define what happens for input and rendering
  */
-public abstract class GameState<D> implements GameInteractable<D>, Saveable{
+public abstract class GameState<D> implements GameInteractable<D>, Saveable, Destroyable{
 	
 	/** The {@link MenuNode}s containing {@link Menu}s which this {@link GameState} uses. The top of the stack ticks and takes input by default, the rest only render */
 	private ArrayList<MenuNode<D>> menuStack;
@@ -26,21 +27,34 @@ public abstract class GameState<D> implements GameInteractable<D>, Saveable{
 		this(true);
 		this.menuStack = new ArrayList<MenuNode<D>>();
 	}
-	
-	/** @return The root menu of this {@link MenuState}, i.e. the menu on the bottom before popups */
-	public Menu<D> getMenu(){
-		return this.menuStack.get(0).getMenu();
+
+	@Override
+	public void destroy(){
+		if(menuStack == null) return;
+		for(int i = 0; i < this.menuStack.size(); i++) this.menuStack.get(i).getMenu().destroy();
 	}
 	
-	/** @return The menu on top of all other menus */
+	/** @return The root menu of this {@link MenuState}, i.e. the menu on the bottom before popups, or null if there are no menus */
+	public Menu<D> getMenu(){
+		if(this.menuStack == null) return null;
+		return this.menuStack.isEmpty() ? null : this.menuStack.get(0).getMenu();
+	}
+	
+	/** @return The menu on top of all other menus, or null if there are no menus */
 	public Menu<D> getTopMenu(){
-		return this.menuStack.get(this.menuStack.size() - 1).getMenu();
+		if(this.menuStack == null) return null;
+		return this.menuStack.isEmpty() ? null : this.menuStack.get(this.menuStack.size() - 1).getMenu();
 	}
 	
 	/** @param menu The new root menu of this {@link MenuState}, i.e. the menu on the bottom before popups */
 	public void setMenu(Menu<D> menu){
 		if(this.menuStack == null || !this.menuStack.isEmpty()) this.menuStack = new ArrayList<MenuNode<D>>();
 		this.menuStack.add(0, new MenuNode<>(menu));
+	}
+
+	/** @return The number of menus currently displayed on this {@link GameState} */
+	public int getStackSize(){
+		return this.menuStack == null ? 0 : this.menuStack.size();
 	}
 	
 	/**
@@ -67,7 +81,7 @@ public abstract class GameState<D> implements GameInteractable<D>, Saveable{
 	 * @return The removed menu, or null if only the base menu exists
 	 */
 	public Menu<D> removeTopMenu(){
-		if(this.menuStack.size() == 1) return null;
+		if(this.getStackSize() <= 1) return null;
 		return this.menuStack.remove(this.menuStack.size() - 1).getMenu();
 	}
 	
@@ -105,43 +119,48 @@ public abstract class GameState<D> implements GameInteractable<D>, Saveable{
 			MenuNode<D> m = this.menuStack.get(i);
 			m.tick(game, dt);
 		}
-		this.getTopMenu().tick(game, dt);
+		Menu<D> m = this.getTopMenu();
+		if(m != null) m.tick(game, dt);
 	}
 	
 	@Override
 	public void keyAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		for(int i = 0; i < this.menuStack.size() - 1; i++){
+		for(int i = 0; i < this.getStackSize() - 1; i++){
 			MenuNode<D> m = this.menuStack.get(i);
 			m.keyAction(game, button, press, shift, alt, ctrl);
 		}
-		this.getTopMenu().keyAction(game, button, press, shift, alt, ctrl);
+		Menu<D> m = this.getTopMenu();
+		if(m != null) m.keyAction(game, button, press, shift, alt, ctrl);
 	}
 	
 	@Override
 	public void mouseAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		for(int i = 0; i < this.menuStack.size() - 1; i++){
+		for(int i = 0; i < this.getStackSize() - 1; i++){
 			MenuNode<D> m = this.menuStack.get(i);
 			m.mouseAction(game, button, press, shift, alt, ctrl);
 		}
-		this.getTopMenu().mouseAction(game, button, press, shift, alt, ctrl);
+		Menu<D> m = this.getTopMenu();
+		if(m != null) m.mouseAction(game, button, press, shift, alt, ctrl);
 	}
 	
 	@Override
 	public void mouseMove(Game<D> game, double x, double y){
-		for(int i = 0; i < this.menuStack.size() - 1; i++){
+		for(int i = 0; i < this.getStackSize() - 1; i++){
 			MenuNode<D> m = this.menuStack.get(i);
 			m.mouseMove(game, x, y);
 		}
-		this.getTopMenu().mouseMove(game, x, y);
+		Menu<D> m = this.getTopMenu();
+		if(m != null) m.mouseMove(game, x, y);
 	}
 	
 	@Override
 	public void mouseWheelMove(Game<D> game, double amount){
-		for(int i = 0; i < this.menuStack.size() - 1; i++){
+		for(int i = 0; i < this.getStackSize() - 1; i++){
 			MenuNode<D> m = this.menuStack.get(i);
 			m.mouseWheelMove(game, amount);
 		}
-		this.getTopMenu().mouseWheelMove(game, amount);
+		Menu<D> m = this.getTopMenu();
+		if(m != null) m.mouseWheelMove(game, amount);
 	}
 	
 	@Override
@@ -150,16 +169,19 @@ public abstract class GameState<D> implements GameInteractable<D>, Saveable{
 	
 	@Override
 	public void render(Game<D> game, Renderer r){
-		for(int i = 0; i < this.menuStack.size() - 1; i++){
+		for(int i = 0; i < this.getStackSize() - 1; i++){
 			MenuNode<D> m = this.menuStack.get(i);
 			m.renderBackground(game, r);
 			m.render(game, r);
 			m.renderHud(game, r);
 		}
-		Menu<D> menu = this.getTopMenu();
-		menu.renderBackground(game, r);
-		menu.render(game, r);
-		menu.renderHud(game, r);
+		
+		Menu<D> m = this.getTopMenu();
+		if(m != null){
+			m.renderBackground(game, r);
+			m.render(game, r);
+			m.renderHud(game, r);
+		}
 	}
 	
 	@Override

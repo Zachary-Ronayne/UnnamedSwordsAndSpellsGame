@@ -9,7 +9,7 @@ import zgame.world.Room;
  * 
  * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
-public class PlayState<D> extends GameState<D>{
+public class PlayState<D>extends GameState<D>{
 	
 	/** The {@link Room} which is currently used by this {@link PlayState} */
 	private Room<D> currentRoom;
@@ -30,6 +30,12 @@ public class PlayState<D> extends GameState<D>{
 	public PlayState(boolean createRoom){
 		super(true);
 		if(createRoom) this.currentRoom = new Room<D>();
+	}
+
+	@Override
+	public void destroy(){
+		super.destroy();
+		this.getCurrentRoom().destroy();
 	}
 	
 	/** @return See {@link #currentRoom} */
@@ -58,31 +64,8 @@ public class PlayState<D> extends GameState<D>{
 	}
 	
 	@Override
-	public void keyAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-	}
-	
-	@Override
-	public void mouseAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-	}
-	
-	@Override
-	public void mouseMove(Game<D> game, double x, double y){
-	}
-	
-	@Override
-	public void mouseWheelMove(Game<D> game, double amount){
-	}
-	
-	@Override
-	public void renderBackground(Game<D> game, Renderer r){
-	}
-	
-	@Override
 	public void render(Game<D> game, Renderer r){
+		super.render(game, r);
 		this.currentRoom.render(game, r);
-	}
-	
-	@Override
-	public void renderHud(Game<D> game, Renderer r){
 	}
 }
