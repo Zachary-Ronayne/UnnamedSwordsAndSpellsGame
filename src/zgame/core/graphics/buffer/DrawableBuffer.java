@@ -1,7 +1,6 @@
 package zgame.core.graphics.buffer;
 
 import zgame.core.graphics.Renderer;
-import zgame.core.graphics.camera.GameCamera;
 
 /** A {@link GameBuffer} that can easily be extended to draw on */
 public class DrawableBuffer extends GameBuffer{
@@ -56,25 +55,24 @@ public class DrawableBuffer extends GameBuffer{
 		
 		if(skipRedraw()) return;
 		
-		// Save the renderer's camera and set it to not use it for this operation
-		GameCamera oldCam = r.getCamera();
+		// Store the renderer's state
+		r.pushAll();
+		
+		// Use no camera
 		r.setCamera(null);
 		
-		// Save the current buffer and use this object's buffer
-		GameBuffer oldBuffer = r.setBuffer(this);
+		// Use this object's buffer
+		r.setBuffer(this);
 		
 		// Clear this buffer
 		this.clear();
 		
 		// Perform the actual drawing
-		r.pushMatrix();
 		r.identityMatrix();
 		this.draw(r);
-		r.popMatrix();
 		
-		// Put the old buffer and camera back
-		r.setBuffer(oldBuffer);
-		r.setCamera(oldCam);
+		// Put the old state back
+		r.popAll();
 		
 		// No longer need to redraw
 		this.needRedraw = false;

@@ -16,11 +16,12 @@ import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.TextBuffer;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.shader.ShaderProgram;
+import zgame.core.utils.LimitedStack;
 import zgame.core.utils.ZRect;
 import zgame.core.window.GameWindow;
 
 import java.nio.FloatBuffer;
-import java.util.Stack;
+import java.util.ArrayList;
 
 /**
  * A class that handles OpenGL operations related to drawing objects.
@@ -37,8 +38,17 @@ import java.util.Stack;
  */
 public class Renderer implements Destroyable{
 	
-	// TODO add a stack to keep track of things like font, color, etc
-
+	/** The color to use for rendering by default */
+	public static final ZColor DEFAULT_COLOR = new ZColor(0);
+	/** The default font to use for rendering. Null means rendering cannot happen unless a font is set */
+	public static final GameFont DEFAULT_FONT = null;
+	/** Default value for {@link #positioningEnabledStack} */
+	public static final Boolean DEFAULT_POSITIONING_ENABLED = true;
+	/** Default value for {@link #renderOnlyInsideStack} */
+	public static final Boolean DEFAULT_RENDER_ONLY_INSIDE = true;
+	/** Default value for {@link #limitedBoundsStack}. null means no limit */
+	public static final ZRect DEFAULT_LIMITED_BOUNDS = null;
+	
 	/** The vertex buffer index for positional coordinates */
 	public static final int VERTEX_POS_INDEX = 0;
 	/** The vertex buffer index for texture coordinates */
@@ -62,28 +72,6 @@ public class Renderer implements Destroyable{
 	/** The shader which is currently used */
 	private ShaderProgram loadedShader;
 	
-	/** The buffer which this Renderer draws to, which later can be drawn to a window */
-	private GameBuffer buffer;
-	
-	/** The {@link GameCamera} which determines the relative location and scale of objects drawn in this renderer. If this is null, no transformations will be applied */
-	private GameCamera camera;
-	
-	/** The stack used to keep track of transformations. The last element is always the current model view matrix */
-	private Stack<Matrix4f> modelViewStack;
-	/** The buffer used to track {@link #modelView} */
-	private FloatBuffer modelViewBuff;
-	/**
-	 * true if all render methods should automatically apply transformations to move from game coordinates to OpenGL coordinates, false otherwise.
-	 * Essentially, if this is true, the render methods take game coordinates, if it is false, the render methods take OpenGL coordinates
-	 */
-	private boolean positioningEnabled;
-	
-	/**
-	 * true if objects which would be rendered outside of the bounds of {@link #screen} should not be drawn, false otherwise.
-	 * If this value is false, then all objects will be rendered, even if they should not be visible, which could cause performance issues
-	 */
-	private boolean renderOnlyInside;
-	
 	/** The {@link VertexArray} for drawing plain rectangles */
 	private VertexArray rectVertArr;
 	/** A {@link VertexBuffer} which represents positional values that fill the entire OpenGL screen from (-1, -1) to (1, 1) */
@@ -103,11 +91,55 @@ public class Renderer implements Destroyable{
 	/** The {@link VertexBuffer} used to track the texture coordinates for drawing the entirety of a texture, i.e. from (0, 0) to (1, 1) */
 	private VertexBuffer texCoordBuff;
 	
-	/** The current color used by this {@link Renderer} */
-	private ZColor color;
+	/** The list of all the stacks of this {@link Renderer} keeping track of the state of this {@link Renderer} */
+	private ArrayList<LimitedStack<?>> stacks;
 	
-	/** The current font of this {@link Renderer}. If this value is null, no text can be drawn */
-	private GameFont font;
+	/** The list of all the attribute related stacks of this {@link Renderer} keeping track of the state of this {@link Renderer} */
+	private ArrayList<LimitedStack<?>> attributeStacks;
+	
+	/** The stack used to keep track of transformations. The last element is always the current model view matrix */
+	private LimitedStack<Matrix4f> modelViewStack;
+	/** The buffer used to track {@link #modelView} */
+	private FloatBuffer modelViewBuff;
+	
+	/** The stack keeping track of the current color used by this {@link Renderer} */
+	private LimitedStack<ZColor> colorStack;
+	
+	/** The stack keeping track of the current font of this {@link Renderer}. If the top of the stack is null, no text can be drawn. No font is set by default */
+	private LimitedStack<GameFont> fontStack;
+	
+	/**
+	 * The stack of buffers which this Renderer draws to, which later can be drawn to a window.
+	 * All drawing operations happen to the top of the stack.
+	 * Note that the stack will initially contain one buffer for drawing, based on the given size when initializing this {@link Renderer}
+	 * Any buffers added to the stack must be externally managed, i.e., this class will not attempt to destroy them.
+	 * If {@link #resize(int, int)} is called, it will destroy the initial buffer created by this object
+	 */
+	private LimitedStack<GameBuffer> bufferStack;
+	
+	/**
+	 * The stack keeping track of the {@link GameCamera} which determines the relative location and scale of objects drawn in this renderer.
+	 * If the top of the stack is null, no transformations will be applied
+	 */
+	private LimitedStack<GameCamera> cameraStack;
+	
+	/**
+	 * A stack keeping track of the attribute of if positioning should be used.
+	 * true if all render methods should automatically apply transformations to move from game coordinates to OpenGL coordinates, false otherwise.
+	 * Essentially, if this is true, the render methods take game coordinates, if it is false, the render methods take OpenGL coordinates
+	 */
+	private LimitedStack<Boolean> positioningEnabledStack;
+	
+	/**
+	 * A stack keeping track of the attribute of if things will only attempt to render if they are inside this {@link Renderer}'s bounds
+	 * true if objects which would be rendered outside of the bounds of {@link #screen} should not be drawn, false otherwise.
+	 * If this value is false, then all objects will be rendered, even if they should not be visible, which could cause performance issues
+	 */
+	private LimitedStack<Boolean> renderOnlyInsideStack;
+	
+	// TODO make shouldRender account for limited bounds
+	/** The stack keeping track of the current bounds which rendering is limited to, or null if no bounds is limited */
+	private LimitedStack<ZRect> limitedBoundsStack;
 	
 	/**
 	 * Create a new empty renderer
@@ -116,21 +148,55 @@ public class Renderer implements Destroyable{
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public Renderer(int width, int height){
-		// General initialization
-		this.camera = null;
-		this.setRenderOnlyInside(true);
-		this.resize(width, height);
+		// Initialize stack list
+		this.stacks = new ArrayList<LimitedStack<?>>();
+		this.attributeStacks = new ArrayList<LimitedStack<?>>();
+		
+		// Buffer stack
+		this.bufferStack = new LimitedStack<GameBuffer>(new GameBuffer(width, height, true), false);
+		this.stacks.add(this.bufferStack);
+		
+		// Camera stack
+		this.cameraStack = new LimitedStack<GameCamera>(null);
+		this.stacks.add(this.cameraStack);
 		
 		// Model view initialization
 		// The matrix is 4x4, so 16 floats
 		this.modelViewBuff = BufferUtils.createFloatBuffer(16);
-		this.modelViewStack = new Stack<Matrix4f>();
-		this.positioningEnabled = true;
+		// Model view stack
+		this.modelViewStack = new LimitedStack<Matrix4f>(new Matrix4f());
+		this.stacks.add(this.modelViewStack);
 		
-		// Font values
-		this.font = null;
+		// Font stack
+		this.fontStack = new LimitedStack<GameFont>(DEFAULT_FONT);
+		this.stacks.add(this.fontStack);
+		this.attributeStacks.add(this.fontStack);
 		
-		// Text buffers
+		// Color stack
+		this.colorStack = new LimitedStack<ZColor>(DEFAULT_COLOR);
+		this.stacks.add(this.colorStack);
+		this.attributeStacks.add(this.colorStack);
+		
+		// Camera stack
+		this.cameraStack = new LimitedStack<GameCamera>(null);
+		this.stacks.add(cameraStack);
+		
+		// Positioning enabled stack
+		this.positioningEnabledStack = new LimitedStack<Boolean>(DEFAULT_POSITIONING_ENABLED);
+		this.stacks.add(this.positioningEnabledStack);
+		this.attributeStacks.add(this.positioningEnabledStack);
+		
+		// Render only inside stack
+		this.renderOnlyInsideStack = new LimitedStack<Boolean>(DEFAULT_RENDER_ONLY_INSIDE);
+		this.stacks.add(this.renderOnlyInsideStack);
+		this.attributeStacks.add(this.renderOnlyInsideStack);
+		
+		// rendering is unbounded by default
+		this.limitedBoundsStack = new LimitedStack<ZRect>(DEFAULT_LIMITED_BOUNDS);
+		this.stacks.add(this.limitedBoundsStack);
+		this.updateLimitedBounds();
+		
+		// Text rendering buffers
 		this.xTextBuff = BufferUtils.createFloatBuffer(1);
 		this.yTextBuff = BufferUtils.createFloatBuffer(1);
 		this.textQuad = STBTTAlignedQuad.create();
@@ -145,11 +211,7 @@ public class Renderer implements Destroyable{
 		// Vertex arrays and vertex buffers
 		this.initVertexes();
 		
-		// Set the default color
-		this.setColor(new ZColor(0));
-		
 		// Init the model view matrix
-		this.identityMatrix();
 		this.updateMatrix();
 	}
 	
@@ -225,15 +287,44 @@ public class Renderer implements Destroyable{
 		this.destroyVertexes();
 	}
 	
+	// TODO add push / pop methods for all stacks, including several for groups of stacks and all of them
+	
+	/** Push the entire state of this renderer into its stacks */
+	public void pushAll(){
+		for(LimitedStack<?> s : this.stacks) s.push();
+	}
+	
+	/** Pop the entire state of this renderer off its stacks */
+	public void popAll(){
+		GameBuffer oldBuffer = this.getBuffer();
+		for(LimitedStack<?> s : this.stacks) s.pop();
+		if(this.getBuffer() != oldBuffer) this.updateBuffer();
+	}
+	
+	/** Push the values of the simple attributes of this renderer 
+	 * See {@link #colorStack}, {@link #fontStack}, {@link #positioningEnabledStack}, {@link #renderOnlyInsideStack}
+	*/
+	public void pushAttributes(){
+		for(LimitedStack<?> s : this.attributeStacks) s.push();
+	}
+
+	/** Pop the values of the simple attributes of this renderer */
+	public void popAttributes(){
+		for(LimitedStack<?> s : this.attributeStacks) s.pop();
+	}
+	
 	/**
-	 * Modify the size of this Renderer. This is a costly operation and should not regularly be run
+	 * Modify the default size of this Renderer. This is a costly operation and should not regularly be run
+	 * This will not modify the current top of the buffer stack, but the default buffer, unless the default buffer is at the top of the stack.
+	 * This method will also destroy the buffer at the bottom of the stack
 	 * 
 	 * @param width The width, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public void resize(int width, int height){
-		if(this.getBuffer() != null) this.getBuffer().destroy();
-		this.setBuffer(new GameBuffer(width, height, true));
+		GameBuffer old = this.bufferStack.getDefaultItem();
+		this.bufferStack.setDefaultItem(new GameBuffer(width, height, true));
+		old.destroy();
 	}
 	
 	/**
@@ -246,7 +337,7 @@ public class Renderer implements Destroyable{
 	
 	/** @return The {@link Matrix4f} of the model view, i.e. the current transformation status of the renderer */
 	public Matrix4f modelView(){
-		return this.modelViewStack.lastElement();
+		return this.modelViewStack.peek();
 	}
 	
 	/** Update the data of the model view matrix into OpenGL */
@@ -262,8 +353,7 @@ public class Renderer implements Destroyable{
 	 * @param matrix The matrix to use
 	 */
 	public void setMatrix(Matrix4f matrix){
-		if(!modelViewStack.empty()) modelViewStack.pop();
-		modelViewStack.push(matrix);
+		this.modelViewStack.replaceTop(matrix);
 		this.updateMatrix();
 	}
 	
@@ -277,6 +367,11 @@ public class Renderer implements Destroyable{
 		this.modelViewStack.push(new Matrix4f(this.modelView()));
 	}
 	
+	/** @return The stack keeping track of the model view matrix */
+	public LimitedStack<Matrix4f> getMatrixStack(){
+		return this.modelViewStack;
+	}
+	
 	/**
 	 * Pop the current state of the transformation matrix, i.e. load the previous state of the transformations and discard the current state.
 	 * This method does nothing if the stack is empty
@@ -284,9 +379,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the stack was popped, false if no element could be popped, i.e. the stack was empty
 	 */
 	public boolean popMatrix(){
-		if(this.modelViewStack.size() == 1) this.identityMatrix();
-		this.modelViewStack.pop();
-		return true;
+		return this.modelViewStack.pop() != null;
 	}
 	
 	/**
@@ -311,14 +404,19 @@ public class Renderer implements Destroyable{
 		this.updateMatrix();
 	}
 	
-	/** @return See {@link #positioningEnabled} */
+	/** @return The top of {@link #positioningEnabledStack} */
 	public boolean isPositioningEnabled(){
-		return this.positioningEnabled;
+		return this.positioningEnabledStack.peek();
 	}
 	
-	/** @param positioningEnabled See {@link #positioningEnabled} */
+	/** @param positioningEnabled Set the top of {@link #positioningEnabledStack} */
 	public void setPositioningEnabled(boolean positioningEnabled){
-		this.positioningEnabled = positioningEnabled;
+		this.positioningEnabledStack.replaceTop(positioningEnabled);
+	}
+	
+	/** @return See {@link #positioningEnabledStack} */
+	public LimitedStack<Boolean> getPositioningEnabledStack(){
+		return this.positioningEnabledStack;
 	}
 	
 	/** Call this method before rendering normal shapes, i.e. solid rectangles */
@@ -391,18 +489,9 @@ public class Renderer implements Destroyable{
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 	}
 	
-	/**
-	 * Make this {@link Renderer} only draw things in the given bounds. Call {@link #unlimitBounds()} to turn this off.
-	 * This is off by default
-	 * Does nothing if bounds is null
-	 * 
-	 * @param bounds The bounds to limit to, in game coordinates
-	 * @return true if the bounds were limited, false otherwise
-	 */
-	public boolean limitBounds(ZRect bounds){
-		if(bounds == null) return false;
-		this.limitBounds(bounds.x, bounds.y, bounds.width, bounds.height);
-		return true;
+	/** @return The top of {@link #limitedBounds} */
+	public ZRect getLimitedBounds(){
+		return this.limitedBoundsStack.peek();
 	}
 	
 	/**
@@ -416,20 +505,59 @@ public class Renderer implements Destroyable{
 	 * @param h The height of the bounds
 	 */
 	public void limitBounds(double x, double y, double w, double h){
+		this.limitBounds(new ZRect(x, y, w, h));
+	}
+	
+	/**
+	 * Make this {@link Renderer} only draw things in the given bounds. Call {@link #unlimitBounds()} to turn this off.
+	 * This is off by default
+	 * Turns off the limit if bounds is null
+	 * 
+	 * @param bounds The bounds to limit to, in game coordinates
+	 * @return true if the bounds were changed, false otherwise
+	 */
+	public boolean limitBounds(ZRect bounds){
+		ZRect limited = this.getLimitedBounds();
+		this.limitedBoundsStack.replaceTop(bounds);
+		
+		// If the new and old bounds are the same, don't change anything
+		if(bounds == null && limited == null || bounds != null && bounds.equals(limited)) return false;
+		this.updateLimitedBounds();
+		
+		return true;
+	}
+	
+	/** Allow this {@link Renderer} to render anywhere on the screen, i.e. disable {@link #limitBounds(ZRect)}. */
+	public void unlimitBounds(){
+		this.limitBounds(null);
+	}
+	
+	/** Update the current state of the limited bounds via calls to glScissor */
+	private void updateLimitedBounds(){
+		ZRect b = this.getLimitedBounds();
+		if(b == null){
+			glDisable(GL_SCISSOR_TEST);
+			return;
+		}
+		double x = b.getX();
+		double y = b.getY();
+		double w = b.getWidth();
+		double h = b.getHeight();
 		y = y + h;
-		if(this.camera != null){
-			x = this.camera.gameToScreenX(x);
-			y = this.camera.gameToScreenY(y);
-			w = this.camera.sizeGameToScreenX(w);
-			h = this.camera.sizeGameToScreenY(h);
+		GameCamera c = this.getCamera();
+		if(c != null){
+			x = c.gameToScreenX(x);
+			y = c.gameToScreenY(y);
+			w = c.sizeGameToScreenX(w);
+			h = c.sizeGameToScreenY(h);
 		}
 		glEnable(GL_SCISSOR_TEST);
 		glScissor((int)Math.round(x), (int)Math.round(this.getHeight() - y), (int)Math.round(w), (int)Math.round(h));
 	}
 	
-	/** Allow this {@link Renderer} to render anywhere on the screen, i.e. disable {@link #limitBounds(ZRect)}. */
-	public void unlimitBounds(){
-		glDisable(GL_SCISSOR_TEST);
+	/** @return See {@link #limitedBoundsStack} */
+	public LimitedStack<ZRect> getLimitedBoundsStack(){
+		return this.limitedBoundsStack;
 	}
 	
 	/**
@@ -483,7 +611,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a rectangle, of the current color of this Renderer, at the specified location. All values are in game coordinates
-	 * Coordinate types depend on {@link #positioningEnabled}
+	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * 
 	 * @param x The bounds
 	 * @return true if the object was drawn, false otherwise
@@ -494,7 +622,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a rectangle, of the current color of this Renderer, at the specified location. All values are in game coordinates
-	 * Coordinate types depend on {@link #positioningEnabled}
+	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * 
 	 * @param x The x coordinate of the upper left hand corner of the rectangle
 	 * @param y The y coordinate of the upper left hand corner of the rectangle
@@ -523,7 +651,7 @@ public class Renderer implements Destroyable{
 	/**
 	 * Draw a rectangular buffer at the specified location.
 	 * If the given dimensions have a different aspect ratio that those of the given buffer, then the image will stretch to fit the given dimensions
-	 * Coordinate types depend on {@link #positioningEnabled}
+	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * 
 	 * @param r The bounds
 	 * @param b The {@link GameBuffer} to draw
@@ -536,7 +664,7 @@ public class Renderer implements Destroyable{
 	/**
 	 * Draw a rectangular buffer at the specified location.
 	 * If the given dimensions have a different aspect ratio that those of the given buffer, then the image will stretch to fit the given dimensions
-	 * Coordinate types depend on {@link #positioningEnabled}
+	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * 
 	 * @param x The x coordinate of the upper left hand corner of the buffer
 	 * @param y The y coordinate of the upper left hand corner of the buffer
@@ -552,7 +680,7 @@ public class Renderer implements Destroyable{
 	/**
 	 * Draw a rectangular image at the specified location.
 	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
-	 * Coordinate types depend on {@link #positioningEnabled}
+	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * 
 	 * @param r The bounds
 	 * @param img The {@link GameImage} to draw
@@ -565,7 +693,7 @@ public class Renderer implements Destroyable{
 	/**
 	 * Draw a rectangular image at the specified location.
 	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
-	 * Coordinate types depend on {@link #positioningEnabled}
+	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * 
 	 * @param x The x coordinate of the upper left hand corner of the image
 	 * @param y The y coordinate of the upper left hand corner of the image
@@ -582,7 +710,7 @@ public class Renderer implements Destroyable{
 	 * Draw a rectangular image at the specified location.
 	 * Draw a rectangular image at the specified location on the given buffer
 	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
-	 * Coordinate types depend on {@link #positioningEnabled}
+	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * 
 	 * @param x The x coordinate of the upper left hand corner of the image
 	 * @param y The y coordinate of the upper left hand corner of the image
@@ -599,7 +727,7 @@ public class Renderer implements Destroyable{
 	 * Draw a rectangular image at the specified location.
 	 * Draw a rectangular image at the specified location on the given buffer
 	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
-	 * Coordinate types depend on {@link #positioningEnabled}
+	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * 
 	 * @param x The x coordinate of the upper left hand corner of the image
 	 * @param y The y coordinate of the upper left hand corner of the image
@@ -629,7 +757,7 @@ public class Renderer implements Destroyable{
 	 * Draw the given text to the given position
 	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
 	 * i.e. the text starts at the given coordinates and is draw left to right
-	 * Coordinate types depend on {@link #positioningEnabled}
+	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
 	 * 
 	 * @param x The x position of the text
@@ -645,7 +773,7 @@ public class Renderer implements Destroyable{
 	 * Draw the given text to the given position
 	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
 	 * i.e. the text starts at the given coordinates and is draw left to right
-	 * Coordinate types depend on {@link #positioningEnabled}
+	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
 	 * 
 	 * @param x The x position of the text
@@ -764,8 +892,9 @@ public class Renderer implements Destroyable{
 	public boolean shouldDraw(double x, double y, double w, double h, GameBuffer b){
 		if(!this.isRenderOnlyInside()) return true;
 		ZRect r = b.getBounds();
-		if(this.camera == null) return r.intersects(x, y, w, h);
-		else return r.intersects(this.camera.boundsGameToScreen(x, y, w, h));
+		GameCamera c = this.getCamera();
+		if(c == null) return r.intersects(x, y, w, h);
+		else return r.intersects(c.boundsGameToScreen(x, y, w, h));
 	}
 	
 	/** Fill the screen with the current color, regardless of camera position */
@@ -782,9 +911,14 @@ public class Renderer implements Destroyable{
 		this.popMatrix();
 	}
 	
-	/** @return See {@link #color} */
+	/** @return The top of {@link #colorStack} */
 	public ZColor getColor(){
-		return this.color;
+		return this.colorStack.peek();
+	}
+	
+	/** @return See {@link #colorStack} */
+	public LimitedStack<ZColor> getColorStack(){
+		return this.colorStack;
 	}
 	
 	/**
@@ -816,7 +950,7 @@ public class Renderer implements Destroyable{
 	 * @param color the new color
 	 */
 	public void setColor(ZColor color){
-		this.color = color;
+		this.colorStack.replaceTop(color);
 	}
 	
 	/** Update the uniform variable used to track the color, with the current value */
@@ -826,14 +960,19 @@ public class Renderer implements Destroyable{
 		if(loc != -1) glUniform4fv(loc, c);
 	}
 	
-	/** @return See {@link #font} */
+	/** @return The top of {@link #fontStack} */
 	public GameFont getFont(){
-		return this.font;
+		return this.fontStack.peek();
 	}
 	
-	/** @param font See {@link #font} */
+	/** @param font Set the top of {@link #fontStack} */
 	public void setFont(GameFont font){
-		this.font = font;
+		this.fontStack.replaceTop(font);
+	}
+	
+	/** @return See {@link #fontStack} */
+	public LimitedStack<GameFont> getFontStack(){
+		return this.fontStack;
 	}
 	
 	/** @return The size of {@link #font}. See {@link GameFont#getSize()} */
@@ -843,7 +982,7 @@ public class Renderer implements Destroyable{
 	
 	/** @param size Change the current size of the font. See {@link GameFont#getSize()} */
 	public void setFontSize(double size){
-		this.font = this.getFont().size(size);
+		this.setFont(this.getFont().size(size));
 	}
 	
 	/** @return The line spacing of {@link #font}. See {@link GameFont#getLineSpace()} */
@@ -853,7 +992,7 @@ public class Renderer implements Destroyable{
 	
 	/** @param lineSpace Change the current line space of the font. See {@link GameFont#getLineSpace()} */
 	public void setFontLineSpace(double lineSpace){
-		this.font = this.getFont().lineSpace(lineSpace);
+		this.setFont(this.getFont().lineSpace(lineSpace));
 	}
 	
 	/** @return The char spacing of {@link #font}. See {@link GameFont#getCharSpace()} */
@@ -863,27 +1002,32 @@ public class Renderer implements Destroyable{
 	
 	/** @param charSpace Change the current line space of the font. See {@link GameFont#getCharSpace()} */
 	public void setFontCharSpace(double charSpace){
-		this.font = this.getFont().charSpace(charSpace);
+		this.setFont(this.getFont().charSpace(charSpace));
 	}
 	
-	/** @return See {@link #camera} */
+	/** @return The top of {@link #cameraStack} */
 	public GameCamera getCamera(){
-		return this.camera;
+		return this.cameraStack.peek();
 	}
 	
-	/** @param camera See {@link #camera}. Can also use null to not use a camera for rendering */
+	/** @param camera Set the top of {@link #cameraStack}. Can also use null to not use a camera for rendering */
 	public void setCamera(GameCamera camera){
-		this.camera = camera;
+		this.cameraStack.replaceTop(camera);
 	}
 	
-	/** @return See {@link #renderOnlyInside} */
+	/** @return The top of {@link #renderOnlyInsideStack} */
 	public boolean isRenderOnlyInside(){
-		return this.renderOnlyInside;
+		return this.renderOnlyInsideStack.peek();
 	}
 	
-	/** @param renderOnlyInside See {@link #renderOnlyInside} */
+	/** @param renderOnlyInside The top of {@link #renderOnlyInsideStack} */
 	public void setRenderOnlyInside(boolean renderOnlyInside){
-		this.renderOnlyInside = renderOnlyInside;
+		this.renderOnlyInsideStack.replaceTop(renderOnlyInside);
+	}
+	
+	/** @return See {@link #renderOnlyInsideStack} */
+	public LimitedStack<Boolean> getRenderOnlyInsideStack(){
+		return this.renderOnlyInsideStack;
 	}
 	
 	/** @return The width, in pixels, of the underlying buffer of this Renderer */
@@ -918,20 +1062,51 @@ public class Renderer implements Destroyable{
 	
 	/** @return See {@link #buffer} */
 	public GameBuffer getBuffer(){
-		return this.buffer;
+		return this.bufferStack.peek();
 	}
-
-	/** 
-	 * Set the buffer that this Renderer should draw to
-	 * @param buffer See {@link #buffer} 
+	
+	/**
+	 * Set the buffer that this Renderer should draw to by pushing the given buffer onto {@link #bufferStack}
+	 * 
+	 * @param buffer See {@link #buffer}
 	 * @return The buffer that was being used
 	 */
-	public GameBuffer setBuffer(GameBuffer buffer){
+	public GameBuffer pushBuffer(GameBuffer buffer){
 		GameBuffer oldBuff = this.getBuffer();
-		this.buffer = buffer;
-		this.buffer.drawToBuffer();
-		this.buffer.setViewport();
+		this.bufferStack.push(buffer);
+		this.updateBuffer();
 		return oldBuff;
+	}
+	
+	/**
+	 * Pop the top buffer off of {@link #bufferStack} and return it
+	 * 
+	 * @return The buffer, or null if no buffer could be popped
+	 */
+	public GameBuffer popBuffer(){
+		GameBuffer b = this.bufferStack.pop();
+		this.updateBuffer();
+		return b;
+	}
+	
+	/**
+	 * Set the current buffer to draw to
+	 * Must be very careful about using this method. Cannot set the buffer if there is only one buffer in the stack
+	 * 
+	 * @param buffer The new buffer
+	 * @return The old buffer, or null if it could not be replaced
+	 */
+	public GameBuffer setBuffer(GameBuffer buffer){
+		GameBuffer old = this.bufferStack.replaceTop(buffer);
+		if(old != buffer) this.updateBuffer();
+		return old;
+	}
+	
+	/** Update the current state of OpenGL to use the buffer at the top of {@link #bufferStack} for rendering */
+	private void updateBuffer(){
+		GameBuffer b = this.getBuffer();
+		b.drawToBuffer();
+		b.setViewport();
 	}
 	
 	/**
@@ -942,7 +1117,10 @@ public class Renderer implements Destroyable{
 	 */
 	public boolean gameBoundsInScreen(ZRect bounds){
 		ZRect rBounds = this.getBounds();
-		ZRect gBounds = camera.boundsScreenToGame(rBounds.getX(), rBounds.getBounds().getY(), rBounds.getBounds().getWidth(), rBounds.getBounds().getHeight());
+		GameCamera c = this.getCamera();
+		ZRect gBounds;
+		if(c == null) gBounds = rBounds;
+		else gBounds = c.boundsScreenToGame(rBounds.getX(), rBounds.getBounds().getY(), rBounds.getBounds().getWidth(), rBounds.getBounds().getHeight());
 		return gBounds.intersects(bounds);
 	}
 	

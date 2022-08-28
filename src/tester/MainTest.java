@@ -159,7 +159,7 @@ public class MainTest extends Game<TestData>{
 		testerGame.setCurrentState(new TesterGameState(testerGame));
 		// testerGame.setCurrentState(new TesterMenuState(testerGame));
 		// testerGame.setCurrentState(new GameEngineState());
-
+		
 		window = testerGame.getWindow();
 		window.center();
 		
@@ -306,9 +306,9 @@ public class MainTest extends Game<TestData>{
 	public static class TesterGameState extends GameState<TestData>{
 		
 		private TextBuffer textBuffer;
-
+		
 		private static final ZRect bufferBounds = new ZRect(0, 500, 500, 150);
-
+		
 		public TesterGameState(Game<TestData> game){
 			this.textBuffer = new TextBuffer((int)bufferBounds.width, (int)bufferBounds.height, game.getFont("zfont"));
 			this.textBuffer.setText("Text from a buffer");
@@ -316,13 +316,13 @@ public class MainTest extends Game<TestData>{
 			this.textBuffer.setTextY(75);
 			this.textBuffer.setFont(this.textBuffer.getFont().size(40));
 		}
-
+		
 		@Override
 		public void destroy(){
 			super.destroy();
 			this.textBuffer.destroy();
 		}
-
+		
 		@Override
 		public void keyAction(Game<TestData> game, int key, boolean press, boolean shift, boolean alt, boolean ctrl){
 			ZKeyInput keys = game.getKeyInput();
@@ -418,7 +418,7 @@ public class MainTest extends Game<TestData>{
 			
 			r.setColor(red, green, blue);
 			r.drawRectangle(100, 50, 400, 100);
-
+			
 			r.setColor(1, 1, 1);
 			r.drawRectangle(bufferBounds);
 			r.setColor(1, 0, 0);
@@ -650,7 +650,7 @@ public class MainTest extends Game<TestData>{
 				}
 			};
 			this.addThing(scrollY);
-
+			
 			MenuButton<TestData> t;
 			
 			Menu<TestData> base = new Menu<TestData>();
