@@ -422,7 +422,7 @@ public class MainTest extends Game<TestData>{
 			r.setColor(1, 1, 1);
 			r.drawRectangle(bufferBounds);
 			r.setColor(1, 0, 0);
-			this.textBuffer.draw(bufferBounds.x, bufferBounds.y, r);
+			this.textBuffer.drawToRenderer(bufferBounds.x, bufferBounds.y, r);
 			
 			r.drawImage(550, 100, 50, 50, game.getImage("goal"));
 			r.drawImage(playerX, playerY, 150, 150, game.getImage("player"));

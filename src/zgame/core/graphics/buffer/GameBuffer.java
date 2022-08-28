@@ -1,4 +1,4 @@
-package zgame.core.graphics;
+package zgame.core.graphics.buffer;
 
 import static org.lwjgl.opengl.GL30.*;
 
@@ -6,6 +6,8 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
 
+import zgame.core.graphics.Destroyable;
+import zgame.core.graphics.Renderer;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZRect;
@@ -112,7 +114,7 @@ public class GameBuffer implements Destroyable{
 	public void destroy(){
 		this.bufferGenerated = false;
 		// Delete the buffer
-		// TODO need to delete the ids properly, it's broken when doing a popup?
+		// TODO need to delete the ids properly, it's broken sometimes when going between menu states, or maybe need to properly destroy things?
 		// glDeleteFramebuffers(this.getFrameID());
 		// glDeleteTextures(this.getTextureID());
 	}
@@ -125,7 +127,7 @@ public class GameBuffer implements Destroyable{
 	 * @param y The y coordinate to draw the upper left hand corner of the buffer
 	 * @param r The {@link Renderer} to use
 	 */
-	public void draw(double x, double y, Renderer r){
+	public void drawToRenderer(double x, double y, Renderer r){
 		r.drawBuffer(x, y, this.getWidth(), this.getHeight(), this);
 	}
 	

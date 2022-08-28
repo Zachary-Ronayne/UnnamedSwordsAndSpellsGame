@@ -6,6 +6,7 @@ import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
 
+import zgame.core.graphics.buffer.GameBuffer;
 import zgame.core.graphics.buffer.IndexBuffer;
 import zgame.core.graphics.buffer.VertexArray;
 import zgame.core.graphics.buffer.VertexBuffer;

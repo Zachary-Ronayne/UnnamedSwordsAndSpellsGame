@@ -190,7 +190,7 @@ public class MenuText<D>extends MenuThing<D>{
 	 */
 	public void drawText(Renderer r, String text){
 		this.buffer.setText(text);
-		this.buffer.draw(this.getX(), this.getY(), r);
+		this.buffer.drawToRenderer(this.getX(), this.getY(), r);
 	}
 	
 }

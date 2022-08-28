@@ -158,7 +158,7 @@ public class GameFont{
 		w *= pixelRatio;
 		y -= a.getAscent() * pixelRatio;
 		
-		// Pad the rectangle by 1 to account for rounding errors
+		// Pad the rectangle, can be used to account for rounding errors
 		return new ZRect(x - padding, y - padding, w + padding * 2, h + padding * 2);
 	}
 	
