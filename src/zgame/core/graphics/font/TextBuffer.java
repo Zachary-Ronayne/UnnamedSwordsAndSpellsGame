@@ -4,8 +4,6 @@ import zgame.core.graphics.GameBuffer;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.GameCamera;
 
-import static org.lwjgl.opengl.GL30.*;
-
 /** An object that holds a {@link Renderer} to keep track of a {@link GameBuffer} for easily rendering text without having to redraw it repeatedly */
 public class TextBuffer extends GameBuffer{
 	
@@ -33,8 +31,8 @@ public class TextBuffer extends GameBuffer{
 	 * @param height See {@link #getHeight()}
 	 * @param font See {@link #font}
 	 */
-	public TextBuffer(double width, double height, GameFont font){
-		super((int)Math.round(width), (int)Math.round(height), false);
+	public TextBuffer(int width, int height, GameFont font){
+		super(width, height, false);
 		this.font = font;
 		this.textX = 0;
 		this.textY = this.getHeight() * 0.5;
@@ -53,6 +51,7 @@ public class TextBuffer extends GameBuffer{
 		if(!this.getText().isEmpty()) r.drawBuffer(x, y, this.getWidth(), this.getHeight(), this);
 	}
 	
+	// TODO abstract out all this redraw stuff into its own object that extends GameBuffer
 	/**
 	 * Redraw the current text to this buffer
 	 * 
@@ -72,8 +71,7 @@ public class TextBuffer extends GameBuffer{
 		r.setCamera(null);
 		
 		// Save the current buffer and use this object's buffer
-		int oldBuffer = glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING);
-		this.drawToBuffer();
+		GameBuffer oldBuffer = r.setBuffer(this);
 		
 		// Clear this buffer
 		this.clear();
@@ -82,12 +80,13 @@ public class TextBuffer extends GameBuffer{
 		r.setFont(this.getFont());
 		
 		// Draw the text
-		r.drawText(this.getTextX(), this.getTextY(), this.getText(), this, this.getFont());
+		r.pushMatrix();
+		r.identityMatrix();
+		r.drawText(this.getTextX(), this.getTextY(), this.getText(), this.getFont());
+		r.popMatrix();
 		
-		// Bind the framebuffer to the previous buffer
-		glBindFramebuffer(GL_FRAMEBUFFER, oldBuffer);
-		
-		// Put the camera back
+		// Put the old buffer and camera back
+		r.setBuffer(oldBuffer);
 		r.setCamera(oldCam);
 		
 		// No longer need to redraw

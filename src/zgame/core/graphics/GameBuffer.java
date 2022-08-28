@@ -40,7 +40,7 @@ public class GameBuffer implements Destroyable{
 	private double ratioWH;
 	/** Stores the ratio of {@link #height} divided by {@link #width} */
 	private double ratioHW;
-
+	
 	/** true if the buffer has been generated, false otherwise */
 	private boolean bufferGenerated;
 	
@@ -103,7 +103,7 @@ public class GameBuffer implements Destroyable{
 		// Bind the framebuffer to the previous buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, oldBuffer);
 		
-		this.bufferGenerated = true;
+		this.bufferGenerated = success;
 		return success;
 	}
 	
@@ -129,19 +129,22 @@ public class GameBuffer implements Destroyable{
 		r.drawBuffer(x, y, this.getWidth(), this.getHeight(), this);
 	}
 	
-	/**
-	 * After calling this method, all further OpenGL rendering operations will draw to this GameBuffer
-	 */
+	/** After calling this method, all further OpenGL rendering operations will draw to this GameBuffer */
 	public void drawToBuffer(){
 		glBindFramebuffer(GL_FRAMEBUFFER, this.getFrameID());
 	}
 
+	/** Set the viewport so that it matches the full size of this {@link GameBuffer} */
+	public void setViewport(){
+		glViewport(0, 0, this.getWidth(), this.getHeight());
+	}
+	
 	/** Set the OpenGL clear color to fully transparent, then clear the currently bound buffer. Generally should call {@link #drawToBuffer()} before calling this method */
 	public void clear(){
 		glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
-
+	
 	/** @return See {@link #textureID} */
 	public int getTextureID(){
 		return this.textureID;
@@ -221,12 +224,12 @@ public class GameBuffer implements Destroyable{
 	public double getRatioHW(){
 		return this.ratioHW;
 	}
-
+	
 	/** @return The bounds of this {@link GameBuffer}, i.e., a rectangle positioned at (0, 0) with the dimensions of this buffer */
 	public ZRect getBounds(){
 		return new ZRect(0, 0, this.getWidth(), this.getHeight());
 	}
-
+	
 	/** @return See {@link #isBufferGenerated()} */
 	public boolean isBufferGenerated(){
 		return this.bufferGenerated;

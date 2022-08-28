@@ -35,6 +35,8 @@ import java.util.Stack;
  * Game coordinates: The actual position of something in the game, regardless of where it would be rendered
  */
 public class Renderer implements Destroyable{
+	
+	// TODO add a stack to keep track of things like font, color, etc
 
 	/** The vertex buffer index for positional coordinates */
 	public static final int VERTEX_POS_INDEX = 0;
@@ -60,7 +62,7 @@ public class Renderer implements Destroyable{
 	private ShaderProgram loadedShader;
 	
 	/** The buffer which this Renderer draws to, which later can be drawn to a window */
-	private GameBuffer screen;
+	private GameBuffer buffer;
 	
 	/** The {@link GameCamera} which determines the relative location and scale of objects drawn in this renderer. If this is null, no transformations will be applied */
 	private GameCamera camera;
@@ -216,7 +218,7 @@ public class Renderer implements Destroyable{
 	/** Delete any resources used by this Renderer */
 	@Override
 	public void destroy(){
-		this.screen.destroy();
+		this.getBuffer().destroy();
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		this.destroyVertexes();
@@ -229,16 +231,15 @@ public class Renderer implements Destroyable{
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public void resize(int width, int height){
-		if(this.screen != null) this.screen.destroy();
-		this.screen = new GameBuffer(width, height, true);
+		if(this.getBuffer() != null) this.getBuffer().destroy();
+		this.setBuffer(new GameBuffer(width, height, true));
 	}
 	
 	/**
 	 * Clear all rendered contents of this renderer. Calling this method will leave this Renderer's GameBuffer's Framebuffer as the bound framebuffer
 	 */
 	public void clear(){
-		GameBuffer s = this.screen;
-		glBindFramebuffer(GL_FRAMEBUFFER, s.getFrameID());
+		glBindFramebuffer(GL_FRAMEBUFFER, this.getBuffer().getFrameID());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	
@@ -356,7 +357,8 @@ public class Renderer implements Destroyable{
 	 */
 	public void initToDraw(){
 		// Bind the screen as the frame buffer
-		this.screen.drawToBuffer();
+		this.getBuffer().drawToBuffer();
+		this.getBuffer().setViewport();
 		// Load the identity matrix before setting a default shader
 		this.identityMatrix();
 		// Bind a default shader
@@ -382,7 +384,7 @@ public class Renderer implements Destroyable{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		
 		// Use the frame buffer texture
-		glBindTexture(GL_TEXTURE_2D, this.screen.getTextureID());
+		glBindTexture(GL_TEXTURE_2D, this.getBuffer().getTextureID());
 		
 		// Draw the image
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
@@ -391,11 +393,15 @@ public class Renderer implements Destroyable{
 	/**
 	 * Make this {@link Renderer} only draw things in the given bounds. Call {@link #unlimitBounds()} to turn this off.
 	 * This is off by default
+	 * Does nothing if bounds is null
 	 * 
 	 * @param bounds The bounds to limit to, in game coordinates
+	 * @return true if the bounds were limited, false otherwise
 	 */
-	public void limitBounds(ZRect bounds){
+	public boolean limitBounds(ZRect bounds){
+		if(bounds == null) return false;
 		this.limitBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+		return true;
 	}
 	
 	/**
@@ -430,22 +436,47 @@ public class Renderer implements Destroyable{
 	 * This method assumes the coordinates to translate are centered in the given rectangular bounding box in game coordinates
 	 * This method does not push or pop the matrix stack
 	 * 
+	 * @param r The bounds
+	 */
+	public void positionObject(ZRect r){
+		this.positionObject(r.getX(), r.getY(), r.getWidth(), r.getHeight());
+	}
+	
+	/**
+	 * Call OpenGL operations that transform to draw to a location in game coordinates.
+	 * This method assumes the coordinates to translate are centered in the given rectangular bounding box in game coordinates
+	 * This method does not push or pop the matrix stack
+	 * 
 	 * @param x The x coordinate of the upper left hand corner
 	 * @param y The y coordinate of the upper left hand corner
 	 * @param w The width
 	 * @param h The height
 	 */
-	private void positionObject(double x, double y, double w, double h){
+	public void positionObject(double x, double y, double w, double h){
 		if(!this.isPositioningEnabled()) return;
 		
-		GameBuffer b = this.screen;
-		
+		GameBuffer b = this.getBuffer();
 		double rw = b.getInverseWidth();
 		double rh = b.getInverseHeight();
 		double hw = b.getInverseHalfWidth();
 		double hh = b.getInverseHalfHeight();
 		
+		// OpenGL transformations happen in reverse order
+		// Need to account for OpenGL, where the buffer is in the range [-1, 1] on both axis
+		
+		// Second, translate from the center to the upper left hand corner, -1 on the x axis, +1 on the y axis
+		// That will translate the object so the object is centered on the upper left hand corner of the buffer
+		// Then, translate by half of the percentage of the buffer that the object takes up.
+		// This is not multiplied, because the OpenGL space is 2x2 because of the range [-1, 1], so half of 2 is 1, so multiply by nothing
+		// That will make the upper left hand corner of the object align with the upper left hand corner of the buffer
+		// Then, translate by the percentage of the buffer that the given position takes up.
+		// This is multiplied by 2, for the same reason as before, but now it's the full amount, not half
+		// That will put the object at the final location
+		// The below line is just a mathematically simplified version of the commented out line
+		// this.translate(-1 + w * rw + 2 * x * rw, 1 - h * rh - 2 * y * rh);
 		this.translate(-1 + (x + w * .5) * hw, 1 - (y + h * .5) * hh);
+		// First scale by the ratio of objectSize / bufferSize, i.e. the percentage of the buffer that object takes up
+		// After this scaling, the object will be in the center of the buffer, and will be the correct size relative to the buffer
 		this.scale(w * rw, h * rh);
 	}
 	
@@ -457,7 +488,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawRectangle(ZRect r){
-		return this.drawRectangle(r, this.screen);
+		return this.drawRectangle(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
 	
 	/**
@@ -471,37 +502,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawRectangle(double x, double y, double w, double h){
-		return this.drawRectangle(x, y, w, h, this.screen);
-	}
-	
-	/**
-	 * Draw a rectangle, of the current color of this Renderer, at the specified location, to the given buffer. All values are in game coordinates
-	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
-	 * Coordinate types depend on {@link #positioningEnabled}
-	 * 
-	 * @param r Thw bounds
-	 * @param b The {@link GameBuffer} to draw to
-	 * @return true if the object was drawn, false otherwise
-	 */
-	public boolean drawRectangle(ZRect r, GameBuffer b){
-		return this.drawRectangle(r.getX(), r.getY(), r.getWidth(), r.getHeight(), this.screen);
-	}
-	
-	/**
-	 * Draw a rectangle, of the current color of this Renderer, at the specified location, to the given buffer. All values are in game coordinates
-	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
-	 * Coordinate types depend on {@link #positioningEnabled}
-	 * 
-	 * @param x The x coordinate of the upper left hand corner of the rectangle
-	 * @param y The y coordinate of the upper left hand corner of the rectangle
-	 * @param w The width of the rectangle
-	 * @param h The height of the rectangle
-	 * @param b The {@link GameBuffer} to draw to
-	 * @return true if the object was drawn, false otherwise
-	 */
-	public boolean drawRectangle(double x, double y, double w, double h, GameBuffer b){
-		// TODO make these work properly with any given buffer
-		if(!this.shouldDraw(x, y, w, h, b)) return false;
+		if(!this.shouldDraw(x, y, w, h)) return false;
 		
 		// Use the shape shader and the rectangle vertex array
 		this.renderModeShapes();
@@ -528,7 +529,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawBuffer(ZRect r, GameBuffer b){
-		return this.drawBuffer(r, b, this.screen);
+		return this.drawBuffer(r.getX(), r.getY(), r.getWidth(), r.getHeight(), b);
 	}
 	
 	/**
@@ -545,72 +546,6 @@ public class Renderer implements Destroyable{
 	 */
 	public boolean drawBuffer(double x, double y, double w, double h, GameBuffer b){
 		return this.drawImage(x, y, w, h, b.getTextureID());
-	}
-	
-	/**
-	 * Draw a rectangular buffer at the specified location on the given buffer
-	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
-	 * If the given dimensions have a different aspect ratio that those of the given buffer, then the image will stretch to fit the given dimensions
-	 * Coordinate types depend on {@link #positioningEnabled}
-	 * 
-	 * @param r The bounds
-	 * @param b The {@link GameBuffer} to draw
-	 * @param drawTo The {@link GameBuffer} to draw to
-	 * @return true if the object was drawn, false otherwise
-	 */
-	public boolean drawBuffer(ZRect r, GameBuffer b, GameBuffer drawTo){
-		return this.drawBuffer(r.getX(), r.getY(), r.getWidth(), r.getHeight(), b);
-	}
-	
-	/**
-	 * Draw a rectangular buffer at the specified location on the given buffer
-	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
-	 * If the given dimensions have a different aspect ratio that those of the given buffer, then the image will stretch to fit the given dimensions
-	 * Coordinate types depend on {@link #positioningEnabled}
-	 * 
-	 * @param x The x coordinate of the upper left hand corner of the buffer
-	 * @param y The y coordinate of the upper left hand corner of the buffer
-	 * @param w The width of the image
-	 * @param h The height of the image
-	 * @param b The {@link GameBuffer} to draw
-	 * @param drawTo The {@link GameBuffer} to draw to
-	 * @return true if the object was drawn, false otherwise
-	 */
-	public boolean drawBuffer(double x, double y, double w, double h, GameBuffer b, GameBuffer drawTo){
-		return this.drawImage(x, y, w, h, b.getTextureID(), drawTo);
-	}
-	
-	/**
-	 * Draw a rectangular image at the specified location using the given buffer.
-	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
-	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
-	 * Coordinate types depend on {@link #positioningEnabled}
-	 * 
-	 * @param r The bounds
-	 * @param img The {@link GameImage} to draw
-	 * @param b The buffer to draw to
-	 * @return true if the object was drawn, false otherwise
-	 */
-	public boolean drawImage(ZRect r, GameImage img, GameBuffer b){
-		return this.drawImage(r, img.getId(), b);
-	}
-	
-	/**
-	 * Draw a rectangular image at the specified location using the given buffer.
-	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
-	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
-	 * Coordinate types depend on {@link #positioningEnabled}
-	 * 
-	 * @param x The x coordinate of the upper left hand corner of the image
-	 * @param y The y coordinate of the upper left hand corner of the image
-	 * @param w The width of the image
-	 * @param h The height of the image
-	 * @param img The {@link GameImage} to draw
-	 * @param b The buffer to draw to
-	 * @return true if the object was drawn, false otherwise
-	 */
-	public boolean drawImage(double x, double y, double w, double h, GameImage img, GameBuffer b){
-		return this.drawImage(x, y, w, h, img.getId(), b);
 	}
 	
 	/**
@@ -656,7 +591,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawImage(ZRect r, int img){
-		return this.drawImage(r, img, this.screen);
+		return this.drawImage(r.getX(), r.getY(), r.getWidth(), r.getHeight(), img);
 	}
 	
 	/**
@@ -673,40 +608,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawImage(double x, double y, double w, double h, int img){
-		return this.drawImage(x, y, w, h, img, this.screen);
-	}
-	
-	/**
-	 * Draw a rectangular image at the specified location using the given buffer.
-	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
-	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
-	 * Coordinate types depend on {@link #positioningEnabled}
-	 * 
-	 * @param r The bounds
-	 * @param img The OpenGL id of the image to draw
-	 * @param b The buffer to draw to
-	 * @return true if the object was drawn, false otherwise
-	 */
-	public boolean drawImage(ZRect r, int img, GameBuffer b){
-		return this.drawImage(r.getX(), r.getY(), r.getWidth(), r.getHeight(), img);
-	}
-	
-	/**
-	 * Draw a rectangular image at the specified location using the given buffer.
-	 * Must separately call {@link GameBuffer#drawToBuffer()} to tell this method to draw to the given buffer
-	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
-	 * Coordinate types depend on {@link #positioningEnabled}
-	 * 
-	 * @param x The x coordinate of the upper left hand corner of the image
-	 * @param y The y coordinate of the upper left hand corner of the image
-	 * @param w The width of the image
-	 * @param h The height of the image
-	 * @param img The OpenGL id of the image to draw
-	 * @param b The buffer to draw to
-	 * @return true if the object was drawn, false otherwise
-	 */
-	public boolean drawImage(double x, double y, double w, double h, int img, GameBuffer b){
-		if(!this.shouldDraw(x, y, w, h, b)) return false;
+		if(!this.shouldDraw(x, y, w, h)) return false;
 		
 		this.renderModeImage();
 		this.imgVertArr.bind();
@@ -735,7 +637,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the text was drawn, false otherwise
 	 */
 	public boolean drawText(double x, double y, String text){
-		return drawText(x, y, text, null);
+		return drawText(x, y, text, this.getFont());
 	}
 	
 	/**
@@ -748,57 +650,19 @@ public class Renderer implements Destroyable{
 	 * @param x The x position of the text
 	 * @param y The y position of the text
 	 * @param text The text to draw
-	 * @param bounds The bounds which the text must stay in. Any text rendered outside this bounds will not be rendered. Use null to not use a bounds
-	 * @return true if the text was drawn, false otherwise
-	 */
-	public boolean drawText(double x, double y, String text, ZRect bounds){
-		return this.drawText(x, y, text, bounds, this.screen, this.getFont());
-	}
-	
-	/**
-	 * Draw the given text to the given position
-	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
-	 * i.e. the text starts at the given coordinates and is draw left to right
-	 * Coordinate types depend on {@link #positioningEnabled}
-	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
-	 * 
-	 * @param x The x position of the text
-	 * @param y The y position of the text
-	 * @param text The text to draw
-	 * @param b The {@link GameBuffer} to draw to
 	 * @param f The font to use for drawing
 	 * @return true if the text was drawn, false otherwise
 	 */
-	public boolean drawText(double x, double y, String text, GameBuffer b, GameFont f){
-		return this.drawText(x, y, text, null, b, f);
-	}
-	
-	/**
-	 * Draw the given text to the given position
-	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
-	 * i.e. the text starts at the given coordinates and is draw left to right
-	 * Coordinate types depend on {@link #positioningEnabled}
-	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
-	 * 
-	 * @param x The x position of the text
-	 * @param y The y position of the text
-	 * @param text The text to draw
-	 * @param bounds The bounds which the text must stay in. Any text rendered outside this bounds will not be rendered. Use null to not use a bounds
-	 * @param buffer The buffer to draw the text to
-	 * @param f The font to use for drawing
-	 * @return true if the text was drawn, false otherwise
-	 */
-	private boolean drawText(double x, double y, String text, ZRect bounds, GameBuffer buffer, GameFont f){
+	public boolean drawText(double x, double y, String text, GameFont f){
 		// Make sure a font exists
 		if(f == null) return false;
 		FontAsset fa = f.getAsset();
 		
 		// Bounds check for if the text should be drawn
 		ZRect r = f.stringBounds(x, y, text);
-		if(!this.shouldDraw(r.getX(), r.getY(), r.getWidth(), r.getHeight(), buffer)) return false;
+		if(!this.shouldDraw(r.getX(), r.getY(), r.getWidth(), r.getHeight())) return false;
 		
 		// Mark the drawing bounds
-		if(bounds != null) this.limitBounds(bounds);
 		// Use the font shaders
 		this.renderModeFont();
 		// Use the font vertex array
@@ -816,11 +680,17 @@ public class Renderer implements Destroyable{
 		// Find the size for positioning the object
 		double posSize = f.fontScalar();
 		
+		// TODO fix text rendering on multiple lines from \n?
+		
 		// Position and scale the text
 		this.pushMatrix();
+		// TODO make docs for why this is the transformation operations
+		// Need to scale because text is upside down?
 		this.scale(1, -1);
-		this.positionObject(x, -y + buffer.getHeight(), posSize, posSize);
-
+		// x and -y because the of the scaling?
+		// Need to use posSize for the width and height because?
+		this.positionObject(x, this.getHeight() - y, posSize, posSize);
+		
 		// Draw every character of the text
 		for(int i = 0; i < text.length(); i++){
 			char c = text.charAt(i);
@@ -829,9 +699,10 @@ public class Renderer implements Destroyable{
 			// Must do this regardless to ensure the text moves over even if a character does not get drawn
 			f.bounds(c, this.xTextBuff, this.yTextBuff, this.textQuad);
 			
+			// TODO fix individual characters not rendering because the wrong bounds are found when zoomed in
 			// Only draw the character if it will be in the bounds of the buffer
 			ZRect sb = f.stringBounds(this.xTextBuff.get(0), this.yTextBuff.get(0), Character.toString(text.charAt(i)));
-			if(!this.shouldDraw(sb.getX(), sb.getY(), sb.getWidth(), sb.getHeight(), buffer)) continue;
+			if(!this.shouldDraw(sb.getX(), sb.getY(), sb.getWidth(), sb.getHeight())) continue;
 			
 			// Buffer the new data
 			this.posBuff.updateData(new float[]{
@@ -843,7 +714,7 @@ public class Renderer implements Destroyable{
 				this.textQuad.x1(), this.textQuad.y1(),
 				//////////////////////////////////////
 				this.textQuad.x0(), this.textQuad.y1()});
-
+			
 			this.changeTexCoordBuff.updateData(new float[]{
 				//////////////////////////////////////
 				this.textQuad.s0(), this.textQuad.t0(),
@@ -858,9 +729,6 @@ public class Renderer implements Destroyable{
 			glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		}
 		this.popMatrix();
-		
-		// Disable scissor test again if it was enabled
-		if(bounds != null) this.unlimitBounds();
 		
 		return true;
 	}
@@ -889,12 +757,12 @@ public class Renderer implements Destroyable{
 	 * @param y The upper left hand corner y coordinate of the object, in game coordinates
 	 * @param w The width of the object, in game coordinates
 	 * @param h The height of the object, in game coordinates
-	 * @param buffer The buffer to check
+	 * @param b The buffer to check
 	 * @return true if the bounds should be drawn, false otherwise
 	 */
-	public boolean shouldDraw(double x, double y, double w, double h, GameBuffer buffer){
+	public boolean shouldDraw(double x, double y, double w, double h, GameBuffer b){
 		if(!this.isRenderOnlyInside()) return true;
-		ZRect r = buffer.getBounds();
+		ZRect r = b.getBounds();
 		if(this.camera == null) return r.intersects(x, y, w, h);
 		else return r.intersects(this.camera.boundsGameToScreen(x, y, w, h));
 	}
@@ -1019,37 +887,50 @@ public class Renderer implements Destroyable{
 	
 	/** @return The width, in pixels, of the underlying buffer of this Renderer */
 	public int getWidth(){
-		return this.screen.getWidth();
+		return this.getBuffer().getWidth();
 	}
 	
 	/** @return The height, in pixels, of the underlying buffer of this Renderer */
 	public int getHeight(){
-		return this.screen.getHeight();
+		return this.getBuffer().getHeight();
 	}
 	
 	/** @return A rectangle of the bounds of this {@link Renderer}, i.e. the position will be (0, 0), width will be {@link #getWidth()} and height will be {@link #getHeight()} */
 	public ZRect getBounds(){
-		return this.screen.getBounds();
+		return this.getBuffer().getBounds();
 	}
 	
 	/** @return The ratio of the size of the internal buffer, i.e. the width divided by the height */
 	public double getRatioWH(){
-		return this.screen.getRatioWH();
+		return this.getBuffer().getRatioWH();
 	}
 	
 	/** @return The ratio of the size of the internal buffer, i.e. the height divided by the width */
 	public double getRatioHW(){
-		return this.screen.getRatioHW();
+		return this.getBuffer().getRatioHW();
 	}
 	
-	/** @return The OpenGL id used by this {@link Renderer}s {@link #screen} */
+	/** @return The OpenGL id used by this {@link Renderer}s {@link #buffer} */
 	public int getBufferId(){
-		return screen.getTextureID();
+		return this.getBuffer().getTextureID();
 	}
 	
-	/** @return See {@link #screen} */
+	/** @return See {@link #buffer} */
 	public GameBuffer getBuffer(){
-		return this.screen;
+		return this.buffer;
+	}
+
+	/** 
+	 * Set the buffer that this Renderer should draw to
+	 * @param buffer See {@link #buffer} 
+	 * @return The buffer that was being used
+	 */
+	public GameBuffer setBuffer(GameBuffer buffer){
+		GameBuffer oldBuff = this.getBuffer();
+		this.buffer = buffer;
+		this.buffer.drawToBuffer();
+		this.buffer.setViewport();
+		return oldBuff;
 	}
 	
 	/**
@@ -1072,7 +953,7 @@ public class Renderer implements Destroyable{
 	 * @return The value in screen coordinates
 	 */
 	public double windowToScreenX(GameWindow window, double x){
-		return windowToScreen(x, window.viewportX(), window.viewportWInverse(), this.screen.getWidth());
+		return windowToScreen(x, window.viewportX(), window.viewportWInverse(), this.getWidth());
 	}
 	
 	/**
@@ -1083,7 +964,7 @@ public class Renderer implements Destroyable{
 	 * @return The value in screen coordinates
 	 */
 	public double windowToScreenY(GameWindow window, double y){
-		return windowToScreen(y, window.viewportY(), window.viewportHInverse(), this.screen.getHeight());
+		return windowToScreen(y, window.viewportY(), window.viewportHInverse(), this.getHeight());
 	}
 	
 	/**
@@ -1107,7 +988,7 @@ public class Renderer implements Destroyable{
 	 * @return The value in window coordinates
 	 */
 	public double screenToWindowX(GameWindow window, double x){
-		return screenToWindow(x, window.viewportX(), window.viewportW(), this.screen.getInverseWidth());
+		return screenToWindow(x, window.viewportX(), window.viewportW(), this.getBuffer().getInverseWidth());
 	}
 	
 	/**
@@ -1118,7 +999,7 @@ public class Renderer implements Destroyable{
 	 * @return The value in window coordinates
 	 */
 	public double screenToWindowY(GameWindow window, double y){
-		return screenToWindow(y, window.viewportY(), window.viewportH(), this.screen.getInverseHeight());
+		return screenToWindow(y, window.viewportY(), window.viewportH(), this.getBuffer().getInverseHeight());
 	}
 	
 	/**
@@ -1141,7 +1022,7 @@ public class Renderer implements Destroyable{
 	 * @return The value in OpenGL coordinates
 	 */
 	public double screenToGlX(GameWindow window, double x){
-		return screenToGl(x, window.viewportX(), window.getWidth(), this.screen.getInverseWidth(), window.getInverseWidth());
+		return screenToGl(x, window.viewportX(), window.getWidth(), this.getBuffer().getInverseWidth(), window.getInverseWidth());
 	};
 	
 	/**
@@ -1151,7 +1032,7 @@ public class Renderer implements Destroyable{
 	 * @return The value in OpenGL coordinates
 	 */
 	public double screenToGlY(GameWindow window, double y){
-		return screenToGl(y, window.viewportY(), window.getHeight(), this.screen.getInverseHeight(), window.getInverseHeight());
+		return screenToGl(y, window.viewportY(), window.getHeight(), this.getBuffer().getInverseHeight(), window.getInverseHeight());
 	};
 	
 	/**
@@ -1172,20 +1053,22 @@ public class Renderer implements Destroyable{
 	 * Convert an x coordinate value in OpenGL space, to a coordinate in screen coordinates
 	 * 
 	 * @param x The value to convert
+	 * @param window The window to use to convert
 	 * @return The value in screen coordinates
 	 */
 	public double glToScreenX(GameWindow window, double x){
-		return glToScreen(x, window.viewportX(), window.getInverseWidth(), this.screen.getWidth(), window.getWidth());
+		return glToScreen(x, window.viewportX(), window.getInverseWidth(), this.getWidth(), window.getWidth());
 	};
 	
 	/**
 	 * Convert a y coordinate value in OpenGL space, to a coordinate in screen coordinates
 	 * 
 	 * @param y The value to convert
+	 * @param window The window to use to convert
 	 * @return The value in screen coordinates
 	 */
 	public double glToScreenY(GameWindow window, double y){
-		return glToScreen(y, window.viewportY(), window.getInverseHeight(), this.screen.getHeight(), window.getHeight());
+		return glToScreen(y, window.viewportY(), window.getInverseHeight(), this.getHeight(), window.getHeight());
 	};
 	
 	/**
@@ -1210,7 +1093,7 @@ public class Renderer implements Destroyable{
 	 * @return The converted size
 	 */
 	public double sizeWindowToScreenX(GameWindow window, double x){
-		return sizeWindowToScreen(x, window.viewportWInverse(), this.screen.getWidth());
+		return sizeWindowToScreen(x, window.viewportWInverse(), this.getWidth());
 	}
 	
 	/**
@@ -1221,7 +1104,7 @@ public class Renderer implements Destroyable{
 	 * @return The converted size
 	 */
 	public double sizeWindowToScreenY(GameWindow window, double y){
-		return sizeWindowToScreen(y, window.viewportHInverse(), this.screen.getHeight());
+		return sizeWindowToScreen(y, window.viewportHInverse(), this.getHeight());
 	}
 	
 	/**
@@ -1244,7 +1127,7 @@ public class Renderer implements Destroyable{
 	 * @return The converted size
 	 */
 	public double sizeScreenToWindowX(GameWindow window, double x){
-		return sizeScreenToWindow(x, window.viewportW(), this.screen.getInverseWidth());
+		return sizeScreenToWindow(x, window.viewportW(), this.getBuffer().getInverseWidth());
 	}
 	
 	/**
@@ -1255,7 +1138,7 @@ public class Renderer implements Destroyable{
 	 * @return The converted size
 	 */
 	public double sizeScreenToWindowY(GameWindow window, double y){
-		return sizeScreenToWindow(y, window.viewportH(), this.screen.getInverseHeight());
+		return sizeScreenToWindow(y, window.viewportH(), this.getBuffer().getInverseHeight());
 	}
 	
 	/**
@@ -1278,7 +1161,7 @@ public class Renderer implements Destroyable{
 	 * @return The converted size
 	 */
 	public double sizeScreenToGlX(GameWindow window, double x){
-		return sizeScreenToGl(x, window.getWidth(), this.screen.getInverseWidth(), window.getInverseWidth());
+		return sizeScreenToGl(x, window.getWidth(), this.getBuffer().getInverseWidth(), window.getInverseWidth());
 	};
 	
 	/**
@@ -1289,7 +1172,7 @@ public class Renderer implements Destroyable{
 	 * @return The converted size
 	 */
 	public double sizeScreenToGlY(GameWindow window, double y){
-		return sizeScreenToGl(y, window.getHeight(), this.screen.getInverseHeight(), window.getInverseHeight());
+		return sizeScreenToGl(y, window.getHeight(), this.getBuffer().getInverseHeight(), window.getInverseHeight());
 	};
 	
 	/**
@@ -1313,7 +1196,7 @@ public class Renderer implements Destroyable{
 	 * @return The converted size
 	 */
 	public double sizeGlToScreenX(GameWindow window, double x){
-		return sizeGlToScreen(x, window.getInverseWidth(), this.screen.getWidth(), window.getWidth());
+		return sizeGlToScreen(x, window.getInverseWidth(), this.getWidth(), window.getWidth());
 	};
 	
 	/**
@@ -1324,7 +1207,7 @@ public class Renderer implements Destroyable{
 	 * @return The converted size
 	 */
 	public double sizeGlToScreenY(GameWindow window, double y){
-		return sizeGlToScreen(y, window.getInverseHeight(), this.screen.getHeight(), window.getHeight());
+		return sizeGlToScreen(y, window.getInverseHeight(), this.getHeight(), window.getHeight());
 	};
 	
 	/**

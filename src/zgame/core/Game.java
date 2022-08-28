@@ -154,6 +154,7 @@ public class Game<D> implements Saveable, Destroyable{
 	 * @param enterFullScreen True to immediately enter fullscreen
 	 * @param stretchToFill true if, when drawing the final Renderer image to the screen, the image should stretch to fill up the entire screen,
 	 *        false to draw the image in the center of the screen leave black bars in areas that the image doesn't fill up
+	 * @param printFps true to print the fps every second
 	 */
 	public Game(String title, int winWidth, int winHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps){
 		this(title, winWidth, winHeight, winWidth, winHeight, maxFps, useVsync, enterFullScreen, stretchToFill, printFps, 60, true);
@@ -172,6 +173,9 @@ public class Game<D> implements Saveable, Destroyable{
 	 * @param enterFullScreen True to immediately enter fullscreen
 	 * @param stretchToFill true if, when drawing the final Renderer image to the screen, the image should stretch to fill up the entire screen,
 	 *        false to draw the image in the center of the screen leave black bars in areas that the image doesn't fill up
+	 * @param printFps true to, every second, print the number of frames rendered in that last second, false otherwise
+	 * @param tps The number of ticks per second
+	 * @param printTps true to, every second, print the number of ticks that occurred in that last second, false otherwise
 	 */
 	public Game(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
 		// Init misc values
@@ -359,9 +363,6 @@ public class Game<D> implements Saveable, Destroyable{
 			// Clear the internal renderer and set it up to use the renderer's frame buffer to draw to
 			Renderer r = this.getWindow().getRenderer();
 			r.clear();
-			
-			// Set up drawing the buffer to the screen
-			glViewport(0, 0, this.getScreenWidth(), this.getScreenHeight());
 			
 			// Render objects using the renderer's frame buffer
 			r.initToDraw();

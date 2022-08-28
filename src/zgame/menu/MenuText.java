@@ -52,7 +52,7 @@ public class MenuText<D>extends MenuThing<D>{
 		super(x, y, w, h);
 		this.text = text;
 		// Using zfont by default
-		this.buffer = new TextBuffer(w, h, game.getFont("zfont"));
+		this.buffer = new TextBuffer((int)Math.round(w), (int)Math.round(h), game.getFont("zfont"));
 		this.buffer.setTextX(10);
 		this.buffer.setTextY(this.getHeight() * .9);
 		
@@ -189,7 +189,6 @@ public class MenuText<D>extends MenuThing<D>{
 	 * @param text The text to draw
 	 */
 	public void drawText(Renderer r, String text){
-		// TODO make this work properly with text boxes when there's a text hint. Store text separately
 		this.buffer.setText(text);
 		this.buffer.draw(this.getX(), this.getY(), r);
 	}

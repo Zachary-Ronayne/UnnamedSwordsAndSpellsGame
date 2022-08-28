@@ -156,7 +156,6 @@ public class MainTest extends Game<TestData>{
 	public static void main(String[] args){
 		// Set up game
 		testerGame = new MainTest();
-		// TODO When the camera is moved, then the state changes, then it goes back again, text from a buffer gets all messed up
 		testerGame.setCurrentState(new TesterGameState(testerGame));
 		// testerGame.setCurrentState(new TesterMenuState(testerGame));
 		// testerGame.setCurrentState(new GameEngineState());
@@ -311,10 +310,10 @@ public class MainTest extends Game<TestData>{
 		private static final ZRect bufferBounds = new ZRect(0, 500, 500, 150);
 
 		public TesterGameState(Game<TestData> game){
-			this.textBuffer = new TextBuffer(bufferBounds.width, bufferBounds.height, game.getFont("zfont"));
+			this.textBuffer = new TextBuffer((int)bufferBounds.width, (int)bufferBounds.height, game.getFont("zfont"));
 			this.textBuffer.setText("Text from a buffer");
 			this.textBuffer.setTextX(10);
-			this.textBuffer.setTextY(50);
+			this.textBuffer.setTextY(75);
 			this.textBuffer.setFont(this.textBuffer.getFont().size(40));
 		}
 
@@ -436,7 +435,9 @@ public class MainTest extends Game<TestData>{
 			r.setColor(new ZColor(0));
 			r.setFont(game.getFont("zfont"));
 			r.setFontSize(40);
-			r.drawText(0, -10, "a long string that should get cut off", new ZRect(0, -100, 250, 100));
+			r.limitBounds(new ZRect(0, -100, 250, 100));
+			r.drawText(0, -10, "a long string that should get cut off");
+			r.unlimitBounds();
 		}
 		
 		@Override

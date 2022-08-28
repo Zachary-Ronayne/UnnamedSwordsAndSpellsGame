@@ -90,7 +90,7 @@ public class GameFont{
 	 * Find the bounds of a string drawn with this font, assuming the text is drawn at (0, 0)
 	 * 
 	 * @param text The text to find the bounds of
-	 * @return A rectangle with the bounds in game coordinates
+	 * @return A rectangle with the bounds in screen coordinates
 	 */
 	public ZRect stringBounds(String text){
 		return this.stringBounds(0, 0, text);
@@ -101,9 +101,9 @@ public class GameFont{
 	 * i.e. the edges of the bounds may contain pixels which are not a part of the bounds
 	 * 
 	 * @param text The text to find the bounds of
-	 * @param x The x coordinate where the string is drawn, in game coordinates
-	 * @param y The y coordinate where the string is drawn, in game coordinates
-	 * @return A rectangle with the bounds in game coordinates
+	 * @param x The x coordinate where the string is drawn, in screen coordinates
+	 * @param y The y coordinate where the string is drawn, in screen coordinates
+	 * @return A rectangle with the bounds in screen coordinates
 	 */
 	public ZRect stringBounds(double x, double y, String text){
 		return this.stringBounds(x, y, text, true);
@@ -115,12 +115,25 @@ public class GameFont{
 	 * If this padding is undesired, pass false for the padding variable
 	 * 
 	 * @param text The text to find the bounds of
-	 * @param x The x coordinate where the string is drawn, in game coordinates
-	 * @param y The y coordinate where the string is drawn, in game coordinates
+	 * @param x The x coordinate where the string is drawn, in screen coordinates
+	 * @param y The y coordinate where the string is drawn, in screen coordinates
 	 * @param padding true to add a pixel of padding around the bounds, false to not add it
-	 * @return A rectangle with the bounds in game coordinates
+	 * @return A rectangle with the bounds in screen coordinates
 	 */
 	public ZRect stringBounds(double x, double y, String text, boolean padding){
+		return this.stringBounds(x, y, text, padding ? 1 : 0);
+	}
+	
+	/**
+	 * Find the maximum bounds of a string drawn with this font. This does not guarantee a pixel perfect bounding box
+	 * 
+	 * @param text The text to find the bounds of
+	 * @param x The x coordinate where the string is drawn, in screen coordinates
+	 * @param y The y coordinate where the string is drawn, in screen coordinates
+	 * @param padding true to add an amount of distance around the bounds, 0 for no padding
+	 * @return A rectangle with the bounds in screen coordinates
+	 */
+	public ZRect stringBounds(double x, double y, String text, double padding){
 		FontAsset a = this.getAsset();
 		
 		// If there is no string, then the rectangle is empty
@@ -146,8 +159,7 @@ public class GameFont{
 		y -= a.getAscent() * pixelRatio;
 		
 		// Pad the rectangle by 1 to account for rounding errors
-		if(padding) return new ZRect(x - 1, y - 1, w + 2, h + 2);
-		else return new ZRect(x, y, w, h);
+		return new ZRect(x - padding, y - padding, w + padding * 2, h + padding * 2);
 	}
 	
 	/** @return The value which must be used to scale the font returned by {@link #bounds(char, FloatBuffer, FloatBuffer, STBTTAlignedQuad)} into game coordinates */
