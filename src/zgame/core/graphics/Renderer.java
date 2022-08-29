@@ -137,7 +137,6 @@ public class Renderer implements Destroyable{
 	 */
 	private LimitedStack<Boolean> renderOnlyInsideStack;
 	
-	// TODO make shouldRender account for limited bounds
 	/** The stack keeping track of the current bounds which rendering is limited to, or null if no bounds is limited */
 	private LimitedStack<ZRect> limitedBoundsStack;
 	
@@ -856,18 +855,6 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
-	 * Determine if the given bounds are contained within the current state of this {@link Renderer}
-	 * i.e. find out if something drawn within the given bounds would appear on the screen
-	 * This method accounts for the camera repositioning elements, i.e., if the camera will make something off the screen, this method accounts for that
-	 * 
-	 * @param r The bounds
-	 * @return true if the bounds should be drawn, false otherwise
-	 */
-	public boolean shouldDraw(ZRect r){
-		return shouldDraw(r.getX(), r.getY(), r.getWidth(), r.getHeight());
-	}
-	
-	/**
 	 * Determine if the given bounds are contained within the bounds of the given buffer
 	 * i.e. find out if something drawn within the given bounds would appear on the buffer
 	 * This method accounts for the camera repositioning elements, i.e., if the camera will make something off the screen, this method accounts for that
@@ -876,15 +863,34 @@ public class Renderer implements Destroyable{
 	 * @param y The upper left hand corner y coordinate of the object, in game coordinates
 	 * @param w The width of the object, in game coordinates
 	 * @param h The height of the object, in game coordinates
-	 * @param b The buffer to check
 	 * @return true if the bounds should be drawn, false otherwise
 	 */
 	public boolean shouldDraw(double x, double y, double w, double h){
+		return shouldDraw(new ZRect(x, y, w, h));
+	}
+	
+	/**
+	 * Determine if the given bounds are contained within the current state of this {@link Renderer}
+	 * i.e. find out if something drawn within the given bounds would appear on the screen
+	 * This method accounts for the camera repositioning elements, i.e., if the camera will make something off the screen, this method accounts for that
+	 * 
+	 * @param r The bounds
+	 * @return true if the bounds should be drawn, false otherwise
+	 */
+	public boolean shouldDraw(ZRect drawBounds){
 		if(!this.isRenderOnlyInside()) return true;
-		ZRect r = this.getBounds();
+		ZRect renderBounds = this.getBounds();
+		
+		ZRect limited = this.getLimitedBounds();
 		GameCamera c = this.getCamera();
-		if(c == null) return r.intersects(x, y, w, h);
-		else return r.intersects(c.boundsGameToScreen(x, y, w, h));
+		if(c != null){
+			drawBounds = c.boundsGameToScreen(drawBounds);
+			if(limited != null) limited = c.boundsGameToScreen(limited);
+		}
+
+		boolean yes = renderBounds.intersects(drawBounds);
+		if(limited != null) yes &= limited.intersects(drawBounds);
+		return yes;
 	}
 	
 	/** Fill the screen with the current color, regardless of camera position */
