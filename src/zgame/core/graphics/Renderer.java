@@ -779,8 +779,8 @@ public class Renderer implements Destroyable{
 	 * @return true if the text was drawn, false otherwise
 	 */
 	public boolean drawText(double x, double y, String text, GameFont f){
-		// Make sure a font exists
-		if(f == null) return false;
+		// Make sure a font exists, and that there is some text
+		if(f == null || text == null || text.isEmpty()) return false;
 		FontAsset fa = f.getAsset();
 		
 		// Bounds check for if the text should be drawn
