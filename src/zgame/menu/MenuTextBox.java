@@ -246,6 +246,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 		super.setText(text);
 		this.textWidth = this.getFont().stringWidth(this.getText());
 		
+		// TODO make this use the font method to find individual character lengths
 		// Find the bounds of each letter
 		this.letterBounds = new ZRect[this.getText().length()];
 		for(int i = 0; i < this.letterBounds.length; i++){

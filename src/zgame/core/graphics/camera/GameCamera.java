@@ -163,6 +163,16 @@ public class GameCamera{
 	/**
 	 * Convert the bounds of a rectangle in game coordinates to the bounds in screen coordinates
 	 * 
+	 * @param r The bounds
+	 * @return The converted bounds
+	 */
+	public ZRect boundsGameToScreen(ZRect r){
+		return this.boundsGameToScreen(r.getX(), r.getY(), r.getWidth(), r.getHeight());
+	}
+
+	/**
+	 * Convert the bounds of a rectangle in game coordinates to the bounds in screen coordinates
+	 * 
 	 * @param x The x coordinate of the upper right hand corner of the rectangle
 	 * @param y The y coordinate of the upper right hand corner of the rectangle
 	 * @param w The width of the rectangle
@@ -231,6 +241,16 @@ public class GameCamera{
 	 */
 	public double sizeScreenToGameY(double y){
 		return this.getY().sizeScreenToGame(y);
+	}
+	
+	/**
+	 * Convert the bounds of a rectangle in screen coordinates to the bounds in game coordinates
+	 * 
+	 * @param r The bounds
+	 * @return The converted bounds
+	 */
+	public ZRect boundsScreenToGame(ZRect r){
+		return this.boundsScreenToGame(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
 	
 	/**

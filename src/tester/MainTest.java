@@ -438,6 +438,12 @@ public class MainTest extends Game<TestData>{
 			r.limitBounds(new ZRect(0, -100, 250, 100));
 			r.drawText(0, -10, "a long string that should get cut off");
 			r.unlimitBounds();
+			
+			r.pushAttributes();
+			r.setFontSize(25);
+			r.setColor(new ZColor(1, 0, 1));
+			r.drawText(600, -200, "text on\nmultiple lines\nand another\n      and spaces\n\nand a nothing line");
+			r.popAttributes();
 		}
 		
 		@Override
@@ -665,8 +671,7 @@ public class MainTest extends Game<TestData>{
 				}
 			};
 			t.setFill(new ZColor(0, .2, .7));
-			t.setText("12345");
-			// t.setText("Back");
+			t.setText("Back");
 			base.addThing(t);
 			
 			t = new MenuButton<TestData>(50, 100, 200, 100, game){

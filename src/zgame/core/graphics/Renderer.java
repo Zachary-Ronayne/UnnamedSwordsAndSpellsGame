@@ -287,8 +287,6 @@ public class Renderer implements Destroyable{
 		this.destroyVertexes();
 	}
 	
-	// TODO add push / pop methods for all stacks, including several for groups of stacks and all of them
-	
 	/** Push the entire state of this renderer into its stacks */
 	public void pushAll(){
 		for(LimitedStack<?> s : this.stacks) s.push();
@@ -301,13 +299,14 @@ public class Renderer implements Destroyable{
 		if(this.getBuffer() != oldBuffer) this.updateBuffer();
 	}
 	
-	/** Push the values of the simple attributes of this renderer 
+	/**
+	 * Push the values of the simple attributes of this renderer
 	 * See {@link #colorStack}, {@link #fontStack}, {@link #positioningEnabledStack}, {@link #renderOnlyInsideStack}
-	*/
+	 */
 	public void pushAttributes(){
 		for(LimitedStack<?> s : this.attributeStacks) s.push();
 	}
-
+	
 	/** Pop the values of the simple attributes of this renderer */
 	public void popAttributes(){
 		for(LimitedStack<?> s : this.attributeStacks) s.pop();
@@ -322,9 +321,7 @@ public class Renderer implements Destroyable{
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public void resize(int width, int height){
-		GameBuffer old = this.bufferStack.getDefaultItem();
-		this.bufferStack.setDefaultItem(new GameBuffer(width, height, true));
-		old.destroy();
+		this.bufferStack.getDefaultItem().regenerateBuffer(width, height);
 	}
 	
 	/**
@@ -788,7 +785,8 @@ public class Renderer implements Destroyable{
 		FontAsset fa = f.getAsset();
 		
 		// Bounds check for if the text should be drawn
-		ZRect r = f.stringBounds(x, y, text);
+		ZRect[] rects = f.stringBounds(x, y, text, 1, true);
+		ZRect r = rects[text.length()];
 		if(!this.shouldDraw(r.getX(), r.getY(), r.getWidth(), r.getHeight())) return false;
 		
 		// Mark the drawing bounds
@@ -809,15 +807,12 @@ public class Renderer implements Destroyable{
 		// Find the size for positioning the object
 		double posSize = f.fontScalar();
 		
-		// TODO fix text rendering on multiple lines from \n?
-		
 		// Position and scale the text
 		this.pushMatrix();
-		// TODO make docs for why this is the transformation operations
-		// Need to scale because text is upside down?
+		// Need to scale because text is upside down
 		this.scale(1, -1);
-		// x and -y because the of the scaling?
-		// Need to use posSize for the width and height because?
+		// Need to position with height - y to account for the negative scaling
+		// Need to use posSize for the width and height to keep it scaled appropriately to OpenGL coordinates
 		this.positionObject(x, this.getHeight() - y, posSize, posSize);
 		
 		// Draw every character of the text
@@ -828,10 +823,8 @@ public class Renderer implements Destroyable{
 			// Must do this regardless to ensure the text moves over even if a character does not get drawn
 			f.bounds(c, this.xTextBuff, this.yTextBuff, this.textQuad);
 			
-			// TODO fix individual characters not rendering because the wrong bounds are found when zoomed in
 			// Only draw the character if it will be in the bounds of the buffer
-			ZRect sb = f.stringBounds(this.xTextBuff.get(0), this.yTextBuff.get(0), Character.toString(text.charAt(i)));
-			if(!this.shouldDraw(sb.getX(), sb.getY(), sb.getWidth(), sb.getHeight())) continue;
+			if(!this.shouldDraw(rects[i])) continue;
 			
 			// Buffer the new data
 			this.posBuff.updateData(new float[]{
@@ -867,14 +860,11 @@ public class Renderer implements Destroyable{
 	 * i.e. find out if something drawn within the given bounds would appear on the screen
 	 * This method accounts for the camera repositioning elements, i.e., if the camera will make something off the screen, this method accounts for that
 	 * 
-	 * @param x The upper left hand corner x coordinate of the object, in game coordinates
-	 * @param y The upper left hand corner y coordinate of the object, in game coordinates
-	 * @param w The width of the object, in game coordinates
-	 * @param h The height of the object, in game coordinates
+	 * @param r The bounds
 	 * @return true if the bounds should be drawn, false otherwise
 	 */
-	public boolean shouldDraw(double x, double y, double w, double h){
-		return shouldDraw(x, y, w, h, this.getBuffer());
+	public boolean shouldDraw(ZRect r){
+		return shouldDraw(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
 	
 	/**
@@ -889,9 +879,9 @@ public class Renderer implements Destroyable{
 	 * @param b The buffer to check
 	 * @return true if the bounds should be drawn, false otherwise
 	 */
-	public boolean shouldDraw(double x, double y, double w, double h, GameBuffer b){
+	public boolean shouldDraw(double x, double y, double w, double h){
 		if(!this.isRenderOnlyInside()) return true;
-		ZRect r = b.getBounds();
+		ZRect r = this.getBounds();
 		GameCamera c = this.getCamera();
 		if(c == null) return r.intersects(x, y, w, h);
 		else return r.intersects(c.boundsGameToScreen(x, y, w, h));

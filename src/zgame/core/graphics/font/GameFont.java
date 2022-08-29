@@ -22,6 +22,11 @@ public class GameFont{
 	private double lineSpace;
 	/** The extra space added between individual characters of text, can be negative to reduce the space. This amount of space is based on the font size */
 	private double charSpace;
+
+	/** A buffer used internally for finding the size of the font, this one is for the width */
+	private IntBuffer widthBuffer;
+	/** A buffer used internally for finding the size of the font, this one is for the bearing */
+	private IntBuffer bearingBuffer;
 	
 	/**
 	 * Create a new font object with default values. After the font is created, the values of this object cannot be modified
@@ -45,6 +50,9 @@ public class GameFont{
 		this.size = size;
 		this.lineSpace = lineSpace;
 		this.charSpace = charSpace;
+
+		this.widthBuffer = null;
+		this.bearingBuffer = null;
 	}
 	
 	/**
@@ -134,32 +142,79 @@ public class GameFont{
 	 * @return A rectangle with the bounds in screen coordinates
 	 */
 	public ZRect stringBounds(double x, double y, String text, double padding){
+		if(text == null || text.isEmpty()) return new ZRect();
+		return this.stringBounds(x, y, text, padding, false)[text.length()];
+	}
+	
+	/**
+	 * Find the maximum bounds of the individual characters of a string drawn with this font. This does not guarantee a pixel perfect bounding box
+	 * 
+	 * @param text The text to find the bounds of
+	 * @param x The x coordinate where the string is drawn, in screen coordinates
+	 * @param y The y coordinate where the string is drawn, in screen coordinates
+	 * @param padding true to add an amount of distance around each bounds, 0 for no padding
+	 * @param calcIndividuals If true, the full array will be populated, if false, only the last element, containing the full string bounds will be populated
+	 * @return An array of the bounds of each character, matching the index of text.
+	 *         The array also contains one extra element, indexed as the the length of the string: the total bounds of the entire string,
+	 *         padded in the same way as individual characters
+	 *         An empty array is returned if the string is empty or not given
+	 */
+	public ZRect[] characterBounds(double x, double y, String text, double padding){
+		return this.stringBounds(x, y, text, padding, true);
+	}
+	
+	/**
+	 * Find the maximum bounds of the individual characters of a string drawn with this font. This does not guarantee a pixel perfect bounding box
+	 * 
+	 * @param text The text to find the bounds of
+	 * @param x The x coordinate where the string is drawn, in screen coordinates
+	 * @param y The y coordinate where the string is drawn, in screen coordinates
+	 * @param padding true to add an amount of distance around each bounds, 0 for no padding
+	 * @param calcIndividuals If true, the full array will be populated, if false, only the last element, containing the full string bounds will be populated
+	 * @return An array of the bounds of each character, matching the index of text.
+	 *         The array also contains one extra element, indexed as the the length of the string: the total bounds of the entire string,
+	 *         padded in the same way as individual characters
+	 *         An empty array is returned if the string is empty or not given
+	 */
+	public ZRect[] stringBounds(double x, double y, String text, double padding, boolean calcIndividuals){
 		FontAsset a = this.getAsset();
-		
-		// If there is no string, then the rectangle is empty
-		if(a == null || text == null || text.isEmpty()) return new ZRect(x, y, 0, 0);
+		double baseX = x;
+
+		// If there is no string, then the array is empty
+		if(a == null || text == null || text.isEmpty()) return new ZRect[0];
 		
 		// Set up buffers
-		IntBuffer wb = BufferUtils.createIntBuffer(1);
-		IntBuffer bb = BufferUtils.createIntBuffer(1);
-		double w = 0;
-		double h = 0;
+		if(this.widthBuffer == null) this.widthBuffer = BufferUtils.createIntBuffer(1);
+		if(this.bearingBuffer == null) this.bearingBuffer = BufferUtils.createIntBuffer(1);
 		double pixelRatio = a.pixelRatio(this.getSize());
+		double w = 0;
+		double h = (a.getAscent() - a.getDescent()) * pixelRatio;
+		y -= a.getAscent() * pixelRatio;
 		
 		// Go through each letter and find the total width
 		int i = 0;
+		ZRect[] rects = new ZRect[text.length() + 1];
 		do{
-			stbtt_GetCodepointHMetrics(a.getInfo(), text.charAt(i), wb, bb);
-			w += wb.get(0);
+			char c = text.charAt(i);
+			
+			if(c == '\n'){
+				rects[i] = new ZRect();
+				y += this.getSize() + this.getLineSpace();
+				x = baseX;
+				w = 0;
+				i++;
+				continue;
+			}
+
+			stbtt_GetCodepointHMetrics(a.getInfo(), c, this.widthBuffer, this.bearingBuffer);
+			double wbVal = this.widthBuffer.get(0) * pixelRatio;
+			if(calcIndividuals) rects[i] = new ZRect(x + w, y, wbVal, h, padding);
+			w += wbVal;
 			i++;
 		}while(i < text.length());
-		// Convert the values to pixel values
-		h = (a.getAscent() - a.getDescent()) * pixelRatio;
-		w *= pixelRatio;
-		y -= a.getAscent() * pixelRatio;
-		
-		// Pad the rectangle, can be used to account for rounding errors
-		return new ZRect(x - padding, y - padding, w + padding * 2, h + padding * 2);
+
+		rects[text.length()] = new ZRect(x, y, w, h, padding);
+		return rects;
 	}
 	
 	/** @return The value which must be used to scale the font returned by {@link #bounds(char, FloatBuffer, FloatBuffer, STBTTAlignedQuad)} into game coordinates */
