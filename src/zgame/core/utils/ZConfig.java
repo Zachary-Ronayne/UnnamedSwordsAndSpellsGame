@@ -7,10 +7,12 @@ public class ZConfig{
 	private static final boolean PRINT_ERRORS = true;
 	/** true if, when assets are loaded by the engine, if it should print to the main System.out, false otherwise */
 	private static final boolean PRINT_SUCCESS = true;
+	/** true if debug statements should print print to the main System.out, false otherwise */
+	private static final boolean PRINT_DEBUG = false;
 	
 	/**
 	 * true if, during the ticks of a {@link zgame.core.window.GameWindow}, the loop should wait between each loop iteration, false otherwise.
-	 * This should generally decrease CPU load, but in the case where each tick takes longer than expected, it may be preferable that this value is set to false
+	 * Setting this to true should generally decrease CPU load, but in the case where each tick takes longer than expected, it may be preferable that this value is set to false
 	 */
 	private static final boolean WAIT_BETWEEN_TICKS = true;
 	
@@ -29,6 +31,11 @@ public class ZConfig{
 	/** @return See {@link #PRINT_SUCCESS} */
 	public static boolean printSuccess(){
 		return PRINT_SUCCESS;
+	}
+	
+	/** @return See {@link #PRINT_DEBUG} */
+	public static boolean printDebug(){
+		return PRINT_DEBUG;
 	}
 	
 	/** @return See {@link #WAIT_BETWEEN_TICKS} */

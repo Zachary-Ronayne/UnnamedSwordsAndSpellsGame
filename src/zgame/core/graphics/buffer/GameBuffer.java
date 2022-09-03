@@ -70,7 +70,7 @@ public class GameBuffer implements Destroyable{
 	 * @return true if the buffer was created, false otherwise
 	 */
 	public boolean regenerateBuffer(int width, int height){
-		if(this.bufferGenerated) this.destroy();
+		this.destroy();
 		
 		this.width = 1;
 		this.height = 1;
@@ -99,7 +99,7 @@ public class GameBuffer implements Destroyable{
 		// Error check
 		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		boolean success = status == GL_FRAMEBUFFER_COMPLETE;
-		if(success && ZConfig.printSuccess()) ZStringUtils.print("GameBuffer created successfully with id ", this.frameID);
+		if(success && ZConfig.printSuccess()) ZStringUtils.print("GameBuffer created successfully with frame id: ", this.getFrameID(), ", and texture id: ", this.getTextureID());
 		else if(!success && ZConfig.printErrors()) ZStringUtils.print("Failed to create GameBuffer with status ", status);
 		
 		// Bind the framebuffer to the previous buffer
@@ -112,11 +112,14 @@ public class GameBuffer implements Destroyable{
 	/** Erase all resources associated with this GameBuffer. After calling this method, this object should not be used */
 	@Override
 	public void destroy(){
+		if(!this.bufferGenerated) return;
 		this.bufferGenerated = false;
+		if(ZConfig.printDebug()) ZStringUtils.print("On game buffer: ", this, ", deleted frame buffer ID: ", this.getFrameID(), ", and texture ID: ", this.getTextureID());
+		
 		// Delete the buffer
-		// TODO need to delete the ids properly, it's broken sometimes when going between menu states, or maybe need to properly destroy things?
-		// glDeleteFramebuffers(this.getFrameID());
-		// glDeleteTextures(this.getTextureID());
+		glDeleteFramebuffers(this.getFrameID());
+		glDeleteTextures(this.getTextureID());
+		
 	}
 	
 	/**
@@ -135,7 +138,7 @@ public class GameBuffer implements Destroyable{
 	public void drawToBuffer(){
 		glBindFramebuffer(GL_FRAMEBUFFER, this.getFrameID());
 	}
-
+	
 	/** Set the viewport so that it matches the full size of this {@link GameBuffer} */
 	public void setViewport(){
 		glViewport(0, 0, this.getWidth(), this.getHeight());

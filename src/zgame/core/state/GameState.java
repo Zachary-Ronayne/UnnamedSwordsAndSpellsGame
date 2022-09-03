@@ -27,7 +27,7 @@ public abstract class GameState<D> implements GameInteractable<D>, Saveable, Des
 		this(true);
 		this.menuStack = new ArrayList<MenuNode<D>>();
 	}
-
+	
 	@Override
 	public void destroy(){
 		if(menuStack == null) return;
@@ -51,7 +51,7 @@ public abstract class GameState<D> implements GameInteractable<D>, Saveable, Des
 		if(this.menuStack == null || !this.menuStack.isEmpty()) this.menuStack = new ArrayList<MenuNode<D>>();
 		this.menuStack.add(0, new MenuNode<>(menu));
 	}
-
+	
 	/** @return The number of menus currently displayed on this {@link GameState} */
 	public int getStackSize(){
 		return this.menuStack == null ? 0 : this.menuStack.size();
@@ -76,13 +76,27 @@ public abstract class GameState<D> implements GameInteractable<D>, Saveable, Des
 	}
 	
 	/**
-	 * Remove the menu on the top of this menu state
+	 * Remove and destroy the menu on the top of this menu state.
 	 * 
 	 * @return The removed menu, or null if only the base menu exists
 	 */
 	public Menu<D> removeTopMenu(){
+		return this.removeTopMenu(true);
+	}
+	
+	/**
+	 * Remove the menu on the top of this menu state.
+	 * 
+	 * @param destroy true to destroy the menu after it's removed, false otherwise
+	 *        If destroy is false, then does not destroy the removed menu or any of its allocated resources.
+	 *        It is the responsibility of the caller of this method to destroy the returned menu
+	 * @return The removed menu, or null if only the base menu exists
+	 */
+	public Menu<D> removeTopMenu(boolean destroy){
 		if(this.getStackSize() <= 1) return null;
-		return this.menuStack.remove(this.menuStack.size() - 1).getMenu();
+		Menu<D> removed = this.menuStack.remove(this.menuStack.size() - 1).getMenu();
+		if(destroy) removed.destroy();
+		return removed;
 	}
 	
 	/**
@@ -175,7 +189,6 @@ public abstract class GameState<D> implements GameInteractable<D>, Saveable, Des
 			m.render(game, r);
 			m.renderHud(game, r);
 		}
-		
 		Menu<D> m = this.getTopMenu();
 		if(m != null){
 			m.renderBackground(game, r);

@@ -37,6 +37,8 @@ import java.util.ArrayList;
  * Game coordinates: The actual position of something in the game, regardless of where it would be rendered
  */
 public class Renderer implements Destroyable{
+
+	// TODO add a way to store some buffers that can be created and reused? Like, instead of every individual object making one, just make this Renderer keep track of them
 	
 	/** The color to use for rendering by default */
 	public static final ZColor DEFAULT_COLOR = new ZColor(0);
