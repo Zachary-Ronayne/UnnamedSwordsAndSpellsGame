@@ -52,13 +52,19 @@ public class SavesMenu extends ZUSASSMenu{
 		this.scroller.setMovingThing(this.loadButtons);
 		this.addThing(this.scroller);
 		this.addThing(this.loadButtons);
-
+		
 		this.extraButtonHolder = new MenuThing<ZUSASSData>();
 		this.extraButtonHolder.addThing(new SavesLoadButton(this, game));
 		this.extraButtonHolder.addThing(new SavesDeleteButton(this, game));
 		
 		this.messageText = "";
 		this.messageTimer = 0;
+	}
+	
+	@Override
+	public void destroy(){
+		super.destroy();
+		this.extraButtonHolder.destroy();
 	}
 	
 	@Override
@@ -99,7 +105,7 @@ public class SavesMenu extends ZUSASSMenu{
 	 */
 	public void showExtraButtons(boolean show){
 		if(show) this.addThing(this.extraButtonHolder);
-		else this.removeThing(this.extraButtonHolder);
+		else this.removeThing(this.extraButtonHolder, false);
 	}
 	
 	/**

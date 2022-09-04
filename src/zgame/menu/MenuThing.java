@@ -16,7 +16,7 @@ import java.util.List;
  * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
 public class MenuThing<D> implements GameInteractable<D>, Destroyable{
-
+	
 	// TODO make every menu thing optionally use a buffer to keep track of everything it's drawing, should be off by default
 	
 	/** The x coordinate of the {@link MenuThing}, in screen coordinates, relative to {@link #parent}, or relative to (0, 0) if {@link #parent} is null */
@@ -79,7 +79,7 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 		this.parent = null;
 		this.things = new ArrayList<MenuThing<D>>();
 	}
-
+	
 	@Override
 	public void destroy(){
 		for(int i = 0; i < this.things.size(); i++) this.things.get(i).destroy();
@@ -129,7 +129,7 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 	public void setRelX(double x){
 		this.relX = x;
 	}
-
+	
 	/** @param x The amount to move this thing on the x axis */
 	public void moveX(double x){
 		this.setRelX(this.getRelX() + x);
@@ -239,20 +239,42 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 	}
 	
 	/**
-	 * Remove the given {@link MenuThing} from this {@link Menu}
+	 * Remove the given {@link MenuThing} from this {@link Menu}, then destroy it
 	 * 
 	 * @param thing The thing to remove
 	 * @return true if the thing was removed, false otherwise
 	 */
 	public boolean removeThing(MenuThing<D> thing){
-		// TODO make it that when things are removed, or removeAll, they also get destroyed depending on a parameter?
-		if(thing == null) return false;
-		if(thing.getParent() == this) thing.setParent(null);
-		return this.things.remove(thing);
+		return this.removeThing(thing, true);
 	}
 	
-	/** Removes everything currently in this {@link MenuThing} */
+	/**
+	 * Remove the given {@link MenuThing} from this {@link Menu}
+	 * 
+	 * @param thing The thing to remove
+	 * @param destroy true to destroy this menu thing as it is removed, false otherwise
+	 * @return true if the thing was removed, false otherwise
+	 */
+	public boolean removeThing(MenuThing<D> thing, boolean destroy){
+		if(thing == null) return false;
+		if(thing.getParent() == this) thing.setParent(null);
+		boolean success = this.things.remove(thing);
+		if(destroy) thing.destroy();
+		return success;
+	}
+	
+	/** Removes and destroys everything currently in this {@link MenuThing} */
 	public void removeAll(){
+		this.removeAll(true);
+	}
+	
+	/**
+	 * Removes everything currently in this {@link MenuThing}
+	 * 
+	 * @param true to also destroy every removed thing, false otherwise
+	 */
+	public void removeAll(boolean destroy){
+		if(destroy) for(MenuThing<D> thing : this.things) thing.destroy();
 		this.things.clear();
 	}
 	
