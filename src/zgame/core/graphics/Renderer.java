@@ -37,9 +37,7 @@ import java.util.ArrayList;
  * Game coordinates: The actual position of something in the game, regardless of where it would be rendered
  */
 public class Renderer implements Destroyable{
-
-	// TODO add a stack for the shaders
-
+	
 	/** The color to use for rendering by default */
 	public static final ZColor DEFAULT_COLOR = new ZColor(0);
 	/** The default font to use for rendering. Null means rendering cannot happen unless a font is set */
@@ -443,10 +441,9 @@ public class Renderer implements Destroyable{
 	 * @param shader The shader to use.
 	 */
 	private void setLoadedShader(ShaderProgram shader){
-		if(this.loadedShader != shader){
-			shader.use();
-			this.loadedShader = shader;
-		}
+		if(this.loadedShader == shader) return;
+		shader.use();
+		this.loadedShader = shader;
 	}
 	
 	/**
@@ -888,7 +885,6 @@ public class Renderer implements Destroyable{
 			drawBounds = c.boundsGameToScreen(drawBounds);
 			if(limited != null) limited = c.boundsGameToScreen(limited);
 		}
-
 		boolean yes = renderBounds.intersects(drawBounds);
 		if(limited != null) yes &= limited.intersects(drawBounds);
 		return yes;
