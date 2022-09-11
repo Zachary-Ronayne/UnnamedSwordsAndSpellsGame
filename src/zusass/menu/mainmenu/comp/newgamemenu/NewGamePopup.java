@@ -5,13 +5,13 @@ import static org.lwjgl.glfw.GLFW.*;
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.Menu;
-import zusass.ZUSASSData;
-import zusass.menu.comp.ZUSASSButton;
-import zusass.menu.comp.ZUSSASSMenuText;
+import zusass.ZusassData;
+import zusass.menu.comp.ZusassButton;
+import zusass.menu.comp.ZusassMenuText;
 import zusass.menu.mainmenu.comp.NewGameButton;
 
 /** A {@link Menu} used to create a new game */
-public class NewGamePopup extends Menu<ZUSASSData>{
+public class NewGamePopup extends Menu<ZusassData>{
 	
 	/**
 	 * Initialize the {@link NewGamePopup}
@@ -19,7 +19,7 @@ public class NewGamePopup extends Menu<ZUSASSData>{
 	 * @param button The {@link NewGameButton} used by this menu
 	 * @param game The ZUSASSGame used by this thing
 	 */
-	public NewGamePopup(NewGameButton button, Game<ZUSASSData> game){
+	public NewGamePopup(NewGameButton button, Game<ZusassData> game){
 		super(0, 0);
 		this.setWidth(game.getScreenWidth());
 		this.setHeight(game.getScreenHeight());
@@ -31,17 +31,17 @@ public class NewGamePopup extends Menu<ZUSASSData>{
 		textBox.centerHorizontal();
 		
 		// TODO hide this button until a name is entered
-		ZUSASSButton create = new CreateGameButton(textBox, game);
+		ZusassButton create = new CreateGameButton(textBox, game);
 		this.addThing(create);
 		create.centerHorizontal();
 		create.moveX(-(create.getWidth() * .5 + 10));
 		
-		ZUSASSButton cancel = new CancelGameButton(game);
+		ZusassButton cancel = new CancelGameButton(game);
 		this.addThing(cancel);
 		cancel.centerHorizontal();
 		cancel.moveX(cancel.getWidth() * .5 + 10);
 		
-		ZUSSASSMenuText title = new ZUSSASSMenuText(100, 100, 600, 100, "Create new Game", game);
+		ZusassMenuText title = new ZusassMenuText(100, 100, 600, 100, "Create new Game", game);
 		this.addThing(title);
 		title.setFill(new ZColor(.5, .8));
 		title.setBorder(new ZColor(0, 0));
@@ -51,7 +51,7 @@ public class NewGamePopup extends Menu<ZUSASSData>{
 	}
 	
 	@Override
-	public void keyAction(Game<ZUSASSData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void keyAction(Game<ZusassData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(press) return;
 		if(button == GLFW_KEY_ESCAPE) game.getCurrentState().removeTopMenu();

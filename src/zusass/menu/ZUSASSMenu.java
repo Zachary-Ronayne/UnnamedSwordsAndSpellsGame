@@ -4,12 +4,12 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.menu.Menu;
-import zusass.ZUSASSData;
+import zusass.ZusassData;
 
-/** A base menu class for {@link Menu} in the {@link zusass.ZUSASSGame} */
-public abstract class ZUSASSMenu extends Menu<ZUSASSData>{
+/** A base menu class for {@link Menu} in the {@link zusass.ZusassGame} */
+public abstract class ZusassMenu extends Menu<ZusassData>{
 	
-	/** The title of this {@link ZUSASSMenu} */
+	/** The title of this {@link ZusassMenu} */
 	private String title;
 	
 	/** The x coordinate of the title */
@@ -22,7 +22,7 @@ public abstract class ZUSASSMenu extends Menu<ZUSASSData>{
 	 * Create the new menu with the given title
 	 * @param title See {@link #title}
 	 */
-	public ZUSASSMenu(String title){
+	public ZusassMenu(String title){
 		this(title, 600, 110);
 	}
 	
@@ -32,7 +32,7 @@ public abstract class ZUSASSMenu extends Menu<ZUSASSData>{
 	 * @param x See {@link #titleX}
 	 * @param y See {@link #titleY}
 	 */
-	public ZUSASSMenu(String title, double x, double y){
+	public ZusassMenu(String title, double x, double y){
 		// TODO make title a buffer
 		this.title = title;
 		this.titleX = x;
@@ -40,7 +40,7 @@ public abstract class ZUSASSMenu extends Menu<ZUSASSData>{
 	}
 	
 	@Override
-	public void renderBackground(Game<ZUSASSData> game, Renderer r){
+	public void renderBackground(Game<ZusassData> game, Renderer r){
 		super.renderBackground(game, r);
 		
 		// Background color

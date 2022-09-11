@@ -6,8 +6,8 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuThing;
-import zusass.ZUSASSData;
-import zusass.menu.ZUSASSMenu;
+import zusass.ZusassData;
+import zusass.menu.ZusassMenu;
 import zusass.menu.savesmenu.comp.LoadSaveButtonList;
 import zusass.menu.savesmenu.comp.SavesBackButton;
 import zusass.menu.savesmenu.comp.SavesDeleteButton;
@@ -15,8 +15,8 @@ import zusass.menu.savesmenu.comp.SavesLoadButton;
 import zusass.menu.savesmenu.comp.SavesMenuScroller;
 import zusass.menu.savesmenu.comp.SavesRefreshButton;
 
-/** A {@link ZUSASSMenu} for managing game saves */
-public class SavesMenu extends ZUSASSMenu{
+/** A {@link ZusassMenu} for managing game saves */
+public class SavesMenu extends ZusassMenu{
 	
 	/** The number of seconds to display {@link #messageText} */
 	public static final double MESSAGE_TIME = 4;
@@ -28,7 +28,7 @@ public class SavesMenu extends ZUSASSMenu{
 	private SavesMenuScroller scroller;
 
 	/** An object to hold the buttons that will be hidden when no file is selected  */
-	private MenuThing<ZUSASSData> extraButtonHolder;
+	private MenuThing<ZusassData> extraButtonHolder;
 	
 	/** Text to display for a temporary amount of time */
 	private String messageText;
@@ -40,7 +40,7 @@ public class SavesMenu extends ZUSASSMenu{
 	 * 
 	 * @param game The game that uses this menu
 	 */
-	public SavesMenu(Game<ZUSASSData> game){
+	public SavesMenu(Game<ZusassData> game){
 		super("Saves");
 		this.setTitleX(50);
 		
@@ -53,7 +53,7 @@ public class SavesMenu extends ZUSASSMenu{
 		this.addThing(this.scroller);
 		this.addThing(this.loadButtons);
 		
-		this.extraButtonHolder = new MenuThing<ZUSASSData>();
+		this.extraButtonHolder = new MenuThing<ZusassData>();
 		this.extraButtonHolder.addThing(new SavesLoadButton(this, game));
 		this.extraButtonHolder.addThing(new SavesDeleteButton(this, game));
 		
@@ -68,13 +68,13 @@ public class SavesMenu extends ZUSASSMenu{
 	}
 	
 	@Override
-	public void tick(Game<ZUSASSData> game, double dt){
+	public void tick(Game<ZusassData> game, double dt){
 		super.tick(game, dt);
 		if(this.messageTimer > 0) this.messageTimer -= dt;
 	}
 	
 	@Override
-	public void renderBackground(Game<ZUSASSData> game, Renderer r){
+	public void renderBackground(Game<ZusassData> game, Renderer r){
 		super.renderBackground(game, r);
 		if(this.messageTimer >= 0){
 			r.setFont(game.getFont("zfont"));
@@ -85,7 +85,7 @@ public class SavesMenu extends ZUSASSMenu{
 	}
 	
 	@Override
-	public void keyAction(Game<ZUSASSData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void keyAction(Game<ZusassData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(!press && button == GLFW_KEY_F5) this.getLoadButtons().populate(game);
 	}

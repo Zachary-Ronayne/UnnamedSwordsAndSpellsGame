@@ -6,7 +6,7 @@ import zgame.core.Game;
 import zgame.core.file.Saveable;
 
 /** A class to hold data representing the game state */
-public class ZUSASSData implements Saveable{
+public class ZusassData implements Saveable{
 	
 	// Constants for accessing data
 	/** The key for holding the object that stores general data about the game */
@@ -23,8 +23,8 @@ public class ZUSASSData implements Saveable{
 	/** true to save the game on actions like getting to a new level, exiting the game, and so on, false to turn off */
 	private boolean autosave;
 	
-	/** Initialize this {@link ZUSASSData} to it's default state */
-	public ZUSASSData(){
+	/** Initialize this {@link ZusassData} to it's default state */
+	public ZusassData(){
 		this.highestRoomLevel = 0;
 		this.loadedFile = null;
 		this.autosave = true;
@@ -82,7 +82,7 @@ public class ZUSASSData implements Saveable{
 	public void checkAutoSave(Game<?> game){
 		if(!this.isAutosave()) return;
 
-		((ZUSASSGame)game).saveLoadedGame();
+		((ZusassGame)game).saveLoadedGame();
 	}
 	
 }

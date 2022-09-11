@@ -9,7 +9,7 @@ import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
 
 /** A class containing utilities for getting things like file locations of saves */
-public final class ZUSASSConfig{
+public final class ZusassConfig{
 	
 	/** The suffix of a file, marking it as a valid save file for the game */
 	public static final String SAVE_FILE_SUFFIX = ".zusass.json";
@@ -67,7 +67,7 @@ public final class ZUSASSConfig{
 	 * @return The list of files, or null if an error was encountered
 	 */
 	public static List<File> getAllFiles(){
-		String path = ZUSASSConfig.getSavesLocation();
+		String path = ZusassConfig.getSavesLocation();
 		List<File> files = new ArrayList<File>();
 		try{
 			// Find all files
@@ -95,7 +95,7 @@ public final class ZUSASSConfig{
 		return files;
 	}
 	
-	/** Cannot instantiate {@link ZUSASSConfig} */
-	public ZUSASSConfig(){
+	/** Cannot instantiate {@link ZusassConfig} */
+	public ZusassConfig(){
 	}
 }

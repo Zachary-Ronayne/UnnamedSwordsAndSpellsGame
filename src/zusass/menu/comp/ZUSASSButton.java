@@ -2,13 +2,13 @@ package zusass.menu.comp;
 
 import zgame.core.Game;
 import zgame.menu.MenuButton;
-import zusass.ZUSASSData;
+import zusass.ZusassData;
 
 /** A {@link MenuButton} which is used by the ZUSASSGame */
-public abstract class ZUSASSButton extends MenuButton<ZUSASSData>{
+public abstract class ZusassButton extends MenuButton<ZusassData>{
 	
 	/**
-	 * Create a {@link ZUSASSButton} with the appropriate parameters
+	 * Create a {@link ZusassButton} with the appropriate parameters
 	 * 
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
@@ -17,9 +17,9 @@ public abstract class ZUSASSButton extends MenuButton<ZUSASSData>{
 	 * @param text The text to display
 	 * @param game The {@link Game} that uses this button
 	 */
-	public ZUSASSButton(double x, double y, double w, double h, String text, Game<ZUSASSData> game){
+	public ZusassButton(double x, double y, double w, double h, String text, Game<ZusassData> game){
 		super(x, y, w, h, text, game);
-		ZUSASSStyle.applyStyle(game, this);
+		ZusassStyle.applyStyle(game, this);
 	}
 	
 }

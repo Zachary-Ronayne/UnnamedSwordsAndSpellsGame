@@ -22,14 +22,13 @@ import com.google.gson.JsonObject;
  * Spells
  * Sandbox
  */
-public class ZUSASSGame extends Game<ZUSASSData>{
-	// TODO rename these things from ZUSASS to Zusass
+public class ZusassGame extends Game<ZusassData>{
 
 	/** The json key used to store the main chunk of data about the game */
 	public final static String DATA_KEY = "data";
 	
 	/** Create the only instance of ZUSASSGame from this class. This constructor will place the game in the main menu */
-	private ZUSASSGame(){
+	private ZusassGame(){
 		super();
 		// Window and performance settings
 		this.setTps(100);
@@ -43,11 +42,11 @@ public class ZUSASSGame extends Game<ZUSASSData>{
 		this.getFonts().addAll();
 
 		// Initialize the base data object
-		this.setData(new ZUSASSData());
+		this.setData(new ZusassData());
 	}
 	
-	/** The only instance of {@link ZUSASSGame} which can exist */
-	private static ZUSASSGame game = null;
+	/** The only instance of {@link ZusassGame} which can exist */
+	private static ZusassGame game = null;
 	
 	public static void main(String[] args){
 		init();
@@ -112,6 +111,6 @@ public class ZUSASSGame extends Game<ZUSASSData>{
 	/** Initialize the object {@link #game} */
 	public static void init(){
 		if(game != null) return;
-		game = new ZUSASSGame();
+		game = new ZusassGame();
 	}
 }

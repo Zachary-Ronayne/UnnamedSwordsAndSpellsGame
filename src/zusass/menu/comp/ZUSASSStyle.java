@@ -4,14 +4,14 @@ import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuText;
 import zgame.menu.MenuThing;
-import zusass.ZUSASSData;
+import zusass.ZusassData;
 
 /** A utility class containing methods for styling ZUSASS components */
-public final class ZUSASSStyle{
+public final class ZusassStyle{
 
-	public static void applyStyle(Game<ZUSASSData> game, MenuThing<ZUSASSData> thing){
+	public static void applyStyle(Game<ZusassData> game, MenuThing<ZusassData> thing){
 		if(thing instanceof MenuText){
-			MenuText<ZUSASSData> text = (MenuText<ZUSASSData>)thing;
+			MenuText<ZusassData> text = (MenuText<ZusassData>)thing;
 			text.setFontColor(new ZColor(.2));
 			text.setFontSize(50);
 			text.setTextX(10);
@@ -24,7 +24,7 @@ public final class ZUSASSStyle{
 	
 	/** Cannot instantiate {@link #ZUSASSStyle}
 	 */
-	private ZUSASSStyle(){
+	private ZusassStyle(){
 	}
 
 }

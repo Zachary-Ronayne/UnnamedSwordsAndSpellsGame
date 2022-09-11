@@ -1,23 +1,23 @@
 package zusass.menu.mainmenu.comp.newgamemenu;
 
 import zgame.core.Game;
-import zusass.ZUSASSData;
-import zusass.menu.comp.ZUSASSButton;
+import zusass.ZusassData;
+import zusass.menu.comp.ZusassButton;
 
-/** A {@link ZUSASSButton} that cancels creating a new game */
-public class CancelGameButton extends ZUSASSButton{
+/** A {@link ZusassButton} that cancels creating a new game */
+public class CancelGameButton extends ZusassButton{
 	
 	/**
 	 * Initialize the {@link CancelGameButton}
 	 * 
 	 * @param game The ZUSASSGame used by this thing
 	 */
-	public CancelGameButton(Game<ZUSASSData> game){
+	public CancelGameButton(Game<ZusassData> game){
 		super(720, 460, 200, 50, "Cancel", game);
 	}
 
 	@Override
-	public void click(Game<ZUSASSData> game){
+	public void click(Game<ZusassData> game){
 		game.getCurrentState().removeTopMenu();
 	}
 	
