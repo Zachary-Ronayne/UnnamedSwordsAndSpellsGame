@@ -9,16 +9,24 @@ public class ZRect extends Rectangle2D.Double{
 		super();
 	}
 	
+	/**
+	 * Create a new rectangle with the given size
+	 * 
+	 * @param x The x coordinate of the upper left hand corner
+	 * @param y The y coordinate of the upper left hand corner
+	 * @param w The width of the bounds
+	 * @param h The height of the bounds
+	 */
 	public ZRect(double x, double y, double w, double h){
 		super(x, y, w, h);
 	}
 	
 	/**
 	 * Create a new rectangle with the given amount of padding
-	 * @param x See {@link #getX()}
-	 * @param y See {@link #getY()}
-	 * @param w See {@link #getWidth()()}
-	 * @param h See {@link #getHeight()()}
+	 * @param x The x coordinate of the upper left hand corner
+	 * @param y The y coordinate of the upper left hand corner
+	 * @param w The width of the bounds
+	 * @param h The height of the bounds
 	 * @param padding An amount to add around the rectangle on all sides
 	 */
 	public ZRect(double x, double y, double w, double h, double padding){
@@ -31,7 +39,7 @@ public class ZRect extends Rectangle2D.Double{
 	 * @param padding An amount to add around the rectangle on all sides
 	 */
 	public ZRect(ZRect r, double padding){
-		super(r.getX() - padding, r.getY() - padding, r.getWidth() + padding * 2, r.getHeight() + padding * 2);
+		this(r.getX(), r.getY(), r.getWidth(), r.getHeight(), padding * 2);
 	}
 	
 }

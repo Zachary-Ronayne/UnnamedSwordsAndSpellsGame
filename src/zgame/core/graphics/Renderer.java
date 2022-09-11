@@ -38,8 +38,8 @@ import java.util.ArrayList;
  */
 public class Renderer implements Destroyable{
 
-	// TODO add a way to store some buffers that can be created and reused? Like, instead of every individual object making one, just make this Renderer keep track of them
-	
+	// TODO add a stack for the shaders
+
 	/** The color to use for rendering by default */
 	public static final ZColor DEFAULT_COLOR = new ZColor(0);
 	/** The default font to use for rendering. Null means rendering cannot happen unless a font is set */
@@ -786,9 +786,8 @@ public class Renderer implements Destroyable{
 		FontAsset fa = f.getAsset();
 		
 		// Bounds check for if the text should be drawn
-		ZRect[] rects = f.stringBounds(x, y, text, 1, true);
-		ZRect r = rects[text.length()];
-		if(!this.shouldDraw(r.getX(), r.getY(), r.getWidth(), r.getHeight())) return false;
+		ZRect[] rects = f.stringBounds(x, y, text, 0, true);
+		if(!this.shouldDraw(rects[text.length()])) return false;
 		
 		// Mark the drawing bounds
 		// Use the font shaders
@@ -821,7 +820,7 @@ public class Renderer implements Destroyable{
 			char c = text.charAt(i);
 			
 			// Find the vertices and texture coordinates of the character to draw
-			// Must do this regardless to ensure the text moves over even if a character does not get drawn
+			// Must do this regardless of if the character will render to ensure the text moves to the next location
 			f.bounds(c, this.xTextBuff, this.yTextBuff, this.textQuad);
 			
 			// Only draw the character if it will be in the bounds of the buffer

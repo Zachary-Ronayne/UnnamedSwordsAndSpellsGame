@@ -150,7 +150,7 @@ public class MainTest extends Game<TestData>{
 	public static SoundSource loseSource;
 	
 	public MainTest(){
-		super("test", 1500, 720, 1000, 700, 0, true, false, false, true, 100, true);
+		super("test", 1500, 720, 1000, 720, 0, true, false, false, true, 100, true);
 	}
 	
 	public static void main(String[] args){
@@ -413,6 +413,10 @@ public class MainTest extends Game<TestData>{
 			r.setColor(.2, .2, .2);
 			r.drawRectangle(0, 0, 1000, 700);
 			
+			// Drawing 1 pixel
+			r.setColor(1, 0, 0);
+			r.drawRectangle(0, 1000, 1, 1);
+			
 			r.setColor(changeR, changeG, changeB);
 			r.drawRectangle(changeRect.x, changeRect.y, changeRect.width, changeRect.height);
 			
@@ -439,10 +443,35 @@ public class MainTest extends Game<TestData>{
 			r.drawText(0, -10, "a long string that should get cut off");
 			r.unlimitBounds();
 			
+			String s = """
+						TL qgy Text on
+						multiple lines
+						and another
+						    and spaces
+						
+						and a nothing line""";
 			r.pushAttributes();
-			r.setFontSize(25);
+			r.setFontSize(32);
+			r.setFontLineSpace(40);
+			r.setFontCharSpace(10);
+			
 			r.setColor(new ZColor(1, 0, 1));
-			r.drawText(600, -200, "text on\nmultiple lines\nand another\n      and spaces\n\nand a nothing line");
+			// TODO somehow this text is drawing sub pixels? Maybe an issue with rendering buffers when zooming in and rounding?
+			r.drawText(600, -400, s);
+			
+			ZRect[] bs = r.getFont().stringBounds(600, -400, s, 0, true);
+			r.setColor(.25, .25, .25, .2);
+			r.drawRectangle(new ZRect(bs[s.length()], 5));
+			r.setColor(.25, .25, .25, .4);
+			r.drawRectangle(bs[s.length()]);
+			r.setColor(.7, .7, .7, .1);
+			for(int i = 0; i < s.length(); i++) r.drawRectangle(bs[i]);
+			
+			// TODO make transparent text work, so, make transparent images work
+			r.setColor(0, 1, 0, .1);
+			r.setFontCharSpace(0);
+			r.drawText(-400, 400, "transparent text");
+
 			r.popAttributes();
 		}
 		

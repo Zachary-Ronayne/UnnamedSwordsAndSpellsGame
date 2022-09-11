@@ -67,7 +67,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 		this.selected = false;
 		this.setTextX(5);
 		this.setTextY(this.getHeight() - 5);
-		this.setFont(new GameFont(null, 20, 0, 0));
+		this.setFont(new GameFont(this.getFont().getAsset(), 20, 0, 0));
 		this.textOffset = 0;
 		this.textWidth = 0;
 		

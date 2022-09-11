@@ -111,7 +111,7 @@ public class FontAsset extends Asset{
 		init();
 	}
 	
-	/** Initialize this {@link FontAsset} based on the current path of the image */
+	/** Initialize this {@link FontAsset} based on the current path of the font */
 	private void init(){
 		String path = this.getPath();
 		
@@ -187,6 +187,7 @@ public class FontAsset extends Asset{
 	 * @param size The font size to use to determine the number of pixels
 	 * @return The ratio
 	 */
+	// TODO make this use a map and store all of these values
 	public double pixelRatio(double size){
 		return stbtt_ScaleForPixelHeight(this.getInfo(), (float)size);
 	}

@@ -2,6 +2,8 @@ package zgame.core.graphics.font;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
@@ -13,6 +15,11 @@ import static org.lwjgl.stb.STBTruetype.*;
 /** An object which represents a font to be used for rendering, i.e. a {@link FontAsset} and information like font size */
 public class GameFont{
 	
+	/** The number of int buffers available in {@link #intBuffers} */
+	public static final int INT_BUFFERS = 2;
+	/** The number of int buffers available in {@link #floatBuffers} */
+	public static final int FLOAT_BUFFERS = 2;
+	
 	/** The font itself to use for rendering */
 	private FontAsset asset;
 	
@@ -22,11 +29,27 @@ public class GameFont{
 	private double lineSpace;
 	/** The extra space added between individual characters of text, can be negative to reduce the space. This amount of space is based on the font size */
 	private double charSpace;
-
-	/** A buffer used internally for finding the size of the font, this one is for the width */
-	private IntBuffer widthBuffer;
-	/** A buffer used internally for finding the size of the font, this one is for the bearing */
-	private IntBuffer bearingBuffer;
+	
+	/** Buffers used internally by stb true type methods */
+	private IntBuffer[] intBuffers;
+	/** Buffers used internally by stb true type methods */
+	private FloatBuffer[] floatBuffers;
+	/** A buffer used internally by stb true type methods */
+	private STBTTAlignedQuad quadBuffer;
+	
+	// TODO move all this stuff to FontAsset, map by font size? Or just don't use a map at all?
+	/** A map containing the width of every character used by this font, computed dynamically as the width of characters is requested */
+	private Map<Character, Double> widthMap;
+	/** The maximum height, in pixels, a character can take up, computed when a height is requested */
+	private Double maxHeight;
+	
+	/**
+	 * The product of the {@link #size} of this font with the resolution of its {@link #asset}
+	 * This value is multiplied by things like the amount of space to add between characters and lines of text to account for the way the resolution effects rendering
+	 */
+	private double resolutionRatio;
+	/** The inverse of {@link #resolutionRatio} */
+	private double resolutionRatioInverse;
 	
 	/**
 	 * Create a new font object with default values. After the font is created, the values of this object cannot be modified
@@ -50,9 +73,62 @@ public class GameFont{
 		this.size = size;
 		this.lineSpace = lineSpace;
 		this.charSpace = charSpace;
-
-		this.widthBuffer = null;
-		this.bearingBuffer = null;
+		this.resolutionRatio = this.getSize() * this.asset.getResolutionInverse();
+		this.resolutionRatioInverse = 1.0 / this.getResolutionRatio();
+		
+		this.intBuffers = new IntBuffer[INT_BUFFERS];
+		this.floatBuffers = new FloatBuffer[FLOAT_BUFFERS];
+		this.quadBuffer = null;
+		
+		this.widthMap = new HashMap<Character, Double>();
+	}
+	
+	/** Determine the maximum height of a character and store it in {@link #maxHeight} */
+	private synchronized void computeMaxHeight(){
+		FontAsset a = this.getAsset();
+		this.maxHeight = (a.getAscent() - a.getDescent()) * a.pixelRatio(this.getSize());
+	}
+	
+	/**
+	 * Compute the width of a character and store it in {@link #widthMap}
+	 * 
+	 * @param c The character
+	 */
+	public synchronized void computeWidth(char c){
+		FontAsset a = this.getAsset();
+		FloatBuffer xb = this.getFloatBuffer(0);
+		xb.put(0, 0f);
+		stbtt_GetBakedQuad(a.getCharData(), a.getWidth(), a.getHeight(), a.charIndex(c), xb, this.getFloatBuffer(1), this.getQuadBuffer(), true);
+		// Must account for the resolution
+		this.widthMap.put(c, (double)Math.abs(xb.get(0)) * this.getResolutionRatio());
+	}
+	
+	/**
+	 * Get an int buffer at the given index, creating a new one if necessary
+	 * 
+	 * @param i The index of {@link #intBuffers} to get
+	 * @return The buffer
+	 */
+	public IntBuffer getIntBuffer(int i){
+		if(this.intBuffers[i] == null) this.intBuffers[i] = BufferUtils.createIntBuffer(1);
+		return this.intBuffers[i];
+	}
+	
+	/**
+	 * Get a float buffer at the given index, creating a new one if necessary
+	 * 
+	 * @param i The index of {@link #floatBuffers} to get
+	 * @return The buffer
+	 */
+	public FloatBuffer getFloatBuffer(int i){
+		if(this.floatBuffers[i] == null) this.floatBuffers[i] = BufferUtils.createFloatBuffer(1);
+		return this.floatBuffers[i];
+	}
+	
+	/** @return See {@link #quadBuffer}, initializes one if needed */
+	public STBTTAlignedQuad getQuadBuffer(){
+		if(this.quadBuffer == null) this.quadBuffer = STBTTAlignedQuad.create();
+		return this.quadBuffer;
 	}
 	
 	/**
@@ -70,18 +146,32 @@ public class GameFont{
 		// If the character is a new line, then advance the text to a new line
 		boolean newLine = c == '\n';
 		if(newLine){
-			double lineY = this.getSize() + this.getLineSpace();
+			double lineY = (this.getSize() + this.getLineSpace()) * this.getResolutionRatioInverse();
 			x.put(0, 0.0f);
 			y.put(0, (float)(y.get(0) + lineY));
 			newLine = true;
 		}
-		if(!newLine && this.getCharSpace() != 0) x.put(0, (float)(x.get(0) + this.getCharSpace()));
-		
-		// Get the bounds
-		stbtt_GetBakedQuad(a.getCharData(), a.getWidth(), a.getHeight(), a.charIndex(c), x, y, quad, true);
+		// Otherwise, get the bounds
+		else{
+			// TODO make a method in FontAsset to call stbtt_GetBakedQuad
+			stbtt_GetBakedQuad(a.getCharData(), a.getWidth(), a.getHeight(), a.charIndex(c), x, y, quad, true);
+		}
+		// Add the extra character space
+		if(!newLine && this.getCharSpace() != 0) x.put(0, (float)(x.get(0) + this.getCharSpace() * this.getResolutionRatioInverse()));
 		
 		// Return if the character went to a new line
 		return newLine;
+	}
+	
+	/**
+	 * Determine the width of a character, in pixels
+	 * 
+	 * @param c The character to find the width of
+	 * @return The width
+	 */
+	public double charWidth(char c){
+		if(!this.widthMap.containsKey(c)) computeWidth(c);
+		return this.widthMap.get(c);
 	}
 	
 	/**
@@ -91,7 +181,7 @@ public class GameFont{
 	 * @return The length
 	 */
 	public double stringWidth(String text){
-		return this.stringBounds(text).width;
+		return this.stringBounds(text).getWidth();
 	}
 	
 	/**
@@ -177,49 +267,58 @@ public class GameFont{
 	 *         An empty array is returned if the string is empty or not given
 	 */
 	public ZRect[] stringBounds(double x, double y, String text, double padding, boolean calcIndividuals){
+		// TODO find the offset or padding that needs to be given to align the bounds correctly? Right now it's off by like one resolution pixel
+
 		FontAsset a = this.getAsset();
-		double baseX = x;
 
 		// If there is no string, then the array is empty
 		if(a == null || text == null || text.isEmpty()) return new ZRect[0];
 		
 		// Set up buffers
-		if(this.widthBuffer == null) this.widthBuffer = BufferUtils.createIntBuffer(1);
-		if(this.bearingBuffer == null) this.bearingBuffer = BufferUtils.createIntBuffer(1);
 		double pixelRatio = a.pixelRatio(this.getSize());
 		double w = 0;
 		double h = (a.getAscent() - a.getDescent()) * pixelRatio;
 		y -= a.getAscent() * pixelRatio;
+		
+		double baseX = x;
+		double baseY = y;
+		double maxWidth = w;
+		double lineSpace = this.getLineSpace();
+		double size = this.getMaxHeight();
+		double charSpace = this.getCharSpace();
+		double maxHeight = h;
 		
 		// Go through each letter and find the total width
 		int i = 0;
 		ZRect[] rects = new ZRect[text.length() + 1];
 		do{
 			char c = text.charAt(i);
-			
+			// If this character is a new line, move to the next line and don't find a new size
 			if(c == '\n'){
-				rects[i] = new ZRect();
-				y += this.getSize() + this.getLineSpace();
 				x = baseX;
 				w = 0;
+				rects[i] = new ZRect(x, y, 0, h);
+				y += lineSpace + size;
+				maxHeight += lineSpace + size;
 				i++;
 				continue;
 			}
-
-			stbtt_GetCodepointHMetrics(a.getInfo(), c, this.widthBuffer, this.bearingBuffer);
-			double wbVal = this.widthBuffer.get(0) * pixelRatio;
+			double wbVal = this.charWidth(c);
+			
 			if(calcIndividuals) rects[i] = new ZRect(x + w, y, wbVal, h, padding);
 			w += wbVal;
+			maxWidth = Math.max(maxWidth, w);
+			w += charSpace;
+			
 			i++;
 		}while(i < text.length());
-
-		rects[text.length()] = new ZRect(x, y, w, h, padding);
+		rects[text.length()] = new ZRect(baseX, baseY, maxWidth, maxHeight, padding);
 		return rects;
 	}
 	
 	/** @return The value which must be used to scale the font returned by {@link #bounds(char, FloatBuffer, FloatBuffer, STBTTAlignedQuad)} into game coordinates */
 	public double fontScalar(){
-		// The double is because fonts are weird and render as half the size I intend them to. This 2 is very hacky
+		// The double is because fonts are weird and render as half the size I intend them to. This double resolution inverse is very hacky
 		return this.getSize() * this.getAsset().getDoubleResolutionInverse();
 	}
 	
@@ -273,6 +372,22 @@ public class GameFont{
 	 */
 	public GameFont charSpace(double charSpace){
 		return new GameFont(this.asset, this.size, this.lineSpace, charSpace);
+	}
+	
+	/** @return See {@link #resolutionRatio} */
+	public double getResolutionRatio(){
+		return this.resolutionRatio;
+	}
+
+	/** @return See {@link #resolutionRatioInverse} */
+	public double getResolutionRatioInverse(){
+		return this.resolutionRatioInverse;
+	}
+	
+	/** @return See {@link #maxHeight} */
+	public double getMaxHeight(){
+		if(this.maxHeight == null) computeMaxHeight();
+		return this.maxHeight;
 	}
 	
 }

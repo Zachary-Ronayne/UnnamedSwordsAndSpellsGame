@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
  * Sandbox
  */
 public class ZUSASSGame extends Game<ZUSASSData>{
+	// TODO rename these things from ZUSASS to Zusass
 
 	/** The json key used to store the main chunk of data about the game */
 	public final static String DATA_KEY = "data";

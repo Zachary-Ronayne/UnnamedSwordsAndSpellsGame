@@ -99,7 +99,7 @@ public class GameBuffer implements Destroyable{
 		// Error check
 		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		boolean success = status == GL_FRAMEBUFFER_COMPLETE;
-		if(success && ZConfig.printSuccess()) ZStringUtils.print("GameBuffer created successfully with frame id: ", this.getFrameID(), ", and texture id: ", this.getTextureID());
+		if(success && ZConfig.printDebug()) ZStringUtils.print("GameBuffer created successfully with frame id: ", this.getFrameID(), ", and texture id: ", this.getTextureID());
 		else if(!success && ZConfig.printErrors()) ZStringUtils.print("Failed to create GameBuffer with status ", status);
 		
 		// Bind the framebuffer to the previous buffer
