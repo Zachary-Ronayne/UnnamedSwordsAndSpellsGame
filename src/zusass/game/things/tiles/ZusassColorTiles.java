@@ -5,7 +5,7 @@ import zgame.things.still.tiles.ColorTile;
 import zgame.things.still.tiles.TileHitbox;
 
 /** A class for rendering basic filled in colored tiles for temporary tile rendering */
-public final class ZusassColorTiles {
+public final class ZusassColorTiles{
 	
 	/** A tile with no hitbox that displays 1 solid color */
 	public static final ColorTile BACK_COLOR = new ColorTile("backColor", "zusassColor", TileHitbox.NONE, new ZColor(0));
@@ -22,8 +22,8 @@ public final class ZusassColorTiles {
 		BACK_COLOR.setColor(c1);
 		BACK_COLOR_DARK.setColor(c2);
 	}
-
-	/* Cannot instantiate #ZUSASSColorTiles */
+	
+	/** Cannot instantiate {@link ZusassColorTiles} */
 	private ZusassColorTiles(){
 	}
 }

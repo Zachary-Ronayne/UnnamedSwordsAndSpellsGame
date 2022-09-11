@@ -13,8 +13,8 @@ import java.io.File;
 import com.google.gson.JsonObject;
 
 /**
- * The main class for the ZUSASS Game.
- * ZUSASS is an acronym
+ * The main class for the Zusass Game.
+ * Zusass is an acronym
  * Zac's
  * Untitled
  * Swords
@@ -23,11 +23,11 @@ import com.google.gson.JsonObject;
  * Sandbox
  */
 public class ZusassGame extends Game<ZusassData>{
-
+	
 	/** The json key used to store the main chunk of data about the game */
 	public final static String DATA_KEY = "data";
 	
-	/** Create the only instance of ZUSASSGame from this class. This constructor will place the game in the main menu */
+	/** Create the only instance of ZusassGame from this class. This constructor will place the game in the main menu */
 	private ZusassGame(){
 		super();
 		// Window and performance settings
@@ -40,7 +40,7 @@ public class ZusassGame extends Game<ZusassData>{
 		
 		// Loading assets
 		this.getFonts().addAll();
-
+		
 		// Initialize the base data object
 		this.setData(new ZusassData());
 	}
@@ -52,26 +52,26 @@ public class ZusassGame extends Game<ZusassData>{
 		init();
 		game.start();
 	}
-
+	
 	@Override
 	public JsonObject save(JsonObject obj){
 		obj.add(DATA_KEY, this.getData().save());
 		return obj;
 	}
-
+	
 	@Override
 	public JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException, NullPointerException{
 		this.getData().load(DATA_KEY, obj);
 		return obj;
 	}
-
+	
 	@Override
 	public boolean loadGame(String path){
 		boolean success = super.loadGame(path);
 		if(success) this.getData().setLoadedFile(path);
 		return success;
 	}
-
+	
 	@Override
 	public boolean saveGame(String path){
 		// If the path doesn't already exist, create it
@@ -92,6 +92,7 @@ public class ZusassGame extends Game<ZusassData>{
 	
 	/**
 	 * Save the currently loaded game to its save file. Does nothing if no file is loaded
+	 * 
 	 * @return true if the save was successful, false otherwise
 	 */
 	public boolean saveLoadedGame(){
@@ -99,7 +100,7 @@ public class ZusassGame extends Game<ZusassData>{
 		if(path == null) return false;
 		return this.saveGame(path);
 	}
-
+	
 	@Override
 	protected void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(button, press, shift, alt, ctrl);

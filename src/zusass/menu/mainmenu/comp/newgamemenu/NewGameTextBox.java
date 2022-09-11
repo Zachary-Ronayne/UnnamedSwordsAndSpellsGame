@@ -12,7 +12,7 @@ public class NewGameTextBox extends ZusassTextBox{
 	 * Initialize the {@link NewGameTextBox}
 	 * 
 	 * @param button The {@link NewGameButton} used by this menu
-	 * @param game The ZUSASSGame used by this thing
+	 * @param game The Zusass game used by this thing
 	 */
 	public NewGameTextBox(Game<ZusassData> game){
 		super(500, 400, 470, 50, game);

@@ -4,7 +4,7 @@ import zgame.core.Game;
 import zgame.menu.MenuButton;
 import zusass.ZusassData;
 
-/** A {@link MenuButton} which is used by the ZUSASSGame */
+/** A {@link MenuButton} which is used by the ZusassGame */
 public abstract class ZusassButton extends MenuButton<ZusassData>{
 	
 	/**

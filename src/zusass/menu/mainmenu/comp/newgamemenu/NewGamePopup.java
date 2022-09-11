@@ -17,7 +17,7 @@ public class NewGamePopup extends Menu<ZusassData>{
 	 * Initialize the {@link NewGamePopup}
 	 * 
 	 * @param button The {@link NewGameButton} used by this menu
-	 * @param game The ZUSASSGame used by this thing
+	 * @param game The Zusass game used by this thing
 	 */
 	public NewGamePopup(NewGameButton button, Game<ZusassData> game){
 		super(0, 0);

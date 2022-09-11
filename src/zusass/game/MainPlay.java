@@ -11,13 +11,13 @@ import zusass.menu.mainmenu.MainMenuState;
 import static org.lwjgl.glfw.GLFW.*;
 
 /**
- * The main {@link PlayState} used by the ZUSASS game
+ * The main {@link PlayState} used by the Zusass game
  * I initially called this ZusassPlay, but I um... changed it
  */
 public class MainPlay extends PlayState<ZusassData>{
 	
 	/**
-	 * Initialize the main play state for the ZUSASS game
+	 * Initialize the main play state for the Zusass game
 	 * 
 	 * @param game The {@link Game} using this state
 	 */
@@ -62,7 +62,7 @@ public class MainPlay extends PlayState<ZusassData>{
 	@Override
 	public void renderBackground(Game<ZusassData> game, Renderer r){
 		super.renderBackground(game, r);
-
+		
 		// Draw a solid color for the background
 		r.setColor(new ZColor(.05));
 		r.drawRectangle(0, 0, game.getScreenWidth(), game.getScreenHeight());

@@ -4,7 +4,7 @@ import zgame.core.Game;
 import zgame.menu.MenuText;
 import zusass.ZusassData;
 
-/** A {@link MenuText} used by the ZUSASS game */
+/** A {@link MenuText} used by the Zusass game */
 public class ZusassMenuText extends MenuText<ZusassData>{
 	
 	/**

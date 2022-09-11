@@ -15,13 +15,13 @@ public class CreateGameButton extends ZusassButton{
 	/**
 	 * Initialize the {@link CreateGameButton}
 	 * 
-	 * @param game The ZUSASSGame used by this thing
+	 * @param game The Zusass game used by this thing
 	 */
 	public CreateGameButton(NewGameTextBox textBox, Game<ZusassData> game){
 		super(500, 460, 200, 50, "Create", game);
 		this.textBox = textBox;
 	}
-
+	
 	@Override
 	public void click(Game<ZusassData> game){
 		String text = this.textBox.getText();

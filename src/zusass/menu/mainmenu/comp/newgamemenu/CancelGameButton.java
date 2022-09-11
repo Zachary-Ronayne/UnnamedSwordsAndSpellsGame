@@ -10,12 +10,12 @@ public class CancelGameButton extends ZusassButton{
 	/**
 	 * Initialize the {@link CancelGameButton}
 	 * 
-	 * @param game The ZUSASSGame used by this thing
+	 * @param game The Zusass game used by this thing
 	 */
 	public CancelGameButton(Game<ZusassData> game){
 		super(720, 460, 200, 50, "Cancel", game);
 	}
-
+	
 	@Override
 	public void click(Game<ZusassData> game){
 		game.getCurrentState().removeTopMenu();

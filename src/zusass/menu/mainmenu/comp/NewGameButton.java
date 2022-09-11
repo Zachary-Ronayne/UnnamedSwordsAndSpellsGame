@@ -12,7 +12,7 @@ public class NewGameButton extends MainMenuButton{
 	/**
 	 * Create the {@link NewGameButton}
 	 * 
-	 * @param game The ZUSASS game associated with this button
+	 * @param game The Zusass game associated with this button
 	 * @param state see {@link #state}
 	 */
 	public NewGameButton(Game<ZusassData> game){

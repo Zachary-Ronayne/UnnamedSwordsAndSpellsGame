@@ -6,9 +6,9 @@ import zgame.menu.MenuText;
 import zgame.menu.MenuThing;
 import zusass.ZusassData;
 
-/** A utility class containing methods for styling ZUSASS components */
+/** A utility class containing methods for styling Zusass components */
 public final class ZusassStyle{
-
+	
 	public static void applyStyle(Game<ZusassData> game, MenuThing<ZusassData> thing){
 		if(thing instanceof MenuText){
 			MenuText<ZusassData> text = (MenuText<ZusassData>)thing;
@@ -22,9 +22,8 @@ public final class ZusassStyle{
 		thing.setBorder(new ZColor(.6));
 	}
 	
-	/** Cannot instantiate {@link #ZUSASSStyle}
-	 */
+	/** Cannot instantiate {@link #ZusassStyle()} */
 	private ZusassStyle(){
 	}
-
+	
 }
