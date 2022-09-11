@@ -4,11 +4,11 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZStringUtils;
-import zusass.ZUSASSData;
-import zusass.ZUSASSGame;
+import zusass.ZusassData;
+import zusass.ZusassGame;
 import zusass.game.MainPlay;
 import zusass.menu.savesmenu.SavesMenu;
-import zusass.utils.ZUSASSConfig;
+import zusass.utils.ZusassConfig;
 
 /** A specific {@link SavesMenuButton} to manage a save file */
 public class LoadSaveButton extends SavesMenuButton{
@@ -32,9 +32,9 @@ public class LoadSaveButton extends SavesMenuButton{
 	 * @param y See {@link #getY()}
 	 * @param text The name of the file to display
 	 * @param path See {@link #path}
-	 * @param game The {@link ZUSASSGame} associated with this button
+	 * @param game The {@link ZusassGame} associated with this button
 	 */
-	public LoadSaveButton(double x, double y, String text, String path, SavesMenu menu, Game<ZUSASSData> game){
+	public LoadSaveButton(double x, double y, String text, String path, SavesMenu menu, Game<ZusassData> game){
 		super(x, y, text, menu, game);
 		this.path = path;
 		this.setWidth(WIDTH);
@@ -45,7 +45,7 @@ public class LoadSaveButton extends SavesMenuButton{
 	}
 	
 	@Override
-	public void render(Game<ZUSASSData> game, Renderer r){
+	public void render(Game<ZusassData> game, Renderer r){
 		super.render(game, r);
 		// If this button is selected, draw an additional highlight
 		if(this.getMenu().getLoadButtons().getSelected() == this){
@@ -55,12 +55,12 @@ public class LoadSaveButton extends SavesMenuButton{
 	}
 	
 	@Override
-	public void click(Game<ZUSASSData> game){
+	public void click(Game<ZusassData> game){
 		this.getMenu().getLoadButtons().setSelected(this);
 	}
 	
 	@Override
-	public void doubleClick(Game<ZUSASSData> game){
+	public void doubleClick(Game<ZusassData> game){
 		this.attemptLoad(game);
 	}
 	
@@ -70,8 +70,8 @@ public class LoadSaveButton extends SavesMenuButton{
 	 * @param game The game to load into
 	 * @return true if the file loaded, false otherwise
 	 */
-	public boolean attemptLoad(Game<ZUSASSData> game){
-		boolean success = game.loadGame(ZUSASSConfig.createSaveFileSuffix(path));
+	public boolean attemptLoad(Game<ZusassData> game){
+		boolean success = game.loadGame(ZusassConfig.createSaveFileSuffix(path));
 		// If the load was successful, enter the play state
 		if(success) game.setCurrentState(new MainPlay(game));
 		

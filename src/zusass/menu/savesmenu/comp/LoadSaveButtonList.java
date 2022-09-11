@@ -8,12 +8,12 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZStringUtils;
 import zgame.menu.MenuThing;
-import zusass.ZUSASSData;
+import zusass.ZusassData;
 import zusass.menu.savesmenu.SavesMenu;
-import zusass.utils.ZUSASSConfig;
+import zusass.utils.ZusassConfig;
 
 /** A {@link MenuThing} which holds a vertical list of {@link LoadSaveButton}s */
-public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
+public class LoadSaveButtonList extends MenuThing<ZusassData>{
 	
 	/** The {@link SavesMenu} using this list */
 	private SavesMenu menu;
@@ -30,7 +30,7 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 	 * @param scroller See {@link #scroller}
 	 * @param game The game that uses this list
 	 */
-	public LoadSaveButtonList(SavesMenu menu, Game<ZUSASSData> game){
+	public LoadSaveButtonList(SavesMenu menu, Game<ZusassData> game){
 		super(SavesMenuScroller.X, SavesMenuScroller.Y);
 		this.menu = menu;
 		this.selected = null;
@@ -43,7 +43,7 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 	 * @param game The {@link Game} associated with this list
 	 * @return true if the files were found, false otherwise
 	 */
-	public boolean populate(Game<ZUSASSData> game){
+	public boolean populate(Game<ZusassData> game){
 		// Reset the button array
 		this.setSelected(null);
 		this.removeAll();
@@ -51,8 +51,8 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 		this.buttons = new ArrayList<LoadSaveButton>();
 		
 		// Find all files and make sure they exist
-		String path = ZUSASSConfig.getSavesLocation();
-		List<File> files = ZUSASSConfig.getAllFiles();
+		String path = ZusassConfig.getSavesLocation();
+		List<File> files = ZusassConfig.getAllFiles();
 		if(files == null) return false;
 		
 		// Populate the button array
@@ -61,10 +61,10 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 			String name = file.getName();
 			
 			// Make sure to only include files which count as save files
-			if(!ZUSASSConfig.validSaveFileName(name)) continue;
+			if(!ZusassConfig.validSaveFileName(name)) continue;
 			
 			// Add the actual button
-			this.addThing(new LoadSaveButton(-LoadSaveButton.WIDTH - 10, i * LoadSaveButton.TOTAL_SPACE, name.replace(ZUSASSConfig.SAVE_FILE_SUFFIX, ""),
+			this.addThing(new LoadSaveButton(-LoadSaveButton.WIDTH - 10, i * LoadSaveButton.TOTAL_SPACE, name.replace(ZusassConfig.SAVE_FILE_SUFFIX, ""),
 					ZStringUtils.concat(path, name), this.menu, game));
 			i++;
 		}
@@ -79,7 +79,7 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 	 * This object can only hold {@link LoadSaveButton}s, anything else will do nothing and return false
 	 */
 	@Override
-	public boolean addThing(MenuThing<ZUSASSData> thing){
+	public boolean addThing(MenuThing<ZusassData> thing){
 		if(!(thing instanceof LoadSaveButton)) return false;
 		LoadSaveButton button = (LoadSaveButton)thing;
 		this.buttons.add(button);
@@ -98,7 +98,7 @@ public class LoadSaveButtonList extends MenuThing<ZUSASSData>{
 	}
 	
 	@Override
-	public void render(Game<ZUSASSData> game, Renderer r){
+	public void render(Game<ZusassData> game, Renderer r){
 		super.render(game, r);
 	}
 

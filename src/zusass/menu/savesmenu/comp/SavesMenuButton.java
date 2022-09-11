@@ -2,12 +2,12 @@ package zusass.menu.savesmenu.comp;
 
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
-import zusass.ZUSASSData;
-import zusass.menu.comp.ZUSASSButton;
+import zusass.ZusassData;
+import zusass.menu.comp.ZusassButton;
 import zusass.menu.savesmenu.SavesMenu;
 
-/** A {@link ZUSASSButton} for navigating the {@link SavesMenu} */
-public class SavesMenuButton extends ZUSASSButton{
+/** A {@link ZusassButton} for navigating the {@link SavesMenu} */
+public class SavesMenuButton extends ZusassButton{
 
 	/** The width of every {@link SavesMenuButton} */
 	public static final double WIDTH = 160;
@@ -25,7 +25,7 @@ public class SavesMenuButton extends ZUSASSButton{
 	 * @param text The text to display
 	 * @param game The {@link Game} that uses this button
 	 */
-	public SavesMenuButton(double x, double y, String text, SavesMenu menu, Game<ZUSASSData> game){
+	public SavesMenuButton(double x, double y, String text, SavesMenu menu, Game<ZusassData> game){
 		super(x, y, WIDTH, HEIGHT, text, game);
 		this.menu = menu;
 		this.setFontSize(30);

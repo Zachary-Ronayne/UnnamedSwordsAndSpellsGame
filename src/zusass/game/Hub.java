@@ -5,12 +5,12 @@ import zgame.core.graphics.Renderer;
 import zgame.things.still.tiles.BaseTiles;
 import zgame.things.still.tiles.Tile;
 import zgame.world.Room;
-import zusass.ZUSASSData;
+import zusass.ZusassData;
 import zusass.game.things.LevelDoor;
-import zusass.game.things.entities.ZUSASSPlayer;
+import zusass.game.things.entities.ZusassPlayer;
 
 /** The {@link Room} which represents the main hub of the game, i.e. where the player can enter levels, make items, etc. */
-public class Hub extends Room<ZUSASSData>{
+public class Hub extends Room<ZusassData>{
 	
 	/** The number of tiles in a {@link Hub} on the x axis */
 	private static final int X_TILES = 24;
@@ -18,14 +18,14 @@ public class Hub extends Room<ZUSASSData>{
 	private static final int Y_TILES = 14;
 	
 	/** The object for the main character the player controls */
-	private ZUSASSPlayer player;
+	private ZusassPlayer player;
 	
 	/**
 	 * Create the hub in the default state
 	 * 
 	 * @param game The {@link Game} using this hub
 	 */
-	public Hub(Game<ZUSASSData> game){
+	public Hub(Game<ZusassData> game){
 		super();
 		this.initTiles(X_TILES, Y_TILES);
 		
@@ -42,7 +42,7 @@ public class Hub extends Room<ZUSASSData>{
 		Tile t = this.getTile(9, 10);
 
 		double doorX = t.getX();
-		ZUSASSData data = (ZUSASSData)game.getData();
+		ZusassData data = (ZusassData)game.getData();
 		LevelDoor highDoor = new LevelDoor(doorX, 0, data.getHighestRoomLevel(), this);
 		highDoor.setY(t.getY() - highDoor.getHeight());
 		this.addThing(highDoor);
@@ -53,7 +53,7 @@ public class Hub extends Room<ZUSASSData>{
 		this.addThing(levelDoor);
 		
 		// Placing the player
-		this.player = new ZUSASSPlayer();
+		this.player = new ZusassPlayer();
 		this.player.setX(20);
 		this.player.setY(this.maxY() - this.player.getHeight());
 		this.player.setLockCamera(true);
@@ -62,7 +62,7 @@ public class Hub extends Room<ZUSASSData>{
 	}
 	
 	@Override
-	public void render(Game<ZUSASSData> game, Renderer r){
+	public void render(Game<ZusassData> game, Renderer r){
 		super.render(game, r);
 	}
 	

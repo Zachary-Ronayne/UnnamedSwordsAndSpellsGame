@@ -5,12 +5,12 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZMath;
 import zgame.world.Room;
-import zusass.ZUSASSData;
+import zusass.ZusassData;
 import zusass.game.things.LevelDoor;
-import zusass.game.things.tiles.ZUSASSColorTiles;
+import zusass.game.things.tiles.ZusassColorTiles;
 
 /** A {@link Room} which represents a randomly generated level for the infinite dungeons */
-public class LevelRoom extends Room<ZUSASSData>{
+public class LevelRoom extends Room<ZusassData>{
 	
 	/** The number of tiles in a {@link LevelRoom} on the x axis */
 	private static final int X_TILES = 15;
@@ -46,7 +46,7 @@ public class LevelRoom extends Room<ZUSASSData>{
 			for(int j = 0; j < Y_TILES; j++){
 				boolean i0 = i % 2 == 0;
 				boolean j0 = j % 2 == 0;
-				this.setTile(i, j, (i0 == j0) ? ZUSASSColorTiles.BACK_COLOR : ZUSASSColorTiles.BACK_COLOR_DARK);
+				this.setTile(i, j, (i0 == j0) ? ZusassColorTiles.BACK_COLOR : ZusassColorTiles.BACK_COLOR_DARK);
 			}
 		}
 		this.setLevel(level);
@@ -78,8 +78,8 @@ public class LevelRoom extends Room<ZUSASSData>{
 	}
 	
 	@Override
-	public void render(Game<ZUSASSData> game, Renderer r){
-		ZUSASSColorTiles.setColors(this.checker1, this.checker2);
+	public void render(Game<ZusassData> game, Renderer r){
+		ZusassColorTiles.setColors(this.checker1, this.checker2);
 
 		// Draw the main rendering
 		super.render(game, r);
