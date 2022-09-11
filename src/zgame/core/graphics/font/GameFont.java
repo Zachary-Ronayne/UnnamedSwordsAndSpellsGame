@@ -1,24 +1,13 @@
 package zgame.core.graphics.font;
 
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
 
 import zgame.core.utils.ZRect;
 
-import static org.lwjgl.stb.STBTruetype.*;
-
 /** An object which represents a font to be used for rendering, i.e. a {@link FontAsset} and information like font size */
 public class GameFont{
-	
-	/** The number of int buffers available in {@link #intBuffers} */
-	public static final int INT_BUFFERS = 2;
-	/** The number of int buffers available in {@link #floatBuffers} */
-	public static final int FLOAT_BUFFERS = 2;
 	
 	/** The font itself to use for rendering */
 	private FontAsset asset;
@@ -29,19 +18,6 @@ public class GameFont{
 	private double lineSpace;
 	/** The extra space added between individual characters of text, can be negative to reduce the space. This amount of space is based on the font size */
 	private double charSpace;
-	
-	/** Buffers used internally by stb true type methods */
-	private IntBuffer[] intBuffers;
-	/** Buffers used internally by stb true type methods */
-	private FloatBuffer[] floatBuffers;
-	/** A buffer used internally by stb true type methods */
-	private STBTTAlignedQuad quadBuffer;
-	
-	// TODO move all this stuff to FontAsset, map by font size? Or just don't use a map at all?
-	/** A map containing the width of every character used by this font, computed dynamically as the width of characters is requested */
-	private Map<Character, Double> widthMap;
-	/** The maximum height, in pixels, a character can take up, computed when a height is requested */
-	private Double maxHeight;
 	
 	/**
 	 * The product of the {@link #size} of this font with the resolution of its {@link #asset}
@@ -75,60 +51,6 @@ public class GameFont{
 		this.charSpace = charSpace;
 		this.resolutionRatio = this.getSize() * this.asset.getResolutionInverse();
 		this.resolutionRatioInverse = 1.0 / this.getResolutionRatio();
-		
-		this.intBuffers = new IntBuffer[INT_BUFFERS];
-		this.floatBuffers = new FloatBuffer[FLOAT_BUFFERS];
-		this.quadBuffer = null;
-		
-		this.widthMap = new HashMap<Character, Double>();
-	}
-	
-	/** Determine the maximum height of a character and store it in {@link #maxHeight} */
-	private synchronized void computeMaxHeight(){
-		FontAsset a = this.getAsset();
-		this.maxHeight = (a.getAscent() - a.getDescent()) * a.pixelRatio(this.getSize());
-	}
-	
-	/**
-	 * Compute the width of a character and store it in {@link #widthMap}
-	 * 
-	 * @param c The character
-	 */
-	public synchronized void computeWidth(char c){
-		FontAsset a = this.getAsset();
-		FloatBuffer xb = this.getFloatBuffer(0);
-		xb.put(0, 0f);
-		stbtt_GetBakedQuad(a.getCharData(), a.getWidth(), a.getHeight(), a.charIndex(c), xb, this.getFloatBuffer(1), this.getQuadBuffer(), true);
-		// Must account for the resolution
-		this.widthMap.put(c, (double)Math.abs(xb.get(0)) * this.getResolutionRatio());
-	}
-	
-	/**
-	 * Get an int buffer at the given index, creating a new one if necessary
-	 * 
-	 * @param i The index of {@link #intBuffers} to get
-	 * @return The buffer
-	 */
-	public IntBuffer getIntBuffer(int i){
-		if(this.intBuffers[i] == null) this.intBuffers[i] = BufferUtils.createIntBuffer(1);
-		return this.intBuffers[i];
-	}
-	
-	/**
-	 * Get a float buffer at the given index, creating a new one if necessary
-	 * 
-	 * @param i The index of {@link #floatBuffers} to get
-	 * @return The buffer
-	 */
-	public FloatBuffer getFloatBuffer(int i){
-		if(this.floatBuffers[i] == null) this.floatBuffers[i] = BufferUtils.createFloatBuffer(1);
-		return this.floatBuffers[i];
-	}
-	
-	/** @return See {@link #quadBuffer}, initializes one if needed */
-	public STBTTAlignedQuad getQuadBuffer(){
-		if(this.quadBuffer == null) this.quadBuffer = STBTTAlignedQuad.create();
-		return this.quadBuffer;
 	}
 	
 	/**
@@ -152,10 +74,8 @@ public class GameFont{
 			newLine = true;
 		}
 		// Otherwise, get the bounds
-		else{
-			// TODO make a method in FontAsset to call stbtt_GetBakedQuad
-			stbtt_GetBakedQuad(a.getCharData(), a.getWidth(), a.getHeight(), a.charIndex(c), x, y, quad, true);
-		}
+		else a.findBakedQuad(c, x, y, quad);
+
 		// Add the extra character space
 		if(!newLine && this.getCharSpace() != 0) x.put(0, (float)(x.get(0) + this.getCharSpace() * this.getResolutionRatioInverse()));
 		
@@ -170,8 +90,7 @@ public class GameFont{
 	 * @return The width
 	 */
 	public double charWidth(char c){
-		if(!this.widthMap.containsKey(c)) computeWidth(c);
-		return this.widthMap.get(c);
+		return this.getAsset().getCharWidth(this.getSize(), c);
 	}
 	
 	/**
@@ -386,8 +305,7 @@ public class GameFont{
 	
 	/** @return See {@link #maxHeight} */
 	public double getMaxHeight(){
-		if(this.maxHeight == null) computeMaxHeight();
-		return this.maxHeight;
+		return this.getAsset().getMaxHeight(this.getSize());
 	}
 	
 }

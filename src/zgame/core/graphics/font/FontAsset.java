@@ -5,9 +5,13 @@ import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.stb.STBImage.*;
 
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.stb.STBTTAlignedQuad;
 import org.lwjgl.stb.STBTTBakedChar;
 import org.lwjgl.stb.STBTTFontinfo;
 
@@ -22,6 +26,11 @@ import zgame.core.utils.ZStringUtils;
 
 /** An object that represents a font file to be used for rendering, but not things like font size, */
 public class FontAsset extends Asset{
+	
+	/** The number of int buffers available in {@link #intBuffers} */
+	public static final int INT_BUFFERS = 2;
+	/** The number of int buffers available in {@link #floatBuffers} */
+	public static final int FLOAT_BUFFERS = 2;
 	
 	/** The ID of the bitmap of the image holding the font */
 	private int bitmapID;
@@ -59,6 +68,20 @@ public class FontAsset extends Asset{
 	private int descent;
 	/** The space between one row's descent and the next row's ascent */
 	private int lineGap;
+	
+	/** A map, mapped by font size, whose values are maps containing the width of every character used by this font, computed dynamically as the width of characters is requested */
+	private Map<Double, Map<Character, Double>> widthMap;
+	/** A map, mapped by font size, mapping the maximum height, in pixels, a character can take up, computed when a height is requested */
+	private Map<Double, Double> maxHeightMap;
+	/** A map, mapped by font size, mapping the ratio returned by stbtt_ScaleForPixelHeight */
+	private Map<Double, Float> pixelRatioMap;
+	
+	/** Buffers used internally by stb true type methods */
+	private IntBuffer[] intBuffers;
+	/** Buffers used internally by stb true type methods */
+	private FloatBuffer[] floatBuffers;
+	/** A buffer used internally by stb true type methods */
+	private STBTTAlignedQuad quadBuffer;
 	
 	/**
 	 * Load a font from the given file path
@@ -108,6 +131,15 @@ public class FontAsset extends Asset{
 		this.width = sizeRatio * this.resolution;
 		this.height = sizeRatio * this.resolution;
 		this.loadChars = loadChars;
+		
+		this.widthMap = new HashMap<Double, Map<Character, Double>>();
+		this.maxHeightMap = new HashMap<Double, Double>();
+		this.pixelRatioMap = new HashMap<Double, Float>();
+		
+		this.intBuffers = new IntBuffer[INT_BUFFERS];
+		this.floatBuffers = new FloatBuffer[FLOAT_BUFFERS];
+		this.quadBuffer = null;
+		
 		init();
 	}
 	
@@ -169,6 +201,96 @@ public class FontAsset extends Asset{
 	}
 	
 	/**
+	 * Determine the maximum height of a character and store it in {@link #maxHeightMap}
+	 * 
+	 * @param size The size of the font to compute the height for
+	 */
+	private synchronized void computeMaxHeight(double size){
+		this.maxHeightMap.put(size, (this.getAscent() - this.getDescent()) * this.pixelRatio(size));
+	}
+	
+	/**
+	 * Determine the maximum size a font made with this asset can take up
+	 * 
+	 * @param size The size of the font
+	 * @return The maximum height
+	 */
+	public double getMaxHeight(double size){
+		if(!this.maxHeightMap.containsKey(size)) this.computeMaxHeight(size);
+		return this.maxHeightMap.get(size);
+	}
+	
+	/**
+	 * Compute the width of a character and store it in {@link #widthMap}
+	 * 
+	 * @param c The character
+	 */
+	private synchronized void computeWidth(double size, char c){
+		if(!this.widthMap.containsKey(size)) this.widthMap.put(size, new HashMap<Character, Double>());
+		Map<Character, Double> cMap = this.widthMap.get(size);
+		
+		FloatBuffer xb = this.getFloatBuffer(0);
+		xb.put(0, 0f);
+		stbtt_GetBakedQuad(this.getCharData(), this.getWidth(), this.getHeight(), this.charIndex(c), xb, this.getFloatBuffer(1), this.getQuadBuffer(), true);
+		// Must account for the resolution
+		cMap.put(c, (double)Math.abs(xb.get(0)) * size * this.getResolutionInverse());
+	}
+	
+	/**
+	 * Get the width a character using this asset takes up
+	 * 
+	 * @param size The size of the font
+	 * @param c The character
+	 * @return The width
+	 */
+	public double getCharWidth(double size, char c){
+		if(!this.widthMap.containsKey(size)) this.computeWidth(size, c);
+		Map<Character, Double> cMap = this.widthMap.get(size);
+		if(!cMap.containsKey(c)) this.computeWidth(size, c);
+		return cMap.get(c);
+	}
+	
+	/**
+	 * Get an int buffer at the given index, creating a new one if necessary
+	 * 
+	 * @param i The index of {@link #intBuffers} to get
+	 * @return The buffer
+	 */
+	public IntBuffer getIntBuffer(int i){
+		if(this.intBuffers[i] == null) this.intBuffers[i] = BufferUtils.createIntBuffer(1);
+		return this.intBuffers[i];
+	}
+	
+	/**
+	 * Get a float buffer at the given index, creating a new one if necessary
+	 * 
+	 * @param i The index of {@link #floatBuffers} to get
+	 * @return The buffer
+	 */
+	public FloatBuffer getFloatBuffer(int i){
+		if(this.floatBuffers[i] == null) this.floatBuffers[i] = BufferUtils.createFloatBuffer(1);
+		return this.floatBuffers[i];
+	}
+	
+	/** @return See {@link #quadBuffer}, initializes one if needed */
+	public STBTTAlignedQuad getQuadBuffer(){
+		if(this.quadBuffer == null) this.quadBuffer = STBTTAlignedQuad.create();
+		return this.quadBuffer;
+	}
+	
+	/**
+	 * Get the bounds for where to draw a character using this {@link FontAsset}
+	 * 
+	 * @param c The character to get the bounds for rendering
+	 * @param x The float buffer for the x coordinate. This buffer will be updated to the position of the next character
+	 * @param y The float buffer for the y coordinate. This buffer will be updated to the position of the next character
+	 * @param quad The object to place the data for the position and texture coordinates
+	 */
+	public void findBakedQuad(char c, FloatBuffer x, FloatBuffer y, STBTTAlignedQuad quad){
+		stbtt_GetBakedQuad(this.getCharData(), this.getWidth(), this.getHeight(), this.charIndex(c), x, y, quad, true);
+	}
+	
+	/**
 	 * Determine a valid character index for this {@link FontAsset} based on the given character
 	 * 
 	 * @param c The character
@@ -187,9 +309,9 @@ public class FontAsset extends Asset{
 	 * @param size The font size to use to determine the number of pixels
 	 * @return The ratio
 	 */
-	// TODO make this use a map and store all of these values
 	public double pixelRatio(double size){
-		return stbtt_ScaleForPixelHeight(this.getInfo(), (float)size);
+		if(!this.pixelRatioMap.containsKey(size)) this.pixelRatioMap.put(size, stbtt_ScaleForPixelHeight(this.getInfo(), (float)size));
+		return this.pixelRatioMap.get(size);
 	}
 	
 	/** @return See {@link #bitmapID} */
