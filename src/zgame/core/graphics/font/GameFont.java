@@ -166,7 +166,7 @@ public class GameFont{
 	 * @return An array of the bounds of each character, matching the index of text.
 	 *         The array also contains one extra element, indexed as the the length of the string: the total bounds of the entire string,
 	 *         padded in the same way as individual characters
-	 *         An empty array is returned if the string is empty or not given
+	 *         An array with one empty rectangle is returned if the string is empty or not given
 	 */
 	public ZRect[] characterBounds(double x, double y, String text, double padding){
 		return this.stringBounds(x, y, text, padding, true);
@@ -188,8 +188,8 @@ public class GameFont{
 	public ZRect[] stringBounds(double x, double y, String text, double padding, boolean calcIndividuals){
 		FontAsset a = this.getAsset();
 
-		// If there is no string, then the array is empty
-		if(a == null || text == null || text.isEmpty()) return new ZRect[0];
+		// If there is no string, then the array contains only one empty rectangle
+		if(a == null || text == null || text.isEmpty()) return new ZRect[]{new ZRect()};
 		
 		// Set up buffers
 		double pixelRatio = a.pixelRatio(this.getSize());

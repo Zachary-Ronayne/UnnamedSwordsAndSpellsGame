@@ -25,6 +25,11 @@ public class MenuText<D>extends MenuThing<D>{
 
 	/** The text to display for this menu */
 	private String text;
+
+	/** The x coordinate to draw this things text */
+	private double textX;
+	/** The x coordinate to draw this things text */
+	private double textY;
 	
 	/**
 	 * Create a blank {@link MenuText} at the given position and size
@@ -53,8 +58,8 @@ public class MenuText<D>extends MenuThing<D>{
 		this.text = text;
 		// Using zfont by default
 		this.buffer = new TextBuffer((int)Math.round(w), (int)Math.round(h), game.getFont("zfont"));
-		this.buffer.setTextX(10);
-		this.buffer.setTextY(this.getHeight() * .9);
+		this.setTextX(10);
+		this.setTextY(this.getHeight() * .9);
 		
 		this.setFill(this.getFill().solid());
 		
@@ -79,22 +84,24 @@ public class MenuText<D>extends MenuThing<D>{
 	
 	/** @return See {@link TextBuffer#textX} */
 	public double getTextX(){
-		return this.getBuffer().getTextX();
+		return this.textX;
 	}
 	
 	/** @param textX See {@link TextBuffer#textX} */
 	public void setTextX(double textX){
-		this.getBuffer().setTextX(textX);
+		this.textX = textX;
+		this.buffer.setTextX(textX);
 	}
 	
 	/** @return See {@link TextBuffer#textY} */
 	public double getTextY(){
-		return this.getBuffer().getTextY();
+		return this.textY;
 	}
 	
 	/** @param textY See {@link TextBuffer#textY} */
 	public void setTextY(double textY){
-		this.getBuffer().setTextY(textY);
+		this.buffer.setTextY(textY);
+		this.textY = textY;
 	}
 	
 	/** @return See {@link TextBuffer#font} */
@@ -190,6 +197,8 @@ public class MenuText<D>extends MenuThing<D>{
 	 */
 	public void drawText(Renderer r, String text){
 		this.buffer.setText(text);
+		this.buffer.setTextX(this.getTextX());
+		this.buffer.setTextY(this.getTextY());
 		this.buffer.drawToRenderer(this.getX(), this.getY(), r);
 	}
 	

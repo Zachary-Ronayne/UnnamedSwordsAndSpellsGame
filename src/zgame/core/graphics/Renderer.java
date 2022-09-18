@@ -897,6 +897,7 @@ public class Renderer implements Destroyable{
 		
 		this.pushMatrix();
 		this.identityMatrix();
+		this.updateColor();
 		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		glBindVertexArray(0);

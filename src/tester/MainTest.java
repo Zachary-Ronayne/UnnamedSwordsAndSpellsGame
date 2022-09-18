@@ -156,8 +156,8 @@ public class MainTest extends Game<TestData>{
 	public static void main(String[] args){
 		// Set up game
 		testerGame = new MainTest();
-		testerGame.setCurrentState(new TesterGameState(testerGame));
-		// testerGame.setCurrentState(new TesterMenuState(testerGame));
+		// testerGame.setCurrentState(new TesterGameState(testerGame));
+		testerGame.setCurrentState(new TesterMenuState(testerGame));
 		// testerGame.setCurrentState(new GameEngineState());
 		
 		window = testerGame.getWindow();

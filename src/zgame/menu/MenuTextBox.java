@@ -13,7 +13,7 @@ import static org.lwjgl.glfw.GLFW.*;
  * A {@link MenuThing} that can be used to have a user type things in
  */
 public class MenuTextBox<D>extends MenuButton<D>{
-
+	
 	/** true if this {@link MenuTextBox} is selected and will accept text input, false otherwise */
 	private boolean selected;
 	
@@ -112,6 +112,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 			}
 		}
 		// If no letter was selected, either select the lowest or highest index possible
+		// TODO fix issue where it selects the beginning of the string if clicking above the text, probably because it's not finding the string hitbox
 		// TODO does this work correctly, using centerX?
 		if(mx < this.centerX()) this.setCursorIndex(-1);
 		else this.setCursorIndex(this.getText().length() - 1);
@@ -119,7 +120,6 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	
 	@Override
 	public void keyAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		// TODO why does the buffer flash the screen transparent every time a letter is typed?
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(!this.isSelected()) return;
 		if(press) return;
@@ -190,7 +190,8 @@ public class MenuTextBox<D>extends MenuButton<D>{
 			case GLFW_KEY_SLASH -> toAdd = shift ? '?' : '/';
 			case GLFW_KEY_LEFT -> this.cursorLeft();
 			case GLFW_KEY_RIGHT -> this.cursorRight();
-			// TODO end and home should shift the cursor position
+			case GLFW_KEY_HOME -> this.setCursorIndex(-1);
+			case GLFW_KEY_END -> this.setCursorIndex(this.getText().length());
 		}
 		// TODO make typing work when just pressing the key
 		if(toAdd != null){
@@ -227,7 +228,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	
 	@Override
 	public double getTextX(){
-		return super.getTextX() + this.textOffset;
+		return super.getTextX() + this.getTextOffset();
 	}
 	
 	/** @return The x coordinate of the cursor */
@@ -244,21 +245,19 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	@Override
 	public void setText(String text){
 		super.setText(text);
-		this.textWidth = this.getFont().stringWidth(this.getText());
-		
-		// TODO make this use the font method to find individual character lengths
-		// Find the bounds of each letter
-		this.letterBounds = new ZRect[this.getText().length()];
-		for(int i = 0; i < this.letterBounds.length; i++){
-			this.letterBounds[i] = this.getFont().stringBounds(this.getX() + this.getTextX(), this.getY() + this.getTextY(), this.getText().substring(0, i + 1));
-			this.letterBounds[i].y = this.getY();
-			this.letterBounds[i].height = this.getHeight();
-		}
+		GameFont f = this.getFont();
+		this.letterBounds = f.characterBounds(this.getX() + this.getTextX(), this.getY() + this.getTextY(), this.getText(), 1);
+		this.textWidth = this.letterBounds[this.getText().length()].getWidth();
 	}
 	
 	/** @return See {@link #textWidth} */
 	public double getTextWidth(){
 		return this.textWidth;
+	}
+	
+	/** @return See {@link #textOffset} */
+	public double getTextOffset(){
+		return this.textOffset;
 	}
 	
 	/** @return See {@link #hint} */
@@ -328,46 +327,33 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	
 	/** @param See {@link #cursorIndex}. If the index is out of bounds of {@link #getText()}, it goes on the end of the string it's closest to */
 	public void setCursorIndex(int cursorIndex){
-		// TODO make textOffset getter
-		double cursorOffset = this.cursorLocation - this.textOffset;
-		// TODO set the cursor based on clicking
+		// Keep the cursor index in bounds
 		if(cursorIndex < -1) cursorIndex = -1;
 		if(cursorIndex >= this.getText().length()) cursorIndex = this.getText().length() - 1;
+		
+		// Reset the blinking time
 		if(cursorIndex != this.cursorIndex){
 			this.blinkCursor = true;
 			this.currentBlinkTime = 0;
 		}
+		// Update the new index
 		this.cursorIndex = cursorIndex;
 		
-		// Update the cursor location
 		// TODO replace this stringWidth call with a reference from this.letterBounds
-		this.cursorLocation = this.cursorIndex < 0 ? 0 : this.getFont().stringWidth(this.getText().substring(0, this.getCursorIndex() + 1));
+		double newCursorLoc = this.getFont().stringWidth(this.getText().substring(0, this.getCursorIndex() + 1));
 		
-		// TODO figure out what this should be
-		// Update the text offset location
-
-		// if(the text is smaller than the box, or the cursor is less than half this width from the string beginning) this.textOffset = 0;
-		// else if(the cursor is at the end of the string) this.textOffset = this.getTextLimit() - this.getTextWidth();
-		// else if(the cursor is more than half the width from the start and more than half the width from the start) this.textOffset = -this.cursorLocation + this.getWidth() * .5;
-		
-		// if(the text is smaller than the box) this.textOffset = 0;
-		// else if(the cursor is at the end of the text) this.textOffset = this.getTextLimit() - this.getTextWidth();
-		// else move the textOffset so that it's the same percentage of the way in as before
+		// If the text takes up less space than the text box, position it so that the beginning of the text aligns with the beginning of the box
 		if(this.getTextWidth() < this.getTextLimit()) this.textOffset = 0;
-		// else this.textOffset = this.cursorLocation - cursorOffset;
-		
-		/*
-		  TODO need to update differently depending on
-		  	if the keys moved cursorIndex, 
-		  		meaning keep cursorLocation the same distance from the start of the text box,
-			or if the mouse moved it,
-				meaning keep textOffset the same, and move cursorLocation
-			Just rename this method and give it all the needed parameters
-		
-			Also need to account for the space between characters based on the font
-		*/
-		// if(this.getCursorLocation() < this.getTextLimit()) this.textOffset = 0;
-		// else this.textOffset = -this.cursorLocation;
+		// If the new location of the cursor would place it outside the text box, reposition the text so that the cursor will be inside the text box
+		else{
+			double cursorRel = newCursorLoc + this.getTextOffset();
+			// TODO make this reposition it by only one character
+			if(cursorRel > this.getTextLimit() || cursorRel < 0) this.textOffset = this.getTextLimit() - newCursorLoc;
+			// If the location would put the beginning of the string after the beginning of the box, reposition it so that it will be at the beginning
+			if(this.textOffset > 0) this.textOffset = 0;
+		}
+		// Update the cursor location
+		this.cursorLocation = this.cursorIndex < 0 ? 0 : newCursorLoc;
 	}
 	
 	/** Move the cursor one character left. Does nothing if the cursor is already all the way left */
