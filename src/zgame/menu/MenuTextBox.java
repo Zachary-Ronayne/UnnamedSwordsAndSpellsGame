@@ -14,8 +14,6 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class MenuTextBox<D>extends MenuButton<D>{
 
-	// TODO fix bug where the screen gets a transparent overlay when the exit button is hovered
-	
 	/** true if this {@link MenuTextBox} is selected and will accept text input, false otherwise */
 	private boolean selected;
 	

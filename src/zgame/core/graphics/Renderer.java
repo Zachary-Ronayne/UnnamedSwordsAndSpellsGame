@@ -474,9 +474,11 @@ public class Renderer implements Destroyable{
 	public void drawToWindow(GameWindow window){
 		// Set the current shader for drawing a frame buffer
 		this.renderModeBuffer();
+		this.getColorStack().push(this.getColor().solid());
 		this.pushMatrix();
 		this.identityMatrix();
 		this.updateColor();
+		this.getColorStack().pop();
 		// Bind the vertex array for drawing an image that fills the entire OpenGL space
 		this.imgVertArr.bind();
 		
