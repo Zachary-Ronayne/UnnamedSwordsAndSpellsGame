@@ -13,6 +13,8 @@ import static org.lwjgl.glfw.GLFW.*;
  * A {@link MenuThing} that can be used to have a user type things in
  */
 public class MenuTextBox<D>extends MenuButton<D>{
+
+	// TODO fix bug where the screen gets a transparent overlay when the exit button is hovered
 	
 	/** true if this {@link MenuTextBox} is selected and will accept text input, false otherwise */
 	private boolean selected;

@@ -458,8 +458,6 @@ public class MainTest extends Game<TestData>{
 			r.setFontCharSpace(10);
 			
 			r.setColor(new ZColor(1, 0, 1));
-			// TODO somehow this text is drawing sub pixels? Maybe an issue with rendering buffers when zooming in and rounding?
-			// TODO it's the bounds of the text that's drawing sub pixels, not the textures?
 			r.drawText(600, -400, s);
 			
 			ZRect[] bs = r.getFont().stringBounds(600, -400, s, 0, true);
@@ -470,10 +468,35 @@ public class MainTest extends Game<TestData>{
 			r.setColor(.7, .7, .7, .1);
 			for(int i = 0; i < s.length(); i++) r.drawRectangle(bs[i]);
 			
+			////////////////////////////////////////
+			
+			r.setColor(1, 0, 0);
+			r.drawRectangle(580, -50, 2, 2);
+			r.drawRectangle(600, -50, 1, 1);
+			r.drawRectangle(620, -50, .5, .5);
+			
+			////////////////////////////////////////
+			
+			r.pushAttributes();
+			r.setFontSize(200);
+			s = "Ayg q p j";
+			bs = r.getFont().stringBounds(1100, 0, s, 0, true);
+			r.setColor(new ZColor(1, 0, 1));
+			r.drawText(1100, 0, s);
+			r.setColor(.25, .25, .25, .2);
+			r.drawRectangle(new ZRect(bs[s.length()], 5));
+			r.setColor(.25, .25, .25, .4);
+			r.drawRectangle(bs[s.length()]);
+			r.setColor(.7, .7, .7, .1);
+			for(int i = 0; i < s.length(); i++) r.drawRectangle(bs[i]);
+			r.popAttributes();
+			
+			////////////////////////////////////////
+			
 			r.setColor(0, 1, 0, .2);
 			r.setFontCharSpace(0);
 			r.drawText(-400, 400, "transparent text");
-
+			
 			r.popAttributes();
 		}
 		

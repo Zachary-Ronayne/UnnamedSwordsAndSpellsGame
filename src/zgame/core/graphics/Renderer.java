@@ -781,7 +781,7 @@ public class Renderer implements Destroyable{
 		FontAsset fa = f.getAsset();
 		
 		// Bounds check for if the text should be drawn
-		ZRect[] rects = f.stringBounds(x, y, text, 0, true);
+		ZRect[] rects = f.stringBounds(x, y, text, 1, true);
 		if(!this.shouldDraw(rects[text.length()])) return false;
 		
 		// Mark the drawing bounds

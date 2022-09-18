@@ -186,8 +186,6 @@ public class GameFont{
 	 *         An empty array is returned if the string is empty or not given
 	 */
 	public ZRect[] stringBounds(double x, double y, String text, double padding, boolean calcIndividuals){
-		// TODO find the offset or padding that needs to be given to align the bounds correctly? Right now it's off by like one resolution pixel
-
 		FontAsset a = this.getAsset();
 
 		// If there is no string, then the array is empty
@@ -198,7 +196,12 @@ public class GameFont{
 		double w = 0;
 		double h = (a.getAscent() - a.getDescent()) * pixelRatio;
 		y -= a.getAscent() * pixelRatio;
-		
+
+		// This part is really weird, but doing this aligns the text better. It's still not perfect, but it's better
+		double add = this.getSize() * a.getResolutionInverse();
+		x += add;
+		y -= add;
+
 		double baseX = x;
 		double baseY = y;
 		double maxWidth = w;
