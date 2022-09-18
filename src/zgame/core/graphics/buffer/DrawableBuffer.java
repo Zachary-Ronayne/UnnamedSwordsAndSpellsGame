@@ -28,7 +28,7 @@ public class DrawableBuffer extends GameBuffer{
 	 */
 	public void drawToRenderer(double x, double y, Renderer r){
 		if(this.needRedraw) this.redraw(r);
-		r.drawBuffer(x, y, this.getWidth(), this.getHeight(), this);
+		super.drawToRenderer(x, y, r);
 	}
 	
 	/**

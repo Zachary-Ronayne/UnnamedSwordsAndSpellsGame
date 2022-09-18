@@ -39,7 +39,7 @@ public class TextBuffer extends DrawableBuffer{
 	@Override
 	public void drawToRenderer(double x, double y, Renderer r){
 		// Only need to draw the text if there is any text
-		if(this.getText().isEmpty()) return;
+		if(this.skipRedraw()) return;
 		super.drawToRenderer(x, y, r);
 	}
 	

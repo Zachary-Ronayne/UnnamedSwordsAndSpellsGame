@@ -9,5 +9,5 @@ uniform vec4 mainColor;
 
 void main(){
 	vec4 font = texture2D(texMap, vTex.st);
-	fColor = vec4(mainColor.rgb, font.a);
+	fColor = vec4(mainColor.rgb, font.a * mainColor.a);
 }

@@ -209,9 +209,6 @@ public class Renderer implements Destroyable{
 		
 		// Vertex arrays and vertex buffers
 		this.initVertexes();
-		
-		// Init the model view matrix
-		this.updateMatrix();
 	}
 	
 	/** Initialize all resources used by the vertex arrays and vertex buffers */
@@ -337,10 +334,17 @@ public class Renderer implements Destroyable{
 	}
 	
 	/** Update the data of the model view matrix into OpenGL */
-	public void updateMatrix(){
+	private void updateMatrix(){
 		this.modelView().get(this.modelViewBuff);
 		int loc = glGetUniformLocation(this.loadedShader.getId(), "modelView");
 		glUniformMatrix4fv(loc, false, this.modelViewBuff);
+	}
+	
+	/** Update the uniform variable used to track the color, with the current value */
+	public void updateColor(){
+		float[] c = this.getColor().toFloat();
+		int loc = glGetUniformLocation(this.loadedShader.getId(), "mainColor");
+		if(loc != -1) glUniform4fv(loc, c);
 	}
 	
 	/**
@@ -470,6 +474,9 @@ public class Renderer implements Destroyable{
 	public void drawToWindow(GameWindow window){
 		// Set the current shader for drawing a frame buffer
 		this.renderModeBuffer();
+		this.pushMatrix();
+		this.identityMatrix();
+		this.updateColor();
 		// Bind the vertex array for drawing an image that fills the entire OpenGL space
 		this.imgVertArr.bind();
 		
@@ -482,6 +489,7 @@ public class Renderer implements Destroyable{
 		
 		// Draw the image
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
+		this.popMatrix();
 	}
 	
 	/** @return The top of {@link #limitedBounds} */
@@ -669,20 +677,26 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawBuffer(double x, double y, double w, double h, GameBuffer b){
-		return this.drawImage(x, y, w, h, b.getTextureID());
+		if(!this.shouldDraw(x, y, w, h)) return false;
+		this.renderModeBuffer();
+		return this.drawTexture(x, y, w, h, b.getTextureID());
 	}
 	
 	/**
 	 * Draw a rectangular image at the specified location.
+	 * Draw a rectangular image at the specified location on the given buffer
 	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
 	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * 
-	 * @param r The bounds
-	 * @param img The {@link GameImage} to draw
+	 * @param x The x coordinate of the upper left hand corner of the image
+	 * @param y The y coordinate of the upper left hand corner of the image
+	 * @param w The width of the image
+	 * @param h The height of the image
+	 * @param img The OpenGL id of the image to draw
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawImage(ZRect r, GameImage img){
-		return this.drawImage(r, img.getId());
+		return this.drawImage(r.getX(), r.getY(), r.getWidth(), r.getHeight(), img);
 	}
 	
 	/**
@@ -698,45 +712,29 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawImage(double x, double y, double w, double h, GameImage img){
-		return this.drawImage(x, y, w, h, img.getId());
-	}
-	
-	/**
-	 * Draw a rectangular image at the specified location.
-	 * Draw a rectangular image at the specified location on the given buffer
-	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
-	 * Coordinate types depend on {@link #positioningEnabledStack}
-	 * 
-	 * @param x The x coordinate of the upper left hand corner of the image
-	 * @param y The y coordinate of the upper left hand corner of the image
-	 * @param w The width of the image
-	 * @param h The height of the image
-	 * @param img The OpenGL id of the image to draw
-	 * @return true if the object was drawn, false otherwise
-	 */
-	public boolean drawImage(ZRect r, int img){
-		return this.drawImage(r.getX(), r.getY(), r.getWidth(), r.getHeight(), img);
-	}
-	
-	/**
-	 * Draw a rectangular image at the specified location.
-	 * Draw a rectangular image at the specified location on the given buffer
-	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
-	 * Coordinate types depend on {@link #positioningEnabledStack}
-	 * 
-	 * @param x The x coordinate of the upper left hand corner of the image
-	 * @param y The y coordinate of the upper left hand corner of the image
-	 * @param w The width of the image
-	 * @param h The height of the image
-	 * @param img The OpenGL id of the image to draw
-	 * @return true if the object was drawn, false otherwise
-	 */
-	public boolean drawImage(double x, double y, double w, double h, int img){
 		if(!this.shouldDraw(x, y, w, h)) return false;
-		
 		this.renderModeImage();
+		return this.drawTexture(x, y, w, h, img.getId());
+	}
+	
+	/**
+	 * Draw a rectangular texture at the specified location.
+	 * Draw a rectangular texture at the specified location on the given buffer
+	 * If the given dimensions have a different aspect ratio that those of the given texture, then the texture will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * This method does not set the shader to use, and it does not check if the bounds should be rendered
+	 * 
+	 * @param x The x coordinate of the upper left hand corner of the texture
+	 * @param y The y coordinate of the upper left hand corner of the texture
+	 * @param w The width of the texture
+	 * @param h The height of the texture
+	 * @param img The OpenGL id of the texture to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	private boolean drawTexture(double x, double y, double w, double h, int img){
 		this.imgVertArr.bind();
 		glBindTexture(GL_TEXTURE_2D, img);
+		this.updateColor();
 		
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
@@ -894,11 +892,10 @@ public class Renderer implements Destroyable{
 	public void fill(){
 		this.renderModeShapes();
 		this.rectVertArr.bind();
-		// Update the current color for this draw operation
-		this.updateColor();
 		
 		this.pushMatrix();
 		this.identityMatrix();
+		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		glBindVertexArray(0);
 		this.popMatrix();
@@ -938,19 +935,23 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
-	 * Set the color currently used to draw basic shapes
+	 * Set the color currently used to draw basic shapes. The alpha channel of this color also determines the transparency of images, text, buffers, etc.
 	 * 
 	 * @param color the new color
 	 */
 	public void setColor(ZColor color){
 		this.colorStack.replaceTop(color);
+		this.updateColor();
 	}
-	
-	/** Update the uniform variable used to track the color, with the current value */
-	public void updateColor(){
-		float[] c = this.getColor().toFloat();
-		int loc = glGetUniformLocation(this.loadedShader.getId(), "mainColor");
-		if(loc != -1) glUniform4fv(loc, c);
+
+	/** @param a The alpha, i.e. opacity, to use for all drawing operations */
+	public void setAlpha(double a){
+		this.setColor(this.getColor().alpha(a));
+	}
+
+	/** Make the current color have no transparency, i.e. an alpha channel of 1 */
+	public void makeOpaque(){
+		this.setColor(this.getColor().solid());
 	}
 	
 	/** @return The top of {@link #fontStack} */

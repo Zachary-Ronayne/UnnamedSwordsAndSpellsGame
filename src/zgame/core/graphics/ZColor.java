@@ -20,7 +20,7 @@ public class ZColor{
 	public ZColor(double g){
 		this(g, g, g, 1);
 	}
-
+	
 	/**
 	 * Create a gray color with transparency
 	 * 
@@ -30,7 +30,7 @@ public class ZColor{
 	public ZColor(double g, double a){
 		this(g, g, g, a);
 	}
-
+	
 	/**
 	 * Create a new color with no transparency
 	 * 
@@ -56,7 +56,7 @@ public class ZColor{
 		this.b = b;
 		this.a = a;
 	}
-
+	
 	/** See {@link #g} */
 	public double red(){
 		return this.r;
@@ -76,12 +76,20 @@ public class ZColor{
 	public double alpha(){
 		return this.a;
 	}
-
-	/** @return a copy of this {@link ZColor} but with an alpha value of 1, i.e. fully visible */
+	
+	/** @return A copy of this {@link ZColor} but with an alpha value of 1, i.e. fully visible */
 	public ZColor solid(){
-		return new ZColor(this.red(), this.green(), this.blue(), 1);
+		return this.alpha(1);
 	}
-
+	
+	/**
+	 * @param a The alpha of a new color
+	 * @return A copy of this {@link ZColor} but with the given alpha value
+	 */
+	public ZColor alpha(double a){
+		return new ZColor(this.red(), this.green(), this.blue(), a);
+	}
+	
 	/** @return An array of 4 elements containing the red, green, blue, and alpha values of this color, index 0, 1, 2, 3 respectively, as floats */
 	public float[] toFloat(){
 		return new float[]{(float)this.red(), (float)this.green(), (float)this.blue(), (float)this.alpha()};
