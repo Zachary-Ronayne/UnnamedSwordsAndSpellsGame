@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.input.mouse.ZMouseInput;
+import zgame.core.utils.ZRect;
 
 /** A {@link MenuText} which can be clicked to perform an action */
 public class MenuButton<D>extends MenuText<D>{
@@ -17,7 +18,7 @@ public class MenuButton<D>extends MenuText<D>{
 	/** The last time this button was clicked, or -1 if the button has never been clicked */
 	private long lastClick;
 
-	/** The amount of time that can pass between clicks for it to count as a double click */
+	/** The amount of time, in milliseconds that can pass between clicks for it to count as a double click */
 	private long doubleClickThreshold;
 
 	/**
@@ -52,11 +53,11 @@ public class MenuButton<D>extends MenuText<D>{
 	}
 	
 	@Override
-	public void render(Game<D> game, Renderer r){
-		super.render(game, r);
+	public void renderSelf(Game<D> game, Renderer r, ZRect bounds){
+		super.renderSelf(game, r, bounds);
 		if(this.showHighlight(game)){
 			r.setColor(this.getHighlightColor());
-			r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+			r.drawRectangle(bounds);
 		}
 	}
 	

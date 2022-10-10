@@ -821,7 +821,7 @@ public abstract class GameWindow implements Destroyable{
 	 * @param x The value to convert
 	 * @return The converted size
 	 */
-	public double sizeGglToScreenX(double x){
+	public double sizeGlToScreenX(double x){
 		return this.getRenderer().sizeGlToScreenX(this, x);
 	}
 	

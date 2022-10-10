@@ -20,6 +20,7 @@ import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
 import zgame.menu.Menu;
 import zgame.menu.MenuButton;
+import zgame.menu.MenuHolder;
 import zgame.menu.MenuTextBox;
 import zgame.menu.scroller.HorizontalScroller;
 import zgame.menu.scroller.MenuScroller;
@@ -686,9 +687,10 @@ public class MainTest extends Game<TestData>{
 		public TesterMenuState state;
 		
 		public TesterMenu(Game<TestData> game){
-			super(100, 250);
-			this.setWidth(800);
-			this.setHeight(350);
+			super(100, 250, 830, 380, true);
+			this.setWidth(830);
+			this.setHeight(380);
+			this.updateBuffer();
 			this.setFill(new ZColor(.1, .1, .2, 1));
 			
 			MenuScroller<TestData> scrollX = new HorizontalScroller<>(0, 370, 800, 20, 200, game){
@@ -701,8 +703,11 @@ public class MainTest extends Game<TestData>{
 			scrollX.setScrollWheelEnabled(false);
 			scrollX.setScrollWheelAsPercent(false);
 			scrollX.setScrollWheelStrength(10);
+			scrollX.setDrawThingsToBuffer(false);
+			scrollX.updateBuffer();
+			scrollX.getButton().updateBuffer();
 			this.addThing(scrollX);
-			MenuScroller<TestData> scrollY = new VerticalScroller<>(820, 0, 20, 350, 100, game){
+			MenuScroller<TestData> scrollY = new VerticalScroller<>(820, 0, 20, 350, 200, game){
 				@Override
 				public void keyAction(Game<TestData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 					super.keyAction(game, button, press, shift, alt, ctrl);
@@ -713,7 +718,7 @@ public class MainTest extends Game<TestData>{
 			
 			MenuButton<TestData> t;
 			
-			Menu<TestData> base = new Menu<TestData>();
+			MenuHolder<TestData> base = new MenuHolder<TestData>();
 			this.addThing(base);
 			scrollX.setMovingThing(base);
 			scrollY.setMovingThing(base);
@@ -726,6 +731,7 @@ public class MainTest extends Game<TestData>{
 			};
 			t.setFill(new ZColor(0, .2, .7));
 			t.setText("Back");
+			t.updateBuffer();
 			base.addThing(t);
 			
 			t = new MenuButton<TestData>(50, 100, 200, 100, game){
@@ -793,10 +799,10 @@ public class MainTest extends Game<TestData>{
 			menu.addThing(b);
 			this.state.popupMenu(menu);
 		}
-		
+
 		@Override
-		public void render(Game<TestData> game, Renderer r){
-			super.render(game, r);
+		public void renderBackground(Game<TestData> game, Renderer r){
+			super.renderBackground(game, r);
 			r.setFont(game.getFont("zfont"));
 			r.setColor(0, 0, 1);
 			r.setFontSize(30);

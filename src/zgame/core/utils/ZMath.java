@@ -1,7 +1,6 @@
 package zgame.core.utils;
 
 import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
 
 /** A class containing misc methods for math stuff */
 public final class ZMath{
@@ -116,7 +115,7 @@ public final class ZMath{
 	 * @param l2 The second line
 	 * @return The intersection point, or null if the lines are parallel, i.e. they don't intersect
 	 */
-	public static Point2D.Double lineIntersection(Line2D.Double l1, Line2D.Double l2){
+	public static ZPoint lineIntersection(Line2D.Double l1, Line2D.Double l2){
 		// Find slopes and check if the lines are parallel
 		double m1 = slope(l1);
 		double m2 = slope(l2);
@@ -130,7 +129,7 @@ public final class ZMath{
 			Line2D.Double line = nan1 ? l2 : l1;
 			double m = nan1 ? m2 : m1;
 			double b = yIntercept(line);
-			return new Point2D.Double(nanL.x1, m * nanL.x1 + b);
+			return new ZPoint(nanL.x1, m * nanL.x1 + b);
 		}
 
 		// Find y intercepts
@@ -140,7 +139,7 @@ public final class ZMath{
 		// Find the intersection
 		double x = (b2 - b1) / (m1 - m2);
 		double y = m1 * x + b1;
-		return new Point2D.Double(x, y);
+		return new ZPoint(x, y);
 	}
 	
 	/**

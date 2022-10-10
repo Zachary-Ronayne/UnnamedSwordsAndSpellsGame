@@ -1,5 +1,7 @@
 package zgame.core.graphics.buffer;
 
+import java.util.function.BiConsumer;
+
 import zgame.core.graphics.Renderer;
 
 /** A {@link GameBuffer} that can easily be extended to draw on */
@@ -28,7 +30,15 @@ public class DrawableBuffer extends GameBuffer{
 	 */
 	public void drawToRenderer(double x, double y, Renderer r){
 		if(this.needRedraw) this.redraw(r);
+		// Make sure the color is reset to opaque
+		r.getColorStack().push();
+
+		// Draw the actual buffer
 		super.drawToRenderer(x, y, r);
+
+		r.makeOpaque();
+		// Put the color back
+		r.getColorStack().pop();
 	}
 	
 	/**
@@ -46,11 +56,22 @@ public class DrawableBuffer extends GameBuffer{
 	}
 	
 	/**
-	 * Redraw the current text to this buffer
+	 * Redraw the current content of this buffer
 	 * 
-	 * @param r The {@link Renderer} to use for drawing the text
+	 * @param r The {@link Renderer} to use for drawing the buffer
 	 */
 	private void redraw(Renderer r){
+		this.redraw(r, (rr, d) -> draw(r), null);
+	}
+
+	/**
+	 * Perform a redraw with an object
+	 * @param <D> The type of the object to use with the redraw
+	 * @param r The renderer to give to the draw function
+	 * @param func The function to call to perform the actual drawing
+	 * @param data The data to use for rendering
+	 */
+	protected <D> void redraw(Renderer r, BiConsumer<Renderer, D> func, D data){
 		if(!this.isBufferGenerated()) this.regenerateBuffer(this.getWidth(), this.getHeight());
 		
 		if(skipRedraw()) return;
@@ -69,7 +90,7 @@ public class DrawableBuffer extends GameBuffer{
 		
 		// Perform the actual drawing
 		r.identityMatrix();
-		this.draw(r);
+		func.accept(r, data);
 		
 		// Put the old state back
 		r.popAll();

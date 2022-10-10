@@ -56,8 +56,8 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	/**
 	 * Create a new {@link MenuTextBox} with the given values
 	 * 
-	 * @param x See {@link #getX()}
-	 * @param y See {@link #getY()}
+	 * @param x See {@link #getRelX()}
+	 * @param y See {@link #getRelY()}
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 * @param game The game associated with this thing
@@ -122,7 +122,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	public void keyAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(!this.isSelected()) return;
-		if(press) return;
+		if(!press) return;
 		
 		if(button == GLFW_KEY_BACKSPACE){
 			String t = this.getText();
@@ -212,17 +212,17 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	}
 	
 	@Override
-	public void render(Game<D> game, Renderer r){
-		super.render(game, r);
+	public void renderSelf(Game<D> game, Renderer r, ZRect bounds){
+		super.renderSelf(game, r, bounds);
 		
 		if(this.getText().isEmpty()){
 			r.setColor(this.getHintColor());
-			this.drawText(r, this.getHint());
+			this.drawText(r, this.getHint(), bounds);
 		}
 		if(this.isSelected() && this.isBlinkCursor()){
 			r.setColor(this.getCursorColor());
 			double fontSize = this.getFontSize();
-			r.drawRectangle(this.getCursorX(), this.getY() + this.getTextY() - fontSize, this.getCursorWidth(), fontSize);
+			r.drawRectangle(bounds.getX() + this.getCursorX(), bounds.getY() + this.getTextY() - fontSize, this.getCursorWidth(), fontSize);
 		}
 	}
 	
@@ -231,9 +231,9 @@ public class MenuTextBox<D>extends MenuButton<D>{
 		return super.getTextX() + this.getTextOffset();
 	}
 	
-	/** @return The x coordinate of the cursor */
+	/** @return The relative x coordinate of the cursor */
 	public double getCursorX(){
-		return this.getX() + this.getTextX() + this.getCursorLocation();
+		return this.getTextX() + this.getCursorLocation();
 	}
 	
 	/** @return The space between the end of this text box and where the string will start to shift over to the left to keep the end of the string visible */
@@ -246,7 +246,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	public void setText(String text){
 		super.setText(text);
 		GameFont f = this.getFont();
-		this.letterBounds = f.characterBounds(this.getX() + this.getTextX(), this.getY() + this.getTextY(), this.getText(), 1);
+		this.letterBounds = f.characterBounds(this.getRelX() + this.getTextX(), this.getRelY() + this.getTextY(), this.getText(), 1);
 		this.textWidth = this.letterBounds[this.getText().length()].getWidth();
 	}
 	

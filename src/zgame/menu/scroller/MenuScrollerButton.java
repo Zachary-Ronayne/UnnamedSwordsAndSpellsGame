@@ -56,7 +56,13 @@ public abstract class MenuScrollerButton<D>extends MenuButton<D>{
 		super.mouseMove(game, x, y);
 		if(this.anchored) this.scroller.scroll(this.scrollToPercent(this.mouseOffset(game) - this.anchorOffset));
 	}
-
+	
+	/**
+	 * TODO fix a bug where sometimes the highlight doesn't show up if not using a buffer?
+	 * Or, maybe it's a problem when using a buffer, like not using opacity correctly?
+	 * Or maybe it has to do with blending, or maybe the shaders?
+	 */
+	
 	@Override
 	public boolean showHighlight(Game<D> game){
 		return super.showHighlight(game) || this.anchored;
@@ -71,7 +77,7 @@ public abstract class MenuScrollerButton<D>extends MenuButton<D>{
 	public double scrollToPercent(double amount){
 		return amount / this.scrollAreaSize();
 	}
-
+	
 	/**
 	 * Update the relative position of {@link #getButton()} and the given thing, based on the current percentage scrolled
 	 * 
@@ -86,16 +92,16 @@ public abstract class MenuScrollerButton<D>extends MenuButton<D>{
 	 * @return The base position
 	 */
 	public abstract double findBasePosition(MenuThing<D> thing);
-
+	
 	/** @return The amount of scrollable space available, i.e. the size of the scroll bar minus the size of this button */
 	public abstract double scrollAreaSize();
 	
 	/** @return The distance the mouse is offset from this button */
 	public abstract double mouseOffset(Game<D> game);
-
+	
 	/** @return See {@link #scroller} */
 	public MenuScroller<D> getScroller(){
 		return this.scroller;
 	}
-
+	
 }

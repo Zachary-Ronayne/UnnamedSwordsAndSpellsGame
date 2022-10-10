@@ -3,6 +3,7 @@ package zusass.menu.savesmenu.comp;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.utils.ZRect;
 import zgame.core.utils.ZStringUtils;
 import zusass.ZusassData;
 import zusass.ZusassGame;
@@ -44,13 +45,19 @@ public class LoadSaveButton extends SavesMenuButton{
 		this.setTextY(HEIGHT * 0.7);
 	}
 	
+	/*
+	 * TODO fix bug where the buttons for selecting a save don't render, it's because of the Renderer.shouldDraw method
+	 * This class is giving it relative coordinates, which works for where to render it, but not for checking if it should be rendered
+	 * Rework the relative rendering system for when it's not using a buffer? 
+	 */ 
+	
 	@Override
-	public void render(Game<ZusassData> game, Renderer r){
-		super.render(game, r);
+	public void renderSelf(Game<ZusassData> game, Renderer r, ZRect bounds){
+		super.renderSelf(game, r, bounds);
 		// If this button is selected, draw an additional highlight
 		if(this.getMenu().getLoadButtons().getSelected() == this){
 			r.setColor(new ZColor(.2, .2, .5, .3));
-			r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+			r.drawRectangle(bounds);
 		}
 	}
 	

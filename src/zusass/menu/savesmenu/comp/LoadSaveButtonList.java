@@ -5,15 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import zgame.core.Game;
-import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZStringUtils;
+import zgame.menu.MenuHolder;
 import zgame.menu.MenuThing;
 import zusass.ZusassData;
 import zusass.menu.savesmenu.SavesMenu;
 import zusass.utils.ZusassConfig;
 
-/** A {@link MenuThing} which holds a vertical list of {@link LoadSaveButton}s */
-public class LoadSaveButtonList extends MenuThing<ZusassData>{
+/** A {@link MenuHolder} which holds a vertical list of {@link LoadSaveButton}s */
+public class LoadSaveButtonList extends MenuHolder<ZusassData>{
 	
 	/** The {@link SavesMenu} using this list */
 	private SavesMenu menu;
@@ -95,11 +95,6 @@ public class LoadSaveButtonList extends MenuThing<ZusassData>{
 	public void setSelected(LoadSaveButton selected){
 		this.selected = selected;
 		this.menu.showExtraButtons(this.selected != null);
-	}
-	
-	@Override
-	public void render(Game<ZusassData> game, Renderer r){
-		super.render(game, r);
 	}
 
 }

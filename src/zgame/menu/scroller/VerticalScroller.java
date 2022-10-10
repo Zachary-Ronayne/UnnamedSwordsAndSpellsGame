@@ -16,7 +16,7 @@ public class VerticalScroller<D> extends MenuScroller<D>{
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}
 	 * @param See {@link #getHeight()}
-	 * @param amount See {@link #amount}
+	 * @param amount See {@link #getAmount()}
 	 * @param game The game associated with this thing
 	 */
 	public VerticalScroller(double x, double y, double w, double h, double amount, Game<D> game){

@@ -5,7 +5,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
-import zgame.menu.MenuThing;
+import zgame.menu.MenuHolder;
 import zusass.ZusassData;
 import zusass.menu.ZusassMenu;
 import zusass.menu.savesmenu.comp.LoadSaveButtonList;
@@ -28,7 +28,7 @@ public class SavesMenu extends ZusassMenu{
 	private SavesMenuScroller scroller;
 
 	/** An object to hold the buttons that will be hidden when no file is selected  */
-	private MenuThing<ZusassData> extraButtonHolder;
+	private MenuHolder<ZusassData> extraButtonHolder;
 	
 	/** Text to display for a temporary amount of time */
 	private String messageText;
@@ -53,7 +53,7 @@ public class SavesMenu extends ZusassMenu{
 		this.addThing(this.scroller);
 		this.addThing(this.loadButtons);
 		
-		this.extraButtonHolder = new MenuThing<ZusassData>();
+		this.extraButtonHolder = new MenuHolder<ZusassData>();
 		this.extraButtonHolder.addThing(new SavesLoadButton(this, game));
 		this.extraButtonHolder.addThing(new SavesDeleteButton(this, game));
 		

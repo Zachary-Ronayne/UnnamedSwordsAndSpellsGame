@@ -17,6 +17,7 @@ import zgame.core.graphics.font.TextBuffer;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.shader.ShaderProgram;
 import zgame.core.utils.LimitedStack;
+import zgame.core.utils.ZPoint;
 import zgame.core.utils.ZRect;
 import zgame.core.window.GameWindow;
 
@@ -48,6 +49,8 @@ public class Renderer implements Destroyable{
 	public static final Boolean DEFAULT_RENDER_ONLY_INSIDE = true;
 	/** Default value for {@link #limitedBoundsStack}. null means no limit */
 	public static final ZRect DEFAULT_LIMITED_BOUNDS = null;
+	/** Default value for {@link #offsetStack} */
+	public static final ZPoint DEFAULT_OFFSET = new ZPoint();
 	
 	/** The vertex buffer index for positional coordinates */
 	public static final int VERTEX_POS_INDEX = 0;
@@ -190,7 +193,7 @@ public class Renderer implements Destroyable{
 		this.stacks.add(this.renderOnlyInsideStack);
 		this.attributeStacks.add(this.renderOnlyInsideStack);
 		
-		// rendering is unbounded by default
+		// Limited bounds stack, rendering is unbounded by default
 		this.limitedBoundsStack = new LimitedStack<ZRect>(DEFAULT_LIMITED_BOUNDS);
 		this.stacks.add(this.limitedBoundsStack);
 		this.updateLimitedBounds();
@@ -881,10 +884,12 @@ public class Renderer implements Destroyable{
 		
 		ZRect limited = this.getLimitedBounds();
 		GameCamera c = this.getCamera();
+		// TODO Modify the draw bounds by the current transformation matrix, instead of based on the camera, or, also need to include the total scale and stuff from the transformations
 		if(c != null){
 			drawBounds = c.boundsGameToScreen(drawBounds);
 			if(limited != null) limited = c.boundsGameToScreen(limited);
 		}
+		
 		boolean yes = renderBounds.intersects(drawBounds);
 		if(limited != null) yes &= limited.intersects(drawBounds);
 		return yes;
@@ -946,12 +951,12 @@ public class Renderer implements Destroyable{
 		this.colorStack.replaceTop(color);
 		this.updateColor();
 	}
-
+	
 	/** @param a The alpha, i.e. opacity, to use for all drawing operations */
 	public void setAlpha(double a){
 		this.setColor(this.getColor().alpha(a));
 	}
-
+	
 	/** Make the current color have no transparency, i.e. an alpha channel of 1 */
 	public void makeOpaque(){
 		this.setColor(this.getColor().solid());

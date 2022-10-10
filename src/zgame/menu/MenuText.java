@@ -179,14 +179,14 @@ public class MenuText<D>extends MenuThing<D>{
 	}
 	
 	@Override
-	public void render(Game<D> game, Renderer r){
-		super.render(game, r);
+	public void renderSelf(Game<D> game, Renderer r, ZRect bounds){
+		super.renderSelf(game, r, bounds);
 		
 		if(this.getFont() != null) r.setFont(this.getFont());
 		r.setColor(this.getFontColor());
 		r.setFontSize(this.getFontSize());
 		
-		this.drawText(r, this.getText());
+		this.drawText(r, this.getText(), bounds);
 	}
 	
 	/**
@@ -194,12 +194,13 @@ public class MenuText<D>extends MenuThing<D>{
 	 * 
 	 * @param r The Renderer to use to draw the text
 	 * @param text The text to draw
+	 * @param bounds The bounds of this thing as it's being drawn
 	 */
-	public void drawText(Renderer r, String text){
+	public void drawText(Renderer r, String text, ZRect bounds){
 		this.buffer.setText(text);
 		this.buffer.setTextX(this.getTextX());
 		this.buffer.setTextY(this.getTextY());
-		this.buffer.drawToRenderer(this.getX(), this.getY(), r);
+		this.buffer.drawToRenderer(bounds.getX(), bounds.getY(), r);
 	}
 	
 }
