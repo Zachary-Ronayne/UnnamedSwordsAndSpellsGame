@@ -31,14 +31,14 @@ public class DrawableBuffer extends GameBuffer{
 	public void drawToRenderer(double x, double y, Renderer r){
 		if(this.needRedraw) this.redraw(r);
 		// Make sure the color is reset to opaque
-		r.getColorStack().push();
+		r.pushColor();
 
 		// Draw the actual buffer
 		super.drawToRenderer(x, y, r);
 
 		r.makeOpaque();
 		// Put the color back
-		r.getColorStack().pop();
+		r.popColor();
 	}
 	
 	/**

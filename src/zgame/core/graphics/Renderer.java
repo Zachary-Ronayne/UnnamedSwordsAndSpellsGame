@@ -3,6 +3,7 @@ package zgame.core.graphics;
 import static org.lwjgl.opengl.GL30.*;
 
 import org.joml.Matrix4f;
+import org.joml.Vector4d;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
 
@@ -39,6 +40,8 @@ import java.util.ArrayList;
  */
 public class Renderer implements Destroyable{
 	
+	// TODO abstract out the values being sent to the GPU, and make their updating handled by a separate class
+	
 	/** The color to use for rendering by default */
 	public static final ZColor DEFAULT_COLOR = new ZColor(0);
 	/** The default font to use for rendering. Null means rendering cannot happen unless a font is set */
@@ -73,7 +76,7 @@ public class Renderer implements Destroyable{
 	/** The shader used to draw the frame buffer to the screen, as a texture */
 	private ShaderProgram framebufferShader;
 	/** The shader which is currently used */
-	private ShaderProgram loadedShader;
+	private ShaderProgram shader;
 	
 	/** The {@link VertexArray} for drawing plain rectangles */
 	private VertexArray rectVertArr;
@@ -104,6 +107,12 @@ public class Renderer implements Destroyable{
 	private LimitedStack<Matrix4f> modelViewStack;
 	/** The buffer used to track {@link #modelView} */
 	private FloatBuffer modelViewBuff;
+	/** The current bounds of the renderer, transformed based on {@link #modelView()}, or null if it needs to be recalculated */
+	private ZRect transformedRenderBounds;
+	/** true if {@link #modelView()} has changed since last being sent to the current shader, and must be resent before any rendering operations take place, false otherwise */
+	private boolean sendModelView;
+	/** true if {@link #getColor()} has changed since last being sent to the current shader */
+	private boolean sendColor;
 	
 	/** The stack keeping track of the current color used by this {@link Renderer} */
 	private LimitedStack<ZColor> colorStack;
@@ -140,7 +149,7 @@ public class Renderer implements Destroyable{
 	 */
 	private LimitedStack<Boolean> renderOnlyInsideStack;
 	
-	/** The stack keeping track of the current bounds which rendering is limited to, or null if no bounds is limited */
+	/** The stack keeping track of the current bounds which rendering is limited to, in game coordinates, or null if no bounds is limited */
 	private LimitedStack<ZRect> limitedBoundsStack;
 	
 	/**
@@ -168,6 +177,8 @@ public class Renderer implements Destroyable{
 		// Model view stack
 		this.modelViewStack = new LimitedStack<Matrix4f>(new Matrix4f());
 		this.stacks.add(this.modelViewStack);
+		this.transformedRenderBounds = null;
+		this.sendModelView = true;
 		
 		// Font stack
 		this.fontStack = new LimitedStack<GameFont>(DEFAULT_FONT);
@@ -178,6 +189,7 @@ public class Renderer implements Destroyable{
 		this.colorStack = new LimitedStack<ZColor>(DEFAULT_COLOR);
 		this.stacks.add(this.colorStack);
 		this.attributeStacks.add(this.colorStack);
+		this.sendColor = true;
 		
 		// Camera stack
 		this.cameraStack = new LimitedStack<GameCamera>(null);
@@ -336,18 +348,73 @@ public class Renderer implements Destroyable{
 		return this.modelViewStack.peek();
 	}
 	
-	/** Update the data of the model view matrix into OpenGL */
-	private void updateMatrix(){
+	public ZRect getTransformedRenderBounds(){
+		if(this.transformedRenderBounds == null) this.recalculateRenderBounds();
+		return this.transformedRenderBounds;
+	}
+	
+	/** Update the data of the model view matrix in OpenGL */
+	private void updateGpuModelView(){
+		// Do nothing if the matrix does not need to be updated
+		if(!this.sendModelView) return;
+		this.sendModelView = false;
+		
+		// Send the model view to the GPU
 		this.modelView().get(this.modelViewBuff);
-		int loc = glGetUniformLocation(this.loadedShader.getId(), "modelView");
+		int loc = glGetUniformLocation(this.shader.getId(), "modelView");
 		glUniformMatrix4fv(loc, false, this.modelViewBuff);
+		
 	}
 	
 	/** Update the uniform variable used to track the color, with the current value */
-	public void updateColor(){
+	private void updateGpuColor(){
+		// Do nothing if the color does not need to be updated
+		if(!this.sendColor) return;
+		this.sendColor = false;
+		
 		float[] c = this.getColor().toFloat();
-		int loc = glGetUniformLocation(this.loadedShader.getId(), "mainColor");
+		int loc = glGetUniformLocation(this.shader.getId(), "mainColor");
 		if(loc != -1) glUniform4fv(loc, c);
+	}
+	
+	/** Recalculate the value of {@link #transformedRenderBounds} based on the current value of {@link #modelView()} */
+	private void recalculateRenderBounds(){
+		// Don't recalculate the bounds if it doesn't need to be recalculated
+		if(this.transformedRenderBounds != null) return;
+		
+		// This assumes only scaling and translation transformations have occurred
+		
+		ZRect renderBounds = this.getBounds();
+		
+		// TODO Transform the render bounds by the current model view matrix so that it aligns with the given draw bounds, figure out where this math is going wrong
+		
+		// Form the matrixes that represent the upper left hand and lower right hand corners of the draw bounds
+		Vector4d upper = new Vector4d(renderBounds.getX(), renderBounds.getY(), 1, 1);
+		Vector4d lower = new Vector4d(renderBounds.getX() + renderBounds.getWidth(), renderBounds.getY() + renderBounds.getHeight(), 1, 1);
+		
+		// Grab the current modelView matrix
+		Matrix4f transform = this.modelView();
+		
+		// Transform the corners by the current matrix
+		upper.mul(transform);
+		lower.mul(transform);
+		
+		// Set the current transformed bounds based on the calculated corners
+		this.transformedRenderBounds = new ZRect(upper.x, upper.y, lower.x - upper.x, lower.y - upper.y);
+	}
+	
+	// TODO remove, this is a testing method. If working correctly, it should always draw a transparent rectangle on top of the entire canvas, regardless of any kind of
+	// transformations
+	// public void renderWeird(){
+	// this.recalculateRenderBounds();
+	// this.setColor(0, 1, 1, .5);
+	// this.drawRectangle(transformedRenderBounds);
+	// }
+	
+	/** Tell all of the values in this {@link Renderer} that they need to be resent to the gpu */
+	public void markGpuSend(){
+		this.sendModelView = true;
+		this.sendColor = true;
 	}
 	
 	/**
@@ -357,7 +424,13 @@ public class Renderer implements Destroyable{
 	 */
 	public void setMatrix(Matrix4f matrix){
 		this.modelViewStack.replaceTop(matrix);
-		this.updateMatrix();
+		this.markModelViewChanged();
+	}
+	
+	/** Tell this {@link Renderer} that {@link #modelView()} has changed, and it's dependent values will need to be recalculated before they can be used */
+	private void markModelViewChanged(){
+		this.sendModelView = true;
+		this.transformedRenderBounds = null;
 	}
 	
 	/** Set the modelView matrix to the identity matrix */
@@ -382,7 +455,9 @@ public class Renderer implements Destroyable{
 	 * @return true if the stack was popped, false if no element could be popped, i.e. the stack was empty
 	 */
 	public boolean popMatrix(){
-		return this.modelViewStack.pop() != null;
+		boolean success = this.modelViewStack.pop() != null;
+		if(success) this.markModelViewChanged();
+		return success;
 	}
 	
 	/**
@@ -393,7 +468,7 @@ public class Renderer implements Destroyable{
 	 */
 	public void translate(double x, double y){
 		this.modelView().translate((float)x, (float)y, 0);
-		this.updateMatrix();
+		this.markModelViewChanged();
 	}
 	
 	/**
@@ -404,7 +479,7 @@ public class Renderer implements Destroyable{
 	 */
 	public void scale(double x, double y){
 		this.modelView().scale((float)x, (float)y, 1);
-		this.updateMatrix();
+		this.markModelViewChanged();
 	}
 	
 	/** @return The top of {@link #positioningEnabledStack} */
@@ -424,22 +499,22 @@ public class Renderer implements Destroyable{
 	
 	/** Call this method before rendering normal shapes, i.e. solid rectangles */
 	public void renderModeShapes(){
-		this.setLoadedShader(this.shapeShader);
+		this.setShader(this.shapeShader);
 	}
 	
 	/** Call this method before rendering images, i.e. textures */
 	public void renderModeImage(){
-		this.setLoadedShader(this.textureShader);
+		this.setShader(this.textureShader);
 	}
 	
 	/** Call this method before rendering font, i.e text */
 	public void renderModeFont(){
-		this.setLoadedShader(this.fontShader);
+		this.setShader(this.fontShader);
 	}
 	
 	/** Call this method before rendering a frame buffer in place of a texture */
 	public void renderModeBuffer(){
-		this.setLoadedShader(this.framebufferShader);
+		this.setShader(this.framebufferShader);
 	}
 	
 	/**
@@ -447,10 +522,11 @@ public class Renderer implements Destroyable{
 	 * 
 	 * @param shader The shader to use.
 	 */
-	private void setLoadedShader(ShaderProgram shader){
-		if(this.loadedShader == shader) return;
+	private void setShader(ShaderProgram shader){
+		if(this.shader == shader) return;
+		this.markGpuSend();
 		shader.use();
-		this.loadedShader = shader;
+		this.shader = shader;
 	}
 	
 	/**
@@ -463,8 +539,8 @@ public class Renderer implements Destroyable{
 		// Load the identity matrix before setting a default shader
 		this.identityMatrix();
 		// Bind a default shader
-		this.loadedShader = null;
-		this.setLoadedShader(this.shapeShader);
+		this.shader = null;
+		this.setShader(this.shapeShader);
 	}
 	
 	/**
@@ -477,11 +553,12 @@ public class Renderer implements Destroyable{
 	public void drawToWindow(GameWindow window){
 		// Set the current shader for drawing a frame buffer
 		this.renderModeBuffer();
-		this.getColorStack().push(this.getColor().solid());
+		this.pushColor(this.getColor().solid());
 		this.pushMatrix();
 		this.identityMatrix();
-		this.updateColor();
-		this.getColorStack().pop();
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		this.popColor();
 		// Bind the vertex array for drawing an image that fills the entire OpenGL space
 		this.imgVertArr.bind();
 		
@@ -497,7 +574,7 @@ public class Renderer implements Destroyable{
 		this.popMatrix();
 	}
 	
-	/** @return The top of {@link #limitedBounds} */
+	/** @return The top of {@link #limitedBoundsStack} */
 	public ZRect getLimitedBounds(){
 		return this.limitedBoundsStack.peek();
 	}
@@ -644,11 +721,14 @@ public class Renderer implements Destroyable{
 		// Use the shape shader and the rectangle vertex array
 		this.renderModeShapes();
 		this.rectVertArr.bind();
-		// Update the current color for this draw operation
-		this.updateColor();
 		
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		glBindVertexArray(0);
 		this.popMatrix();
@@ -739,10 +819,15 @@ public class Renderer implements Destroyable{
 	private boolean drawTexture(double x, double y, double w, double h, int img){
 		this.imgVertArr.bind();
 		glBindTexture(GL_TEXTURE_2D, img);
-		this.updateColor();
 		
+		// Perform the drawing operation
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		glBindVertexArray(0);
 		
@@ -794,8 +879,6 @@ public class Renderer implements Destroyable{
 		this.renderModeFont();
 		// Use the font vertex array
 		this.textVertArr.bind();
-		// Update the current color for this draw operation
-		this.updateColor();
 		
 		// Use the font's bitmap
 		glBindTexture(GL_TEXTURE_2D, fa.getBitmapID());
@@ -847,6 +930,10 @@ public class Renderer implements Destroyable{
 				//////////////////////////////////////
 				this.textQuad.s0(), this.textQuad.t1()});
 			
+			// Ensure the gpu has the current modelView and color
+			this.updateGpuColor();
+			this.updateGpuModelView();
+			
 			// Draw the square
 			glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		}
@@ -879,20 +966,23 @@ public class Renderer implements Destroyable{
 	 * @return true if the bounds should be drawn, false otherwise
 	 */
 	public boolean shouldDraw(ZRect drawBounds){
-		if(!this.isRenderOnlyInside()) return true;
-		ZRect renderBounds = this.getBounds();
+		// If rendering only inside is not enabled, immediately return true
 		
-		ZRect limited = this.getLimitedBounds();
-		GameCamera c = this.getCamera();
-		// TODO Modify the draw bounds by the current transformation matrix, instead of based on the camera, or, also need to include the total scale and stuff from the transformations
-		if(c != null){
-			drawBounds = c.boundsGameToScreen(drawBounds);
-			if(limited != null) limited = c.boundsGameToScreen(limited);
-		}
+		// TODO put this method back. Render checking is currently broken. This method is here to improve performance, i.e., only render things that will appear on the screen
+		// By always returning true, the render check is just skipped, and everything attempts to render no matter what
+		return true;
+
+		// TODO may also need to account for how this interacts with using a buffer. Probably need to recalculate transformedRenderBounds when the buffer changes
 		
-		boolean yes = renderBounds.intersects(drawBounds);
-		if(limited != null) yes &= limited.intersects(drawBounds);
-		return yes;
+		// if(!this.isRenderOnlyInside()) return true;
+		// ZRect renderBounds = this.getTransformedRenderBounds();
+		// ZRect limited = this.getLimitedBounds();
+		
+		// // Determine if the bounds for the rendering intersects the bounds to draw
+		// boolean yes = renderBounds.intersects(drawBounds);
+		// // If there is a limited space for the rendering, make sure that also intersects the bounds to draw
+		// if(limited != null) yes &= limited.intersects(drawBounds);
+		// return yes;
 	}
 	
 	/** Fill the screen with the current color, regardless of camera position */
@@ -902,7 +992,10 @@ public class Renderer implements Destroyable{
 		
 		this.pushMatrix();
 		this.identityMatrix();
-		this.updateColor();
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
 		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		glBindVertexArray(0);
@@ -914,9 +1007,23 @@ public class Renderer implements Destroyable{
 		return this.colorStack.peek();
 	}
 	
-	/** @return See {@link #colorStack} */
-	public LimitedStack<ZColor> getColorStack(){
-		return this.colorStack;
+	/** @param c The new color to push to the top of the color stack */
+	public void pushColor(ZColor c){
+		this.colorStack.push(c);
+		this.sendColor = true;
+	}
+	
+	/** Push the current color onto the top of {@link #colorStack} */
+	public void pushColor(){
+		this.colorStack.push();
+		this.sendColor = true;
+	}
+	
+	/** Pop off the top of {@link #colorStack} */
+	public boolean popColor(){
+		boolean success = this.colorStack.pop() != null;
+		if(success) this.sendColor = true;
+		return success;
 	}
 	
 	/**
@@ -949,7 +1056,7 @@ public class Renderer implements Destroyable{
 	 */
 	public void setColor(ZColor color){
 		this.colorStack.replaceTop(color);
-		this.updateColor();
+		this.sendColor = true;
 	}
 	
 	/** @param a The alpha, i.e. opacity, to use for all drawing operations */
