@@ -7,10 +7,8 @@ import zgame.menu.MenuThing;
 
 /**
  * A class representing the clickable portion of a {@link MenuScroller} showing how much has been scrolled
- * 
- * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
-public abstract class MenuScrollerButton<D>extends MenuButton<D>{
+public abstract class MenuScrollerButton extends MenuButton{
 	
 	/** true if the mouse has clicked this button and is anchored down to start moving */
 	private boolean anchored;
@@ -19,7 +17,7 @@ public abstract class MenuScrollerButton<D>extends MenuButton<D>{
 	private double anchorOffset;
 	
 	/** The {@link MenuScroller} which uses this {@link MenuScrollerButton} */
-	private MenuScroller<D> scroller;
+	private MenuScroller scroller;
 	
 	/**
 	 * Create a new basic {@link MenuScrollerButton}
@@ -29,7 +27,7 @@ public abstract class MenuScrollerButton<D>extends MenuButton<D>{
 	 * @param h See {@link #getHeight()}
 	 * @param game The game associated with this thing
 	 */
-	public MenuScrollerButton(MenuScroller<D> scroller, double w, double h, Game<D> game){
+	public MenuScrollerButton(MenuScroller scroller, double w, double h, Game game){
 		super(0, 0, w, h, game);
 		this.scroller = scroller;
 		this.setFill(new ZColor(0));
@@ -38,7 +36,7 @@ public abstract class MenuScrollerButton<D>extends MenuButton<D>{
 	}
 	
 	@Override
-	public void mouseAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.mouseAction(game, button, press, shift, alt, ctrl);
 		if(press){
 			double mx = game.mouseSX();
@@ -52,7 +50,7 @@ public abstract class MenuScrollerButton<D>extends MenuButton<D>{
 	}
 	
 	@Override
-	public void mouseMove(Game<D> game, double x, double y){
+	public void mouseMove(Game game, double x, double y){
 		super.mouseMove(game, x, y);
 		if(this.anchored) this.scroller.scroll(this.scrollToPercent(this.mouseOffset(game) - this.anchorOffset));
 	}
@@ -64,7 +62,7 @@ public abstract class MenuScrollerButton<D>extends MenuButton<D>{
 	 */
 	
 	@Override
-	public boolean showHighlight(Game<D> game){
+	public boolean showHighlight(Game game){
 		return super.showHighlight(game) || this.anchored;
 	}
 	
@@ -83,7 +81,7 @@ public abstract class MenuScrollerButton<D>extends MenuButton<D>{
 	 * 
 	 * @param thing The thing to update
 	 */
-	public abstract void updateRelativePosition(MenuThing<D> thing);
+	public abstract void updateRelativePosition(MenuThing thing);
 	
 	/**
 	 * Determine the initial position of where the given thing will be when this {@link MenuScroller} has scrolled zero percent
@@ -91,16 +89,16 @@ public abstract class MenuScrollerButton<D>extends MenuButton<D>{
 	 * @param thing The thing to check
 	 * @return The base position
 	 */
-	public abstract double findBasePosition(MenuThing<D> thing);
+	public abstract double findBasePosition(MenuThing thing);
 	
 	/** @return The amount of scrollable space available, i.e. the size of the scroll bar minus the size of this button */
 	public abstract double scrollAreaSize();
 	
 	/** @return The distance the mouse is offset from this button */
-	public abstract double mouseOffset(Game<D> game);
+	public abstract double mouseOffset(Game game);
 	
 	/** @return See {@link #scroller} */
-	public MenuScroller<D> getScroller(){
+	public MenuScroller getScroller(){
 		return this.scroller;
 	}
 	

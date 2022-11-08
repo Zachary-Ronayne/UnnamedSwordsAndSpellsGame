@@ -22,7 +22,10 @@ import com.google.gson.JsonObject;
  * Spells
  * Sandbox
  */
-public class ZusassGame extends Game<ZusassData>{
+public class ZusassGame extends Game{
+
+	/** A class holding all the data used by this {@link ZusassGame} */
+	private ZusassData data;
 
 	/*
 	 * TODO make the infinite levels have the same seed for each level based on the save's seed. You can input a seed when you make the save, or randomly generate one
@@ -121,4 +124,16 @@ public class ZusassGame extends Game<ZusassData>{
 		if(game != null) return;
 		game = new ZusassGame();
 	}
+
+	/** @return See {@link #data} */
+	public ZusassData getData(){
+		return this.data;
+	}
+
+	/** @param data See {@link #data} */
+	public void setData(ZusassData data){
+		this.data = data;
+	}
+	
+
 }

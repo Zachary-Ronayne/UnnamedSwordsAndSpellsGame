@@ -135,7 +135,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	}
 	
 	@Override
-	public void tick(Game<?> game, double dt){
+	public void tick(Game game, double dt){
 		// Update the amount of time the entity has been on the ground, walls, and ceiling
 		if(this.groundTime != -1) this.groundTime += dt;
 		if(this.ceilingTime != -1) this.ceilingTime += dt;
@@ -432,7 +432,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	 * 
 	 * @param room The room to collide with
 	 */
-	public void checkCollision(Room<?> room){
+	public void checkCollision(Room room){
 		room.collide(this);
 	}
 	

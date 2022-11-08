@@ -5,6 +5,7 @@ import zgame.things.still.Door;
 import zgame.things.type.PositionedHitboxThing;
 import zgame.world.Room;
 import zusass.ZusassData;
+import zusass.ZusassGame;
 import zusass.game.LevelRoom;
 import zusass.game.things.entities.ZusassPlayer;
 
@@ -20,7 +21,7 @@ public class LevelDoor extends Door{
 	 * @param level See {@link #level}
 	 * @param room The room which contains this {@link LevelDoor}
 	 */
-	public LevelDoor(int level, Room<ZusassData> room){
+	public LevelDoor(int level, Room room){
 		this(600, 0, level, room);
 		this.setY(room.maxY() - this.getHeight());
 	}
@@ -33,13 +34,13 @@ public class LevelDoor extends Door{
 	 * @param level See {@link #level}
 	 * @param room The room which contains this {@link LevelDoor}
 	 */
-	public LevelDoor(double x, double y, int level, Room<ZusassData> room){
+	public LevelDoor(double x, double y, int level, Room room){
 		super(x, y);
 		this.level = level;
 	}
 	
 	@Override
-	public boolean enterRoom(Room<?> r, PositionedHitboxThing thing, Game<?> game){
+	public boolean enterRoom(Room r, PositionedHitboxThing thing, Game game){
 		// Generate the new room, then enter it
 		this.setLeadRoom(new LevelRoom(this.getLevel()), 0, 0);
 		this.setRoomY(this.getLeadRoom().maxY() - thing.getHeight());
@@ -47,7 +48,7 @@ public class LevelDoor extends Door{
 		
 		// Update the highest level room the player has been in
 		if(success){
-			ZusassData d = (ZusassData)game.getData();
+			ZusassData d = ((ZusassGame)game).getData();
 			d.updatedHighestRoomLevel(this.getLevel());
 			d.checkAutoSave(game);
 		}

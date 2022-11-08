@@ -1,7 +1,6 @@
 package zusass.menu.savesmenu.comp;
 
 import zgame.core.Game;
-import zusass.ZusassData;
 import zusass.menu.mainmenu.MainMenuState;
 import zusass.menu.savesmenu.SavesMenu;
 
@@ -13,12 +12,12 @@ public class SavesBackButton extends SavesMenuButton{
 	 * @param menu See {@link #getMenu()}
 	 * @param game The {@link Game} associated with this button
 	 */
-	public SavesBackButton(SavesMenu menu, Game<ZusassData> game){
+	public SavesBackButton(SavesMenu menu, Game game){
 		super(20, 600, "Back", menu, game);
 	}
 	
 	@Override
-	public void click(Game<ZusassData> game){
+	public void click(Game game){
 		game.setCurrentState(new MainMenuState(game));
 	}
 	

@@ -4,10 +4,8 @@ import zgame.core.Game;
 
 /**
  * An implementation of {@link MenuScroller} for a vertical scroll bar
- * 
- * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
-public class VerticalScroller<D> extends MenuScroller<D>{
+public class VerticalScroller extends MenuScroller{
 	
 	/**
 	 * Create a new {@link MenuScroller} at the specified location and min and max
@@ -19,13 +17,13 @@ public class VerticalScroller<D> extends MenuScroller<D>{
 	 * @param amount See {@link #getAmount()}
 	 * @param game The game associated with this thing
 	 */
-	public VerticalScroller(double x, double y, double w, double h, double amount, Game<D> game){
+	public VerticalScroller(double x, double y, double w, double h, double amount, Game game){
 		super(x, y, w, h, amount, game);
 	}
 
 	@Override
-	public MenuScrollerButton<D> generateButton(Game<D> game){
-		return new VerticalScrollerButton<D>(this, this.getWidth(), this.getWidth() * 2, game);
+	public MenuScrollerButton generateButton(Game game){
+		return new VerticalScrollerButton(this, this.getWidth(), this.getWidth() * 2, game);
 	}
 	
 }

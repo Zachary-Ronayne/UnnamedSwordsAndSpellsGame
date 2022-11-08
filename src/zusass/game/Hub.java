@@ -6,11 +6,12 @@ import zgame.things.still.tiles.BaseTiles;
 import zgame.things.still.tiles.Tile;
 import zgame.world.Room;
 import zusass.ZusassData;
+import zusass.ZusassGame;
 import zusass.game.things.LevelDoor;
 import zusass.game.things.entities.ZusassPlayer;
 
 /** The {@link Room} which represents the main hub of the game, i.e. where the player can enter levels, make items, etc. */
-public class Hub extends Room<ZusassData>{
+public class Hub extends Room{
 	
 	/** The number of tiles in a {@link Hub} on the x axis */
 	private static final int X_TILES = 24;
@@ -25,7 +26,7 @@ public class Hub extends Room<ZusassData>{
 	 * 
 	 * @param game The {@link Game} using this hub
 	 */
-	public Hub(Game<ZusassData> game){
+	public Hub(Game game){
 		super();
 		this.initTiles(X_TILES, Y_TILES);
 		
@@ -42,7 +43,7 @@ public class Hub extends Room<ZusassData>{
 		Tile t = this.getTile(9, 10);
 
 		double doorX = t.getX();
-		ZusassData data = (ZusassData)game.getData();
+		ZusassData data = ((ZusassGame)game).getData();
 		LevelDoor highDoor = new LevelDoor(doorX, 0, data.getHighestRoomLevel(), this);
 		highDoor.setY(t.getY() - highDoor.getHeight());
 		this.addThing(highDoor);
@@ -62,7 +63,7 @@ public class Hub extends Room<ZusassData>{
 	}
 	
 	@Override
-	public void render(Game<ZusassData> game, Renderer r){
+	public void render(Game game, Renderer r){
 		super.render(game, r);
 	}
 	

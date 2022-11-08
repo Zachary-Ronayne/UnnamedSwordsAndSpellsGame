@@ -7,10 +7,8 @@ import zgame.menu.MenuThing;
  * A {@link MenuThing} that can move other {@link MenuThing}s around.
  * The specified child element of this {@link MenuScroller} will have its positions moved when this scroller moves
  * This object can only have one child element. Adding additional elements will replace the current one
- * 
- * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
-public abstract class MenuScroller<D>extends MenuThing<D>{
+public abstract class MenuScroller extends MenuThing{
 	
 	/** The amount scrolled */
 	private ScrollAxis scroller;
@@ -22,10 +20,10 @@ public abstract class MenuScroller<D>extends MenuThing<D>{
 	private double basePosition;
 	
 	/** The {@link MenuThing} which will be moved by this {@link MenuScroller} */
-	private MenuThing<D> movingThing;
+	private MenuThing movingThing;
 	
 	/** The button to use for scrolling */
-	private MenuScrollerButton<D> button;
+	private MenuScrollerButton button;
 	
 	/** The degree to which the scroll wheel will scroll. Also see {@link #scrollWheelAsPercent} */
 	private double scrollWheelStrength;
@@ -46,7 +44,7 @@ public abstract class MenuScroller<D>extends MenuThing<D>{
 	 * @param amount See {@link #amount}
 	 * @param game The game associated with this thing
 	 */
-	public MenuScroller(double x, double y, double w, double h, double amount, Game<D> game){
+	public MenuScroller(double x, double y, double w, double h, double amount, Game game){
 		super(x, y);
 		this.scrollWheelStrength = 0.1;
 		this.scrollWheelAsPercent = true;
@@ -68,14 +66,14 @@ public abstract class MenuScroller<D>extends MenuThing<D>{
 	}
 	
 	@Override
-	public void tick(Game<D> game, double dt){
+	public void tick(Game game, double dt){
 		super.tick(game, dt);
-		MenuThing<D> thing = this.getMovingThing();
+		MenuThing thing = this.getMovingThing();
 		if(thing != null) this.button.updateRelativePosition(thing);
 	}
 	
 	@Override
-	public void mouseWheelMove(Game<D> game, double amount){
+	public void mouseWheelMove(Game game, double amount){
 		super.mouseWheelMove(game, amount);
 		
 		if(!this.isScrollWheelEnabled()) return;
@@ -86,14 +84,14 @@ public abstract class MenuScroller<D>extends MenuThing<D>{
 	}
 	
 	/** @param See {@link #movingThing} */
-	public void setMovingThing(MenuThing<D> thing){
+	public void setMovingThing(MenuThing thing){
 		this.movingThing = thing;
 		// Update the position of this scroller
 		this.basePosition = this.button.findBasePosition(thing);
 	}
 	
 	/** @return See {@link #movingThing} */
-	public MenuThing<D> getMovingThing(){
+	public MenuThing getMovingThing(){
 		return this.movingThing;
 	}
 	
@@ -101,7 +99,7 @@ public abstract class MenuScroller<D>extends MenuThing<D>{
 	 * @param game The game associated with this thing
 	 * @return A MenuScrollerButton implemented to move the scroll button around in the desired way
 	 */
-	public abstract MenuScrollerButton<D> generateButton(Game<D> game);
+	public abstract MenuScrollerButton generateButton(Game game);
 	
 	/** @param amount The amount to scroll this menu scroller by, as a percentage */
 	public void scroll(double amount){
@@ -119,7 +117,7 @@ public abstract class MenuScroller<D>extends MenuThing<D>{
 	}
 	
 	/** @return See {@link #button} */
-	public MenuScrollerButton<D> getButton(){
+	public MenuScrollerButton getButton(){
 		return this.button;
 	}
 	

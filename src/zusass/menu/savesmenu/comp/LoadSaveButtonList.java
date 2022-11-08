@@ -8,12 +8,11 @@ import zgame.core.Game;
 import zgame.core.utils.ZStringUtils;
 import zgame.menu.MenuHolder;
 import zgame.menu.MenuThing;
-import zusass.ZusassData;
 import zusass.menu.savesmenu.SavesMenu;
 import zusass.utils.ZusassConfig;
 
 /** A {@link MenuHolder} which holds a vertical list of {@link LoadSaveButton}s */
-public class LoadSaveButtonList extends MenuHolder<ZusassData>{
+public class LoadSaveButtonList extends MenuHolder{
 	
 	/** The {@link SavesMenu} using this list */
 	private SavesMenu menu;
@@ -30,7 +29,7 @@ public class LoadSaveButtonList extends MenuHolder<ZusassData>{
 	 * @param scroller See {@link #scroller}
 	 * @param game The game that uses this list
 	 */
-	public LoadSaveButtonList(SavesMenu menu, Game<ZusassData> game){
+	public LoadSaveButtonList(SavesMenu menu, Game game){
 		super(SavesMenuScroller.X, SavesMenuScroller.Y);
 		this.menu = menu;
 		this.selected = null;
@@ -43,7 +42,7 @@ public class LoadSaveButtonList extends MenuHolder<ZusassData>{
 	 * @param game The {@link Game} associated with this list
 	 * @return true if the files were found, false otherwise
 	 */
-	public boolean populate(Game<ZusassData> game){
+	public boolean populate(Game game){
 		// Reset the button array
 		this.setSelected(null);
 		this.removeAll();
@@ -79,7 +78,7 @@ public class LoadSaveButtonList extends MenuHolder<ZusassData>{
 	 * This object can only hold {@link LoadSaveButton}s, anything else will do nothing and return false
 	 */
 	@Override
-	public boolean addThing(MenuThing<ZusassData> thing){
+	public boolean addThing(MenuThing thing){
 		if(!(thing instanceof LoadSaveButton)) return false;
 		LoadSaveButton button = (LoadSaveButton)thing;
 		this.buttons.add(button);

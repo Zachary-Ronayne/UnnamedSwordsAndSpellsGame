@@ -3,7 +3,6 @@ package zusass.menu.mainmenu;
 import static org.lwjgl.glfw.GLFW.*;
 
 import zgame.core.Game;
-import zusass.ZusassData;
 import zusass.menu.ZusassMenu;
 import zusass.menu.mainmenu.comp.ContinueGameButton;
 import zusass.menu.mainmenu.comp.ExitButton;
@@ -19,7 +18,7 @@ public class MainMenu extends ZusassMenu{
 	 * 
 	 * @param game The Zusass game associated with this {@link MainMenu}
 	 */
-	public MainMenu(Game<ZusassData> game){
+	public MainMenu(Game game){
 		super("ZUSASS");
 		this.initButtons(game);
 	}
@@ -29,7 +28,7 @@ public class MainMenu extends ZusassMenu{
 	 * 
 	 * @param game The game to base the buttons on
 	 */
-	public void initButtons(Game<ZusassData> game){
+	public void initButtons(Game game){
 		// Only show the continue and load buttons if at least one valid save file exists
 		String file = ZusassConfig.getMostRecentSave();
 		if(file != null){
@@ -41,7 +40,7 @@ public class MainMenu extends ZusassMenu{
 	}
 	
 	@Override
-	public void keyAction(Game<ZusassData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(!press && button == GLFW_KEY_F5) this.initButtons(game);
 	}

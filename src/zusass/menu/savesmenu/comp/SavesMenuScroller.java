@@ -4,10 +4,9 @@ import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.scroller.MenuScrollerButton;
 import zgame.menu.scroller.VerticalScroller;
-import zusass.ZusassData;
 
 /** A {@link VerticalScroller} made for the saves menu */
-public class SavesMenuScroller extends VerticalScroller<ZusassData>{
+public class SavesMenuScroller extends VerticalScroller{
 
 	/** The x coordinate of this {@link SavesMenuScroller} */
 	public static final double X = 1200;
@@ -19,13 +18,13 @@ public class SavesMenuScroller extends VerticalScroller<ZusassData>{
 	 * 
 	 * @param game The game associated with this thing
 	 */
-	public SavesMenuScroller(Game<ZusassData> game){
+	public SavesMenuScroller(Game game){
 		super(X, Y, 25, 680, 0, game);
 		this.setFill(new ZColor(.8));
 		this.setBorder(new ZColor(0.8));
 		this.setBorderWidth(1);
 
-		MenuScrollerButton<ZusassData> button = this.getButton();
+		MenuScrollerButton button = this.getButton();
 		button.setFill(new ZColor(.3));
 		button.setBorder(new ZColor(0.8));
 		button.setBorderWidth(2);

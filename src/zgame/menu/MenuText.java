@@ -12,10 +12,8 @@ import zgame.core.utils.ZRect;
  * Note, for this class and anything that extends it, calls to updating the width and height will not update the text buffer's width and height beyond what was given to the
  * constructor. Must call {@link #getBuffer()} and call {@link TextBuffer#regenerateBuffer(int, int)} on it to resize where the text is drawn. It is not recommended to call this
  * method frequently, as it is a very expensive operation
- * 
- * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
-public class MenuText<D>extends MenuThing<D>{
+public class MenuText extends MenuThing{
 	
 	/** The {@link TextBuffer} which this {@link MenuText} will use to draw text */
 	private TextBuffer buffer;
@@ -39,7 +37,7 @@ public class MenuText<D>extends MenuThing<D>{
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 */
-	public MenuText(double x, double y, double w, double h, Game<D> game){
+	public MenuText(double x, double y, double w, double h, Game game){
 		this(x, y, w, h, "", game);
 	}
 	
@@ -53,7 +51,7 @@ public class MenuText<D>extends MenuThing<D>{
 	 * @param text The text to display
 	 * @param game The game associated with this thing
 	 */
-	public MenuText(double x, double y, double w, double h, String text, Game<D> game){
+	public MenuText(double x, double y, double w, double h, String text, Game game){
 		super(x, y, w, h);
 		this.text = text;
 		// Using zfont by default
@@ -179,7 +177,7 @@ public class MenuText<D>extends MenuThing<D>{
 	}
 	
 	@Override
-	public void renderSelf(Game<D> game, Renderer r, ZRect bounds){
+	public void renderSelf(Game game, Renderer r, ZRect bounds){
 		super.renderSelf(game, r, bounds);
 		
 		if(this.getFont() != null) r.setFont(this.getFont());

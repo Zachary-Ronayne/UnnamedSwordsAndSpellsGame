@@ -22,7 +22,7 @@ import zgame.things.type.HitBox;
 import zgame.things.type.RectangleBounds;
 
 /** An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc. */
-public class Room<G> implements RectangleBounds, Saveable, Destroyable{
+public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -248,7 +248,7 @@ public class Room<G> implements RectangleBounds, Saveable, Destroyable{
 	 * @param game The {@link Game} which this {@link Room} should update relative to
 	 * @param dt The amount of time passed in this update
 	 */
-	public void tick(Game<?> game, double dt){
+	public void tick(Game game, double dt){
 		// Update all updatable objects
 		for(int i = 0; i < this.tickableThings.size(); i++){
 			GameTickable t = this.tickableThings.get(i);
@@ -271,7 +271,7 @@ public class Room<G> implements RectangleBounds, Saveable, Destroyable{
 	 * @param game The {@link Game} to draw this {@link Room} relative to
 	 * @param r The {@link Renderer} to draw this {@link Room} on
 	 */
-	public void render(Game<G> game, Renderer r){
+	public void render(Game game, Renderer r){
 		// Determine the indexes of the tiles that need to be rendered
 		int startX = Math.max(0, (int)Math.floor(game.getScreenLeft() / Tile.size()));
 		int endX = Math.min(this.getXTiles(), (int)Math.ceil(game.getScreenRight() / Tile.size()));

@@ -5,7 +5,6 @@ import java.io.File;
 import zgame.core.Game;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
-import zusass.ZusassData;
 import zusass.menu.savesmenu.SavesMenu;
 
 /** A button to delete the selected save file in the saves menu */
@@ -16,12 +15,12 @@ public class SavesDeleteButton extends SavesMenuButton{
 	 * @param menu See {@link #getMenu()}
 	 * @param game The {@link Game} associated with this button
 	 */
-	public SavesDeleteButton(SavesMenu menu, Game<ZusassData> game){
+	public SavesDeleteButton(SavesMenu menu, Game game){
 		super(360, 600, "Delete", menu, game);
 	}
 
 	@Override
-	public void click(Game<ZusassData> game){
+	public void click(Game game){
 		LoadSaveButton button = this.getMenu().getLoadButtons().getSelected();
 		if(button == null) return;
 		String path = button.getPath();

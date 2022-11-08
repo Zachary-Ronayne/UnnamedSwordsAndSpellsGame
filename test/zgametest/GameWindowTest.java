@@ -5,13 +5,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.*;
 
-import tester.TestData;
 import zgame.core.Game;
 import zgame.core.window.GameWindow;
 
 public class GameWindowTest{
 	
-	private static Game<TestData> game;
+	private static Game game;
 	private static GameWindow window;
 	
 	// private double coordinateValue;

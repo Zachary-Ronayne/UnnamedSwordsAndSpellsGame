@@ -21,7 +21,7 @@ public abstract class PositionedHitboxThing extends PositionedThing implements H
 	}
 
 	@Override
-	public boolean shouldRender(Game<?> game, Renderer r){
+	public boolean shouldRender(Game game, Renderer r){
 		return r.gameBoundsInScreen(this.getBounds());
 	}
 	

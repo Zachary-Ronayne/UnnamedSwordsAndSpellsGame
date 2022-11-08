@@ -5,13 +5,12 @@ import static org.lwjgl.glfw.GLFW.*;
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.Menu;
-import zusass.ZusassData;
 import zusass.menu.comp.ZusassButton;
 import zusass.menu.comp.ZusassMenuText;
 import zusass.menu.mainmenu.comp.NewGameButton;
 
 /** A {@link Menu} used to create a new game */
-public class NewGamePopup extends Menu<ZusassData>{
+public class NewGamePopup extends Menu{
 	
 	/**
 	 * Initialize the {@link NewGamePopup}
@@ -19,7 +18,7 @@ public class NewGamePopup extends Menu<ZusassData>{
 	 * @param button The {@link NewGameButton} used by this menu
 	 * @param game The Zusass game used by this thing
 	 */
-	public NewGamePopup(NewGameButton button, Game<ZusassData> game){
+	public NewGamePopup(NewGameButton button, Game game){
 		super(0, 0);
 		this.setWidth(game.getScreenWidth());
 		this.setHeight(game.getScreenHeight());
@@ -51,7 +50,7 @@ public class NewGamePopup extends Menu<ZusassData>{
 	}
 	
 	@Override
-	public void keyAction(Game<ZusassData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(press) return;
 		if(button == GLFW_KEY_ESCAPE) game.getCurrentState().removeTopMenu();

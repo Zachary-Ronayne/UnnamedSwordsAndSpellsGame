@@ -8,13 +8,11 @@ import zgame.menu.Menu;
 
 /**
  * A helper object used by {@link MenuState} to keep track of if that state should perform things like updates, rendering, etc
- * 
- * @param <D> The type of data of the associated game
  */
-public class MenuNode<D>{
+public class MenuNode{
 	
 	/** The {@link Menu} which this node uses */
-	private Menu<D> menu;
+	private Menu menu;
 	
 	/** true if this menu should receive tick updates while not in focus, false otherwise */
 	private boolean isTick;
@@ -44,7 +42,7 @@ public class MenuNode<D>{
 	 * Create a node with the default settings. If this menu is not on top, it will only render, not tick or receive input
 	 * @param menu See {@link #menu}
 	 */
-	public MenuNode(Menu<D> menu){
+	public MenuNode(Menu menu){
 		this(menu, false, false, true);
 	}
 
@@ -56,7 +54,7 @@ public class MenuNode<D>{
 	 * @param input true if this menu should receive input when it is not on top
 	 * @param render true if this menu should render when it is not on top
 	 */
-	public MenuNode(Menu<D> menu, boolean tick, boolean input, boolean render){
+	public MenuNode(Menu menu, boolean tick, boolean input, boolean render){
 		this(menu, tick, input, input, input, input, render, render, render);
 	}
 	
@@ -73,7 +71,7 @@ public class MenuNode<D>{
 	 * @param isRender See {@link #isRender}
 	 * @param isRenderHud See {@link #isRenderHud}
 	 */
-	public MenuNode(Menu<D> menu, boolean isTick, boolean isKeyAction, boolean isMouseAction, boolean isMouseMove, boolean isMouseWheelMove, boolean isRenderBackground, boolean isRender, boolean isRenderHud){
+	public MenuNode(Menu menu, boolean isTick, boolean isKeyAction, boolean isMouseAction, boolean isMouseMove, boolean isMouseWheelMove, boolean isRenderBackground, boolean isRender, boolean isRenderHud){
 		this.menu = menu;
 		this.isTick = isTick;
 		this.isKeyAction = isKeyAction;
@@ -92,7 +90,7 @@ public class MenuNode<D>{
 	 * @param game The {@link Game} which called this method
 	 * @param dt The amount of time, in seconds, which passed in this tick
 	 */
-	public void tick(Game<D> game, double dt){
+	public void tick(Game game, double dt){
 		if(this.isTick()) this.getMenu().tick(game, dt);
 	}
 	
@@ -107,7 +105,7 @@ public class MenuNode<D>{
 	 * @param alt true if alt is pressed, false otherwise
 	 * @param ctrl true if ctrl is pressed, false otherwise
 	 */
-	public void keyAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		if(this.isKeyAction()) this.getMenu().keyAction(game, button, press, shift, alt, ctrl);
 	}
 	
@@ -122,7 +120,7 @@ public class MenuNode<D>{
 	 * @param alt true if alt is pressed, false otherwise
 	 * @param ctrl true if ctrl is pressed, false otherwise
 	 */
-	public void mouseAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		if(this.isMouseAction()) this.getMenu().mouseAction(game, button, press, shift, alt, ctrl);
 	}
 	
@@ -134,7 +132,7 @@ public class MenuNode<D>{
 	 * @param x The x coordinate in screen coordinates
 	 * @param y The y coordinate in screen coordinates
 	 */
-	public void mouseMove(Game<D> game, double x, double y){
+	public void mouseMove(Game game, double x, double y){
 		if(this.isMouseMove()) this.getMenu().mouseMove(game, x, y);
 	}
 	
@@ -145,7 +143,7 @@ public class MenuNode<D>{
 	 * @param game The {@link Game} which called this method
 	 * @param amount The amount the scroll wheel was moved
 	 */
-	public void mouseWheelMove(Game<D> game, double amount){
+	public void mouseWheelMove(Game game, double amount){
 		if(this.isMouseWheelMove()) this.getMenu().mouseWheelMove(game, amount);
 	}
 	
@@ -156,7 +154,7 @@ public class MenuNode<D>{
 	 * @param game The {@link Game} which called this method
 	 * @param r The Renderer to use for drawing
 	 */
-	public void renderBackground(Game<D> game, Renderer r){
+	public void renderBackground(Game game, Renderer r){
 		if(this.isRenderBackground()) this.getMenu().renderBackground(game, r);
 	}
 	
@@ -167,7 +165,7 @@ public class MenuNode<D>{
 	 * @param game The {@link Game} which called this method
 	 * @param r The Renderer to use for drawing
 	 */
-	public void render(Game<D> game, Renderer r){
+	public void render(Game game, Renderer r){
 		if(this.isRender()) this.getMenu().render(game, r);
 	}
 	
@@ -178,17 +176,17 @@ public class MenuNode<D>{
 	 * @param game The {@link Game} which called this method
 	 * @param r The Renderer to use for drawing
 	 */
-	public void renderHud(Game<D> game, Renderer r){
+	public void renderHud(Game game, Renderer r){
 		if(this.isRenderHud()) this.getMenu().renderHud(game, r);
 	}
 	
 	/** @return See {@link #menu} */
-	public Menu<D> getMenu(){
+	public Menu getMenu(){
 		return this.menu;
 	}
 	
 	/** @param menu See {@link #menu} */
-	public void setMenu(Menu<D> menu){
+	public void setMenu(Menu menu){
 		this.menu = menu;
 	}
 	

@@ -4,10 +4,8 @@ import zgame.core.Game;
 
 /**
  * An implementation of {@link MenuScroller} for a horizontal scroll bar
- * 
- * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
-public class HorizontalScroller<D> extends MenuScroller<D>{
+public class HorizontalScroller extends MenuScroller{
 	
 	/**
 	 * Create a new {@link HorizontalScroller} at the specified location and min and max
@@ -19,13 +17,13 @@ public class HorizontalScroller<D> extends MenuScroller<D>{
 	 * @param amount See {@link #amount}
 	 * @param game The game associated with this thing
 	 */
-	public HorizontalScroller(double x, double y, double w, double h, double amount, Game<D> game){
+	public HorizontalScroller(double x, double y, double w, double h, double amount, Game game){
 		super(x, y, w, h, amount, game);
 	}
 
 	@Override
-	public MenuScrollerButton<D> generateButton(Game<D> game){
-		return new HorizontalScrollerButton<D>(this, this.getHeight() * 2, this.getHeight(), game);
+	public MenuScrollerButton generateButton(Game game){
+		return new HorizontalScrollerButton(this, this.getHeight() * 2, this.getHeight(), game);
 	}
 	
 }

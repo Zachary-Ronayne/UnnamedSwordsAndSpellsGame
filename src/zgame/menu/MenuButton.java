@@ -7,7 +7,7 @@ import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.utils.ZRect;
 
 /** A {@link MenuText} which can be clicked to perform an action */
-public class MenuButton<D>extends MenuText<D>{
+public class MenuButton extends MenuText{
 
 	/** The default value of {@link #doubleClickThreshold} */
 	public static final long DEFAULT_DOUBLE_CLICK_THRESHOLD = 500;
@@ -30,7 +30,7 @@ public class MenuButton<D>extends MenuText<D>{
 	 * @param h See {@link #getHeight()}
 	 * @param game The game associated with this thing
 	 */
-	public MenuButton(double x, double y, double w, double h, Game<D> game){
+	public MenuButton(double x, double y, double w, double h, Game game){
 		this(x, y, w, h, "", game);
 	}
 	
@@ -44,7 +44,7 @@ public class MenuButton<D>extends MenuText<D>{
 	 * @param text The text to display
 	 * @param game The game associated with this thing
 	 */
-	public MenuButton(double x, double y, double w, double h, String text, Game<D> game){
+	public MenuButton(double x, double y, double w, double h, String text, Game game){
 		super(x, y, w, h, text, game);
 		this.highlightColor = new ZColor(0, .2);
 
@@ -53,7 +53,7 @@ public class MenuButton<D>extends MenuText<D>{
 	}
 	
 	@Override
-	public void renderSelf(Game<D> game, Renderer r, ZRect bounds){
+	public void renderSelf(Game game, Renderer r, ZRect bounds){
 		super.renderSelf(game, r, bounds);
 		if(this.showHighlight(game)){
 			r.setColor(this.getHighlightColor());
@@ -65,7 +65,7 @@ public class MenuButton<D>extends MenuText<D>{
 	 * Call {@link #click()} if the mouse was released while on top of this button
 	 */
 	@Override
-	public void mouseAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.mouseAction(game, button, press, shift, alt, ctrl);
 		ZMouseInput mi = game.getMouseInput();
 		if(!press && this.getBounds().contains(mi.x(), mi.y())){
@@ -81,7 +81,7 @@ public class MenuButton<D>extends MenuText<D>{
 	 * 
 	 * @param game The {@link Game} which was used when the button was clicked
 	 */
-	public void click(Game<D> game){
+	public void click(Game game){
 		
 	}
 
@@ -92,7 +92,7 @@ public class MenuButton<D>extends MenuText<D>{
 	 * 
 	 * @param game The {@link Game} which was used when the button was double clicked
 	 */
-	public void doubleClick(Game<D> game){
+	public void doubleClick(Game game){
 		
 	}
 	
@@ -100,7 +100,7 @@ public class MenuButton<D>extends MenuText<D>{
 	 * @param The game used by this {@link MenuButton}
 	 * @return true if a highlight on top of this button should render. By default renders when the mouse is over it
 	 */
-	public boolean showHighlight(Game<D> game){
+	public boolean showHighlight(Game game){
 		return this.getBounds().contains(game.mouseSX(), game.mouseSY());
 	}
 	

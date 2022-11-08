@@ -5,7 +5,6 @@ import static zgametest.Tester.DELTA;
 
 import org.junit.jupiter.api.*;
 
-import tester.TestData;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.window.GameWindow;
@@ -13,7 +12,7 @@ import zgametest.TestGame;
 
 public class RendererTest{
 	
-	private static Game<TestData> game;
+	private static Game game;
 	private static GameWindow window;
 	private static Renderer renderer;
 	

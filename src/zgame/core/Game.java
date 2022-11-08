@@ -31,10 +31,8 @@ import zgame.world.Room;
 
 /**
  * The central class used to create a game. Create an extension of this class to begin making a game
- * 
- * @param <D> The type of data that can be stored alongside this {@link Game}
  */
-public class Game<D> implements Saveable, Destroyable{
+public class Game implements Saveable, Destroyable{
 	
 	/**
 	 * By default, the number of times a second the sound will be updated, i.e. updating streaming sounds, checking if sounds are still playing, checking which sounds need to play,
@@ -56,12 +54,6 @@ public class Game<D> implements Saveable, Destroyable{
 	/** The {@link FontManager} used by this {@link Game} to load fonts for rendering text */
 	private FontManager fonts;
 	
-	/**
-	 * An object that holds custom data which can be used by this {@link Game} and accessed at any time.
-	 * Must manually initialize via {@link #setData(Object)} before using
-	 */
-	private D data;
-	
 	/** The looper to run the main OpenGL loop */
 	private GameLooper renderLooper;
 	
@@ -69,13 +61,13 @@ public class Game<D> implements Saveable, Destroyable{
 	private GameCamera camera;
 	
 	/** The {@link GameState} which this game is currently in */
-	private GameState<D> currentState;
+	private GameState currentState;
 	/** The {@link GameState} which this game will update to in the next tick, or null if the state will not update */
-	private GameState<D> nextCurrentState;
+	private GameState nextCurrentState;
 	/** The {@link PlayState} of this game, can be null if there is currently no play state */
-	private PlayState<D> playState;
+	private PlayState playState;
 	/** A {@link GameState} that needs to be destroyed on the next OpenGL loop, or null if one doesn't need to be destroyed */
-	private GameState<D> destroyState;
+	private GameState destroyState;
 	
 	/** The {@link GameLooper} which runs the regular time intervals */
 	private GameLooper tickLooper;
@@ -189,7 +181,7 @@ public class Game<D> implements Saveable, Destroyable{
 		this.musicPaused = false;
 		this.updateSoundState = false;
 		
-		this.currentState = new DefaultState<D>();
+		this.currentState = new DefaultState();
 		this.nextCurrentState = null;
 		this.playState = null;
 		this.destroyState = null;
@@ -642,16 +634,6 @@ public class Game<D> implements Saveable, Destroyable{
 		return file.save();
 	}
 	
-	/** @return See {@link #data} */
-	public D getData(){
-		return this.data;
-	}
-	
-	/** @param data See {@link #data} Must call this method before {@link #getData()} will return anything but null */
-	public void setData(D data){
-		this.data = data;
-	}
-	
 	/** @return See {@link #sounds} */
 	public SoundManager getSounds(){
 		return sounds;
@@ -840,7 +822,7 @@ public class Game<D> implements Saveable, Destroyable{
 	}
 	
 	/** @return See {@link #currentState} */
-	public GameState<D> getCurrentState(){
+	public GameState getCurrentState(){
 		return this.currentState;
 	}
 	
@@ -851,7 +833,7 @@ public class Game<D> implements Saveable, Destroyable{
 	 * 
 	 * @param newState See {@link #currentState}
 	 */
-	public void setCurrentState(GameState<D> newState){
+	public void setCurrentState(GameState newState){
 		this.nextCurrentState = newState;
 	}
 	
@@ -862,20 +844,20 @@ public class Game<D> implements Saveable, Destroyable{
 		if(this.nextCurrentState == null) return;
 		this.destroyState = this.currentState;
 		this.currentState = this.nextCurrentState;
-		if(this.currentState instanceof PlayState) this.playState = (PlayState<D>)this.currentState;
+		if(this.currentState instanceof PlayState) this.playState = (PlayState)this.currentState;
 		else this.playState = null;
 		this.currentState.onSet(this);
 		this.nextCurrentState = null;
 	}
 	
 	/** @return See {@link #playState} */
-	public PlayState<D> getPlayState(){
+	public PlayState getPlayState(){
 		return this.playState;
 	}
 	
 	/** @return The {@link Room} that the current {@link #playState} is using, or null if there is no play state */
-	public Room<D> getCurrentRoom(){
-		PlayState<D> p = this.getPlayState();
+	public Room getCurrentRoom(){
+		PlayState p = this.getPlayState();
 		if(p == null) return null;
 		return this.getPlayState().getCurrentRoom();
 	}

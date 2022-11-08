@@ -4,10 +4,10 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.menu.Menu;
-import zusass.ZusassData;
+import zusass.ZusassGame;
 
-/** A base menu class for {@link Menu} in the {@link zusass.ZusassGame} */
-public abstract class ZusassMenu extends Menu<ZusassData>{
+/** A base menu class for {@link Menu} in the {@link ZusassGame} */
+public abstract class ZusassMenu extends Menu{
 	
 	/** The title of this {@link ZusassMenu} */
 	private String title;
@@ -40,7 +40,7 @@ public abstract class ZusassMenu extends Menu<ZusassData>{
 	}
 	
 	@Override
-	public void renderBackground(Game<ZusassData> game, Renderer r){
+	public void renderBackground(Game game, Renderer r){
 		super.renderBackground(game, r);
 		
 		// Background color

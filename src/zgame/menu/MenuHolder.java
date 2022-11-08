@@ -2,10 +2,8 @@ package zgame.menu;
 
 /**
  * A simple {@link MenuThing} that uses an empty thing with no dimensions to group menu things together
- * 
- * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
-public class MenuHolder<D>extends MenuThing<D>{
+public class MenuHolder extends MenuThing{
 	
 	/**
 	 * Create a {@link MenuHolder} positioned relative to its parent

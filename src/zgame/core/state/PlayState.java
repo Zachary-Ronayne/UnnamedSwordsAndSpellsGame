@@ -6,13 +6,11 @@ import zgame.world.Room;
 
 /**
  * A {@link GameState} which is designed for game play, i.e. controlling a character in a world, not a menu
- * 
- * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
-public class PlayState<D>extends GameState<D>{
+public class PlayState extends GameState{
 	
 	/** The {@link Room} which is currently used by this {@link PlayState} */
-	private Room<D> currentRoom;
+	private Room currentRoom;
 	
 	/**
 	 * Create a basic empty play state with an empty default room
@@ -29,7 +27,7 @@ public class PlayState<D>extends GameState<D>{
 	 */
 	public PlayState(boolean createRoom){
 		super(true);
-		if(createRoom) this.currentRoom = new Room<D>();
+		if(createRoom) this.currentRoom = new Room();
 	}
 
 	@Override
@@ -39,7 +37,7 @@ public class PlayState<D>extends GameState<D>{
 	}
 	
 	/** @return See {@link #currentRoom} */
-	public Room<D> getCurrentRoom(){
+	public Room getCurrentRoom(){
 		return this.currentRoom;
 	}
 	
@@ -50,21 +48,19 @@ public class PlayState<D>extends GameState<D>{
 	 * @param r See {@link #currentRoom}
 	 * @return true if the room was set, false otherwise
 	 */
-	// Suppressing this method's cast because types are stupid sometimes
-	@SuppressWarnings("unchecked")
-	public boolean setCurrentRoom(Room<?> r){
+	public boolean setCurrentRoom(Room r){
 		if(r == null) return false;
-		this.currentRoom = (Room<D>)r;
+		this.currentRoom = r;
 		return true;
 	}
 	
 	@Override
-	public void tick(Game<D> game, double dt){
+	public void tick(Game game, double dt){
 		this.currentRoom.tick(game, dt);
 	}
 	
 	@Override
-	public void render(Game<D> game, Renderer r){
+	public void render(Game game, Renderer r){
 		super.render(game, r);
 		this.currentRoom.render(game, r);
 	}

@@ -79,7 +79,7 @@ public class ZusassData implements Saveable{
 	}
 
 	/** If auto save is enabled, save the game, otherwise, do nothing */
-	public void checkAutoSave(Game<?> game){
+	public void checkAutoSave(Game game){
 		if(!this.isAutosave()) return;
 
 		((ZusassGame)game).saveLoadedGame();

@@ -4,11 +4,9 @@ import zgame.core.graphics.Renderer;
 
 /**
  * An interface which defines methods used by objects which interact with a {@link Game} using input and rendering
- * 
- * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
 
-public interface GameInteractable<D> {
+public interface GameInteractable{
 	
 	/**
 	 * Called when a keyboard key is pressed on the game
@@ -21,7 +19,7 @@ public interface GameInteractable<D> {
 	 * @param alt true if alt is pressed, false otherwise
 	 * @param ctrl true if ctrl is pressed, false otherwise
 	 */
-	public void keyAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl);
+	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl);
 	
 	/**
 	 * Called when a mouse button is pressed on the game
@@ -34,7 +32,7 @@ public interface GameInteractable<D> {
 	 * @param alt true if alt is pressed, false otherwise
 	 * @param ctrl true if ctrl is pressed, false otherwise
 	 */
-	public void mouseAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl);
+	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl);
 	
 	/**
 	 * Called when the mouse is moved on the game
@@ -44,7 +42,7 @@ public interface GameInteractable<D> {
 	 * @param x The x coordinate in screen coordinates
 	 * @param y The y coordinate in screen coordinates
 	 */
-	public void mouseMove(Game<D> game, double x, double y);
+	public void mouseMove(Game game, double x, double y);
 	
 	/**
 	 * Called when the mouse wheel is moved on the game
@@ -53,7 +51,7 @@ public interface GameInteractable<D> {
 	 * @param game The {@link Game} which called this method
 	 * @param amount The amount the scroll wheel was moved
 	 */
-	public void mouseWheelMove(Game<D> game, double amount);
+	public void mouseWheelMove(Game game, double amount);
 	
 	/**
 	 * Called each time a game tick occurs. A tick is a game update, i.e. some amount of time passing.
@@ -62,7 +60,7 @@ public interface GameInteractable<D> {
 	 * @param game The {@link Game} which called this method
 	 * @param dt The amount of time, in seconds, which passed in this tick
 	 */
-	public void tick(Game<D> game, double dt);
+	public void tick(Game game, double dt);
 	
 	/**
 	 * Called once each time a frame of the game is drawn, before the main render. Use this method to define what is drawn as a background, i.e. unaffected by the camera
@@ -72,7 +70,7 @@ public interface GameInteractable<D> {
 	 * @param game The {@link Game} which called this method
 	 * @param r The Renderer to use for drawing
 	 */
-	public void renderBackground(Game<D> game, Renderer r);
+	public void renderBackground(Game game, Renderer r);
 	
 	/**
 	 * Called once each time a frame is of the game is drawn. Use this method to define what is drawn in the game each frame.
@@ -82,7 +80,7 @@ public interface GameInteractable<D> {
 	 * @param game The {@link Game} which called this method
 	 * @param r The Renderer to use for drawing
 	 */
-	public void render(Game<D> game, Renderer r);
+	public void render(Game game, Renderer r);
 	
 	/**
 	 * Called once each time a frame of the game is drawn, after the main render. Use this method to define what is drawn on top of the screen, i.e. a hud, extra menu, etc
@@ -92,5 +90,5 @@ public interface GameInteractable<D> {
 	 * @param game The {@link Game} which called this method
 	 * @param r The Renderer to use for drawing
 	 */
-	public void renderHud(Game<D> game, Renderer r);
+	public void renderHud(Game game, Renderer r);
 }

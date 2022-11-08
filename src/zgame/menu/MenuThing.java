@@ -16,10 +16,8 @@ import java.util.List;
  * An object which can be contained by a Menu
  * 
  * All {@link MenuThing}s should be rendered via their relative coordinates
- * 
- * @param <D> The type of data that can be stored alongside the associated {@link Game}
  */
-public class MenuThing<D> implements GameInteractable<D>, Destroyable{
+public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** The x coordinate of the {@link MenuThing}, in screen coordinates, relative to {@link #parent}, or relative to (0, 0) if {@link #parent} is null */
 	private double relX;
@@ -45,16 +43,16 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 	private boolean drawThingsToBuffer;
 	
 	/** The {@link MenuThing} which holds this {@link MenuThing}. Can be null if this {@link MenuThing} has no parent */
-	private MenuThing<D> parent;
+	private MenuThing parent;
 	
 	/** A collection of every {@link MenuThing} in this {@link Menu} */
-	private List<MenuThing<D>> things;
+	private List<MenuThing> things;
 	
 	/**
 	 * The buffer used by this {@link MenuThing} to keep track of what's drawn for {@link #render(Game, Renderer)}, or null if using a buffer is not enabled.
 	 * If null, the contents of this {@link MenuThing} will be redrawn every frame
 	 */
-	private DrawableGameBuffer<D> buffer;
+	private DrawableGameBuffer buffer;
 	
 	/**
 	 * Create a {@link MenuThing} with no size or position
@@ -105,13 +103,13 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 		this.borderWidth = 0;
 		
 		this.parent = null;
-		this.things = new ArrayList<MenuThing<D>>();
+		this.things = new ArrayList<MenuThing>();
 		
 		this.setBuffer(useBuffer);
 		this.drawThingsToBuffer = true;
 	}
 	
-	// TODO add option to make things only render in the bounds regardless of a buffer
+	// TODO add option to make things only render in the bounds regardless of a buffer, fix render checking first
 	
 	/** @param true to enable using the buffer, false otherwise */
 	public void setBuffer(boolean use){
@@ -317,7 +315,7 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 	}
 	
 	/** @return See {@link #parent} */
-	public MenuThing<D> getParent(){
+	public MenuThing getParent(){
 		return this.parent;
 	}
 	
@@ -337,7 +335,7 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 	}
 	
 	/** @param parent See {@link #parent} */
-	public void setParent(MenuThing<D> parent){
+	public void setParent(MenuThing parent){
 		this.parent = parent;
 	}
 	
@@ -353,7 +351,7 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 	 * @param thing The thing to add
 	 * @return true if the thing was added, false otherwise
 	 */
-	public boolean addThing(MenuThing<D> thing){
+	public boolean addThing(MenuThing thing){
 		if(this == thing || this.things.contains(thing) || thing.getParent() != null) return false;
 		thing.setParent(this);
 		return this.things.add(thing);
@@ -365,7 +363,7 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 	 * @param thing The thing to remove
 	 * @return true if the thing was removed, false otherwise
 	 */
-	public boolean removeThing(MenuThing<D> thing){
+	public boolean removeThing(MenuThing thing){
 		return this.removeThing(thing, true);
 	}
 	
@@ -376,7 +374,7 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 	 * @param destroy true to destroy this menu thing as it is removed, false otherwise
 	 * @return true if the thing was removed, false otherwise
 	 */
-	public boolean removeThing(MenuThing<D> thing, boolean destroy){
+	public boolean removeThing(MenuThing thing, boolean destroy){
 		if(thing == null) return false;
 		if(thing.getParent() == this) thing.setParent(null);
 		boolean success = this.things.remove(thing);
@@ -395,12 +393,12 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 	 * @param destroy true to also destroy every removed thing, false otherwise
 	 */
 	public void removeAll(boolean destroy){
-		if(destroy) for(MenuThing<D> thing : this.things) thing.destroy();
+		if(destroy) for(MenuThing thing : this.things) thing.destroy();
 		this.things.clear();
 	}
 	
 	/** @return See {@link #things} */
-	public List<MenuThing<D>> getThings(){
+	public List<MenuThing> getThings(){
 		return this.things;
 	}
 	
@@ -424,61 +422,61 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 	
 	/** Do not call directly */
 	@Override
-	public void tick(Game<D> game, double dt){
+	public void tick(Game game, double dt){
 		for(int i = 0; i < this.things.size(); i++){
-			MenuThing<D> t = this.things.get(i);
+			MenuThing t = this.things.get(i);
 			t.tick(game, dt);
 		}
 	}
 	
 	/** Do not call directly */
 	@Override
-	public void keyAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		for(int i = 0; i < this.things.size(); i++){
-			MenuThing<D> t = this.things.get(i);
+			MenuThing t = this.things.get(i);
 			t.keyAction(game, button, press, shift, alt, ctrl);
 		}
 	}
 	
 	/** Do not call directly */
 	@Override
-	public void mouseAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		for(int i = 0; i < this.things.size(); i++){
-			MenuThing<D> t = this.things.get(i);
+			MenuThing t = this.things.get(i);
 			t.mouseAction(game, button, press, shift, alt, ctrl);
 		}
 	}
 	
 	/** Do not call directly */
 	@Override
-	public void mouseMove(Game<D> game, double x, double y){
+	public void mouseMove(Game game, double x, double y){
 		for(int i = 0; i < this.things.size(); i++){
-			MenuThing<D> t = this.things.get(i);
+			MenuThing t = this.things.get(i);
 			t.mouseMove(game, x, y);
 		}
 	}
 	
 	/** Do not call directly */
 	@Override
-	public void mouseWheelMove(Game<D> game, double amount){
+	public void mouseWheelMove(Game game, double amount){
 		for(int i = 0; i < this.things.size(); i++){
-			MenuThing<D> t = this.things.get(i);
+			MenuThing t = this.things.get(i);
 			t.mouseWheelMove(game, amount);
 		}
 	}
 	
 	/** Do not call directly */
 	@Override
-	public void renderBackground(Game<D> game, Renderer r){
+	public void renderBackground(Game game, Renderer r){
 		for(int i = 0; i < this.things.size(); i++){
-			MenuThing<D> t = this.things.get(i);
+			MenuThing t = this.things.get(i);
 			t.renderBackground(game, r);
 		}
 	}
 	
 	/** Do not call directly. Do not override, instead override {@link #renderSelf(Game, Renderer, ZRect)} */
 	@Override
-	public final void render(Game<D> game, Renderer r){
+	public final void render(Game game, Renderer r){
 		// If using a buffer, draw the contents of the buffer to the relative position
 		if(this.usesBuffer()){
 			this.buffer.drawToRenderer(this.getRelX(), this.getRelY(), r, game);
@@ -501,7 +499,7 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 	 * @param r The renderer to use
 	 * @param bounds The bounds which this thing will be rendered relative to
 	 */
-	public void renderSelf(Game<D> game, Renderer r, ZRect bounds){
+	public void renderSelf(Game game, Renderer r, ZRect bounds){
 		r.setColor(this.getBorder());
 		r.drawRectangle(bounds);
 		r.setColor(this.getFill());
@@ -515,7 +513,7 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 	 * @param game The game
 	 * @param r The renderer
 	 */
-	private void renderToBuffer(Game<D> game, Renderer r){
+	private void renderToBuffer(Game game, Renderer r){
 		// Draw relative to the origin
 		this.renderSelf(game, r, new ZRect(0, 0, this.getWidth(), this.getHeight()));
 		// If drawing things directly to the buffer, draw them
@@ -529,7 +527,7 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 	 * @param r The renderer
 	 * @param reposition true to reposition the coordinates based on {@link #relX} and {@link #relY}, false otherwise
 	 */
-	private void drawThings(Game<D> game, Renderer r, boolean reposition){
+	private void drawThings(Game game, Renderer r, boolean reposition){
 		// Position the renderer to draw this thing's things relative to this thing
 		if(reposition){
 			r.pushMatrix();
@@ -539,7 +537,7 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 		// Draw this thing's things
 		// Did I use "thing" enough times?
 		for(int i = 0; i < this.things.size(); i++){
-			MenuThing<D> t = this.things.get(i);
+			MenuThing t = this.things.get(i);
 			t.render(game, r);
 		}
 		// Put the matrix back to what it was
@@ -548,31 +546,31 @@ public class MenuThing<D> implements GameInteractable<D>, Destroyable{
 	
 	/** Do not call directly */
 	@Override
-	public void renderHud(Game<D> game, Renderer r){
+	public void renderHud(Game game, Renderer r){
 		for(int i = 0; i < this.things.size(); i++){
-			MenuThing<D> t = this.things.get(i);
+			MenuThing t = this.things.get(i);
 			t.renderHud(game, r);
 		}
 	}
 	
 	/** A helper class for drawing {@link MenuThing}s */
-	public class MenuBuffer extends DrawableGameBuffer<D>{
+	public class MenuBuffer extends DrawableGameBuffer{
 		
 		/** The thing drawn by this buffer */
-		private MenuThing<D> thing;
+		private MenuThing thing;
 		
 		/**
 		 * Create the new buffer
 		 * 
 		 * @param thing The thing to use for the buffer
 		 */
-		public MenuBuffer(MenuThing<D> thing){
+		public MenuBuffer(MenuThing thing){
 			super(thing.getWidth(), thing.getHeight());
 			this.thing = thing;
 		}
 		
 		@Override
-		public void draw(Game<D> game, Renderer r){
+		public void draw(Game game, Renderer r){
 			this.thing.renderToBuffer(game, r);
 		}
 	}

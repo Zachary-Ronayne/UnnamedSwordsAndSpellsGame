@@ -62,7 +62,7 @@ public class ColorTile extends TileType{
 	}
 	
 	@Override
-	public void render(Tile t, Game<?> g, Renderer r){
+	public void render(Tile t, Game g, Renderer r){
 		r.setColor(this.getColor());
 		r.drawRectangle(t.getX(), t.getY(), t.getWidth(), t.getHeight());
 	}

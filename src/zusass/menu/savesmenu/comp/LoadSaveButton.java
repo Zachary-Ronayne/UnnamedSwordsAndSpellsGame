@@ -5,7 +5,6 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZRect;
 import zgame.core.utils.ZStringUtils;
-import zusass.ZusassData;
 import zusass.ZusassGame;
 import zusass.game.MainPlay;
 import zusass.menu.savesmenu.SavesMenu;
@@ -35,7 +34,7 @@ public class LoadSaveButton extends SavesMenuButton{
 	 * @param path See {@link #path}
 	 * @param game The {@link ZusassGame} associated with this button
 	 */
-	public LoadSaveButton(double x, double y, String text, String path, SavesMenu menu, Game<ZusassData> game){
+	public LoadSaveButton(double x, double y, String text, String path, SavesMenu menu, Game game){
 		super(x, y, text, menu, game);
 		this.path = path;
 		this.setWidth(WIDTH);
@@ -46,13 +45,12 @@ public class LoadSaveButton extends SavesMenuButton{
 	}
 	
 	/*
-	 * TODO fix bug where the buttons for selecting a save don't render, it's because of the Renderer.shouldDraw method
 	 * This class is giving it relative coordinates, which works for where to render it, but not for checking if it should be rendered
 	 * Rework the relative rendering system for when it's not using a buffer? 
 	 */ 
 	
 	@Override
-	public void renderSelf(Game<ZusassData> game, Renderer r, ZRect bounds){
+	public void renderSelf(Game game, Renderer r, ZRect bounds){
 		super.renderSelf(game, r, bounds);
 		// If this button is selected, draw an additional highlight
 		if(this.getMenu().getLoadButtons().getSelected() == this){
@@ -62,12 +60,12 @@ public class LoadSaveButton extends SavesMenuButton{
 	}
 	
 	@Override
-	public void click(Game<ZusassData> game){
+	public void click(Game game){
 		this.getMenu().getLoadButtons().setSelected(this);
 	}
 	
 	@Override
-	public void doubleClick(Game<ZusassData> game){
+	public void doubleClick(Game game){
 		this.attemptLoad(game);
 	}
 	
@@ -77,7 +75,7 @@ public class LoadSaveButton extends SavesMenuButton{
 	 * @param game The game to load into
 	 * @return true if the file loaded, false otherwise
 	 */
-	public boolean attemptLoad(Game<ZusassData> game){
+	public boolean attemptLoad(Game game){
 		boolean success = game.loadGame(ZusassConfig.createSaveFileSuffix(path));
 		// If the load was successful, enter the play state
 		if(success) game.setCurrentState(new MainPlay(game));

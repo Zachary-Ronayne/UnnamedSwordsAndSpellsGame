@@ -12,7 +12,7 @@ import static org.lwjgl.glfw.GLFW.*;
 /**
  * A {@link MenuThing} that can be used to have a user type things in
  */
-public class MenuTextBox<D>extends MenuButton<D>{
+public class MenuTextBox extends MenuButton{
 	
 	/** true if this {@link MenuTextBox} is selected and will accept text input, false otherwise */
 	private boolean selected;
@@ -62,7 +62,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	 * @param h See {@link #getHeight()}
 	 * @param game The game associated with this thing
 	 */
-	public MenuTextBox(double x, double y, double w, double h, Game<D> game){
+	public MenuTextBox(double x, double y, double w, double h, Game game){
 		super(x, y, w, h, game);
 		this.selected = false;
 		this.setTextX(5);
@@ -84,7 +84,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	}
 	
 	@Override
-	public void tick(Game<D> game, double dt){
+	public void tick(Game game, double dt){
 		super.tick(game, dt);
 		this.currentBlinkTime += dt;
 		if(this.getCurrentBlinkTime() > this.getBlinkTime()){
@@ -94,7 +94,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	}
 	
 	@Override
-	public void mouseAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.mouseAction(game, button, press, shift, alt, ctrl);
 		double mx = game.mouseSX();
 		double my = game.mouseSY();
@@ -119,7 +119,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	}
 	
 	@Override
-	public void keyAction(Game<D> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(!this.isSelected()) return;
 		if(!press) return;
@@ -212,7 +212,7 @@ public class MenuTextBox<D>extends MenuButton<D>{
 	}
 	
 	@Override
-	public void renderSelf(Game<D> game, Renderer r, ZRect bounds){
+	public void renderSelf(Game game, Renderer r, ZRect bounds){
 		super.renderSelf(game, r, bounds);
 		
 		if(this.getText().isEmpty()){

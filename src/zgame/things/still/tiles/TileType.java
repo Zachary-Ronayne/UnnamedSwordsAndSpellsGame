@@ -57,6 +57,6 @@ public abstract class TileType implements Materialable{
 	 * @param g The game where the tile is drawn
 	 * @param r The renderer to use for drawing
 	 */
-	public abstract void render(Tile t, Game<?> g, Renderer r);
+	public abstract void render(Tile t, Game g, Renderer r);
 
 }

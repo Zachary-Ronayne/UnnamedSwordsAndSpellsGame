@@ -36,7 +36,7 @@ public abstract class PositionedRectangleThing extends PositionedThing implement
 	}
 	
 	@Override
-	public boolean shouldRender(Game<?> game, Renderer r){
+	public boolean shouldRender(Game game, Renderer r){
 		return r.gameBoundsInScreen(this.getBounds());
 	}
 

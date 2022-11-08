@@ -10,6 +10,6 @@ public interface GameTickable{
 	 * @param game The {@link Game} which called this method
 	 * @param dt The amount of time, in seconds, which passed in this tick
 	 */
-	public void tick(Game<?> game, double dt);
+	public void tick(Game game, double dt);
 	
 }

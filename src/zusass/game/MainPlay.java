@@ -14,14 +14,14 @@ import static org.lwjgl.glfw.GLFW.*;
  * The main {@link PlayState} used by the Zusass game
  * I initially called this ZusassPlay, but I um... changed it
  */
-public class MainPlay extends PlayState<ZusassData>{
+public class MainPlay extends PlayState{
 	
 	/**
 	 * Initialize the main play state for the Zusass game
 	 * 
 	 * @param game The {@link Game} using this state
 	 */
-	public MainPlay(Game<ZusassData> game){
+	public MainPlay(Game game){
 		this.enterHub(game);
 	}
 	
@@ -30,7 +30,7 @@ public class MainPlay extends PlayState<ZusassData>{
 	 * 
 	 * @param game The {@link Game} using this state
 	 */
-	public void enterHub(Game<ZusassData> game){
+	public void enterHub(Game game){
 		this.setCurrentRoom(new Hub(game));
 	}
 	
@@ -39,16 +39,16 @@ public class MainPlay extends PlayState<ZusassData>{
 	 * 
 	 * @param game The {@link Game} using this state
 	 */
-	public void enterMainMenu(Game<ZusassData> game){
+	public void enterMainMenu(Game game){
 		game.setCurrentState(new MainMenuState(game));
 	}
 	
 	@Override
-	public void keyAction(Game<ZusassData> game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(press) return;
 		if(button == GLFW_KEY_ESCAPE){
-			ZusassData d = game.getData();
+			ZusassData d = ((ZusassGame)game).getData();
 			d.checkAutoSave(game);
 			if(shift) this.enterMainMenu(game);
 			else this.enterHub(game);
@@ -60,7 +60,7 @@ public class MainPlay extends PlayState<ZusassData>{
 	}
 	
 	@Override
-	public void renderBackground(Game<ZusassData> game, Renderer r){
+	public void renderBackground(Game game, Renderer r){
 		super.renderBackground(game, r);
 		
 		// Draw a solid color for the background

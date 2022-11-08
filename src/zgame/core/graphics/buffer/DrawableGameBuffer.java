@@ -5,9 +5,8 @@ import zgame.core.graphics.Renderer;
 
 /**
  * An extension of {@link DrawableBuffer} that allows for rendering using a {@link Game} object
- * @param <D> The type of data associated with the game drawn
  */
-public class DrawableGameBuffer<D>extends DrawableBuffer{
+public class DrawableGameBuffer extends DrawableBuffer{
 
 	/**
 	 * Create a new {@link DrawableGameBuffer} of the given width and height
@@ -38,7 +37,7 @@ public class DrawableGameBuffer<D>extends DrawableBuffer{
 	 * @param r The renderer to draw this buffer to
 	 * @param game The game to use for drawing
 	 */
-	public void drawToRenderer(double x, double y, Renderer r, Game<D> game){
+	public void drawToRenderer(double x, double y, Renderer r, Game game){
 		if(!this.skipRedraw()) this.redraw(r, (ren, g) -> draw(game, ren), game);
 		super.drawToRenderer(x, y, r);
 	}
@@ -48,7 +47,7 @@ public class DrawableGameBuffer<D>extends DrawableBuffer{
 	 * @param game The game to use for drawing
 	 * @param r The renderer to draw to
 	 */
-	public void draw(Game<D> game, Renderer r){
+	public void draw(Game game, Renderer r){
 	}
 	
 }
