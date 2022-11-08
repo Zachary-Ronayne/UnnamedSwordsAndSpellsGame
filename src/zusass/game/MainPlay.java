@@ -21,8 +21,8 @@ public class MainPlay extends PlayState{
 	 * 
 	 * @param game The {@link Game} using this state
 	 */
-	public MainPlay(Game game){
-		this.enterHub(game);
+	public MainPlay(ZusassGame zgame){
+		this.enterHub(zgame);
 	}
 	
 	/**
@@ -30,32 +30,34 @@ public class MainPlay extends PlayState{
 	 * 
 	 * @param game The {@link Game} using this state
 	 */
-	public void enterHub(Game game){
-		this.setCurrentRoom(new Hub(game));
+	public void enterHub(ZusassGame zgame){
+		this.setCurrentRoom(new Hub(zgame));
 	}
 	
 	/**
 	 * Set the current state of the game to the main menu
 	 * 
-	 * @param game The {@link Game} using this state
+	 * @param zgame The {@link Game} using this state
 	 */
-	public void enterMainMenu(Game game){
-		game.setCurrentState(new MainMenuState(game));
+	public void enterMainMenu(ZusassGame zgame){
+		zgame.setCurrentState(new MainMenuState(zgame));
 	}
 	
 	@Override
 	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		ZusassGame zgame = (ZusassGame)game;
+		
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(press) return;
 		if(button == GLFW_KEY_ESCAPE){
-			ZusassData d = ((ZusassGame)game).getData();
-			d.checkAutoSave(game);
-			if(shift) this.enterMainMenu(game);
-			else this.enterHub(game);
+			ZusassData d = zgame.getData();
+			d.checkAutoSave(zgame);
+			if(shift) this.enterMainMenu(zgame);
+			else this.enterHub(zgame);
 		}
 		else if(button == GLFW_KEY_S && ctrl){
 			// TODO make a pause menu with a save button
-			((ZusassGame)game).saveLoadedGame();
+			zgame.saveLoadedGame();
 		}
 	}
 	

@@ -56,11 +56,11 @@ public class ZusassGame extends Game{
 	}
 	
 	/** The only instance of {@link ZusassGame} which can exist */
-	private static ZusassGame game = null;
+	private static ZusassGame zgame = null;
 	
 	public static void main(String[] args){
 		init();
-		game.start();
+		zgame.start();
 	}
 	
 	@Override
@@ -114,15 +114,15 @@ public class ZusassGame extends Game{
 	@Override
 	protected void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(button, press, shift, alt, ctrl);
-		GameWindow w = game.getWindow();
+		GameWindow w = zgame.getWindow();
 		if(button == GLFW_KEY_F11 && !press) w.toggleFullscreen();
 		else if(button == GLFW_KEY_F12 && !press) w.setUseVsync(!w.usesVsync());
 	}
 	
-	/** Initialize the object {@link #game} */
+	/** Initialize the object {@link #zgame} */
 	public static void init(){
-		if(game != null) return;
-		game = new ZusassGame();
+		if(zgame != null) return;
+		zgame = new ZusassGame();
 	}
 
 	/** @return See {@link #data} */

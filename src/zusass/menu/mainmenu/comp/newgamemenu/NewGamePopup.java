@@ -5,6 +5,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.Menu;
+import zusass.ZusassGame;
 import zusass.menu.comp.ZusassButton;
 import zusass.menu.comp.ZusassMenuText;
 import zusass.menu.mainmenu.comp.NewGameButton;
@@ -18,29 +19,29 @@ public class NewGamePopup extends Menu{
 	 * @param button The {@link NewGameButton} used by this menu
 	 * @param game The Zusass game used by this thing
 	 */
-	public NewGamePopup(NewGameButton button, Game game){
+	public NewGamePopup(NewGameButton button, ZusassGame zgame){
 		super(0, 0);
-		this.setWidth(game.getScreenWidth());
-		this.setHeight(game.getScreenHeight());
+		this.setWidth(zgame.getScreenWidth());
+		this.setHeight(zgame.getScreenHeight());
 		this.setFill(new ZColor(0, .7));
 		this.setBorder(new ZColor(0, 0));
 		
-		NewGameTextBox textBox = new NewGameTextBox(game);
+		NewGameTextBox textBox = new NewGameTextBox(zgame);
 		this.addThing(textBox);
 		textBox.centerHorizontal();
 		
 		// TODO hide this button until a name is entered
-		ZusassButton create = new CreateGameButton(textBox, game);
+		ZusassButton create = new CreateGameButton(textBox, zgame);
 		this.addThing(create);
 		create.centerHorizontal();
 		create.moveX(-(create.getWidth() * .5 + 10));
 		
-		ZusassButton cancel = new CancelGameButton(game);
+		ZusassButton cancel = new CancelGameButton(zgame);
 		this.addThing(cancel);
 		cancel.centerHorizontal();
 		cancel.moveX(cancel.getWidth() * .5 + 10);
 		
-		ZusassMenuText title = new ZusassMenuText(100, 100, 600, 100, "Create new Game", game);
+		ZusassMenuText title = new ZusassMenuText(100, 100, 600, 100, "Create new Game", zgame);
 		this.addThing(title);
 		title.setFill(new ZColor(.5, .8));
 		title.setBorder(new ZColor(0, 0));

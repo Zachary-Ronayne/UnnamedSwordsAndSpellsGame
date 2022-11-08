@@ -18,8 +18,8 @@ public class CreateGameButton extends ZusassButton{
 	 * 
 	 * @param game The Zusass game used by this thing
 	 */
-	public CreateGameButton(NewGameTextBox textBox, Game game){
-		super(500, 460, 200, 50, "Create", game);
+	public CreateGameButton(NewGameTextBox textBox, ZusassGame zgame){
+		super(500, 460, 200, 50, "Create", zgame);
 		this.textBox = textBox;
 	}
 	
@@ -31,13 +31,15 @@ public class CreateGameButton extends ZusassButton{
 	}
 	
 	public void createNewGame(Game game, String name){
+		ZusassGame zgame = (ZusassGame)game;
+
 		ZusassData data = new ZusassData();
 		data.setLoadedFile(ZusassConfig.createSaveFilePath(name));
-		((ZusassGame)game).setData(data);
+		((ZusassGame)zgame).setData(data);
 		
-		MainPlay play = new MainPlay(game);
-		game.setCurrentState(play);
-		data.checkAutoSave(game);
+		MainPlay play = new MainPlay(zgame);
+		zgame.setCurrentState(play);
+		data.checkAutoSave(zgame);
 	}
 	
 }

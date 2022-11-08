@@ -24,9 +24,9 @@ public class Hub extends Room{
 	/**
 	 * Create the hub in the default state
 	 * 
-	 * @param game The {@link Game} using this hub
+	 * @param zgame The {@link Game} using this hub
 	 */
-	public Hub(Game game){
+	public Hub(ZusassGame zgame){
 		super();
 		this.initTiles(X_TILES, Y_TILES);
 		
@@ -43,7 +43,7 @@ public class Hub extends Room{
 		Tile t = this.getTile(9, 10);
 
 		double doorX = t.getX();
-		ZusassData data = ((ZusassGame)game).getData();
+		ZusassData data = zgame.getData();
 		LevelDoor highDoor = new LevelDoor(doorX, 0, data.getHighestRoomLevel(), this);
 		highDoor.setY(t.getY() - highDoor.getHeight());
 		this.addThing(highDoor);
@@ -59,7 +59,7 @@ public class Hub extends Room{
 		this.player.setY(this.maxY() - this.player.getHeight());
 		this.player.setLockCamera(true);
 		this.addThing(this.player);
-		this.player.centerCamera(game);
+		this.player.centerCamera(zgame);
 	}
 	
 	@Override

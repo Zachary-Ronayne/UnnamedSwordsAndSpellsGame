@@ -6,6 +6,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuHolder;
+import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
 import zusass.menu.savesmenu.comp.LoadSaveButtonList;
 import zusass.menu.savesmenu.comp.SavesBackButton;
@@ -37,24 +38,24 @@ public class SavesMenu extends ZusassMenu{
 	/**
 	 * Create a new blank {@link SavesMenu}
 	 * 
-	 * @param game The game that uses this menu
+	 * @param zgame The game that uses this menu
 	 */
-	public SavesMenu(Game game){
-		super("Saves");
+	public SavesMenu(ZusassGame zgame){
+		super(zgame, "Saves");
 		this.setTitleX(50);
 		
-		this.addThing(new SavesBackButton(this, game));
-		this.addThing(new SavesRefreshButton(this, game));
+		this.addThing(new SavesBackButton(this, zgame));
+		this.addThing(new SavesRefreshButton(this, zgame));
 		
-		this.scroller = new SavesMenuScroller(game);
-		this.loadButtons = new LoadSaveButtonList(this, game);
+		this.scroller = new SavesMenuScroller(zgame);
+		this.loadButtons = new LoadSaveButtonList(this, zgame);
 		this.scroller.setMovingThing(this.loadButtons);
 		this.addThing(this.scroller);
 		this.addThing(this.loadButtons);
 		
 		this.extraButtonHolder = new MenuHolder();
-		this.extraButtonHolder.addThing(new SavesLoadButton(this, game));
-		this.extraButtonHolder.addThing(new SavesDeleteButton(this, game));
+		this.extraButtonHolder.addThing(new SavesLoadButton(this, zgame));
+		this.extraButtonHolder.addThing(new SavesDeleteButton(this, zgame));
 		
 		this.messageText = "";
 		this.messageTimer = 0;
@@ -85,8 +86,9 @@ public class SavesMenu extends ZusassMenu{
 	
 	@Override
 	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		ZusassGame zgame = (ZusassGame)game;
 		super.keyAction(game, button, press, shift, alt, ctrl);
-		if(!press && button == GLFW_KEY_F5) this.getLoadButtons().populate(game);
+		if(!press && button == GLFW_KEY_F5) this.getLoadButtons().populate(zgame);
 	}
 	
 	/** @return See {@link #scroller} */

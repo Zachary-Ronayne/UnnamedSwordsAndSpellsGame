@@ -41,6 +41,8 @@ public class LevelDoor extends Door{
 	
 	@Override
 	public boolean enterRoom(Room r, PositionedHitboxThing thing, Game game){
+		ZusassGame zgame = (ZusassGame)game;
+
 		// Generate the new room, then enter it
 		this.setLeadRoom(new LevelRoom(this.getLevel()), 0, 0);
 		this.setRoomY(this.getLeadRoom().maxY() - thing.getHeight());
@@ -48,9 +50,9 @@ public class LevelDoor extends Door{
 		
 		// Update the highest level room the player has been in
 		if(success){
-			ZusassData d = ((ZusassGame)game).getData();
+			ZusassData d = zgame.getData();
 			d.updatedHighestRoomLevel(this.getLevel());
-			d.checkAutoSave(game);
+			d.checkAutoSave(zgame);
 		}
 		return success;
 	}

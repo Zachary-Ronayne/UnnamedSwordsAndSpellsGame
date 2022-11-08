@@ -2,7 +2,6 @@ package zusass;
 
 import com.google.gson.JsonObject;
 
-import zgame.core.Game;
 import zgame.core.file.Saveable;
 
 /** A class to hold data representing the game state */
@@ -79,10 +78,10 @@ public class ZusassData implements Saveable{
 	}
 
 	/** If auto save is enabled, save the game, otherwise, do nothing */
-	public void checkAutoSave(Game game){
+	public void checkAutoSave(ZusassGame zgame){
 		if(!this.isAutosave()) return;
 
-		((ZusassGame)game).saveLoadedGame();
+		((ZusassGame)zgame).saveLoadedGame();
 	}
 	
 }

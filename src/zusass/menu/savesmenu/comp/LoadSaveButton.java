@@ -34,8 +34,8 @@ public class LoadSaveButton extends SavesMenuButton{
 	 * @param path See {@link #path}
 	 * @param game The {@link ZusassGame} associated with this button
 	 */
-	public LoadSaveButton(double x, double y, String text, String path, SavesMenu menu, Game game){
-		super(x, y, text, menu, game);
+	public LoadSaveButton(double x, double y, String text, String path, SavesMenu menu, ZusassGame zgame){
+		super(x, y, text, menu, zgame);
 		this.path = path;
 		this.setWidth(WIDTH);
 		this.setHeight(HEIGHT);
@@ -66,19 +66,20 @@ public class LoadSaveButton extends SavesMenuButton{
 	
 	@Override
 	public void doubleClick(Game game){
-		this.attemptLoad(game);
+		ZusassGame zgame = (ZusassGame)game;
+		this.attemptLoad(zgame);
 	}
 	
 	/**
 	 * Attempt to load the file at {@link #path} into the game
 	 * 
-	 * @param game The game to load into
+	 * @param zgame The game to load into
 	 * @return true if the file loaded, false otherwise
 	 */
-	public boolean attemptLoad(Game game){
-		boolean success = game.loadGame(ZusassConfig.createSaveFileSuffix(path));
+	public boolean attemptLoad(ZusassGame zgame){
+		boolean success = zgame.loadGame(ZusassConfig.createSaveFileSuffix(path));
 		// If the load was successful, enter the play state
-		if(success) game.setCurrentState(new MainPlay(game));
+		if(success) zgame.setCurrentState(new MainPlay(zgame));
 		
 		// Otherwise, say that it failed to load
 		else this.getMenu().showMessage(ZStringUtils.concat("Load failed for: ", this.getText()));

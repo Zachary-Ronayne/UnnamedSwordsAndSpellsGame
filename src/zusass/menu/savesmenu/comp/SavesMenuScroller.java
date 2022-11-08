@@ -1,9 +1,9 @@
 package zusass.menu.savesmenu.comp;
 
-import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.scroller.MenuScrollerButton;
 import zgame.menu.scroller.VerticalScroller;
+import zusass.ZusassGame;
 
 /** A {@link VerticalScroller} made for the saves menu */
 public class SavesMenuScroller extends VerticalScroller{
@@ -18,8 +18,8 @@ public class SavesMenuScroller extends VerticalScroller{
 	 * 
 	 * @param game The game associated with this thing
 	 */
-	public SavesMenuScroller(Game game){
-		super(X, Y, 25, 680, 0, game);
+	public SavesMenuScroller(ZusassGame zgame){
+		super(X, Y, 25, 680, 0, zgame);
 		this.setFill(new ZColor(.8));
 		this.setBorder(new ZColor(0.8));
 		this.setBorderWidth(1);

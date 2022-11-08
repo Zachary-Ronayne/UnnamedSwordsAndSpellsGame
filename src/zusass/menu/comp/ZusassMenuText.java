@@ -1,7 +1,7 @@
 package zusass.menu.comp;
 
-import zgame.core.Game;
 import zgame.menu.MenuText;
+import zusass.ZusassGame;
 
 /** A {@link MenuText} used by the Zusass game */
 public class ZusassMenuText extends MenuText{
@@ -16,9 +16,9 @@ public class ZusassMenuText extends MenuText{
 	 * @param text The text to display
 	 * @param game The game associated with this text
 	 */
-	public ZusassMenuText(double x, double y, double w, double h, String text, Game game){
-		super(x, y, w, h, text, game);
-		ZusassStyle.applyStyle(game, this);
+	public ZusassMenuText(double x, double y, double w, double h, String text, ZusassGame zgame){
+		super(x, y, w, h, text, zgame);
+		ZusassStyle.applyStyle(zgame, this);
 	}
 	
 }

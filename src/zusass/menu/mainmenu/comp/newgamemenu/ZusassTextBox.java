@@ -1,7 +1,7 @@
 package zusass.menu.mainmenu.comp.newgamemenu;
 
-import zgame.core.Game;
 import zgame.menu.MenuTextBox;
+import zusass.ZusassGame;
 import zusass.menu.comp.ZusassStyle;
 
 /** A {@link MenuTextBox} used by the Zusass game */
@@ -15,9 +15,9 @@ public class ZusassTextBox extends MenuTextBox{
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 */
-	public ZusassTextBox(double x, double y, double w, double h, Game game){
-		super(x, y, w, h, game);
-		ZusassStyle.applyStyle(game, this);
+	public ZusassTextBox(double x, double y, double w, double h, ZusassGame zgame){
+		super(x, y, w, h, zgame);
+		ZusassStyle.applyStyle(zgame, this);
 	}
 	
 }

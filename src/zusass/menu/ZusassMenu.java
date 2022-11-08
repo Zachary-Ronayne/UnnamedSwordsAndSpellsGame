@@ -22,8 +22,8 @@ public abstract class ZusassMenu extends Menu{
 	 * Create the new menu with the given title
 	 * @param title See {@link #title}
 	 */
-	public ZusassMenu(String title){
-		this(title, 600, 110);
+	public ZusassMenu(ZusassGame zgame, String title){
+		this(zgame, title, 600, 110);
 	}
 	
 	/**
@@ -32,7 +32,7 @@ public abstract class ZusassMenu extends Menu{
 	 * @param x See {@link #titleX}
 	 * @param y See {@link #titleY}
 	 */
-	public ZusassMenu(String title, double x, double y){
+	public ZusassMenu(ZusassGame zgame, String title, double x, double y){
 		// TODO make title a buffer
 		this.title = title;
 		this.titleX = x;
