@@ -8,7 +8,7 @@ public interface TileHitbox{
 	
 	public static final None NONE = new None();
 	public static final Full FULL = new Full();
-
+	
 	/**
 	 * Based on the given rectangular bounds, determine the new position of the rectangle when it collides with the given tile
 	 * The coordinates in this method are treated as the upper left hand corner of the rectangle
@@ -18,7 +18,7 @@ public interface TileHitbox{
 	 * @return A point to reposition the rectangle to
 	 */
 	public CollisionResponse collide(Tile t, HitBox obj);
-
+	
 	/** For tiles with no collision */
 	public static class None implements TileHitbox{
 		@Override
@@ -26,7 +26,7 @@ public interface TileHitbox{
 			return new CollisionResponse();
 		}
 	}
-
+	
 	/** For tiles whose hitbox takes up the entire tile */
 	public static class Full implements TileHitbox{
 		@Override
@@ -34,5 +34,5 @@ public interface TileHitbox{
 			return obj.calculateRectCollision(t.getX(), t.getY(), t.getWidth(), t.getHeight(), t.getType().getMaterial());
 		}
 	}
-
+	
 }

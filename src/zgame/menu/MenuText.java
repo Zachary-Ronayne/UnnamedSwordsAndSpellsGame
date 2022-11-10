@@ -20,10 +20,10 @@ public class MenuText extends MenuThing{
 	
 	/** The {@link ZColor} to use to color {@link #text} */
 	private ZColor fontColor;
-
+	
 	/** The text to display for this menu */
 	private String text;
-
+	
 	/** The x coordinate to draw this things text */
 	private double textX;
 	/** The x coordinate to draw this things text */

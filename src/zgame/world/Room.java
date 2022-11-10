@@ -88,7 +88,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 		
 		this.wallSolid = new boolean[]{true, true, true, true};
 	}
-
+	
 	@Override
 	public void destroy(){
 		for(int i = 0; i < this.things.size(); i++) this.things.get(i).destroy();
@@ -254,7 +254,6 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 			GameTickable t = this.tickableThings.get(i);
 			t.tick(game, dt);
 		}
-		
 		// Remove all things that need to be removed
 		for(GameThing thing : this.thingsToRemove){
 			this.things.remove(thing);
@@ -399,9 +398,10 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	public double centerY(){
 		return this.getHeight() * 0.5;
 	}
-
+	
 	/**
 	 * Get the tile at the specified index
+	 * 
 	 * @param x The tile index on the x axis
 	 * @param y The tile on the y axis
 	 * @return The tile, or null if the tile is outside of the range of the grid

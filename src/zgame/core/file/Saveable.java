@@ -15,7 +15,7 @@ public interface Saveable{
 	public default JsonObject save(JsonObject obj){
 		return obj;
 	}
-
+	
 	/**
 	 * Save the necessary contents of this object to a new {@link JsonObject}.
 	 * This method simply calls {@link #save(JsonObject)} with a new object out of convenience, no need to implement this
@@ -40,7 +40,7 @@ public interface Saveable{
 	public default JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException, NullPointerException{
 		return obj;
 	}
-
+	
 	/**
 	 * Load the key from the given {@link JsonObject} as a JsonObject, and load it with {@link #load(JsonObject)}
 	 * No need to implement this manually.

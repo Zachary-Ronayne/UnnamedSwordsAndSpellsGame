@@ -20,6 +20,7 @@ public abstract class ZusassMenu extends Menu{
 	
 	/**
 	 * Create the new menu with the given title
+	 * 
 	 * @param title See {@link #title}
 	 */
 	public ZusassMenu(ZusassGame zgame, String title){
@@ -28,6 +29,7 @@ public abstract class ZusassMenu extends Menu{
 	
 	/**
 	 * Create the new menu with the given title and position of the title
+	 * 
 	 * @param title See {@link #title}
 	 * @param x See {@link #titleX}
 	 * @param y See {@link #titleY}

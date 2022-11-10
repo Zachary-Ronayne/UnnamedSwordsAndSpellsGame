@@ -26,15 +26,15 @@ public class SavesMenu extends ZusassMenu{
 	
 	/** The scroller that allows the list of buttons to move up and down */
 	private SavesMenuScroller scroller;
-
-	/** An object to hold the buttons that will be hidden when no file is selected  */
+	
+	/** An object to hold the buttons that will be hidden when no file is selected */
 	private MenuHolder extraButtonHolder;
 	
 	/** Text to display for a temporary amount of time */
 	private String messageText;
 	/** The amount of time remaining to display {@link #messageText} */
 	private double messageTimer;
-
+	
 	/**
 	 * Create a new blank {@link SavesMenu}
 	 * 
@@ -100,8 +100,10 @@ public class SavesMenu extends ZusassMenu{
 	public LoadSaveButtonList getLoadButtons(){
 		return this.loadButtons;
 	}
-
-	/** Show or hide the extra buttons for loading and deleting files
+	
+	/**
+	 * Show or hide the extra buttons for loading and deleting files
+	 * 
 	 * @param show true to show the buttons, false to hide
 	 */
 	public void showExtraButtons(boolean show){
@@ -120,4 +122,3 @@ public class SavesMenu extends ZusassMenu{
 	}
 	
 }
-

@@ -32,10 +32,10 @@ public class DrawableBuffer extends GameBuffer{
 		if(this.needRedraw) this.redraw(r);
 		// Make sure the color is reset to opaque
 		r.pushColor();
-
+		
 		// Draw the actual buffer
 		super.drawToRenderer(x, y, r);
-
+		
 		r.makeOpaque();
 		// Put the color back
 		r.popColor();
@@ -63,9 +63,10 @@ public class DrawableBuffer extends GameBuffer{
 	private void redraw(Renderer r){
 		this.redraw(r, (rr, d) -> draw(r), null);
 	}
-
+	
 	/**
 	 * Perform a redraw with an object
+	 * 
 	 * @param <D> The type of the object to use with the redraw
 	 * @param r The renderer to give to the draw function
 	 * @param func The function to call to perform the actual drawing

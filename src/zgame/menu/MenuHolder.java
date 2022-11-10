@@ -11,6 +11,7 @@ public class MenuHolder extends MenuThing{
 	public MenuHolder(){
 		this(0, 0);
 	}
+	
 	/**
 	 * Create a {@link MenuHolder} at the given position. Everything added to this holder will be relative to these coordinates
 	 * 

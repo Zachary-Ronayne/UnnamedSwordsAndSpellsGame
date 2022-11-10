@@ -2,7 +2,6 @@ package zgame.menu;
 
 /**
  * An object which represents a single {@link Menu}. A menu is a simple object used to group together other {@link MenuThing} objects with a background.
- * Use #MenuH 
  */
 public class Menu extends MenuThing{
 	

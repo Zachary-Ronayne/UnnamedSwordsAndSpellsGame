@@ -7,5 +7,5 @@ public class DefaultState extends GameState{
 	public DefaultState(){
 		super();
 	}
-
+	
 }

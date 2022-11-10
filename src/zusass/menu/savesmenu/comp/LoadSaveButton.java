@@ -46,8 +46,8 @@ public class LoadSaveButton extends SavesMenuButton{
 	
 	/*
 	 * This class is giving it relative coordinates, which works for where to render it, but not for checking if it should be rendered
-	 * Rework the relative rendering system for when it's not using a buffer? 
-	 */ 
+	 * Rework the relative rendering system for when it's not using a buffer?
+	 */
 	
 	@Override
 	public void renderSelf(Game game, Renderer r, ZRect bounds){

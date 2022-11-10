@@ -231,7 +231,7 @@ public abstract class MobThing extends EntityThing{
 			 * This probably needs to account for the change in frictional force
 			 * Why can you still move a bit after landing on a high friction force until you stop moving?
 			 */
-
+			
 			// If that velocity is greater than the maximum speed, then apply a force such that it will bring the velocity exactly to the maximum speed
 			if(Math.abs(newVel) > maxSpeed){
 				// Need to account for the sign of max speed depending on the direction of the new desired walking force

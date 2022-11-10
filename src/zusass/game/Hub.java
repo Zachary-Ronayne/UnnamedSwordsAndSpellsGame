@@ -41,7 +41,7 @@ public class Hub extends Room{
 		this.setTile(9, 10, BaseTiles.WALL_DARK);
 		this.setTile(6, 11, BaseTiles.WALL_DARK);
 		Tile t = this.getTile(9, 10);
-
+		
 		double doorX = t.getX();
 		ZusassData data = zgame.getData();
 		LevelDoor highDoor = new LevelDoor(doorX, 0, data.getHighestRoomLevel(), this);

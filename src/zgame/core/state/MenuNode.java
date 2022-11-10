@@ -40,12 +40,13 @@ public class MenuNode{
 	
 	/**
 	 * Create a node with the default settings. If this menu is not on top, it will only render, not tick or receive input
+	 * 
 	 * @param menu See {@link #menu}
 	 */
 	public MenuNode(Menu menu){
 		this(menu, false, false, true);
 	}
-
+	
 	/**
 	 * Create a node with the given settings
 	 * 

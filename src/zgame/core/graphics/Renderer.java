@@ -971,7 +971,7 @@ public class Renderer implements Destroyable{
 		// TODO put this method back. Render checking is currently broken. This method is here to improve performance, i.e., only render things that will appear on the screen
 		// By always returning true, the render check is just skipped, and everything attempts to render no matter what
 		return true;
-
+		
 		// TODO may also need to account for how this interacts with using a buffer. Probably need to recalculate transformedRenderBounds when the buffer changes
 		
 		// if(!this.isRenderOnlyInside()) return true;

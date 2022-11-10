@@ -8,7 +8,7 @@ import zgame.core.utils.ZRect;
 
 /** A {@link MenuText} which can be clicked to perform an action */
 public class MenuButton extends MenuText{
-
+	
 	/** The default value of {@link #doubleClickThreshold} */
 	public static final long DEFAULT_DOUBLE_CLICK_THRESHOLD = 500;
 	
@@ -17,10 +17,10 @@ public class MenuButton extends MenuText{
 	
 	/** The last time this button was clicked, or -1 if the button has never been clicked */
 	private long lastClick;
-
+	
 	/** The amount of time, in milliseconds that can pass between clicks for it to count as a double click */
 	private long doubleClickThreshold;
-
+	
 	/**
 	 * Create a blank {@link MenuButton} at the given position and size
 	 * 
@@ -47,7 +47,7 @@ public class MenuButton extends MenuText{
 	public MenuButton(double x, double y, double w, double h, String text, Game game){
 		super(x, y, w, h, text, game);
 		this.highlightColor = new ZColor(0, .2);
-
+		
 		this.lastClick = -1;
 		this.doubleClickThreshold = DEFAULT_DOUBLE_CLICK_THRESHOLD;
 	}
@@ -84,7 +84,7 @@ public class MenuButton extends MenuText{
 	public void click(Game game){
 		
 	}
-
+	
 	/**
 	 * A method that is called when this button is double clicked, i.e. clicked once, then clicked again, usually after a short time.
 	 * Time can be changed based on {@link #doubleClickThreshold}

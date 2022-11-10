@@ -23,6 +23,7 @@ public class ZRect extends Rectangle2D.Double{
 	
 	/**
 	 * Create a new rectangle with the given amount of padding
+	 * 
 	 * @param x The x coordinate of the upper left hand corner
 	 * @param y The y coordinate of the upper left hand corner
 	 * @param w The width of the bounds
@@ -35,6 +36,7 @@ public class ZRect extends Rectangle2D.Double{
 	
 	/**
 	 * Create a new rectangle with the same size as the given one, but with the given amount of padding
+	 * 
 	 * @param r The base rectangle
 	 * @param padding An amount to add around the rectangle on all sides
 	 */

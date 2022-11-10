@@ -76,7 +76,7 @@ public class Shader extends Asset{
 		String status = success ? "success" : "failure";
 		if(ZConfig.printSuccess() && success || ZConfig.printErrors() && !success){ ZStringUtils.print("Shader at path '", this.getPath(), "' initialize ", status); }
 	}
-
+	
 	@Override
 	public void destroy(){
 	}

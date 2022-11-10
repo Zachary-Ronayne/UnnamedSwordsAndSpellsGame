@@ -15,10 +15,10 @@ public class ZusassData implements Saveable{
 	
 	/** The highest level the player has gotten to in the infinitely randomly generated rooms */
 	private int highestRoomLevel;
-
+	
 	/** The path to the file which is currently loaded as the play state */
 	private String loadedFile;
-
+	
 	/** true to save the game on actions like getting to a new level, exiting the game, and so on, false to turn off */
 	private boolean autosave;
 	
@@ -28,7 +28,7 @@ public class ZusassData implements Saveable{
 		this.loadedFile = null;
 		this.autosave = true;
 	}
-
+	
 	@Override
 	public JsonObject save(JsonObject obj){
 		JsonObject generalData = new JsonObject();
@@ -51,36 +51,37 @@ public class ZusassData implements Saveable{
 	
 	/**
 	 * Set the value of {@link #highestRoomLevel}, only if the given value is greater than the current value
+	 * 
 	 * @param highestRoomLevel The potential new value for {@link #highestRoomLevel}
 	 */
 	public void updatedHighestRoomLevel(int highestRoomLevel){
 		this.highestRoomLevel = Math.max(highestRoomLevel, this.getHighestRoomLevel());
 	}
-
+	
 	/** @return See {@link #loadedFile} */
 	public String getLoadedFile(){
 		return this.loadedFile;
 	}
-
+	
 	/** @param loadedFile See {@link #loadedFile} */
 	public void setLoadedFile(String loadedFile){
 		this.loadedFile = loadedFile;
 	}
-
+	
 	/** @return See {@link #autosave} */
 	public boolean isAutosave(){
 		return this.autosave;
 	}
-
+	
 	/** @param autosave See {@link #autosave} */
 	public void setAutosave(boolean autosave){
 		this.autosave = autosave;
 	}
-
+	
 	/** If auto save is enabled, save the game, otherwise, do nothing */
 	public void checkAutoSave(ZusassGame zgame){
 		if(!this.isAutosave()) return;
-
+		
 		((ZusassGame)zgame).saveLoadedGame();
 	}
 	

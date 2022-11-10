@@ -17,7 +17,7 @@ public class ZVector{
 	public ZVector(){
 		this(0, 0);
 	}
-
+	
 	/**
 	 * Create a new ZVector with the given component values
 	 * 

@@ -25,7 +25,7 @@ public class VertexBuffer implements Destroyable{
 	
 	/** The number of numbers in each vertex, i.e. a 3D positional vertex would have 3 values, a color in RGBA would have 4 values, etc. */
 	private int vertexLength;
-
+	
 	/** The mode used by glBufferData for the usage parameter. Either GL_STREAM_DRAW, GL_STATIC_DRAW, or GL_DYNAMIC_DRAW */
 	private int drawMode;
 	
@@ -40,7 +40,7 @@ public class VertexBuffer implements Destroyable{
 	public VertexBuffer(int index, int vertexLength, int vertices){
 		this(index, vertexLength, vertices, GL_DYNAMIC_DRAW);
 	}
-
+	
 	/**
 	 * Create a basic {@link VertexArray} based on the given values. Calling this constructor will create the buffer ID, assign the data to the created buffer, and assign the
 	 * buffer to the current vertex array. The data in this {@link VertexBuffer} makes no guarantees about what will be stored as the initial data
@@ -53,7 +53,7 @@ public class VertexBuffer implements Destroyable{
 	public VertexBuffer(int index, int vertexLength, int drawMode, int vertices){
 		this(index, vertexLength, new float[vertexLength * vertices]);
 	}
-
+	
 	/**
 	 * Create a basic {@link VertexArray} based on the given values. Calling this constructor will create the buffer ID, assign the data to the created buffer, and assign the
 	 * buffer to the current vertex array

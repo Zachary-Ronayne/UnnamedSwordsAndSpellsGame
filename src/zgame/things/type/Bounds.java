@@ -10,7 +10,7 @@ public interface Bounds extends Position{
 	
 	/** @return The maximum y coordinate of this bounds */
 	public double maxY();
-
+	
 	/** @return The width this bounds takes up */
 	public default double getWidth(){
 		return this.maxX() - this.getX();
@@ -30,10 +30,10 @@ public interface Bounds extends Position{
 	public default double centerY(){
 		return this.getY() + getHeight() * 0.5;
 	}
-
+	
 	/** @return A rectangle representing the full bounds which this {@link Bounds} takes up */
 	public default ZRect getBounds(){
 		return new ZRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
-
+	
 }

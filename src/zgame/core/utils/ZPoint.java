@@ -25,7 +25,7 @@ public class ZPoint extends Point2D.Double{
 	public ZPoint(double x, double y){
 		super(x, y);
 	}
-
+	
 	/** @return A point with the same x and y values as this point, but as a different object */
 	public ZPoint copy(){
 		return new ZPoint(this.getX(), this.getY());

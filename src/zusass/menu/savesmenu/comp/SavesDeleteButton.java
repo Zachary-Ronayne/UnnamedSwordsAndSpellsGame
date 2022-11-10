@@ -11,7 +11,8 @@ import zusass.menu.savesmenu.SavesMenu;
 /** A button to delete the selected save file in the saves menu */
 public class SavesDeleteButton extends SavesMenuButton{
 	
-	/** Create the {@link SavesLoadButton}
+	/**
+	 * Create the {@link SavesLoadButton}
 	 * 
 	 * @param menu See {@link #getMenu()}
 	 * @param zgame The {@link Game} associated with this button
@@ -19,11 +20,11 @@ public class SavesDeleteButton extends SavesMenuButton{
 	public SavesDeleteButton(SavesMenu menu, ZusassGame zgame){
 		super(360, 600, "Delete", menu, zgame);
 	}
-
+	
 	@Override
 	public void click(Game game){
 		ZusassGame zgame = (ZusassGame)game;
-
+		
 		LoadSaveButton button = this.getMenu().getLoadButtons().getSelected();
 		if(button == null) return;
 		String path = button.getPath();
@@ -32,7 +33,7 @@ public class SavesDeleteButton extends SavesMenuButton{
 			file.delete();
 			this.getMenu().getLoadButtons().setSelected(null);
 			this.getMenu().getLoadButtons().populate(zgame);
-
+			
 		}catch(SecurityException | NullPointerException e){
 			if(ZConfig.printErrors()){
 				ZStringUtils.prints("Failed to delete file at path", path);
@@ -40,9 +41,7 @@ public class SavesDeleteButton extends SavesMenuButton{
 			}
 			this.getMenu().showMessage(ZStringUtils.concat("Delete Failed for", button.getText()));
 		}
-
-
 		// TODO make this show a popup confirming to delete the file
 	}
-
+	
 }

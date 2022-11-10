@@ -338,7 +338,7 @@ public class Game implements Saveable, Destroyable{
 	private void loopFunction(){
 		// Update the state of the game
 		this.updateCurrentState();
-
+		
 		boolean focused = this.getWindow().isFocused();
 		boolean minimized = this.getWindow().isMinimized();
 		
@@ -859,7 +859,7 @@ public class Game implements Saveable, Destroyable{
 	public Room getCurrentRoom(){
 		PlayState p = this.getPlayState();
 		if(p == null) return null;
-		return this.getPlayState().getCurrentRoom();
+		return p.getCurrentRoom();
 	}
 	
 	/**

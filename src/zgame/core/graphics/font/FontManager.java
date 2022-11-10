@@ -10,7 +10,7 @@ public class FontManager extends AssetManager<FontAsset>{
 	public FontManager(){
 		super(ZFilePaths.FONTS, "ttf");
 	}
-
+	
 	@Override
 	public FontAsset create(String path){
 		return FontAsset.create(path);

@@ -490,7 +490,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 			this.drawThings(game, r, true);
 		}
 	}
-
+	
 	/**
 	 * Draw the contents of just this menu thing, not anything in {@link #things}
 	 * Anything drawn using this method should be drawn relative to the given bounds, not based on this thing's position or relative position

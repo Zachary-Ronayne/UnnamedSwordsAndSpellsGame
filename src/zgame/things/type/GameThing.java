@@ -11,11 +11,11 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	/** Create an empty {@link GameThing} */
 	public GameThing(){
 	}
-
+	
 	/** Override this method if this {@link GameThing} uses any resources that must be freed when it is no longer in use */
 	@Override
 	public void destroy(){
-	}	
+	}
 	
 	/**
 	 * Draw this {@link GameThing} to the given {@link Renderer}

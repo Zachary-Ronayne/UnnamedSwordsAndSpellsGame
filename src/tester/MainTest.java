@@ -799,7 +799,7 @@ public class MainTest extends Game{
 			menu.addThing(b);
 			this.state.popupMenu(menu);
 		}
-
+		
 		@Override
 		public void renderBackground(Game game, Renderer r){
 			super.renderBackground(game, r);

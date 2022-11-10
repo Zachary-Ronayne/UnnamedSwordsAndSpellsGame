@@ -7,7 +7,7 @@ import zgame.core.graphics.Renderer;
  * An extension of {@link DrawableBuffer} that allows for rendering using a {@link Game} object
  */
 public class DrawableGameBuffer extends DrawableBuffer{
-
+	
 	/**
 	 * Create a new {@link DrawableGameBuffer} of the given width and height
 	 * If given a value less than or equal to 0 for width or height, that value will be set to 1
@@ -18,7 +18,7 @@ public class DrawableGameBuffer extends DrawableBuffer{
 	public DrawableGameBuffer(double width, double height){
 		super(Math.max(1, (int)Math.round(width)), Math.max(1, (int)Math.round(height)));
 	}
-
+	
 	/** {@link #draw(Renderer)} is not used by this class, use {@link #draw(Game, Renderer)} instead */
 	@Override
 	public final void draw(Renderer r){
@@ -28,7 +28,7 @@ public class DrawableGameBuffer extends DrawableBuffer{
 	@Override
 	public final void drawToRenderer(double x, double y, Renderer r){
 	}
-
+	
 	/**
 	 * Draw the contents of this buffer to the given renderer, redrawing it if needed
 	 * 
@@ -41,9 +41,10 @@ public class DrawableGameBuffer extends DrawableBuffer{
 		if(!this.skipRedraw()) this.redraw(r, (ren, g) -> draw(game, ren), game);
 		super.drawToRenderer(x, y, r);
 	}
-
+	
 	/**
 	 * Draw the buffer using the provided game. Override this method to draw custom values
+	 * 
 	 * @param game The game to use for drawing
 	 * @param r The renderer to draw to
 	 */

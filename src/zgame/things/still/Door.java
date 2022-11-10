@@ -77,11 +77,11 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	public void setRoomY(double roomY){
 		this.roomY = roomY;
 	}
-
+	
 	/**
 	 * Move the given {@link PositionedHitboxThing} from the given room to {@link #leadRoom}, only if it's able to enter this door
 	 * 
-	 * @param r The room which  thing is coming from, can be null if there is no room the thing is coming from
+	 * @param r The room which thing is coming from, can be null if there is no room the thing is coming from
 	 * @param thing The thing to move
 	 * @param game The {@link Game} where this room entering takes place
 	 * @return true if thing entered this room, false otherwise
@@ -97,8 +97,7 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 		else return false;
 		return true;
 	}
-
-
+	
 	/**
 	 * Determine if thing is able to enter this door.
 	 * Always returns true by default, can override to implement custom behavior
@@ -109,7 +108,7 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	public boolean canEnter(PositionedHitboxThing thing){
 		return true;
 	}
-
+	
 	@Override
 	public void tick(Game game, double dt){
 		Collection<EntityThing> entities = game.getCurrentRoom().getEntities();

@@ -11,16 +11,16 @@ public class IndexBuffer{
 	
 	/** The number OpenGL uses to track this index buffer */
 	private int id;
-
+	
 	/** The index data used by this {@link IndexBuffer} */
 	private byte[] data;
-
+	
 	/** The buffer holding {@link #data} */
 	private ByteBuffer buff;
 	
 	/** The mode used by glBufferData for the usage parameter. Either GL_STREAM_DRAW, GL_STATIC_DRAW, or GL_DYNAMIC_DRAW */
 	private int drawMode;
-
+	
 	/**
 	 * Create a new {@link IndexBuffer} with the given data and buffer the indexes
 	 * 
@@ -29,7 +29,7 @@ public class IndexBuffer{
 	public IndexBuffer(byte[] data){
 		this(GL_STATIC_DRAW, data);
 	}
-
+	
 	/**
 	 * Create a new {@link IndexBuffer} with the given values and buffer the indexes
 	 * 
@@ -43,7 +43,7 @@ public class IndexBuffer{
 		this.buff.put(this.data).flip();
 		this.id = glGenBuffers();
 	}
-
+	
 	/** Bind then buffer the data for this index buffer */
 	public void bufferData(){
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this.id);
@@ -54,15 +54,15 @@ public class IndexBuffer{
 	public void bind(){
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this.id);
 	}
-
+	
 	/** @return See {@link #id} */
 	public int getId(){
 		return this.id;
 	}
-
+	
 	/** @return See {@link #buff} */
 	public ByteBuffer getBuff(){
 		return this.buff;
 	}
-
+	
 }

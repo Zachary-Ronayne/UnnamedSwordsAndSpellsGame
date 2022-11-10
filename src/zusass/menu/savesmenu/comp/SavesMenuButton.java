@@ -8,12 +8,12 @@ import zusass.menu.savesmenu.SavesMenu;
 
 /** A {@link ZusassButton} for navigating the {@link SavesMenu} */
 public class SavesMenuButton extends ZusassButton{
-
+	
 	/** The width of every {@link SavesMenuButton} */
 	public static final double WIDTH = 160;
 	/** The height of every {@link SavesMenuButton} */
 	public static final double HEIGHT = 40;
-
+	
 	// The {@link SavesMenu} associated with this button
 	private SavesMenu menu;
 	
@@ -34,7 +34,7 @@ public class SavesMenuButton extends ZusassButton{
 		this.setBorder(new ZColor(0.8));
 		this.setBorderWidth(1);
 	}
-
+	
 	/** @return See {@link #menu} */
 	public SavesMenu getMenu(){
 		return this.menu;

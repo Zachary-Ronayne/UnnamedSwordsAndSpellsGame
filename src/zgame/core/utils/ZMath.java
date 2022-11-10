@@ -72,9 +72,10 @@ public final class ZMath{
 	public static double minMax(double a, double b, double x){
 		return Math.max(a, Math.min(b, x));
 	}
-
+	
 	/**
 	 * Determine if a number is between two other numbers
+	 * 
 	 * @param a The lower number to check
 	 * @param b The middle number
 	 * @param c The higher number
@@ -83,10 +84,11 @@ public final class ZMath{
 	public static boolean in(int a, int b, int c){
 		return a <= b && b <= c;
 	}
-
+	
 	/**
 	 * Determine if two numbers have the same sign.
 	 * Behavior of this method is not guaranteed for weird values, i.e. infinity and NaN
+	 * 
 	 * @param a The first number
 	 * @param b The second number
 	 * @return true if they have the same sign, false otherwise.
@@ -94,7 +96,7 @@ public final class ZMath{
 	public static boolean sameSign(double a, double b){
 		return a == b || (a < 0 && b < 0) || (a > 0 && b > 0);
 	}
-
+	
 	/**
 	 * Find the angle from the point (x, y) to the point (px, py)
 	 * 
@@ -131,7 +133,6 @@ public final class ZMath{
 			double b = yIntercept(line);
 			return new ZPoint(nanL.x1, m * nanL.x1 + b);
 		}
-
 		// Find y intercepts
 		double b1 = yIntercept(l1, m1);
 		double b2 = yIntercept(l2, m2);
@@ -170,7 +171,7 @@ public final class ZMath{
 	public static double yIntercept(Line2D.Double line, double slope){
 		return line.y1 - slope * line.x1;
 	}
-
+	
 	/**
 	 * Given two lengths for the non hypotenuse sides of a right triangle, return the length of the hypotenuse
 	 * 

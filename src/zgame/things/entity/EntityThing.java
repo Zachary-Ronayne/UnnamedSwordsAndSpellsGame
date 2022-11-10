@@ -18,7 +18,7 @@ import zgame.world.Room;
  * A {@link PositionedThing} which keeps track of an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
  * This is for things like creatures, dropped items, projectiles, etc.
  */
-public abstract class EntityThing extends PositionedHitboxThing implements GameTickable {
+public abstract class EntityThing extends PositionedHitboxThing implements GameTickable{
 	
 	/** The string used to identify the force of gravity in {@link #forces} */
 	public static final String FORCE_NAME_GRAVITY = "gravity";

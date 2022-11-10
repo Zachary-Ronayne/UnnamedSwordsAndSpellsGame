@@ -29,7 +29,7 @@ public class PlayState extends GameState{
 		super(true);
 		if(createRoom) this.currentRoom = new Room();
 	}
-
+	
 	@Override
 	public void destroy(){
 		super.destroy();

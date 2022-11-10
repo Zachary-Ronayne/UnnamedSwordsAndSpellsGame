@@ -58,7 +58,7 @@ public abstract class MenuScroller extends MenuThing{
 		super.addThing(button);
 		this.movingThing = null;
 	}
-
+	
 	@Override
 	public void destroy(){
 		super.destroy();

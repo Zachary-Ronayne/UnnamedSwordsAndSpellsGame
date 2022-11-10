@@ -399,7 +399,7 @@ public abstract class GameWindow implements Destroyable{
 		this.renderer.resize(width, height);
 		this.updateWindowSize();
 	}
-
+	
 	/** Ensure the current stored width and height of the window match the current window size */
 	public void updateWindowSize(){
 		Dimension s = this.getWindowSize();

@@ -58,7 +58,7 @@ public class GameLooper{
 	
 	/** true if this looper should end on the next iteration */
 	private boolean forceEnd;
-
+	
 	/** Keeps track of if the loop is currently running */
 	private boolean running;
 	
@@ -146,7 +146,7 @@ public class GameLooper{
 	public void end(){
 		this.forceEnd = true;
 	}
-
+	
 	/** @return See {@link #running} */
 	public boolean isRunning(){
 		return this.running;

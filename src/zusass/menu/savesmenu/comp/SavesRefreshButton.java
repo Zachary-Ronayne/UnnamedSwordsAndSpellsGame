@@ -7,7 +7,8 @@ import zusass.menu.savesmenu.SavesMenu;
 /** A {@link SavesMenuButton} for refreshing the loaded save files of a {@link SavesMenu} */
 public class SavesRefreshButton extends SavesMenuButton{
 	
-	/** Create the {@link SavesBackButton}
+	/**
+	 * Create the {@link SavesBackButton}
 	 * 
 	 * @param menu See {@link #getMenu()}
 	 * @param game The {@link Game} associated with this button

@@ -20,7 +20,7 @@ public class HorizontalScroller extends MenuScroller{
 	public HorizontalScroller(double x, double y, double w, double h, double amount, Game game){
 		super(x, y, w, h, amount, game);
 	}
-
+	
 	@Override
 	public MenuScrollerButton generateButton(Game game){
 		return new HorizontalScrollerButton(this, this.getHeight() * 2, this.getHeight(), game);

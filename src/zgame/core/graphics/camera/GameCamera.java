@@ -169,7 +169,7 @@ public class GameCamera{
 	public ZRect boundsGameToScreen(ZRect r){
 		return this.boundsGameToScreen(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
-
+	
 	/**
 	 * Convert the bounds of a rectangle in game coordinates to the bounds in screen coordinates
 	 * 

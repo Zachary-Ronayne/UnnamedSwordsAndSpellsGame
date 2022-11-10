@@ -14,12 +14,12 @@ public class EffectsManager extends AssetManager<EffectSound>{
 	public EffectsManager(){
 		super(ZFilePaths.EFFECTS, "ogg");
 	}
-
+	
 	@Override
 	public EffectSound create(String path){
 		return EffectSound.loadSound(path);
 	}
-
+	
 	@Override
 	public void addAll(){
 		// First find all the folders

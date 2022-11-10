@@ -75,7 +75,6 @@ public class GameFont{
 		}
 		// Otherwise, get the bounds
 		else a.findBakedQuad(c, x, y, quad);
-
 		// Add the extra character space
 		if(!newLine && this.getCharSpace() != 0) x.put(0, (float)(x.get(0) + this.getCharSpace() * this.getResolutionRatioInverse()));
 		
@@ -187,7 +186,7 @@ public class GameFont{
 	 */
 	public ZRect[] stringBounds(double x, double y, String text, double padding, boolean calcIndividuals){
 		FontAsset a = this.getAsset();
-
+		
 		// If there is no string, then the array contains only one empty rectangle
 		if(a == null || text == null || text.isEmpty()) return new ZRect[]{new ZRect()};
 		
@@ -196,12 +195,12 @@ public class GameFont{
 		double w = 0;
 		double h = (a.getAscent() - a.getDescent()) * pixelRatio;
 		y -= a.getAscent() * pixelRatio;
-
+		
 		// This part is really weird, but doing this aligns the text better. It's still not perfect, but it's better
 		double add = this.getSize() * a.getResolutionInverse();
 		x += add;
 		y -= add;
-
+		
 		double baseX = x;
 		double baseY = y;
 		double maxWidth = w;
@@ -300,7 +299,7 @@ public class GameFont{
 	public double getResolutionRatio(){
 		return this.resolutionRatio;
 	}
-
+	
 	/** @return See {@link #resolutionRatioInverse} */
 	public double getResolutionRatioInverse(){
 		return this.resolutionRatioInverse;

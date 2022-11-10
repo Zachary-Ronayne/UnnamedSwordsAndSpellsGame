@@ -10,7 +10,7 @@ public class MusicManager extends AssetManager<MusicSound>{
 	public MusicManager(){
 		super(ZFilePaths.MUSIC, "ogg");
 	}
-
+	
 	@Override
 	public MusicSound create(String path){
 		return MusicSound.loadMusic(path);
