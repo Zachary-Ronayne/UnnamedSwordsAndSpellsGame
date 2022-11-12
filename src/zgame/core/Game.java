@@ -683,6 +683,11 @@ public class Game implements Saveable, Destroyable{
 		return new GameFont(this.getFonts().get(font));
 	}
 	
+	/** @return The default font */
+	public GameFont getDefaultFont(){
+		return getFont("zfont");
+	}
+	
 	/**
 	 * @return The maximum number of frames to render per second. Use 0 for unlimited framerate. This value does nothing if vsync is turned on
 	 */

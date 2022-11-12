@@ -3,20 +3,16 @@ package zusass.menu;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.graphics.font.TextBuffer;
+import zgame.core.utils.ZRect;
 import zgame.menu.Menu;
 import zusass.ZusassGame;
 
 /** A base menu class for {@link Menu} in the {@link ZusassGame} */
 public abstract class ZusassMenu extends Menu{
-	
-	/** The title of this {@link ZusassMenu} */
-	private String title;
-	
-	/** The x coordinate of the title */
-	private double titleX;
-	
-	/** The y coordinate of the title */
-	private double titleY;
+
+	/** A text buffer holding the text to display the title */
+	private TextBuffer titleBuffer;
 	
 	/**
 	 * Create the new menu with the given title
@@ -31,59 +27,68 @@ public abstract class ZusassMenu extends Menu{
 	 * Create the new menu with the given title and position of the title
 	 * 
 	 * @param title See {@link #title}
-	 * @param x See {@link #titleX}
-	 * @param y See {@link #titleY}
+	 * @param x The x position of the title
+	 * @param y The y position of the title
 	 */
 	public ZusassMenu(ZusassGame zgame, String title, double x, double y){
-		// TODO make title a buffer
-		this.title = title;
-		this.titleX = x;
-		this.titleY = y;
-	}
-	
-	@Override
-	public void renderBackground(Game game, Renderer r){
-		super.renderBackground(game, r);
+		super(0, 0, zgame.getScreenWidth(), zgame.getScreenHeight(), false);
+		this.setFill(new ZColor(0.2, 0.2, 0.2));
 		
-		// Background color
-		r.setColor(0.2, 0.2, 0.2);
-		r.fill();
+		this.titleBuffer = new TextBuffer((int)zgame.getScreenWidth(), (int)zgame.getScreenHeight());
+		this.titleBuffer.setFont(zgame.getDefaultFont().size(100));
+		this.titleBuffer.setTextX(x);
+		this.titleBuffer.setTextY(y);
+		this.setTitle(title);
+	}
+
+	@Override
+	public void destroy(){
+		this.titleBuffer.destroy();
+		super.destroy();
+	}
+
+	@Override
+	public void renderSelf(Game game, Renderer r, ZRect bounds){
+		super.renderSelf(game, r, bounds);
 		
 		// Title
 		r.setColor(new ZColor(.8));
-		r.setFont(game.getFont("zfont"));
-		r.setFontSize(100);
-		r.drawText(this.getTitleX(), this.getTitleY(), this.getTitle());
+		this.getTitleBuffer().drawToRenderer(0, 0, r);
+	}
+
+	/** @return See {@link #titleBuffer} */
+	public TextBuffer getTitleBuffer(){
+		return this.titleBuffer;
 	}
 	
-	/** @return See {@link #title} */
+	/** @return The text of the title */
 	public String getTitle(){
-		return this.title;
+		return this.getTitleBuffer().getText();
 	}
 	
-	/** @param title See {@link #title} */
+	/** @param title The new text for the title */
 	public void setTitle(String title){
-		this.title = title;
+		this.getTitleBuffer().setText(title);
 	}
 	
-	/** @return See {@link #titleX} */
+	/** @return The x position of the title */
 	public double getTitleX(){
-		return this.titleX;
+		return this.getTitleBuffer().getTextX();
 	}
 	
-	/** @param titleX See {@link #titleX} */
+	/** @param titleX The new text x position of the title */
 	public void setTitleX(double titleX){
-		this.titleX = titleX;
+		this.getTitleBuffer().setTextX(titleX);
 	}
 	
-	/** @return See {@link #titleY} */
+	/** @return The y position of the title */
 	public double getTitleY(){
-		return this.titleY;
+		return this.titleBuffer.getTextY();
 	}
 	
-	/** @param titleY See {@link #titleY} */
+	/** @param titleY The new text y position of the title */
 	public void setTitleY(double titleY){
-		this.titleY = titleY;
+		this.getTitleBuffer().setTextY(titleY);
 	}
 	
 }

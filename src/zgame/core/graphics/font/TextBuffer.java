@@ -26,6 +26,18 @@ public class TextBuffer extends DrawableBuffer{
 	 * 
 	 * @param width See {@link #getWidth()}
 	 * @param height See {@link #getHeight()}
+	 */
+	public TextBuffer(int width, int height){
+		this(width, height, null);
+	}
+
+	/**
+	 * Create a {@link TextBuffer} of the given size.
+	 * Will likely want to call {@link #setPosition(double, double)}. The default position is 0 for x, and half the height for y, which may cause some text to get clipped
+	 * off
+	 * 
+	 * @param width See {@link #getWidth()}
+	 * @param height See {@link #getHeight()}
 	 * @param font See {@link #font}
 	 */
 	public TextBuffer(int width, int height, GameFont font){
@@ -45,7 +57,9 @@ public class TextBuffer extends DrawableBuffer{
 	
 	@Override
 	public void draw(Renderer r){
-		r.setFont(this.getFont());
+		GameFont f = this.getFont();
+		if(f == null) return;
+		r.setFont(f);
 		r.drawText(this.getTextX(), this.getTextY(), this.getText(), this.getFont());
 	}
 	
