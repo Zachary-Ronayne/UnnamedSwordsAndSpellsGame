@@ -41,7 +41,6 @@ public class SavesDeleteButton extends SavesMenuButton{
 			}
 			this.getMenu().showMessage(ZStringUtils.concat("Delete Failed for", button.getText()));
 		}
-		// TODO make this show a popup confirming to delete the file
 	}
 	
 }

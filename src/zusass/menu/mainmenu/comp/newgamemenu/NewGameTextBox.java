@@ -2,21 +2,31 @@ package zusass.menu.mainmenu.comp.newgamemenu;
 
 import zgame.menu.MenuTextBox;
 import zusass.ZusassGame;
-import zusass.menu.mainmenu.comp.NewGameButton;
 
 /** A {@link MenuTextBox} for typing in the name of a new game */
 public class NewGameTextBox extends ZusassTextBox{
+
+	/** The popup which uses this text box */
+	private NewGamePopup popup;
 	
 	/**
 	 * Initialize the {@link NewGameTextBox}
 	 * 
-	 * @param button The {@link NewGameButton} used by this menu
 	 * @param game The Zusass game used by this thing
+	 * @param popup See {@link #popup}
 	 */
-	public NewGameTextBox(ZusassGame zgame){
+	public NewGameTextBox(ZusassGame zgame, NewGamePopup popup){
 		super(500, 400, 470, 50, zgame);
+		this.popup = popup;
 		this.setSelected(true);
 		this.setHint("Save name...");
+	}
+
+	@Override
+	public void setText(String text){
+		super.setText(text);
+		if(this.popup == null) return;
+		this.popup.updateCreateVisible(text);
 	}
 	
 }

@@ -338,6 +338,14 @@ public class MenuThing implements GameInteractable, Destroyable{
 	public void setParent(MenuThing parent){
 		this.parent = parent;
 	}
+
+	/**
+	 * @param thing Check if the given thing is in this object
+	 * @return true if thing is contained by this thing
+	 */
+	public boolean hasThing(MenuThing thing){
+		return this.getThings().contains(thing);
+	}
 	
 	/**
 	 * Add a {@link MenuThing} to this {@link Menu}
@@ -352,7 +360,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * @return true if the thing was added, false otherwise
 	 */
 	public boolean addThing(MenuThing thing){
-		if(this == thing || this.things.contains(thing) || thing.getParent() != null) return false;
+		if(this == thing || this.hasThing(thing) || thing.getParent() != null) return false;
 		thing.setParent(this);
 		return this.things.add(thing);
 	}

@@ -35,7 +35,7 @@ public class CreateGameButton extends ZusassButton{
 
 		ZusassData data = new ZusassData();
 		data.setLoadedFile(ZusassConfig.createSaveFilePath(name));
-		((ZusassGame)zgame).setData(data);
+		zgame.setData(data);
 		
 		MainPlay play = new MainPlay(zgame);
 		zgame.setCurrentState(play);
