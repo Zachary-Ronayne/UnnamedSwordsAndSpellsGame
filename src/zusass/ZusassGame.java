@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
+import zusass.game.MainPlay;
 import zusass.menu.mainmenu.MainMenuState;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -133,6 +134,11 @@ public class ZusassGame extends Game{
 	/** @param data See {@link #data} */
 	public void setData(ZusassData data){
 		this.data = data;
+	}
+
+	@Override
+	public MainPlay getPlayState(){
+		return (MainPlay)super.getPlayState();
 	}
 	
 }

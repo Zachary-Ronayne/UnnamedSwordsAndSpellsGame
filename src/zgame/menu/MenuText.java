@@ -177,8 +177,8 @@ public class MenuText extends MenuThing{
 	}
 	
 	@Override
-	public void renderSelf(Game game, Renderer r, ZRect bounds){
-		super.renderSelf(game, r, bounds);
+	public void render(Game game, Renderer r, ZRect bounds){
+		super.render(game, r, bounds);
 		
 		if(this.getFont() != null) r.setFont(this.getFont());
 		r.setColor(this.getFontColor());

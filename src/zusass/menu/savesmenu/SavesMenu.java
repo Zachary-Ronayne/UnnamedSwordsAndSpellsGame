@@ -5,6 +5,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.utils.ZRect;
 import zgame.menu.MenuHolder;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
@@ -74,14 +75,15 @@ public class SavesMenu extends ZusassMenu{
 	}
 	
 	@Override
-	public void renderBackground(Game game, Renderer r){
-		super.renderBackground(game, r);
-		if(this.messageTimer >= 0){
-			r.setFont(game.getFont("zfont"));
-			r.setFontSize(25);
-			r.setColor(new ZColor(.8));
-			r.drawText(10, 700, this.messageText);
-		}
+	public void render(Game game, Renderer r, ZRect bounds){
+		super.render(game, r, bounds);
+		if(this.messageTimer < 0) return;
+
+		// TODO fix this not rendering
+		r.setFont(game.getFont("zfont"));
+		r.setFontSize(25);
+		r.setColor(new ZColor(.8));
+		r.drawText(10, 700, this.messageText);
 	}
 	
 	@Override

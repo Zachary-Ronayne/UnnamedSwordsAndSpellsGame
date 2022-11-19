@@ -29,14 +29,8 @@ public class MenuNode{
 	/** true if this menu should receive mouse wheel movement updates while not in focus, false otherwise */
 	private boolean isMouseWheelMove;
 	
-	/** true if this menu should render it's background while not in focus, false otherwise */
-	private boolean isRenderBackground;
-	
-	/** true if this menu should render it's foreground while not in focus, false otherwise */
+	/** true if this menu should render while not in focus, false otherwise */
 	private boolean isRender;
-	
-	/** true if this menu should render it's hud while not in focus, false otherwise */
-	private boolean isRenderHud;
 	
 	/**
 	 * Create a node with the default settings. If this menu is not on top, it will only render, not tick or receive input
@@ -56,7 +50,7 @@ public class MenuNode{
 	 * @param render true if this menu should render when it is not on top
 	 */
 	public MenuNode(Menu menu, boolean tick, boolean input, boolean render){
-		this(menu, tick, input, input, input, input, render, render, render);
+		this(menu, tick, input, input, input, input, render);
 	}
 	
 	/**
@@ -68,22 +62,26 @@ public class MenuNode{
 	 * @param isMouseAction See {@link #isMouseAction}
 	 * @param isMouseMove See {@link #isMouseMove}
 	 * @param isMouseWheelMove See {@link #isMouseWheelMove}
-	 * @param isRenderBackground See {@link #isRenderBackground}
 	 * @param isRender See {@link #isRender}
-	 * @param isRenderHud See {@link #isRenderHud}
 	 */
-	public MenuNode(Menu menu, boolean isTick, boolean isKeyAction, boolean isMouseAction, boolean isMouseMove, boolean isMouseWheelMove, boolean isRenderBackground, boolean isRender, boolean isRenderHud){
+	public MenuNode(Menu menu, boolean isTick, boolean isKeyAction, boolean isMouseAction, boolean isMouseMove, boolean isMouseWheelMove, boolean isRender){
 		this.menu = menu;
 		this.isTick = isTick;
 		this.isKeyAction = isKeyAction;
 		this.isMouseAction = isMouseAction;
 		this.isMouseMove = isMouseMove;
 		this.isMouseWheelMove = isMouseWheelMove;
-		this.isRenderBackground = isRenderBackground;
 		this.isRender = isRender;
-		this.isRenderHud = isRenderHud;
 	}
 	
+	/** 
+	 * @param menu See {@link #menu}
+	 * @return A {@link MenuNode} with all input, rendering, and ticking enabled
+	 */
+	public static MenuNode withAll(Menu menu){
+		return new MenuNode(menu, true, true, true, true, true, true);
+	}
+
 	/**
 	 * Called each time a game tick occurs. A tick is a game update, i.e. some amount of time passing.
 	 * Does nothing if {@link #isTick()} returns false
@@ -149,17 +147,6 @@ public class MenuNode{
 	}
 	
 	/**
-	 * Called once each time a frame of the game is drawn, before the main render. Use this method to define what is drawn as a background, i.e. unaffected by the camera
-	 * Does nothing if {@link #isRenderBackground()} returns false
-	 * 
-	 * @param game The {@link Game} which called this method
-	 * @param r The Renderer to use for drawing
-	 */
-	public void renderBackground(Game game, Renderer r){
-		if(this.isRenderBackground()) this.getMenu().renderBackground(game, r);
-	}
-	
-	/**
 	 * Called once each time a frame is of the game is drawn. Use this method to define what is drawn in the game each frame.
 	 * Does nothing if {@link #isRender()} returns false
 	 * 
@@ -167,18 +154,8 @@ public class MenuNode{
 	 * @param r The Renderer to use for drawing
 	 */
 	public void render(Game game, Renderer r){
-		if(this.isRender()) this.getMenu().render(game, r);
-	}
-	
-	/**
-	 * Called once each time a frame of the game is drawn, after the main render. Use this method to define what is drawn on top of the screen, i.e. a hud, extra menu, etc
-	 * Does nothing if {@link #isRenderHud()} returns false
-	 * 
-	 * @param game The {@link Game} which called this method
-	 * @param r The Renderer to use for drawing
-	 */
-	public void renderHud(Game game, Renderer r){
-		if(this.isRenderHud()) this.getMenu().renderHud(game, r);
+		// Rendering hud because menus should always appear on top
+		if(this.isRender()) this.getMenu().renderHud(game, r);
 	}
 	
 	/** @return See {@link #menu} */
@@ -240,17 +217,7 @@ public class MenuNode{
 	public void setMouseWheelMove(boolean isMouseWheelMove){
 		this.isMouseWheelMove = isMouseWheelMove;
 	}
-	
-	/** @return See {@link #isRenderBackground} */
-	public boolean isRenderBackground(){
-		return this.isRenderBackground;
-	}
-	
-	/** @param isRenderBackground See {@link #isRenderBackground} */
-	public void setRenderBackground(boolean isRenderBackground){
-		this.isRenderBackground = isRenderBackground;
-	}
-	
+
 	/** @return See {@link #isRender} */
 	public boolean isRender(){
 		return this.isRender;
@@ -260,15 +227,5 @@ public class MenuNode{
 	public void setRender(boolean isRender){
 		this.isRender = isRender;
 	}
-	
-	/** @return See {@link #isRenderHud} */
-	public boolean isRenderHud(){
-		return this.isRenderHud;
-	}
-	
-	/** @param isRenderHud See {@link #isRenderHud} */
-	public void setRenderHud(boolean isRenderHud){
-		this.isRenderHud = isRenderHud;
-	}
-	
+
 }

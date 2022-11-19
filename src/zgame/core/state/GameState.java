@@ -21,11 +21,24 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	
 	/** true if this state should use the camera for drawing the main graphics, false otherwise */
 	private boolean useCamera;
+
+	/** The minimum number of menus to exist in {@link #menuStack}. 0 by default, use 1 to make sure there's always at least one menu */
+	private int minMenuStack;
 	
 	/** Create a new {@link GameState} which uses the camera for rendering */
 	public GameState(){
 		this(true);
+	}
+	
+	/**
+	 * Create a new {@link GameState} with the given parameters
+	 * 
+	 * @param useCamera See {@link #useCamera}
+	 */
+	public GameState(boolean useCamera){
+		this.setUseCamera(useCamera);
 		this.menuStack = new ArrayList<MenuNode>();
+		this.minMenuStack = 0;
 	}
 	
 	@Override
@@ -93,19 +106,20 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	 * @return The removed menu, or null if only the base menu exists
 	 */
 	public Menu removeTopMenu(boolean destroy){
-		if(this.getStackSize() <= 1) return null;
+		if(this.getStackSize() <= getMinMenuStack()) return null;
 		Menu removed = this.menuStack.remove(this.menuStack.size() - 1).getMenu();
 		if(destroy) removed.destroy();
 		return removed;
 	}
 	
-	/**
-	 * Create a new {@link GameState} with the given parameters
-	 * 
-	 * @param useCamera See {@link #useCamera}
-	 */
-	public GameState(boolean useCamera){
-		this.setUseCamera(useCamera);
+	/** @return See {@link #minMenuStack} */
+	public int getMinMenuStack(){
+		return this.minMenuStack;
+	}
+	
+	/** @param minMenuStack See {@link #minMenuStack} */
+	public void setMinMenuStack(int minMenuStack){
+		this.minMenuStack = minMenuStack;
 	}
 	
 	/** @return See {@link #useCamera} */
@@ -183,22 +197,13 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	
 	@Override
 	public void render(Game game, Renderer r){
-		for(int i = 0; i < this.getStackSize() - 1; i++){
-			MenuNode m = this.menuStack.get(i);
-			m.renderBackground(game, r);
-			m.render(game, r);
-			m.renderHud(game, r);
-		}
-		Menu m = this.getTopMenu();
-		if(m != null){
-			m.renderBackground(game, r);
-			m.render(game, r);
-			m.renderHud(game, r);
-		}
 	}
 	
 	@Override
 	public void renderHud(Game game, Renderer r){
+		for(int i = 0; i < this.getStackSize() - 1; i++) this.menuStack.get(i).render(game, r);
+		Menu m = this.getTopMenu();
+		if(m != null) m.renderHud(game, r);
 	}
 	
 }

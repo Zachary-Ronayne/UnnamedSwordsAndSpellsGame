@@ -212,8 +212,8 @@ public class MenuTextBox extends MenuButton{
 	}
 	
 	@Override
-	public void renderSelf(Game game, Renderer r, ZRect bounds){
-		super.renderSelf(game, r, bounds);
+	public void render(Game game, Renderer r, ZRect bounds){
+		super.render(game, r, bounds);
 		
 		if(this.getText().isEmpty()){
 			r.setColor(this.getHintColor());

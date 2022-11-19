@@ -43,5 +43,13 @@ public class ZRect extends Rectangle2D.Double{
 	public ZRect(ZRect r, double padding){
 		this(r.getX(), r.getY(), r.getWidth(), r.getHeight(), padding * 2);
 	}
+
+	/**
+	 * @param padding The distance to add in every direction of this {@link ZRect}
+	 * @return The resulting rectangle
+	 */
+	public ZRect pad(double padding){
+		return new ZRect(this, padding);
+	}
 	
 }

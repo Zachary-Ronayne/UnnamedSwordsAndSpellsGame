@@ -48,8 +48,8 @@ public abstract class ZusassMenu extends Menu{
 	}
 
 	@Override
-	public void renderSelf(Game game, Renderer r, ZRect bounds){
-		super.renderSelf(game, r, bounds);
+	public void render(Game game, Renderer r, ZRect bounds){
+		super.render(game, r, bounds);
 		
 		// Title
 		r.setColor(new ZColor(.8));

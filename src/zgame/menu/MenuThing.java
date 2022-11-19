@@ -49,7 +49,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	private List<MenuThing> things;
 	
 	/**
-	 * The buffer used by this {@link MenuThing} to keep track of what's drawn for {@link #render(Game, Renderer)}, or null if using a buffer is not enabled.
+	 * The buffer used by this {@link MenuThing} to keep track of what's drawn for {@link #renderHud(Game, Renderer)}, or null if using a buffer is not enabled.
 	 * If null, the contents of this {@link MenuThing} will be redrawn every frame
 	 */
 	private DrawableGameBuffer buffer;
@@ -473,18 +473,19 @@ public class MenuThing implements GameInteractable, Destroyable{
 		}
 	}
 	
-	/** Do not call directly */
+	/** Do not call directly, use {@link #render(Game, Renderer, ZRect)} to draw menu things and override their rendering behavior */
 	@Override
-	public void renderBackground(Game game, Renderer r){
-		for(int i = 0; i < this.things.size(); i++){
-			MenuThing t = this.things.get(i);
-			t.renderBackground(game, r);
-		}
+	public final void renderBackground(Game game, Renderer r){
 	}
 	
-	/** Do not call directly. Do not override, instead override {@link #renderSelf(Game, Renderer, ZRect)} */
+	/** Do not call directly, use {@link #render(Game, Renderer, ZRect)} to draw menu things and override their rendering behavior */
 	@Override
 	public final void render(Game game, Renderer r){
+	}
+	
+	/** Do not call directly, use {@link #render(Game, Renderer, ZRect)} to draw menu things and override their rendering behavior */
+	@Override
+	public final void renderHud(Game game, Renderer r){
 		// If using a buffer, draw the contents of the buffer to the relative position
 		if(this.usesBuffer()){
 			this.buffer.drawToRenderer(this.getRelX(), this.getRelY(), r, game);
@@ -494,7 +495,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		// Otherwise, draw the object directly with the renderer
 		else{
 			// Draw relative to the parent
-			this.renderSelf(game, r, this.getRelBounds());
+			this.render(game, r, this.getRelBounds());
 			this.drawThings(game, r, true);
 		}
 	}
@@ -507,7 +508,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * @param r The renderer to use
 	 * @param bounds The bounds which this thing will be rendered relative to
 	 */
-	public void renderSelf(Game game, Renderer r, ZRect bounds){
+	public void render(Game game, Renderer r, ZRect bounds){
 		r.setColor(this.getBorder());
 		r.drawRectangle(bounds);
 		r.setColor(this.getFill());
@@ -523,7 +524,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	private void renderToBuffer(Game game, Renderer r){
 		// Draw relative to the origin
-		this.renderSelf(game, r, new ZRect(0, 0, this.getWidth(), this.getHeight()));
+		this.render(game, r, new ZRect(0, 0, this.getWidth(), this.getHeight()));
 		// If drawing things directly to the buffer, draw them
 		if(this.isDrawThingsToBuffer()) this.drawThings(game, r, false);
 	}
@@ -546,19 +547,10 @@ public class MenuThing implements GameInteractable, Destroyable{
 		// Did I use "thing" enough times?
 		for(int i = 0; i < this.things.size(); i++){
 			MenuThing t = this.things.get(i);
-			t.render(game, r);
+			t.renderHud(game, r);
 		}
 		// Put the matrix back to what it was
 		if(reposition) r.popMatrix();
-	}
-	
-	/** Do not call directly */
-	@Override
-	public void renderHud(Game game, Renderer r){
-		for(int i = 0; i < this.things.size(); i++){
-			MenuThing t = this.things.get(i);
-			t.renderHud(game, r);
-		}
 	}
 	
 	/** A helper class for drawing {@link MenuThing}s */

@@ -50,8 +50,8 @@ public class LoadSaveButton extends SavesMenuButton{
 	 */
 	
 	@Override
-	public void renderSelf(Game game, Renderer r, ZRect bounds){
-		super.renderSelf(game, r, bounds);
+	public void render(Game game, Renderer r, ZRect bounds){
+		super.render(game, r, bounds);
 		// If this button is selected, draw an additional highlight
 		if(this.getMenu().getLoadButtons().getSelected() == this){
 			r.setColor(new ZColor(.2, .2, .5, .3));

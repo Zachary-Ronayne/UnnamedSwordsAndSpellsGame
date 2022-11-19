@@ -3,10 +3,11 @@ package zusass.game;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.state.MenuNode;
 import zgame.core.state.PlayState;
-import zusass.ZusassData;
 import zusass.ZusassGame;
 import zusass.menu.mainmenu.MainMenuState;
+import zusass.menu.pause.PauseMenu;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -44,20 +45,16 @@ public class MainPlay extends PlayState{
 	}
 	
 	@Override
-	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		ZusassGame zgame = (ZusassGame)game;
-		
-		super.keyAction(game, button, press, shift, alt, ctrl);
+	public void playKeyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.playKeyAction(game, button, press, shift, alt, ctrl);
 		if(press) return;
+
+		// On releasing escape, enter the pause menu
 		if(button == GLFW_KEY_ESCAPE){
-			ZusassData d = zgame.getData();
-			d.checkAutoSave(zgame);
-			if(shift) this.enterMainMenu(zgame);
-			else this.enterHub(zgame);
-		}
-		else if(button == GLFW_KEY_S && ctrl){
-			// TODO make a pause menu with a save button
-			zgame.saveLoadedGame();
+			ZusassGame zgame = (ZusassGame)game;
+			MenuNode pauseNode = MenuNode.withAll(new PauseMenu(zgame));
+			zgame.getPlayState().fullPause();
+			this.popupMenu(pauseNode);
 		}
 	}
 	

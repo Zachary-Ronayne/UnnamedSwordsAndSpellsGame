@@ -275,8 +275,8 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-			super.keyAction(game, button, press, shift, alt, ctrl);
+		public void playKeyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+			super.playKeyAction(game, button, press, shift, alt, ctrl);
 			if(press) return;
 			
 			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState(game));
@@ -298,8 +298,8 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public void mouseWheelMove(Game game, double amount){
-			super.mouseWheelMove(game, amount);
+		public void playMouseWheelMove(Game game, double amount){
+			super.playMouseWheelMove(game, amount);
 			if(game.getKeyInput().shift()) game.getCamera().zoom(amount);
 		}
 	}
@@ -676,10 +676,18 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public void render(Game game, Renderer r){
+		public void renderBackground(Game game, Renderer r){
 			r.setColor(.1, .1, .1);
 			r.fill();
-			super.render(game, r);
+			super.renderBackground(game, r);
+			
+			
+			r.setFont(game.getFont("zfont"));
+			r.setColor(0, 0, 1);
+			r.setFontSize(30);
+			r.setFontLineSpace(-4);
+			r.setFontCharSpace(17);
+			r.drawText(10, 90, "ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n 0123456789.,“”‘’\"'?!@_*#$\n%&()+-/:;<=>[/]^`{|}~");
 		}
 	}
 	
@@ -779,15 +787,15 @@ public class MainTest extends Game{
 		}
 		
 		public void createPopup(Game game){
-			Menu menu = new Menu();
-			MenuButton b = new MenuButton(100, 100, 300, 100, game){
+			Menu menu = new Menu(){
 				@Override
-				public void renderBackground(Game game, Renderer r){
-					super.renderBackground(game, r);
+				public void render(Game game, Renderer r, ZRect bounds){
+					super.render(game, r, bounds);
 					r.setColor(.2, .2, .4, .3);
 					r.fill();
 				}
-				
+			};
+			MenuButton b = new MenuButton(100, 100, 300, 100, game){
 				@Override
 				public void click(Game game){
 					state.removeTopMenu();
@@ -798,17 +806,6 @@ public class MainTest extends Game{
 			b.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
 			menu.addThing(b);
 			this.state.popupMenu(menu);
-		}
-		
-		@Override
-		public void renderBackground(Game game, Renderer r){
-			super.renderBackground(game, r);
-			r.setFont(game.getFont("zfont"));
-			r.setColor(0, 0, 1);
-			r.setFontSize(30);
-			r.setFontLineSpace(-4);
-			r.setFontCharSpace(17);
-			r.drawText(10, 90, "ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n 0123456789.,“”‘’\"'?!@_*#$\n%&()+-/:;<=>[/]^`{|}~");
 		}
 	}
 }
