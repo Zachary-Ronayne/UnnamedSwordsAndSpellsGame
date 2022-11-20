@@ -65,6 +65,11 @@ public class CameraAxis{
 		this.pos = pos;
 	}
 	
+	/** @param p The amount to add to {@link #pos} */
+	public void add(double p){
+		this.setPos(this.getPos() + p);
+	}
+	
 	/** @return See {@link #zoomScale} */
 	public double getZoomScale(){
 		return this.zoomScale;

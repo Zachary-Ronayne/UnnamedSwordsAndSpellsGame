@@ -1,14 +1,10 @@
 package zgame.core.graphics.font;
 
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
 
 import zgame.core.utils.ZRect;
-
-import static org.lwjgl.stb.STBTruetype.*;
 
 /** An object which represents a font to be used for rendering, i.e. a {@link FontAsset} and information like font size */
 public class GameFont{
@@ -22,6 +18,14 @@ public class GameFont{
 	private double lineSpace;
 	/** The extra space added between individual characters of text, can be negative to reduce the space. This amount of space is based on the font size */
 	private double charSpace;
+	
+	/**
+	 * The product of the {@link #size} of this font with the resolution of its {@link #asset}
+	 * This value is multiplied by things like the amount of space to add between characters and lines of text to account for the way the resolution effects rendering
+	 */
+	private double resolutionRatio;
+	/** The inverse of {@link #resolutionRatio} */
+	private double resolutionRatioInverse;
 	
 	/**
 	 * Create a new font object with default values. After the font is created, the values of this object cannot be modified
@@ -45,6 +49,8 @@ public class GameFont{
 		this.size = size;
 		this.lineSpace = lineSpace;
 		this.charSpace = charSpace;
+		this.resolutionRatio = this.getSize() * this.asset.getResolutionInverse();
+		this.resolutionRatioInverse = 1.0 / this.getResolutionRatio();
 	}
 	
 	/**
@@ -62,25 +68,45 @@ public class GameFont{
 		// If the character is a new line, then advance the text to a new line
 		boolean newLine = c == '\n';
 		if(newLine){
-			double lineY = this.getSize() + this.getLineSpace();
+			double lineY = (this.getSize() + this.getLineSpace()) * this.getResolutionRatioInverse();
 			x.put(0, 0.0f);
 			y.put(0, (float)(y.get(0) + lineY));
 			newLine = true;
 		}
-		if(!newLine && this.getCharSpace() != 0) x.put(0, (float)(x.get(0) + this.getCharSpace()));
-		
-		// Get the bounds
-		stbtt_GetBakedQuad(a.getCharData(), a.getWidth(), a.getHeight(), a.charIndex(c), x, y, quad, true);
+		// Otherwise, get the bounds
+		else a.findBakedQuad(c, x, y, quad);
+		// Add the extra character space
+		if(!newLine && this.getCharSpace() != 0) x.put(0, (float)(x.get(0) + this.getCharSpace() * this.getResolutionRatioInverse()));
 		
 		// Return if the character went to a new line
 		return newLine;
 	}
 	
 	/**
+	 * Determine the width of a character, in pixels
+	 * 
+	 * @param c The character to find the width of
+	 * @return The width
+	 */
+	public double charWidth(char c){
+		return this.getAsset().getCharWidth(this.getSize(), c);
+	}
+	
+	/**
+	 * Find the length of text in pixels
+	 * 
+	 * @param text The text to check
+	 * @return The length
+	 */
+	public double stringWidth(String text){
+		return this.stringBounds(text).getWidth();
+	}
+	
+	/**
 	 * Find the bounds of a string drawn with this font, assuming the text is drawn at (0, 0)
 	 * 
 	 * @param text The text to find the bounds of
-	 * @return A rectangle with the bounds in game coordinates
+	 * @return A rectangle with the bounds in screen coordinates
 	 */
 	public ZRect stringBounds(String text){
 		return this.stringBounds(0, 0, text);
@@ -91,58 +117,129 @@ public class GameFont{
 	 * i.e. the edges of the bounds may contain pixels which are not a part of the bounds
 	 * 
 	 * @param text The text to find the bounds of
-	 * @param x The x coordinate where the string is drawn, in game coordinates
-	 * @param y The y coordinate where the string is drawn, in game coordinates
-	 * @return A rectangle with the bounds in game coordinates
+	 * @param x The x coordinate where the string is drawn, in screen coordinates
+	 * @param y The y coordinate where the string is drawn, in screen coordinates
+	 * @return A rectangle with the bounds in screen coordinates
 	 */
 	public ZRect stringBounds(double x, double y, String text){
 		return this.stringBounds(x, y, text, true);
 	}
-
+	
 	/**
 	 * Find the maximum bounds of a string drawn with this font. This does not guarantee a pixel perfect bounding box,
 	 * i.e. the edges of the bounds may contain pixels which are not a part of the bounds. This is done by adding a small amount of padding to the final bounds.
 	 * If this padding is undesired, pass false for the padding variable
 	 * 
 	 * @param text The text to find the bounds of
-	 * @param x The x coordinate where the string is drawn, in game coordinates
-	 * @param y The y coordinate where the string is drawn, in game coordinates
+	 * @param x The x coordinate where the string is drawn, in screen coordinates
+	 * @param y The y coordinate where the string is drawn, in screen coordinates
 	 * @param padding true to add a pixel of padding around the bounds, false to not add it
-	 * @return A rectangle with the bounds in game coordinates
+	 * @return A rectangle with the bounds in screen coordinates
 	 */
 	public ZRect stringBounds(double x, double y, String text, boolean padding){
+		return this.stringBounds(x, y, text, padding ? 1 : 0);
+	}
+	
+	/**
+	 * Find the maximum bounds of a string drawn with this font. This does not guarantee a pixel perfect bounding box
+	 * 
+	 * @param text The text to find the bounds of
+	 * @param x The x coordinate where the string is drawn, in screen coordinates
+	 * @param y The y coordinate where the string is drawn, in screen coordinates
+	 * @param padding true to add an amount of distance around the bounds, 0 for no padding
+	 * @return A rectangle with the bounds in screen coordinates
+	 */
+	public ZRect stringBounds(double x, double y, String text, double padding){
+		if(text == null || text.isEmpty()) return new ZRect();
+		return this.stringBounds(x, y, text, padding, false)[text.length()];
+	}
+	
+	/**
+	 * Find the maximum bounds of the individual characters of a string drawn with this font. This does not guarantee a pixel perfect bounding box
+	 * 
+	 * @param text The text to find the bounds of
+	 * @param x The x coordinate where the string is drawn, in screen coordinates
+	 * @param y The y coordinate where the string is drawn, in screen coordinates
+	 * @param padding true to add an amount of distance around each bounds, 0 for no padding
+	 * @param calcIndividuals If true, the full array will be populated, if false, only the last element, containing the full string bounds will be populated
+	 * @return An array of the bounds of each character, matching the index of text.
+	 *         The array also contains one extra element, indexed as the the length of the string: the total bounds of the entire string,
+	 *         padded in the same way as individual characters
+	 *         An array with one empty rectangle is returned if the string is empty or not given
+	 */
+	public ZRect[] characterBounds(double x, double y, String text, double padding){
+		return this.stringBounds(x, y, text, padding, true);
+	}
+	
+	/**
+	 * Find the maximum bounds of the individual characters of a string drawn with this font. This does not guarantee a pixel perfect bounding box
+	 * 
+	 * @param text The text to find the bounds of
+	 * @param x The x coordinate where the string is drawn, in screen coordinates
+	 * @param y The y coordinate where the string is drawn, in screen coordinates
+	 * @param padding true to add an amount of distance around each bounds, 0 for no padding
+	 * @param calcIndividuals If true, the full array will be populated, if false, only the last element, containing the full string bounds will be populated
+	 * @return An array of the bounds of each character, matching the index of text.
+	 *         The array also contains one extra element, indexed as the the length of the string: the total bounds of the entire string,
+	 *         padded in the same way as individual characters
+	 *         An empty array is returned if the string is empty or not given
+	 */
+	public ZRect[] stringBounds(double x, double y, String text, double padding, boolean calcIndividuals){
 		FontAsset a = this.getAsset();
 		
-		// If there is no string, then the rectangle is empty
-		if(text == null || text.isEmpty()) return new ZRect(x, y, 0, 0);
+		// If there is no string, then the array contains only one empty rectangle
+		if(a == null || text == null || text.isEmpty()) return new ZRect[]{new ZRect()};
 		
 		// Set up buffers
-		IntBuffer wb = BufferUtils.createIntBuffer(1);
-		IntBuffer bb = BufferUtils.createIntBuffer(1);
-		double w = 0;
-		double h = 0;
 		double pixelRatio = a.pixelRatio(this.getSize());
+		double w = 0;
+		double h = (a.getAscent() - a.getDescent()) * pixelRatio;
+		y -= a.getAscent() * pixelRatio;
+		
+		// This part is really weird, but doing this aligns the text better. It's still not perfect, but it's better
+		double add = this.getSize() * a.getResolutionInverse();
+		x += add;
+		y -= add;
+		
+		double baseX = x;
+		double baseY = y;
+		double maxWidth = w;
+		double lineSpace = this.getLineSpace();
+		double size = this.getMaxHeight();
+		double charSpace = this.getCharSpace();
+		double maxHeight = h;
 		
 		// Go through each letter and find the total width
 		int i = 0;
+		ZRect[] rects = new ZRect[text.length() + 1];
 		do{
-			stbtt_GetCodepointHMetrics(a.getInfo(), text.charAt(i), wb, bb);
-			w += wb.get(0);
+			char c = text.charAt(i);
+			// If this character is a new line, move to the next line and don't find a new size
+			if(c == '\n'){
+				x = baseX;
+				w = 0;
+				rects[i] = new ZRect(x, y, 0, h);
+				y += lineSpace + size;
+				maxHeight += lineSpace + size;
+				i++;
+				continue;
+			}
+			double wbVal = this.charWidth(c);
+			
+			if(calcIndividuals) rects[i] = new ZRect(x + w, y, wbVal, h, padding);
+			w += wbVal;
+			maxWidth = Math.max(maxWidth, w);
+			w += charSpace;
+			
 			i++;
 		}while(i < text.length());
-		// Convert the values to pixel values
-		h = (a.getAscent() - a.getDescent()) * pixelRatio;
-		w *= pixelRatio;
-		y -= a.getAscent() * pixelRatio;
-		
-		// Pad the rectangle by 1 to account for rounding errors
-		if(padding) return new ZRect(x - 1, y - 1, w + 2, h + 2);
-		else return new ZRect(x, y, w, h);
+		rects[text.length()] = new ZRect(baseX, baseY, maxWidth, maxHeight, padding);
+		return rects;
 	}
 	
 	/** @return The value which must be used to scale the font returned by {@link #bounds(char, FloatBuffer, FloatBuffer, STBTTAlignedQuad)} into game coordinates */
 	public double fontScalar(){
-		// The double is because fonts are weird and render as half the size I intend them to. This 2 is very hacky
+		// The double is because fonts are weird and render as half the size I intend them to. This double resolution inverse is very hacky
 		return this.getSize() * this.getAsset().getDoubleResolutionInverse();
 	}
 	
@@ -196,6 +293,21 @@ public class GameFont{
 	 */
 	public GameFont charSpace(double charSpace){
 		return new GameFont(this.asset, this.size, this.lineSpace, charSpace);
+	}
+	
+	/** @return See {@link #resolutionRatio} */
+	public double getResolutionRatio(){
+		return this.resolutionRatio;
+	}
+	
+	/** @return See {@link #resolutionRatioInverse} */
+	public double getResolutionRatioInverse(){
+		return this.resolutionRatioInverse;
+	}
+	
+	/** @return See {@link #maxHeight} */
+	public double getMaxHeight(){
+		return this.getAsset().getMaxHeight(this.getSize());
 	}
 	
 }

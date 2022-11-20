@@ -11,7 +11,7 @@ public class ColorTile extends TileType{
 	
 	/** The color to draw this tile */
 	private ZColor color;
-
+	
 	/** The {@link Material} of this {@link ColorTile} */
 	private Material material;
 	
@@ -26,7 +26,7 @@ public class ColorTile extends TileType{
 	public ColorTile(String id, String origin, TileHitbox hitbox, ZColor color){
 		this(id, origin, hitbox, color, Materials.DEFAULT);
 	}
-
+	
 	/**
 	 * Create a new {@link ColorTile} using the given data
 	 * 
@@ -55,7 +55,7 @@ public class ColorTile extends TileType{
 	public void setColor(ZColor color){
 		this.color = color;
 	}
-
+	
 	@Override
 	public Material getMaterial(){
 		return this.material;

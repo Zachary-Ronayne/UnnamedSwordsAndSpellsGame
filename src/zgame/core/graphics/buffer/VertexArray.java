@@ -13,15 +13,15 @@ public class VertexArray{
 		this.id = glGenVertexArrays();
 		this.bind();
 	}
-
+	
 	/** Clear any resources used by this {@link VertexArray} */
-	public void delete(){
+	public void destroy(){
 		glDeleteVertexArrays(this.id);
 	}
-
+	
 	/** Set this {@link VertexArray} as the currently bound array */
 	public void bind(){
 		glBindVertexArray(this.id);
 	}
-
+	
 }

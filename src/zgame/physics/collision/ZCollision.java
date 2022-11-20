@@ -1,9 +1,9 @@
 package zgame.physics.collision;
 
 import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
 
 import zgame.core.utils.ZMath;
+import zgame.core.utils.ZPoint;
 import zgame.core.utils.ZRect;
 import zgame.physics.material.Material;
 
@@ -202,7 +202,7 @@ public final class ZCollision{
 			
 			// Using that line as a ray with the position (cornerX, cornerY) and moving in the opposite direction, find where that ray intersects the unmoving bounds
 			// That point is the new corner of the new bounds
-			Point2D.Double movePoint;
+			ZPoint movePoint;
 			// Left line
 			movePoint = rectToRectHelper(new Line2D.Double(cx, cy, cx, cy + h), moveLine, cornerX, cornerY, reverseAngle);
 			// Right line
@@ -212,7 +212,7 @@ public final class ZCollision{
 			// Bot line
 			if(movePoint == null) movePoint = rectToRectHelper(new Line2D.Double(cx, cy + h, cx + w, cy + h), moveLine, cornerX, cornerY, reverseAngle);
 			// Should never happen, but covering bases
-			if(movePoint == null) movePoint = new Point2D.Double(x, y);
+			if(movePoint == null) movePoint = new ZPoint(x, y);
 			
 			// Find the distance to move
 			xDis += movePoint.x - x;
@@ -232,9 +232,9 @@ public final class ZCollision{
 	 * @param reverseAngle The opposite angle of how the colliding object moved
 	 * @return The point to reposition the object if the line is a valid line for where the colliding object should be repositioned, otherwise null
 	 */
-	private static Point2D.Double rectToRectHelper(Line2D.Double line, Line2D.Double moveLine, double cornerX, double cornerY, double reverseAngle){
+	private static ZPoint rectToRectHelper(Line2D.Double line, Line2D.Double moveLine, double cornerX, double cornerY, double reverseAngle){
 		// Find the intersection point for each line
-		Point2D.Double intersection = ZMath.lineIntersection(line, moveLine);
+		ZPoint intersection = ZMath.lineIntersection(line, moveLine);
 		if(intersection == null) return null;
 		
 		// Determine which of those points is on the rectangle

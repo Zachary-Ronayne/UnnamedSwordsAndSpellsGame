@@ -1,30 +1,23 @@
 package zusass.menu.mainmenu.comp;
 
 import zgame.core.Game;
-import zgame.core.graphics.ZColor;
-import zgame.menu.MenuButton;
+import zusass.ZusassGame;
+import zusass.menu.comp.ZusassButton;
 
 /** A class used to define similarities between buttons for the main menu */
-public abstract class MainMenuButton extends MenuButton{
+public abstract class MainMenuButton extends ZusassButton{
 
 	/**
 	 * Create a main menu button with the appropriate parameters
 	 * 
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
-	 * @param w See {@link #getWidth()}
-	 * @param h See {@link #getHeight()}
 	 * @param text The text to display
+	 * @param game The {@link Game} that uses this button
 	 */
-	public MainMenuButton(double x, double y, double w, double h, String text, Game game){
-		super(x, y, w, h, text);
-		this.setFont(game.getFont("zfont"));
-		this.setFontColor(new ZColor(.2));
-		this.setFontSize(50);
-		this.setBorderWidth(2);
-		this.setBorder(new ZColor(.6));
-		this.setTextX(10);
-		this.setTextY(80);
+	public MainMenuButton(double x, double y, String text, ZusassGame zgame){
+		super(x, y, 500, 120, text, zgame);
+		this.setFontSize(40);
 	}
 	
 }

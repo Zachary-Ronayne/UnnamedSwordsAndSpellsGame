@@ -4,6 +4,8 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera;
+import zgame.core.graphics.font.GameFont;
+import zgame.core.graphics.font.TextBuffer;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.sound.EffectsPlayer;
@@ -13,9 +15,16 @@ import zgame.core.sound.SoundSource;
 import zgame.core.state.GameState;
 import zgame.core.state.MenuState;
 import zgame.core.state.PlayState;
+import zgame.core.utils.ZRect;
+import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
 import zgame.menu.Menu;
 import zgame.menu.MenuButton;
+import zgame.menu.MenuHolder;
+import zgame.menu.MenuTextBox;
+import zgame.menu.scroller.HorizontalScroller;
+import zgame.menu.scroller.MenuScroller;
+import zgame.menu.scroller.VerticalScroller;
 import zgame.things.entity.Player;
 import zgame.things.still.Door;
 import zgame.things.still.tiles.BaseTiles;
@@ -24,6 +33,8 @@ import zgame.world.Room;
 import static org.lwjgl.glfw.GLFW.*;
 
 import java.awt.Rectangle;
+
+import com.google.gson.JsonObject;
 
 /**
  * A simple main class used for testing the game code
@@ -77,6 +88,8 @@ import java.awt.Rectangle;
  * shift + F12 = increase TPS
  * space = toggle between the demo state and menu state
  * shift + space = toggle between the game play state and the demo state
+ * ctrl + c = save gave to file
+ * ctrl + v = load game from file
  * 
  * Indicators in the upper left hand corner for muted/paused: black = neither, red = muted, blue = paused, magenta = both muted and paused.
  * The size of the box represents the volume, a bigger box means higher volume
@@ -106,9 +119,6 @@ import java.awt.Rectangle;
 public class MainTest extends Game{
 	
 	public static Game testerGame;
-	public static GameState testerState;
-	public static PlayState engineState;
-	public static MenuState menuState;
 	public static GameWindow window;
 	
 	public static double camSpeed = 400;
@@ -141,17 +151,16 @@ public class MainTest extends Game{
 	public static SoundSource loseSource;
 	
 	public MainTest(){
-		super("test", 1500, 720, 1000, 700, 0, true, false, false, true, 100, true);
+		super("test", 1500, 720, 1000, 720, 0, true, false, false, true, 100, true);
 	}
 	
 	public static void main(String[] args){
 		// Set up game
 		testerGame = new MainTest();
-		testerState = new TesterGameState();
-		engineState = new GameEngineState();
-		testerGame.setPlayState(engineState);
-		menuState = new TesterMenuState();
-		testerGame.enterPlayState();
+		testerGame.setCurrentState(new TesterGameState(testerGame));
+		// testerGame.setCurrentState(new TesterMenuState(testerGame));
+		// testerGame.setCurrentState(new GameEngineState());
+		
 		window = testerGame.getWindow();
 		window.center();
 		
@@ -170,8 +179,8 @@ public class MainTest extends Game{
 		testerGame.start();
 		
 		// Close sound sources
-		winSource.end();
-		loseSource.end();
+		winSource.destroy();
+		loseSource.destroy();
 	}
 	
 	public static void reset(){
@@ -180,11 +189,25 @@ public class MainTest extends Game{
 		changeRect = new Rectangle(600, 20, 200, 200);
 		testerGame.getCamera().reset();
 		
-		if(winSource != null) winSource.end();
-		if(loseSource != null) loseSource.end();
+		if(winSource != null) winSource.destroy();
+		if(loseSource != null) loseSource.destroy();
 		SoundManager sm = testerGame.getSounds();
 		winSource = sm.createSource(playerX, playerY);
 		loseSource = sm.createSource(0, 200);
+	}
+	
+	@Override
+	public JsonObject save(JsonObject obj){
+		obj.addProperty("playerX", playerX);
+		obj.addProperty("playerY", playerY);
+		return obj;
+	}
+	
+	@Override
+	public JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException{
+		playerX = obj.get("playerX").getAsDouble();
+		playerY = obj.get("playerY").getAsDouble();
+		return obj;
 	}
 	
 	public static class GameEngineState extends PlayState{
@@ -252,11 +275,11 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-			super.keyAction(game, button, press, shift, alt, ctrl);
+		public void playKeyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+			super.playKeyAction(game, button, press, shift, alt, ctrl);
 			if(press) return;
 			
-			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
+			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState(game));
 			
 			Room r = getCurrentRoom();
 			if(button == GLFW_KEY_W) r.makeWallState(Room.WALL_CEILING, !r.isSolid(Room.WALL_CEILING));
@@ -275,13 +298,32 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public void mouseWheelMove(Game game, double amount){
-			super.mouseWheelMove(game, amount);
+		public void playMouseWheelMove(Game game, double amount){
+			super.playMouseWheelMove(game, amount);
 			if(game.getKeyInput().shift()) game.getCamera().zoom(amount);
 		}
 	}
 	
 	public static class TesterGameState extends GameState{
+		
+		private TextBuffer textBuffer;
+		
+		private static final ZRect bufferBounds = new ZRect(0, 500, 500, 150);
+		
+		public TesterGameState(Game game){
+			this.textBuffer = new TextBuffer((int)bufferBounds.width, (int)bufferBounds.height, game.getFont("zfont"));
+			this.textBuffer.setText("Text from a buffer");
+			this.textBuffer.setTextX(10);
+			this.textBuffer.setTextY(75);
+			this.textBuffer.setFont(this.textBuffer.getFont().size(40));
+		}
+		
+		@Override
+		public void destroy(){
+			super.destroy();
+			this.textBuffer.destroy();
+		}
+		
 		@Override
 		public void keyAction(Game game, int key, boolean press, boolean shift, boolean alt, boolean ctrl){
 			ZKeyInput keys = game.getKeyInput();
@@ -324,10 +366,11 @@ public class MainTest extends Game{
 					else game.setGameSpeed(game.getGameSpeed() + 0.1);
 				}
 				else if(key == GLFW_KEY_SPACE){
-					if(shift) game.setCurrentState(engineState);
-					else game.setCurrentState(menuState);
+					if(shift) game.setCurrentState(new GameEngineState());
+					else game.setCurrentState(new TesterMenuState(game));
 				}
-				
+				else if(key == GLFW_KEY_C && keys.ctrl()) game.saveGame("./saves/testGame");
+				else if(key == GLFW_KEY_V && keys.ctrl()) game.loadGame("./saves/testGame");
 			}
 		}
 		
@@ -371,17 +414,91 @@ public class MainTest extends Game{
 			r.setColor(.2, .2, .2);
 			r.drawRectangle(0, 0, 1000, 700);
 			
+			// Drawing 1 pixel
+			r.setColor(1, 0, 0);
+			r.drawRectangle(0, 1000, 1, 1);
+			
 			r.setColor(changeR, changeG, changeB);
 			r.drawRectangle(changeRect.x, changeRect.y, changeRect.width, changeRect.height);
 			
 			r.setColor(red, green, blue);
 			r.drawRectangle(100, 50, 400, 100);
 			
-			r.drawImage(550, 100, 50, 50, game.getImage("goal"));
+			r.setColor(1, 1, 1);
+			r.drawRectangle(bufferBounds);
+			r.setColor(1, 0, 0);
+			this.textBuffer.drawToRenderer(bufferBounds.x, bufferBounds.y, r);
+			
+			r.makeOpaque();
 			r.drawImage(playerX, playerY, 150, 150, game.getImage("player"));
+			r.setAlpha(.5);
+			r.drawImage(550, 100, 50, 50, game.getImage("goal"));
 			
 			r.setColor(0, 0, 1, 0.5);
 			r.drawRectangle(140, 70, 90, 400);
+			
+			r.setColor(new ZColor(.9, .9, .9));
+			r.drawRectangle(0, -100, 250, 100);
+			r.setColor(new ZColor(0));
+			r.setFont(game.getFont("zfont"));
+			r.setFontSize(40);
+			r.limitBounds(new ZRect(0, -100, 250, 100));
+			r.drawText(0, -10, "a long string that should get cut off");
+			r.unlimitBounds();
+			
+			String s = """
+						TL qgy Text on
+						multiple lines
+						and another
+						    and spaces
+						
+						and a nothing line""";
+			r.pushAttributes();
+			r.setFontSize(32);
+			r.setFontLineSpace(40);
+			r.setFontCharSpace(10);
+			
+			r.setColor(new ZColor(1, 0, 1));
+			r.drawText(600, -400, s);
+			
+			ZRect[] bs = r.getFont().stringBounds(600, -400, s, 0, true);
+			r.setColor(.25, .25, .25, .2);
+			r.drawRectangle(new ZRect(bs[s.length()], 5));
+			r.setColor(.25, .25, .25, .4);
+			r.drawRectangle(bs[s.length()]);
+			r.setColor(.7, .7, .7, .1);
+			for(int i = 0; i < s.length(); i++) r.drawRectangle(bs[i]);
+			
+			////////////////////////////////////////
+			
+			r.setColor(1, 0, 0);
+			r.drawRectangle(580, -50, 2, 2);
+			r.drawRectangle(600, -50, 1, 1);
+			r.drawRectangle(620, -50, .5, .5);
+			
+			////////////////////////////////////////
+			
+			r.pushAttributes();
+			r.setFontSize(200);
+			s = "Ayg q p j";
+			bs = r.getFont().stringBounds(1100, 0, s, 0, true);
+			r.setColor(new ZColor(1, 0, 1));
+			r.drawText(1100, 0, s);
+			r.setColor(.25, .25, .25, .2);
+			r.drawRectangle(new ZRect(bs[s.length()], 5));
+			r.setColor(.25, .25, .25, .4);
+			r.drawRectangle(bs[s.length()]);
+			r.setColor(.7, .7, .7, .1);
+			for(int i = 0; i < s.length(); i++) r.drawRectangle(bs[i]);
+			r.popAttributes();
+			
+			////////////////////////////////////////
+			
+			r.setColor(0, 1, 0, .2);
+			r.setFontCharSpace(0);
+			r.drawText(-400, 400, "transparent text");
+			
+			r.popAttributes();
 		}
 		
 		@Override
@@ -546,14 +663,16 @@ public class MainTest extends Game{
 	}
 	
 	public static class TesterMenuState extends MenuState{
-		public TesterMenuState(){
-			super(new TesterMenu());
+		
+		public TesterMenuState(Game game){
+			super(new TesterMenu(game));
+			((TesterMenu)this.getMenu()).state = this;
 		}
 		
 		@Override
 		public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 			super.keyAction(game, button, press, shift, alt, ctrl);
-			if(!press && button == GLFW_KEY_SPACE) game.setCurrentState(testerState);
+			if(!press && alt && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState(game));
 		}
 		
 		@Override
@@ -561,26 +680,69 @@ public class MainTest extends Game{
 			r.setColor(.1, .1, .1);
 			r.fill();
 			super.renderBackground(game, r);
+			
+			
+			r.setFont(game.getFont("zfont"));
+			r.setColor(0, 0, 1);
+			r.setFontSize(30);
+			r.setFontLineSpace(-4);
+			r.setFontCharSpace(17);
+			r.drawText(10, 90, "ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n 0123456789.,“”‘’\"'?!@_*#$\n%&()+-/:;<=>[/]^`{|}~");
 		}
 	}
 	
 	public static class TesterMenu extends Menu{
-		public TesterMenu(){
-			super(100, 400);
-			this.setWidth(800);
-			this.setHeight(300);
+		public TesterMenuState state;
+		
+		public TesterMenu(Game game){
+			super(100, 250, 830, 380, true);
+			this.setWidth(830);
+			this.setHeight(380);
+			this.updateBuffer();
 			this.setFill(new ZColor(.1, .1, .2, 1));
 			
-			MenuButton t = new MenuButton(10, 10, 300, 50){
+			MenuScroller scrollX = new HorizontalScroller(0, 370, 800, 20, 200, game){
+				@Override
+				public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+					super.keyAction(game, button, press, shift, alt, ctrl);
+					setScrollWheelEnabled(shift);
+				}
+			};
+			scrollX.setScrollWheelEnabled(false);
+			scrollX.setScrollWheelAsPercent(false);
+			scrollX.setScrollWheelStrength(10);
+			scrollX.setDrawThingsToBuffer(false);
+			scrollX.updateBuffer();
+			scrollX.getButton().updateBuffer();
+			this.addThing(scrollX);
+			MenuScroller scrollY = new VerticalScroller(820, 0, 20, 350, 200, game){
+				@Override
+				public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+					super.keyAction(game, button, press, shift, alt, ctrl);
+					setScrollWheelEnabled(!shift);
+				}
+			};
+			this.addThing(scrollY);
+			
+			MenuButton t;
+			
+			MenuHolder base = new MenuHolder();
+			this.addThing(base);
+			scrollX.setMovingThing(base);
+			scrollY.setMovingThing(base);
+			
+			t = new MenuButton(10, 10, 300, 50, game){
 				@Override
 				public void click(Game game){
-					game.setCurrentState(testerState);
+					game.setCurrentState(new TesterGameState(game));
 				}
 			};
 			t.setFill(new ZColor(0, .2, .7));
-			this.addThing(t);
+			t.setText("Back");
+			t.updateBuffer();
+			base.addThing(t);
 			
-			t = new MenuButton(50, 100, 200, 100){
+			t = new MenuButton(50, 100, 200, 100, game){
 				double pos = 0;
 				
 				@Override
@@ -591,7 +753,7 @@ public class MainTest extends Game{
 				@Override
 				public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 					if(button == GLFW_KEY_1 && !press){
-						MenuButton b = new MenuButton(pos, this.getHeight(), 15, 10);
+						MenuButton b = new MenuButton(pos, this.getHeight(), 15, 10, game);
 						b.setFill(new ZColor(0, 0, (pos / 100) % 1));
 						this.addThing(b);
 						pos += 20;
@@ -600,19 +762,50 @@ public class MainTest extends Game{
 			};
 			t.setFill(new ZColor(.5, 0, 0));
 			t.setText("Exit");
-			this.addThing(t);
+			t.setFont(new GameFont(game.getFontAsset("zfont"), 50, 0, 0));
+			base.addThing(t);
+			
+			t = new MenuButton(50, 220, 200, 50, game){
+				@Override
+				public void click(Game game){
+					createPopup(game);
+				}
+			};
+			t.setText("popup");
+			t.setTextY(45);
+			t.setFont(new GameFont(game.getFontAsset("zfont"), 25, 0, 0));
+			base.addThing(t);
+			
+			MenuTextBox textBox = new MenuTextBox(300, 100, 300, 50, game){
+				@Override
+				public void click(Game game){
+					ZStringUtils.prints(this.getText());
+				}
+			};
+			textBox.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
+			base.addThing(textBox);
 		}
 		
-		@Override
-		public void render(Game game, Renderer r){
-			super.render(game, r);
-			r.setFont(game.getFont("zfont"));
-			r.setColor(0, 0, 1);
-			r.setFontSize(30);
-			r.setFontLineSpace(-4);
-			r.setFontCharSpace(17);
-			r.drawText(10, 90, "ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n 0123456789.,“”‘’\"'?!@_*#$\n%&()+-/:;<=>[/]^`{|}~");
+		public void createPopup(Game game){
+			Menu menu = new Menu(){
+				@Override
+				public void render(Game game, Renderer r, ZRect bounds){
+					super.render(game, r, bounds);
+					r.setColor(.2, .2, .4, .3);
+					r.fill();
+				}
+			};
+			MenuButton b = new MenuButton(100, 100, 300, 100, game){
+				@Override
+				public void click(Game game){
+					state.removeTopMenu();
+				}
+			};
+			b.setText("exit popup");
+			b.setTextY(90);
+			b.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
+			menu.addThing(b);
+			this.state.popupMenu(menu);
 		}
 	}
-	
 }

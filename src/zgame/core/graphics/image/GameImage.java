@@ -34,7 +34,7 @@ public class GameImage extends Asset{
 	/** Initialize this {@link GameImage} based on the current path of the image */
 	private void init(){
 		String path = this.getPath();
-
+		
 		// Generate the id and use it
 		this.id = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, id);

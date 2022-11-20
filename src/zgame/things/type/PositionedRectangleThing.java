@@ -20,7 +20,7 @@ public abstract class PositionedRectangleThing extends PositionedThing implement
 	public PositionedRectangleThing(double x, double y){
 		this(x, y, 0, 0);
 	}
-
+	
 	/**
 	 * Create a new {@link PositionedRectangleThing} with the given values
 	 * 
@@ -39,7 +39,7 @@ public abstract class PositionedRectangleThing extends PositionedThing implement
 	public boolean shouldRender(Game game, Renderer r){
 		return r.gameBoundsInScreen(this.getBounds());
 	}
-
+	
 	/** @return See {@link #width} */
 	@Override
 	public double getWidth(){

@@ -4,30 +4,30 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.font.GameFont;
+import zgame.core.graphics.font.TextBuffer;
+import zgame.core.utils.ZRect;
 
-/** A {@link MenuThing} that holds text */
+/**
+ * A {@link MenuThing} that holds text
+ * Note, for this class and anything that extends it, calls to updating the width and height will not update the text buffer's width and height beyond what was given to the
+ * constructor. Must call {@link #getBuffer()} and call {@link TextBuffer#regenerateBuffer(int, int)} on it to resize where the text is drawn. It is not recommended to call this
+ * method frequently, as it is a very expensive operation
+ */
 public class MenuText extends MenuThing{
 	
-	/** The x coordinate of the text, relative to this {@link MenuThing} */
-	private double textX;
-	
-	/**
-	 * The y coordinate of the text, relative to this {@link MenuThing}.
-	 * This y coordinate represents the baseline of where the text will be drawn, not the upper left hand corner like normal
-	 */
-	private double textY;
-	
-	/** The text held by this {@link MenuText} */
-	private String text;
-	
-	/** The {@link GameFont} to use when drawing {@link #text}. If this value is null, whatever font is in the {@link Renderer} will be used */
-	private GameFont font;
+	/** The {@link TextBuffer} which this {@link MenuText} will use to draw text */
+	private TextBuffer buffer;
 	
 	/** The {@link ZColor} to use to color {@link #text} */
 	private ZColor fontColor;
 	
-	/** The size of {@link #text} when it is drawn on a button */
-	private double fontSize;
+	/** The text to display for this menu */
+	private String text;
+	
+	/** The x coordinate to draw this things text */
+	private double textX;
+	/** The x coordinate to draw this things text */
+	private double textY;
 	
 	/**
 	 * Create a blank {@link MenuText} at the given position and size
@@ -37,8 +37,8 @@ public class MenuText extends MenuThing{
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 */
-	public MenuText(double x, double y, double w, double h){
-		this(x, y, w, h, "");
+	public MenuText(double x, double y, double w, double h, Game game){
+		this(x, y, w, h, "", game);
 	}
 	
 	/**
@@ -49,18 +49,25 @@ public class MenuText extends MenuThing{
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 * @param text The text to display
+	 * @param game The game associated with this thing
 	 */
-	public MenuText(double x, double y, double w, double h, String text){
+	public MenuText(double x, double y, double w, double h, String text, Game game){
 		super(x, y, w, h);
 		this.text = text;
-		this.textX = 10;
-		this.textY = this.getHeight() - 50;
+		// Using zfont by default
+		this.buffer = new TextBuffer((int)Math.round(w), (int)Math.round(h), game.getFont("zfont"));
+		this.setTextX(10);
+		this.setTextY(this.getHeight() * .9);
 		
 		this.setFill(this.getFill().solid());
 		
-		this.font = null;
 		this.fontColor = new ZColor(0);
-		this.fontSize = 32;
+	}
+	
+	@Override
+	public void destroy(){
+		super.destroy();
+		this.buffer.destroy();
 	}
 	
 	/** @return See {@link #text} */
@@ -73,34 +80,41 @@ public class MenuText extends MenuThing{
 		this.text = text;
 	}
 	
-	/** @return See {@link #textX} */
+	/** @return See {@link TextBuffer#textX} */
 	public double getTextX(){
 		return this.textX;
 	}
 	
-	/** @param textX See {@link #textX} */
+	/** @param textX See {@link TextBuffer#textX} */
 	public void setTextX(double textX){
 		this.textX = textX;
+		this.buffer.setTextX(textX);
 	}
 	
-	/** @return See {@link #textY} */
+	/** @return See {@link TextBuffer#textY} */
 	public double getTextY(){
 		return this.textY;
 	}
 	
-	/** @param textY See {@link #textY} */
+	/** @param textY See {@link TextBuffer#textY} */
 	public void setTextY(double textY){
+		this.buffer.setTextY(textY);
 		this.textY = textY;
 	}
 	
-	/** @return See {@link #font} */
+	/** @return See {@link TextBuffer#font} */
 	public GameFont getFont(){
-		return this.font;
+		return this.getBuffer().getFont();
 	}
 	
-	/** @param font See {@link #font} */
+	/** @param font See {@link TextBuffer#font} */
 	public void setFont(GameFont font){
-		this.font = font;
+		this.getBuffer().setFont(font);
+	}
+	
+	/** @return See {@link #buffer} */
+	public TextBuffer getBuffer(){
+		return this.buffer;
 	}
 	
 	/** @return See {@link #fontColor} */
@@ -115,22 +129,76 @@ public class MenuText extends MenuThing{
 	
 	/** @return See {@link #fontSize} */
 	public double getFontSize(){
-		return this.fontSize;
+		return this.getFont().getSize();
 	}
 	
 	/** @param fontSize See {@link #fontSize} */
 	public void setFontSize(double fontSize){
-		this.fontSize = fontSize;
+		this.setFont(this.getFont().size(fontSize));
+	}
+	
+	/** Move the text of this {@link MenuText} so that it's in the center of it's bounds */
+	public void centerText(){
+		ZRect b = this.getTextBounds();
+		this.centerTextHorizontal(b.width);
+		this.centerTextVertical(b.height);
+	}
+	
+	/** Move the text of this {@link MenuText} so that it's in the center of it's left and right bounds */
+	public void centerTextHorizontal(){
+		this.centerTextHorizontal(this.getTextBounds().width);
+	}
+	
+	/**
+	 * Move the text of this {@link MenuText} so that it's in the center of it's left and right bounds
+	 * 
+	 * @param width The width of the text
+	 */
+	private void centerTextHorizontal(double width){
+		this.setTextX((this.getWidth() - width) * 0.5);
+	}
+	
+	/** Move the text of this {@link MenuText} so that it's in the center of it's top and bottom bounds */
+	public void centerTextVertical(){
+		this.centerTextVertical(this.getTextBounds().height);
+	}
+	
+	/**
+	 * Move the text of this {@link MenuText} so that it's in the center of it's top and bottom bounds
+	 * 
+	 * @param height The height of the text
+	 */
+	private void centerTextVertical(double height){
+		this.setTextY((this.getHeight() + height) * 0.5);
+	}
+	
+	public ZRect getTextBounds(){
+		return this.getFont().stringBounds(this.getText());
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
-		super.render(game, r);
+	public void render(Game game, Renderer r, ZRect bounds){
+		super.render(game, r, bounds);
 		
 		if(this.getFont() != null) r.setFont(this.getFont());
 		r.setColor(this.getFontColor());
 		r.setFontSize(this.getFontSize());
-		r.drawText(this.getX() + getTextX(), this.getY() + getTextY(), this.getText());
+		
+		this.drawText(r, this.getText(), bounds);
+	}
+	
+	/**
+	 * Draw the given text on this menu at it's intended location
+	 * 
+	 * @param r The Renderer to use to draw the text
+	 * @param text The text to draw
+	 * @param bounds The bounds of this thing as it's being drawn
+	 */
+	public void drawText(Renderer r, String text, ZRect bounds){
+		this.buffer.setText(text);
+		this.buffer.setTextX(this.getTextX());
+		this.buffer.setTextY(this.getTextY());
+		this.buffer.drawToRenderer(bounds.getX(), bounds.getY(), r);
 	}
 	
 }

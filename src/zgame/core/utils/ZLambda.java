@@ -24,6 +24,11 @@ public final class ZLambda{
 		public void run(int a, int b);
 	}
 	
+	/** A lambda that takes an argument for any type and returns nothing */
+	public interface RunObject<T>{
+		public void run(T obj);
+	}
+	
 	/** Cannot instantiate this class */
 	private ZLambda(){
 	};

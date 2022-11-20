@@ -94,6 +94,41 @@ public final class ZStringUtils{
 		System.out.println(arrStr(arr));
 	}
 	
+	/**
+	 * Insert a string into another string
+	 * 
+	 * @param s The string to insert to
+	 * @param index The index in s to insert the string. This method assumes this is a valid index
+	 * @param insert The string to insert
+	 * @return The new string
+	 */
+	public static String insertString(String s, int index, String insert){
+		return s.substring(0, index) + insert + s.substring(index);
+	}
+	
+	/**
+	 * Insert a character into a string
+	 * 
+	 * @param s The string to insert to
+	 * @param index The index in s to insert the string. This method assumes this is a valid index
+	 * @param insert The character to insert
+	 * @return The new string
+	 */
+	public static String insertString(String s, int index, char insert){
+		return insertString(s, index, Character.toString(insert));
+	}
+	
+	/**
+	 * Remove the character at the given index of the given string
+	 * 
+	 * @param s The string
+	 * @param index the index to remove. This method assumes this is a valid index
+	 * @return The new string
+	 */
+	public static String removeChar(String s, int index){
+		return s.substring(0, index) + s.substring(index + 1);
+	}
+	
 	/** Cannot instantiate this class */
 	private ZStringUtils(){
 	};

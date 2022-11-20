@@ -100,7 +100,7 @@ public class CollisionResponse{
 	public boolean hit(){
 		return this.wall() || this.ceiling() || this.floor();
 	}
-
+	
 	/** @return See {@link #material} */
 	public Material material(){
 		return this.material;

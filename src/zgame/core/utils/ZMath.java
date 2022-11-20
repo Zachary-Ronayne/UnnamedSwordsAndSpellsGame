@@ -1,7 +1,6 @@
 package zgame.core.utils;
 
 import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
 
 /** A class containing misc methods for math stuff */
 public final class ZMath{
@@ -63,7 +62,7 @@ public final class ZMath{
 	}
 	
 	/**
-	 * Return x, but if x is less than a, return a, and if x is less than b, return b
+	 * Return x, but if x is less than a, return a, and if x is greater than b, return b
 	 * 
 	 * @param a The lowest number this method should return
 	 * @param b The highest number this method should return
@@ -73,10 +72,23 @@ public final class ZMath{
 	public static double minMax(double a, double b, double x){
 		return Math.max(a, Math.min(b, x));
 	}
-
+	
+	/**
+	 * Determine if a number is between two other numbers
+	 * 
+	 * @param a The lower number to check
+	 * @param b The middle number
+	 * @param c The higher number
+	 * @return true if b is between or equal to a and c, false otherwise
+	 */
+	public static boolean in(int a, int b, int c){
+		return a <= b && b <= c;
+	}
+	
 	/**
 	 * Determine if two numbers have the same sign.
 	 * Behavior of this method is not guaranteed for weird values, i.e. infinity and NaN
+	 * 
 	 * @param a The first number
 	 * @param b The second number
 	 * @return true if they have the same sign, false otherwise.
@@ -84,7 +96,7 @@ public final class ZMath{
 	public static boolean sameSign(double a, double b){
 		return a == b || (a < 0 && b < 0) || (a > 0 && b > 0);
 	}
-
+	
 	/**
 	 * Find the angle from the point (x, y) to the point (px, py)
 	 * 
@@ -105,7 +117,7 @@ public final class ZMath{
 	 * @param l2 The second line
 	 * @return The intersection point, or null if the lines are parallel, i.e. they don't intersect
 	 */
-	public static Point2D.Double lineIntersection(Line2D.Double l1, Line2D.Double l2){
+	public static ZPoint lineIntersection(Line2D.Double l1, Line2D.Double l2){
 		// Find slopes and check if the lines are parallel
 		double m1 = slope(l1);
 		double m2 = slope(l2);
@@ -119,9 +131,8 @@ public final class ZMath{
 			Line2D.Double line = nan1 ? l2 : l1;
 			double m = nan1 ? m2 : m1;
 			double b = yIntercept(line);
-			return new Point2D.Double(nanL.x1, m * nanL.x1 + b);
+			return new ZPoint(nanL.x1, m * nanL.x1 + b);
 		}
-
 		// Find y intercepts
 		double b1 = yIntercept(l1, m1);
 		double b2 = yIntercept(l2, m2);
@@ -129,7 +140,7 @@ public final class ZMath{
 		// Find the intersection
 		double x = (b2 - b1) / (m1 - m2);
 		double y = m1 * x + b1;
-		return new Point2D.Double(x, y);
+		return new ZPoint(x, y);
 	}
 	
 	/**
@@ -160,7 +171,7 @@ public final class ZMath{
 	public static double yIntercept(Line2D.Double line, double slope){
 		return line.y1 - slope * line.x1;
 	}
-
+	
 	/**
 	 * Given two lengths for the non hypotenuse sides of a right triangle, return the length of the hypotenuse
 	 * 

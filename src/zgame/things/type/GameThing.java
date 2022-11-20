@@ -1,13 +1,20 @@
 package zgame.things.type;
 
 import zgame.core.Game;
+import zgame.core.file.Saveable;
+import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 
 /** An object which exists in the game */
-public abstract class GameThing implements Comparable<GameThing>{
+public abstract class GameThing implements Comparable<GameThing>, Saveable, Destroyable{
 	
 	/** Create an empty {@link GameThing} */
 	public GameThing(){
+	}
+	
+	/** Override this method if this {@link GameThing} uses any resources that must be freed when it is no longer in use */
+	@Override
+	public void destroy(){
 	}
 	
 	/**
@@ -17,7 +24,7 @@ public abstract class GameThing implements Comparable<GameThing>{
 	 * @param r The {@link Renderer} to draw this {@link GameThing} on
 	 */
 	protected abstract void render(Game game, Renderer r);
-
+	
 	/**
 	 * Determine if this {@link GameThing} should be rendered
 	 * 
@@ -28,7 +35,7 @@ public abstract class GameThing implements Comparable<GameThing>{
 	public boolean shouldRender(Game game, Renderer r){
 		return true;
 	}
-
+	
 	/**
 	 * Draw this {@link GameThing} to the given {@link Renderer}, only if {@link #shouldRender()} returns true
 	 * 
@@ -51,7 +58,7 @@ public abstract class GameThing implements Comparable<GameThing>{
 	public int getRenderPriority(){
 		return 0;
 	}
-
+	
 	@Override
 	public int compareTo(GameThing gt){
 		int r = this.getRenderPriority();

@@ -8,7 +8,7 @@ public interface Position{
 	
 	/** @return The y coordinate of this object. If this object has a bounds, it's the minimum y coordinate */
 	public double getY();
-
+	
 	/** @return The x coordinate of the center of this object */
 	public double centerX();
 	

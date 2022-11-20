@@ -2,15 +2,22 @@ package zgame.menu;
 
 import zgame.core.Game;
 import zgame.core.GameInteractable;
+import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.graphics.buffer.DrawableGameBuffer;
 import zgame.core.utils.ZRect;
+import zgame.core.window.GameWindow;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
-/** An object which can be contained by a Menu */
-public abstract class MenuThing implements GameInteractable{
+/**
+ * An object which can be contained by a Menu
+ * 
+ * All {@link MenuThing}s should be rendered via their relative coordinates
+ */
+public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** The x coordinate of the {@link MenuThing}, in screen coordinates, relative to {@link #parent}, or relative to (0, 0) if {@link #parent} is null */
 	private double relX;
@@ -28,11 +35,24 @@ public abstract class MenuThing implements GameInteractable{
 	/** The width, in pixels, of the border of this {@link MenuThing} */
 	private double borderWidth;
 	
+	/**
+	 * true to draw the contents of {@link #things} to {@link #buffer}, if it is being used, false to draw them directly.
+	 * true by default.
+	 * This value is ignored when {@link #usesBuffer()} returns false.
+	 */
+	private boolean drawThingsToBuffer;
+	
 	/** The {@link MenuThing} which holds this {@link MenuThing}. Can be null if this {@link MenuThing} has no parent */
 	private MenuThing parent;
 	
 	/** A collection of every {@link MenuThing} in this {@link Menu} */
-	private Collection<MenuThing> things;
+	private List<MenuThing> things;
+	
+	/**
+	 * The buffer used by this {@link MenuThing} to keep track of what's drawn for {@link #renderHud(Game, Renderer)}, or null if using a buffer is not enabled.
+	 * If null, the contents of this {@link MenuThing} will be redrawn every frame
+	 */
+	private DrawableGameBuffer buffer;
 	
 	/**
 	 * Create a {@link MenuThing} with no size or position
@@ -60,6 +80,19 @@ public abstract class MenuThing implements GameInteractable{
 	 * @param height See {@link #height}
 	 */
 	public MenuThing(double x, double y, double width, double height){
+		this(x, y, width, height, false);
+	}
+	
+	/**
+	 * Create a {@link MenuThing} of the given position and size
+	 * 
+	 * @param x See {@link #relX}
+	 * @param y See {@link #relY}
+	 * @param width See {@link #width}
+	 * @param height See {@link #height}
+	 * @param useBuffer true to use {@link #buffer}, false otherwise
+	 */
+	public MenuThing(double x, double y, double width, double height, boolean useBuffer){
 		this.relX = x;
 		this.relY = y;
 		this.width = width;
@@ -71,26 +104,134 @@ public abstract class MenuThing implements GameInteractable{
 		
 		this.parent = null;
 		this.things = new ArrayList<MenuThing>();
+		
+		this.setBuffer(useBuffer);
+		this.drawThingsToBuffer = true;
 	}
 	
-	/** @return The actual x coordinate of this {@link MenuThing}, based on the position of its parent */
+	// issue#11 add option to make things only render in the bounds regardless of a buffer, fix render checking first
+	
+	/** @param true to enable using the buffer, false otherwise */
+	public void setBuffer(boolean use){
+		if(use && this.buffer == null) this.initBuffer();
+		else if(!use){
+			this.destroyBuffer();
+			this.buffer = null;
+		}
+	}
+	
+	/**
+	 * Does nothing if {@link #buffer} is null. Otherwise, forces the contents of the buffer to be redrawn the next time the buffer is requested to be drawn to something.
+	 * 
+	 * Essentially, call this method if the state of this thing changed, and should be drawn again
+	 */
+	public void forceRedraw(){
+		if(this.buffer == null) return;
+		this.buffer.updateRedraw(true);
+	}
+	
+	/** Initialize the state of {@link #buffer} based on the state of this {@link MenuThing} */
+	private void initBuffer(){
+		this.buffer = new MenuBuffer(this);
+	}
+	
+	/**
+	 * Force the underlying buffer for this {@link MenuThing} to be recreated. This is an expensive operation, and should not be used frequently.
+	 * Also forces this object to use a buffer, even if it was previously not using one
+	 * 
+	 * Essentially, call this method to make this thing use a buffer
+	 */
+	public void updateBuffer(){
+		this.destroyBuffer();
+		this.initBuffer();
+	}
+	
+	/**
+	 * Force this {@link MenuThing} to stop using a buffer, also destroy the buffer if was using one
+	 * 
+	 * Essentially, call this method to stop using a buffer
+	 */
+	public void deleteBuffer(){
+		this.destroyBuffer();
+		this.buffer = null;
+	}
+	
+	/** Destroy {@link #buffer} with a null check */
+	private void destroyBuffer(){
+		if(this.buffer != null) this.buffer.destroy();
+	}
+	
+	/** @return true if this {@link MenuThing} currently uses a buffer to render its contents, false otherwise */
+	public boolean usesBuffer(){
+		return this.buffer != null;
+	}
+	
+	/** @return See {@link #drawThingsToBuffer} */
+	public boolean isDrawThingsToBuffer(){
+		return this.drawThingsToBuffer;
+	}
+	
+	/** @param drawThingsToBuffer See {@link #drawThingsToBuffer} */
+	public void setDrawThingsToBuffer(boolean drawThingsToBuffer){
+		this.drawThingsToBuffer = drawThingsToBuffer;
+	}
+	
+	@Override
+	public void destroy(){
+		this.destroyBuffer();
+		for(int i = 0; i < this.things.size(); i++) this.things.get(i).destroy();
+	}
+	
+	/**
+	 * @return The actual x coordinate of this {@link MenuThing}, based on the position of its parent
+	 *         This should only be used for internal game logic, never for rendering operations
+	 */
 	public double getX(){
 		return this.getParentX() + this.getRelX();
 	}
 	
-	/** @return The actual y coordinate of this {@link MenuThing}, based on the position of its parent */
+	/**
+	 * @return The actual y coordinate of this {@link MenuThing}, based on the position of its parent
+	 *         This should only be used for internal game logic, never for rendering operations
+	 */
 	public double getY(){
 		return this.getParentY() + this.getRelY();
 	}
 	
-	/** @return See {@link #relX} */
+	/** @return The actual x coordinate of the center of this {@link MenuThing}, based on the position of its parent */
+	public double centerX(){
+		return this.getX() + this.getWidth() * 0.5;
+	}
+	
+	/** @return The actual y coordinate of the center of this {@link MenuThing}, based on the position of its parent */
+	public double centerY(){
+		return this.getY() + this.getHeight() * 0.5;
+	}
+	
+	/**
+	 * @return See {@link #relX}
+	 *         This should be used for rendering operations, all rendering should take place based on these coordinates, never {@link #getX()}
+	 */
 	public double getRelX(){
 		return this.relX;
 	}
 	
-	/** @return See {@link #relY} */
+	/**
+	 * @return See {@link #relY}
+	 *         This should be used for rendering operations, all rendering should take place based on these coordinates, never {@link #getY()}
+	 */
 	public double getRelY(){
 		return this.relY;
+	}
+	
+	/** @return The x coordinate of the center of this {@link MenuThing}, relative to the position of its parent */
+	public double centerRelX(){
+		return this.getRelX() + this.getWidth() * 0.5;
+	}
+	
+	/** @return The y coordinate of the center of this {@link MenuThing}, relative to the position of its parent */
+	public double centerRelY(){
+		return this.getRelY() + this.getHeight() * 0.5;
 	}
 	
 	/** @param x See {@link #relX} */
@@ -98,9 +239,19 @@ public abstract class MenuThing implements GameInteractable{
 		this.relX = x;
 	}
 	
+	/** @param x The amount to move this thing on the x axis */
+	public void moveX(double x){
+		this.setRelX(this.getRelX() + x);
+	}
+	
 	/** @param y See {@link #relY} */
 	public void setRelY(double y){
 		this.relY = y;
+	}
+	
+	/** @param y The amount to move this thing on the x axis */
+	public void moveY(double y){
+		this.setRelY(this.getRelY() + y);
 	}
 	
 	/** @return See {@link #width} */
@@ -123,9 +274,14 @@ public abstract class MenuThing implements GameInteractable{
 		this.height = height;
 	}
 	
-	/** @return A {@link ZRect} containing the position and size of this {@link MenuThing} */
+	/** @return A {@link ZRect} containing the position and size of this {@link MenuThing}, using its absolute coordinates */
 	public ZRect getBounds(){
 		return new ZRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+	}
+	
+	/** @return A {@link ZRect} containing the position and size of this {@link MenuThing}, using its relative coordinates */
+	public ZRect getRelBounds(){
+		return new ZRect(this.getRelX(), this.getRelY(), this.getWidth(), this.getHeight());
 	}
 	
 	/** @return See {@link #fill} */
@@ -157,11 +313,15 @@ public abstract class MenuThing implements GameInteractable{
 	public void setBorderWidth(double borderWidth){
 		this.borderWidth = borderWidth;
 	}
-
 	
 	/** @return See {@link #parent} */
 	public MenuThing getParent(){
 		return this.parent;
+	}
+	
+	/** @return true if this {@link MenuThing} is the root of the menu, i.e. it has no parent thing */
+	public boolean isRoot(){
+		return this.parent == null;
 	}
 	
 	/** @return The real x coordinate of {@link #parent}. If {@link #parent} is null, this method returns 0 */
@@ -180,84 +340,267 @@ public abstract class MenuThing implements GameInteractable{
 	}
 	
 	/**
+	 * @param thing Check if the given thing is in this object
+	 * @return true if thing is contained by this thing
+	 */
+	public boolean hasThing(MenuThing thing){
+		return this.getThings().contains(thing);
+	}
+	
+	/**
 	 * Add a {@link MenuThing} to this {@link Menu}
 	 * If thing is the same as this object, the thing is not added.
-	 * Should avoid adding things in a circular manor, i.e. if thing1 contains thing2 and thing2 contains thing3, the thing3 should not contain thing1.
+	 * Should avoid adding things in a circular manor, i.e. if thing1 contains thing2 and thing2 contains thing3, then thing3 should not contain thing1.
 	 * If things are added in a circular manor, infinite recursion will occur.
 	 * Once added, any actions which apply to this {@link MenuThing} will also apply to the given thing. This means input, rendering, and game ticks
+	 * If thing already is in something else, i.e. it already has a parent, thing will not be added.
+	 * First remove thing from it's current parent using {@link #removeThing(MenuThing)}, then call {@link #addThing(MenuThing)}
 	 * 
 	 * @param thing The thing to add
 	 * @return true if the thing was added, false otherwise
 	 */
 	public boolean addThing(MenuThing thing){
-		if(this == thing) return false;
-		this.things.add(thing);
+		if(this == thing || this.hasThing(thing) || thing.getParent() != null) return false;
 		thing.setParent(this);
-		return true;
+		return this.things.add(thing);
+	}
+	
+	/**
+	 * Remove the given {@link MenuThing} from this {@link Menu}, then destroy it
+	 * 
+	 * @param thing The thing to remove
+	 * @return true if the thing was removed, false otherwise
+	 */
+	public boolean removeThing(MenuThing thing){
+		return this.removeThing(thing, true);
 	}
 	
 	/**
 	 * Remove the given {@link MenuThing} from this {@link Menu}
 	 * 
 	 * @param thing The thing to remove
+	 * @param destroy true to destroy this menu thing as it is removed, false otherwise
 	 * @return true if the thing was removed, false otherwise
 	 */
-	public boolean removeThing(MenuThing thing){
+	public boolean removeThing(MenuThing thing, boolean destroy){
+		if(thing == null) return false;
 		if(thing.getParent() == this) thing.setParent(null);
-		return this.things.remove(thing);
+		boolean success = this.things.remove(thing);
+		if(destroy) thing.destroy();
+		return success;
+	}
+	
+	/** Removes and destroys everything currently in this {@link MenuThing} */
+	public void removeAll(){
+		this.removeAll(true);
+	}
+	
+	/**
+	 * Removes everything currently in this {@link MenuThing}
+	 * 
+	 * @param destroy true to also destroy every removed thing, false otherwise
+	 */
+	public void removeAll(boolean destroy){
+		if(destroy) for(MenuThing thing : this.things) thing.destroy();
+		this.things.clear();
+	}
+	
+	/** @return See {@link #things} */
+	public List<MenuThing> getThings(){
+		return this.things;
+	}
+	
+	/**
+	 * Move this {@link MenuThing} to the center of the given window
+	 * 
+	 * @param window The window to center by
+	 */
+	public void center(GameWindow window){
+		centerHorizontal(window.getWidth());
+		centerVertical(window.getHeight());
+	}
+	
+	/** Move this {@link MenuThing} to the center bounds of it's parent. Does nothing if this thing has no parent */
+	public void center(){
+		centerHorizontal();
+		centerVertical();
+	}
+	
+	/** Move this {@link MenuThing} to the center horizontal bounds of it's parent. Does nothing if this thing has no parent */
+	public void centerHorizontal(){
+		if(this.parent == null) return;
+		centerHorizontal(this.parent.getWidth());
+	}
+	
+	/** Move this {@link MenuThing} to the center vertical bounds of it's parent. Does nothing if this thing has no parent */
+	public void centerVertical(){
+		if(this.parent == null) return;
+		centerVertical(this.parent.getHeight());
+	}
+	
+	/**
+	 * Move this {@link MenuThing} to the center it relative to a thing of the given width, on the x axis
+	 * @param width The width to center by
+	 */
+	public void centerHorizontal(double width){
+		this.setRelX((width - this.getWidth()) * 0.5);
+	}
+	
+	/**
+	 * Move this {@link MenuThing} to the center it relative to a thing of the given height, on the y axis
+	 * 
+	 * @param height The height to center by
+	 */
+	public void centerVertical(double height){
+		this.setRelY((height - this.getHeight()) * 0.5);
 	}
 	
 	/** Do not call directly */
 	@Override
 	public void tick(Game game, double dt){
-		for(MenuThing t : this.things) t.tick(game, dt);
+		for(int i = 0; i < this.things.size(); i++){
+			MenuThing t = this.things.get(i);
+			t.tick(game, dt);
+		}
 	}
 	
 	/** Do not call directly */
 	@Override
 	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		for(MenuThing t : this.things) t.keyAction(game, button, press, shift, alt, ctrl);
+		for(int i = 0; i < this.things.size(); i++){
+			MenuThing t = this.things.get(i);
+			t.keyAction(game, button, press, shift, alt, ctrl);
+		}
 	}
 	
 	/** Do not call directly */
 	@Override
 	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		for(MenuThing t : this.things) t.mouseAction(game, button, press, shift, alt, ctrl);
+		for(int i = 0; i < this.things.size(); i++){
+			MenuThing t = this.things.get(i);
+			t.mouseAction(game, button, press, shift, alt, ctrl);
+		}
 	}
 	
 	/** Do not call directly */
 	@Override
 	public void mouseMove(Game game, double x, double y){
-		for(MenuThing t : this.things) t.mouseMove(game, x, y);
+		for(int i = 0; i < this.things.size(); i++){
+			MenuThing t = this.things.get(i);
+			t.mouseMove(game, x, y);
+		}
 	}
 	
 	/** Do not call directly */
 	@Override
 	public void mouseWheelMove(Game game, double amount){
-		for(MenuThing t : this.things) t.mouseWheelMove(game, amount);
+		for(int i = 0; i < this.things.size(); i++){
+			MenuThing t = this.things.get(i);
+			t.mouseWheelMove(game, amount);
+		}
 	}
 	
-	/** Do not call directly */
+	/** Do not call directly, use {@link #render(Game, Renderer, ZRect)} to draw menu things and override their rendering behavior */
 	@Override
-	public void renderBackground(Game game, Renderer r){
-		for(MenuThing t : this.things) t.renderBackground(game, r);
+	public final void renderBackground(Game game, Renderer r){
 	}
 	
-	/** Do not call directly */
+	/** Do not call directly, use {@link #render(Game, Renderer, ZRect)} to draw menu things and override their rendering behavior */
 	@Override
-	public void render(Game game, Renderer r){
-		r.setColor(this.border);
-		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-		r.setColor(this.fill);
+	public final void render(Game game, Renderer r){
+	}
+	
+	/** Do not call directly, use {@link #render(Game, Renderer, ZRect)} to draw menu things and override their rendering behavior */
+	@Override
+	public final void renderHud(Game game, Renderer r){
+		// If using a buffer, draw the contents of the buffer to the relative position
+		if(this.usesBuffer()){
+			this.buffer.drawToRenderer(this.getRelX(), this.getRelY(), r, game);
+			// If not drawing the things to the buffer, draw them directly
+			if(!this.isDrawThingsToBuffer()) this.drawThings(game, r, true);
+		}
+		// Otherwise, draw the object directly with the renderer
+		else{
+			// Draw relative to the parent
+			this.render(game, r, this.getRelBounds());
+			this.drawThings(game, r, true);
+		}
+	}
+	
+	/**
+	 * Draw the contents of just this menu thing, not anything in {@link #things}
+	 * Anything drawn using this method should be drawn relative to the given bounds, not based on this thing's position or relative position
+	 * 
+	 * @param game The game associated with this thing
+	 * @param r The renderer to use
+	 * @param bounds The bounds which this thing will be rendered relative to
+	 */
+	public void render(Game game, Renderer r, ZRect bounds){
+		// issue#12 draw the border as 4 separate rectangles instead of as a big fill
+		r.setColor(this.getBorder());
+		r.drawRectangle(bounds);
+		r.setColor(this.getFill());
 		double b = this.getBorderWidth();
-		r.drawRectangle(this.getX() + b, this.getY() + b, this.getWidth() - b * 2, this.getHeight() - b * 2);
-		for(MenuThing t : this.things) t.render(game, r);
+		r.drawRectangle(new ZRect(bounds, -b));
 	}
 	
-	/** Do not call directly */
-	@Override
-	public void renderHud(Game game, Renderer r){
-		for(MenuThing t : this.things) t.renderHud(game, r);
+	/**
+	 * Render this {@link MenuThing} to the given renderer using the given game, relative to the the internal buffer
+	 * 
+	 * @param game The game
+	 * @param r The renderer
+	 */
+	private void renderToBuffer(Game game, Renderer r){
+		// Draw relative to the origin
+		this.render(game, r, new ZRect(0, 0, this.getWidth(), this.getHeight()));
+		// If drawing things directly to the buffer, draw them
+		if(this.isDrawThingsToBuffer()) this.drawThings(game, r, false);
+	}
+	
+	/**
+	 * Render this the contents of {@link #things} using the associated game and renderer
+	 * 
+	 * @param game The game
+	 * @param r The renderer
+	 * @param reposition true to reposition the coordinates based on {@link #relX} and {@link #relY}, false otherwise
+	 */
+	private void drawThings(Game game, Renderer r, boolean reposition){
+		// Position the renderer to draw this thing's things relative to this thing
+		if(reposition){
+			r.pushMatrix();
+			GameWindow w = game.getWindow();
+			r.translate(w.sizeScreenToGlX(this.getRelX()), w.sizeScreenToGlY(-this.getRelY()));
+		}
+		// Draw this thing's things
+		// Did I use "thing" enough times?
+		for(int i = 0; i < this.things.size(); i++){
+			MenuThing t = this.things.get(i);
+			t.renderHud(game, r);
+		}
+		// Put the matrix back to what it was
+		if(reposition) r.popMatrix();
+	}
+	
+	/** A helper class for drawing {@link MenuThing}s */
+	public class MenuBuffer extends DrawableGameBuffer{
+		
+		/** The thing drawn by this buffer */
+		private MenuThing thing;
+		
+		/**
+		 * Create the new buffer
+		 * 
+		 * @param thing The thing to use for the buffer
+		 */
+		public MenuBuffer(MenuThing thing){
+			super(thing.getWidth(), thing.getHeight());
+			this.thing = thing;
+		}
+		
+		@Override
+		public void draw(Game game, Renderer r){
+			this.thing.renderToBuffer(game, r);
+		}
 	}
 	
 }

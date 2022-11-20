@@ -1,10 +1,12 @@
 package zgame.world;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
+import zgame.core.file.Saveable;
+import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZArrayUtils;
 import zgame.core.utils.ZMath;
@@ -20,7 +22,7 @@ import zgame.things.type.HitBox;
 import zgame.things.type.RectangleBounds;
 
 /** An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc. */
-public class Room implements RectangleBounds{
+public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -32,19 +34,19 @@ public class Room implements RectangleBounds{
 	public static final int WALL_FLOOR = 3;
 	
 	/** All of the {@link GameThing} objects which exist in in the game */
-	private ArrayList<GameThing> things;
+	private List<GameThing> things;
 	/** All of the {@link EntityThing} objects which exist in in the game */
-	private Collection<EntityThing> entities;
+	private List<EntityThing> entities;
 	/** All of the {@link HitBox} objects which exist in in the game */
-	private Collection<HitBox> hitBoxThings;
+	private List<HitBox> hitBoxThings;
 	/** All of the {@link GameTickable} objects which exist in in the game */
-	private Collection<GameTickable> tickableThings;
+	private List<GameTickable> tickableThings;
 	
 	/** All of the {@link GameThing} objects which will be removed on the next game tick */
-	private Collection<GameThing> thingsToRemove;
+	private List<GameThing> thingsToRemove;
 	
 	// The 2D grid of {@link Tile} objects defining this {@link Room}
-	private Tile[][] tiles;
+	private ArrayList<ArrayList<Tile>> tiles;
 	
 	// The number of tiles wide this room is, i.e. the number of tiles on the x axis
 	private int xTiles;
@@ -87,6 +89,11 @@ public class Room implements RectangleBounds{
 		this.wallSolid = new boolean[]{true, true, true, true};
 	}
 	
+	@Override
+	public void destroy(){
+		for(int i = 0; i < this.things.size(); i++) this.things.get(i).destroy();
+	}
+	
 	/**
 	 * Initialize {@link #tiles} to the given size where every tile is the default tile
 	 * 
@@ -109,27 +116,31 @@ public class Room implements RectangleBounds{
 		this.yTiles = yTiles;
 		this.width = xTiles * Tile.TILE_SIZE;
 		this.height = yTiles * Tile.TILE_SIZE;
-		this.tiles = new Tile[xTiles][yTiles];
-		for(int i = 0; i < xTiles; i++){ for(int j = 0; j < yTiles; j++){ this.tiles[i][j] = new Tile(i, j, t); } }
+		this.tiles = new ArrayList<ArrayList<Tile>>(xTiles);
+		for(int i = 0; i < xTiles; i++){
+			ArrayList<Tile> col = new ArrayList<Tile>(yTiles);
+			this.tiles.add(col);
+			for(int j = 0; j < yTiles; j++){ col.add(new Tile(i, j, t)); }
+		}
 	}
 	
 	/** @return See {@link #things}. This is the actual collection holding the things, not a copy */
-	public Collection<GameThing> getThings(){
+	public List<GameThing> getThings(){
 		return this.things;
 	}
 	
 	/** @return See {@link #entities}. This is the actual collection holding the things, not a copy */
-	public Collection<EntityThing> getEntities(){
+	public List<EntityThing> getEntities(){
 		return this.entities;
 	}
 	
 	/** @return See {@link #tickableThings}. This is the actual collection holding the things, not a copy */
-	public Collection<GameTickable> getTickableThings(){
+	public List<GameTickable> getTickableThings(){
 		return this.tickableThings;
 	}
 	
 	/** @return See {@link #hitBoxThings}. This is the actual collection holding the things, not a copy */
-	public Collection<HitBox> getHitBoxThings(){
+	public List<HitBox> getHitBoxThings(){
 		return this.hitBoxThings;
 	}
 	
@@ -181,7 +192,7 @@ public class Room implements RectangleBounds{
 		
 		for(int x = minX; x <= maxX; x++){
 			for(int y = minY; y <= maxY; y++){
-				Tile t = this.tiles[x][y];
+				Tile t = this.tiles.get(x).get(y);
 				CollisionResponse res = t.collide(obj);
 				// Keep track of if a tile was touched
 				boolean currentCollided = res.x() != 0 || res.y() != 0;
@@ -192,6 +203,7 @@ public class Room implements RectangleBounds{
 				if(res.right()) right = true;
 				if(res.ceiling()) top = true;
 				if(res.floor()) bot = true;
+				// issue#15 try making it do only one final collision operation at the end
 				obj.collide(res);
 				
 				// Record the material collided with, only if this tile was collided with
@@ -238,8 +250,10 @@ public class Room implements RectangleBounds{
 	 */
 	public void tick(Game game, double dt){
 		// Update all updatable objects
-		for(GameTickable t : this.tickableThings) t.tick(game, dt);
-		
+		for(int i = 0; i < this.tickableThings.size(); i++){
+			GameTickable t = this.tickableThings.get(i);
+			t.tick(game, dt);
+		}
 		// Remove all things that need to be removed
 		for(GameThing thing : this.thingsToRemove){
 			this.things.remove(thing);
@@ -263,7 +277,7 @@ public class Room implements RectangleBounds{
 		int startY = Math.max(0, (int)Math.floor(game.getScreenTop() / Tile.size()));
 		int endY = Math.min(this.getYTiles(), (int)Math.ceil(game.getScreenBottom() / Tile.size()));
 		// Draw all the tiles
-		for(int i = startX; i < endX; i++) for(int j = startY; j < endY; j++) this.tiles[i][j].renderWithCheck(game, r);
+		for(int i = startX; i < endX; i++) for(int j = startY; j < endY; j++) this.tiles.get(i).get(j).renderWithCheck(game, r);
 		
 		// Draw all the things
 		for(int i = 0; i < this.things.size(); i++) this.things.get(i).renderWithCheck(game, r);
@@ -386,6 +400,18 @@ public class Room implements RectangleBounds{
 	}
 	
 	/**
+	 * Get the tile at the specified index
+	 * 
+	 * @param x The tile index on the x axis
+	 * @param y The tile on the y axis
+	 * @return The tile, or null if the tile is outside of the range of the grid
+	 */
+	public Tile getTile(int x, int y){
+		if(!ZMath.in(0, x, this.tiles.size() - 1) || !ZMath.in(0, y, this.tiles.get(x).size() - 1)) return null;
+		return this.tiles.get(x).get(y);
+	}
+	
+	/**
 	 * Set the tile at the specified index
 	 * 
 	 * @param x The x index
@@ -395,7 +421,7 @@ public class Room implements RectangleBounds{
 	 */
 	public boolean setTile(int x, int y, TileType t){
 		if(!this.inTiles(x, y)) return false;
-		this.tiles[x][y] = new Tile(x, y, t);
+		this.tiles.get(x).set(y, new Tile(x, y, t));
 		return true;
 	}
 	

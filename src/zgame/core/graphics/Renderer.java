@@ -3,22 +3,27 @@ package zgame.core.graphics;
 import static org.lwjgl.opengl.GL30.*;
 
 import org.joml.Matrix4f;
+import org.joml.Vector4d;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
 
+import zgame.core.graphics.buffer.GameBuffer;
 import zgame.core.graphics.buffer.IndexBuffer;
 import zgame.core.graphics.buffer.VertexArray;
 import zgame.core.graphics.buffer.VertexBuffer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.FontAsset;
 import zgame.core.graphics.font.GameFont;
+import zgame.core.graphics.font.TextBuffer;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.shader.ShaderProgram;
+import zgame.core.utils.LimitedStack;
+import zgame.core.utils.ZPoint;
 import zgame.core.utils.ZRect;
 import zgame.core.window.GameWindow;
 
 import java.nio.FloatBuffer;
-import java.util.Stack;
+import java.util.ArrayList;
 
 /**
  * A class that handles OpenGL operations related to drawing objects.
@@ -33,7 +38,27 @@ import java.util.Stack;
  * and the lower right hand corner is always (Renderer.screen.width, Renderer.screen.height)
  * Game coordinates: The actual position of something in the game, regardless of where it would be rendered
  */
-public class Renderer{
+public class Renderer implements Destroyable{
+	
+	// issue#5 abstract out the values being sent to the GPU, and make their updating handled by a separate class
+	
+	/** The color to use for rendering by default */
+	public static final ZColor DEFAULT_COLOR = new ZColor(0);
+	/** The default font to use for rendering. Null means rendering cannot happen unless a font is set */
+	public static final GameFont DEFAULT_FONT = null;
+	/** Default value for {@link #positioningEnabledStack} */
+	public static final Boolean DEFAULT_POSITIONING_ENABLED = true;
+	/** Default value for {@link #renderOnlyInsideStack} */
+	public static final Boolean DEFAULT_RENDER_ONLY_INSIDE = true;
+	/** Default value for {@link #limitedBoundsStack}. null means no limit */
+	public static final ZRect DEFAULT_LIMITED_BOUNDS = null;
+	/** Default value for {@link #offsetStack} */
+	public static final ZPoint DEFAULT_OFFSET = new ZPoint();
+	
+	/** The vertex buffer index for positional coordinates */
+	public static final int VERTEX_POS_INDEX = 0;
+	/** The vertex buffer index for texture coordinates */
+	public static final int VERTEX_TEX_INDEX = 1;
 	
 	/** The buffer for the x coordinate when rendering text */
 	private FloatBuffer xTextBuff;
@@ -51,29 +76,7 @@ public class Renderer{
 	/** The shader used to draw the frame buffer to the screen, as a texture */
 	private ShaderProgram framebufferShader;
 	/** The shader which is currently used */
-	private ShaderProgram loadedShader;
-	
-	/** The buffer which this Renderer draws to, which later can be drawn to a window */
-	private GameBuffer screen;
-	
-	/** The {@link GameCamera} which determines the relative location and scale of objects drawn in this renderer. If this is null, no transformations will be applied */
-	private GameCamera camera;
-	
-	/** The stack used to keep track of transformations. The last element is always the current model view matrix */
-	private Stack<Matrix4f> modelViewStack;
-	/** The buffer used to track {@link #modelView} */
-	private FloatBuffer modelViewBuff;
-	/**
-	 * true if all render methods should automatically apply transformations to move from game coordinates to OpenGL coordinates, false otherwise.
-	 * Essentially, if this is true, the render methods take game coordinates, if it is false, the render methods take OpenGL coordinates
-	 */
-	private boolean positioningEnabled;
-	
-	/**
-	 * true if objects which would be rendered outside of the bounds of {@link #screen} should not be drawn, false otherwise.
-	 * If this value is false, then all objects will be rendered, even if they should not be visible, which could cause performance issues
-	 */
-	private boolean renderOnlyInside;
+	private ShaderProgram shader;
 	
 	/** The {@link VertexArray} for drawing plain rectangles */
 	private VertexArray rectVertArr;
@@ -94,11 +97,60 @@ public class Renderer{
 	/** The {@link VertexBuffer} used to track the texture coordinates for drawing the entirety of a texture, i.e. from (0, 0) to (1, 1) */
 	private VertexBuffer texCoordBuff;
 	
-	/** The current color used by this {@link Renderer} */
-	private ZColor color;
+	/** The list of all the stacks of this {@link Renderer} keeping track of the state of this {@link Renderer} */
+	private ArrayList<LimitedStack<?>> stacks;
 	
-	/** The current font of this {@link Renderer}. If this value is null, no text can be drawn */
-	private GameFont font;
+	/** The list of all the attribute related stacks of this {@link Renderer} keeping track of the state of this {@link Renderer} */
+	private ArrayList<LimitedStack<?>> attributeStacks;
+	
+	/** The stack used to keep track of transformations. The last element is always the current model view matrix */
+	private LimitedStack<Matrix4f> modelViewStack;
+	/** The buffer used to track {@link #modelView} */
+	private FloatBuffer modelViewBuff;
+	/** The current bounds of the renderer, transformed based on {@link #modelView()}, or null if it needs to be recalculated */
+	private ZRect transformedRenderBounds;
+	/** true if {@link #modelView()} has changed since last being sent to the current shader, and must be resent before any rendering operations take place, false otherwise */
+	private boolean sendModelView;
+	/** true if {@link #getColor()} has changed since last being sent to the current shader */
+	private boolean sendColor;
+	
+	/** The stack keeping track of the current color used by this {@link Renderer} */
+	private LimitedStack<ZColor> colorStack;
+	
+	/** The stack keeping track of the current font of this {@link Renderer}. If the top of the stack is null, no text can be drawn. No font is set by default */
+	private LimitedStack<GameFont> fontStack;
+	
+	/**
+	 * The stack of buffers which this Renderer draws to, which later can be drawn to a window.
+	 * All drawing operations happen to the top of the stack.
+	 * Note that the stack will initially contain one buffer for drawing, based on the given size when initializing this {@link Renderer}
+	 * Any buffers added to the stack must be externally managed, i.e., this class will not attempt to destroy them.
+	 * If {@link #resize(int, int)} is called, it will destroy the initial buffer created by this object
+	 */
+	private LimitedStack<GameBuffer> bufferStack;
+	
+	/**
+	 * The stack keeping track of the {@link GameCamera} which determines the relative location and scale of objects drawn in this renderer.
+	 * If the top of the stack is null, no transformations will be applied
+	 */
+	private LimitedStack<GameCamera> cameraStack;
+	
+	/**
+	 * A stack keeping track of the attribute of if positioning should be used.
+	 * true if all render methods should automatically apply transformations to move from game coordinates to OpenGL coordinates, false otherwise.
+	 * Essentially, if this is true, the render methods take game coordinates, if it is false, the render methods take OpenGL coordinates
+	 */
+	private LimitedStack<Boolean> positioningEnabledStack;
+	
+	/**
+	 * A stack keeping track of the attribute of if things will only attempt to render if they are inside this {@link Renderer}'s bounds
+	 * true if objects which would be rendered outside of the bounds of {@link #screen} should not be drawn, false otherwise.
+	 * If this value is false, then all objects will be rendered, even if they should not be visible, which could cause performance issues
+	 */
+	private LimitedStack<Boolean> renderOnlyInsideStack;
+	
+	/** The stack keeping track of the current bounds which rendering is limited to, in game coordinates, or null if no bounds is limited */
+	private LimitedStack<ZRect> limitedBoundsStack;
 	
 	/**
 	 * Create a new empty renderer
@@ -107,21 +159,58 @@ public class Renderer{
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public Renderer(int width, int height){
-		// General initialization
-		this.camera = null;
-		this.setRenderOnlyInside(true);
-		this.resize(width, height);
+		// Initialize stack list
+		this.stacks = new ArrayList<LimitedStack<?>>();
+		this.attributeStacks = new ArrayList<LimitedStack<?>>();
+		
+		// Buffer stack
+		this.bufferStack = new LimitedStack<GameBuffer>(new GameBuffer(width, height, true), false);
+		this.stacks.add(this.bufferStack);
+		
+		// Camera stack
+		this.cameraStack = new LimitedStack<GameCamera>(null);
+		this.stacks.add(this.cameraStack);
 		
 		// Model view initialization
 		// The matrix is 4x4, so 16 floats
 		this.modelViewBuff = BufferUtils.createFloatBuffer(16);
-		this.modelViewStack = new Stack<Matrix4f>();
-		this.positioningEnabled = true;
+		// Model view stack
+		this.modelViewStack = new LimitedStack<Matrix4f>(new Matrix4f());
+		this.stacks.add(this.modelViewStack);
+		this.transformedRenderBounds = null;
+		this.sendModelView = true;
 		
-		// Font values
-		this.font = null;
+		// Font stack
+		this.fontStack = new LimitedStack<GameFont>(DEFAULT_FONT);
+		this.stacks.add(this.fontStack);
+		this.attributeStacks.add(this.fontStack);
 		
-		// Text buffers
+		// Color stack
+		this.colorStack = new LimitedStack<ZColor>(DEFAULT_COLOR);
+		this.stacks.add(this.colorStack);
+		this.attributeStacks.add(this.colorStack);
+		this.sendColor = true;
+		
+		// Camera stack
+		this.cameraStack = new LimitedStack<GameCamera>(null);
+		this.stacks.add(cameraStack);
+		
+		// Positioning enabled stack
+		this.positioningEnabledStack = new LimitedStack<Boolean>(DEFAULT_POSITIONING_ENABLED);
+		this.stacks.add(this.positioningEnabledStack);
+		this.attributeStacks.add(this.positioningEnabledStack);
+		
+		// Render only inside stack
+		this.renderOnlyInsideStack = new LimitedStack<Boolean>(DEFAULT_RENDER_ONLY_INSIDE);
+		this.stacks.add(this.renderOnlyInsideStack);
+		this.attributeStacks.add(this.renderOnlyInsideStack);
+		
+		// Limited bounds stack, rendering is unbounded by default
+		this.limitedBoundsStack = new LimitedStack<ZRect>(DEFAULT_LIMITED_BOUNDS);
+		this.stacks.add(this.limitedBoundsStack);
+		this.updateLimitedBounds();
+		
+		// Text rendering buffers
 		this.xTextBuff = BufferUtils.createFloatBuffer(1);
 		this.yTextBuff = BufferUtils.createFloatBuffer(1);
 		this.textQuad = STBTTAlignedQuad.create();
@@ -135,13 +224,6 @@ public class Renderer{
 		
 		// Vertex arrays and vertex buffers
 		this.initVertexes();
-		
-		// Set the default color
-		this.setColor(new ZColor(0));
-		
-		// Init the model view matrix
-		this.identityMatrix();
-		this.updateMatrix();
 	}
 	
 	/** Initialize all resources used by the vertex arrays and vertex buffers */
@@ -155,8 +237,9 @@ public class Renderer{
 		
 		// Generate a vertex array for drawing solid colored rectangles
 		this.rectVertArr = new VertexArray();
+		this.rectVertArr.bind();
 		// Generate a vertex buffer for drawing rectangles that fill the entire screen and can be scaled
-		this.fillScreenPosBuff = new VertexBuffer(0, 2, GL_STATIC_DRAW, new float[]{
+		this.fillScreenPosBuff = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_STATIC_DRAW, new float[]{
 			// Low Left Corner
 			-1, -1,
 			// Low Right Corner
@@ -168,8 +251,9 @@ public class Renderer{
 		
 		// Generate a vertex array for rendering images
 		this.imgVertArr = new VertexArray();
+		this.imgVertArr.bind();
 		// Generate a vertex buffer for texture coordinates for rendering images
-		this.texCoordBuff = new VertexBuffer(2, 2, GL_STATIC_DRAW, new float[]{
+		this.texCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_STATIC_DRAW, new float[]{
 			// Low Left Corner
 			0, 0,
 			// Low Right Corner
@@ -184,10 +268,13 @@ public class Renderer{
 		
 		// Generate a vertex array for rendering text
 		this.textVertArr = new VertexArray();
+		this.textVertArr.bind();
 		// Generate a vertex buffer for positional coordinates that regularly change
-		this.posBuff = new VertexBuffer(0, 2, GL_DYNAMIC_DRAW, 4);
+		this.posBuff = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_DYNAMIC_DRAW, 4);
+		this.posBuff.applyToVertexArray();
 		// Generate a vertex buffer for texture coordinates that regularly change
-		this.changeTexCoordBuff = new VertexBuffer(2, 2, GL_DYNAMIC_DRAW, 4);
+		this.changeTexCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_DYNAMIC_DRAW, 4);
+		this.changeTexCoordBuff.applyToVertexArray();
 	}
 	
 	/** Free all resources used by the vertex arrays and vertex buffers */
@@ -197,49 +284,137 @@ public class Renderer{
 		this.posBuff.destroy();
 		this.changeTexCoordBuff.destroy();
 		
-		this.rectVertArr.delete();
-		this.imgVertArr.delete();
-		this.textVertArr.delete();
+		this.rectVertArr.destroy();
+		this.imgVertArr.destroy();
+		this.textVertArr.destroy();
 	}
 	
 	/** Delete any resources used by this Renderer */
+	@Override
 	public void destroy(){
-		this.screen.destroy();
+		this.getBuffer().destroy();
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		this.destroyVertexes();
 	}
 	
+	/** Push the entire state of this renderer into its stacks */
+	public void pushAll(){
+		for(LimitedStack<?> s : this.stacks) s.push();
+	}
+	
+	/** Pop the entire state of this renderer off its stacks */
+	public void popAll(){
+		GameBuffer oldBuffer = this.getBuffer();
+		for(LimitedStack<?> s : this.stacks) s.pop();
+		if(this.getBuffer() != oldBuffer) this.updateBuffer();
+	}
+	
 	/**
-	 * Modify the size of this Renderer. This is a costly operation and should not regularly be run
+	 * Push the values of the simple attributes of this renderer
+	 * See {@link #colorStack}, {@link #fontStack}, {@link #positioningEnabledStack}, {@link #renderOnlyInsideStack}
+	 */
+	public void pushAttributes(){
+		for(LimitedStack<?> s : this.attributeStacks) s.push();
+	}
+	
+	/** Pop the values of the simple attributes of this renderer */
+	public void popAttributes(){
+		for(LimitedStack<?> s : this.attributeStacks) s.pop();
+	}
+	
+	/**
+	 * Modify the default size of this Renderer. This is a costly operation and should not regularly be run
+	 * This will not modify the current top of the buffer stack, but the default buffer, unless the default buffer is at the top of the stack.
+	 * This method will also destroy the buffer at the bottom of the stack
 	 * 
 	 * @param width The width, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public void resize(int width, int height){
-		if(this.screen != null) this.screen.destroy();
-		this.screen = new GameBuffer(width, height);
+		this.bufferStack.getDefaultItem().regenerateBuffer(width, height);
 	}
 	
 	/**
 	 * Clear all rendered contents of this renderer. Calling this method will leave this Renderer's GameBuffer's Framebuffer as the bound framebuffer
 	 */
 	public void clear(){
-		GameBuffer s = this.screen;
-		glBindFramebuffer(GL_FRAMEBUFFER, s.getFrameID());
+		glBindFramebuffer(GL_FRAMEBUFFER, this.getBuffer().getFrameID());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	
 	/** @return The {@link Matrix4f} of the model view, i.e. the current transformation status of the renderer */
 	public Matrix4f modelView(){
-		return this.modelViewStack.lastElement();
+		return this.modelViewStack.peek();
 	}
 	
-	/** Update the data of the model view matrix into OpenGL */
-	public void updateMatrix(){
+	public ZRect getTransformedRenderBounds(){
+		if(this.transformedRenderBounds == null) this.recalculateRenderBounds();
+		return this.transformedRenderBounds;
+	}
+	
+	/** Update the data of the model view matrix in OpenGL */
+	private void updateGpuModelView(){
+		// Do nothing if the matrix does not need to be updated
+		if(!this.sendModelView) return;
+		this.sendModelView = false;
+		
+		// Send the model view to the GPU
 		this.modelView().get(this.modelViewBuff);
-		int loc = glGetUniformLocation(this.loadedShader.getId(), "modelView");
+		int loc = glGetUniformLocation(this.shader.getId(), "modelView");
 		glUniformMatrix4fv(loc, false, this.modelViewBuff);
+		
+	}
+	
+	/** Update the uniform variable used to track the color, with the current value */
+	private void updateGpuColor(){
+		// Do nothing if the color does not need to be updated
+		if(!this.sendColor) return;
+		this.sendColor = false;
+		
+		float[] c = this.getColor().toFloat();
+		int loc = glGetUniformLocation(this.shader.getId(), "mainColor");
+		if(loc != -1) glUniform4fv(loc, c);
+	}
+	
+	/** Recalculate the value of {@link #transformedRenderBounds} based on the current value of {@link #modelView()} */
+	private void recalculateRenderBounds(){
+		// Don't recalculate the bounds if it doesn't need to be recalculated
+		if(this.transformedRenderBounds != null) return;
+		
+		// This assumes only scaling and translation transformations have occurred
+		
+		ZRect renderBounds = this.getBounds();
+		
+		// issue#6 Transform the render bounds by the current model view matrix so that it aligns with the given draw bounds, figure out where this math is going wrong
+		
+		// Form the matrixes that represent the upper left hand and lower right hand corners of the draw bounds
+		Vector4d upper = new Vector4d(renderBounds.getX(), renderBounds.getY(), 1, 1);
+		Vector4d lower = new Vector4d(renderBounds.getX() + renderBounds.getWidth(), renderBounds.getY() + renderBounds.getHeight(), 1, 1);
+		
+		// Grab the current modelView matrix
+		Matrix4f transform = this.modelView();
+		
+		// Transform the corners by the current matrix
+		upper.mul(transform);
+		lower.mul(transform);
+		
+		// Set the current transformed bounds based on the calculated corners
+		this.transformedRenderBounds = new ZRect(upper.x, upper.y, lower.x - upper.x, lower.y - upper.y);
+	}
+	
+	// issue#6 remove, this is a testing method. If working correctly, it should always draw a transparent rectangle on top of the entire canvas, regardless of any kind of
+	// transformations
+	// public void renderWeird(){
+	// this.recalculateRenderBounds();
+	// this.setColor(0, 1, 1, .5);
+	// this.drawRectangle(transformedRenderBounds);
+	// }
+	
+	/** Tell all of the values in this {@link Renderer} that they need to be resent to the gpu */
+	public void markGpuSend(){
+		this.sendModelView = true;
+		this.sendColor = true;
 	}
 	
 	/**
@@ -248,9 +423,14 @@ public class Renderer{
 	 * @param matrix The matrix to use
 	 */
 	public void setMatrix(Matrix4f matrix){
-		if(!modelViewStack.empty()) modelViewStack.pop();
-		modelViewStack.push(matrix);
-		this.updateMatrix();
+		this.modelViewStack.replaceTop(matrix);
+		this.markModelViewChanged();
+	}
+	
+	/** Tell this {@link Renderer} that {@link #modelView()} has changed, and it's dependent values will need to be recalculated before they can be used */
+	private void markModelViewChanged(){
+		this.sendModelView = true;
+		this.transformedRenderBounds = null;
 	}
 	
 	/** Set the modelView matrix to the identity matrix */
@@ -263,6 +443,11 @@ public class Renderer{
 		this.modelViewStack.push(new Matrix4f(this.modelView()));
 	}
 	
+	/** @return The stack keeping track of the model view matrix */
+	public LimitedStack<Matrix4f> getMatrixStack(){
+		return this.modelViewStack;
+	}
+	
 	/**
 	 * Pop the current state of the transformation matrix, i.e. load the previous state of the transformations and discard the current state.
 	 * This method does nothing if the stack is empty
@@ -270,9 +455,9 @@ public class Renderer{
 	 * @return true if the stack was popped, false if no element could be popped, i.e. the stack was empty
 	 */
 	public boolean popMatrix(){
-		if(this.modelViewStack.size() == 1) this.identityMatrix();
-		this.modelViewStack.pop();
-		return true;
+		boolean success = this.modelViewStack.pop() != null;
+		if(success) this.markModelViewChanged();
+		return success;
 	}
 	
 	/**
@@ -283,7 +468,7 @@ public class Renderer{
 	 */
 	public void translate(double x, double y){
 		this.modelView().translate((float)x, (float)y, 0);
-		this.updateMatrix();
+		this.markModelViewChanged();
 	}
 	
 	/**
@@ -294,37 +479,42 @@ public class Renderer{
 	 */
 	public void scale(double x, double y){
 		this.modelView().scale((float)x, (float)y, 1);
-		this.updateMatrix();
+		this.markModelViewChanged();
 	}
 	
-	/** @return See {@link #positioningEnabled} */
+	/** @return The top of {@link #positioningEnabledStack} */
 	public boolean isPositioningEnabled(){
-		return this.positioningEnabled;
+		return this.positioningEnabledStack.peek();
 	}
 	
-	/** @param positioningEnabled See {@link #positioningEnabled} */
+	/** @param positioningEnabled Set the top of {@link #positioningEnabledStack} */
 	public void setPositioningEnabled(boolean positioningEnabled){
-		this.positioningEnabled = positioningEnabled;
+		this.positioningEnabledStack.replaceTop(positioningEnabled);
+	}
+	
+	/** @return See {@link #positioningEnabledStack} */
+	public LimitedStack<Boolean> getPositioningEnabledStack(){
+		return this.positioningEnabledStack;
 	}
 	
 	/** Call this method before rendering normal shapes, i.e. solid rectangles */
 	public void renderModeShapes(){
-		this.setLoadedShader(this.shapeShader);
+		this.setShader(this.shapeShader);
 	}
 	
 	/** Call this method before rendering images, i.e. textures */
 	public void renderModeImage(){
-		this.setLoadedShader(this.textureShader);
+		this.setShader(this.textureShader);
 	}
 	
 	/** Call this method before rendering font, i.e text */
 	public void renderModeFont(){
-		this.setLoadedShader(this.fontShader);
+		this.setShader(this.fontShader);
 	}
 	
 	/** Call this method before rendering a frame buffer in place of a texture */
 	public void renderModeBuffer(){
-		this.setLoadedShader(this.framebufferShader);
+		this.setShader(this.framebufferShader);
 	}
 	
 	/**
@@ -332,11 +522,11 @@ public class Renderer{
 	 * 
 	 * @param shader The shader to use.
 	 */
-	private void setLoadedShader(ShaderProgram shader){
-		if(this.loadedShader != shader){
-			shader.use();
-			this.loadedShader = shader;
-		}
+	private void setShader(ShaderProgram shader){
+		if(this.shader == shader) return;
+		this.markGpuSend();
+		shader.use();
+		this.shader = shader;
 	}
 	
 	/**
@@ -344,12 +534,13 @@ public class Renderer{
 	 */
 	public void initToDraw(){
 		// Bind the screen as the frame buffer
-		this.screen.drawToBuffer();
+		this.getBuffer().drawToBuffer();
+		this.getBuffer().setViewport();
 		// Load the identity matrix before setting a default shader
 		this.identityMatrix();
 		// Bind a default shader
-		this.loadedShader = null;
-		this.setLoadedShader(this.shapeShader);
+		this.shader = null;
+		this.setShader(this.shapeShader);
 	}
 	
 	/**
@@ -362,6 +553,12 @@ public class Renderer{
 	public void drawToWindow(GameWindow window){
 		// Set the current shader for drawing a frame buffer
 		this.renderModeBuffer();
+		this.pushColor(this.getColor().solid());
+		this.pushMatrix();
+		this.identityMatrix();
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		this.popColor();
 		// Bind the vertex array for drawing an image that fills the entire OpenGL space
 		this.imgVertArr.bind();
 		
@@ -370,10 +567,93 @@ public class Renderer{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		
 		// Use the frame buffer texture
-		glBindTexture(GL_TEXTURE_2D, this.screen.getTextureID());
+		glBindTexture(GL_TEXTURE_2D, this.getBuffer().getTextureID());
 		
 		// Draw the image
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
+		this.popMatrix();
+	}
+	
+	/** @return The top of {@link #limitedBoundsStack} */
+	public ZRect getLimitedBounds(){
+		return this.limitedBoundsStack.peek();
+	}
+	
+	/**
+	 * Make this {@link Renderer} only draw things in the given bounds. Call {@link #unlimitBounds()} to turn this off.
+	 * This is off by default
+	 * All values are in game coordinates
+	 * 
+	 * @param x The upper left hand x coordinate of the bounds
+	 * @param y The upper left hand y coordinate of the bounds
+	 * @param w The width of the bounds
+	 * @param h The height of the bounds
+	 */
+	public void limitBounds(double x, double y, double w, double h){
+		this.limitBounds(new ZRect(x, y, w, h));
+	}
+	
+	/**
+	 * Make this {@link Renderer} only draw things in the given bounds. Call {@link #unlimitBounds()} to turn this off.
+	 * This is off by default
+	 * Turns off the limit if bounds is null
+	 * 
+	 * @param bounds The bounds to limit to, in game coordinates
+	 * @return true if the bounds were changed, false otherwise
+	 */
+	public boolean limitBounds(ZRect bounds){
+		ZRect limited = this.getLimitedBounds();
+		this.limitedBoundsStack.replaceTop(bounds);
+		
+		// If the new and old bounds are the same, don't change anything
+		if(bounds == null && limited == null || bounds != null && bounds.equals(limited)) return false;
+		this.updateLimitedBounds();
+		
+		return true;
+	}
+	
+	/** Allow this {@link Renderer} to render anywhere on the screen, i.e. disable {@link #limitBounds(ZRect)}. */
+	public void unlimitBounds(){
+		this.limitBounds(null);
+	}
+	
+	/** Update the current state of the limited bounds via calls to glScissor */
+	private void updateLimitedBounds(){
+		ZRect b = this.getLimitedBounds();
+		if(b == null){
+			glDisable(GL_SCISSOR_TEST);
+			return;
+		}
+		double x = b.getX();
+		double y = b.getY();
+		double w = b.getWidth();
+		double h = b.getHeight();
+		y = y + h;
+		GameCamera c = this.getCamera();
+		if(c != null){
+			x = c.gameToScreenX(x);
+			y = c.gameToScreenY(y);
+			w = c.sizeGameToScreenX(w);
+			h = c.sizeGameToScreenY(h);
+		}
+		glEnable(GL_SCISSOR_TEST);
+		glScissor((int)Math.round(x), (int)Math.round(this.getHeight() - y), (int)Math.round(w), (int)Math.round(h));
+	}
+	
+	/** @return See {@link #limitedBoundsStack} */
+	public LimitedStack<ZRect> getLimitedBoundsStack(){
+		return this.limitedBoundsStack;
+	}
+	
+	/**
+	 * Call OpenGL operations that transform to draw to a location in game coordinates.
+	 * This method assumes the coordinates to translate are centered in the given rectangular bounding box in game coordinates
+	 * This method does not push or pop the matrix stack
+	 * 
+	 * @param r The bounds
+	 */
+	public void positionObject(ZRect r){
+		this.positionObject(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
 	
 	/**
@@ -386,23 +666,48 @@ public class Renderer{
 	 * @param w The width
 	 * @param h The height
 	 */
-	private void positionObject(double x, double y, double w, double h){
+	public void positionObject(double x, double y, double w, double h){
 		if(!this.isPositioningEnabled()) return;
 		
-		GameBuffer b = this.screen;
-		
+		GameBuffer b = this.getBuffer();
 		double rw = b.getInverseWidth();
 		double rh = b.getInverseHeight();
 		double hw = b.getInverseHalfWidth();
 		double hh = b.getInverseHalfHeight();
 		
+		// OpenGL transformations happen in reverse order
+		// Need to account for OpenGL, where the buffer is in the range [-1, 1] on both axis
+		
+		// Second, translate from the center to the upper left hand corner, -1 on the x axis, +1 on the y axis
+		// That will translate the object so the object is centered on the upper left hand corner of the buffer
+		// Then, translate by half of the percentage of the buffer that the object takes up.
+		// This is not multiplied, because the OpenGL space is 2x2 because of the range [-1, 1], so half of 2 is 1, so multiply by nothing
+		// That will make the upper left hand corner of the object align with the upper left hand corner of the buffer
+		// Then, translate by the percentage of the buffer that the given position takes up.
+		// This is multiplied by 2, for the same reason as before, but now it's the full amount, not half
+		// That will put the object at the final location
+		// The below line is just a mathematically simplified version of the commented out line
+		// this.translate(-1 + w * rw + 2 * x * rw, 1 - h * rh - 2 * y * rh);
 		this.translate(-1 + (x + w * .5) * hw, 1 - (y + h * .5) * hh);
+		// First scale by the ratio of objectSize / bufferSize, i.e. the percentage of the buffer that object takes up
+		// After this scaling, the object will be in the center of the buffer, and will be the correct size relative to the buffer
 		this.scale(w * rw, h * rh);
 	}
 	
 	/**
 	 * Draw a rectangle, of the current color of this Renderer, at the specified location. All values are in game coordinates
-	 * Coordinates are in camera coordinates
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * 
+	 * @param x The bounds
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawRectangle(ZRect r){
+		return this.drawRectangle(r.getX(), r.getY(), r.getWidth(), r.getHeight());
+	}
+	
+	/**
+	 * Draw a rectangle, of the current color of this Renderer, at the specified location. All values are in game coordinates
+	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * 
 	 * @param x The x coordinate of the upper left hand corner of the rectangle
 	 * @param y The y coordinate of the upper left hand corner of the rectangle
@@ -416,11 +721,14 @@ public class Renderer{
 		// Use the shape shader and the rectangle vertex array
 		this.renderModeShapes();
 		this.rectVertArr.bind();
-		// Update the current color for this draw operation
-		this.updateColor();
 		
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		glBindVertexArray(0);
 		this.popMatrix();
@@ -429,40 +737,97 @@ public class Renderer{
 	}
 	
 	/**
-	 * Draw a rectangular image at the specified location. All values are in game coordinates.
-	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
+	 * Draw a rectangular buffer at the specified location.
+	 * If the given dimensions have a different aspect ratio that those of the given buffer, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * 
-	 * @param x The x coordinate of the upper right hand corner of the image
-	 * @param y The y coordinate of the upper right hand corner of the image
+	 * @param r The bounds
+	 * @param b The {@link GameBuffer} to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawBuffer(ZRect r, GameBuffer b){
+		return this.drawBuffer(r.getX(), r.getY(), r.getWidth(), r.getHeight(), b);
+	}
+	
+	/**
+	 * Draw a rectangular buffer at the specified location.
+	 * If the given dimensions have a different aspect ratio that those of the given buffer, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * 
+	 * @param x The x coordinate of the upper left hand corner of the buffer
+	 * @param y The y coordinate of the upper left hand corner of the buffer
+	 * @param w The width of the image
+	 * @param h The height of the image
+	 * @param b The {@link GameBuffer} to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawBuffer(double x, double y, double w, double h, GameBuffer b){
+		if(!this.shouldDraw(x, y, w, h)) return false;
+		this.renderModeBuffer();
+		return this.drawTexture(x, y, w, h, b.getTextureID());
+	}
+	
+	/**
+	 * Draw a rectangular image at the specified location.
+	 * Draw a rectangular image at the specified location on the given buffer
+	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * 
+	 * @param x The x coordinate of the upper left hand corner of the image
+	 * @param y The y coordinate of the upper left hand corner of the image
+	 * @param w The width of the image
+	 * @param h The height of the image
+	 * @param img The OpenGL id of the image to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawImage(ZRect r, GameImage img){
+		return this.drawImage(r.getX(), r.getY(), r.getWidth(), r.getHeight(), img);
+	}
+	
+	/**
+	 * Draw a rectangular image at the specified location.
+	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * 
+	 * @param x The x coordinate of the upper left hand corner of the image
+	 * @param y The y coordinate of the upper left hand corner of the image
 	 * @param w The width of the image
 	 * @param h The height of the image
 	 * @param img The {@link GameImage} to draw
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawImage(double x, double y, double w, double h, GameImage img){
-		return this.drawImage(x, y, w, h, img.getId());
+		if(!this.shouldDraw(x, y, w, h)) return false;
+		this.renderModeImage();
+		return this.drawTexture(x, y, w, h, img.getId());
 	}
 	
 	/**
-	 * Draw a rectangular image at the specified location. All values are in game coordinates.
-	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
+	 * Draw a rectangular texture at the specified location.
+	 * Draw a rectangular texture at the specified location on the given buffer
+	 * If the given dimensions have a different aspect ratio that those of the given texture, then the texture will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * This method does not set the shader to use, and it does not check if the bounds should be rendered
 	 * 
-	 * @param x The x coordinate of the upper right hand corner of the image
-	 * @param y The y coordinate of the upper right hand corner of the image
-	 * @param w The width of the image
-	 * @param h The height of the image
-	 * @param img The OpenGL id of the image to draw
+	 * @param x The x coordinate of the upper left hand corner of the texture
+	 * @param y The y coordinate of the upper left hand corner of the texture
+	 * @param w The width of the texture
+	 * @param h The height of the texture
+	 * @param img The OpenGL id of the texture to draw
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawImage(double x, double y, double w, double h, int img){
-		if(!this.shouldDraw(x, y, w, h)) return false;
-		
-		this.renderModeImage();
+	private boolean drawTexture(double x, double y, double w, double h, int img){
 		this.imgVertArr.bind();
 		glBindTexture(GL_TEXTURE_2D, img);
 		
+		// Perform the drawing operation
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		glBindVertexArray(0);
 		
@@ -475,6 +840,8 @@ public class Renderer{
 	 * Draw the given text to the given position
 	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
 	 * i.e. the text starts at the given coordinates and is draw left to right
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
 	 * 
 	 * @param x The x position of the text
 	 * @param y The y position of the text
@@ -482,21 +849,36 @@ public class Renderer{
 	 * @return true if the text was drawn, false otherwise
 	 */
 	public boolean drawText(double x, double y, String text){
-		// Make sure a font exists
-		GameFont f = this.font;
-		if(f == null) return false;
+		return drawText(x, y, text, this.getFont());
+	}
+	
+	/**
+	 * Draw the given text to the given position
+	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
+	 * i.e. the text starts at the given coordinates and is draw left to right
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
+	 * 
+	 * @param x The x position of the text
+	 * @param y The y position of the text
+	 * @param text The text to draw
+	 * @param f The font to use for drawing
+	 * @return true if the text was drawn, false otherwise
+	 */
+	public boolean drawText(double x, double y, String text, GameFont f){
+		// Make sure a font exists, and that there is some text
+		if(f == null || text == null || text.isEmpty()) return false;
 		FontAsset fa = f.getAsset();
 		
 		// Bounds check for if the text should be drawn
-		ZRect r = f.stringBounds(x, y, text);
-		if(!this.shouldDraw(r.getX(), r.getY(), r.getWidth(), r.getHeight())) return false;
+		ZRect[] rects = f.stringBounds(x, y, text, 1, true);
+		if(!this.shouldDraw(rects[text.length()])) return false;
 		
+		// Mark the drawing bounds
 		// Use the font shaders
 		this.renderModeFont();
 		// Use the font vertex array
 		this.textVertArr.bind();
-		// Update the current color for this draw operation
-		this.updateColor();
 		
 		// Use the font's bitmap
 		glBindTexture(GL_TEXTURE_2D, fa.getBitmapID());
@@ -510,13 +892,23 @@ public class Renderer{
 		
 		// Position and scale the text
 		this.pushMatrix();
+		// Need to scale because text is upside down
 		this.scale(1, -1);
-		this.positionObject(x, -y + this.getHeight(), posSize, posSize);
+		// Need to position with height - y to account for the negative scaling
+		// Need to use posSize for the width and height to keep it scaled appropriately to OpenGL coordinates
+		this.positionObject(x, this.getHeight() - y, posSize, posSize);
 		
 		// Draw every character of the text
 		for(int i = 0; i < text.length(); i++){
+			char c = text.charAt(i);
+			
 			// Find the vertices and texture coordinates of the character to draw
-			f.bounds(text.charAt(i), this.xTextBuff, this.yTextBuff, this.textQuad);
+			// Must do this regardless of if the character will render to ensure the text moves to the next location
+			f.bounds(c, this.xTextBuff, this.yTextBuff, this.textQuad);
+			
+			// Only draw the character if it will be in the bounds of the buffer
+			if(!this.shouldDraw(rects[i])) continue;
+			
 			// Buffer the new data
 			this.posBuff.updateData(new float[]{
 				//////////////////////////////////////
@@ -527,6 +919,7 @@ public class Renderer{
 				this.textQuad.x1(), this.textQuad.y1(),
 				//////////////////////////////////////
 				this.textQuad.x0(), this.textQuad.y1()});
+			
 			this.changeTexCoordBuff.updateData(new float[]{
 				//////////////////////////////////////
 				this.textQuad.s0(), this.textQuad.t0(),
@@ -537,6 +930,10 @@ public class Renderer{
 				//////////////////////////////////////
 				this.textQuad.s0(), this.textQuad.t1()});
 			
+			// Ensure the gpu has the current modelView and color
+			this.updateGpuColor();
+			this.updateGpuModelView();
+			
 			// Draw the square
 			glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		}
@@ -546,8 +943,9 @@ public class Renderer{
 	}
 	
 	/**
-	 * Determine if the given bounds are contained within the current state of this {@link Renderer}
-	 * i.e. find out if something drawn within the given bounds would appear on the screen
+	 * Determine if the given bounds are contained within the bounds of the given buffer
+	 * i.e. find out if something drawn within the given bounds would appear on the buffer
+	 * This method accounts for the camera repositioning elements, i.e., if the camera will make something off the screen, this method accounts for that
 	 * 
 	 * @param x The upper left hand corner x coordinate of the object, in game coordinates
 	 * @param y The upper left hand corner y coordinate of the object, in game coordinates
@@ -556,10 +954,35 @@ public class Renderer{
 	 * @return true if the bounds should be drawn, false otherwise
 	 */
 	public boolean shouldDraw(double x, double y, double w, double h){
-		if(!this.isRenderOnlyInside()) return true;
-		ZRect r = this.getBounds();
-		if(this.camera == null) return r.intersects(x, y, w, h);
-		else return r.intersects(this.camera.boundsGameToScreen(x, y, w, h));
+		return shouldDraw(new ZRect(x, y, w, h));
+	}
+	
+	/**
+	 * Determine if the given bounds are contained within the current state of this {@link Renderer}
+	 * i.e. find out if something drawn within the given bounds would appear on the screen
+	 * This method accounts for the camera repositioning elements, i.e., if the camera will make something off the screen, this method accounts for that
+	 * 
+	 * @param r The bounds
+	 * @return true if the bounds should be drawn, false otherwise
+	 */
+	public boolean shouldDraw(ZRect drawBounds){
+		// If rendering only inside is not enabled, immediately return true
+		
+		// issue#6 put this method back. Render checking is currently broken. This method is here to improve performance, i.e., only render things that will appear on the screen
+		// By always returning true, the render check is just skipped, and everything attempts to render no matter what
+		return true;
+		
+		// issue#6 may also need to account for how this interacts with using a buffer. Probably need to recalculate transformedRenderBounds when the buffer changes
+		
+		// if(!this.isRenderOnlyInside()) return true;
+		// ZRect renderBounds = this.getTransformedRenderBounds();
+		// ZRect limited = this.getLimitedBounds();
+		
+		// // Determine if the bounds for the rendering intersects the bounds to draw
+		// boolean yes = renderBounds.intersects(drawBounds);
+		// // If there is a limited space for the rendering, make sure that also intersects the bounds to draw
+		// if(limited != null) yes &= limited.intersects(drawBounds);
+		// return yes;
 	}
 	
 	/** Fill the screen with the current color, regardless of camera position */
@@ -569,14 +992,38 @@ public class Renderer{
 		
 		this.pushMatrix();
 		this.identityMatrix();
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		glBindVertexArray(0);
 		this.popMatrix();
 	}
 	
-	/** @return See {@link #color} */
+	/** @return The top of {@link #colorStack} */
 	public ZColor getColor(){
-		return this.color;
+		return this.colorStack.peek();
+	}
+	
+	/** @param c The new color to push to the top of the color stack */
+	public void pushColor(ZColor c){
+		this.colorStack.push(c);
+		this.sendColor = true;
+	}
+	
+	/** Push the current color onto the top of {@link #colorStack} */
+	public void pushColor(){
+		this.colorStack.push();
+		this.sendColor = true;
+	}
+	
+	/** Pop off the top of {@link #colorStack} */
+	public boolean popColor(){
+		boolean success = this.colorStack.pop() != null;
+		if(success) this.sendColor = true;
+		return success;
 	}
 	
 	/**
@@ -603,30 +1050,38 @@ public class Renderer{
 	}
 	
 	/**
-	 * Set the color currently used to draw basic shapes
+	 * Set the color currently used to draw basic shapes. The alpha channel of this color also determines the transparency of images, text, buffers, etc.
 	 * 
 	 * @param color the new color
 	 */
 	public void setColor(ZColor color){
-		this.color = color;
-		this.updateColor();
+		this.colorStack.replaceTop(color);
+		this.sendColor = true;
 	}
 	
-	/** Update the uniform variable used to track the color, with the current value */
-	public void updateColor(){
-		float[] c = this.getColor().toFloat();
-		int loc = glGetUniformLocation(this.loadedShader.getId(), "mainColor");
-		if(loc != -1) glUniform4fv(loc, c);
+	/** @param a The alpha, i.e. opacity, to use for all drawing operations */
+	public void setAlpha(double a){
+		this.setColor(this.getColor().alpha(a));
 	}
 	
-	/** @return See {@link #font} */
+	/** Make the current color have no transparency, i.e. an alpha channel of 1 */
+	public void makeOpaque(){
+		this.setColor(this.getColor().solid());
+	}
+	
+	/** @return The top of {@link #fontStack} */
 	public GameFont getFont(){
-		return this.font;
+		return this.fontStack.peek();
 	}
 	
-	/** @param font See {@link #font} */
+	/** @param font Set the top of {@link #fontStack} */
 	public void setFont(GameFont font){
-		this.font = font;
+		this.fontStack.replaceTop(font);
+	}
+	
+	/** @return See {@link #fontStack} */
+	public LimitedStack<GameFont> getFontStack(){
+		return this.fontStack;
 	}
 	
 	/** @return The size of {@link #font}. See {@link GameFont#getSize()} */
@@ -636,7 +1091,7 @@ public class Renderer{
 	
 	/** @param size Change the current size of the font. See {@link GameFont#getSize()} */
 	public void setFontSize(double size){
-		this.font = this.getFont().size(size);
+		this.setFont(this.getFont().size(size));
 	}
 	
 	/** @return The line spacing of {@link #font}. See {@link GameFont#getLineSpace()} */
@@ -646,7 +1101,7 @@ public class Renderer{
 	
 	/** @param lineSpace Change the current line space of the font. See {@link GameFont#getLineSpace()} */
 	public void setFontLineSpace(double lineSpace){
-		this.font = this.getFont().lineSpace(lineSpace);
+		this.setFont(this.getFont().lineSpace(lineSpace));
 	}
 	
 	/** @return The char spacing of {@link #font}. See {@link GameFont#getCharSpace()} */
@@ -656,60 +1111,128 @@ public class Renderer{
 	
 	/** @param charSpace Change the current line space of the font. See {@link GameFont#getCharSpace()} */
 	public void setFontCharSpace(double charSpace){
-		this.font = this.getFont().charSpace(charSpace);
+		this.setFont(this.getFont().charSpace(charSpace));
 	}
 	
-	/** @param camera See {@link #camera}. Can also use null to not use a camera for rendering */
+	/** @return The top of {@link #cameraStack} */
+	public GameCamera getCamera(){
+		return this.cameraStack.peek();
+	}
+	
+	/** @param camera Set the top of {@link #cameraStack}. Can also use null to not use a camera for rendering */
 	public void setCamera(GameCamera camera){
-		this.camera = camera;
+		this.cameraStack.replaceTop(camera);
 	}
 	
-	/** @return See {@link #renderOnlyInside} */
+	/** @return The top of {@link #renderOnlyInsideStack} */
 	public boolean isRenderOnlyInside(){
-		return this.renderOnlyInside;
+		return this.renderOnlyInsideStack.peek();
 	}
 	
-	/** @param renderOnlyInside See {@link #renderOnlyInside} */
+	/** @param renderOnlyInside The top of {@link #renderOnlyInsideStack} */
 	public void setRenderOnlyInside(boolean renderOnlyInside){
-		this.renderOnlyInside = renderOnlyInside;
+		this.renderOnlyInsideStack.replaceTop(renderOnlyInside);
+	}
+	
+	/** @return See {@link #renderOnlyInsideStack} */
+	public LimitedStack<Boolean> getRenderOnlyInsideStack(){
+		return this.renderOnlyInsideStack;
 	}
 	
 	/** @return The width, in pixels, of the underlying buffer of this Renderer */
 	public int getWidth(){
-		return this.screen.getWidth();
+		return this.getBuffer().getWidth();
 	}
 	
 	/** @return The height, in pixels, of the underlying buffer of this Renderer */
 	public int getHeight(){
-		return this.screen.getHeight();
+		return this.getBuffer().getHeight();
 	}
 	
 	/** @return A rectangle of the bounds of this {@link Renderer}, i.e. the position will be (0, 0), width will be {@link #getWidth()} and height will be {@link #getHeight()} */
 	public ZRect getBounds(){
-		return new ZRect(0, 0, this.getWidth(), this.getHeight());
+		return this.getBuffer().getBounds();
 	}
 	
 	/** @return The ratio of the size of the internal buffer, i.e. the width divided by the height */
 	public double getRatioWH(){
-		return this.screen.getRatioWH();
+		return this.getBuffer().getRatioWH();
 	}
 	
 	/** @return The ratio of the size of the internal buffer, i.e. the height divided by the width */
 	public double getRatioHW(){
-		return this.screen.getRatioHW();
+		return this.getBuffer().getRatioHW();
+	}
+	
+	/** @return The OpenGL id used by this {@link Renderer}s {@link #buffer} */
+	public int getBufferId(){
+		return this.getBuffer().getTextureID();
+	}
+	
+	/** @return See {@link #buffer} */
+	public GameBuffer getBuffer(){
+		return this.bufferStack.peek();
+	}
+	
+	/**
+	 * Set the buffer that this Renderer should draw to by pushing the given buffer onto {@link #bufferStack}
+	 * 
+	 * @param buffer See {@link #buffer}
+	 * @return The buffer that was being used
+	 */
+	public GameBuffer pushBuffer(GameBuffer buffer){
+		GameBuffer oldBuff = this.getBuffer();
+		this.bufferStack.push(buffer);
+		this.updateBuffer();
+		return oldBuff;
+	}
+	
+	/**
+	 * Pop the top buffer off of {@link #bufferStack} and return it
+	 * 
+	 * @return The buffer, or null if no buffer could be popped
+	 */
+	public GameBuffer popBuffer(){
+		GameBuffer b = this.bufferStack.pop();
+		this.updateBuffer();
+		return b;
+	}
+	
+	/**
+	 * Set the current buffer to draw to
+	 * Must be very careful about using this method. Cannot set the buffer if there is only one buffer in the stack
+	 * 
+	 * @param buffer The new buffer
+	 * @return The old buffer, or null if it could not be replaced
+	 */
+	public GameBuffer setBuffer(GameBuffer buffer){
+		GameBuffer old = this.bufferStack.replaceTop(buffer);
+		if(old != buffer) this.updateBuffer();
+		return old;
+	}
+	
+	/** Update the current state of OpenGL to use the buffer at the top of {@link #bufferStack} for rendering */
+	private void updateBuffer(){
+		GameBuffer b = this.getBuffer();
+		b.drawToBuffer();
+		b.setViewport();
 	}
 	
 	/**
 	 * Determine if the given bounds are in the bounds of this {@link Renderer}
+	 * 
 	 * @param bounds The bounds to check, in game coordinates
 	 * @return true if they intersect, i.e. return true if any part of the given bounds is in this {@link Renderer}'s bounds, false otherwise
 	 */
 	public boolean gameBoundsInScreen(ZRect bounds){
 		ZRect rBounds = this.getBounds();
-		ZRect gBounds = camera.boundsScreenToGame(rBounds.getX(), rBounds.getBounds().getY(), rBounds.getBounds().getWidth(), rBounds.getBounds().getHeight());
+		GameCamera c = this.getCamera();
+		ZRect gBounds;
+		if(c == null) gBounds = rBounds;
+		else gBounds = c.boundsScreenToGame(rBounds.getX(), rBounds.getBounds().getY(), rBounds.getBounds().getWidth(), rBounds.getBounds().getHeight());
 		return gBounds.intersects(bounds);
 	}
-
+	
 	/**
 	 * Convert an x coordinate value in window space, to a coordinate in screen space coordinates
 	 * 
@@ -718,7 +1241,7 @@ public class Renderer{
 	 * @return The value in screen coordinates
 	 */
 	public double windowToScreenX(GameWindow window, double x){
-		return windowToScreen(x, window.viewportX(), window.viewportWInverse(), this.screen.getWidth());
+		return windowToScreen(x, window.viewportX(), window.viewportWInverse(), this.getWidth());
 	}
 	
 	/**
@@ -729,7 +1252,7 @@ public class Renderer{
 	 * @return The value in screen coordinates
 	 */
 	public double windowToScreenY(GameWindow window, double y){
-		return windowToScreen(y, window.viewportY(), window.viewportHInverse(), this.screen.getHeight());
+		return windowToScreen(y, window.viewportY(), window.viewportHInverse(), this.getHeight());
 	}
 	
 	/**
@@ -753,7 +1276,7 @@ public class Renderer{
 	 * @return The value in window coordinates
 	 */
 	public double screenToWindowX(GameWindow window, double x){
-		return screenToWindow(x, window.viewportX(), window.viewportW(), this.screen.getInverseWidth());
+		return screenToWindow(x, window.viewportX(), window.viewportW(), this.getBuffer().getInverseWidth());
 	}
 	
 	/**
@@ -764,7 +1287,7 @@ public class Renderer{
 	 * @return The value in window coordinates
 	 */
 	public double screenToWindowY(GameWindow window, double y){
-		return screenToWindow(y, window.viewportY(), window.viewportH(), this.screen.getInverseHeight());
+		return screenToWindow(y, window.viewportY(), window.viewportH(), this.getBuffer().getInverseHeight());
 	}
 	
 	/**
@@ -787,7 +1310,7 @@ public class Renderer{
 	 * @return The value in OpenGL coordinates
 	 */
 	public double screenToGlX(GameWindow window, double x){
-		return screenToGl(x, window.viewportX(), window.getWidth(), this.screen.getInverseWidth(), window.getInverseWidth());
+		return screenToGl(x, window.viewportX(), window.getWidth(), this.getBuffer().getInverseWidth(), window.getInverseWidth());
 	};
 	
 	/**
@@ -797,7 +1320,7 @@ public class Renderer{
 	 * @return The value in OpenGL coordinates
 	 */
 	public double screenToGlY(GameWindow window, double y){
-		return screenToGl(y, window.viewportY(), window.getHeight(), this.screen.getInverseHeight(), window.getInverseHeight());
+		return screenToGl(y, window.viewportY(), window.getHeight(), this.getBuffer().getInverseHeight(), window.getInverseHeight());
 	};
 	
 	/**
@@ -818,20 +1341,22 @@ public class Renderer{
 	 * Convert an x coordinate value in OpenGL space, to a coordinate in screen coordinates
 	 * 
 	 * @param x The value to convert
+	 * @param window The window to use to convert
 	 * @return The value in screen coordinates
 	 */
 	public double glToScreenX(GameWindow window, double x){
-		return glToScreen(x, window.viewportX(), window.getInverseWidth(), this.screen.getWidth(), window.getWidth());
+		return glToScreen(x, window.viewportX(), window.getInverseWidth(), this.getWidth(), window.getWidth());
 	};
 	
 	/**
 	 * Convert a y coordinate value in OpenGL space, to a coordinate in screen coordinates
 	 * 
 	 * @param y The value to convert
+	 * @param window The window to use to convert
 	 * @return The value in screen coordinates
 	 */
 	public double glToScreenY(GameWindow window, double y){
-		return glToScreen(y, window.viewportY(), window.getInverseHeight(), this.screen.getHeight(), window.getHeight());
+		return glToScreen(y, window.viewportY(), window.getInverseHeight(), this.getHeight(), window.getHeight());
 	};
 	
 	/**
@@ -856,7 +1381,7 @@ public class Renderer{
 	 * @return The converted size
 	 */
 	public double sizeWindowToScreenX(GameWindow window, double x){
-		return sizeWindowToScreen(x, window.viewportWInverse(), this.screen.getWidth());
+		return sizeWindowToScreen(x, window.viewportWInverse(), this.getWidth());
 	}
 	
 	/**
@@ -867,7 +1392,7 @@ public class Renderer{
 	 * @return The converted size
 	 */
 	public double sizeWindowToScreenY(GameWindow window, double y){
-		return sizeWindowToScreen(y, window.viewportHInverse(), this.screen.getHeight());
+		return sizeWindowToScreen(y, window.viewportHInverse(), this.getHeight());
 	}
 	
 	/**
@@ -890,7 +1415,7 @@ public class Renderer{
 	 * @return The converted size
 	 */
 	public double sizeScreenToWindowX(GameWindow window, double x){
-		return sizeScreenToWindow(x, window.viewportW(), this.screen.getInverseWidth());
+		return sizeScreenToWindow(x, window.viewportW(), this.getBuffer().getInverseWidth());
 	}
 	
 	/**
@@ -901,7 +1426,7 @@ public class Renderer{
 	 * @return The converted size
 	 */
 	public double sizeScreenToWindowY(GameWindow window, double y){
-		return sizeScreenToWindow(y, window.viewportH(), this.screen.getInverseHeight());
+		return sizeScreenToWindow(y, window.viewportH(), this.getBuffer().getInverseHeight());
 	}
 	
 	/**
@@ -924,7 +1449,7 @@ public class Renderer{
 	 * @return The converted size
 	 */
 	public double sizeScreenToGlX(GameWindow window, double x){
-		return sizeScreenToGl(x, window.getWidth(), this.screen.getInverseWidth(), window.getInverseWidth());
+		return sizeScreenToGl(x, window.getWidth(), this.getBuffer().getInverseWidth(), window.getInverseWidth());
 	};
 	
 	/**
@@ -935,7 +1460,7 @@ public class Renderer{
 	 * @return The converted size
 	 */
 	public double sizeScreenToGlY(GameWindow window, double y){
-		return sizeScreenToGl(y, window.getHeight(), this.screen.getInverseHeight(), window.getInverseHeight());
+		return sizeScreenToGl(y, window.getHeight(), this.getBuffer().getInverseHeight(), window.getInverseHeight());
 	};
 	
 	/**
@@ -959,7 +1484,7 @@ public class Renderer{
 	 * @return The converted size
 	 */
 	public double sizeGlToScreenX(GameWindow window, double x){
-		return sizeGlToScreen(x, window.getInverseWidth(), this.screen.getWidth(), window.getWidth());
+		return sizeGlToScreen(x, window.getInverseWidth(), this.getWidth(), window.getWidth());
 	};
 	
 	/**
@@ -970,7 +1495,7 @@ public class Renderer{
 	 * @return The converted size
 	 */
 	public double sizeGlToScreenY(GameWindow window, double y){
-		return sizeGlToScreen(y, window.getInverseHeight(), this.screen.getHeight(), window.getHeight());
+		return sizeGlToScreen(y, window.getInverseHeight(), this.getHeight(), window.getHeight());
 	};
 	
 	/**

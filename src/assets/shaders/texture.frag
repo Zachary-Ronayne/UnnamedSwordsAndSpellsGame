@@ -5,7 +5,9 @@ uniform sampler2D texMap;
 in vec4 vTex;
 
 out vec4 fColor;
+uniform vec4 mainColor;
 
 void main(){
-	fColor = texture2D(texMap, vTex.st);
+	vec4 texVec = texture2D(texMap, vTex.st);
+	fColor = vec4(texVec.rgb, texVec.a * mainColor.a);
 }

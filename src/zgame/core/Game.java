@@ -2,6 +2,11 @@ package zgame.core;
 
 import static org.lwjgl.opengl.GL30.*;
 
+import com.google.gson.JsonObject;
+
+import zgame.core.file.Saveable;
+import zgame.core.file.ZJsonFile;
+import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.FontManager;
@@ -19,6 +24,7 @@ import zgame.core.state.DefaultState;
 import zgame.core.state.GameState;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZConfig;
+import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GLFWWindow;
 import zgame.core.window.GameWindow;
 import zgame.world.Room;
@@ -26,7 +32,7 @@ import zgame.world.Room;
 /**
  * The central class used to create a game. Create an extension of this class to begin making a game
  */
-public class Game{
+public class Game implements Saveable, Destroyable{
 	
 	/**
 	 * By default, the number of times a second the sound will be updated, i.e. updating streaming sounds, checking if sounds are still playing, checking which sounds need to play,
@@ -58,8 +64,10 @@ public class Game{
 	private GameState currentState;
 	/** The {@link GameState} which this game will update to in the next tick, or null if the state will not update */
 	private GameState nextCurrentState;
-	/** The {@link PlayState} of this game, should not be null */
+	/** The {@link PlayState} of this game, can be null if there is currently no play state */
 	private PlayState playState;
+	/** A {@link GameState} that needs to be destroyed on the next OpenGL loop, or null if one doesn't need to be destroyed */
+	private GameState destroyState;
 	
 	/** The {@link GameLooper} which runs the regular time intervals */
 	private GameLooper tickLooper;
@@ -138,6 +146,7 @@ public class Game{
 	 * @param enterFullScreen True to immediately enter fullscreen
 	 * @param stretchToFill true if, when drawing the final Renderer image to the screen, the image should stretch to fill up the entire screen,
 	 *        false to draw the image in the center of the screen leave black bars in areas that the image doesn't fill up
+	 * @param printFps true to print the fps every second
 	 */
 	public Game(String title, int winWidth, int winHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps){
 		this(title, winWidth, winHeight, winWidth, winHeight, maxFps, useVsync, enterFullScreen, stretchToFill, printFps, 60, true);
@@ -156,6 +165,9 @@ public class Game{
 	 * @param enterFullScreen True to immediately enter fullscreen
 	 * @param stretchToFill true if, when drawing the final Renderer image to the screen, the image should stretch to fill up the entire screen,
 	 *        false to draw the image in the center of the screen leave black bars in areas that the image doesn't fill up
+	 * @param printFps true to, every second, print the number of frames rendered in that last second, false otherwise
+	 * @param tps The number of ticks per second
+	 * @param printTps true to, every second, print the number of ticks that occurred in that last second, false otherwise
 	 */
 	public Game(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
 		// Init misc values
@@ -171,7 +183,8 @@ public class Game{
 		
 		this.currentState = new DefaultState();
 		this.nextCurrentState = null;
-		this.playState = new PlayState();
+		this.playState = null;
+		this.destroyState = null;
 		
 		// Init sound
 		this.sounds = new SoundManager();
@@ -250,12 +263,17 @@ public class Game{
 	 * End the program, freeing all resources
 	 */
 	private void end(){
+		this.destroy();
+	}
+	
+	@Override
+	public void destroy(){
 		// End the loopers
 		this.renderLooper.end();
 		this.tickLooper.end();
 		
 		// Free memory / destroy callbacks
-		this.getWindow().end();
+		this.getWindow().destroy();
 		
 		// Free sounds
 		this.sounds.destroy();
@@ -318,6 +336,9 @@ public class Game{
 	 * This handles calling all the appropriate rendering methods and associated window methods for the main loop
 	 */
 	private void loopFunction(){
+		// Update the state of the game
+		this.updateCurrentState();
+		
 		boolean focused = this.getWindow().isFocused();
 		boolean minimized = this.getWindow().isMinimized();
 		
@@ -334,9 +355,6 @@ public class Game{
 			// Clear the internal renderer and set it up to use the renderer's frame buffer to draw to
 			Renderer r = this.getWindow().getRenderer();
 			r.clear();
-			
-			// Set up drawing the buffer to the screen
-			glViewport(0, 0, this.getScreenWidth(), this.getScreenHeight());
 			
 			// Render objects using the renderer's frame buffer
 			r.initToDraw();
@@ -366,6 +384,9 @@ public class Game{
 		}
 		// Update the window
 		this.getWindow().swapBuffers();
+		
+		// Check if a state needs to be destroyed
+		if(this.destroyState != null) this.destroyState.destroy();
 	}
 	
 	/**
@@ -438,9 +459,6 @@ public class Game{
 		// If the game should pause when unfocused or minimized, then do nothing
 		if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized) return;
 		this.tick(this.getTickLooper().getRateTime() * this.getGameSpeed());
-		
-		// Update the state of the game
-		this.updateCurrentState();
 	}
 	
 	/**
@@ -579,6 +597,43 @@ public class Game{
 		return window;
 	}
 	
+	/**
+	 * Load the necessary contents of this {@link Game} from a json file at the given path
+	 * 
+	 * @param path The path to load from, including file extension
+	 * @return true if the load was successful, false otherwise
+	 */
+	public boolean loadGame(String path){
+		if(path == null) return false;
+		ZJsonFile file = new ZJsonFile(path);
+		JsonObject data = file.load();
+		if(data == null) return false;
+		try{
+			return this.load(data) != null;
+		}catch(ClassCastException | IllegalStateException | NullPointerException e){
+			if(ZConfig.printErrors()){
+				ZStringUtils.prints("Failed to load a json object because it had invalid formatting. Object data:\n", data);
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Save the necessary contents of this {@link Game} to a json file at the given path
+	 * 
+	 * @param path The path to save to, including file extension
+	 * @return true if the save was successful, false otherwise
+	 */
+	public boolean saveGame(String path){
+		if(path == null) return false;
+		ZJsonFile file = new ZJsonFile(path);
+		JsonObject data = file.getData();
+		this.save(data);
+		file.setData(data);
+		return file.save();
+	}
+	
 	/** @return See {@link #sounds} */
 	public SoundManager getSounds(){
 		return sounds;
@@ -626,6 +681,11 @@ public class Game{
 	/** @return A {@link GameFont} with the given font name */
 	public GameFont getFont(String font){
 		return new GameFont(this.getFonts().get(font));
+	}
+	
+	/** @return The default font */
+	public GameFont getDefaultFont(){
+		return getFont("zfont");
 	}
 	
 	/**
@@ -773,7 +833,8 @@ public class Game{
 	
 	/**
 	 * If the state should do nothing, use a {@link DefaultState}
-	 * This method updates the state on the next game tick
+	 * This method updates the state on the next OpenGL loop. The previously existing state will be destroyed and no longer usable
+	 * This method should only ever set the state with a new instance of a state object
 	 * 
 	 * @param newState See {@link #currentState}
 	 */
@@ -782,23 +843,16 @@ public class Game{
 	}
 	
 	/**
-	 * This method instantly updates the state. Do not call this method outside of the main tick loop
+	 * This method instantly updates the state. Do not call this method outside of the main OpenGL loop
 	 */
 	private void updateCurrentState(){
 		if(this.nextCurrentState == null) return;
+		this.destroyState = this.currentState;
 		this.currentState = this.nextCurrentState;
+		if(this.currentState instanceof PlayState) this.playState = (PlayState)this.currentState;
+		else this.playState = null;
 		this.currentState.onSet(this);
 		this.nextCurrentState = null;
-	}
-	
-	/** Set this {@link Game} to its {@link #playState} */
-	public void enterPlayState(){
-		this.setCurrentState(this.getPlayState());
-	}
-	
-	/** @param playState See {@link #playState} */
-	public void setPlayState(PlayState playState){
-		this.playState = playState;
 	}
 	
 	/** @return See {@link #playState} */
@@ -806,9 +860,11 @@ public class Game{
 		return this.playState;
 	}
 	
-	/** @return The {@link Room} that the current {@link #playState} is using */
+	/** @return The {@link Room} that the current {@link #playState} is using, or null if there is no play state */
 	public Room getCurrentRoom(){
-		return this.getPlayState().getCurrentRoom();
+		PlayState p = this.getPlayState();
+		if(p == null) return null;
+		return p.getCurrentRoom();
 	}
 	
 	/**

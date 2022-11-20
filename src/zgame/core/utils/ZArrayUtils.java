@@ -37,7 +37,7 @@ public class ZArrayUtils{
 	 * @param e The element to add
 	 * @return true if the insert is successful, false otherwise
 	 */
-	public static <E extends Comparable<E>> boolean insertSorted(ArrayList<E> arr, E e){
+	public static <E extends Comparable<E>> boolean insertSorted(List<E> arr, E e){
 		return insertSorted(arr, e, true);
 	}
 	

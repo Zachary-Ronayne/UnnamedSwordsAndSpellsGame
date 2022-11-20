@@ -2,10 +2,13 @@ package zusass.game;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.things.entity.Player;
 import zgame.things.still.tiles.BaseTiles;
+import zgame.things.still.tiles.Tile;
 import zgame.world.Room;
+import zusass.ZusassData;
+import zusass.ZusassGame;
 import zusass.game.things.LevelDoor;
+import zusass.game.things.entities.ZusassPlayer;
 
 /** The {@link Room} which represents the main hub of the game, i.e. where the player can enter levels, make items, etc. */
 public class Hub extends Room{
@@ -16,14 +19,14 @@ public class Hub extends Room{
 	private static final int Y_TILES = 14;
 	
 	/** The object for the main character the player controls */
-	private Player player;
+	private ZusassPlayer player;
 	
 	/**
 	 * Create the hub in the default state
 	 * 
-	 * @param game The {@link Game} using this hub
+	 * @param zgame The {@link Game} using this hub
 	 */
-	public Hub(Game game){
+	public Hub(ZusassGame zgame){
 		super();
 		this.initTiles(X_TILES, Y_TILES);
 		
@@ -34,14 +37,29 @@ public class Hub extends Room{
 				this.setTile(i, j, (i0 == j0) ? BaseTiles.BACK_LIGHT : BaseTiles.BACK_DARK);
 			}
 		}
-		this.player = new Player(0, 875, 75, 125);
-		this.player.setLockCamera(true);
-		this.addThing(this.player);
-		this.player.centerCamera(game);
+		// The door to start at the highest level gotten to
+		this.setTile(9, 10, BaseTiles.WALL_DARK);
+		this.setTile(6, 11, BaseTiles.WALL_DARK);
+		Tile t = this.getTile(9, 10);
 		
-		LevelDoor levelDoor = new LevelDoor(500, 0, 1, this);
+		double doorX = t.getX();
+		ZusassData data = zgame.getData();
+		LevelDoor highDoor = new LevelDoor(doorX, 0, data.getHighestRoomLevel(), this);
+		highDoor.setY(t.getY() - highDoor.getHeight());
+		this.addThing(highDoor);
+		
+		// The door to start from level 1
+		LevelDoor levelDoor = new LevelDoor(doorX, 0, 1, this);
 		levelDoor.setY(this.maxY() - levelDoor.getHeight());
 		this.addThing(levelDoor);
+		
+		// Placing the player
+		this.player = new ZusassPlayer();
+		this.player.setX(20);
+		this.player.setY(this.maxY() - this.player.getHeight());
+		this.player.setLockCamera(true);
+		this.addThing(this.player);
+		this.player.centerCamera(zgame);
 	}
 	
 	@Override

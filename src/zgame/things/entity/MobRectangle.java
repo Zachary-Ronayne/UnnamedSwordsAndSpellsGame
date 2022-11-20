@@ -82,17 +82,17 @@ public abstract class MobRectangle extends MobThing implements RectangleHitBox{
 	public boolean intersects(double x, double y, double w, double h){
 		return new ZRect(this.getX(), this.getY(), this.getWidth(), this.getHeight()).intersects(x, y, w, h);
 	}
-
+	
 	@Override
 	public CollisionResponse calculateRectCollision(double x, double y, double w, double h, Material m){
 		return ZCollision.rectToRectBasic(x, y, w, h, this.getX(), this.getY(), this.getWidth(), this.getHeight(), m);
 	}
-
+	
 	@Override
 	public double maxX(){
 		return this.getX() + this.getWidth();
 	}
-
+	
 	@Override
 	public double maxY(){
 		return this.getY() + this.getHeight();

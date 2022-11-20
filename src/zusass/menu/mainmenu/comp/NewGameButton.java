@@ -3,21 +3,27 @@ package zusass.menu.mainmenu.comp;
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuButton;
-import zusass.game.MainPlay;
+import zusass.ZusassGame;
+import zusass.menu.mainmenu.comp.newgamemenu.NewGamePopup;
 
 /** The {@link MenuButton} in the main menu for creating a new game */
 public class NewGameButton extends MainMenuButton{
 	
-	/** Create the {@link NewGameButton} */
-	public NewGameButton(Game game){
-		super(50, 50, 500, 150, "New Game", game);
+	/**
+	 * Create the {@link NewGameButton}
+	 * 
+	 * @param game The Zusass game associated with this button
+	 * @param state see {@link #state}
+	 */
+	public NewGameButton(ZusassGame zgame){
+		super(50, 350, "New Game", zgame);
 		this.setFill(new ZColor(.4));
 	}
 	
 	@Override
 	public void click(Game game){
-		game.setPlayState(new MainPlay(game));
-		game.enterPlayState();
+		ZusassGame zgame = (ZusassGame)game;
+		game.getCurrentState().popupMenu(new NewGamePopup(this, zgame));
 	}
 	
 }

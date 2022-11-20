@@ -12,7 +12,7 @@ public class ZVectorTest{
 	public static double DELTA = 0.000000001;
 	
 	private ZVector vec;
-
+	
 	/** Run one time before all tests occur, use for initialization of static values */
 	@BeforeAll
 	public static void init(){
@@ -28,25 +28,25 @@ public class ZVectorTest{
 	@Test
 	public void angleDegTest(){
 		assertEquals(0, vec.getAngleDeg(), DELTA);
-
+		
 		vec = new ZVector(1, 1);
 		assertEquals(45, vec.getAngleDeg(), DELTA);
-
+		
 		vec = new ZVector(0, 1);
 		assertEquals(90, vec.getAngleDeg(), DELTA);
-
+		
 		vec = new ZVector(-1, 1);
 		assertEquals(135, vec.getAngleDeg(), DELTA);
-
+		
 		vec = new ZVector(-1, 0);
 		assertEquals(180, vec.getAngleDeg(), DELTA);
-
+		
 		vec = new ZVector(-1, -1);
 		assertEquals(225, vec.getAngleDeg(), DELTA);
-
+		
 		vec = new ZVector(0, -1);
 		assertEquals(270, vec.getAngleDeg(), DELTA);
-
+		
 		vec = new ZVector(1, -1);
 		assertEquals(315, vec.getAngleDeg(), DELTA);
 	}

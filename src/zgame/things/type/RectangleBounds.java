@@ -8,5 +8,5 @@ public interface RectangleBounds extends Bounds{
 	
 	/** @return The height of this object */
 	public double getHeight();
-
+	
 }

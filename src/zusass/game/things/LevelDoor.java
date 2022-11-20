@@ -4,7 +4,10 @@ import zgame.core.Game;
 import zgame.things.still.Door;
 import zgame.things.type.PositionedHitboxThing;
 import zgame.world.Room;
+import zusass.ZusassData;
+import zusass.ZusassGame;
 import zusass.game.LevelRoom;
+import zusass.game.things.entities.ZusassPlayer;
 
 /** A {@link Door} used by the infinitely generating levels */
 public class LevelDoor extends Door{
@@ -37,11 +40,27 @@ public class LevelDoor extends Door{
 	}
 	
 	@Override
-	public void enterRoom(Room r, PositionedHitboxThing thing, Game game){
+	public boolean enterRoom(Room r, PositionedHitboxThing thing, Game game){
+		ZusassGame zgame = (ZusassGame)game;
+
 		// Generate the new room, then enter it
 		this.setLeadRoom(new LevelRoom(this.getLevel()), 0, 0);
 		this.setRoomY(this.getLeadRoom().maxY() - thing.getHeight());
-		super.enterRoom(r, thing, game);
+		boolean success = super.enterRoom(r, thing, game);
+		
+		// Update the highest level room the player has been in
+		if(success){
+			ZusassData d = zgame.getData();
+			d.updatedHighestRoomLevel(this.getLevel());
+			d.checkAutoSave(zgame);
+		}
+		return success;
+	}
+	
+	// Only players can enter LevelDoors
+	@Override
+	public boolean canEnter(PositionedHitboxThing thing){
+		return thing instanceof ZusassPlayer;
 	}
 	
 	/** @return See {@link #level} */

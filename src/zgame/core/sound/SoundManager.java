@@ -7,6 +7,7 @@ import static org.lwjgl.openal.ALC11.*;
 
 import org.lwjgl.openal.ALUtil;
 
+import zgame.core.graphics.Destroyable;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZFilePaths;
 import zgame.core.utils.ZStringUtils;
@@ -14,7 +15,7 @@ import zgame.core.utils.ZStringUtils;
 /**
  * A class that handles multiple {@link SoundPlayer} objects, music and effects
  */
-public class SoundManager{
+public class SoundManager implements Destroyable{
 	
 	/** The {@link EffectsPlayer} tracking the sound effects played by this {@link SoundManager} */
 	private EffectsPlayer effectsPlayer;
@@ -97,7 +98,7 @@ public class SoundManager{
 		for(int i = 0; i < this.devices.size(); i++){
 			SpeakerDevice d = this.devices.get(i);
 			if(!names.contains(d.getName())){
-				d.end();
+				d.destroy();
 				this.devices.remove(i);
 				i--;
 			}
@@ -138,16 +139,17 @@ public class SoundManager{
 	}
 	
 	/** Clear any resources used by this {@link SoundManager} */
+	@Override
 	public void destroy(){
 		this.closeDevices();
 		if(this.effectsManager != null) effectsManager.destroy();
 		if(this.musicManager != null) musicManager.destroy();
-		if(this.musicSource != null) this.musicSource.end();
+		if(this.musicSource != null) this.musicSource.destroy();
 	}
 	
 	/** Free all resources used by audio devices sed by this {@link SoundManager} */
 	private void closeDevices(){
-		for(SpeakerDevice s : this.devices) s.end();
+		for(SpeakerDevice s : this.devices) s.destroy();
 	}
 	
 	/** Update the state of the effects and music player */
