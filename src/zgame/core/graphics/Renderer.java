@@ -40,7 +40,7 @@ import java.util.ArrayList;
  */
 public class Renderer implements Destroyable{
 	
-	// TODO abstract out the values being sent to the GPU, and make their updating handled by a separate class
+	// issue#5 abstract out the values being sent to the GPU, and make their updating handled by a separate class
 	
 	/** The color to use for rendering by default */
 	public static final ZColor DEFAULT_COLOR = new ZColor(0);
@@ -386,7 +386,7 @@ public class Renderer implements Destroyable{
 		
 		ZRect renderBounds = this.getBounds();
 		
-		// TODO Transform the render bounds by the current model view matrix so that it aligns with the given draw bounds, figure out where this math is going wrong
+		// issue#6 Transform the render bounds by the current model view matrix so that it aligns with the given draw bounds, figure out where this math is going wrong
 		
 		// Form the matrixes that represent the upper left hand and lower right hand corners of the draw bounds
 		Vector4d upper = new Vector4d(renderBounds.getX(), renderBounds.getY(), 1, 1);
@@ -403,7 +403,7 @@ public class Renderer implements Destroyable{
 		this.transformedRenderBounds = new ZRect(upper.x, upper.y, lower.x - upper.x, lower.y - upper.y);
 	}
 	
-	// TODO remove, this is a testing method. If working correctly, it should always draw a transparent rectangle on top of the entire canvas, regardless of any kind of
+	// issue#6 remove, this is a testing method. If working correctly, it should always draw a transparent rectangle on top of the entire canvas, regardless of any kind of
 	// transformations
 	// public void renderWeird(){
 	// this.recalculateRenderBounds();
@@ -968,11 +968,11 @@ public class Renderer implements Destroyable{
 	public boolean shouldDraw(ZRect drawBounds){
 		// If rendering only inside is not enabled, immediately return true
 		
-		// TODO put this method back. Render checking is currently broken. This method is here to improve performance, i.e., only render things that will appear on the screen
+		// issue#6 put this method back. Render checking is currently broken. This method is here to improve performance, i.e., only render things that will appear on the screen
 		// By always returning true, the render check is just skipped, and everything attempts to render no matter what
 		return true;
 		
-		// TODO may also need to account for how this interacts with using a buffer. Probably need to recalculate transformedRenderBounds when the buffer changes
+		// issue#6 may also need to account for how this interacts with using a buffer. Probably need to recalculate transformedRenderBounds when the buffer changes
 		
 		// if(!this.isRenderOnlyInside()) return true;
 		// ZRect renderBounds = this.getTransformedRenderBounds();

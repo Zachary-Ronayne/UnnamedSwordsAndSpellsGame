@@ -227,7 +227,7 @@ public abstract class MobThing extends EntityThing{
 			double newVel = vx + walkForce * dt / mass;
 			
 			/*
-			 * TODO fix this, it's not always setting it to the exact max speed, usually slightly below it, probably related to the friction issue
+			 * issue#14 fix this, it's not always setting it to the exact max speed, usually slightly below it, probably related to the friction issue
 			 * This probably needs to account for the change in frictional force
 			 * Why can you still move a bit after landing on a high friction force until you stop moving?
 			 */

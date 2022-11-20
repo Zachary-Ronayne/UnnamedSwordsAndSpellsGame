@@ -101,21 +101,22 @@ public class MenuTextBox extends MenuButton{
 		// Determine if the text box is selected
 		this.setSelected(this.getBounds().contains(mx, my));
 		
-		// Only check for clicking on the string to select the index if the box is selected
-		if(!this.isSelected()) return;
+		// Not doing further mouse input for now
+		// // Only check for clicking on the string to select the index if the box is selected
+		// if(!this.isSelected()) return;
 		
-		// Check through each letter bounds, starting at the end, to see which letter is selected
-		for(int i = 0; i < this.letterBounds.length; i++){
-			if(this.letterBounds[i].contains(mx, my)){
-				this.setCursorIndex(i);
-				return;
-			}
-		}
-		// If no letter was selected, either select the lowest or highest index possible
-		// TODO fix issue where it selects the beginning of the string if clicking above the text, probably because it's not finding the string hitbox
-		// TODO does this work correctly, using centerX?
-		if(mx < this.centerX()) this.setCursorIndex(-1);
-		else this.setCursorIndex(this.getText().length() - 1);
+		// // Check through each letter bounds, starting at the end, to see which letter is selected
+		// for(int i = 0; i < this.letterBounds.length; i++){
+		// 	if(this.letterBounds[i].contains(mx, my)){
+		// 		this.setCursorIndex(i);
+		// 		return;
+		// 	}
+		// }
+		// // If no letter was selected, either select the lowest or highest index possible
+		// // issue#7 fix issue where it selects the beginning of the string if clicking above the text, probably because it's not finding the string hitbox
+		// // issue#8 does this work correctly, using centerX?
+		// if(mx < this.centerX()) this.setCursorIndex(-1);
+		// else this.setCursorIndex(this.getText().length() - 1);
 	}
 	
 	@Override
@@ -193,7 +194,6 @@ public class MenuTextBox extends MenuButton{
 			case GLFW_KEY_HOME -> this.setCursorIndex(-1);
 			case GLFW_KEY_END -> this.setCursorIndex(this.getText().length());
 		}
-		// TODO make typing work when just pressing the key
 		if(toAdd != null){
 			if(shift && 'a' <= toAdd && toAdd <= 'z') toAdd = Character.toUpperCase(toAdd);
 			this.setText(ZStringUtils.insertString(this.getText(), Math.max(0, this.getCursorIndex() + 1), toAdd));
@@ -339,7 +339,7 @@ public class MenuTextBox extends MenuButton{
 		// Update the new index
 		this.cursorIndex = cursorIndex;
 		
-		// TODO replace this stringWidth call with a reference from this.letterBounds
+		// issue#9 replace this stringWidth call with a reference from this.letterBounds
 		double newCursorLoc = this.getFont().stringWidth(this.getText().substring(0, this.getCursorIndex() + 1));
 		
 		// If the text takes up less space than the text box, position it so that the beginning of the text aligns with the beginning of the box
@@ -347,7 +347,7 @@ public class MenuTextBox extends MenuButton{
 		// If the new location of the cursor would place it outside the text box, reposition the text so that the cursor will be inside the text box
 		else{
 			double cursorRel = newCursorLoc + this.getTextOffset();
-			// TODO make this reposition it by only one character
+			// issue#10 make this reposition it by only one character
 			if(cursorRel > this.getTextLimit() || cursorRel < 0) this.textOffset = this.getTextLimit() - newCursorLoc;
 			// If the location would put the beginning of the string after the beginning of the box, reposition it so that it will be at the beginning
 			if(this.textOffset > 0) this.textOffset = 0;

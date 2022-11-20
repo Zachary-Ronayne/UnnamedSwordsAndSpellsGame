@@ -56,7 +56,7 @@ public abstract class MenuScrollerButton extends MenuButton{
 	}
 	
 	/**
-	 * TODO fix a bug where sometimes the highlight doesn't show up if not using a buffer?
+	 * issue#13 fix a bug where sometimes the highlight doesn't show up if not using a buffer?
 	 * Or, maybe it's a problem when using a buffer, like not using opacity correctly?
 	 * Or maybe it has to do with blending, or maybe the shaders?
 	 */

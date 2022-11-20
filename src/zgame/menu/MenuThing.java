@@ -109,7 +109,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.drawThingsToBuffer = true;
 	}
 	
-	// TODO add option to make things only render in the bounds regardless of a buffer, fix render checking first
+	// issue#11 add option to make things only render in the bounds regardless of a buffer, fix render checking first
 	
 	/** @param true to enable using the buffer, false otherwise */
 	public void setBuffer(boolean use){
@@ -536,7 +536,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * @param bounds The bounds which this thing will be rendered relative to
 	 */
 	public void render(Game game, Renderer r, ZRect bounds){
-		// TODO draw the border as 4 separate rectangles instead of as a big fill
+		// issue#12 draw the border as 4 separate rectangles instead of as a big fill
 		r.setColor(this.getBorder());
 		r.drawRectangle(bounds);
 		r.setColor(this.getFill());
