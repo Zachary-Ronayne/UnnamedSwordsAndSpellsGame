@@ -338,7 +338,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	public void setParent(MenuThing parent){
 		this.parent = parent;
 	}
-
+	
 	/**
 	 * @param thing Check if the given thing is in this object
 	 * @return true if thing is contained by this thing
@@ -410,6 +410,16 @@ public class MenuThing implements GameInteractable, Destroyable{
 		return this.things;
 	}
 	
+	/**
+	 * Move this {@link MenuThing} to the center of the given window
+	 * 
+	 * @param window The window to center by
+	 */
+	public void center(GameWindow window){
+		centerHorizontal(window.getWidth());
+		centerVertical(window.getHeight());
+	}
+	
 	/** Move this {@link MenuThing} to the center bounds of it's parent. Does nothing if this thing has no parent */
 	public void center(){
 		centerHorizontal();
@@ -419,13 +429,30 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** Move this {@link MenuThing} to the center horizontal bounds of it's parent. Does nothing if this thing has no parent */
 	public void centerHorizontal(){
 		if(this.parent == null) return;
-		this.setRelX((this.parent.getWidth() - this.getWidth()) * 0.5);
+		centerHorizontal(this.parent.getWidth());
 	}
 	
 	/** Move this {@link MenuThing} to the center vertical bounds of it's parent. Does nothing if this thing has no parent */
 	public void centerVertical(){
 		if(this.parent == null) return;
-		this.setRelY((this.parent.getHeight() - this.getHeight()) * 0.5);
+		centerVertical(this.parent.getHeight());
+	}
+	
+	/**
+	 * Move this {@link MenuThing} to the center it relative to a thing of the given width, on the x axis
+	 * @param width The width to center by
+	 */
+	public void centerHorizontal(double width){
+		this.setRelX((width - this.getWidth()) * 0.5);
+	}
+	
+	/**
+	 * Move this {@link MenuThing} to the center it relative to a thing of the given height, on the y axis
+	 * 
+	 * @param height The height to center by
+	 */
+	public void centerVertical(double height){
+		this.setRelY((height - this.getHeight()) * 0.5);
 	}
 	
 	/** Do not call directly */
@@ -509,6 +536,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * @param bounds The bounds which this thing will be rendered relative to
 	 */
 	public void render(Game game, Renderer r, ZRect bounds){
+		// TODO draw the border as 4 separate rectangles instead of as a big fill
 		r.setColor(this.getBorder());
 		r.drawRectangle(bounds);
 		r.setColor(this.getFill());

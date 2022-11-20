@@ -79,7 +79,6 @@ public class SavesMenu extends ZusassMenu{
 		super.render(game, r, bounds);
 		if(this.messageTimer < 0) return;
 
-		// TODO fix this not rendering
 		r.setFont(game.getFont("zfont"));
 		r.setFontSize(25);
 		r.setColor(new ZColor(.8));

@@ -24,22 +24,24 @@ public class SavesDeleteButton extends SavesMenuButton{
 	@Override
 	public void click(Game game){
 		ZusassGame zgame = (ZusassGame)game;
-		
-		LoadSaveButton button = this.getMenu().getLoadButtons().getSelected();
+		SavesMenu menu = this.getMenu();
+		LoadSaveButton button = menu.getLoadButtons().getSelected();
+
 		if(button == null) return;
 		String path = button.getPath();
 		try{
 			File file = new File(path);
 			file.delete();
-			this.getMenu().getLoadButtons().setSelected(null);
-			this.getMenu().getLoadButtons().populate(zgame);
+			menu.getLoadButtons().setSelected(null);
+			menu.getLoadButtons().populate(zgame);
+			menu.showMessage(ZStringUtils.concat("Delete success for: ", button.getText()));
 			
 		}catch(SecurityException | NullPointerException e){
 			if(ZConfig.printErrors()){
 				ZStringUtils.prints("Failed to delete file at path", path);
 				e.printStackTrace();
 			}
-			this.getMenu().showMessage(ZStringUtils.concat("Delete Failed for", button.getText()));
+			menu.showMessage(ZStringUtils.concat("Delete failed for: ", button.getText()));
 		}
 	}
 	
