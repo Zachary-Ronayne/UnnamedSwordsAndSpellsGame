@@ -7,10 +7,10 @@ import zgame.world.Room;
 import zusass.ZusassData;
 import zusass.ZusassGame;
 import zusass.game.LevelRoom;
-import zusass.game.things.entities.ZusassPlayer;
+import zusass.game.things.entities.mobs.ZusassPlayer;
 
 /** A {@link Door} used by the infinitely generating levels */
-public class LevelDoor extends Door{
+public class LevelDoor extends ZusassDoor{
 	
 	/** The level of the room that this door will lead to */
 	private int level;

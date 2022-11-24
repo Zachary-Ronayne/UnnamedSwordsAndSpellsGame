@@ -135,7 +135,7 @@ public class ZusassGame extends Game{
 	public void setData(ZusassData data){
 		this.data = data;
 	}
-
+	
 	@Override
 	public MainPlay getPlayState(){
 		return (MainPlay)super.getPlayState();

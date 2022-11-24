@@ -25,6 +25,9 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	private double roomX;
 	/** The y coordinate to place objects which go through this door */
 	private double roomY;
+
+	/** true if entities which touch this door should automatically enter it, false otherwise */
+	private boolean autoEnter;
 	
 	/**
 	 * Create a new door at the given position
@@ -33,9 +36,21 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	 * @param y The y coordinate upper left hand corner of the door
 	 */
 	public Door(double x, double y){
+		this(x, y, true);
+	}
+	
+	/**
+	 * Create a new door at the given position
+	 * 
+	 * @param x The x coordinate upper left hand corner of the door
+	 * @param y The y coordinate upper left hand corner of the door
+	 * @param autoEnter See {@link #autoEnter}
+	 */
+	public Door(double x, double y, boolean autoEnter){
 		super(x, y);
 		this.setWidth(WIDTH);
 		this.setHeight(HEIGHT);
+		this.setAutoEnter(autoEnter);
 		
 		this.setLeadRoom(null, 0, 0);
 	}
@@ -78,6 +93,16 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 		this.roomY = roomY;
 	}
 	
+	/** @return See {@link #autoEnter} */
+	public boolean isAutoEnter(){
+		return this.autoEnter;
+	}
+	
+	/** @param autoEnter See {@link #autoEnter} */
+	public void setAutoEnter(boolean autoEnter){
+		this.autoEnter = autoEnter;
+	}
+	
 	/**
 	 * Move the given {@link PositionedHitboxThing} from the given room to {@link #leadRoom}, only if it's able to enter this door
 	 * 
@@ -111,11 +136,13 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	
 	@Override
 	public void tick(Game game, double dt){
-		Collection<EntityThing> entities = game.getCurrentRoom().getEntities();
+		if(!this.isAutoEnter()) return;
+
 		// Check every entity and if it touches this door, move it to this Room
+		Collection<EntityThing> entities = game.getCurrentRoom().getEntities();
 		for(EntityThing e : entities) if(e.intersects(this.getX(), this.getY(), this.getWidth(), this.getHeight())) this.enterRoom(game.getCurrentRoom(), e, game);
 	}
-	
+
 	@Override
 	public void render(Game game, Renderer r){
 		r.setColor(.25, .125, 0);

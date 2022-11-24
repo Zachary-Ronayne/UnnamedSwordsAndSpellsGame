@@ -8,7 +8,7 @@ import zgame.world.Room;
 import zusass.ZusassData;
 import zusass.ZusassGame;
 import zusass.game.things.LevelDoor;
-import zusass.game.things.entities.ZusassPlayer;
+import zusass.game.things.entities.mobs.ZusassPlayer;
 
 /** The {@link Room} which represents the main hub of the game, i.e. where the player can enter levels, make items, etc. */
 public class Hub extends Room{
@@ -53,7 +53,7 @@ public class Hub extends Room{
 		levelDoor.setY(this.maxY() - levelDoor.getHeight());
 		this.addThing(levelDoor);
 		
-		// Placing the player
+		// Place the player
 		this.player = new ZusassPlayer();
 		this.player.setX(20);
 		this.player.setY(this.maxY() - this.player.getHeight());
