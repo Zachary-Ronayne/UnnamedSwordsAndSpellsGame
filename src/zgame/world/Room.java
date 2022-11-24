@@ -67,7 +67,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/** Create a new empty {@link Room} */
 	public Room(){
-		this(1000, 500);
+		this(0, 0);
 	}
 	
 	/**
@@ -157,11 +157,11 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	}
 	
 	/**
-	 * Remove a {@link GameTickable} from this {@link Room}
+	 * Remove a {@link GameTickable} from this {@link Room} on the next tick
 	 * 
 	 * @param thing The {@link GameTickable} to remove
 	 */
-	public void removeThing(GameThing thing){
+	public final void removeThing(GameThing thing){
 		this.thingsToRemove.add(thing);
 	}
 	
@@ -255,15 +255,21 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 			t.tick(game, dt);
 		}
 		// Remove all things that need to be removed
-		for(GameThing thing : this.thingsToRemove){
-			this.things.remove(thing);
-			if(thing instanceof EntityThing) this.entities.remove((EntityThing)thing);
-			if(thing instanceof GameTickable) this.tickableThings.remove((GameTickable)thing);
-			if(thing instanceof HitBox) this.hitBoxThings.remove((HitBox)thing);
-		}
+		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(thing);
 		this.thingsToRemove.clear();
 	}
-	
+
+	/**
+	 * Called each time a thing is removed via {@link #tick(Game, double)}, i.e. the thing was added to {@link #thingsToRemove}, and now it's being removed
+	 * @param thing
+	 */
+	public void tickRemoveThing(GameThing thing){
+		this.things.remove(thing);
+		if(thing instanceof EntityThing) this.entities.remove((EntityThing)thing);
+		if(thing instanceof GameTickable) this.tickableThings.remove((GameTickable)thing);
+		if(thing instanceof HitBox) this.hitBoxThings.remove((HitBox)thing);
+	}
+
 	/**
 	 * Draw this {@link Room} to the given {@link Renderer}
 	 * 

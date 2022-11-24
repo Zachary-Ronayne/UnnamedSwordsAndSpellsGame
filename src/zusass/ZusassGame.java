@@ -5,6 +5,7 @@ import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
 import zusass.game.MainPlay;
+import zusass.game.ZusassRoom;
 import zusass.menu.mainmenu.MainMenuState;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -139,6 +140,11 @@ public class ZusassGame extends Game{
 	@Override
 	public MainPlay getPlayState(){
 		return (MainPlay)super.getPlayState();
+	}
+
+	@Override
+	public ZusassRoom getCurrentRoom(){
+		return (ZusassRoom)(super.getCurrentRoom());
 	}
 	
 }

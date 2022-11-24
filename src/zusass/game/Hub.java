@@ -11,7 +11,7 @@ import zusass.game.things.LevelDoor;
 import zusass.game.things.entities.mobs.ZusassPlayer;
 
 /** The {@link Room} which represents the main hub of the game, i.e. where the player can enter levels, make items, etc. */
-public class Hub extends Room{
+public class Hub extends ZusassRoom{
 	
 	/** The number of tiles in a {@link Hub} on the x axis */
 	private static final int X_TILES = 24;

@@ -4,12 +4,14 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZMath;
+import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zusass.game.things.LevelDoor;
+import zusass.game.things.entities.mobs.Npc;
 import zusass.game.things.tiles.ZusassColorTiles;
 
 /** A {@link Room} which represents a randomly generated level for the infinite dungeons */
-public class LevelRoom extends Room{
+public class LevelRoom extends ZusassRoom{
 	
 	/** The number of tiles in a {@link LevelRoom} on the x axis */
 	private static final int X_TILES = 15;
@@ -29,6 +31,11 @@ public class LevelRoom extends Room{
 	private ZColor checker1;
 	/** The second color of the checkerboard pattern of this room */
 	private ZColor checker2;
+	
+	/** true if this room has its completion requirements satisfied, and the player is able to leave the room */
+	private boolean roomCleared;
+	/** The number of enemies still in the room */
+	private int enemiesRemaining;
 	
 	/**
 	 * Create a new randomly generated level
@@ -50,14 +57,45 @@ public class LevelRoom extends Room{
 		}
 		this.setLevel(level);
 		
+		// Add the door
 		this.addThing(new LevelDoor(this.getLevel() + 1, this));
+		
+		// Add enemies
+		Npc enemy = new Npc(400, 400, 60, 80);
+		enemy.setWalkSpeedMax(100 + 10 * level);
+		this.addThing(enemy);
+	}
+	
+	@Override
+	public void addThing(GameThing thing){
+		super.addThing(thing);
+		// When adding an npc, keep track of that
+		if(thing instanceof Npc){
+			this.enemiesRemaining++;
+			this.roomCleared = false;
+		}
+	}
+	
+	@Override
+	public void tickRemoveThing(GameThing thing){
+		super.tickRemoveThing(thing);
+		// When removing an npc, keep track of that
+		if(thing instanceof Npc){
+			this.enemiesRemaining--;
+			if(this.enemiesRemaining <= 0) this.roomCleared = true;
+		}
+	}
+	
+	/** @return See {@link #roomCleared} */
+	public boolean isRoomCleared(){
+		return this.roomCleared;
 	}
 	
 	/** @return See {@link #checker1} */
 	public ZColor getChecker1(){
 		return this.checker1;
 	}
-
+	
 	/** @return See {@link #checker2} */
 	public ZColor getChecker2(){
 		return this.checker2;
@@ -79,7 +117,7 @@ public class LevelRoom extends Room{
 	@Override
 	public void render(Game game, Renderer r){
 		ZusassColorTiles.setColors(this.checker1, this.checker2);
-
+		
 		// Draw the main rendering
 		super.render(game, r);
 		
