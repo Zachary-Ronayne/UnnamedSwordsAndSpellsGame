@@ -1,22 +1,15 @@
 package zusass.game.things.entities.mobs;
 
-import zgame.core.Game;
-import zgame.core.graphics.Renderer;
-import zgame.things.entity.EntityThing;
 import zgame.things.entity.MobThing;
 import zgame.things.type.RectangleHitBox;
-import zusass.ZusassGame;
 
-/** A generic mob which uses health, status, etc */
-public abstract class ZusassMobRect extends MobThing implements RectangleHitBox, StatThing{
+/** A generic mob in the Zusass game */
+public abstract class ZusassMobRect extends MobThing implements RectangleHitBox {
 	
 	/** The width of this mob */
 	private double width;
 	/** The height of this mob */
 	private double height;
-	
-	/** The stats used by this mob */
-	private Stats stats;
 	
 	/**
 	 * Create a new mob with the given bounds
@@ -30,33 +23,6 @@ public abstract class ZusassMobRect extends MobThing implements RectangleHitBox,
 		super(x, y);
 		this.width = width;
 		this.height = height;
-		
-		this.stats = new Stats();
-	}
-	
-	@Override
-	public void tick(Game game, double dt){
-		ZusassGame zgame = (ZusassGame)game;
-		this.tickStats(zgame, dt);
-		
-		super.tick(game, dt);
-	}
-	
-	@Override
-	protected void render(Game game, Renderer r){
-		// Temporary simple rendering
-		r.setColor(0, .5, 0);
-		r.drawRectangle(this.getBounds());
-	}
-	
-	@Override
-	public Stats getStats(){
-		return this.stats;
-	}
-	
-	@Override
-	public EntityThing get(){
-		return this;
 	}
 	
 	/** @return See {@link #width} */

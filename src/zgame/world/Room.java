@@ -14,6 +14,7 @@ import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing;
+import zgame.things.entity.MobThing;
 import zgame.things.still.tiles.BaseTiles;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType;
@@ -37,6 +38,8 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	private List<GameThing> things;
 	/** All of the {@link EntityThing} objects which exist in in the game */
 	private List<EntityThing> entities;
+	/** All of the {@link MobThing} objects which exist in in the game */
+	private List<MobThing> mobs;
 	/** All of the {@link HitBox} objects which exist in in the game */
 	private List<HitBox> hitBoxThings;
 	/** All of the {@link GameTickable} objects which exist in in the game */
@@ -79,6 +82,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	public Room(int xTiles, int yTiles){
 		this.things = new ArrayList<GameThing>();
 		this.entities = new ArrayList<EntityThing>();
+		this.mobs = new ArrayList<MobThing>();
 		this.hitBoxThings = new ArrayList<HitBox>();
 		this.tickableThings = new ArrayList<GameTickable>();
 		
@@ -134,6 +138,11 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 		return this.entities;
 	}
 	
+	/** @return See {@link #mobs}. This is the actual collection holding the things, not a copy */
+	public List<MobThing> getMobs(){
+		return this.mobs;
+	}
+	
 	/** @return See {@link #tickableThings}. This is the actual collection holding the things, not a copy */
 	public List<GameTickable> getTickableThings(){
 		return this.tickableThings;
@@ -152,6 +161,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	public void addThing(GameThing thing){
 		ZArrayUtils.insertSorted(this.things, thing);
 		if(thing instanceof EntityThing) this.entities.add((EntityThing)thing);
+		if(thing instanceof MobThing) this.mobs.add((MobThing)thing);
 		if(thing instanceof GameTickable) this.tickableThings.add((GameTickable)thing);
 		if(thing instanceof HitBox) this.hitBoxThings.add((HitBox)thing);
 	}
@@ -266,6 +276,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	public void tickRemoveThing(GameThing thing){
 		this.things.remove(thing);
 		if(thing instanceof EntityThing) this.entities.remove((EntityThing)thing);
+		if(thing instanceof MobThing) this.mobs.remove((MobThing)thing);
 		if(thing instanceof GameTickable) this.tickableThings.remove((GameTickable)thing);
 		if(thing instanceof HitBox) this.hitBoxThings.remove((HitBox)thing);
 	}

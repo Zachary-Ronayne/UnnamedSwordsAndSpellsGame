@@ -1,7 +1,7 @@
 package zusass.game.things.entities.mobs;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -10,6 +10,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.utils.ZRect;
+import zgame.things.entity.MobThing;
 import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zusass.ZusassGame;
@@ -26,14 +27,17 @@ public class ZusassPlayer extends ZusassMobRect {
 	private boolean enterRoomPressed;
 	/** true if the button for toggling the camera being locked or not is currently pressed down, and it must be released before the next input */
 	private boolean toggleCameraPressed;
+	/** true if the button for attacking is currently pressed down, and releasing it will perform an attack */
+	private boolean attackPressed;
 	
 	/** Create a new default {@link ZusassPlayer} */
 	public ZusassPlayer(){
 		super(0, 0, 75, 125);
 		this.enterRoomPressed = false;
 		this.toggleCameraPressed = false;
+		this.attackPressed = false;
 		
-		this.getStats().setHealth(100);
+		this.setCurrentHealth(100);
 		this.lockCamera = false;
 	}
 	
@@ -51,11 +55,15 @@ public class ZusassPlayer extends ZusassMobRect {
 
 		// Right click to attack
 		ZMouseInput mi = game.getMouseInput();
-		if(mi.rightDown()){
-			ArrayList<StatThing> statThings = zgame.getCurrentRoom().getStatThings();
-			for(StatThing s : statThings){
-				if(s == this || !s.get().getBounds().intersects(pBounds)) continue;
-				s.getStats().setHealth(0);
+		boolean rightPressed = mi.rightDown();
+		if(rightPressed) this.attackPressed = true;
+		else if(this.attackPressed && !rightPressed){
+			this.attackPressed = false;
+			List<MobThing> mobs = zgame.getCurrentRoom().getMobs();
+			for(MobThing m : mobs){
+				if(m == this || !m.getBounds().intersects(pBounds)) continue;
+				// TODO move this to a generic attack method
+				m.damage(10);
 			}
 		}
 

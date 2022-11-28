@@ -1,6 +1,7 @@
 package zusass.game.things.entities.mobs;
 
 import zgame.core.Game;
+import zgame.core.graphics.Renderer;
 
 /** A generic mob which uses health, status, etc, and is not a player */
 public class Npc extends ZusassMobRect{
@@ -40,4 +41,14 @@ public class Npc extends ZusassMobRect{
 		else this.walkLeft();
 	}
 	
+	@Override
+	protected void render(Game game, Renderer r){
+		// Temporary simple rendering
+		r.setColor(0, .5, 0);
+		r.drawRectangle(this.getBounds());
+
+		// Draw a bar to represent it's remaining health
+		r.setColor(1, 0, 0);
+		r.drawRectangle(this.getX(), this.getY(), this.getWidth() * .25, this.getHeight() * this.currentHealthPerc());
+	}
 }

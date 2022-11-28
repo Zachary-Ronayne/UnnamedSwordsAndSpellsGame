@@ -3,6 +3,7 @@ package zgame.things.entity;
 import zgame.core.Game;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
+import zgame.things.Stats;
 
 /** An {@link EntityThing} which represents some kind of creature which can walk around, i.e. the player, an enemy, an animal, a monster, any NPC, etc. */
 public abstract class MobThing extends EntityThing{
@@ -129,6 +130,14 @@ public abstract class MobThing extends EntityThing{
 	/** The direction this {@link MobThing} is walking. -1 for walking to the left, 0 for not walking, 1 for walking to the right */
 	private int walkingDirection;
 	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/** The current amount of health this mob has */
+	private double currentHealth;
+	
+	/** The stats used by this mob */
+	private Stats stats;
+	
 	/**
 	 * Create a new {@link MobThing} at the given position
 	 * 
@@ -166,10 +175,16 @@ public abstract class MobThing extends EntityThing{
 		
 		this.walkingForce = new ZVector();
 		this.setForce(FORCE_NAME_WALKING, this.walkingForce);
+		
+		this.stats = new Stats();
+		this.currentHealth = this.stats.getMaxHealth();
 	}
 	
 	@Override
 	public void tick(Game game, double dt){
+		// Update the state of the stats
+		this.updateStats(game);
+		
 		// Determine the new walking force
 		this.updateWalkForce(dt);
 		
@@ -201,6 +216,16 @@ public abstract class MobThing extends EntityThing{
 	/** Tell this mob to stop walking */
 	public void stopWalking(){
 		this.walkingDirection = 0;
+	}
+	
+	/**
+	 * Perform any necessary updates for the mob based on it's current stats
+	 * 
+	 * @param game The game to update the stats on
+	 */
+	public void updateStats(Game game){
+		// If this thing has 0 or less health, kill it
+		if(this.getCurrentHealth() <= 0) this.die(game);
 	}
 	
 	/**
@@ -553,4 +578,54 @@ public abstract class MobThing extends EntityThing{
 		this.walkingForce = this.setForce(FORCE_NAME_WALKING, movement, 0);
 	}
 	
+	/**
+	 * Called when this stat thing dies
+	 * 
+	 * @param game The game it was in when it died
+	 */
+	public void die(Game game){
+		// On death, by default, remove the thing from the game
+		game.getCurrentRoom().removeThing(this);
+	}
+	
+	/**
+	 * Cause this mob to be effected by something that deals damage to it's health
+	 * @param amount The amount of damage done. Does nothing if this value is less than or equal to 0
+	 */
+	public void damage(double amount){
+		if(amount <= 0) return;
+		this.setCurrentHealth(this.getCurrentHealth() - amount);
+	}
+	
+	/** @return See {@link #stats} */
+	public Stats getStats(){
+		return this.stats;
+	}
+	
+	/** @return See {@link #currentHealth} */
+	public double getCurrentHealth(){
+		return this.currentHealth;
+	}
+	
+	/**
+	 * Directly sets the amount of health this mob has.
+	 * Use {@link #damage(double)} when this mob is hit by an attack.
+	 * If the given amount exceeds, maximum health, health is set to the max
+	 * @param currentHealth See {@link #currentHealth}
+	 */
+	public void setCurrentHealth(double currentHealth){
+		this.currentHealth = Math.min(currentHealth, this.getStats().getMaxHealth());
+	}
+
+	/** Set {@link #currentHealth} to maximum health */
+	public void healToMaxHealth(){
+		this.setCurrentHealth(this.getStats().getMaxHealth());
+	}
+
+	/** @return The percentage of health this mob has remaining, in the range [0, 1] */
+	public double currentHealthPerc(){
+		double perc = this.getCurrentHealth() / this.getStats().getMaxHealth();
+		return Math.min(1, Math.max(0, perc));
+	}
+
 }
