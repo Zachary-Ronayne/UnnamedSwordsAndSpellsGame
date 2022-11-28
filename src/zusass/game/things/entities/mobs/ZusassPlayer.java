@@ -1,7 +1,6 @@
 package zusass.game.things.entities.mobs;
 
 import java.util.Collection;
-import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -10,7 +9,6 @@ import zgame.core.graphics.Renderer;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.utils.ZRect;
-import zgame.things.entity.MobThing;
 import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zusass.ZusassGame;
@@ -37,7 +35,9 @@ public class ZusassPlayer extends ZusassMobRect {
 		this.toggleCameraPressed = false;
 		this.attackPressed = false;
 		
-		this.setCurrentHealth(100);
+		this.getStats().setMaxHealth(100);
+		this.healToMaxHealth();
+		this.getStats().setStrength(10);
 		this.lockCamera = false;
 	}
 	
@@ -59,12 +59,7 @@ public class ZusassPlayer extends ZusassMobRect {
 		if(rightPressed) this.attackPressed = true;
 		else if(this.attackPressed && !rightPressed){
 			this.attackPressed = false;
-			List<MobThing> mobs = zgame.getCurrentRoom().getMobs();
-			for(MobThing m : mobs){
-				if(m == this || !m.getBounds().intersects(pBounds)) continue;
-				// TODO move this to a generic attack method
-				m.damage(10);
-			}
+			this.attackNearest(zgame);
 		}
 
 		// Now the camera to the player after repositioning the player
@@ -160,14 +155,25 @@ public class ZusassPlayer extends ZusassMobRect {
 	public void setLockCamera(boolean lockCamera){
 		this.lockCamera = lockCamera;
 	}
+
+	@Override
+	public void die(Game game){
+		super.die(game);
+		ZusassGame zgame = (ZusassGame)game;
+		zgame.getPlayState().enterHub(zgame);
+	}
 	
 	@Override
 	public void enterRoom(Room from, Room to, Game game){
-		super.enterRoom(from, to, game);
-		if(to != null) game.getPlayState().setCurrentRoom(to);
+		ZusassGame zgame = (ZusassGame)game;
+		super.enterRoom(from, to, zgame);
+		if(to != null) {
+			zgame.getPlayState().setCurrentRoom(to);
+			zgame.getCurrentRoom().setPlayer(this);
+		}
 		
 		// Center the camera to the player
-		this.checkCenterCamera(game);
+		this.checkCenterCamera(zgame);
 	}
 	
 }

@@ -1,5 +1,7 @@
 package zgame.things.entity;
 
+import java.util.List;
+
 import zgame.core.Game;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
@@ -586,6 +588,27 @@ public abstract class MobThing extends EntityThing{
 	public void die(Game game){
 		// On death, by default, remove the thing from the game
 		game.getCurrentRoom().removeThing(this);
+	}
+
+	/**
+	 * Cause this mob to perform a basic attack on the given mob
+	 * @param mob
+	 */
+	public void attack(MobThing mob){
+		mob.damage(this.getStats().getStrength());
+	}
+
+	/**
+	 * Attack the nearest mob in the game which is not this mob
+	 * @param game The game where the attack should happen
+	 */
+	public void attackNearest(Game game){
+		List<MobThing> mobs = game.getCurrentRoom().getMobs();
+		for(MobThing m : mobs){
+			if(m == this || !m.getBounds().intersects(this.getBounds())) continue;
+			this.attack(m);
+			return;
+		}
 	}
 	
 	/**

@@ -8,10 +8,14 @@ public class Stats{
 	
 	/** The amount of hit points this object can have */
 	private double maxHealth;
+
+	/** How string this object is */
+	private double strength;
 	
 	/** Initialize a new stats object with nothing set */
 	public Stats(){
 		this.maxHealth = 10;
+		this.strength = 1;
 	}
 	
 	/** @return See {@link #maxHealth} */
@@ -22,6 +26,16 @@ public class Stats{
 	/** @param maxHealth See {@link #maxHealth} */
 	public void setMaxHealth(double maxHealth){
 		this.maxHealth = maxHealth;
+	}
+
+	/** @return See {@link #strength} */
+	public double getStrength(){
+		return this.strength;
+	}
+
+	/** @param strength See {@link #strength} */
+	public void setStrength(double strength){
+		this.strength = strength;
 	}
 	
 }

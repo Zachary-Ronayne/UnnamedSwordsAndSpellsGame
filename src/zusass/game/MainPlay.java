@@ -6,6 +6,7 @@ import zgame.core.graphics.ZColor;
 import zgame.core.state.MenuNode;
 import zgame.core.state.PlayState;
 import zusass.ZusassGame;
+import zusass.game.things.entities.mobs.ZusassPlayer;
 import zusass.menu.mainmenu.MainMenuState;
 import zusass.menu.pause.PauseMenu;
 
@@ -32,7 +33,23 @@ public class MainPlay extends PlayState{
 	 * @param game The {@link Game} using this state
 	 */
 	public void enterHub(ZusassGame zgame){
-		this.setCurrentRoom(new Hub(zgame));
+		// Make the hub
+		Hub hub = new Hub(zgame);
+		
+		// Place the player
+		ZusassPlayer player = new ZusassPlayer();
+		player.setX(20);
+		player.setY(hub.maxY() - player.getHeight());
+		player.setLockCamera(true);
+		hub.addThing(player);
+		player.centerCamera(zgame);
+		hub.setPlayer(player);
+		this.setCurrentRoom(hub);
+	}
+	
+	@Override
+	public ZusassRoom getCurrentRoom(){
+		return (ZusassRoom)super.getCurrentRoom();
 	}
 	
 	/**
@@ -48,7 +65,7 @@ public class MainPlay extends PlayState{
 	public void playKeyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.playKeyAction(game, button, press, shift, alt, ctrl);
 		if(press) return;
-
+		
 		// On releasing escape, enter the pause menu
 		if(button == GLFW_KEY_ESCAPE){
 			ZusassGame zgame = (ZusassGame)game;
@@ -68,6 +85,19 @@ public class MainPlay extends PlayState{
 		
 		// Draw the rest of the background
 		super.renderBackground(game, r);
+	}
+	
+	@Override
+	public void renderHud(Game game, Renderer r){
+		super.renderHud(game, r);
+		
+		// Draw a basic health bar
+		ZusassPlayer p = this.getCurrentRoom().getPlayer();
+		if(p == null) return;
+		r.setColor(.5, .5, .5);
+		r.drawRectangle(10, 10, 200, 20);
+		r.setColor(1, 0, 0);
+		r.drawRectangle(10, 10, 200 * p.currentHealthPerc(), 20);
 	}
 	
 }

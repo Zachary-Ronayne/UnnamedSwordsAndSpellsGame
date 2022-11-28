@@ -62,8 +62,9 @@ public class LevelRoom extends ZusassRoom{
 		
 		// Add enemies
 		Npc enemy = new Npc(400, 400, 60, 80);
-		enemy.setWalkSpeedMax(100 + 10 * level);
+		enemy.setWalkSpeedMax(100 + 100 * (1 - (10 / (level + 10))));
 		enemy.getStats().setMaxHealth(10 + level * 3);
+		enemy.getStats().setStrength(10 + level);
 		enemy.healToMaxHealth();
 		this.addThing(enemy);
 	}

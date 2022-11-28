@@ -51,6 +51,12 @@ public class LevelDoor extends ZusassDoor{
 		this.setLeadRoom(new LevelRoom(this.getLevel()), 0, 0);
 		this.setRoomY(this.getLeadRoom().maxY() - thing.getHeight());
 		boolean success = super.enterRoom(r, thing, game);
+
+		// If thing is a player, heal it to full
+		if(thing instanceof ZusassPlayer){
+			ZusassPlayer p = (ZusassPlayer)thing;
+			p.healToMaxHealth();
+		}
 		
 		// Update the highest level room the player has been in
 		if(success){
