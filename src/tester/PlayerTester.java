@@ -1,14 +1,14 @@
-package zgame.things.entity;
+package tester;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.keyboard.ZKeyInput;
+import zgame.things.entity.MobRectangle;
 import zgame.world.Room;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-/** A {@link MobRectangle} which represents the character which can be controlled by the human player of the game */
-public class Player extends MobRectangle{
+public class PlayerTester extends MobRectangle{
 	
 	/** true to lock the camera to the center of the player, false otherwise */
 	private boolean lockCamera;
@@ -21,7 +21,7 @@ public class Player extends MobRectangle{
 	 * @param width The width of the {@link Player} hit box
 	 * @param height The height of the {@link Player} hit box
 	 */
-	public Player(double x, double y, double width, double height){
+	public PlayerTester(double x, double y, double width, double height){
 		super(x, y, width, height);
 		this.lockCamera = false;
 	}

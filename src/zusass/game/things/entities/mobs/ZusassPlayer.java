@@ -3,20 +3,26 @@ package zusass.game.things.entities.mobs;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_F10;
+import static org.lwjgl.glfw.GLFW.*;
 
 import zgame.core.Game;
+import zgame.core.graphics.Renderer;
+import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.utils.ZRect;
 import zgame.things.entity.EntityThing;
-import zgame.things.entity.Player;
+import zgame.things.entity.MobRectangle;
 import zgame.things.type.GameThing;
+import zgame.world.Room;
 import zusass.ZusassGame;
 import zusass.game.things.ZusassDoor;
 
 /** A player inside the {@link zusass.ZusassGame} */
-public class ZusassPlayer extends Player implements StatThing{
+public class ZusassPlayer extends MobRectangle implements StatThing{
 	
+	/** true to lock the camera to the center of the player, false otherwise */
+	private boolean lockCamera;
+
 	// issue#18
 	/** true if the button for entering a room is currently pressed down, and releasing it will count as entering the input */
 	private boolean enterRoomPressed;
@@ -34,12 +40,16 @@ public class ZusassPlayer extends Player implements StatThing{
 		
 		this.stats = new Stats();
 		this.stats.setHealth(100);
+		this.lockCamera = false;
 	}
 	
 	@Override
 	public void tick(Game game, double dt){
 		ZusassGame zgame = (ZusassGame)game;
 		this.tickStats(zgame, dt);
+		
+		this.handleMovementControls(zgame, dt);
+
 		super.tick(game, dt);
 
 		ZRect pBounds = this.getBounds();
@@ -54,6 +64,28 @@ public class ZusassPlayer extends Player implements StatThing{
 				if(s == this || !s.get().getBounds().intersects(pBounds)) continue;
 				s.getStats().setHealth(0);
 			}
+		}
+
+		// Now the camera to the player after repositioning the player
+		this.checkCenterCamera(game);
+	}
+	
+	public void handleMovementControls(Game game, double dt){
+		// Move left and right
+		ZKeyInput ki = game.getKeyInput();
+		if(ki.buttonDown(GLFW_KEY_LEFT)) this.walkLeft();
+		else if(ki.buttonDown(GLFW_KEY_RIGHT)) this.walkRight();
+		else this.stopWalking();
+		
+		// Jump if holding the jump button
+		if(ki.buttonDown(GLFW_KEY_UP)) this.jump(dt);
+		// For not holding the button
+		else{
+			// if jumps should be instant, or no jump time is being built up, then stop the jump
+			if(this.jumpsAreInstant() || this.getJumpTimeBuilt() == 0) this.stopJump();
+			// Otherwise, perform the built up jump
+			else this.jumpFromBuiltUp(dt);
+			
 		}
 	}
 	
@@ -111,6 +143,40 @@ public class ZusassPlayer extends Player implements StatThing{
 	@Override
 	public EntityThing get(){
 		return this;
+	}
+	
+	@Override
+	public void render(Game game, Renderer r){
+		r.setColor(0, 0, .5);
+		r.drawRectangle(this.getBounds());
+	}
+	
+	/**
+	 * If the camera should be locked to this {@link Player}, then lock the camera, otherwise do nothing
+	 * 
+	 * @param game The game to get the camera from
+	 */
+	public void checkCenterCamera(Game game){
+		if(this.isLockCamera()) this.centerCamera(game);
+	}
+	
+	/** @return See {@link #lockCamera} */
+	public boolean isLockCamera(){
+		return this.lockCamera;
+	}
+	
+	/** @param lockCamera See {@link #lockCamera} */
+	public void setLockCamera(boolean lockCamera){
+		this.lockCamera = lockCamera;
+	}
+	
+	@Override
+	public void enterRoom(Room from, Room to, Game game){
+		super.enterRoom(from, to, game);
+		if(to != null) game.getPlayState().setCurrentRoom(to);
+		
+		// Center the camera to the player
+		this.checkCenterCamera(game);
 	}
 	
 }

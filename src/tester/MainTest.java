@@ -25,7 +25,6 @@ import zgame.menu.MenuTextBox;
 import zgame.menu.scroller.HorizontalScroller;
 import zgame.menu.scroller.MenuScroller;
 import zgame.menu.scroller.VerticalScroller;
-import zgame.things.entity.Player;
 import zgame.things.still.Door;
 import zgame.things.still.tiles.BaseTiles;
 import zgame.world.Room;
@@ -211,7 +210,7 @@ public class MainTest extends Game{
 	}
 	
 	public static class GameEngineState extends PlayState{
-		private Player player;
+		private PlayerTester player;
 		
 		public GameEngineState(){
 			super(false);
@@ -222,7 +221,7 @@ public class MainTest extends Game{
 			for(int i = 0; i < 2; i++) secondRoom.setTile(i, 4, BaseTiles.HIGH_FRICTION);
 			this.setCurrentRoom(firstRoom);
 			
-			this.player = new Player(100, 400, 60, 100);
+			this.player = new PlayerTester(100, 400, 60, 100);
 			this.player.setMass(100);
 			this.player.setLockCamera(true);
 			this.player.setCanWallJump(true);
