@@ -10,16 +10,14 @@ import zgame.core.graphics.Renderer;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.utils.ZRect;
-import zgame.things.entity.EntityThing;
-import zgame.things.entity.MobRectangle;
 import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zusass.ZusassGame;
 import zusass.game.things.ZusassDoor;
 
-/** A player inside the {@link zusass.ZusassGame} */
-public class ZusassPlayer extends MobRectangle implements StatThing{
-	
+/** A player inside the {@link ZusassGame} */
+public class ZusassPlayer extends ZusassMobRect {
+
 	/** true to lock the camera to the center of the player, false otherwise */
 	private boolean lockCamera;
 
@@ -28,9 +26,6 @@ public class ZusassPlayer extends MobRectangle implements StatThing{
 	private boolean enterRoomPressed;
 	/** true if the button for toggling the camera being locked or not is currently pressed down, and it must be released before the next input */
 	private boolean toggleCameraPressed;
-
-	/** The status of this player */
-	private Stats stats;
 	
 	/** Create a new default {@link ZusassPlayer} */
 	public ZusassPlayer(){
@@ -38,15 +33,13 @@ public class ZusassPlayer extends MobRectangle implements StatThing{
 		this.enterRoomPressed = false;
 		this.toggleCameraPressed = false;
 		
-		this.stats = new Stats();
-		this.stats.setHealth(100);
+		this.getStats().setHealth(100);
 		this.lockCamera = false;
 	}
 	
 	@Override
 	public void tick(Game game, double dt){
 		ZusassGame zgame = (ZusassGame)game;
-		this.tickStats(zgame, dt);
 		
 		this.handleMovementControls(zgame, dt);
 
@@ -133,16 +126,6 @@ public class ZusassPlayer extends MobRectangle implements StatThing{
 		}
 		if(!pressed) this.toggleCameraPressed = false;
 		return false;
-	}
-	
-	@Override
-	public Stats getStats(){
-		return this.stats;
-	}
-	
-	@Override
-	public EntityThing get(){
-		return this;
 	}
 	
 	@Override

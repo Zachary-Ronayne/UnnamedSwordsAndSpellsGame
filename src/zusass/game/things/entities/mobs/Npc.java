@@ -1,16 +1,9 @@
 package zusass.game.things.entities.mobs;
 
 import zgame.core.Game;
-import zgame.core.graphics.Renderer;
-import zgame.things.entity.EntityThing;
-import zgame.things.entity.MobRectangle;
-import zusass.ZusassGame;
 
 /** A generic mob which uses health, status, etc, and is not a player */
-public class Npc extends MobRectangle implements StatThing{
-	
-	/** The status of this Npc */
-	private Stats stats;
+public class Npc extends ZusassMobRect{
 	
 	// Keeping track of where the mob should be moving, temporary code for simplistic AI
 	private boolean moveRight;
@@ -28,8 +21,6 @@ public class Npc extends MobRectangle implements StatThing{
 	public Npc(double x, double y, double width, double height){
 		super(x, y, width, height);
 		
-		this.stats = new Stats();
-		
 		this.setWalkSpeedMax(100);
 		this.moveRight = true;
 		this.initialPosition = x;
@@ -38,9 +29,6 @@ public class Npc extends MobRectangle implements StatThing{
 	
 	@Override
 	public void tick(Game game, double dt){
-		ZusassGame zgame = (ZusassGame)game;
-		this.tickStats(zgame, dt);
-		
 		super.tick(game, dt);
 		
 		// Simplistic ai to move back and forth, should be temporary
@@ -50,23 +38,6 @@ public class Npc extends MobRectangle implements StatThing{
 		
 		if(moveRight) this.walkRight();
 		else this.walkLeft();
-	}
-	
-	@Override
-	protected void render(Game game, Renderer r){
-		// Temporary simple rendering
-		r.setColor(0, .5, 0);
-		r.drawRectangle(this.getBounds());
-	}
-	
-	@Override
-	public Stats getStats(){
-		return this.stats;
-	}
-	
-	@Override
-	public EntityThing get(){
-		return this;
 	}
 	
 }

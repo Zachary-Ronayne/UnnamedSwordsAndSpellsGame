@@ -70,6 +70,7 @@ public class LevelRoom extends ZusassRoom{
 	public void addThing(GameThing thing){
 		super.addThing(thing);
 		// When adding an npc, keep track of that
+		// TODO make this not so spaghetti, remove instanceof
 		if(thing instanceof Npc){
 			this.enemiesRemaining++;
 			this.roomCleared = false;
@@ -80,6 +81,7 @@ public class LevelRoom extends ZusassRoom{
 	public void tickRemoveThing(GameThing thing){
 		super.tickRemoveThing(thing);
 		// When removing an npc, keep track of that
+		// TODO make this not so spaghetti, remove instanceof
 		if(thing instanceof Npc){
 			this.enemiesRemaining--;
 			if(this.enemiesRemaining <= 0) this.roomCleared = true;

@@ -28,6 +28,15 @@ public interface HitBox extends Bounds, Materialable{
 	public CollisionResponse calculateRectCollision(double x, double y, double w, double h, Material m);
 	
 	/**
+	 * @param x The upper left hand x coordinate
+	 * @param y The upper left hand y coordinate
+	 * @param w The width of the bounds
+	 * @param h The height of the bounds
+	 * @return true if this object intersects the given rectangular bounds, false otherwise
+	 */
+	public boolean intersects(double x, double y, double w, double h);
+	
+	/**
 	 * Reposition this object so that it is to the left of the given x coordinate.
 	 * If the object is already to the left of the coordinate, this method should do nothing.
 	 * If the object will be moved, it should be positioned such that it is as close to its original position as possible, while still being to the left of the given coordinate
@@ -111,5 +120,4 @@ public interface HitBox extends Bounds, Materialable{
 	
 	/** @return The previous value of {@link #getY()} before the last time it was moved with velocity */
 	public double getPY();
-	
 }

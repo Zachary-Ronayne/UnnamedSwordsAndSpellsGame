@@ -3,13 +3,19 @@ package tester;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.keyboard.ZKeyInput;
-import zgame.things.entity.MobRectangle;
+import zgame.things.entity.MobThing;
+import zgame.things.type.RectangleHitBox;
 import zgame.world.Room;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class PlayerTester extends MobRectangle{
+public class PlayerTester extends MobThing implements RectangleHitBox{
 	
+	/** The width of this mob */
+	private double width;
+	/** The height of this mob */
+	private double height;
+
 	/** true to lock the camera to the center of the player, false otherwise */
 	private boolean lockCamera;
 	
@@ -22,7 +28,7 @@ public class PlayerTester extends MobRectangle{
 	 * @param height The height of the {@link Player} hit box
 	 */
 	public PlayerTester(double x, double y, double width, double height){
-		super(x, y, width, height);
+		super(x, y);
 		this.lockCamera = false;
 	}
 	
@@ -83,6 +89,28 @@ public class PlayerTester extends MobRectangle{
 		
 		// Center the camera to the player
 		this.checkCenterCamera(game);
+	}
+	
+	/** @return See {@link #width} */
+	@Override
+	public double getWidth(){
+		return this.width;
+	}
+	
+	/** @param width See {@link #width} */
+	public void setWidth(double width){
+		this.width = width;
+	}
+	
+	/** @return See {@link #height} */
+	@Override
+	public double getHeight(){
+		return this.height;
+	}
+	
+	/** @param height See {@link #height} */
+	public void setHeight(double height){
+		this.height = height;
 	}
 	
 }

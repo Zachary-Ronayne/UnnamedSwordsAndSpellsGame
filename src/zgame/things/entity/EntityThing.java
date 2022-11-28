@@ -586,16 +586,4 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	public double getPY(){
 		return py;
 	}
-	
-	/**
-	 * Determine if this {@link EntityThing} intersects the given rectangular bounds
-	 * 
-	 * @param x The x coordinate upper left hand corner of the bounds
-	 * @param y The y coordinate upper left hand corner of the bounds
-	 * @param w The width of the bounds
-	 * @param h The height of the bounds
-	 * @return true if this {@link EntityThing} intersects the given bounds
-	 */
-	public abstract boolean intersects(double x, double y, double w, double h);
-	
 }
