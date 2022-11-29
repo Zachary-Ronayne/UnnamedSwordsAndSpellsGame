@@ -1,9 +1,12 @@
 package zgame.things.type;
 
 import zgame.core.Game;
+import zgame.core.GameTickable;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
+import zgame.things.entity.EntityThing;
+import zgame.things.entity.MobThing;
 
 /** An object which exists in the game */
 public abstract class GameThing implements Comparable<GameThing>, Saveable, Destroyable{
@@ -66,6 +69,38 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 		if(r < t) return -1;
 		if(r > t) return 1;
 		else return 0;
+	}
+	
+	/**
+	 * @return This object, as an {@link EntityThing}, or null if it cannot be an {@link EntityThing}
+	 *         The return value of this method should equal this object, not another version or reference, i.e. (this == this.asEntity()) should evaluate to true
+	 */
+	public EntityThing asEntity(){
+		return null;
+	}
+	
+	/**
+	 * @return This object, as a {@link MobThing}, or null if it cannot be a {@link MobThing}
+	 *         The return value of this method should equal this object, not another version or reference, i.e. (this == this.asMob()) should evaluate to true
+	 */
+	public MobThing asMob(){
+		return null;
+	}
+	
+	/**
+	 * @return This object, as a {@link GameTickable}, or null if it cannot be a {@link GameTickable}
+	 *         The return value of this method should equal this object, not another version or reference, i.e. (this == this.asTickable()) should evaluate to true
+	 */
+	public GameTickable asTickable(){
+		return null;
+	}
+	
+	/**
+	 * @return This object, as a {@link HitBox}, or null if it cannot be a {@link HitBox}
+	 *         The return value of this method should equal this object, not another version or reference, i.e. (this == this.asHitbox()) should evaluate to true
+	 */
+	public HitBox asHitBox(){
+		return null;
 	}
 	
 }

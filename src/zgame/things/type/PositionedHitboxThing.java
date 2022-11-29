@@ -25,4 +25,9 @@ public abstract class PositionedHitboxThing extends PositionedThing implements H
 		return r.gameBoundsInScreen(this.getBounds());
 	}
 	
+	@Override
+	public final HitBox asHitBox(){
+		return this;
+	}
+	
 }

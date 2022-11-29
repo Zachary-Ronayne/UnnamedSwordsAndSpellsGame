@@ -849,7 +849,8 @@ public class Game implements Saveable, Destroyable{
 		if(this.nextCurrentState == null) return;
 		this.destroyState = this.currentState;
 		this.currentState = this.nextCurrentState;
-		if(this.currentState instanceof PlayState) this.playState = (PlayState)this.currentState;
+		PlayState convert = this.currentState.asPlay();
+		if(convert != null) this.playState = convert;
 		else this.playState = null;
 		this.currentState.onSet(this);
 		this.nextCurrentState = null;

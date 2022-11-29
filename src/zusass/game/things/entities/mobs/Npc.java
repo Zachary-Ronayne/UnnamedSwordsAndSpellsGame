@@ -5,7 +5,7 @@ import zgame.core.graphics.Renderer;
 import zusass.ZusassGame;
 
 /** A generic mob which uses health, status, etc, and is not a player */
-public class Npc extends ZusassMobRect{
+public class Npc extends ZusassMob{
 	
 	// Keeping track of where the mob should be moving, temporary code for simplistic AI
 	private double attackTime;
@@ -39,7 +39,6 @@ public class Npc extends ZusassMobRect{
 			if(playerX > this.centerX()) this.walkRight();
 			else this.walkLeft();
 		}
-
 		// Ai to attack the player every every interval
 		if(this.attackTime <= 0){
 			this.attackTime = this.maxAttackTime;
@@ -53,15 +52,21 @@ public class Npc extends ZusassMobRect{
 		// Temporary simple rendering
 		r.setColor(0, .5, 0);
 		r.drawRectangle(this.getBounds());
-
+		
 		// TODO make a way of drawing a health bar above the mob, accounting for how this health bar will not be a part of the mob itself, but above it
-
+		
 		// Draw a bar to represent it's remaining health
 		r.setColor(1, 0, 0);
 		r.drawRectangle(this.getX(), this.getY(), this.getWidth() * .25, this.getHeight() * this.currentHealthPerc());
-
+		
 		// Draw a bar to represent the time until an attack
 		r.setColor(0, 0, 1);
 		r.drawRectangle(this.getX() + this.getWidth() * 0.75, this.getY(), this.getWidth() * .25, this.getHeight() * (this.attackTime / this.maxAttackTime));
 	}
+	
+	@Override
+	public Npc asNpc(){
+		return this;
+	}
+	
 }

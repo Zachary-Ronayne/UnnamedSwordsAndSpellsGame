@@ -586,4 +586,15 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	public double getPY(){
 		return py;
 	}
+
+	@Override
+	public final EntityThing asEntity(){
+		return this;
+	}
+
+	@Override
+	public final GameTickable asTickable(){
+		return this;
+	}
+
 }

@@ -1,25 +1,20 @@
 package zusass.game.things.entities.mobs;
 
-import java.util.Collection;
-
 import static org.lwjgl.glfw.GLFW.*;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
-import zgame.core.utils.ZRect;
-import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zusass.ZusassGame;
-import zusass.game.things.ZusassDoor;
 
 /** A player inside the {@link ZusassGame} */
-public class ZusassPlayer extends ZusassMobRect {
-
+public class ZusassPlayer extends ZusassMob{
+	
 	/** true to lock the camera to the center of the player, false otherwise */
 	private boolean lockCamera;
-
+	
 	// issue#18
 	/** true if the button for entering a room is currently pressed down, and releasing it will count as entering the input */
 	private boolean enterRoomPressed;
@@ -46,13 +41,12 @@ public class ZusassPlayer extends ZusassMobRect {
 		ZusassGame zgame = (ZusassGame)game;
 		
 		this.handleMovementControls(zgame, dt);
-
+		
 		super.tick(game, dt);
-
-		ZRect pBounds = this.getBounds();
-		handleDoorPress(zgame, pBounds);
+		
+		handleDoorPress(zgame);
 		handleToggleCameraPress(zgame);
-
+		
 		// Right click to attack
 		ZMouseInput mi = game.getMouseInput();
 		boolean rightPressed = mi.rightDown();
@@ -61,7 +55,7 @@ public class ZusassPlayer extends ZusassMobRect {
 			this.attackPressed = false;
 			this.attackNearest(zgame);
 		}
-
+		
 		// Now the camera to the player after repositioning the player
 		this.checkCenterCamera(game);
 	}
@@ -89,28 +83,20 @@ public class ZusassPlayer extends ZusassMobRect {
 	 * Utility method for {@link #tick(Game, double)} for checking if the player clicked a door
 	 * 
 	 * @param game The game used by the tick method
-	 * @param pBounds The current bounds of the player
-	 * @return true if the player entered a door, false otherwise
 	 */
-	private boolean handleDoorPress(ZusassGame game, ZRect pBounds){
-		// If the player clicks on a door, and the player is touching the door, enter it
+	private void handleDoorPress(ZusassGame game){
+		// If the player clicks on a door, and the player is touching the door, mark it as attempting to enter a door
 		ZMouseInput mi = game.getMouseInput();
 		if(!this.enterRoomPressed || mi.leftDown()){
 			if(mi.leftDown()) this.enterRoomPressed = true;
-			return false;
+			return;
 		}
 		this.enterRoomPressed = false;
-		
-		Collection<GameThing> things = game.getCurrentRoom().getThings();
-		for(GameThing t : things){
-			if(!(t instanceof ZusassDoor)) continue;
-			ZusassDoor d = (ZusassDoor)t;
-			ZRect dBounds = d.getBounds();
-			if(!dBounds.intersects(pBounds) || !dBounds.contains(game.mouseGX(), game.mouseGY())) continue;
-			d.enterRoom(game.getCurrentRoom(), this, game);
-			return true;
-		}
-		return false;
+	}
+	
+	/** @return See {@link #enterRoomPressed} */
+	public boolean isEnterRoomPressed(){
+		return this.enterRoomPressed;
 	}
 	
 	/**
@@ -155,7 +141,7 @@ public class ZusassPlayer extends ZusassMobRect {
 	public void setLockCamera(boolean lockCamera){
 		this.lockCamera = lockCamera;
 	}
-
+	
 	@Override
 	public void die(Game game){
 		super.die(game);
@@ -167,11 +153,14 @@ public class ZusassPlayer extends ZusassMobRect {
 	public void enterRoom(Room from, Room to, Game game){
 		ZusassGame zgame = (ZusassGame)game;
 		super.enterRoom(from, to, zgame);
-		if(to != null) {
-			zgame.getPlayState().setCurrentRoom(to);
+		if(to != null){
+			// If this is setting the room to a new room, remove the player from that room, and set the new room
+			if(zgame.getCurrentRoom() != to){
+				zgame.getCurrentRoom().setPlayer(null);
+				zgame.getPlayState().setCurrentRoom(to);
+			}
 			zgame.getCurrentRoom().setPlayer(this);
 		}
-		
 		// Center the camera to the player
 		this.checkCenterCamera(zgame);
 	}

@@ -8,6 +8,7 @@ import zgame.core.GameTickable;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
+import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZArrayUtils;
 import zgame.core.utils.ZMath;
 import zgame.physics.collision.CollisionResponse;
@@ -35,15 +36,15 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	public static final int WALL_FLOOR = 3;
 	
 	/** All of the {@link GameThing} objects which exist in in the game */
-	private List<GameThing> things;
+	private NotNullList<GameThing> things;
 	/** All of the {@link EntityThing} objects which exist in in the game */
-	private List<EntityThing> entities;
+	private NotNullList<EntityThing> entities;
 	/** All of the {@link MobThing} objects which exist in in the game */
-	private List<MobThing> mobs;
+	private NotNullList<MobThing> mobs;
 	/** All of the {@link HitBox} objects which exist in in the game */
-	private List<HitBox> hitBoxThings;
+	private NotNullList<HitBox> hitBoxThings;
 	/** All of the {@link GameTickable} objects which exist in in the game */
-	private List<GameTickable> tickableThings;
+	private NotNullList<GameTickable> tickableThings;
 	
 	/** All of the {@link GameThing} objects which will be removed on the next game tick */
 	private List<GameThing> thingsToRemove;
@@ -80,11 +81,11 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	 * @param yTiles The number of tiles on the y axis
 	 */
 	public Room(int xTiles, int yTiles){
-		this.things = new ArrayList<GameThing>();
-		this.entities = new ArrayList<EntityThing>();
-		this.mobs = new ArrayList<MobThing>();
-		this.hitBoxThings = new ArrayList<HitBox>();
-		this.tickableThings = new ArrayList<GameTickable>();
+		this.things = new NotNullList<GameThing>();
+		this.entities = new NotNullList<EntityThing>();
+		this.mobs = new NotNullList<MobThing>();
+		this.hitBoxThings = new NotNullList<HitBox>();
+		this.tickableThings = new NotNullList<GameTickable>();
 		
 		this.thingsToRemove = new ArrayList<GameThing>();
 		
@@ -129,27 +130,27 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	}
 	
 	/** @return See {@link #things}. This is the actual collection holding the things, not a copy */
-	public List<GameThing> getThings(){
+	public NotNullList<GameThing> getThings(){
 		return this.things;
 	}
 	
 	/** @return See {@link #entities}. This is the actual collection holding the things, not a copy */
-	public List<EntityThing> getEntities(){
+	public NotNullList<EntityThing> getEntities(){
 		return this.entities;
 	}
 	
 	/** @return See {@link #mobs}. This is the actual collection holding the things, not a copy */
-	public List<MobThing> getMobs(){
+	public NotNullList<MobThing> getMobs(){
 		return this.mobs;
 	}
 	
 	/** @return See {@link #tickableThings}. This is the actual collection holding the things, not a copy */
-	public List<GameTickable> getTickableThings(){
+	public NotNullList<GameTickable> getTickableThings(){
 		return this.tickableThings;
 	}
 	
 	/** @return See {@link #hitBoxThings}. This is the actual collection holding the things, not a copy */
-	public List<HitBox> getHitBoxThings(){
+	public NotNullList<HitBox> getHitBoxThings(){
 		return this.hitBoxThings;
 	}
 	
@@ -160,10 +161,11 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	 */
 	public void addThing(GameThing thing){
 		ZArrayUtils.insertSorted(this.things, thing);
-		if(thing instanceof EntityThing) this.entities.add((EntityThing)thing);
-		if(thing instanceof MobThing) this.mobs.add((MobThing)thing);
-		if(thing instanceof GameTickable) this.tickableThings.add((GameTickable)thing);
-		if(thing instanceof HitBox) this.hitBoxThings.add((HitBox)thing);
+		
+		this.entities.add(thing.asEntity());
+		this.mobs.add(thing.asMob());
+		this.tickableThings.add(thing.asTickable());
+		this.hitBoxThings.add(thing.asHitBox());
 	}
 	
 	/**
@@ -268,19 +270,20 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(thing);
 		this.thingsToRemove.clear();
 	}
-
+	
 	/**
 	 * Called each time a thing is removed via {@link #tick(Game, double)}, i.e. the thing was added to {@link #thingsToRemove}, and now it's being removed
+	 * 
 	 * @param thing
 	 */
 	public void tickRemoveThing(GameThing thing){
 		this.things.remove(thing);
-		if(thing instanceof EntityThing) this.entities.remove((EntityThing)thing);
-		if(thing instanceof MobThing) this.mobs.remove((MobThing)thing);
-		if(thing instanceof GameTickable) this.tickableThings.remove((GameTickable)thing);
-		if(thing instanceof HitBox) this.hitBoxThings.remove((HitBox)thing);
+		this.entities.remove(thing.asEntity());
+		this.mobs.remove(thing.asMob());
+		this.tickableThings.remove(thing.asTickable());
+		this.hitBoxThings.remove(thing.asHitBox());
 	}
-
+	
 	/**
 	 * Draw this {@link Room} to the given {@link Renderer}
 	 * 
@@ -297,7 +300,9 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 		for(int i = startX; i < endX; i++) for(int j = startY; j < endY; j++) this.tiles.get(i).get(j).renderWithCheck(game, r);
 		
 		// Draw all the things
-		for(int i = 0; i < this.things.size(); i++) this.things.get(i).renderWithCheck(game, r);
+		for(int i = 0; i < this.things.size(); i++){
+			this.things.get(i).renderWithCheck(game, r);
+		}
 	}
 	
 	/** Cause every wall to be solid. See {@link #wallSolid} for details */

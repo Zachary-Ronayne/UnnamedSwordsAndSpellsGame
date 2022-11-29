@@ -9,6 +9,7 @@ import zgame.world.Room;
 import zusass.game.things.LevelDoor;
 import zusass.game.things.entities.mobs.Npc;
 import zusass.game.things.tiles.ZusassColorTiles;
+import zusass.utils.ZusassConvert;
 
 /** A {@link Room} which represents a randomly generated level for the infinite dungeons */
 public class LevelRoom extends ZusassRoom{
@@ -73,8 +74,7 @@ public class LevelRoom extends ZusassRoom{
 	public void addThing(GameThing thing){
 		super.addThing(thing);
 		// When adding an npc, keep track of that
-		// TODO make this not so spaghetti, remove instanceof
-		if(thing instanceof Npc){
+		if(ZusassConvert.toNpc(thing) != null){
 			this.enemiesRemaining++;
 			this.roomCleared = false;
 		}
@@ -84,8 +84,7 @@ public class LevelRoom extends ZusassRoom{
 	public void tickRemoveThing(GameThing thing){
 		super.tickRemoveThing(thing);
 		// When removing an npc, keep track of that
-		// TODO make this not so spaghetti, remove instanceof
-		if(thing instanceof Npc){
+		if(ZusassConvert.toNpc(thing) != null){
 			this.enemiesRemaining--;
 			if(this.enemiesRemaining <= 0) this.roomCleared = true;
 		}
@@ -140,6 +139,11 @@ public class LevelRoom extends ZusassRoom{
 				r.drawRectangle(12 + 12 * i, 152, 6, 16);
 			}
 		}
+	}
+
+	@Override
+	public LevelRoom asLevel(){
+		return this;
 	}
 	
 }

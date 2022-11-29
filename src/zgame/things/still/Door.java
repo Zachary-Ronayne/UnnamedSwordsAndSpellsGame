@@ -149,4 +149,9 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
+	@Override
+	public final GameTickable asTickable(){
+		return this;
+	}
+	
 }

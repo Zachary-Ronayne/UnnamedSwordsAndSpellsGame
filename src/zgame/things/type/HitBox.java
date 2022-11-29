@@ -120,4 +120,5 @@ public interface HitBox extends Bounds, Materialable{
 	
 	/** @return The previous value of {@link #getY()} before the last time it was moved with velocity */
 	public double getPY();
+	
 }

@@ -8,7 +8,7 @@ import zgame.physics.material.Material;
 import zgame.things.Stats;
 
 /** An {@link EntityThing} which represents some kind of creature which can walk around, i.e. the player, an enemy, an animal, a monster, any NPC, etc. */
-public abstract class MobThing extends EntityThing{
+public abstract class MobThing extends EntityThing {
 	
 	/** The string used to identify the force used to make this {@link MobThing} walk */
 	public static final String FORCE_NAME_WALKING = "walking";
@@ -649,6 +649,11 @@ public abstract class MobThing extends EntityThing{
 	public double currentHealthPerc(){
 		double perc = this.getCurrentHealth() / this.getStats().getMaxHealth();
 		return Math.min(1, Math.max(0, perc));
+	}
+
+	@Override
+	public final MobThing asMob(){
+		return this;
 	}
 
 }

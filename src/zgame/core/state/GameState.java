@@ -205,5 +205,13 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 		Menu m = this.getTopMenu();
 		if(m != null) m.renderHud(game, r);
 	}
+
+	/**
+	 * @return This object, as a {@link PlayState}, or null if it cannot be a {@link PlayState}
+	 *         The return value of this method should equal this object, not another version or reference, i.e. (this == this.asPlay()) should evaluate to true
+	 */
+	public PlayState asPlay(){
+		return null;
+	}
 	
 }

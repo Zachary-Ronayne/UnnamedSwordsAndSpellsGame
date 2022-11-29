@@ -34,4 +34,12 @@ public class ZusassRoom extends Room{
 		this.player = player;
 	}
 
+	/**
+	 * @return This object, as a {@link LevelRoom}, or null if it cannot be a {@link LevelRoom}
+	 *         The return value of this method should equal this object, not another version or reference, i.e. (this == this.asLevel()) should evaluate to true
+	 */
+	public LevelRoom asLevel(){
+		return null;
+	}
+
 }
