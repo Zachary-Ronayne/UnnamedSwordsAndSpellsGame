@@ -2,6 +2,7 @@ package zgame.things.entity;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
@@ -31,6 +32,9 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	/** The acceleration of gravity */
 	public static final double GRAVITY_ACCELERATION = 800;
+
+	/** The uuid of this entity */
+	private final String uuid;
 	
 	/** The current velocity of this {@link EntityThing} */
 	private ZVector velocity;
@@ -108,6 +112,8 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	 */
 	public EntityThing(double x, double y, double mass){
 		super(x, y);
+		this.uuid = UUID.randomUUID().toString();
+
 		this.velocity = new ZVector();
 		
 		this.forces = new HashMap<String, ZVector>();
@@ -595,6 +601,11 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	@Override
 	public final GameTickable asTickable(){
 		return this;
+	}
+
+	@Override
+	public String getUuid(){
+		return this.uuid;
 	}
 
 }

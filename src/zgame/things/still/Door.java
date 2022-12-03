@@ -1,6 +1,7 @@
 package zgame.things.still;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
@@ -18,6 +19,9 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	public static final double WIDTH = 70;
 	/** The default value of {@link #height} */
 	public static final double HEIGHT = 150;
+	
+	/** The uuid of this door */
+	private final String uuid;
 	
 	/** The {@link Room} which this door leads to. Can be null to make this a real fake door */
 	private Room leadRoom;
@@ -48,6 +52,8 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	 */
 	public Door(double x, double y, boolean autoEnter){
 		super(x, y);
+		this.uuid = UUID.randomUUID().toString();
+		
 		this.setWidth(WIDTH);
 		this.setHeight(HEIGHT);
 		this.setAutoEnter(autoEnter);
@@ -152,6 +158,11 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	@Override
 	public final GameTickable asTickable(){
 		return this;
+	}
+	
+	@Override
+	public String getUuid(){
+		return this.uuid;
 	}
 	
 }

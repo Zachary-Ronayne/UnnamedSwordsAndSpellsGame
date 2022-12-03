@@ -11,5 +11,8 @@ public interface GameTickable{
 	 * @param dt The amount of time, in seconds, which passed in this tick
 	 */
 	public void tick(Game game, double dt);
+
+	/** @return A unique, unchanging, identifier for this object, does not necessarily need to be a Uuid string, but must be unique */
+	public String getUuid();
 	
 }
