@@ -72,7 +72,7 @@ public class LevelDoor extends ZusassDoor{
 	public boolean canEnter(PositionedHitboxThing thing){
 		LevelRoom lr = this.room.asLevel();
 		if(lr != null && !lr.isRoomCleared()) return false;
-		return ZusassConvert.toPlayer(thing) == null;
+		return ZusassConvert.toPlayer(thing) != null;
 	}
 	
 	/** @return See {@link #level} */
