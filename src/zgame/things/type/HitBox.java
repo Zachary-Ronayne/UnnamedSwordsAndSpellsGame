@@ -1,5 +1,6 @@
 package zgame.things.type;
 
+import zgame.core.utils.ZRect;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 
@@ -26,6 +27,13 @@ public interface HitBox extends Bounds, Materialable{
 	 * @return The information about the collision
 	 */
 	public CollisionResponse calculateRectCollision(double x, double y, double w, double h, Material m);
+
+	/**
+	 * Calculate a {@link CollisionResponse} from colliding with the given {@link HitBox}
+	 * @param h The hitbox to collide with
+	 * @return The response
+	 */
+	public CollisionResponse calculateCollision(HitBox h);
 	
 	/**
 	 * @param x The upper left hand x coordinate
@@ -34,7 +42,28 @@ public interface HitBox extends Bounds, Materialable{
 	 * @param h The height of the bounds
 	 * @return true if this object intersects the given rectangular bounds, false otherwise
 	 */
-	public boolean intersects(double x, double y, double w, double h);
+	public default boolean intersects(double x, double y, double w, double h){
+		return this.getBounds().intersects(x, y, w, h);
+	}
+	
+	/**
+	 * @param R he bounds
+	 * @return true if this object intersects the given rectangular bounds, false otherwise
+	 */
+	public default boolean intersects(ZRect r){
+		return this.intersects(r.getX(), r.getY(), r.getWidth(), r.getHeight());
+	}
+
+	/**
+	 * true if the given {@link HitBox} intersects this {@link HitBox}
+	 * @param h The hitbox to check
+	 * @return true if this object intersects the given {@link HitBox}, false otherwise
+	 */
+	public default boolean intersects(HitBox h){
+		// This assumes the given hitbox is purely a rectangle
+		// issue#20 need to eventually have a way of allowing any type of hitbox to collide with any other type of hitbox
+		return this.intersects(h.getBounds());
+	}
 	
 	/**
 	 * Reposition this object so that it is to the left of the given x coordinate.

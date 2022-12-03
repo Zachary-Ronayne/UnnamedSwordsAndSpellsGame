@@ -142,6 +142,11 @@ public class ZusassPlayer extends ZusassMob{
 		this.lockCamera = lockCamera;
 	}
 	
+	/** If the camera is locked, unlock it, otherwise, lock it */
+	public void toggleLockCamera(){
+		this.setLockCamera(!this.isLockCamera());
+	}
+	
 	@Override
 	public void die(Game game){
 		super.die(game);

@@ -73,6 +73,8 @@ public class MainPlay extends PlayState{
 			zgame.getPlayState().fullPause();
 			this.popupMenu(pauseNode);
 		}
+
+		if(button == GLFW_KEY_F9) this.getCurrentRoom().getPlayer().toggleLockCamera();
 	}
 	
 	@Override

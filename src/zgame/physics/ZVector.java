@@ -1,6 +1,7 @@
 package zgame.physics;
 
-/** A Vector with an x and y component. The internal values of this object cannot be modified after the object is created */
+/** A Vector with an x and y component. The internal values of this object cannot be modified after the object is created, i.e. this object is immutable
+ */
 public class ZVector{
 	
 	/** The x component of this {@link ZVector} */

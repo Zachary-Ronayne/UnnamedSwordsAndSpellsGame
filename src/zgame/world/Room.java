@@ -1,6 +1,7 @@
 package zgame.world;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import zgame.core.Game;
@@ -39,6 +40,8 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	private NotNullList<GameThing> things;
 	/** All of the {@link EntityThing} objects which exist in in the game */
 	private NotNullList<EntityThing> entities;
+	/** A map containing the elements of {@link #entities}, mapped by their uuid */
+	private HashMap<String, EntityThing> entityMap;
 	/** All of the {@link MobThing} objects which exist in in the game */
 	private NotNullList<MobThing> mobs;
 	/** All of the {@link HitBox} objects which exist in in the game */
@@ -83,6 +86,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	public Room(int xTiles, int yTiles){
 		this.things = new NotNullList<GameThing>();
 		this.entities = new NotNullList<EntityThing>();
+		this.entityMap = new HashMap<String, EntityThing>();
 		this.mobs = new NotNullList<MobThing>();
 		this.hitBoxThings = new NotNullList<HitBox>();
 		this.tickableThings = new NotNullList<GameTickable>();
@@ -129,27 +133,35 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 		}
 	}
 	
-	/** @return See {@link #things}. This is the actual collection holding the things, not a copy */
+	/** @return See {@link #things}. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
 	public NotNullList<GameThing> getThings(){
 		return this.things;
 	}
 	
-	/** @return See {@link #entities}. This is the actual collection holding the things, not a copy */
+	/** @return See {@link #entities}. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
 	public NotNullList<EntityThing> getEntities(){
 		return this.entities;
 	}
 	
-	/** @return See {@link #mobs}. This is the actual collection holding the things, not a copy */
+	/**
+	 * @param uuid The uuid of the entity to get
+	 * @return The entity, or null if no entity with that uuid exists in this room
+	 */
+	public EntityThing getEntity(String uuid){
+		return this.entityMap.get(uuid);
+	}
+	
+	/** @return See {@link #mobs}. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
 	public NotNullList<MobThing> getMobs(){
 		return this.mobs;
 	}
 	
-	/** @return See {@link #tickableThings}. This is the actual collection holding the things, not a copy */
+	/** @return See {@link #tickableThings}. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
 	public NotNullList<GameTickable> getTickableThings(){
 		return this.tickableThings;
 	}
 	
-	/** @return See {@link #hitBoxThings}. This is the actual collection holding the things, not a copy */
+	/** @return See {@link #hitBoxThings}. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
 	public NotNullList<HitBox> getHitBoxThings(){
 		return this.hitBoxThings;
 	}
@@ -162,7 +174,10 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	public void addThing(GameThing thing){
 		ZArrayUtils.insertSorted(this.things, thing);
 		
-		this.entities.add(thing.asEntity());
+		EntityThing e = thing.asEntity();
+		boolean added = this.entities.add(e);
+		if(added) this.entityMap.put(e.getUuid(), e);
+
 		this.mobs.add(thing.asMob());
 		this.tickableThings.add(thing.asTickable());
 		this.hitBoxThings.add(thing.asHitBox());
@@ -278,7 +293,8 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	 */
 	public void tickRemoveThing(GameThing thing){
 		this.things.remove(thing);
-		this.entities.remove(thing.asEntity());
+		EntityThing e = thing.asEntity();
+		if(this.entities.remove(e)) this.entityMap.remove(e.getUuid());
 		this.mobs.remove(thing.asMob());
 		this.tickableThings.remove(thing.asTickable());
 		this.hitBoxThings.remove(thing.asHitBox());
@@ -300,9 +316,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 		for(int i = startX; i < endX; i++) for(int j = startY; j < endY; j++) this.tiles.get(i).get(j).renderWithCheck(game, r);
 		
 		// Draw all the things
-		for(int i = 0; i < this.things.size(); i++){
-			this.things.get(i).renderWithCheck(game, r);
-		}
+		for(int i = 0; i < this.things.size(); i++) this.things.get(i).renderWithCheck(game, r);
 	}
 	
 	/** Cause every wall to be solid. See {@link #wallSolid} for details */

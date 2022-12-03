@@ -1,6 +1,8 @@
 package zgame.things.entity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 
@@ -32,7 +34,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	/** The acceleration of gravity */
 	public static final double GRAVITY_ACCELERATION = 800;
-
+	
 	/** The uuid of this entity */
 	private final String uuid;
 	
@@ -53,6 +55,9 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	/** Every force currently acting on this {@link EntityThing}, mapped by a name */
 	private Map<String, ZVector> forces;
+	
+	/** A set of all the uuids which are currently colliding with this entity */
+	private HashSet<String> collidingUuids;
 	
 	/** A {@link ZVector} representing the total force acting on this {@link EntityThing} */
 	private ZVector totalForce;
@@ -113,9 +118,10 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	public EntityThing(double x, double y, double mass){
 		super(x, y);
 		this.uuid = UUID.randomUUID().toString();
-
+		
 		this.velocity = new ZVector();
 		
+		this.collidingUuids = new HashSet<String>();
 		this.forces = new HashMap<String, ZVector>();
 		this.totalForce = new ZVector();
 		
@@ -439,7 +445,44 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	 * @param room The room to collide with
 	 */
 	public void checkCollision(Room room){
+		// Check with the room itself
 		room.collide(this);
+		
+		// Check entity collision
+		
+		// TODO make this more efficient by reducing redundant checks
+		
+		// Check any stored entities, and remove them if they are not intersecting or are not in the room
+		ArrayList<String> toRemove = new ArrayList<String>(this.collidingUuids.size());
+		for(String eUuid : this.collidingUuids){
+			EntityThing e = room.getEntity(eUuid);
+			if(e == null || !this.intersects(e)) toRemove.add(eUuid);
+		}
+		for(String uuid : toRemove){
+			this.collidingUuids.remove(uuid);
+
+			// Set the force so that it will move this entity an amount to cancel out the current force applied on the next tick, then remove the force on the next tick
+			this.removeForce(uuid);
+		}
+		// Get all entities
+		ArrayList<EntityThing> entities = room.getEntities();
+		
+		// Iterate through all entities, ignoring this entity, and find the ones intersecting this entity
+		for(EntityThing e : entities){
+			if(e == this || !e.intersects(this)) continue;
+			
+			// If they intersect, set a force equal and opposite to the current force acting on the entity
+			String eUuid = e.getUuid();
+			// ZVector newForce = new ZVector(10000 * (this.centerX() < e.centerX() ? 1 : -1), 0);
+			ZVector newForce = new ZVector(0, 0);
+			
+			// Find the initial amount of force to set
+
+			// If that amount of force would move the entity too far away, set it so that the entities will only be touching on the next tick
+			
+			this.setForce(eUuid, newForce);
+			this.collidingUuids.add(eUuid);
+		}
 	}
 	
 	@Override
@@ -592,20 +635,20 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	public double getPY(){
 		return py;
 	}
-
+	
 	@Override
 	public final EntityThing asEntity(){
 		return this;
 	}
-
+	
 	@Override
 	public final GameTickable asTickable(){
 		return this;
 	}
-
+	
 	@Override
 	public String getUuid(){
 		return this.uuid;
 	}
-
+	
 }

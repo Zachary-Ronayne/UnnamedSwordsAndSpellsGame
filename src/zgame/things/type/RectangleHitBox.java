@@ -45,10 +45,12 @@ public interface RectangleHitBox extends HitBox, RectangleBounds{
 	public default CollisionResponse calculateRectCollision(double x, double y, double w, double h, Material m){
 		return ZCollision.rectToRectBasic(x, y, w, h, this.getX(), this.getY(), this.getWidth(), this.getHeight(), m);
 	}
-	
+
 	@Override
-	public default boolean intersects(double x, double y, double w, double h){
-		return this.getBounds().intersects(x, y, w, h);
+	public default CollisionResponse calculateCollision(HitBox h){
+		// This assumes the given hitbox is purely a rectangle
+		// issue#20 need to eventually have a way of allowing any type of hitbox to collide with any other type of hitbox
+		return this.calculateRectCollision(h.getX(), h.getY(), h.getWidth(), h.getHeight(), h.getMaterial());
 	}
 	
 	@Override
