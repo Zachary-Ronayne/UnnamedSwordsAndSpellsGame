@@ -128,6 +128,19 @@ public final class ZStringUtils{
 	public static String removeChar(String s, int index){
 		return s.substring(0, index) + s.substring(index + 1);
 	}
+
+	/**
+	 * Pad the beginning of the string so that it will be equal to the given length, if it is less than the given length
+	 * @param s The string to pad
+	 * @param pad The desired length of the string
+	 * @return The padded string, pad("text", 10) should return "      text", note that pad("text", 1) will return "text"
+	 */
+	public static String pad(String s, int pad){
+		StringBuilder sb = new StringBuilder("%");
+		sb.append(pad);
+		sb.append("s");
+		return String.format(sb.toString(), s);
+	}
 	
 	/** Cannot instantiate this class */
 	private ZStringUtils(){

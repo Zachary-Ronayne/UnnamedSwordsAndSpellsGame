@@ -29,7 +29,6 @@ import zgame.core.window.GLFWWindow;
 import zgame.core.window.GameWindow;
 import zgame.world.Room;
 
-// TODO add a ms per tick stat that can be displayed or printed each second
 // TODO add a stat that keeps track of the amount of time passed through ticks
 // TODO fix full screen being broken
 

@@ -27,6 +27,12 @@ public class GameLooper{
 	private int funcCalls;
 	/** The timestamp, in nanoseconds, of the last time the calculated rate was printed */
 	private long lastPrint;
+	/** The amount of time spent processing, not waiting, in the loop over the last second */
+	private long timeProcessing;
+	/** The number of nanoseconds the loop last took to run, averaged over the last second */
+	private long nsPerLoop;
+	/** true to include {@link #nsPerLoop} in the statement from {@link #printRate} */
+	private boolean printNsPerLoop;
 	/** true if the current rate should be printed once each second, false otherwise */
 	private boolean printRate;
 	/** The name associated with this looper, this is only used for printing purposes */
@@ -85,6 +91,9 @@ public class GameLooper{
 		this.setKeepRunningFunc(keepRunningFunc);
 		this.setWaitBetweenLoopsFunc(waitBetweenLoops);
 		
+		this.nsPerLoop = 0;
+		this.setPrintNsPerLoop(true);
+		
 		this.forceEnd = false;
 		this.running = false;
 	}
@@ -120,10 +129,24 @@ public class GameLooper{
 				this.funcCalls++;
 				timeTaken = thisTime - this.lastFunCall;
 				this.lastFunCall = System.nanoTime();
+				
+				// Keep track of the amount of time spent in the function calls
+				this.timeProcessing += this.lastFunCall - thisTime;
 			}
 			// Print the rate once a second
 			if(thisTime - lastTime >= NANO_SECOND){
-				if(this.willPrintRate()) ZStringUtils.print(this.getName(), ": ", this.getFuncCalls());
+				this.nsPerLoop = this.timeProcessing / this.funcCalls;
+				if(this.willPrintRate()){
+					if(this.isPrintNsPerLoop()){
+						ZStringUtils.print(ZStringUtils.pad(ZStringUtils.concat(this.getName(), ": ", this.getFuncCalls()), 10), "\t",
+								ZStringUtils.pad(ZStringUtils.concat("ns/loop", ": ", this.getNsPerLoop()), 30), "\t",
+								ZStringUtils.pad(ZStringUtils.concat("ns total", ": ", this.timeProcessing), 30), "\t",
+								ZStringUtils.pad(ZStringUtils.concat("ms/loop", ": ", this.getMsPerLoop()), 10), "\t",
+								ZStringUtils.pad(ZStringUtils.concat("ms total", ": ", (long)(this.timeProcessing * 1E-6)), 10));
+					}
+					else ZStringUtils.print(this.getName(), ": ", this.getFuncCalls());
+					this.timeProcessing = 0;
+				}
 				this.funcCalls = 0;
 				lastTime = System.nanoTime();
 			}
@@ -140,6 +163,7 @@ public class GameLooper{
 			}
 		}
 		this.running = false;
+		
 	}
 	
 	/** Force this loop to stop */
@@ -187,6 +211,26 @@ public class GameLooper{
 	/** @return See {@link #lastPrint} */
 	public long getLastPrint(){
 		return this.lastPrint;
+	}
+	
+	/** @return See {@link #nsPerLoop} */
+	public long getNsPerLoop(){
+		return this.nsPerLoop;
+	}
+	
+	/** @return The same as {@link #nsPerLoop}, but in milliseconds */
+	public long getMsPerLoop(){
+		return (long)(this.getNsPerLoop() * 1E-6);
+	}
+	
+	/** @return See {@link #printNsPerLoop} */
+	public boolean isPrintNsPerLoop(){
+		return this.printNsPerLoop;
+	}
+	
+	/** @param printNsPerLoop See {@link #printNsPerLoop} */
+	public void setPrintNsPerLoop(boolean printNsPerLoop){
+		this.printNsPerLoop = printNsPerLoop;
 	}
 	
 	/** @return See {@link #printRate} */
