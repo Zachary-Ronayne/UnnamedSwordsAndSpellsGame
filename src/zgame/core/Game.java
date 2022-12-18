@@ -29,7 +29,6 @@ import zgame.core.window.GLFWWindow;
 import zgame.core.window.GameWindow;
 import zgame.world.Room;
 
-// TODO add a stat that keeps track of the amount of time passed through ticks
 // TODO fix full screen being broken
 
 /**
@@ -83,6 +82,8 @@ public class Game implements Saveable, Destroyable{
 	 * Values higher than 1 make the game faster, values less than 1 make the game slower, this value will not go below 0
 	 */
 	private double gameSpeed;
+	/** The approximate total amount of time, in seconds, which the game has been ticked */
+	private double totalTickTime;
 	
 	/** The {@link GameLooper} which regularly updates the sound */
 	private GameLooper soundLooper;
@@ -175,6 +176,7 @@ public class Game implements Saveable, Destroyable{
 	public Game(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
 		// Init misc values
 		this.gameSpeed = 1;
+		this.totalTickTime = 0;
 		
 		this.focusedRender = false;
 		this.focusedUpdate = false;
@@ -470,6 +472,7 @@ public class Game implements Saveable, Destroyable{
 	 * @param dt The amount of time, in seconds, which passed in this tick
 	 */
 	protected void tick(double dt){
+		this.totalTickTime += dt;
 		this.getCurrentState().tick(this, dt);
 	}
 	
@@ -772,6 +775,11 @@ public class Game implements Saveable, Destroyable{
 	/** @param gameSpeed See {@link #gameSpeed} */
 	public void setGameSpeed(double gameSpeed){
 		this.gameSpeed = Math.max(0, gameSpeed);
+	}
+
+	/** @return See {@link #totalTickTime} */
+	public double getTotalTickTime(){
+		return this.totalTickTime;
 	}
 	
 	/** @return true if the tps should be printed once each second, false otherwise */
