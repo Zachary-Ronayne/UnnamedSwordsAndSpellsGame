@@ -9,6 +9,7 @@ import java.util.UUID;
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.utils.ZMath;
+import zgame.core.utils.ZPoint;
 import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
@@ -23,6 +24,8 @@ import zgame.world.Room;
  */
 public abstract class EntityThing extends PositionedHitboxThing implements GameTickable{
 	
+	// TODO allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
+
 	/** The string used to identify the force of gravity in {@link #forces} */
 	public static final String FORCE_NAME_GRAVITY = "gravity";
 	/** The string used to identify the force of friction in {@link #forces} */
@@ -176,7 +179,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		this.addY(moveVec.getY());
 		
 		// Now check the collision for what the entity is colliding with
-		this.checkCollision(game.getCurrentRoom());
+		this.checkCollision(game.getCurrentRoom(), dt);
 	}
 	
 	/**
@@ -443,14 +446,15 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	 * Collide this {@link EntityThing} with the given room. Can override this to perform custom collision
 	 * 
 	 * @param room The room to collide with
+	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
-	public void checkCollision(Room room){
+	public void checkCollision(Room room, double dt){
 		// Check with the room itself
 		room.collide(this);
 		
 		// Check entity collision
 		
-		// TODO make this more efficient by reducing redundant checks
+		// TODO make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
 		
 		// Check any stored entities, and remove them if they are not intersecting or are not in the room
 		ArrayList<String> toRemove = new ArrayList<String>(this.collidingUuids.size());
@@ -460,9 +464,10 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		}
 		for(String uuid : toRemove){
 			this.collidingUuids.remove(uuid);
-
-			// Set the force so that it will move this entity an amount to cancel out the current force applied on the next tick, then remove the force on the next tick
-			this.removeForce(uuid);
+			
+			// Set the velocity so that it will move this entity an amount to cancel out the current force applied on the next tick, then remove the force on the next tick
+			ZVector removed = this.removeForce(uuid);
+			if(removed != null) this.addVelocity(removed.scale(-dt / this.getMass()));
 		}
 		// Get all entities
 		ArrayList<EntityThing> entities = room.getEntities();
@@ -471,17 +476,38 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		for(EntityThing e : entities){
 			if(e == this || !e.intersects(this)) continue;
 			
-			// If they intersect, set a force equal and opposite to the current force acting on the entity
+			// If they intersect, determine the force they should have against each other, and apply it to both entities
 			String eUuid = e.getUuid();
 			// ZVector newForce = new ZVector(10000 * (this.centerX() < e.centerX() ? 1 : -1), 0);
-			ZVector newForce = new ZVector(0, 0);
+			ZPoint thisP = new ZPoint(this.centerX(), this.maxY());
+			ZPoint eP = new ZPoint(e.centerX(), e.maxY());
+			// Find the distance between the center bottom of the entities, to determine how much force should be applied
+			double dist = thisP.distance(eP);
+			
+			// Find a distance where, if the bottom centers of the entities are further than this distance, they are definitely not intersecting
+			double maxDist = (this.getWidth() + this.getHeight() + e.getWidth() + e.getHeight()) * .5;
+			// The maximum amount of force that can be applied
+			double maxMag = (this.getForce().getMagnitude() + e.getForce().getMagnitude());
+			
+			// In the equation f(x) = mx^2 + b, so that f(x) = 0 is the maximum amount of force, and 0 = mx^2 + b is the maximum distance to use
+			double b = maxMag;
+			double m = b / (maxDist * maxDist);
+			
+			// Use that equation to find the force
+			double mag = m * dist * dist + b;
+			double angle = ZMath.lineAngle(eP.getX(), eP.getY(), thisP.getX(), thisP.getY());
 			
 			// Find the initial amount of force to set
+			ZVector newForce = new ZVector(angle, mag, false);
 
+			// TODO
 			// If that amount of force would move the entity too far away, set it so that the entities will only be touching on the next tick
 			
+			// Apply the force to both entities, not just this entity
 			this.setForce(eUuid, newForce);
 			this.collidingUuids.add(eUuid);
+			e.setForce(this.getUuid(), newForce.scale(-1));
+			e.collidingUuids.add(this.getUuid());
 		}
 	}
 	
