@@ -281,6 +281,13 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 			GameTickable t = this.tickableThings.get(i);
 			t.tick(game, dt);
 		}
+
+		// Update the position of all entities
+		for(int i = 0; i < this.entities.size(); i++) this.entities.get(i).updatePosition(game, dt);
+
+		// Check the collision of this room for entities
+		for(int i = 0; i < this.entities.size(); i++) this.collide(this.entities.get(i));
+
 		// Remove all things that need to be removed
 		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(thing);
 		this.thingsToRemove.clear();

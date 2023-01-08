@@ -119,8 +119,6 @@ public class ZusassGame extends Game{
 		GameWindow w = zgame.getWindow();
 		if(button == GLFW_KEY_F11 && !press) w.toggleFullscreen();
 		else if(button == GLFW_KEY_F12 && !press) w.setUseVsync(!w.usesVsync());
-
-		else if(button == GLFW_KEY_F1) ZStringUtils.prints(this.getTotalTickTime()); // TODO Remove
 	}
 	
 	/** Initialize the object {@link #zgame} */

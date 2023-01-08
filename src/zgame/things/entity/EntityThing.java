@@ -164,7 +164,18 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		
 		// Account for sliding down walls
 		this.updateWallSideForce(dt);
-		
+
+		// Check for entity collision, and apply appropriate forces based on what is currently colliding
+		this.checkEntityCollision(game.getCurrentRoom(), dt);
+	}
+	
+	/**
+	 * Update the position and velocity of this {@link EntityThing} based on it's current forces and velocity
+	 * 
+	 * @param game The {@link Game} where the update takes place
+	 * @param dt The amount of time, in seconds, which passed in the tick where this update took place
+	 */
+	public void updatePosition(Game game, double dt){
 		// Find the current acceleration
 		ZVector acceleration = this.getForce().scale(1.0 / this.getMass());
 		
@@ -177,9 +188,6 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		ZVector moveVec = this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5));
 		this.addX(moveVec.getX());
 		this.addY(moveVec.getY());
-		
-		// Now check the collision for what the entity is colliding with
-		this.checkCollision(game.getCurrentRoom(), dt);
 	}
 	
 	/**
@@ -443,17 +451,12 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	}
 	
 	/**
-	 * Collide this {@link EntityThing} with the given room. Can override this to perform custom collision
+	 * Collide this {@link EntityThing} with the entities in the given room. Can override this to perform custom collision
 	 * 
 	 * @param room The room to collide with
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
-	public void checkCollision(Room room, double dt){
-		// Check with the room itself
-		room.collide(this);
-		
-		// Check entity collision
-		
+	public void checkEntityCollision(Room room, double dt){
 		// TODO make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
 		
 		// Check any stored entities, and remove them if they are not intersecting or are not in the room
@@ -478,7 +481,6 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 			
 			// If they intersect, determine the force they should have against each other, and apply it to both entities
 			String eUuid = e.getUuid();
-			// ZVector newForce = new ZVector(10000 * (this.centerX() < e.centerX() ? 1 : -1), 0);
 			ZPoint thisP = new ZPoint(this.centerX(), this.maxY());
 			ZPoint eP = new ZPoint(e.centerX(), e.maxY());
 			// Find the distance between the center bottom of the entities, to determine how much force should be applied
@@ -499,9 +501,31 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 			
 			// Find the initial amount of force to set
 			ZVector newForce = new ZVector(angle, mag, false);
+			
+			// Apply most of the force as the x component, and less as the y component
+			newForce = new ZVector(newForce.getX(), newForce.getY() * 0.1);
+
+			// TODO try keeping track of the total velocity an entity collision has added to another entity, and then remove that much velocity when the entities stop colliding
 
 			// TODO
 			// If that amount of force would move the entity too far away, set it so that the entities will only be touching on the next tick
+			// double xForce = newForce.getX();
+			// double xMoved = xForce / this.getMass() * dt * dt;
+			// double xDiff;
+			// if(this.getX() < e.getX()) xDiff = Math.abs(this.getX() + this.getWidth() - e.getX());
+			// else xDiff = Math.abs(e.getX() + e.getWidth() - this.getX());
+			// ZStringUtils.prints(xMoved, xDiff, newForce.getX()); // TODO Remove
+			// if(ZMath.sameSign(xMoved, xDiff) && Math.abs(xMoved) > xDiff){
+			// 	double newMoved = xMoved < 0 ? -xDiff : xDiff;
+			// 	ZStringUtils.prints(newMoved); // TODO Remove
+			// 	newForce = new ZVector(newMoved / (dt * dt) * this.getMass(), newForce.getY());
+			// }
+			// ZStringUtils.prints(newForce.getX()); // TODO Remove
+			// ZStringUtils.prints("-----------------------------------------------------------------------"); // TODO Remove
+			
+			double limit = 10000;
+			if(newForce.getX() > limit) newForce = new ZVector(limit, newForce.getY());
+			else if(newForce.getX() < -limit) newForce = new ZVector(-limit, newForce.getY());
 			
 			// Apply the force to both entities, not just this entity
 			this.setForce(eUuid, newForce);

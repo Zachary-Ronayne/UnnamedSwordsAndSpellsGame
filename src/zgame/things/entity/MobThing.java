@@ -195,6 +195,11 @@ public abstract class MobThing extends EntityThing {
 		
 		// Do the normal game update
 		super.tick(game, dt);
+	}
+
+	@Override
+	public void updatePosition(Game game, double dt){
+		super.updatePosition(game, dt);
 		
 		// After doing the normal tick and update with the mob's position and velocity and adding the jump velocity, reset the jump force to 0
 		this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, 0);
