@@ -166,7 +166,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		this.updateWallSideForce(dt);
 
 		// Check for entity collision, and apply appropriate forces based on what is currently colliding
-		this.checkEntityCollision(game.getCurrentRoom(), dt);
+		// this.checkEntityCollision(game.getCurrentRoom(), dt);
 	}
 	
 	/**
@@ -505,9 +505,10 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 			// Apply most of the force as the x component, and less as the y component
 			newForce = new ZVector(newForce.getX(), newForce.getY() * 0.1);
 
-			// TODO try keeping track of the total velocity an entity collision has added to another entity, and then remove that much velocity when the entities stop colliding
+			//issue#21
 
-			// TODO
+			// Try keeping track of the total velocity an entity collision has added to another entity, and then remove that much velocity when the entities stop colliding
+
 			// If that amount of force would move the entity too far away, set it so that the entities will only be touching on the next tick
 			// double xForce = newForce.getX();
 			// double xMoved = xForce / this.getMass() * dt * dt;

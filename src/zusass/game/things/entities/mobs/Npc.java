@@ -39,6 +39,7 @@ public class Npc extends ZusassMob{
 			if(playerX > this.centerX()) this.walkRight();
 			else this.walkLeft();
 		}
+		else this.stopWalking();
 		// Ai to attack the player every every interval
 		if(this.attackTime <= 0){
 			this.attackTime = this.maxAttackTime;
