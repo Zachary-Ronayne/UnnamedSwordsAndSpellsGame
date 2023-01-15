@@ -29,7 +29,7 @@ import zgame.core.window.GLFWWindow;
 import zgame.core.window.GameWindow;
 import zgame.world.Room;
 
-// TODO fix full screen being broken
+// issue#22 fix full screen being broken
 
 /**
  * The central class used to create a game. Create an extension of this class to begin making a game

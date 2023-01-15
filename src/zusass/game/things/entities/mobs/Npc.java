@@ -2,14 +2,11 @@ package zusass.game.things.entities.mobs;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.core.utils.ZMath;
 import zusass.ZusassGame;
 
 /** A generic mob which uses health, status, etc, and is not a player */
 public class Npc extends ZusassMob{
-	
-	// Keeping track of where the mob should be moving, temporary code for simplistic AI
-	private double attackTime;
-	private double maxAttackTime;
 	
 	/**
 	 * Create a new Npc with the given bounds
@@ -23,8 +20,7 @@ public class Npc extends ZusassMob{
 		super(x, y, width, height);
 		
 		this.setWalkSpeedMax(100);
-		this.attackTime = 2;
-		this.maxAttackTime = 2;
+		this.getStats().setAttackSpeed(1);
 	}
 	
 	@Override
@@ -33,19 +29,16 @@ public class Npc extends ZusassMob{
 		ZusassGame zgame = (ZusassGame)game;
 		
 		// Simplistic ai to move to the player
-		double playerX = zgame.getCurrentRoom().getPlayer().centerX();
+		ZusassPlayer player = zgame.getCurrentRoom().getPlayer();
+		double playerX = player.centerX();
 		double thisX = this.centerX();
 		if(Math.abs(playerX - thisX) > this.getWidth() * 0.5){
 			if(playerX > this.centerX()) this.walkRight();
 			else this.walkLeft();
 		}
 		else this.stopWalking();
-		// Ai to attack the player every every interval
-		if(this.attackTime <= 0){
-			this.attackTime = this.maxAttackTime;
-			this.attackNearest(game);
-		}
-		else this.attackTime -= dt;
+		// If the AI has an attack available, begin attacking
+		if(this.getAttackTime() <= 0) this.beginAttack(ZMath.lineAngle(this.centerX(), this.centerY(), playerX, player.centerY()));
 	}
 	
 	@Override
@@ -60,9 +53,9 @@ public class Npc extends ZusassMob{
 		r.setColor(1, 0, 0);
 		r.drawRectangle(this.getX(), this.getY(), this.getWidth() * .25, this.getHeight() * this.currentHealthPerc());
 		
-		// Draw a bar to represent the time until an attack
-		r.setColor(0, 0, 1);
-		r.drawRectangle(this.getX() + this.getWidth() * 0.75, this.getY(), this.getWidth() * .25, this.getHeight() * (this.attackTime / this.maxAttackTime));
+		// Draw an attack timer
+		r.setColor(0, .5, 0);
+		this.renderAttackTimer(game, r);
 	}
 	
 	@Override

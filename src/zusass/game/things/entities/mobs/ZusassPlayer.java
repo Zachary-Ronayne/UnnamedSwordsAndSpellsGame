@@ -6,6 +6,8 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
+import zgame.core.utils.ZMath;
+import zgame.things.Stats;
 import zgame.world.Room;
 import zusass.ZusassGame;
 
@@ -30,9 +32,12 @@ public class ZusassPlayer extends ZusassMob{
 		this.toggleCameraPressed = false;
 		this.attackPressed = false;
 		
-		this.getStats().setMaxHealth(100);
+		Stats s = this.getStats();
+		s.setMaxHealth(100);
 		this.healToMaxHealth();
-		this.getStats().setStrength(10);
+		s.setStrength(10);
+		s.setAttackSpeed(.3);
+
 		this.lockCamera = false;
 	}
 	
@@ -47,13 +52,13 @@ public class ZusassPlayer extends ZusassMob{
 		handleDoorPress(zgame);
 		handleToggleCameraPress(zgame);
 		
-		// Right click to attack
+		// Right click to attack in a direction
 		ZMouseInput mi = game.getMouseInput();
 		boolean rightPressed = mi.rightDown();
 		if(rightPressed) this.attackPressed = true;
 		else if(this.attackPressed && !rightPressed){
 			this.attackPressed = false;
-			this.attackNearest(zgame);
+			this.beginAttack(ZMath.lineAngle(this.centerX(), this.centerY(), game.mouseGX(), game.mouseGY()));
 		}
 		
 		// Now the camera to the player after repositioning the player
@@ -121,6 +126,7 @@ public class ZusassPlayer extends ZusassMob{
 	public void render(Game game, Renderer r){
 		r.setColor(0, 0, .5);
 		r.drawRectangle(this.getBounds());
+		this.renderAttackTimer(game, r);
 	}
 	
 	/**

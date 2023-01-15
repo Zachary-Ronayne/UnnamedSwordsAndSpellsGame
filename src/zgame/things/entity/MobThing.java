@@ -3,6 +3,7 @@ package zgame.things.entity;
 import java.util.List;
 
 import zgame.core.Game;
+import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 import zgame.things.Stats;
@@ -131,6 +132,12 @@ public abstract class MobThing extends EntityThing {
 	
 	/** The direction this {@link MobThing} is walking. -1 for walking to the left, 0 for not walking, 1 for walking to the right */
 	private int walkingDirection;
+
+	/** The amount of time, in seconds, until this mob will perform an attack, or a negative value if this mob is not preparing for an attack */
+	private double attackTime;
+
+	/** The direction, an angle in radians, where the mob will attack */
+	private double attackDirection;
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -174,6 +181,9 @@ public abstract class MobThing extends EntityThing {
 		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
 		this.normalJumpTime = DEFAULT_NORMAL_JUMP_TIME;
 		this.wallJumpTime = DEFAULT_WALL_JUMP_TIME;
+
+		this.attackTime = -1;
+		this.attackDirection = 0;
 		
 		this.walkingForce = new ZVector();
 		this.setForce(FORCE_NAME_WALKING, this.walkingForce);
@@ -193,8 +203,30 @@ public abstract class MobThing extends EntityThing {
 		// Update the state of the jumping force
 		this.updateJumpState(dt);
 		
+		// Update the attack timer
+		if(this.attackTime > 0){
+			this.attackTime -= dt;
+			if(this.attackTime <= 0) this.attackNearest(game);
+		}
 		// Do the normal game update
 		super.tick(game, dt);
+	}
+	
+	/**
+	 * Minimal method for drawing a basic attack timer for melee attacks
+	 * @param game The game where the attack is performed
+	 * @param r The renderer to draw the attack with
+	 */
+	public void renderAttackTimer(Game game, Renderer r){
+		// TODO potentially need some way of ensuring this also gets rendered with the should render thing, or maybe this is just a temportary placeholder
+		if(this.getAttackTime() <= 0) return;
+		double directionX = Math.cos(this.attackDirection);
+		double time = this.getAttackTime();
+		double speed = this.getStats().getAttackSpeed();
+		double attackSize = this.getStats().getAttackRange() * (1 - time / speed);
+
+		if(directionX < 0) r.drawRectangle(this.centerX() - attackSize, this.centerY(), attackSize, 20);
+		else r.drawRectangle(this.centerX(), this.centerY(), attackSize, 20);
 	}
 
 	@Override
@@ -595,22 +627,41 @@ public abstract class MobThing extends EntityThing {
 		game.getCurrentRoom().removeThing(this);
 	}
 
+	/** @return See {@link #attackTime} */
+	public double getAttackTime(){
+		return this.attackTime;
+	}
+
 	/**
-	 * Cause this mob to perform a basic attack on the given mob
-	 * @param mob
+	 * Cause this mob to begin performing an attack
+	 * @param direction The direction to attack in
+	 */
+	public void beginAttack(double direction){
+		this.attackDirection = direction;
+		this.attackTime = this.getStats().getAttackSpeed();
+	}
+
+	/**
+	 * Cause this mob to deal damage to the given mob
+	 * @param mob The mob to attack
 	 */
 	public void attack(MobThing mob){
 		mob.damage(this.getStats().getStrength());
 	}
 
 	/**
-	 * Attack the nearest mob in the game which is not this mob
+	 * Attack the nearest mob, in {@link #attackDirection}, in the game which is not this mob
 	 * @param game The game where the attack should happen
 	 */
 	public void attackNearest(Game game){
 		List<MobThing> mobs = game.getCurrentRoom().getMobs();
 		for(MobThing m : mobs){
-			if(m == this || !m.getBounds().intersects(this.getBounds())) continue;
+			// Skip the current mob if it is this mob or the mob is out of the attack range
+			if(m == this || this.center().distance(m.center()) >= this.getStats().getAttackRange()) continue;
+			// Also skip the current mob if it is not in the attack direction
+			double directionX = Math.cos(this.attackDirection);
+			if(this.centerX() < m.centerX() == directionX < 0) continue;
+			// Perform the attack
 			this.attack(m);
 			return;
 		}

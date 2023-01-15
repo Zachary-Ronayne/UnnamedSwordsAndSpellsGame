@@ -1,5 +1,6 @@
 package zgame.things.type;
 
+import zgame.core.utils.ZPoint;
 import zgame.core.utils.ZRect;
 
 /** An object which has a bounds that can be defined in a 2D space */
@@ -29,6 +30,11 @@ public interface Bounds extends Position{
 	/** @return The center y coordinate of this bounds */
 	public default double centerY(){
 		return this.getY() + getHeight() * 0.5;
+	}
+
+	/** @return The center point of this {@link Bounds} */
+	public default ZPoint center(){
+		return new ZPoint(this.centerX(), this.centerY());
 	}
 	
 	/** @return A rectangle representing the full bounds which this {@link Bounds} takes up */

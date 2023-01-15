@@ -24,7 +24,7 @@ import zgame.world.Room;
  */
 public abstract class EntityThing extends PositionedHitboxThing implements GameTickable{
 	
-	// TODO allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
+	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
 
 	/** The string used to identify the force of gravity in {@link #forces} */
 	public static final String FORCE_NAME_GRAVITY = "gravity";
@@ -457,7 +457,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
 	public void checkEntityCollision(Room room, double dt){
-		// TODO make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
+		// issue#21 make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
 		
 		// Check any stored entities, and remove them if they are not intersecting or are not in the room
 		ArrayList<String> toRemove = new ArrayList<String>(this.collidingUuids.size());
@@ -515,14 +515,10 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 			// double xDiff;
 			// if(this.getX() < e.getX()) xDiff = Math.abs(this.getX() + this.getWidth() - e.getX());
 			// else xDiff = Math.abs(e.getX() + e.getWidth() - this.getX());
-			// ZStringUtils.prints(xMoved, xDiff, newForce.getX()); // TODO Remove
 			// if(ZMath.sameSign(xMoved, xDiff) && Math.abs(xMoved) > xDiff){
 			// 	double newMoved = xMoved < 0 ? -xDiff : xDiff;
-			// 	ZStringUtils.prints(newMoved); // TODO Remove
 			// 	newForce = new ZVector(newMoved / (dt * dt) * this.getMass(), newForce.getY());
 			// }
-			// ZStringUtils.prints(newForce.getX()); // TODO Remove
-			// ZStringUtils.prints("-----------------------------------------------------------------------"); // TODO Remove
 			
 			double limit = 10000;
 			if(newForce.getX() > limit) newForce = new ZVector(limit, newForce.getY());

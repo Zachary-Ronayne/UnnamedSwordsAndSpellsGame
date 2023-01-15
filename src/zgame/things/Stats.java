@@ -11,11 +11,19 @@ public class Stats{
 
 	/** How string this object is */
 	private double strength;
+
+	/** The amount of units this object can attack from */
+	private double attackRange;
+
+	/** The amount of time, in seconds it takes for this object to perform an attack */
+	private double attackSpeed;
 	
 	/** Initialize a new stats object with nothing set */
 	public Stats(){
 		this.maxHealth = 10;
 		this.strength = 1;
+		this.attackRange = 100;
+		this.attackSpeed = 0.5;
 	}
 	
 	/** @return See {@link #maxHealth} */
@@ -36,6 +44,26 @@ public class Stats{
 	/** @param strength See {@link #strength} */
 	public void setStrength(double strength){
 		this.strength = strength;
+	}
+	
+	/** @return See {@link #attackRange} */
+	public double getAttackRange(){
+		return attackRange;
+	}
+	
+	/** @param attackRange See {@link #attackRange} */
+	public void setAttackRange(double attackRange){
+		this.attackRange = attackRange;
+	}
+	
+	/** @return See {@link #attackSpeed} */
+	public double getAttackSpeed(){
+		return attackSpeed;
+	}
+	
+	/** @param attackSpeed See {@link #attackSpeed} */
+	public void setAttackSpeed(double attackSpeed){
+		this.attackSpeed = attackSpeed;
 	}
 	
 }
