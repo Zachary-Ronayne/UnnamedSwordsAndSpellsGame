@@ -218,7 +218,7 @@ public abstract class MobThing extends EntityThing {
 	 * @param r The renderer to draw the attack with
 	 */
 	public void renderAttackTimer(Game game, Renderer r){
-		// TODO potentially need some way of ensuring this also gets rendered with the should render thing, or maybe this is just a temportary placeholder
+		// issue#23 potentially need some way of ensuring this also gets rendered with the should render thing, or maybe this is just a temporary placeholder
 		if(this.getAttackTime() <= 0) return;
 		double directionX = Math.cos(this.attackDirection);
 		double time = this.getAttackTime();

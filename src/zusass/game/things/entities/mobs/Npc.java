@@ -47,7 +47,7 @@ public class Npc extends ZusassMob{
 		r.setColor(0, .5, 0);
 		r.drawRectangle(this.getBounds());
 		
-		// TODO make a way of drawing a health bar above the mob, accounting for how this health bar will not be a part of the mob itself, but above it
+		// issue#23 make a way of drawing a health bar above the mob, accounting for how this health bar will not be a part of the mob itself, but above it
 		
 		// Draw a bar to represent it's remaining health
 		r.setColor(1, 0, 0);
