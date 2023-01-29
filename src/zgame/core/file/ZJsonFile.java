@@ -10,7 +10,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 import zgame.core.utils.ZConfig;
-import zgame.core.utils.ZStringUtils;
 
 /** A representation of a JSON file used for saving and loading games */
 public class ZJsonFile{
@@ -42,10 +41,7 @@ public class ZJsonFile{
 			Gson gson = new Gson();
 			this.data = gson.fromJson(jsonText, JsonObject.class);
 		}catch(FileNotFoundException e){
-			if(ZConfig.printErrors()){
-				ZStringUtils.prints("Failed to open JSON file at path", this.getPath());
-				e.printStackTrace();
-			}
+			ZConfig.error(e, "Failed to open JSON file at path", this.getPath());
 			return null;
 		}
 		return this.data;
@@ -63,16 +59,10 @@ public class ZJsonFile{
 			String jsonText = gson.toJson(this.data);
 			write.write(jsonText);
 		}catch(FileNotFoundException e){
-			if(ZConfig.printErrors()){
-				ZStringUtils.prints("Failed to save JSON file to path", this.getPath());
-				e.printStackTrace();
-			}
+			ZConfig.error(e, "Failed to save JSON file to path", this.getPath());
 			return false;
 		}catch(UnsupportedOperationException | NullPointerException | ClassCastException | IllegalStateException e){
-			if(ZConfig.printErrors()){
-				ZStringUtils.prints("Failed to save JSON file to path", this.getPath(), "with data:", this.getData());
-				e.printStackTrace();
-			}
+			ZConfig.error(e, "Failed to save JSON file to path", this.getPath(), "with data:", this.getData());
 		}
 		return true;
 	}

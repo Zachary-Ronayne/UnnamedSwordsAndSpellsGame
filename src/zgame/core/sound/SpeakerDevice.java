@@ -10,7 +10,6 @@ import org.lwjgl.system.MemoryUtil;
 
 import zgame.core.graphics.Destroyable;
 import zgame.core.utils.ZConfig;
-import zgame.core.utils.ZStringUtils;
 
 import static org.lwjgl.system.MemoryUtil.*;
 
@@ -54,11 +53,11 @@ public class SpeakerDevice implements Destroyable{
 		
 		// Error check
 		if(this.id == NULL){
-			if(ZConfig.printErrors()) ZStringUtils.prints("Failed to load audio device with name:", name);
+			ZConfig.error("Failed to load audio device with name:", name);
 			return;
 		}
 		// Print success
-		if(ZConfig.printSuccess()) ZStringUtils.prints("Successfully loaded audio device with name:", name);
+		ZConfig.success("Successfully loaded audio device with name:", name);
 	}
 	
 	/** Use this device for audio */
@@ -68,10 +67,8 @@ public class SpeakerDevice implements Destroyable{
 			this.context = alcCreateContext(this.getId(), (IntBuffer)null);
 			boolean result = alcMakeContextCurrent(this.getContext());
 			this.alCapabilities = AL.createCapabilities(this.getAlcCapabilities());
-			if(result && ZConfig.printSuccess())
-				ZStringUtils.print("Successfully made context current with device name '", this.getName(), "' using context: ", this.getContext());
-			else if(!result && ZConfig.printErrors())
-				ZStringUtils.print("Failed to make context current with device name '", this.getName(), "' using context: ", this.getContext());
+			if(result) ZConfig.success("Successfully made context current with device name '", this.getName(), "' using context: ", this.getContext());
+			else ZConfig.error("Failed to make context current with device name '", this.getName(), "' using context: ", this.getContext());
 		}
 	}
 	
@@ -81,8 +78,8 @@ public class SpeakerDevice implements Destroyable{
 		alcMakeContextCurrent(MemoryUtil.NULL);
 		if(this.getContext() != NULL) alcDestroyContext(this.getContext());
 		boolean success = alcCloseDevice(this.getId());
-		if(ZConfig.printErrors() && !success) ZStringUtils.print("Device '", this.getName(), "' failed to close");
-		else if(ZConfig.printSuccess() && success) ZStringUtils.print("Device '", this.getName(), "' successfully closed");
+		if(success) ZConfig.success("Device '", this.getName(), "' successfully closed");
+		else ZConfig.error("Device '", this.getName(), "' failed to close");
 	}
 	
 	/** @return See {@link #id} */

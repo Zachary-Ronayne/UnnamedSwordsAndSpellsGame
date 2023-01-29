@@ -37,10 +37,7 @@ public class SavesDeleteButton extends SavesMenuButton{
 			menu.showMessage(ZStringUtils.concat("Delete ", success ? "success" : "failed", " for: ", button.getText()));
 			
 		}catch(SecurityException | NullPointerException e){
-			if(ZConfig.printErrors()){
-				ZStringUtils.prints("Failed to delete file at path", path);
-				e.printStackTrace();
-			}
+			ZConfig.error(e, "Failed to delete file at path", path);
 			menu.showMessage(ZStringUtils.concat("Delete failed for: ", button.getText()));
 		}
 	}

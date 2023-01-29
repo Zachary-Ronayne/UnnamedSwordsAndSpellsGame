@@ -84,10 +84,7 @@ public final class ZusassConfig{
 			files.sort((a, b) -> Double.compare(b.lastModified(), a.lastModified()));
 			
 		}catch(NullPointerException | SecurityException e){
-			if(ZConfig.printErrors()){
-				ZStringUtils.prints("Failed to find file location for saves at:", path);
-				e.printStackTrace();
-			}
+			ZConfig.error(e, "Failed to find file location for saves at:", path);
 			return null;
 		}
 		return files;

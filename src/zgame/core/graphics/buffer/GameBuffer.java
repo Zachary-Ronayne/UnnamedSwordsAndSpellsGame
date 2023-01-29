@@ -11,7 +11,6 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZRect;
-import zgame.core.utils.ZStringUtils;
 
 /**
  * A class that manages an OpenGL Framebuffer for a Renderer to draw to
@@ -99,9 +98,8 @@ public class GameBuffer implements Destroyable{
 		// Error check
 		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		boolean success = status == GL_FRAMEBUFFER_COMPLETE;
-		if(success && ZConfig.printDebug())
-			ZStringUtils.print("GameBuffer created successfully with frame id: ", this.getFrameID(), ", and texture id: ", this.getTextureID());
-		else if(!success && ZConfig.printErrors()) ZStringUtils.print("Failed to create GameBuffer with status ", status);
+		if(success) ZConfig.debug("GameBuffer created successfully with frame id: ", this.getFrameID(), ", and texture id: ", this.getTextureID());
+		else ZConfig.error("Failed to create GameBuffer with status ", status);
 		
 		// Bind the framebuffer to the previous buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, oldBuffer);
@@ -115,7 +113,7 @@ public class GameBuffer implements Destroyable{
 	public void destroy(){
 		if(!this.bufferGenerated) return;
 		this.bufferGenerated = false;
-		if(ZConfig.printDebug()) ZStringUtils.print("On game buffer: ", this, ", deleted frame buffer ID: ", this.getFrameID(), ", and texture ID: ", this.getTextureID());
+		ZConfig.debug("On game buffer: ", this, ", deleted frame buffer ID: ", this.getFrameID(), ", and texture ID: ", this.getTextureID());
 		
 		// Delete the buffer
 		glDeleteFramebuffers(this.getFrameID());

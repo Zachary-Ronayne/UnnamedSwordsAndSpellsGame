@@ -161,7 +161,7 @@ public class GlfwWindow extends GameWindow{
 	public boolean initCallBacks(){
 		long w = this.getCurrentWindowID();
 		if(w == NULL){
-			if(ZConfig.printErrors()) System.err.println("Error in GLFWWindow.initCallBacks, cannot init callbacks if the current window is NULL");
+			ZConfig.error("Error in GLFWWindow.initCallBacks, cannot init callbacks if the current window is NULL");
 			return false;
 		}
 		glfwSetKeyCallback(w, this::keyPress);
@@ -295,18 +295,18 @@ public class GlfwWindow extends GameWindow{
 		long monitor = this.center();
 		
 		if(monitor == NULL){
-			if(ZConfig.printErrors()) ZStringUtils.print("Failed to find any monitors to create a fullscreen window");
+			ZConfig.error("Failed to find any monitors to create a fullscreen window");
 			return;
 		}
 		// Put the found monitor in full screen on that window
 		GLFWVidMode mode = glfwGetVideoMode(monitor);
 		if(mode == null){
-			if(ZConfig.printErrors()) ZStringUtils.print("Failed to get a video mode to create a fullscreen window");
+			ZConfig.error("Failed to get a video mode to create a fullscreen window");
 			return;
 		}
 		this.fullScreenID = glfwCreateWindow(mode.width(), mode.height(), ZStringUtils.concat(this.getWindowTitle(), " | Fullscreen"), monitor, this.getWindowID());
 		if(this.fullScreenID == NULL){
-			if(ZConfig.printErrors()) ZStringUtils.print("Failed to create a fullscreen window");
+			ZConfig.error("Failed to create a fullscreen window");
 		}
 	}
 	
@@ -349,7 +349,7 @@ public class GlfwWindow extends GameWindow{
 		// Find the monitor width and center it
 		GLFWVidMode mode = glfwGetVideoMode(monitor);
 		if(mode == null){
-			if(ZConfig.printErrors()) ZStringUtils.print("Failed to center window, could not find window mode");
+			ZConfig.error("Failed to center window, could not find window mode");
 			return NULL;
 		}
 		int w = mode.width();

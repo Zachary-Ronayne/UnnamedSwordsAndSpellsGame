@@ -56,10 +56,10 @@ public class ShaderProgram{
 		// Error checking
 		boolean success = glGetProgrami(this.id, GL_LINK_STATUS) == GL_TRUE;
 		String status = success ? "success" : "failure";
-		if(ZConfig.printSuccess() && success || ZConfig.printErrors() && !success){
-			ZStringUtils.print("Created shader program with vertex shader at\n'", this.vertex.getPath(), "'\n and fragment shader at\n'", this.fragment.getPath(),
-					"'\nWith status ", status);
-		}
+		var logObjs = new Object[]{"Created shader program with vertex shader at\n'", this.vertex.getPath(), "'\n and fragment shader at\n'", this.fragment.getPath(),
+				"'\nWith status ", status};
+		if(success) ZConfig.success(logObjs);
+		else ZConfig.error(logObjs);
 	}
 	
 	/**

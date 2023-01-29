@@ -149,10 +149,7 @@ public class GameLooper{
 				try{
 					Thread.sleep(Math.max(0, (long)((this.getRateTimeNano() - timeTaken) / 1E5)));
 				}catch(Exception e){
-					if(ZConfig.printErrors()){
-						System.err.println("Error in waiting for a thread in GameLooper.loop");
-						e.printStackTrace();
-					}
+					ZConfig.error(e, "Error in waiting for a thread in GameLooper.loop");
 				}
 			}
 		}

@@ -2,7 +2,6 @@ package zusass;
 
 import zgame.core.Game;
 import zgame.core.utils.ZConfig;
-import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
 import zusass.game.MainPlay;
 import zusass.game.ZusassRoom;
@@ -93,10 +92,7 @@ public class ZusassGame extends Game{
 			try{
 				directory.mkdirs();
 			}catch(SecurityException e){
-				if(ZConfig.printErrors()){
-					ZStringUtils.prints("Couldn't make directories. Failed to save file at path:", path);
-					e.printStackTrace();
-				}
+				ZConfig.error(e, "Couldn't make directories. Failed to save file at path:", path);
 			}
 		}
 		return super.saveGame(path);

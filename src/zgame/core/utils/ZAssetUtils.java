@@ -44,7 +44,7 @@ public final class ZAssetUtils{
 			// Get a URI which represents the location of the files
 			var resource = ZAssetUtils.class.getResource(basePath);
 			if(resource == null){
-				if(ZConfig.printErrors()) ZStringUtils.print("Failed to load resource, could not find resource. Path: ", basePath);
+				ZConfig.error("Failed to load resource, could not find resource. Path: ", basePath);
 				return List.of();
 			}
 			URI uri = resource.toURI();
@@ -84,10 +84,7 @@ public final class ZAssetUtils{
 			}
 			if(fileSystem != null) fileSystem.close();
 		}catch(URISyntaxException | IOException e){
-			if(ZConfig.printErrors()){
-				ZStringUtils.prints("Error in ZAssetUtils in loading files");
-				e.printStackTrace();
-			}
+			ZConfig.error(e, "Error in ZAssetUtils in loading files");
 		}finally{
 			if(walk != null) walk.close();
 		}
@@ -174,7 +171,7 @@ public final class ZAssetUtils{
 			buff.flip();
 			stream.close();
 		}catch(IOException e){
-			if(ZConfig.printErrors()) ZStringUtils.print("Failed to load '", path, "' from the jar");
+			ZConfig.error(e, "Failed to load '", path, "' from the jar");
 		}
 		return buff;
 	}

@@ -10,7 +10,6 @@ import org.lwjgl.openal.ALUtil;
 import zgame.core.graphics.Destroyable;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZFilePaths;
-import zgame.core.utils.ZStringUtils;
 
 /**
  * A class that handles multiple {@link SoundPlayer} objects, music and effects
@@ -135,7 +134,7 @@ public class SoundManager implements Destroyable{
 		
 		// Use the current device
 		this.currentDevice.use();
-		if(ZConfig.printSuccess()) ZStringUtils.prints("Using sound device:", this.currentDevice.getName());
+		ZConfig.success("Using sound device:", this.currentDevice.getName());
 	}
 	
 	/** Clear any resources used by this {@link SoundManager} */

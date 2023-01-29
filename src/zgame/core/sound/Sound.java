@@ -73,12 +73,12 @@ public abstract class Sound extends Asset{
 		
 		// Determine success
 		boolean success = samplesLoaded != -1;
-		if(ZConfig.printSuccess() && success){
-			ZStringUtils.print("Sound '", this.getPath(), "' loaded successfully in ", (this.isMono() ? "mono" : "stereo"), ", with sample rate: ", this.getSampleRate(), ", ",
+		if(success){
+			ZConfig.success("Sound '", this.getPath(), "' loaded successfully in ", (this.isMono() ? "mono" : "stereo"), ", with sample rate: ", this.getSampleRate(), ", ",
 					samplesLoaded, " samples loaded, and ids: ", this.getIdString());
 		}
-		else if(ZConfig.printErrors() && !success){
-			ZStringUtils.print("Sound '", this.getPath(), "' failed to load via stb");
+		else{
+			ZConfig.error("Sound '", this.getPath(), "' failed to load via stb");
 			return null;
 		}
 		this.samples = samplesLoaded;

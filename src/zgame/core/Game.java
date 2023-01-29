@@ -25,7 +25,6 @@ import zgame.core.state.DefaultState;
 import zgame.core.state.GameState;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZConfig;
-import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
 import zgame.world.Room;
@@ -259,7 +258,7 @@ public class Game implements Saveable, Destroyable{
 			this.tickLooper.end();
 			while(this.tickLooper.isRunning()) Thread.sleep(1);
 		}catch(InterruptedException e){
-			if(ZConfig.printErrors()) e.printStackTrace();
+			ZConfig.error(e);
 		}
 		this.renderLooper.end();
 	}
@@ -614,10 +613,7 @@ public class Game implements Saveable, Destroyable{
 		try{
 			return this.load(data) != null;
 		}catch(ClassCastException | IllegalStateException | NullPointerException e){
-			if(ZConfig.printErrors()){
-				ZStringUtils.prints("Failed to load a json object because it had invalid formatting. Object data:\n", data);
-				e.printStackTrace();
-			}
+			ZConfig.error(e, "Failed to load a json object because it had invalid formatting. Object data:\n", data);
 		}
 		return false;
 	}

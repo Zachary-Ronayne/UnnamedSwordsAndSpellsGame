@@ -156,15 +156,15 @@ public class FontAsset extends Asset{
 		// Find the font info
 		this.info = STBTTFontinfo.create();
 		boolean infoSuccess = stbtt_InitFont(this.info, this.data);
-		if(ZConfig.printErrors() && !infoSuccess) ZStringUtils.print("Font '", path, "' failed to load font info via stb true type");
+		if(!infoSuccess) ZConfig.error("Font '", path, "' failed to load font info via stb true type");
 		
 		// Check for errors
 		int numFonts = stbtt_GetNumberOfFonts(this.data);
 		
 		boolean success = numFonts != -1;
-		if(ZConfig.printSuccess() && success) ZStringUtils.print("Font '", path, "' loaded successfully. ", numFonts, " total fonts loaded.");
-		else if(ZConfig.printErrors() && !success){
-			ZStringUtils.print("Font '", path, "' failed to load via stb true type");
+		if(success) ZConfig.success("Font '", path, "' loaded successfully. ", numFonts, " total fonts loaded.");
+		else{
+			ZConfig.error("Font '", path, "' failed to load via stb true type");
 			return;
 		}
 		
@@ -172,11 +172,9 @@ public class FontAsset extends Asset{
 		ByteBuffer pixels = BufferUtils.createByteBuffer(this.width * this.height);
 		this.charData = STBTTBakedChar.create(this.loadChars);
 		int numChars = stbtt_BakeFontBitmap(this.data, this.resolution, pixels, this.width, this.height, firstChar, this.charData);
-		if(ZConfig.printSuccess()){
-			if(numChars > 0) ZStringUtils.print("    First unused row: ", numChars);
-			else if(numChars < 0) ZStringUtils.print("    Characters which fit: ", -numChars);
-			else ZStringUtils.print("    No Characters fit: ");
-		}
+		if(numChars > 0) ZConfig.success("    First unused row: ", numChars);
+		else if(numChars < 0) ZConfig.success("    Characters which fit: ", -numChars);
+		else ZConfig.success("    No Characters fit: ");
 		// Create a texture for the font bitmap
 		this.bitmapID = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, this.bitmapID);
