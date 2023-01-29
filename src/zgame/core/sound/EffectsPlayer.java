@@ -32,7 +32,7 @@ public class EffectsPlayer extends SoundPlayer<EffectSound>{
 	
 	/**
 	 * Add the specified source to the map of different types of sound maps
-	 * 
+	 *
 	 * @param source The source to add
 	 * @param type The type of the effect which the given source will play
 	 */
@@ -46,7 +46,7 @@ public class EffectsPlayer extends SoundPlayer<EffectSound>{
 	
 	/**
 	 * If the given type of sounds does not yet exist in this {@link EffectsPlayer}, then create a new map for that type, otherwise do nothing
-	 * 
+	 *
 	 * @param type The type to add
 	 */
 	public void addNewType(String type){
@@ -55,10 +55,9 @@ public class EffectsPlayer extends SoundPlayer<EffectSound>{
 	}
 	
 	/**
-	 * Set the volume of a specific type of sounds. If the type does not exist, an empty map of that type is added to the player.
-	 * Any calls to {@link #setVolume(double)} will set the volume of every sound in this {@link EffectsPlayer}, regardless of type.
-	 * Use {@link #setVolume(double)} to set the volume of every sound
-	 * 
+	 * Set the volume of a specific type of sounds. If the type does not exist, an empty map of that type is added to the player. Any calls to {@link #setVolume(double)} will
+	 * set the volume of every sound in this {@link EffectsPlayer}, regardless of type. Use {@link #setVolume(double)} to set the volume of every sound
+	 *
 	 * @param type The type of sounds
 	 * @param volume The new volume
 	 */

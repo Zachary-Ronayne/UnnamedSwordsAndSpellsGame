@@ -16,7 +16,7 @@ public class MainMenu extends ZusassMenu{
 	
 	/**
 	 * Initialize the {@link MainMenu}
-	 * 
+	 *
 	 * @param zgame The Zusass game associated with this {@link MainMenu}
 	 */
 	public MainMenu(ZusassGame zgame){
@@ -26,7 +26,7 @@ public class MainMenu extends ZusassMenu{
 	
 	/**
 	 * Initialize this menu to a default state
-	 * 
+	 *
 	 * @param zgame The game to base the buttons on
 	 */
 	public void initButtons(ZusassGame zgame){

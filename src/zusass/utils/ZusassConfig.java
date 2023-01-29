@@ -17,8 +17,7 @@ public final class ZusassConfig{
 	/** The location of all files associated with the Zusass game */
 	private static final String DATA = "./ZUSASS_DATA/";
 	/** The location of all saves associated with the Zusass game */
-	private static final String SAVES = DATA +
-		"saves/";
+	private static final String SAVES = DATA + "saves/";
 	
 	/** @return The location where save files should be stored */
 	public static String getSavesLocation(){
@@ -27,7 +26,7 @@ public final class ZusassConfig{
 	
 	/**
 	 * Convert a file name to a name including the appropriate suffix for a save file
-	 * 
+	 *
 	 * @param file The name to add the suffix to
 	 * @return The file with the suffix
 	 */
@@ -38,7 +37,7 @@ public final class ZusassConfig{
 	
 	/**
 	 * Make a path to a save file in the saves location
-	 * 
+	 *
 	 * @param name The name of the save file, no path or extension
 	 * @return The path based on the name
 	 */
@@ -48,7 +47,7 @@ public final class ZusassConfig{
 	
 	/**
 	 * Determine if the given file name is valid for a save file
-	 * 
+	 *
 	 * @param file The file to check
 	 * @return true if it is a valid save file name, false otherwise
 	 */
@@ -67,7 +66,7 @@ public final class ZusassConfig{
 	
 	/**
 	 * Get all files in the saves location of the Zusass game
-	 * 
+	 *
 	 * @return The list of files, or null if an error was encountered
 	 */
 	public static List<File> getAllFiles(){

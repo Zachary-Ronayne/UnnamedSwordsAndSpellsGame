@@ -8,7 +8,7 @@ public abstract class ZusassButton extends MenuButton{
 	
 	/**
 	 * Create a {@link ZusassButton} with the appropriate parameters
-	 * 
+	 *
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}

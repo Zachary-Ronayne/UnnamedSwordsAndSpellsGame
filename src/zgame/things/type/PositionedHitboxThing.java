@@ -13,13 +13,14 @@ public abstract class PositionedHitboxThing extends PositionedThing implements H
 	
 	/**
 	 * Create a new PositionedHitboxThing at the given coordinate
+	 *
 	 * @param x The x coordinate, see {@link #getX()}
 	 * @param y The y coordinate, see {@link #getY()}
 	 */
 	public PositionedHitboxThing(double x, double y){
 		super(x, y);
 	}
-
+	
 	@Override
 	public boolean shouldRender(Game game, Renderer r){
 		return r.gameBoundsInScreen(this.getBounds());

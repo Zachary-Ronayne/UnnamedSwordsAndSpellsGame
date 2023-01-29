@@ -14,12 +14,10 @@ public final class ZMath{
 	
 	/**
 	 * Convert an integer to an array of boolean values representing its binary
-	 * 
+	 *
 	 * @param n The number to convert
-	 * @return The array. true = 1, false = 0,
-	 *         Index 0 is the most significant bit, the last index is the least significant bit,
-	 *         No trailing zeros are ever used.
-	 *         Should only be used for integers greater than or equal to zero
+	 * @return The array. true = 1, false = 0, Index 0 is the most significant bit, the last index is the least significant bit, No trailing zeros are ever used. Should only
+	 * 		be used for integers greater than or equal to zero
 	 */
 	public static boolean[] intToBoolArr(int n){
 		int cnt = 0;
@@ -39,11 +37,11 @@ public final class ZMath{
 	
 	/**
 	 * Find the minimum of a list of numbers
-	 * 
+	 *
 	 * @param nums The numbers. This is assumed to have at least one element
 	 * @return The minimum number
 	 */
-	public static double min(double ... nums){
+	public static double min(double... nums){
 		double n = nums[0];
 		for(int i = 1; i < nums.length; i++) n = Math.min(n, nums[i]);
 		return n;
@@ -51,11 +49,11 @@ public final class ZMath{
 	
 	/**
 	 * Find the maximum of a list of numbers
-	 * 
+	 *
 	 * @param nums The numbers. This is assumed to have at least one element
 	 * @return The maximum number
 	 */
-	public static double max(double ... nums){
+	public static double max(double... nums){
 		double n = nums[0];
 		for(int i = 1; i < nums.length; i++) n = Math.max(n, nums[i]);
 		return n;
@@ -63,7 +61,7 @@ public final class ZMath{
 	
 	/**
 	 * Return x, but if x is less than a, return a, and if x is greater than b, return b
-	 * 
+	 *
 	 * @param a The lowest number this method should return
 	 * @param b The highest number this method should return
 	 * @param x The number to compare to a and b
@@ -75,7 +73,7 @@ public final class ZMath{
 	
 	/**
 	 * Determine if a number is between two other numbers
-	 * 
+	 *
 	 * @param a The lower number to check
 	 * @param b The middle number
 	 * @param c The higher number
@@ -86,9 +84,8 @@ public final class ZMath{
 	}
 	
 	/**
-	 * Determine if two numbers have the same sign.
-	 * Behavior of this method is not guaranteed for weird values, i.e. infinity and NaN
-	 * 
+	 * Determine if two numbers have the same sign. Behavior of this method is not guaranteed for weird values, i.e. infinity and NaN
+	 *
 	 * @param a The first number
 	 * @param b The second number
 	 * @return true if they have the same sign, false otherwise.
@@ -99,7 +96,7 @@ public final class ZMath{
 	
 	/**
 	 * Find the angle from the point (x, y) to the point (px, py)
-	 * 
+	 *
 	 * @param x The x coordinate of the base of the angle
 	 * @param y The x coordinate of the base of the angle
 	 * @param px The x coordinate of where to go to find the angle
@@ -112,7 +109,7 @@ public final class ZMath{
 	
 	/**
 	 * Find the intersection point of 2 lines
-	 * 
+	 *
 	 * @param l1 The first line
 	 * @param l2 The second line
 	 * @return The intersection point, or null if the lines are parallel, i.e. they don't intersect
@@ -163,7 +160,7 @@ public final class ZMath{
 	
 	/**
 	 * Find the y intercept, given a line and its slope
-	 * 
+	 *
 	 * @param line The line to check
 	 * @param slope The slope of the line. Nan for a vertical line
 	 * @return The y intercept of the line
@@ -174,7 +171,7 @@ public final class ZMath{
 	
 	/**
 	 * Given two lengths for the non hypotenuse sides of a right triangle, return the length of the hypotenuse
-	 * 
+	 *
 	 * @param w The first size
 	 * @param h The second size
 	 * @return The hypotenuse

@@ -30,7 +30,7 @@ public final class ZusassConvert{
 		ZusassMob zm = (ZusassMob)m;
 		return zm.asNpc();
 	}
-
+	
 	/** Cannot instantiate {@link ZusassConvert} */
 	private ZusassConvert(){
 	}

@@ -4,9 +4,8 @@ import zgame.core.Game;
 import zgame.menu.MenuThing;
 
 /**
- * A {@link MenuThing} that can move other {@link MenuThing}s around.
- * The specified child element of this {@link MenuScroller} will have its positions moved when this scroller moves
- * This object can only have one child element. Adding additional elements will replace the current one
+ * A {@link MenuThing} that can move other {@link MenuThing}s around. The specified child element of this {@link MenuScroller} will have its positions moved when this scroller
+ * moves This object can only have one child element. Adding additional elements will replace the current one
  */
 public abstract class MenuScroller extends MenuThing{
 	
@@ -36,7 +35,7 @@ public abstract class MenuScroller extends MenuThing{
 	
 	/**
 	 * Create a new {@link MenuScroller} at the specified location and min and max
-	 * 
+	 *
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}

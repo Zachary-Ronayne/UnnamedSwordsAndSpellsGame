@@ -23,7 +23,7 @@ public class MenuButton extends MenuText{
 	
 	/**
 	 * Create a blank {@link MenuButton} at the given position and size
-	 * 
+	 *
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}
@@ -36,7 +36,7 @@ public class MenuButton extends MenuText{
 	
 	/**
 	 * Create a {@link MenuButton} at the given position and size
-	 * 
+	 *
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}
@@ -76,9 +76,8 @@ public class MenuButton extends MenuText{
 	}
 	
 	/**
-	 * A method that is called when this button is activated, i.e. clicked on.
-	 * Override this method to perform an action when the button is clicked
-	 * 
+	 * A method that is called when this button is activated, i.e. clicked on. Override this method to perform an action when the button is clicked
+	 *
 	 * @param game The {@link Game} which was used when the button was clicked
 	 */
 	public void click(Game game){
@@ -86,10 +85,9 @@ public class MenuButton extends MenuText{
 	}
 	
 	/**
-	 * A method that is called when this button is double clicked, i.e. clicked once, then clicked again, usually after a short time.
-	 * Time can be changed based on {@link #doubleClickThreshold}
-	 * Override this method to perform an action when the button is double clicked
-	 * 
+	 * A method that is called when this button is double clicked, i.e. clicked once, then clicked again, usually after a short time. Time can be changed based on
+	 * {@link #doubleClickThreshold} Override this method to perform an action when the button is double clicked
+	 *
 	 * @param game The {@link Game} which was used when the button was double clicked
 	 */
 	public void doubleClick(Game game){

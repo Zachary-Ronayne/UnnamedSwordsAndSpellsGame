@@ -15,7 +15,7 @@ public class SavesMenuScroller extends VerticalScroller{
 	
 	/**
 	 * Create the {@link SavesMenuScroller}
-	 * 
+	 *
 	 * @param zgame The game associated with this thing
 	 */
 	public SavesMenuScroller(ZusassGame zgame){

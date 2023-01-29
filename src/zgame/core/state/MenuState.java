@@ -11,7 +11,7 @@ public abstract class MenuState extends GameState{
 	
 	/**
 	 * Create a new {@link MenuState} with the given {@link Menu}
-	 * 
+	 *
 	 * @param menu The menu to use
 	 */
 	
@@ -21,7 +21,7 @@ public abstract class MenuState extends GameState{
 	
 	/**
 	 * Create a new {@link MenuState} with the given {@link MenuNode}
-	 * 
+	 *
 	 * @param menu The node to use
 	 */
 	public MenuState(MenuNode menu){
@@ -39,7 +39,7 @@ public abstract class MenuState extends GameState{
 	@Override
 	public final void render(Game game, Renderer r){
 	}
-
+	
 	@Override
 	public void renderHud(Game game, Renderer r){
 		super.renderHud(game, r);

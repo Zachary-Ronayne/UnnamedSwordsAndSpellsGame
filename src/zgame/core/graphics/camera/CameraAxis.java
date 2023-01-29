@@ -26,7 +26,7 @@ public class CameraAxis{
 	
 	/**
 	 * Create a {@link CameraAxis} in the given state
-	 * 
+	 *
 	 * @param pos See {@link #pos}
 	 * @param zoomFactor See {@link #zoomFactor}
 	 * @param zoomPower See {@link #zoomPower}
@@ -42,7 +42,7 @@ public class CameraAxis{
 	
 	/**
 	 * Initialize the axis positions to the given values
-	 * 
+	 *
 	 * @param pos See {@link #pos}
 	 * @param zoomFactor See {@link #zoomFactor}
 	 * @param zoomPower See {@link #zoomPower}
@@ -104,7 +104,7 @@ public class CameraAxis{
 	
 	/**
 	 * Zoom on the axis, this will only adjust the zoom level, it will not adjust the position at all
-	 * 
+	 *
 	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
 	 */
 	public void zoom(double zoom){
@@ -114,7 +114,7 @@ public class CameraAxis{
 	/**
 	 * Zoom in, then reposition the camera so that the given position is zoomed towards.
 	 * After zooming, the position will be such that it is proportionally at the same location relative to the given p and size
-	 * 
+	 *
 	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
 	 * @param p The position to base the zoom reposition
 	 * @param size The size of the area to base the zoom reposition
@@ -134,7 +134,7 @@ public class CameraAxis{
 	
 	/**
 	 * Move this axis by the given amount
-	 * 
+	 *
 	 * @param change The amount to move the axis by
 	 */
 	public void shift(double change){
@@ -143,7 +143,7 @@ public class CameraAxis{
 	
 	/**
 	 * Convert a coordinate value in game space, to a coordinate in screen space coordinates
-	 * 
+	 *
 	 * @param p The value to convert
 	 * @return The value in screen coordinates
 	 */
@@ -153,7 +153,7 @@ public class CameraAxis{
 	
 	/**
 	 * Convert a coordinate value in screen space, to a coordinate in game space coordinates
-	 * 
+	 *
 	 * @param p The value to convert
 	 * @return The value in game coordinates
 	 */
@@ -163,7 +163,7 @@ public class CameraAxis{
 	
 	/**
 	 * Convert a size in game space, to a size in screen space
-	 * 
+	 *
 	 * @param p The value to convert
 	 * @return The converted value
 	 */
@@ -173,7 +173,7 @@ public class CameraAxis{
 	
 	/**
 	 * Convert a size in screen space, to a size in game space
-	 * 
+	 *
 	 * @param p The value to convert
 	 * @return The converted value
 	 */

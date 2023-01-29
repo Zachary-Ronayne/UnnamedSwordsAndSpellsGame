@@ -138,37 +138,37 @@ public class GameWindowTest{
 	 * public void testWindowToScreenX(){
 	 * assertEquals(coordinateValue, window.windowToScreenX(window.screenToWindowX(coordinateValue)), DELTA, "Checking function inverse returns the same value");
 	 * }
-	 * 
+	 *
 	 * @Test
 	 * public void testWindowToScreenY(){
 	 * assertEquals(coordinateValue, window.windowToScreenY(window.screenToWindowY(coordinateValue)), DELTA, "Checking function inverse returns the same value");
 	 * }
-	 * 
+	 *
 	 * @Test
 	 * public void testScreenToWindowX(){
 	 * assertEquals(coordinateValue, window.screenToWindowX(window.windowToScreenX(coordinateValue)), DELTA, "Checking function inverse returns the same value");
 	 * }
-	 * 
+	 *
 	 * @Test
 	 * public void testScreenToWindowY(){
 	 * assertEquals(coordinateValue, window.screenToWindowY(window.windowToScreenY(coordinateValue)), DELTA, "Checking function inverse returns the same value");
 	 * }
-	 * 
+	 *
 	 * @Test
 	 * public void testScreenToGlX(){
 	 * assertEquals(coordinateValue, window.screenToGlX(window.glToScreenX(coordinateValue)), DELTA, "Checking function inverse returns the same value");
 	 * }
-	 * 
+	 *
 	 * @Test
 	 * public void testScreenToGlY(){
 	 * assertEquals(coordinateValue, window.screenToGlY(window.glToScreenY(coordinateValue)), DELTA, "Checking function inverse returns the same value");
 	 * }
-	 * 
+	 *
 	 * @Test
 	 * public void testGlToScreenX(){
 	 * assertEquals(coordinateValue, window.glToScreenX(window.screenToGlX(coordinateValue)), DELTA, "Checking function inverse returns the same value");
 	 * }
-	 * 
+	 *
 	 * @Test
 	 * public void testGlToScreenY(){
 	 * assertEquals(coordinateValue, window.glToScreenY(window.screenToGlY(coordinateValue)), DELTA, "Checking function inverse returns the same value");

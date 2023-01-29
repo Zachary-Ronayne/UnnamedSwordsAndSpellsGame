@@ -74,7 +74,9 @@ public class Shader extends Asset{
 		// Error check
 		boolean success = glGetShaderi(this.id, GL_COMPILE_STATUS) == GL_TRUE;
 		String status = success ? "success" : "failure";
-		if(ZConfig.printSuccess() && success || ZConfig.printErrors() && !success){ ZStringUtils.print("Shader at path '", this.getPath(), "' initialize ", status); }
+		if(ZConfig.printSuccess() && success || ZConfig.printErrors() && !success){
+			ZStringUtils.print("Shader at path '", this.getPath(), "' initialize ", status);
+		}
 	}
 	
 	@Override

@@ -11,16 +11,15 @@ public abstract class PositionedThing extends GameThing implements Position{
 	private double x;
 	/** The y coordinate of this {@link PositionedThing}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link EntityThing} */
 	private double y;
-	/**
-	 * Create a new {@link PositionedThing} at (0, 0)
-	 */
+	
+	/** Create a new {@link PositionedThing} at (0, 0) */
 	public PositionedThing(){
 		this(0, 0);
 	}
 	
 	/**
 	 * Create a new {@link PositionedThing}
-	 * 
+	 *
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 */
@@ -29,7 +28,7 @@ public abstract class PositionedThing extends GameThing implements Position{
 		this.x = x;
 		this.y = y;
 	}
-
+	
 	/** @return See {@link #x} */
 	@Override
 	public double getX(){
@@ -43,13 +42,13 @@ public abstract class PositionedThing extends GameThing implements Position{
 	
 	/**
 	 * Add the given value to {@link #x}
-	 * 
+	 *
 	 * @param x The value to add
 	 */
 	public void addX(double x){
 		this.setX(this.getX() + x);
 	}
-
+	
 	/** @return See {@link #y} */
 	@Override
 	public double getY(){
@@ -63,7 +62,7 @@ public abstract class PositionedThing extends GameThing implements Position{
 	
 	/**
 	 * Add the given value to {@link #y}
-	 * 
+	 *
 	 * @param y The value to add
 	 */
 	public void addY(double y){
@@ -72,7 +71,7 @@ public abstract class PositionedThing extends GameThing implements Position{
 	
 	/**
 	 * Take this {@link PositionedThing} from the given room, and place it in the other given room
-	 * 
+	 *
 	 * @param from The room to move the thing from, i.e. the thing was in this room. Can be null if the thing didn't come from a room
 	 * @param to The room to move the thing to, i.e. the thing is now in this room. Can be null if the thing isn't going to a room
 	 * @param game The {@link Game} where this thing entered the room
@@ -84,7 +83,7 @@ public abstract class PositionedThing extends GameThing implements Position{
 	
 	/**
 	 * Center the camera of the given {@link Game} to the center of this object
-	 * 
+	 *
 	 * @param game The game
 	 */
 	public void centerCamera(Game game){

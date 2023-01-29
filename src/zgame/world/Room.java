@@ -79,7 +79,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Create a new empty {@link Room}
-	 * 
+	 *
 	 * @param xTiles The number of tiles on the x axis
 	 * @param yTiles The number of tiles on the y axis
 	 */
@@ -105,7 +105,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Initialize {@link #tiles} to the given size where every tile is the default tile
-	 * 
+	 *
 	 * @param xTiles The number of tiles on the x axis
 	 * @param yTiles The number of tiles on the y axis
 	 */
@@ -115,7 +115,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Initialize {@link #tiles} to the given size
-	 * 
+	 *
 	 * @param xTiles The number of tiles on the x axis
 	 * @param yTiles The number of tiles on the y axis
 	 * @param t The type for every tile
@@ -129,7 +129,9 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 		for(int i = 0; i < xTiles; i++){
 			ArrayList<Tile> col = new ArrayList<>(yTiles);
 			this.tiles.add(col);
-			for(int j = 0; j < yTiles; j++){ col.add(new Tile(i, j, t)); }
+			for(int j = 0; j < yTiles; j++){
+				col.add(new Tile(i, j, t));
+			}
 		}
 	}
 	
@@ -168,7 +170,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Add a {@link GameThing} to this {@link Room}
-	 * 
+	 *
 	 * @param thing The {@link GameThing} to add
 	 */
 	public void addThing(GameThing thing){
@@ -177,7 +179,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 		EntityThing e = thing.asEntity();
 		boolean added = this.entities.add(e);
 		if(added) this.entityMap.put(e.getUuid(), e);
-
+		
 		this.mobs.add(thing.asMob());
 		this.tickableThings.add(thing.asTickable());
 		this.hitBoxThings.add(thing.asHitBox());
@@ -185,7 +187,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Remove a {@link GameTickable} from this {@link Room} on the next tick
-	 * 
+	 *
 	 * @param thing The {@link GameTickable} to remove
 	 */
 	public final void removeThing(GameThing thing){
@@ -194,9 +196,8 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Collide the given {@link EntityThing} with this room. Essentially, attempt to move the given object so that it no longer intersects with anything in this room.
-	 * 
+	 *
 	 * @param obj The object to collide
-	 * 
 	 * @return The CollisionResponse representing the final collision that took place, where the collision material is the floor collision, if one took place
 	 */
 	public CollisionResponse collide(HitBox obj){
@@ -271,7 +272,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Update this {@link Room}
-	 * 
+	 *
 	 * @param game The {@link Game} which this {@link Room} should update relative to
 	 * @param dt The amount of time passed in this update
 	 */
@@ -281,13 +282,13 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 			GameTickable t = this.tickableThings.get(i);
 			t.tick(game, dt);
 		}
-
+		
 		// Update the position of all entities
 		for(int i = 0; i < this.entities.size(); i++) this.entities.get(i).updatePosition(game, dt);
-
+		
 		// Check the collision of this room for entities
 		for(int i = 0; i < this.entities.size(); i++) this.collide(this.entities.get(i));
-
+		
 		// Remove all things that need to be removed
 		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(thing);
 		this.thingsToRemove.clear();
@@ -295,7 +296,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Called each time a thing is removed via {@link #tick(Game, double)}, i.e. the thing was added to {@link #thingsToRemove}, and now it's being removed
-	 * 
+	 *
 	 * @param thing The thing to remove
 	 */
 	public void tickRemoveThing(GameThing thing){
@@ -309,7 +310,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Draw this {@link Room} to the given {@link Renderer}
-	 * 
+	 *
 	 * @param game The {@link Game} to draw this {@link Room} relative to
 	 * @param r The {@link Renderer} to draw this {@link Room} on
 	 */
@@ -338,7 +339,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Determine if the given wall id is a valid wall id
-	 * 
+	 *
 	 * @param wall The wall id
 	 * @return true if the id is valid, false otherwise
 	 */
@@ -348,7 +349,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Make the specified wall either solid or not solid
-	 * 
+	 *
 	 * @param wall The wall to make solid. See {@link #wallSolid} for details.
 	 * @param solid true to make the wall solid, false to make it not solid
 	 * @return If wall is invalid, this method does nothing and returns false, otherwise it returns true
@@ -361,7 +362,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Make the specified wall solid
-	 * 
+	 *
 	 * @param wall The wall to make solid. See {@link #wallSolid} for details.
 	 * @return If wall is invalid, this method does nothing and returns false, otherwise it returns true
 	 */
@@ -371,7 +372,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Make the specified wall not solid
-	 * 
+	 *
 	 * @param wall The wall to make not solid. See {@link #wallSolid} for details.
 	 * @return If wall is invalid, this method does nothing and returns false, otherwise it returns true
 	 */
@@ -381,7 +382,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Determine if the given wall is solid
-	 * 
+	 *
 	 * @param wall The wall. See {@link #wallSolid} for details.
 	 * @return true if the given wall is valid and solid, false otherwise
 	 */
@@ -444,7 +445,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Get the tile at the specified index
-	 * 
+	 *
 	 * @param x The tile index on the x axis
 	 * @param y The tile on the y axis
 	 * @return The tile, or null if the tile is outside of the range of the grid
@@ -456,7 +457,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Set the tile at the specified index
-	 * 
+	 *
 	 * @param x The x index
 	 * @param y The y index
 	 * @param t The type of tile to set
@@ -470,7 +471,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Find the index in the x axis of {@link #tiles} which contains the given coordinate
-	 * 
+	 *
 	 * @param x The coordinate
 	 * @return The index, or if the coordinate is outside the bounds, then the index of the closest tile to the side the coordinate is out of bounds on
 	 */
@@ -480,7 +481,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Find the index in the y axis of {@link #tiles} which contains the given coordinate
-	 * 
+	 *
 	 * @param y The coordinate
 	 * @return The index, or if the coordinate is outside the bounds, then the index of the closest tile to the side the coordinate is out of bounds on
 	 */
@@ -490,7 +491,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Determine if the given index is within the tile bounds
-	 * 
+	 *
 	 * @param x The index to check
 	 * @return true if the index is in the x axis range of the tile grid
 	 */
@@ -500,7 +501,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Determine if the given index is within the tile bounds
-	 * 
+	 *
 	 * @param y The index to check
 	 * @return true if the index is in the y axis range of the tile grid
 	 */
@@ -510,7 +511,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Determine if the given indexes are within the tile bounds
-	 * 
+	 *
 	 * @param x The x index to check
 	 * @param y The y index to check
 	 * @return true if the index is in the y axis range of the tile grid

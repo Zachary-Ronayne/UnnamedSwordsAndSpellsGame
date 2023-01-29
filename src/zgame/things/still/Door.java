@@ -29,13 +29,13 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	private double roomX;
 	/** The y coordinate to place objects which go through this door */
 	private double roomY;
-
+	
 	/** true if entities which touch this door should automatically enter it, false otherwise */
 	private boolean autoEnter;
 	
 	/**
 	 * Create a new door at the given position
-	 * 
+	 *
 	 * @param x The x coordinate upper left hand corner of the door
 	 * @param y The y coordinate upper left hand corner of the door
 	 */
@@ -45,7 +45,7 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	
 	/**
 	 * Create a new door at the given position
-	 * 
+	 *
 	 * @param x The x coordinate upper left hand corner of the door
 	 * @param y The y coordinate upper left hand corner of the door
 	 * @param autoEnter See {@link #autoEnter}
@@ -63,7 +63,7 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	
 	/**
 	 * Set the place this {@link Door} leads to
-	 * 
+	 *
 	 * @param r See {@link #leadRoom}
 	 * @param x See {@link #roomX}
 	 * @param y See {@link #roomY}
@@ -111,7 +111,7 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	
 	/**
 	 * Move the given {@link PositionedHitboxThing} from the given room to {@link #leadRoom}, only if it's able to enter this door
-	 * 
+	 *
 	 * @param r The room which thing is coming from, can be null if there is no room the thing is coming from
 	 * @param thing The thing to move
 	 * @param game The {@link Game} where this room entering takes place
@@ -132,7 +132,7 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	/**
 	 * Determine if thing is able to enter this door.
 	 * Always returns true by default, can override to implement custom behavior
-	 * 
+	 *
 	 * @param thing The thing
 	 * @return true if thing can enter the door, false otherwise
 	 */
@@ -143,12 +143,12 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	@Override
 	public void tick(Game game, double dt){
 		if(!this.isAutoEnter()) return;
-
+		
 		// Check every entity and if it touches this door, move it to this Room
 		Collection<EntityThing> entities = game.getCurrentRoom().getEntities();
 		for(EntityThing e : entities) if(e.intersects(this.getX(), this.getY(), this.getWidth(), this.getHeight())) this.enterRoom(game.getCurrentRoom(), e, game);
 	}
-
+	
 	@Override
 	public void render(Game game, Renderer r){
 		r.setColor(.25, .125, 0);

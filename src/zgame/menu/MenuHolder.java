@@ -14,7 +14,7 @@ public class MenuHolder extends MenuThing{
 	
 	/**
 	 * Create a {@link MenuHolder} at the given position. Everything added to this holder will be relative to these coordinates
-	 * 
+	 *
 	 * @param x The x coordinate
 	 * @param y The y coordinate
 	 */

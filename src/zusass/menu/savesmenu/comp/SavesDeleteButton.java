@@ -13,7 +13,7 @@ public class SavesDeleteButton extends SavesMenuButton{
 	
 	/**
 	 * Create the {@link SavesLoadButton}
-	 * 
+	 *
 	 * @param menu See {@link #getMenu()}
 	 * @param zgame The {@link Game} associated with this button
 	 */
@@ -26,7 +26,7 @@ public class SavesDeleteButton extends SavesMenuButton{
 		ZusassGame zgame = (ZusassGame)game;
 		SavesMenu menu = this.getMenu();
 		LoadSaveButton button = menu.getLoadButtons().getSelected();
-
+		
 		if(button == null) return;
 		String path = button.getPath();
 		try{
@@ -34,7 +34,7 @@ public class SavesDeleteButton extends SavesMenuButton{
 			var success = file.delete();
 			if(success) menu.getLoadButtons().setSelected(null);
 			menu.getLoadButtons().populate(zgame);
-			menu.showMessage(ZStringUtils.concat("Delete ", success ? "failed" : "success", " for: ", button.getText()));
+			menu.showMessage(ZStringUtils.concat("Delete ", success ? "success" : "failed", " for: ", button.getText()));
 			
 		}catch(SecurityException | NullPointerException e){
 			if(ZConfig.printErrors()){

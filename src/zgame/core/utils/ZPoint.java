@@ -6,21 +6,17 @@ import java.awt.geom.Point2D;
 public class ZPoint extends Point2D.Double{
 	
 	/**
-	 * Constructs and initializes a {@code Point2D} with
-	 * coordinates (0,&nbsp;0).
+	 * Constructs and initializes a {@code Point2D} with coordinates (0,&nbsp;0).
 	 */
 	public ZPoint(){
 		super(0, 0);
 	}
 	
 	/**
-	 * Constructs and initializes a {@code Point2D} with the
-	 * specified coordinates.
+	 * Constructs and initializes a {@code Point2D} with the specified coordinates.
 	 *
-	 * @param x the X coordinate of the newly
-	 *        constructed {@code Point2D}
-	 * @param y the Y coordinate of the newly
-	 *        constructed {@code Point2D}
+	 * @param x the X coordinate of the newly constructed {@code Point2D}
+	 * @param y the Y coordinate of the newly constructed {@code Point2D}
 	 */
 	public ZPoint(double x, double y){
 		super(x, y);

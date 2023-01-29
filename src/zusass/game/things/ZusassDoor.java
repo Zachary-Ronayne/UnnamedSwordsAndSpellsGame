@@ -12,14 +12,14 @@ public class ZusassDoor extends Door{
 	
 	/**
 	 * Create a new door at the given position
-	 * 
+	 *
 	 * @param x The x coordinate upper left hand corner of the door
 	 * @param y The y coordinate upper left hand corner of the door
 	 */
 	public ZusassDoor(double x, double y){
 		super(x, y, false);
 	}
-
+	
 	@Override
 	public void tick(Game game, double dt){
 		super.tick(game, dt);
@@ -29,12 +29,12 @@ public class ZusassDoor extends Door{
 	/**
 	 * Utility method for {@link #tick(Game, double)} for checking if the player clicked a door
 	 * If the player is attempting to click on a door, have the player enter the door, otherwise do nothing
-	 * 
+	 *
 	 * @param game The game used by the tick method
 	 */
 	private void handleDoorPress(ZusassGame game){
 		ZMouseInput mi = game.getMouseInput();
-
+		
 		// Find the player
 		ZusassPlayer player = game.getCurrentRoom().getPlayer();
 		if(player == null) return;

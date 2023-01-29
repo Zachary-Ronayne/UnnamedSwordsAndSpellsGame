@@ -24,7 +24,7 @@ public class MusicPlayer extends SoundPlayer<MusicSound>{
 	
 	/**
 	 * Create an empty {@link MusicPlayer} with no currently playing sounds
-	 * 
+	 *
 	 * @param loop See {@link #loop}
 	 */
 	public MusicPlayer(boolean loop){

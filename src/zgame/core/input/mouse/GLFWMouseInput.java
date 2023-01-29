@@ -9,7 +9,7 @@ public class GLFWMouseInput extends ZMouseInput{
 	
 	/**
 	 * Initialize a mouse input to a default state
-	 * 
+	 *
 	 * @param window The {@link GameWindow} which uses this input object
 	 */
 	public GLFWMouseInput(GameWindow window){

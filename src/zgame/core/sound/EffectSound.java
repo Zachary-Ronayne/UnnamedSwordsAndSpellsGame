@@ -1,6 +1,7 @@
 package zgame.core.sound;
 
 import org.lwjgl.PointerBuffer;
+
 import static org.lwjgl.openal.AL11.*;
 
 import zgame.core.utils.ZFilePaths;
@@ -19,7 +20,7 @@ public class EffectSound extends Sound{
 	
 	/**
 	 * Create a new {@link EffectSound}. Call {@link #load()} to load in the data itself
-	 * 
+	 *
 	 * @param path The path to load data from
 	 */
 	public EffectSound(String path){
@@ -28,7 +29,7 @@ public class EffectSound extends Sound{
 	
 	/**
 	 * Create a new {@link EffectSound}. Call {@link #load()} to load in the data itself
-	 * 
+	 *
 	 * @param path The path to load data from
 	 * @param type See {@link #type}
 	 */
@@ -60,10 +61,9 @@ public class EffectSound extends Sound{
 	}
 	
 	/**
-	 * Load a sound based on the given name. This method assumes the given name is only the file name with no extension,
-	 * that the file is located in {@link ZFilePaths#EFFECTS}, and that it is of type .ogg
-	 * The sound will have null for its sound type
-	 * 
+	 * Load a sound based on the given name. This method assumes the given name is only the file name with no extension, that the file is located in
+	 * {@link ZFilePaths#EFFECTS}, and that it is of type .ogg The sound will have null for its sound type
+	 *
 	 * @param name The name of the file
 	 * @return The loaded sound
 	 */
@@ -72,9 +72,9 @@ public class EffectSound extends Sound{
 	}
 	
 	/**
-	 * Load a sound based on the given name. This method assumes the given name is only the file name with no extension,
-	 * that the file is located in {@link ZFilePaths#EFFECTS}, and that it is of type .ogg
-	 * 
+	 * Load a sound based on the given name. This method assumes the given name is only the file name with no extension, that the file is located in
+	 * {@link ZFilePaths#EFFECTS}, and that it is of type .ogg
+	 *
 	 * @param name The name of the file. This should also include any sub folders needed to get to the sound from {@link ZFilePaths#EFFECTS}
 	 * @param type The type of the sound
 	 * @return The loaded sound

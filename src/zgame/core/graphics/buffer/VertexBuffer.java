@@ -32,7 +32,7 @@ public class VertexBuffer implements Destroyable{
 	/**
 	 * Create a basic {@link VertexArray} based on the given values. Calling this constructor will create the buffer ID, assign the data to the created buffer, and assign the
 	 * buffer to the current vertex array. The data in this {@link VertexBuffer} makes no guarantees about what will be stored as the initial data
-	 * 
+	 *
 	 * @param index See {@link #index}
 	 * @param vertexLength See {@link #vertexLength}
 	 * @param drawMode See {@link #drawMode}
@@ -45,7 +45,7 @@ public class VertexBuffer implements Destroyable{
 	/**
 	 * Create a basic {@link VertexArray} based on the given values. Calling this constructor will create the buffer ID, assign the data to the created buffer, and assign the
 	 * buffer to the current vertex array
-	 * 
+	 *
 	 * @param index See {@link #index}
 	 * @param vertexLength See {@link #vertexLength}
 	 * @param data See {@link #data}
@@ -57,7 +57,7 @@ public class VertexBuffer implements Destroyable{
 	/**
 	 * Create a basic {@link VertexArray} based on the given values. Calling this constructor will create the buffer ID, assign the data to the created buffer, and assign the
 	 * buffer to the current vertex array
-	 * 
+	 *
 	 * @param index See {@link #index}
 	 * @param vertexLength See {@link #vertexLength}
 	 * @param drawMode See {@link #drawMode}
@@ -82,7 +82,7 @@ public class VertexBuffer implements Destroyable{
 	
 	/**
 	 * Update the data on the GPU to the current state of the data in this {@link VertexBuffer}
-	 * 
+	 *
 	 * @param data See {@link #data}
 	 */
 	public void updateData(float[] data){

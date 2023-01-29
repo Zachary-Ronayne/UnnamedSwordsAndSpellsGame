@@ -11,7 +11,7 @@ import zgame.menu.Menu;
 
 /**
  * A class which handles a single state that a game can be in. A state could be things like playing the game, or being in the main menu.
- * <P>
+ * <p>
  * A state is essentially a separate place where you can easily define what happens for input and rendering
  */
 public abstract class GameState implements GameInteractable, Saveable, Destroyable{
@@ -21,7 +21,7 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	
 	/** true if this state should use the camera for drawing the main graphics, false otherwise */
 	private boolean useCamera;
-
+	
 	/** The minimum number of menus to exist in {@link #menuStack}. 0 by default, use 1 to make sure there's always at least one menu */
 	private int minMenuStack;
 	
@@ -32,7 +32,7 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	
 	/**
 	 * Create a new {@link GameState} with the given parameters
-	 * 
+	 *
 	 * @param useCamera See {@link #useCamera}
 	 */
 	public GameState(boolean useCamera){
@@ -72,7 +72,7 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	
 	/**
 	 * Add the given {@link Menu} on top of the existing menus on this state
-	 * 
+	 *
 	 * @param menu The menu to add
 	 */
 	public void popupMenu(Menu menu){
@@ -81,7 +81,7 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	
 	/**
 	 * Add the given {@link Menu} on top of the existing menus on this state
-	 * 
+	 *
 	 * @param menu The node to add
 	 */
 	public void popupMenu(MenuNode menu){
@@ -90,7 +90,7 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	
 	/**
 	 * Remove and destroy the menu on the top of this menu state.
-	 * 
+	 *
 	 * @return The removed menu, or null if only the base menu exists
 	 */
 	public Menu removeTopMenu(){
@@ -99,10 +99,9 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	
 	/**
 	 * Remove the menu on the top of this menu state.
-	 * 
-	 * @param destroy true to destroy the menu after it's removed, false otherwise
-	 *        If destroy is false, then does not destroy the removed menu or any of its allocated resources.
-	 *        It is the responsibility of the caller of this method to destroy the returned menu
+	 *
+	 * @param destroy true to destroy the menu after it's removed, false otherwise If destroy is false, then does not destroy the removed menu or any of its allocated
+	 * 		resources. It is the responsibility of the caller of this method to destroy the returned menu
 	 * @return The removed menu, or null if only the base menu exists
 	 */
 	public Menu removeTopMenu(boolean destroy){
@@ -133,9 +132,8 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	}
 	
 	/**
-	 * A method called when a {@link Game} sets its current state to this {@link GameState}.
-	 * Override this method to do something when it happens. Does nothing by default
-	 * 
+	 * A method called when a {@link Game} sets its current state to this {@link GameState}. Override this method to do something when it happens. Does nothing by default
+	 *
 	 * @param game The {@link Game} which set its current state
 	 */
 	public void onSet(Game game){
@@ -205,10 +203,10 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 		Menu m = this.getTopMenu();
 		if(m != null) m.renderHud(game, r);
 	}
-
+	
 	/**
-	 * @return This object, as a {@link PlayState}, or null if it cannot be a {@link PlayState}
-	 *         The return value of this method should equal this object, not another version or reference, i.e. (this == this.asPlay()) should evaluate to true
+	 * @return This object, as a {@link PlayState}, or null if it cannot be a {@link PlayState} The return value of this method should equal this object, not another version
+	 * 		or reference, i.e. (this == this.asPlay()) should evaluate to true
 	 */
 	public PlayState asPlay(){
 		return null;

@@ -23,7 +23,7 @@ public class GameImage extends Asset{
 	
 	/**
 	 * Create a new GameImage and load it from the given path
-	 * 
+	 *
 	 * @param path The path to load from
 	 */
 	public GameImage(String path){
@@ -84,7 +84,7 @@ public class GameImage extends Asset{
 	
 	/**
 	 * A convenience method which creates a GameImage with a file of the given name, assuming the file is located in {@link ZFilePaths#IMAGES}
-	 * 
+	 *
 	 * @param name The name of the file, including file extension
 	 * @return The new image
 	 */

@@ -25,9 +25,8 @@ public class PlayState extends GameState{
 	}
 	
 	/**
-	 * 
 	 * Create a basic empty play state
-	 * 
+	 *
 	 * @param createRoom true to give the {@link PlayState} an empty default room, otherwise use false and call {@link #setCurrentRoom(Room)}
 	 */
 	public PlayState(boolean createRoom){
@@ -49,9 +48,8 @@ public class PlayState extends GameState{
 	}
 	
 	/**
-	 * Set the room to use for this {@link PlayState}
-	 * This method does nothing and returns false if r is null
-	 * 
+	 * Set the room to use for this {@link PlayState} This method does nothing and returns false if r is null
+	 *
 	 * @param r See {@link #currentRoom}
 	 * @return true if the room was set, false otherwise
 	 */

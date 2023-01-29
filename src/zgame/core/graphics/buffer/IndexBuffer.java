@@ -23,7 +23,7 @@ public class IndexBuffer{
 	
 	/**
 	 * Create a new {@link IndexBuffer} with the given data and buffer the indexes
-	 * 
+	 *
 	 * @param data See {@link #data}
 	 */
 	public IndexBuffer(byte[] data){
@@ -32,7 +32,7 @@ public class IndexBuffer{
 	
 	/**
 	 * Create a new {@link IndexBuffer} with the given values and buffer the indexes
-	 * 
+	 *
 	 * @param drawMode See {@link #drawMode}
 	 * @param data See {@link #data}
 	 */

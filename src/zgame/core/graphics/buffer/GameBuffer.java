@@ -48,7 +48,7 @@ public class GameBuffer implements Destroyable{
 	
 	/**
 	 * Create a GameBuffer of the given size
-	 * 
+	 *
 	 * @param width See {@link #width}
 	 * @param height See {@link #height}
 	 * @param generate true if the buffer should generate right away, false to not generate it
@@ -64,7 +64,7 @@ public class GameBuffer implements Destroyable{
 	
 	/**
 	 * Recreate the OpenGL Framebuffer used by this {@link GameBuffer}. This is an expensive operation, should not be used frequently
-	 * 
+	 *
 	 * @param width The new width of the buffer
 	 * @param height The new height of the buffer
 	 * @return true if the buffer was created, false otherwise
@@ -99,7 +99,8 @@ public class GameBuffer implements Destroyable{
 		// Error check
 		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		boolean success = status == GL_FRAMEBUFFER_COMPLETE;
-		if(success && ZConfig.printDebug()) ZStringUtils.print("GameBuffer created successfully with frame id: ", this.getFrameID(), ", and texture id: ", this.getTextureID());
+		if(success && ZConfig.printDebug())
+			ZStringUtils.print("GameBuffer created successfully with frame id: ", this.getFrameID(), ", and texture id: ", this.getTextureID());
 		else if(!success && ZConfig.printErrors()) ZStringUtils.print("Failed to create GameBuffer with status ", status);
 		
 		// Bind the framebuffer to the previous buffer
@@ -125,7 +126,7 @@ public class GameBuffer implements Destroyable{
 	/**
 	 * Draw the currently drawn content of this buffer to the given {@link Renderer}
 	 * Coordinates are in game coordinates
-	 * 
+	 *
 	 * @param x The x coordinate to draw the upper left hand corner of the buffer
 	 * @param y The y coordinate to draw the upper left hand corner of the buffer
 	 * @param r The {@link Renderer} to use
@@ -177,7 +178,7 @@ public class GameBuffer implements Destroyable{
 	
 	/**
 	 * Update the currently stored values for the buffer width, but do not update the buffer itself, should not be called without updating the buffer afterwards
-	 * 
+	 *
 	 * @param width {@link #width}
 	 */
 	private void setWidth(int width){
@@ -204,7 +205,7 @@ public class GameBuffer implements Destroyable{
 	
 	/**
 	 * Update the currently stored values for the buffer height, but do not update the buffer itself, should not be called without updating the buffer afterwards
-	 * 
+	 *
 	 * @param height {@link #height}
 	 */
 	private void setHeight(int height){

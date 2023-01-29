@@ -15,13 +15,13 @@ public class PlayerTester extends MobThing implements RectangleHitBox{
 	private double width;
 	/** The height of this mob */
 	private double height;
-
+	
 	/** true to lock the camera to the center of the player, false otherwise */
 	private boolean lockCamera;
 	
 	/**
 	 * Create a new {@link PlayerTester} of the given size
-	 * 
+	 *
 	 * @param x The x coordinate of the {@link PlayerTester}
 	 * @param y The y coordinate of the {@link PlayerTester}
 	 * @param width The width of the {@link PlayerTester} hit box
@@ -44,11 +44,11 @@ public class PlayerTester extends MobThing implements RectangleHitBox{
 		
 		// Jump if holding the jump button
 		if(ki.buttonDown(GLFW_KEY_UP)) this.jump(dt);
-		// For not holding the button
+			// For not holding the button
 		else{
 			// if jumps should be instant, or no jump time is being built up, then stop the jump
 			if(this.jumpsAreInstant() || this.getJumpTimeBuilt() == 0) this.stopJump();
-			// Otherwise, perform the built up jump
+				// Otherwise, perform the built up jump
 			else this.jumpFromBuiltUp(dt);
 			
 		}
@@ -67,7 +67,7 @@ public class PlayerTester extends MobThing implements RectangleHitBox{
 	
 	/**
 	 * If the camera should be locked to this {@link PlayerTester}, then lock the camera, otherwise do nothing
-	 * 
+	 *
 	 * @param game The game to get the camera from
 	 */
 	public void checkCenterCamera(Game game){

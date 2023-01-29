@@ -25,7 +25,7 @@ import zgame.world.Room;
 public abstract class EntityThing extends PositionedHitboxThing implements GameTickable{
 	
 	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
-
+	
 	/** The string used to identify the force of gravity in {@link #forces} */
 	public static final String FORCE_NAME_GRAVITY = "gravity";
 	/** The string used to identify the force of friction in {@link #forces} */
@@ -100,7 +100,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	/**
 	 * Create a new empty entity with a mass of 100
-	 * 
+	 *
 	 * @param x The x coordinate of the entity
 	 * @param y The y coordinate of the entity
 	 */
@@ -110,7 +110,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	/**
 	 * Create a new empty entity
-	 * 
+	 *
 	 * @param x The x coordinate of the entity
 	 * @param y The y coordinate of the entity
 	 * @param mass See {@link #mass}
@@ -135,7 +135,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		
 		this.gravityDragForce = new ZVector();
 		this.setForce(FORCE_NAME_GRAVITY_DRAG, this.gravityDragForce);
-
+		
 		this.setForce(FORCE_NAME_WALL_SLIDE, new ZVector());
 		
 		this.leaveFloor();
@@ -160,14 +160,14 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		
 		// Account for sliding down walls
 		this.updateWallSideForce(dt);
-
+		
 		// Check for entity collision, and apply appropriate forces based on what is currently colliding
 		// this.checkEntityCollision(game.getCurrentRoom(), dt);
 	}
 	
 	/**
 	 * Update the position and velocity of this {@link EntityThing} based on its current forces and velocity
-	 * 
+	 *
 	 * @param game The {@link Game} where the update takes place
 	 * @param dt The amount of time, in seconds, which passed in the tick where this update took place
 	 */
@@ -188,7 +188,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	/**
 	 * Determine the current amount of friction on this {@link EntityThing} and update the force
-	 * 
+	 *
 	 * @param dt The amount of time, in seconds, that will pass the next time the frictional force is applied
 	 */
 	public void updateFrictionForce(double dt){
@@ -215,14 +215,14 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 			// or is it that it needs to account for a change in acceleration, like when the walk force changes?
 			double oldVel = vx + fx * massTime;
 			double newVel = vx + (fx + newFrictionForce) * massTime;
-			if(!ZMath.sameSign(oldVel, newVel)){ newFrictionForce = -vx / massTime; }
+			if(!ZMath.sameSign(oldVel, newVel)) newFrictionForce = -vx / massTime;
 		}
 		this.frictionForce = this.setForceX(FORCE_NAME_FRICTION, newFrictionForce);
 	}
 	
 	/**
 	 * Update the current amount of drag on this {@link EntityThing} counteracting the force of gravity
-	 * 
+	 *
 	 * @param dt The amount of time, in seconds, that will pass the next time the drag force is applied
 	 */
 	public void updateGravityDragForce(double dt){
@@ -244,7 +244,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	/**
 	 * Update the amount of force applied against gravity on this {@link EntityThing} from sliding down walls
-	 * 
+	 *
 	 * @param dt The amount of time, in seconds, that will pass the next time the wall slide force is applied
 	 */
 	public void updateWallSideForce(double dt){
@@ -268,7 +268,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		double mass = this.getMass();
 		// If we get to this point, then we are falling faster than the maximum sliding speed, increase the slide force to slow the falling (slideForce will be a negative number)
 		slideForce -= slideStopForce;
-
+		
 		// If the new slide force would put the velocity below the maximum sliding speed, adjust the force such that the next tick will put it on the sliding speed
 		double newVel = vy + slideForce / mass * dt;
 		if(newVel < maxSlideVel) slideForce = (maxSlideVel - vy) / dt * mass;
@@ -278,10 +278,10 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	/**
 	 * @return The terminal velocity of this {@link EntityThing}. By default, based on the mass, the acceleration of gravity, the value of {@link #getSurfaceArea()},
-	 *         and the friction of the ground material, which is also the air material when this {@link EntityThing} is not on the ground.
-	 *         Returns 0 if this {@link EntityThing} is on the ground.
-	 *         If {@link #getSurfaceArea()} returns 0, or is negative, then the value is ignored in the calculation.
-	 *         If this method is made to return a negative value, terminal velocity is removed, i.e. the force of gravity will continue to accelerate
+	 * and the friction of the ground material, which is also the air material when this {@link EntityThing} is not on the ground.
+	 * Returns 0 if this {@link EntityThing} is on the ground.
+	 * If {@link #getSurfaceArea()} returns 0, or is negative, then the value is ignored in the calculation.
+	 * If this method is made to return a negative value, terminal velocity is removed, i.e. the force of gravity will continue to accelerate
 	 */
 	public double getTerminalVelocity(){
 		if(this.isOnGround()) return 0;
@@ -302,8 +302,8 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	/**
 	 * @return The number determining how much friction applies to this {@link EntityThing}.
-	 *         Higher values mean more friction, lower values mean less friction, 0 means no friction, 1 means no movement on a surface can occur.
-	 *         Behavior is undefined for negative return values
+	 * Higher values mean more friction, lower values mean less friction, 0 means no friction, 1 means no movement on a surface can occur.
+	 * Behavior is undefined for negative return values
 	 */
 	public abstract double getFrictionConstant();
 	
@@ -311,12 +311,12 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	public Material getMaterial(){
 		return this.material;
 	}
-
+	
 	/** @param material See {@link #material} */
 	public void setMaterial(Material material){
 		this.material = material;
 	}
-
+	
 	/** @return A {@link ZVector} representing the total of all forces on this object */
 	public ZVector getForce(){
 		return this.totalForce;
@@ -451,7 +451,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	/**
 	 * Collide this {@link EntityThing} with the entities in the given room. Can override this to perform custom collision
-	 * 
+	 *
 	 * @param room The room to collide with
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
@@ -503,11 +503,11 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 			
 			// Apply most of the force as the x component, and less as the y component
 			newForce = new ZVector(newForce.getX(), newForce.getY() * 0.1);
-
+			
 			//issue#21
-
+			
 			// Try keeping track of the total velocity an entity collision has added to another entity, and then remove that much velocity when the entities stop colliding
-
+			
 			// If that amount of force would move the entity too far away, set it so that the entities will only be touching on the next tick
 			// double xForce = newForce.getX();
 			// double xMoved = xForce / this.getMass() * dt * dt;
@@ -575,7 +575,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	/**
 	 * Add the given velocity to {@link #velocity}
-	 * 
+	 *
 	 * @param vec The velocity to add
 	 */
 	public void addVelocity(ZVector vec){
@@ -584,7 +584,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	/**
 	 * Add the given amount of velocity to the x component
-	 * 
+	 *
 	 * @param x The velocity to add
 	 */
 	public void addVX(double x){
@@ -593,7 +593,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	/**
 	 * Add the given amount of velocity to the y component
-	 * 
+	 *
 	 * @param y The velocity to add
 	 */
 	public void addVY(double y){
@@ -602,7 +602,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	/**
 	 * Determine if this {@link EntityThing} has the force object mapped to the given name
-	 * 
+	 *
 	 * @param name The object to check for
 	 * @return true if this {@link EntityThing} has the given force, false otherwise
 	 */
@@ -612,9 +612,8 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	/**
 	 * Remove the {@link ZVector} with the specified name object from this {@link EntityThing}'s forces
-	 * 
+	 *
 	 * @param name The name of the force to remove
-	 * 
 	 * @return The removed force vector, or null if the given force was not found
 	 */
 	public ZVector removeForce(String name){
@@ -627,7 +626,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	/**
 	 * Set the given force name with a force built from the given components. If the given name doesn't have a force mapped to it yet, then this method automatically adds it to the
 	 * map
-	 * 
+	 *
 	 * @param name The name of the force to set
 	 * @param x The x component
 	 * @param y The y component
@@ -640,7 +639,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	/**
 	 * Set the given force name to the given force. If the given name doesn't have a force mapped to it yet, then this method automatically adds it to the
 	 * map
-	 * 
+	 *
 	 * @param name The name of the force to set
 	 * @param force The force object to set
 	 * @return force

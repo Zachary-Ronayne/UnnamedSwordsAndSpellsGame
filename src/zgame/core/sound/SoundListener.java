@@ -3,8 +3,8 @@ package zgame.core.sound;
 import static org.lwjgl.openal.AL11.*;
 
 /**
- * A class tracking the central listener in OpenAL. This should primarily be used for the player, i.e. its position should be at the location of who hears the sound.
- * More than one instance of this class should not be used at a time, otherwise unexpected results could occur
+ * A class tracking the central listener in OpenAL. This should primarily be used for the player, i.e. its position should be at the location of who hears the sound. More than
+ * one instance of this class should not be used at a time, otherwise unexpected results could occur
  */
 public class SoundListener extends SoundLocation{
 	

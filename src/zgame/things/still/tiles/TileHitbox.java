@@ -12,7 +12,7 @@ public interface TileHitbox{
 	/**
 	 * Based on the given rectangular bounds, determine the new position of the rectangle when it collides with the given tile
 	 * The coordinates in this method are treated as the upper left hand corner of the rectangle
-	 * 
+	 *
 	 * @param t The {@link Tile} to collide
 	 * @param obj The object with a hitbox which collides with the given {@link Tile}
 	 * @return A point to reposition the rectangle to

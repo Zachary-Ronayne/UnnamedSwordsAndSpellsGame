@@ -20,7 +20,7 @@ public class MainPlay extends PlayState{
 	
 	/**
 	 * Initialize the main play state for the Zusass game
-	 * 
+	 *
 	 * @param zgame The {@link Game} using this state
 	 */
 	public MainPlay(ZusassGame zgame){
@@ -29,7 +29,7 @@ public class MainPlay extends PlayState{
 	
 	/**
 	 * Set the current room of the game to the main hub
-	 * 
+	 *
 	 * @param zgame The {@link Game} using this state
 	 */
 	public void enterHub(ZusassGame zgame){
@@ -54,7 +54,7 @@ public class MainPlay extends PlayState{
 	
 	/**
 	 * Set the current state of the game to the main menu
-	 * 
+	 *
 	 * @param zgame The {@link Game} using this state
 	 */
 	public void enterMainMenu(ZusassGame zgame){
@@ -73,7 +73,7 @@ public class MainPlay extends PlayState{
 			zgame.getPlayState().fullPause();
 			this.popupMenu(pauseNode);
 		}
-
+		
 		if(button == GLFW_KEY_F9) this.getCurrentRoom().getPlayer().toggleLockCamera();
 	}
 	

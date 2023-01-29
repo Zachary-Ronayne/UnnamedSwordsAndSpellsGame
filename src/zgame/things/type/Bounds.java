@@ -31,7 +31,7 @@ public interface Bounds extends Position{
 	default double centerY(){
 		return this.getY() + getHeight() * 0.5;
 	}
-
+	
 	/** @return The center point of this {@link Bounds} */
 	default ZPoint center(){
 		return new ZPoint(this.centerX(), this.centerY());

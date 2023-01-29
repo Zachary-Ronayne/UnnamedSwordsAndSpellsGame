@@ -15,7 +15,7 @@ public abstract class ZKeyInput extends ZButtonInput<ZKeyEvent>{
 	
 	/**
 	 * Create a default {@link ZKeyInput} object
-	 * 
+	 *
 	 * @param window The {@link GameWindow} which uses this input object
 	 */
 	public ZKeyInput(GameWindow window){
@@ -34,9 +34,8 @@ public abstract class ZKeyInput extends ZButtonInput<ZKeyEvent>{
 	}
 	
 	/**
-	 * Equivalent to calling {@link #buttonDown(int)}, renamed for clarity.
-	 * Checks if a key is pressed
-	 * 
+	 * Equivalent to calling {@link #buttonDown(int)}, renamed for clarity. Checks if a key is pressed
+	 *
 	 * @param key The key to check
 	 * @return true if the key was pressed, false otherwise
 	 */
@@ -45,9 +44,8 @@ public abstract class ZKeyInput extends ZButtonInput<ZKeyEvent>{
 	}
 	
 	/**
-	 * Equivalent to calling {@link #buttonUp(int)}, renamed for clarity.
-	 * Checks if a key is released
-	 * 
+	 * Equivalent to calling {@link #buttonUp(int)}, renamed for clarity. Checks if a key is released
+	 *
 	 * @param key The key to check
 	 * @return true if the key was released, false otherwise
 	 */

@@ -9,7 +9,7 @@ public class PauseReturnButton extends PauseMenuButton{
 	
 	/**
 	 * Make a new button
-	 * 
+	 *
 	 * @param zgame The game which uses the button
 	 */
 	public PauseReturnButton(PauseMenu menu, ZusassGame zgame){

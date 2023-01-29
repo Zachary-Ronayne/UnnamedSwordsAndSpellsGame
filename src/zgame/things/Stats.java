@@ -8,13 +8,13 @@ public class Stats{
 	
 	/** The amount of hit points this object can have */
 	private double maxHealth;
-
+	
 	/** How string this object is */
 	private double strength;
-
+	
 	/** The amount of units this object can attack from */
 	private double attackRange;
-
+	
 	/** The amount of time, in seconds it takes for this object to perform an attack */
 	private double attackSpeed;
 	
@@ -35,12 +35,12 @@ public class Stats{
 	public void setMaxHealth(double maxHealth){
 		this.maxHealth = maxHealth;
 	}
-
+	
 	/** @return See {@link #strength} */
 	public double getStrength(){
 		return this.strength;
 	}
-
+	
 	/** @param strength See {@link #strength} */
 	public void setStrength(double strength){
 		this.strength = strength;

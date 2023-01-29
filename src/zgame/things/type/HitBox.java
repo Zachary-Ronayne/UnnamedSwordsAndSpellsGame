@@ -9,7 +9,7 @@ public interface HitBox extends Bounds, Materialable{
 	
 	/**
 	 * Apply the given {@link CollisionResponse} to this object
-	 * 
+	 *
 	 * @param r The {@link CollisionResponse} to use
 	 */
 	void collide(CollisionResponse r);
@@ -17,19 +17,19 @@ public interface HitBox extends Bounds, Materialable{
 	/**
 	 * Determine a {@link CollisionResponse} from colliding this object with the given rectangular bounds. Essentially, move this object so that it no longer intersecting with the
 	 * given bounds. This method should not change the state of this object, it should only return an object representing how the collision should happen.
-	 * 
+	 *
 	 * @param x The x coordinate of the upper left hand corner of the bounds
 	 * @param y The y coordinate of the upper left hand corner of the bounds
 	 * @param w The width of the bounds
 	 * @param h The height of the bounds
 	 * @param m The material which was collided with
-	 * 
 	 * @return The information about the collision
 	 */
 	CollisionResponse calculateRectCollision(double x, double y, double w, double h, Material m);
-
+	
 	/**
 	 * Calculate a {@link CollisionResponse} from colliding with the given {@link HitBox}
+	 *
 	 * @param h The hitbox to collide with
 	 * @return The response
 	 */
@@ -53,9 +53,10 @@ public interface HitBox extends Bounds, Materialable{
 	default boolean intersects(ZRect r){
 		return this.intersects(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
-
+	
 	/**
 	 * true if the given {@link HitBox} intersects this {@link HitBox}
+	 *
 	 * @param h The hitbox to check
 	 * @return true if this object intersects the given {@link HitBox}, false otherwise
 	 */
@@ -69,7 +70,7 @@ public interface HitBox extends Bounds, Materialable{
 	 * Reposition this object so that it is to the left of the given x coordinate.
 	 * If the object is already to the left of the coordinate, this method should do nothing.
 	 * If the object will be moved, it should be positioned such that it is as close to its original position as possible, while still being to the left of the given coordinate
-	 * 
+	 *
 	 * @param x The coordinate
 	 * @return true if the object was moved, false otherwise
 	 */
@@ -79,7 +80,7 @@ public interface HitBox extends Bounds, Materialable{
 	 * Reposition this object so that it is to the right of the given x coordinate.
 	 * If the object is already to the right of the coordinate, this method should do nothing.
 	 * If the object will be moved, it should be positioned such that it is as close to its original position as possible, while still being to the right of the given coordinate
-	 * 
+	 *
 	 * @param x The coordinate
 	 * @return true if the object was moved, false otherwise
 	 */
@@ -89,7 +90,7 @@ public interface HitBox extends Bounds, Materialable{
 	 * Reposition this object so that it is above the given y coordinate.
 	 * If the object is already above the coordinate, this method should do nothing.
 	 * If the object will be moved, it should be positioned such that it is as close to its original position as possible, while still being above the given coordinate
-	 * 
+	 *
 	 * @param y The coordinate
 	 * @return true if the object was moved, false otherwise
 	 */
@@ -99,7 +100,7 @@ public interface HitBox extends Bounds, Materialable{
 	 * Reposition this object so that it is below the given y coordinate.
 	 * If the object is already below the coordinate, this method should do nothing.
 	 * If the object will be moved, it should be positioned such that it is as close to its original position as possible, while still being below the given coordinate
-	 * 
+	 *
 	 * @param y The coordinate
 	 * @return true if the object was moved, false otherwise
 	 */
@@ -107,7 +108,7 @@ public interface HitBox extends Bounds, Materialable{
 	
 	/**
 	 * A method that defines what this object does when it touches a floor
-	 * 
+	 *
 	 * @param touched The Material which this {@link HitBox} touched
 	 */
 	void touchFloor(Material touched);
@@ -117,7 +118,7 @@ public interface HitBox extends Bounds, Materialable{
 	
 	/**
 	 * A method that defines what this object does when it touches a ceiling
-	 * 
+	 *
 	 * @param touched The Material which this {@link HitBox} touched
 	 */
 	void touchCeiling(Material touched);
@@ -127,7 +128,7 @@ public interface HitBox extends Bounds, Materialable{
 	
 	/**
 	 * A method that defines what this object does when it touches a wall
-	 * 
+	 *
 	 * @param touched The Material which this {@link HitBox} touched
 	 */
 	void touchWall(Material touched);

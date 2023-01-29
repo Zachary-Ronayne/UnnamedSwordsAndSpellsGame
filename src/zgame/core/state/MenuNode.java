@@ -34,7 +34,7 @@ public class MenuNode{
 	
 	/**
 	 * Create a node with the default settings. If this menu is not on top, it will only render, not tick or receive input
-	 * 
+	 *
 	 * @param menu See {@link #menu}
 	 */
 	public MenuNode(Menu menu){
@@ -43,7 +43,7 @@ public class MenuNode{
 	
 	/**
 	 * Create a node with the given settings
-	 * 
+	 *
 	 * @param menu See {@link #menu}
 	 * @param tick See {@link #isTick}
 	 * @param input true if this menu should receive input when it is not on top
@@ -55,7 +55,7 @@ public class MenuNode{
 	
 	/**
 	 * Create a new node with all fields
-	 * 
+	 *
 	 * @param menu See {@link #menu}
 	 * @param isTick See {@link #isTick}
 	 * @param isKeyAction See {@link #isKeyAction}
@@ -74,18 +74,17 @@ public class MenuNode{
 		this.isRender = isRender;
 	}
 	
-	/** 
+	/**
 	 * @param menu See {@link #menu}
 	 * @return A {@link MenuNode} with all input, rendering, and ticking enabled
 	 */
 	public static MenuNode withAll(Menu menu){
 		return new MenuNode(menu, true, true, true, true, true, true);
 	}
-
+	
 	/**
-	 * Called each time a game tick occurs. A tick is a game update, i.e. some amount of time passing.
-	 * Does nothing if {@link #isTick()} returns false
-	 * 
+	 * Called each time a game tick occurs. A tick is a game update, i.e. some amount of time passing. Does nothing if {@link #isTick()} returns false
+	 *
 	 * @param game The {@link Game} which called this method
 	 * @param dt The amount of time, in seconds, which passed in this tick
 	 */
@@ -94,9 +93,8 @@ public class MenuNode{
 	}
 	
 	/**
-	 * Called when a keyboard key is pressed on the game
-	 * Does nothing if {@link #isKeyAction()} returns false
-	 * 
+	 * Called when a keyboard key is pressed on the game Does nothing if {@link #isKeyAction()} returns false
+	 *
 	 * @param game The {@link Game} which called this method
 	 * @param button The id of the key
 	 * @param press true if the key was pressed, false for released
@@ -109,9 +107,8 @@ public class MenuNode{
 	}
 	
 	/**
-	 * Called when a mouse button is pressed on the game
-	 * Does nothing if {@link #isMouseAction()} returns false
-	 * 
+	 * Called when a mouse button is pressed on the game Does nothing if {@link #isMouseAction()} returns false
+	 *
 	 * @param game The {@link Game} which called this method
 	 * @param button The ID of the mouse button
 	 * @param press true if the key was pressed, false for released
@@ -124,9 +121,8 @@ public class MenuNode{
 	}
 	
 	/**
-	 * Called when the mouse is moved on the game
-	 * Does nothing if {@link #isMouseMove()} returns false
-	 * 
+	 * Called when the mouse is moved on the game Does nothing if {@link #isMouseMove()} returns false
+	 *
 	 * @param game The {@link Game} which called this method
 	 * @param x The x coordinate in screen coordinates
 	 * @param y The y coordinate in screen coordinates
@@ -136,9 +132,8 @@ public class MenuNode{
 	}
 	
 	/**
-	 * Called when the mouse wheel is moved on the game
-	 * Does nothing if {@link #isMouseWheelMove()} returns false
-	 * 
+	 * Called when the mouse wheel is moved on the game Does nothing if {@link #isMouseWheelMove()} returns false
+	 *
 	 * @param game The {@link Game} which called this method
 	 * @param amount The amount the scroll wheel was moved
 	 */
@@ -147,9 +142,9 @@ public class MenuNode{
 	}
 	
 	/**
-	 * Called once each time a frame is of the game is drawn. Use this method to define what is drawn in the game each frame.
-	 * Does nothing if {@link #isRender()} returns false
-	 * 
+	 * Called once each time a frame is of the game is drawn. Use this method to define what is drawn in the game each frame. Does nothing if {@link #isRender()} returns
+	 * false
+	 *
 	 * @param game The {@link Game} which called this method
 	 * @param r The Renderer to use for drawing
 	 */
@@ -217,7 +212,7 @@ public class MenuNode{
 	public void setMouseWheelMove(boolean isMouseWheelMove){
 		this.isMouseWheelMove = isMouseWheelMove;
 	}
-
+	
 	/** @return See {@link #isRender} */
 	public boolean isRender(){
 		return this.isRender;
@@ -227,5 +222,5 @@ public class MenuNode{
 	public void setRender(boolean isRender){
 		this.isRender = isRender;
 	}
-
+	
 }

@@ -2,6 +2,7 @@ package zgame.core.sound;
 
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.ALC;
+
 import static org.lwjgl.openal.ALC11.*;
 
 import org.lwjgl.openal.ALCapabilities;
@@ -12,6 +13,7 @@ import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
 
 import static org.lwjgl.system.MemoryUtil.*;
+
 import org.lwjgl.openal.ALCCapabilities;
 
 import java.nio.IntBuffer;
@@ -38,7 +40,7 @@ public class SpeakerDevice implements Destroyable{
 	
 	/**
 	 * Create a new SpeakerDevice based on the given name
-	 * 
+	 *
 	 * @param name The name of the device, this should not be a made up name, this is the actual name of the device on the machine
 	 */
 	public SpeakerDevice(String name){
@@ -66,9 +68,10 @@ public class SpeakerDevice implements Destroyable{
 			this.context = alcCreateContext(this.getId(), (IntBuffer)null);
 			boolean result = alcMakeContextCurrent(this.getContext());
 			this.alCapabilities = AL.createCapabilities(this.getAlcCapabilities());
-			if(result && ZConfig.printSuccess()) ZStringUtils.print("Successfully made context current with device name '", this.getName(), "' using context: ", this.getContext());
-			else if(!result && ZConfig.printErrors()) ZStringUtils.print("Failed to make context current with device name '", this.getName(), "' using context: ",
-					this.getContext());
+			if(result && ZConfig.printSuccess())
+				ZStringUtils.print("Successfully made context current with device name '", this.getName(), "' using context: ", this.getContext());
+			else if(!result && ZConfig.printErrors())
+				ZStringUtils.print("Failed to make context current with device name '", this.getName(), "' using context: ", this.getContext());
 		}
 	}
 	

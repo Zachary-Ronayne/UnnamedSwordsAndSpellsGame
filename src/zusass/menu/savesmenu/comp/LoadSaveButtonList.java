@@ -26,7 +26,7 @@ public class LoadSaveButtonList extends MenuHolder{
 	
 	/**
 	 * Create a new {@link LoadSaveButtonList} at the specified location
-	 * 
+	 *
 	 * @param menu See {@link #menu}
 	 * @param zgame The game that uses this list
 	 */
@@ -39,7 +39,7 @@ public class LoadSaveButtonList extends MenuHolder{
 	
 	/**
 	 * Find all files at {@link #} and generate the list of buttons
-	 * 
+	 *
 	 * @param zgame The {@link Game} associated with this list
 	 * @return true if the files were found, false otherwise
 	 */
@@ -47,7 +47,7 @@ public class LoadSaveButtonList extends MenuHolder{
 		// Reset the button array
 		this.setSelected(null);
 		this.removeAll();
-		if(this.buttons != null) {
+		if(this.buttons != null){
 			for(var b : this.buttons) removeThing(b);
 		}
 		this.buttons = new ArrayList<>();
@@ -97,5 +97,5 @@ public class LoadSaveButtonList extends MenuHolder{
 		this.selected = selected;
 		this.menu.showExtraButtons(this.selected != null);
 	}
-
+	
 }

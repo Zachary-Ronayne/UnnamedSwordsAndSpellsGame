@@ -37,7 +37,7 @@ public class ZusassPlayer extends ZusassMob{
 		this.healToMaxHealth();
 		s.setStrength(10);
 		s.setAttackSpeed(.3);
-
+		
 		this.lockCamera = false;
 	}
 	
@@ -74,11 +74,11 @@ public class ZusassPlayer extends ZusassMob{
 		
 		// Jump if holding the jump button
 		if(ki.buttonDown(GLFW_KEY_UP)) this.jump(dt);
-		// For not holding the button
+			// For not holding the button
 		else{
 			// if jumps should be instant, or no jump time is being built up, then stop the jump
 			if(this.jumpsAreInstant() || this.getJumpTimeBuilt() == 0) this.stopJump();
-			// Otherwise, perform the built up jump
+				// Otherwise, perform the built up jump
 			else this.jumpFromBuiltUp(dt);
 			
 		}
@@ -86,7 +86,7 @@ public class ZusassPlayer extends ZusassMob{
 	
 	/**
 	 * Utility method for {@link #tick(Game, double)} for checking if the player clicked a door
-	 * 
+	 *
 	 * @param game The game used by the tick method
 	 */
 	private void handleDoorPress(ZusassGame game){
@@ -106,7 +106,7 @@ public class ZusassPlayer extends ZusassMob{
 	
 	/**
 	 * Utility method for {@link #tick(Game, double)} for checking if the player pressed the button to change if the camera is locked or not
-	 * 
+	 *
 	 * @param game The game used by the tick method
 	 * @return true if the camera was toggled, false otherwise
 	 */
@@ -131,7 +131,7 @@ public class ZusassPlayer extends ZusassMob{
 	
 	/**
 	 * If the camera should be locked to this {@link ZusassPlayer}, then lock the camera, otherwise do nothing
-	 * 
+	 *
 	 * @param game The game to get the camera from
 	 */
 	public void checkCenterCamera(Game game){
@@ -175,7 +175,7 @@ public class ZusassPlayer extends ZusassMob{
 		// Center the camera to the player
 		this.checkCenterCamera(zgame);
 	}
-
+	
 	@Override
 	public ZusassPlayer asPlayer(){
 		return this;

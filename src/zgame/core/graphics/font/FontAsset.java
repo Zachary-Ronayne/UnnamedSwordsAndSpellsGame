@@ -69,7 +69,10 @@ public class FontAsset extends Asset{
 	/** The space between one row's descent and the next row's ascent */
 	private int lineGap;
 	
-	/** A map, mapped by font size, whose values are maps containing the width of every character used by this font, computed dynamically as the width of characters is requested */
+	/**
+	 * A map, mapped by font size, whose values are maps containing the width of every character used by this font, computed dynamically as the width of characters is
+	 * requested
+	 */
 	private final Map<Double, Map<Character, Double>> widthMap;
 	/** A map, mapped by font size, mapping the maximum height, in pixels, a character can take up, computed when a height is requested */
 	private final Map<Double, Double> maxHeightMap;
@@ -85,7 +88,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Load a font from the given file path
-	 * 
+	 *
 	 * @param path See {@link #path}
 	 */
 	public FontAsset(String path){
@@ -94,7 +97,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Load a font from the given file path
-	 * 
+	 *
 	 * @param path See {@link #path}
 	 * @param resolution See {@link #resolution}
 	 */
@@ -104,7 +107,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Load a font from the given file path
-	 * 
+	 *
 	 * @param path See {@link #path}
 	 * @param resolution See {@link #resolution}
 	 * @param loadChars See {@link #loadChars}
@@ -115,12 +118,12 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Load a font from the given file path
-	 * 
+	 *
 	 * @param path See {@link #path}
 	 * @param resolution See {@link #resolution}
 	 * @param loadChars See {@link #loadChars}
 	 * @param sizeRatio This value is multiplied by the resolution to determine the width and height of the bitmap.
-	 *        Increase this value if more characters from the bitmap need to be loaded
+	 * 		Increase this value if more characters from the bitmap need to be loaded
 	 */
 	public FontAsset(String path, int resolution, int loadChars, int sizeRatio){
 		super(path);
@@ -202,7 +205,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Determine the maximum height of a character and store it in {@link #maxHeightMap}
-	 * 
+	 *
 	 * @param size The size of the font to compute the height for
 	 */
 	private synchronized void computeMaxHeight(double size){
@@ -211,7 +214,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Determine the maximum size a font made with this asset can take up
-	 * 
+	 *
 	 * @param size The size of the font
 	 * @return The maximum height
 	 */
@@ -222,7 +225,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Compute the width of a character and store it in {@link #widthMap}
-	 * 
+	 *
 	 * @param c The character
 	 */
 	private synchronized void computeWidth(double size, char c){
@@ -238,7 +241,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Get the width a character using this asset takes up
-	 * 
+	 *
 	 * @param size The size of the font
 	 * @param c The character
 	 * @return The width
@@ -252,7 +255,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Get an int buffer at the given index, creating a new one if necessary
-	 * 
+	 *
 	 * @param i The index of {@link #intBuffers} to get
 	 * @return The buffer
 	 */
@@ -263,7 +266,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Get a float buffer at the given index, creating a new one if necessary
-	 * 
+	 *
 	 * @param i The index of {@link #floatBuffers} to get
 	 * @return The buffer
 	 */
@@ -280,7 +283,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Get the bounds for where to draw a character using this {@link FontAsset}
-	 * 
+	 *
 	 * @param c The character to get the bounds for rendering
 	 * @param x The float buffer for the x coordinate. This buffer will be updated to the position of the next character
 	 * @param y The float buffer for the y coordinate. This buffer will be updated to the position of the next character
@@ -292,7 +295,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Determine a valid character index for this {@link FontAsset} based on the given character
-	 * 
+	 *
 	 * @param c The character
 	 * @return The index, or 0 if the index was invalid
 	 */
@@ -305,7 +308,7 @@ public class FontAsset extends Asset{
 	/**
 	 * Get a ratio which can be multiplied to determine the number of pixels a font should take up.
 	 * Typically this needs to be multiplied by things like {@link #ascent}, {@link #descent}, and {@link #lineGap}
-	 * 
+	 *
 	 * @param size The font size to use to determine the number of pixels
 	 * @return The ratio
 	 */
@@ -381,7 +384,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * A convenience method which creates a {@link FontAsset} with a file of the given name, assuming the file is located in {@link ZFilePaths#FONTS}
-	 * 
+	 *
 	 * @param name The name of the file, including file extension
 	 * @return The new font
 	 */

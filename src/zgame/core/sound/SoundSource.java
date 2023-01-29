@@ -14,15 +14,14 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	private final int id;
 	
 	/**
-	 * The current level of loudness of this {@link SoundSource}. 0 = muted, 1 = maximum volume without peaking. Value can be higher than 1, but could result in unintentionally
-	 * distorted audio
+	 * The current level of loudness of this {@link SoundSource}. 0 = muted, 1 = maximum volume without peaking. Value can be higher than 1, but could result in
+	 * unintentionally distorted audio
 	 */
 	private double volume;
 	
 	/**
-	 * The volume of this sound before being modified by other sounds.
-	 * So, if this {@link SoundSource} is part of a {@link SoundPlayer}, then the end result volume will be this value multiplied by the volume of the player.
-	 * This value cannot go below zero
+	 * The volume of this sound before being modified by other sounds. So, if this {@link SoundSource} is part of a {@link SoundPlayer}, then the end result volume will be
+	 * this value multiplied by the volume of the player. This value cannot go below zero
 	 */
 	private double baseVolume;
 	
@@ -50,7 +49,7 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	
 	/**
 	 * Create and initialize a new {@link SoundSource}
-	 * 
+	 *
 	 * @param x The current x position of the sound
 	 * @param y The current y position of the sound
 	 */
@@ -60,7 +59,7 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	
 	/**
 	 * Create and initialize a new {@link SoundSource}
-	 * 
+	 *
 	 * @param x The current x position of the sound
 	 * @param y The current y position of the sound
 	 * @param baseVolume See {@link #baseVolume}
@@ -189,9 +188,8 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	}
 	
 	/**
-	 * Cause {@link #current} to stop playing on the next update.
-	 * This is done by setting the OpenAL volume to 0, waiting a brief time, then pausing the sound on the next update.
-	 * If the sound was already paused, this method does nothing
+	 * Cause {@link #current} to stop playing on the next update. This is done by setting the OpenAL volume to 0, waiting a brief time, then pausing the sound on the next
+	 * update. If the sound was already paused, this method does nothing
 	 */
 	public void pause(){
 		if(this.isPaused()) return;

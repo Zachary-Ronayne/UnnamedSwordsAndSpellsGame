@@ -29,7 +29,7 @@ public class GameFont{
 	
 	/**
 	 * Create a new font object with default values. After the font is created, the values of this object cannot be modified
-	 * 
+	 *
 	 * @param asset See {@link #asset}
 	 */
 	public GameFont(FontAsset asset){
@@ -38,7 +38,7 @@ public class GameFont{
 	
 	/**
 	 * Create a new font object. After the font is created, the values of this object cannot be modified
-	 * 
+	 *
 	 * @param asset See {@link #asset}
 	 * @param size See {@link #size}
 	 * @param lineSpace See {@link #lineSpace}
@@ -55,7 +55,7 @@ public class GameFont{
 	
 	/**
 	 * Get the bounds for where to draw a character using this {@link GameFont}
-	 * 
+	 *
 	 * @param c The character to get the bounds for rendering
 	 * @param x The float buffer for the x coordinate. This buffer will be updated to the position of the next character
 	 * @param y The float buffer for the y coordinate. This buffer will be updated to the position of the next character
@@ -83,7 +83,7 @@ public class GameFont{
 	
 	/**
 	 * Determine the width of a character, in pixels
-	 * 
+	 *
 	 * @param c The character to find the width of
 	 * @return The width
 	 */
@@ -93,7 +93,7 @@ public class GameFont{
 	
 	/**
 	 * Find the length of text in pixels
-	 * 
+	 *
 	 * @param text The text to check
 	 * @return The length
 	 */
@@ -103,7 +103,7 @@ public class GameFont{
 	
 	/**
 	 * Find the bounds of a string drawn with this font, assuming the text is drawn at (0, 0)
-	 * 
+	 *
 	 * @param text The text to find the bounds of
 	 * @return A rectangle with the bounds in screen coordinates
 	 */
@@ -114,7 +114,7 @@ public class GameFont{
 	/**
 	 * Find the maximum bounds of a string drawn with this font. This does not guarantee a pixel perfect bounding box,
 	 * i.e. the edges of the bounds may contain pixels which are not a part of the bounds
-	 * 
+	 *
 	 * @param text The text to find the bounds of
 	 * @param x The x coordinate where the string is drawn, in screen coordinates
 	 * @param y The y coordinate where the string is drawn, in screen coordinates
@@ -128,7 +128,7 @@ public class GameFont{
 	 * Find the maximum bounds of a string drawn with this font. This does not guarantee a pixel perfect bounding box,
 	 * i.e. the edges of the bounds may contain pixels which are not a part of the bounds. This is done by adding a small amount of padding to the final bounds.
 	 * If this padding is undesired, pass false for the padding variable
-	 * 
+	 *
 	 * @param text The text to find the bounds of
 	 * @param x The x coordinate where the string is drawn, in screen coordinates
 	 * @param y The y coordinate where the string is drawn, in screen coordinates
@@ -141,7 +141,7 @@ public class GameFont{
 	
 	/**
 	 * Find the maximum bounds of a string drawn with this font. This does not guarantee a pixel perfect bounding box
-	 * 
+	 *
 	 * @param text The text to find the bounds of
 	 * @param x The x coordinate where the string is drawn, in screen coordinates
 	 * @param y The y coordinate where the string is drawn, in screen coordinates
@@ -155,15 +155,15 @@ public class GameFont{
 	
 	/**
 	 * Find the maximum bounds of the individual characters of a string drawn with this font. This does not guarantee a pixel perfect bounding box
-	 * 
+	 *
 	 * @param text The text to find the bounds of
 	 * @param x The x coordinate where the string is drawn, in screen coordinates
 	 * @param y The y coordinate where the string is drawn, in screen coordinates
 	 * @param padding true to add an amount of distance around each bounds, 0 for no padding
 	 * @return An array of the bounds of each character, matching the index of text.
-	 *         The array also contains one extra element, indexed as the length of the string: the total bounds of the entire string,
-	 *         padded in the same way as individual characters
-	 *         An array with one empty rectangle is returned if the string is empty or not given
+	 * 		The array also contains one extra element, indexed as the length of the string: the total bounds of the entire string,
+	 * 		padded in the same way as individual characters
+	 * 		An array with one empty rectangle is returned if the string is empty or not given
 	 */
 	public ZRect[] characterBounds(double x, double y, String text, double padding){
 		return this.stringBounds(x, y, text, padding, true);
@@ -171,16 +171,16 @@ public class GameFont{
 	
 	/**
 	 * Find the maximum bounds of the individual characters of a string drawn with this font. This does not guarantee a pixel perfect bounding box
-	 * 
+	 *
 	 * @param text The text to find the bounds of
 	 * @param x The x coordinate where the string is drawn, in screen coordinates
 	 * @param y The y coordinate where the string is drawn, in screen coordinates
 	 * @param padding true to add an amount of distance around each bounds, 0 for no padding
 	 * @param calcIndividuals If true, the full array will be populated, if false, only the last element, containing the full string bounds will be populated
 	 * @return An array of the bounds of each character, matching the index of text.
-	 *         The array also contains one extra element, indexed as the length of the string: the total bounds of the entire string,
-	 *         padded in the same way as individual characters
-	 *         An empty array is returned if the string is empty or not given
+	 * 		The array also contains one extra element, indexed as the length of the string: the total bounds of the entire string,
+	 * 		padded in the same way as individual characters
+	 * 		An empty array is returned if the string is empty or not given
 	 */
 	public ZRect[] stringBounds(double x, double y, String text, double padding, boolean calcIndividuals){
 		FontAsset a = this.getAsset();
@@ -262,32 +262,32 @@ public class GameFont{
 	}
 	
 	/**
-	 * @return A copy of this {@link GameFont}, but using the given font
 	 * @param asset See {@link #asset}
+	 * @return A copy of this {@link GameFont}, but using the given font
 	 */
 	public GameFont asset(FontAsset asset){
 		return new GameFont(asset, this.size, this.lineSpace, this.charSpace);
 	}
 	
 	/**
-	 * @return A copy of this {@link GameFont}, but using the given size
 	 * @param size See {@link #size}
+	 * @return A copy of this {@link GameFont}, but using the given size
 	 */
 	public GameFont size(double size){
 		return new GameFont(this.asset, size, this.lineSpace, this.charSpace);
 	}
 	
 	/**
-	 * @return A copy of this {@link GameFont}, but using the given line spacing
 	 * @param lineSpace See {@link #lineSpace}
+	 * @return A copy of this {@link GameFont}, but using the given line spacing
 	 */
 	public GameFont lineSpace(double lineSpace){
 		return new GameFont(this.asset, this.size, lineSpace, this.charSpace);
 	}
 	
 	/**
-	 * @return A copy of this {@link GameFont}, but using the given character spacing
 	 * @param charSpace See {@link #charSpace}
+	 * @return A copy of this {@link GameFont}, but using the given character spacing
 	 */
 	public GameFont charSpace(double charSpace){
 		return new GameFont(this.asset, this.size, this.lineSpace, charSpace);

@@ -22,7 +22,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	
 	/**
 	 * Draw this {@link GameThing} to the given {@link Renderer}
-	 * 
+	 *
 	 * @param game The {@link Game} to draw this {@link GameThing} relative to
 	 * @param r The {@link Renderer} to draw this {@link GameThing} on
 	 */
@@ -30,7 +30,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	
 	/**
 	 * Determine if this {@link GameThing} should be rendered
-	 * 
+	 *
 	 * @param game The {@link Game} which will be used to draw this {@link GameThing}
 	 * @param r The {@link Renderer} which will be used to draw this {@link GameThing}
 	 * @return Always true by default, can override to provide custom behavior. Generally should return false if this object will not appear on the screen
@@ -41,7 +41,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	
 	/**
 	 * Draw this {@link GameThing} to the given {@link Renderer}, only if {@link #shouldRender(Game, Renderer)} returns true
-	 * 
+	 *
 	 * @param game The {@link Game} to draw this {@link GameThing} relative to
 	 * @param r The {@link Renderer} to draw this {@link GameThing} on
 	 * @return true if the rendering took place, false otherwise
@@ -54,9 +54,9 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	
 	/**
 	 * @return The number which determines how soon this object should render.
-	 *         Lower numbers are rendered first, higher numbers are rendered last
-	 *         Override to make a custom value
-	 *         Defaults to 0.
+	 * Lower numbers are rendered first, higher numbers are rendered last
+	 * Override to make a custom value
+	 * Defaults to 0.
 	 */
 	public int getRenderPriority(){
 		return 0;
@@ -69,7 +69,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	
 	/**
 	 * @return This object, as an {@link EntityThing}, or null if it cannot be an {@link EntityThing}
-	 *         The return value of this method should equal this object, not another version or reference, i.e. (this == this.asEntity()) should evaluate to true
+	 * The return value of this method should equal this object, not another version or reference, i.e. (this == this.asEntity()) should evaluate to true
 	 */
 	public EntityThing asEntity(){
 		return null;
@@ -77,7 +77,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	
 	/**
 	 * @return This object, as a {@link MobThing}, or null if it cannot be a {@link MobThing}
-	 *         The return value of this method should equal this object, not another version or reference, i.e. (this == this.asMob()) should evaluate to true
+	 * The return value of this method should equal this object, not another version or reference, i.e. (this == this.asMob()) should evaluate to true
 	 */
 	public MobThing asMob(){
 		return null;
@@ -85,7 +85,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	
 	/**
 	 * @return This object, as a {@link GameTickable}, or null if it cannot be a {@link GameTickable}
-	 *         The return value of this method should equal this object, not another version or reference, i.e. (this == this.asTickable()) should evaluate to true
+	 * The return value of this method should equal this object, not another version or reference, i.e. (this == this.asTickable()) should evaluate to true
 	 */
 	public GameTickable asTickable(){
 		return null;
@@ -93,7 +93,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	
 	/**
 	 * @return This object, as a {@link HitBox}, or null if it cannot be a {@link HitBox}
-	 *         The return value of this method should equal this object, not another version or reference, i.e. (this == this.asHitbox()) should evaluate to true
+	 * The return value of this method should equal this object, not another version or reference, i.e. (this == this.asHitbox()) should evaluate to true
 	 */
 	public HitBox asHitBox(){
 		return null;

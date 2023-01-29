@@ -37,26 +37,24 @@ public class GameLooper{
 	private String name;
 	
 	/**
-	 * The function to call every time this loop runs.
-	 * Can set to null to automatically use a method that does nothing
+	 * The function to call every time this loop runs. Can set to null to automatically use a method that does nothing
 	 */
 	private EmptyFunc runFunc;
 	/**
-	 * An additional function that determines if {@link #runFunc} should run regardless of how much time has passed since the last loop.
-	 * Can set to null to automatically use a method that always returns false
+	 * An additional function that determines if {@link #runFunc} should run regardless of how much time has passed since the last loop. Can set to null to automatically use a
+	 * method that always returns false
 	 */
 	private BooleanFunc shouldRunFunc;
 	/**
-	 * A function that checks if the loop should automatically end. If this function returns false, this loop will quit out on the next loop iteration.
-	 * Can set to null to automatically use a method that always returns true
+	 * A function that checks if the loop should automatically end. If this function returns false, this loop will quit out on the next loop iteration. Can set to null to
+	 * automatically use a method that always returns true
 	 */
 	private BooleanFunc keepRunningFunc;
 	
 	/**
-	 * A function which returns true if this function should use the amount of time it takes to run each loop to call Thread.wait between calls of {@link #runFunc}
-	 * to avoid wasting resources. It returns false otherwise.
-	 * This will do nothing if {@link #rate} is set to 0
-	 * Can set to null to automatically use a method that always returns false
+	 * A function which returns true if this function should use the amount of time it takes to run each loop to call Thread.wait between calls of {@link #runFunc} to avoid
+	 * wasting resources. It returns false otherwise. This will do nothing if {@link #rate} is set to 0 Can set to null to automatically use a method that always returns
+	 * false
 	 */
 	private BooleanFunc waitBetweenLoopsFunc;
 	
@@ -68,7 +66,7 @@ public class GameLooper{
 	
 	/**
 	 * Create a new GameLooper. The loop will not run until {@link #loop()} is called
-	 * 
+	 *
 	 * @param rate See {@link #rate}
 	 * @param runFunc See {@link #runFunc}
 	 * @param shouldRunFunc See {@link #shouldRunFunc}
@@ -97,7 +95,7 @@ public class GameLooper{
 	
 	/**
 	 * Create a new GameLooper. The loop will not run until {@link #loop()} is called
-	 * 
+	 *
 	 * @param rate See {@link #rate}
 	 * @param runFunc See {@link #runFunc}
 	 * @param shouldRunFunc See {@link #shouldRunFunc}

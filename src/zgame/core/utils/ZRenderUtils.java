@@ -9,7 +9,7 @@ public final class ZRenderUtils{
 	
 	/**
 	 * Draw a checkerboard pattern of rectangles in a given rectangular space
-	 * 
+	 *
 	 * @param r The {@link Renderer} to use for the drawing operations
 	 * @param x The x coordinate of the upper left hand corner
 	 * @param y The y coordinate of the upper left hand corner

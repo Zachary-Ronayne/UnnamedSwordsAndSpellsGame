@@ -51,7 +51,7 @@ public class ZusassData implements Saveable{
 	
 	/**
 	 * Set the value of {@link #highestRoomLevel}, only if the given value is greater than the current value
-	 * 
+	 *
 	 * @param highestRoomLevel The potential new value for {@link #highestRoomLevel}
 	 */
 	public void updatedHighestRoomLevel(int highestRoomLevel){

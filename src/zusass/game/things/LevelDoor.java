@@ -22,7 +22,7 @@ public class LevelDoor extends ZusassDoor{
 	
 	/**
 	 * Create a new LevelDoor at the default location
-	 * 
+	 *
 	 * @param level See {@link #level}
 	 * @param room The room which contains this {@link LevelDoor}
 	 */
@@ -33,7 +33,7 @@ public class LevelDoor extends ZusassDoor{
 	
 	/**
 	 * Create a new LevelDoor at the given location
-	 * 
+	 *
 	 * @param x The x coordinate of the door
 	 * @param y The y coordinate of the door
 	 * @param level See {@link #level}

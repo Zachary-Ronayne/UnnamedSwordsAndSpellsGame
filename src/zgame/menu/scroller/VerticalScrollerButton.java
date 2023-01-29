@@ -10,7 +10,7 @@ public class VerticalScrollerButton extends MenuScrollerButton{
 	
 	/**
 	 * Create a basic {@link VerticalScrollerButton} with the given values
-	 * 
+	 *
 	 * @param scroller See {@link #scroller}
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}

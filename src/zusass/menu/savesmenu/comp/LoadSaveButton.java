@@ -27,7 +27,7 @@ public class LoadSaveButton extends SavesMenuButton{
 	
 	/**
 	 * Create a new {@link LoadSaveButton} with the specified values
-	 * 
+	 *
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param text The name of the file to display
@@ -72,15 +72,16 @@ public class LoadSaveButton extends SavesMenuButton{
 	
 	/**
 	 * Attempt to load the file at {@link #path} into the game
-	 * 
+	 *
 	 * @param zgame The game to load into
 	 * @return true if the file loaded, false otherwise
 	 */
 	public boolean attemptLoad(ZusassGame zgame){
 		boolean success = zgame.loadGame(ZusassConfig.createSaveFileSuffix(path));
 		// If the load was successful, enter the play state
-		if(success) zgame.setCurrentState(new MainPlay(zgame));
-		
+		if(success){
+			zgame.setCurrentState(new MainPlay(zgame));
+		}
 		// Otherwise, say that it failed to load
 		else this.getMenu().showMessage(ZStringUtils.concat("Load failed for: ", this.getText()));
 		return success;

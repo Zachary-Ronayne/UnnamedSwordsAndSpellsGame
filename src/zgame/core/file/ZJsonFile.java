@@ -29,9 +29,8 @@ public class ZJsonFile{
 	
 	/**
 	 * Load this {@link ZJsonFile} from {@link #path}, set it in {@link #data},
-	 * 
-	 * @return {@link #data}, or null if the load failed
 	 *
+	 * @return {@link #data}, or null if the load failed
 	 */
 	public JsonObject load(){
 		File file = this.getFile();
@@ -54,7 +53,7 @@ public class ZJsonFile{
 	
 	/**
 	 * Save this {@link ZJsonFile} to {@link #path}
-	 * 
+	 *
 	 * @return true if the save succeeded, false otherwise
 	 */
 	public boolean save(){

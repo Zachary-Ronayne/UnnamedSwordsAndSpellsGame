@@ -13,7 +13,7 @@ public abstract class PositionedRectangleThing extends PositionedThing implement
 	
 	/**
 	 * Create a new {@link PositionedRectangleThing} with no size and the given position
-	 * 
+	 *
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 */
@@ -23,7 +23,7 @@ public abstract class PositionedRectangleThing extends PositionedThing implement
 	
 	/**
 	 * Create a new {@link PositionedRectangleThing} with the given values
-	 * 
+	 *
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}

@@ -40,7 +40,7 @@ public class LevelRoom extends ZusassRoom{
 	
 	/**
 	 * Create a new randomly generated level
-	 * 
+	 *
 	 * @param level See {@link #level}
 	 */
 	public LevelRoom(int level){
@@ -140,7 +140,7 @@ public class LevelRoom extends ZusassRoom{
 			}
 		}
 	}
-
+	
 	@Override
 	public LevelRoom asLevel(){
 		return this;

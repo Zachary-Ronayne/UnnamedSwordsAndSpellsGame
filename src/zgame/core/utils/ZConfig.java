@@ -1,5 +1,7 @@
 package zgame.core.utils;
 
+import zgame.core.window.GameWindow;
+
 /** Config values used by the game engine */
 public class ZConfig{
 	
@@ -11,15 +13,14 @@ public class ZConfig{
 	private static final boolean PRINT_DEBUG = false;
 	
 	/**
-	 * true if, during the ticks of a {@link zgame.core.window.GameWindow}, the loop should wait between each loop iteration, false otherwise.
-	 * Setting this to true should generally decrease CPU load, but in the case where each tick takes longer than expected, it may be preferable that this value is set to false
+	 * true if, during the ticks of a {@link GameWindow}, the loop should wait between each loop iteration, false otherwise. Setting this to true should generally decrease CPU
+	 * load, but in the case where each tick takes longer than expected, it may be preferable that this value is set to false
 	 */
 	private static final boolean WAIT_BETWEEN_TICKS = true;
 	
 	/**
-	 * The number of samples to wait to pause a sound before actually pausing it,
-	 * i.e. when a sound is paused, first the volume is set to zero, then this number of samples play, then the sound is put on pause.
-	 * This is to prevent an unwanted tick sound each time the sound is stopped
+	 * The number of samples to wait to pause a sound before actually pausing it, i.e. when a sound is paused, first the volume is set to zero, then this number of samples
+	 * play, then the sound is put on pause. This is to prevent an unwanted tick sound each time the sound is stopped
 	 */
 	private static final int SOUND_PAUSE_DELAY = 5;
 	

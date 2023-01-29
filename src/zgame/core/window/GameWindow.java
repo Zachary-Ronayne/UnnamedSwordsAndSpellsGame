@@ -17,8 +17,7 @@ import org.lwjgl.opengl.GLUtil;
 import java.awt.Dimension;
 
 /**
- * A class that handles one central window.
- * This includes an option to move to full screen
+ * A class that handles one central window. This includes an option to move to full screen
  */
 public abstract class GameWindow implements Destroyable{
 	
@@ -55,8 +54,8 @@ public abstract class GameWindow implements Destroyable{
 	private MouseWheelMove mouseWheelMoveMethod;
 	
 	/**
-	 * true if, when drawing the final {@link Renderer} image to the screen, the image should stretch to fill up the entire screen,
-	 * false to draw the image in the center of the screen leave black bars in areas that the image doesn't fill up
+	 * true if, when drawing the final {@link Renderer} image to the screen, the image should stretch to fill up the entire screen, false to draw the image in the center of
+	 * the screen leave black bars in areas that the image doesn't fill up
 	 */
 	private boolean stretchToFill;
 	
@@ -88,7 +87,7 @@ public abstract class GameWindow implements Destroyable{
 	public interface ButtonAction{
 		/**
 		 * Called when a key is pressed or released
-		 * 
+		 *
 		 * @param key The id of the key
 		 * @param press true if the key was pressed, false for released
 		 * @param shift true if shift is pressed, false otherwise
@@ -102,7 +101,7 @@ public abstract class GameWindow implements Destroyable{
 	public interface MouseMove{
 		/**
 		 * Called when a mouse button is pressed or released
-		 * 
+		 *
 		 * @param x The x coordinate in screen coordinates
 		 * @param y The y coordinate in screen coordinates
 		 */
@@ -113,7 +112,7 @@ public abstract class GameWindow implements Destroyable{
 	public interface MouseWheelMove{
 		/**
 		 * Called when a mouse button is pressed or released
-		 * 
+		 *
 		 * @param amount The amount the scroll wheel was moved
 		 */
 		void act(double amount);
@@ -121,7 +120,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Create a GameWindow with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 * 
+	 *
 	 * @param title See {@link #windowTitle}
 	 * @param winWidth See {@link #width}
 	 * @param winHeight See {@link #height}
@@ -181,8 +180,8 @@ public abstract class GameWindow implements Destroyable{
 	protected abstract void createContext();
 	
 	/**
-	 * Call this method once at the beginning of each OpenGL loop to check for events, i.e. keyboard input, mouse input, window size changed, etc.
-	 * This method will also update the fullscreen and vsync status
+	 * Call this method once at the beginning of each OpenGL loop to check for events, i.e. keyboard input, mouse input, window size changed, etc. This method will also update
+	 * the fullscreen and vsync status
 	 */
 	public void checkEvents(){
 		// Update fullscreen status
@@ -210,16 +209,15 @@ public abstract class GameWindow implements Destroyable{
 	public abstract boolean shouldClose();
 	
 	/**
-	 * Assign the current window all needed callbacks, i.e. input, window size changing, etc.
-	 * This will usually be an expensive operation and should not be regularly called
-	 * 
+	 * Assign the current window all needed callbacks, i.e. input, window size changing, etc. This will usually be an expensive operation and should not be regularly called
+	 *
 	 * @return true if the callbacks were set, false if an error occurred
 	 */
 	public abstract boolean initCallBacks();
 	
 	/**
 	 * Call this method when a key is acted on, i.e. pressed or released
-	 * 
+	 *
 	 * @param key The id of the key
 	 * @param press true if the key was pressed, false for released
 	 * @param shift true if shift is pressed, false otherwise
@@ -233,7 +231,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Call this method when a mouse button is acted on, i.e. pressed or released
-	 * 
+	 *
 	 * @param button The ID of the mouse button
 	 * @param press true if the key was pressed, false for released
 	 * @param shift true if shift is pressed, false otherwise
@@ -247,7 +245,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Call this method when the mouse is moved
-	 * 
+	 *
 	 * @param x The raw x pixel coordinate of the mouse on the window
 	 * @param y The raw y pixel coordinate of the mouse on the window
 	 */
@@ -258,7 +256,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Call this method when the mouse wheel is moved
-	 * 
+	 *
 	 * @param amount The amount the scroll wheel was moved
 	 */
 	protected void mouseWheelMove(double amount){
@@ -268,7 +266,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Call this method when the window size is changed
-	 * 
+	 *
 	 * @param w The new width
 	 * @param h The new height
 	 */
@@ -280,7 +278,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Call this method when the window is minimized or unminimized
-	 * 
+	 *
 	 * @param min true if the window was minimized, false otherwise
 	 */
 	protected void windowMinimize(boolean min){
@@ -289,7 +287,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Call this method when the window gains or loses focus
-	 * 
+	 *
 	 * @param focus true if the window gained focus, false otherwise
 	 */
 	protected void windowFocus(boolean focus){
@@ -297,9 +295,9 @@ public abstract class GameWindow implements Destroyable{
 	}
 	
 	/**
-	 * Update the size of the window, directly changing the window. Does nothing if the {@link GameWindow} is in full screen, only works on a windowed version.
-	 * This method should be overwritten and called as super to directly update the size, it should not be called outside the main OpenGL loop or initialization
-	 * 
+	 * Update the size of the window, directly changing the window. Does nothing if the {@link GameWindow} is in full screen, only works on a windowed version. This method
+	 * should be overwritten and called as super to directly update the size, it should not be called outside the main OpenGL loop or initialization
+	 *
 	 * @param w The new width, in pixels, not including any decorators such as the minimize button
 	 * @param h The new height, in pixels, not including any decorators such as the minimize button
 	 */
@@ -311,8 +309,7 @@ public abstract class GameWindow implements Destroyable{
 	}
 	
 	/**
-	 * Initialize the settings for textures based on the needs of simple 2D pixel art textures with transparency
-	 * Can overwrite this method to use different settings
+	 * Initialize the settings for textures based on the needs of simple 2D pixel art textures with transparency Can overwrite this method to use different settings
 	 */
 	public void initTextureSettings(){
 		glEnable(GL_TEXTURE_2D);
@@ -337,7 +334,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * This method instantly changes the fullscreen state, do not use when outside of the main OpenGL thread or initialization
-	 * 
+	 *
 	 * @param inFullScreen See {@link #inFullScreen}
 	 */
 	public void setInFullScreenNow(boolean inFullScreen){
@@ -376,21 +373,21 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Called when the window needs to enter fullscreen
-	 * 
+	 *
 	 * @return true if entering was successful, false otherwise
 	 */
 	protected abstract boolean enterFullScreen();
 	
 	/**
 	 * Called when the window needs to exit fullscreen
-	 * 
+	 *
 	 * @return true if exiting was successful, false otherwise
 	 */
 	protected abstract boolean exitFullScreen();
 	
 	/**
 	 * Modify the size of this the screen of {@link #renderer}. This is a costly operation and should not regularly be run
-	 * 
+	 *
 	 * @param width The width, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
@@ -408,7 +405,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Depending on implementation, this method may do nothing if the window is currently in full screen
-	 * 
+	 *
 	 * @param x the x coordinate position
 	 * @param y the y coordinate position
 	 */
@@ -418,8 +415,8 @@ public abstract class GameWindow implements Destroyable{
 	public abstract Point getWindowPos();
 	
 	/**
-	 * @return A {@link Dimension} containing the width and height of the content of the window in pixels, this should not include decorators such as a menu bar, minimize button,
-	 *         etc
+	 * @return A {@link Dimension} containing the width and height of the content of the window in pixels, this should not include decorators such as a menu bar, minimize
+	 * 		button, etc
 	 */
 	public abstract Dimension getWindowSize();
 	
@@ -435,15 +432,14 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Center the window to the monitor which contains the upper left hand corner of the window. Does nothing if no monitor is found
-	 * 
+	 *
 	 * @return The monitor id which the window was centered to
 	 */
 	public abstract long center();
 	
 	/**
-	 * Call to change the fullscreen state on the next OpenGL loop.
-	 * If the window is already in the desired state, nothing happens
-	 * 
+	 * Call to change the fullscreen state on the next OpenGL loop. If the window is already in the desired state, nothing happens
+	 *
 	 * @param fullscreen true to enter fullscreen, false to exist.
 	 */
 	public void setFullscreen(boolean fullscreen){
@@ -464,7 +460,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Set whether or not to use vsync on the next OpenGL loop
-	 * 
+	 *
 	 * @param useVsync See {@link #useVsync}
 	 */
 	public void setUseVsync(boolean useVsync){
@@ -483,7 +479,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Perform any needed operations to enable or disable vsync
-	 * 
+	 *
 	 * @param useVsync true to turn vsync on, false to turn it off
 	 */
 	protected abstract void setupVsync(boolean useVsync);
@@ -589,8 +585,8 @@ public abstract class GameWindow implements Destroyable{
 	}
 	
 	/**
-	 * Update the value of {@link #windowRatio} based on the current values of {@link #width} and {@link #height}
-	 * Additionally, update the values of {@link #viewportX}, {@link #viewportY}, {@link #viewportW}, {@link #viewportH}
+	 * Update the value of {@link #windowRatio} based on the current values of {@link #width} and {@link #height} Additionally, update the values of {@link #viewportX},
+	 * {@link #viewportY}, {@link #viewportW}, {@link #viewportH}
 	 */
 	private void updateInternalValues(){
 		this.updateRatios();
@@ -633,8 +629,8 @@ public abstract class GameWindow implements Destroyable{
 	}
 	
 	/**
-	 * Update the stored state of the values to use for the viewport for drawing the contents of the screen via {@link #renderer}
-	 * This method does nothing the given renderer is not yet initialized
+	 * Update the stored state of the values to use for the viewport for drawing the contents of the screen via {@link #renderer} This method does nothing the given renderer
+	 * is not yet initialized
 	 */
 	public void updateViewportValues(){
 		// Cannot perform this action without renderer initialized
@@ -676,7 +672,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert an x coordinate value in window space, to a coordinate in screen space coordinates
-	 * 
+	 *
 	 * @param x The value to convert
 	 * @return The value in screen coordinates
 	 */
@@ -686,7 +682,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert a y coordinate value in window space, to a coordinate in screen space coordinates
-	 * 
+	 *
 	 * @param y The value to convert
 	 * @return The value in screen coordinates
 	 */
@@ -696,7 +692,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert an x coordinate value in screen space, to a coordinate in window space coordinates
-	 * 
+	 *
 	 * @param x The value to convert
 	 * @return The value in window coordinates
 	 */
@@ -706,7 +702,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert a y coordinate value in screen space, to a coordinate in window space coordinates
-	 * 
+	 *
 	 * @param y The value to convert
 	 * @return The value in window coordinates
 	 */
@@ -716,7 +712,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert an x coordinate value in screen space, to a coordinate in OpenGL coordinates
-	 * 
+	 *
 	 * @param x The value to convert
 	 * @return The value in OpenGL coordinates
 	 */
@@ -726,7 +722,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert a y coordinate value in screen space, to a coordinate in OpenGL coordinates
-	 * 
+	 *
 	 * @param y The value to convert
 	 * @return The value in OpenGL coordinates
 	 */
@@ -736,7 +732,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert an x coordinate value in OpenGL space, to a coordinate in screen coordinates
-	 * 
+	 *
 	 * @param x The value to convert
 	 * @return The value in screen coordinates
 	 */
@@ -746,7 +742,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert a y coordinate value in OpenGL space, to a coordinate in screen coordinates
-	 * 
+	 *
 	 * @param y The value to convert
 	 * @return The value in screen coordinates
 	 */
@@ -756,7 +752,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert a size on the x axis in window space, to one in screen space
-	 * 
+	 *
 	 * @param x The value to convert
 	 * @return The converted size
 	 */
@@ -766,7 +762,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert a size on the y axis in window space, to one in screen space
-	 * 
+	 *
 	 * @param y The value to convert
 	 * @return The converted size
 	 */
@@ -776,7 +772,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert a size on the x axis in screen space, to one in window space
-	 * 
+	 *
 	 * @param x The value to convert
 	 * @return The converted size
 	 */
@@ -786,7 +782,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert a size on the y axis in screen space, to one in window space
-	 * 
+	 *
 	 * @param y The value to convert
 	 * @return The converted size
 	 */
@@ -796,7 +792,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert a size on the x axis in screen space, to one in OpenGL space
-	 * 
+	 *
 	 * @param x The value to convert
 	 * @return The converted size
 	 */
@@ -806,7 +802,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert a size on the y axis in screen space, to one in OpenGL space
-	 * 
+	 *
 	 * @param y The value to convert
 	 * @return The converted size
 	 */
@@ -816,7 +812,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert a size on the x axis in OpenGL space, to one in screen space
-	 * 
+	 *
 	 * @param x The value to convert
 	 * @return The converted size
 	 */
@@ -826,7 +822,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Convert a size on the y axis in OpenGL space, to one in screen space
-	 * 
+	 *
 	 * @param y The value to convert
 	 * @return The converted size
 	 */

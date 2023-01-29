@@ -7,7 +7,7 @@ public final class GLFWModUtils{
 	
 	/**
 	 * Determine if the given mods value from a GLFW function has the shift bit set
-	 * 
+	 *
 	 * @param mods The value to check
 	 * @return true if the shift bit is set, false otherwise
 	 */
@@ -17,7 +17,7 @@ public final class GLFWModUtils{
 	
 	/**
 	 * Determine if the given mods value from a GLFW function has the ctrl bit set
-	 * 
+	 *
 	 * @param mods The value to check
 	 * @return true if the ctrl bit is set, false otherwise
 	 */
@@ -27,7 +27,7 @@ public final class GLFWModUtils{
 	
 	/**
 	 * Determine if the given mods value from a GLFW function has the alt bit set
-	 * 
+	 *
 	 * @param mods The value to check
 	 * @return true if the alt bit is set, false otherwise
 	 */
@@ -37,7 +37,7 @@ public final class GLFWModUtils{
 	
 	/**
 	 * Determine if the given mods value from a GLFW function has the given bit set
-	 * 
+	 *
 	 * @param mods The value to check
 	 * @param bit The bit to check if it is set
 	 * @return true if the shift bit is set, false otherwise

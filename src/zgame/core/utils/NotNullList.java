@@ -7,14 +7,15 @@ import java.util.Collection;
  * A list of objects which cannot contain null elements
  */
 public class NotNullList<T> extends ArrayList<T>{
-
+	
 	/** Create a new empty list */
 	public NotNullList(){
 		super();
 	}
-
+	
 	/**
 	 * Add the given element to the list. Does nothing if element is null
+	 *
 	 * @param element The element to add
 	 * @return true if the element was added, false otherwise
 	 */
@@ -25,7 +26,7 @@ public class NotNullList<T> extends ArrayList<T>{
 	
 	/**
 	 * Add the given element to the list. Does nothing if element is null
-	 * 
+	 *
 	 * @param index The index to add the element to
 	 * @param element The element to add
 	 */
@@ -37,7 +38,7 @@ public class NotNullList<T> extends ArrayList<T>{
 	
 	/**
 	 * Add the given elements to the list. Does nothing if element is null
-	 * 
+	 *
 	 * @param c The elements to add, null elements are ignoredReturns:
 	 * @return true if this list changed as a result of the call
 	 */
@@ -50,7 +51,7 @@ public class NotNullList<T> extends ArrayList<T>{
 	
 	/**
 	 * Add the given elements to the list. Does nothing if element is null
-	 * 
+	 *
 	 * @param index index at which to insert the first element from the specified collection
 	 * @param c The elements to add, null elements are ignored
 	 * @return true if this list changed as a result of the call
@@ -64,7 +65,7 @@ public class NotNullList<T> extends ArrayList<T>{
 	
 	/**
 	 * Set the given element at the given list index. Does nothing if element is null
-	 * 
+	 *
 	 * @param index The index to set the element
 	 * @param element The element to set
 	 * @return The replaced element, or null if element is null
@@ -74,9 +75,10 @@ public class NotNullList<T> extends ArrayList<T>{
 		if(element == null) return null;
 		return super.set(index, element);
 	}
-
+	
 	/**
 	 * Remove the given object from this list
+	 *
 	 * @param o The object to remove
 	 * @return true if the object was removed, false otherwise. Always returns false if o is null
 	 */
@@ -85,5 +87,5 @@ public class NotNullList<T> extends ArrayList<T>{
 		if(o == null) return false;
 		return super.remove(o);
 	}
-
+	
 }

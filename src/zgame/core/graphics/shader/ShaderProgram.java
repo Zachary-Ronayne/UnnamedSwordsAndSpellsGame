@@ -22,7 +22,7 @@ public class ShaderProgram{
 	
 	/**
 	 * Create a new {@link ShaderProgram}
-	 * 
+	 *
 	 * @param vertexPath The file path for {@link #vertex}
 	 * @param fragmentPath The file path for {@link #fragment}
 	 */
@@ -37,7 +37,7 @@ public class ShaderProgram{
 	 * Create a new ShaderProgram based on the name.
 	 * This method assumes that the given name represents two files with the form [name].frag and [name].vert,
 	 * where [name] is the given parameter. These files are assumed to be located in {@link ZFilePaths#SHADERS}
-	 * 
+	 *
 	 * @param name The name of the shader
 	 */
 	public ShaderProgram(String name){

@@ -4,7 +4,7 @@ import zgame.things.entity.MobThing;
 import zgame.things.type.RectangleHitBox;
 
 /** A generic mob in the Zusass game */
-public abstract class ZusassMob extends MobThing implements RectangleHitBox {
+public abstract class ZusassMob extends MobThing implements RectangleHitBox{
 	
 	/** The width of this mob */
 	private double width;
@@ -13,7 +13,7 @@ public abstract class ZusassMob extends MobThing implements RectangleHitBox {
 	
 	/**
 	 * Create a new mob with the given bounds
-	 * 
+	 *
 	 * @param x The upper left hand x coordinate
 	 * @param y The upper left hand y coordinate
 	 * @param width The mob's width
@@ -49,7 +49,7 @@ public abstract class ZusassMob extends MobThing implements RectangleHitBox {
 	
 	/**
 	 * @return This object, as an {@link Npc}, or null if it cannot be an {@link Npc}
-	 *         The return value of this method should equal this object, not another version or reference, i.e. (this == this.asNpc()) should evaluate to true
+	 * The return value of this method should equal this object, not another version or reference, i.e. (this == this.asNpc()) should evaluate to true
 	 */
 	public Npc asNpc(){
 		return null;
@@ -57,7 +57,7 @@ public abstract class ZusassMob extends MobThing implements RectangleHitBox {
 	
 	/**
 	 * @return This object, as a {@link ZusassPlayer}, or null if it cannot be a {@link ZusassPlayer}
-	 *         The return value of this method should equal this object, not another version or reference, i.e. (this == this.asPlayer()) should evaluate to true
+	 * The return value of this method should equal this object, not another version or reference, i.e. (this == this.asPlayer()) should evaluate to true
 	 */
 	public ZusassPlayer asPlayer(){
 		return null;

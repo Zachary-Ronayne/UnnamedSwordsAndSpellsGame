@@ -30,7 +30,7 @@ public class CollisionResponse{
 	
 	/**
 	 * Create a new {@link CollisionResponse} with the given amount of movement, where no walls were collided with
-	 * 
+	 *
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
@@ -41,7 +41,7 @@ public class CollisionResponse{
 	
 	/**
 	 * Create a new {@link CollisionResponse} with the given values
-	 * 
+	 *
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 * @param left See {@link #left}
@@ -60,7 +60,7 @@ public class CollisionResponse{
 		// Set the ma
 		this.material = (material == null) ? Materials.NONE : material;
 	}
-
+	
 	/** @return true if this {@link CollisionResponse} represents a collision happening, false if no collision took place */
 	public boolean isCollided(){
 		return this.x() != 0 || this.y() != 0;

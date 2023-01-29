@@ -9,7 +9,7 @@ import zgame.physics.material.Material;
 import zgame.things.Stats;
 
 /** An {@link EntityThing} which represents some kind of creature which can walk around, i.e. the player, an enemy, an animal, a monster, any NPC, etc. */
-public abstract class MobThing extends EntityThing {
+public abstract class MobThing extends EntityThing{
 	
 	/** The string used to identify the force used to make this {@link MobThing} walk */
 	public static final String FORCE_NAME_WALKING = "walking";
@@ -132,10 +132,10 @@ public abstract class MobThing extends EntityThing {
 	
 	/** The direction this {@link MobThing} is walking. -1 for walking to the left, 0 for not walking, 1 for walking to the right */
 	private int walkingDirection;
-
+	
 	/** The amount of time, in seconds, until this mob will perform an attack, or a negative value if this mob is not preparing for an attack */
 	private double attackTime;
-
+	
 	/** The direction, an angle in radians, where the mob will attack */
 	private double attackDirection;
 	
@@ -149,7 +149,7 @@ public abstract class MobThing extends EntityThing {
 	
 	/**
 	 * Create a new {@link MobThing} at the given position
-	 * 
+	 *
 	 * @param x The x coordinate of the mob
 	 * @param y The y coordinate of the mob
 	 */
@@ -181,7 +181,7 @@ public abstract class MobThing extends EntityThing {
 		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
 		this.normalJumpTime = DEFAULT_NORMAL_JUMP_TIME;
 		this.wallJumpTime = DEFAULT_WALL_JUMP_TIME;
-
+		
 		this.attackTime = -1;
 		this.attackDirection = 0;
 		
@@ -214,6 +214,7 @@ public abstract class MobThing extends EntityThing {
 	
 	/**
 	 * Minimal method for drawing a basic attack timer for melee attacks
+	 *
 	 * @param game The game where the attack is performed
 	 * @param r The renderer to draw the attack with
 	 */
@@ -224,11 +225,11 @@ public abstract class MobThing extends EntityThing {
 		double time = this.getAttackTime();
 		double speed = this.getStats().getAttackSpeed();
 		double attackSize = this.getStats().getAttackRange() * (1 - time / speed);
-
+		
 		if(directionX < 0) r.drawRectangle(this.centerX() - attackSize, this.centerY(), attackSize, 20);
 		else r.drawRectangle(this.centerX(), this.centerY(), attackSize, 20);
 	}
-
+	
 	@Override
 	public void updatePosition(Game game, double dt){
 		super.updatePosition(game, dt);
@@ -259,7 +260,7 @@ public abstract class MobThing extends EntityThing {
 	
 	/**
 	 * Perform any necessary updates for the mob based on its current stats
-	 * 
+	 *
 	 * @param game The game to update the stats on
 	 */
 	public void updateStats(Game game){
@@ -269,7 +270,7 @@ public abstract class MobThing extends EntityThing {
 	
 	/**
 	 * Update the value of {@link #walkingForce} based on the current state of this {@link MobThing}
-	 * 
+	 *
 	 * @param dt The amount of time that will pass in the next tick when this {@link MobThing} walks
 	 */
 	public void updateWalkForce(double dt){
@@ -364,7 +365,7 @@ public abstract class MobThing extends EntityThing {
 	
 	/**
 	 * Update the value of {@link #jumpingForce} and {@link #jumpingStopForce} based on the current state of this {@link MobThing}
-	 * 
+	 *
 	 * @param dt The amount of time, in seconds, that will pass in the next tick when this {@link MobThing} stops jumping
 	 */
 	public void updateJumpState(double dt){
@@ -403,7 +404,7 @@ public abstract class MobThing extends EntityThing {
 	/**
 	 * Cause this mob to start jumping or instantly jump if {@link #jumpBuildTime} is 0, or to build up a jump if it is greater than zero.
 	 * Only runs if the mob is in a position to jump, has not begun to build up jump time, and is not already jumping
-	 * 
+	 *
 	 * @param dt The amount of time, in seconds, that will pass in one tick after the mob jumps off the ground
 	 */
 	public void jump(double dt){
@@ -411,13 +412,13 @@ public abstract class MobThing extends EntityThing {
 		
 		// If it takes no time to jump, jump right away
 		if(this.jumpsAreInstant()) this.jumpFromBuiltUp(dt);
-		// Otherwise, start building up a jump
+			// Otherwise, start building up a jump
 		else this.buildingJump = true;
 	}
 	
 	/**
 	 * Cause this mob to instantly jump with the currently built power, only if it is allowed to jump
-	 * 
+	 *
 	 * @param dt The amount of time, in seconds, that will pass in one tick after the mob jumps off the ground
 	 */
 	public void jumpFromBuiltUp(double dt){
@@ -619,38 +620,41 @@ public abstract class MobThing extends EntityThing {
 	
 	/**
 	 * Called when this stat thing dies
-	 * 
+	 *
 	 * @param game The game it was in when it died
 	 */
 	public void die(Game game){
 		// On death, by default, remove the thing from the game
 		game.getCurrentRoom().removeThing(this);
 	}
-
+	
 	/** @return See {@link #attackTime} */
 	public double getAttackTime(){
 		return this.attackTime;
 	}
-
+	
 	/**
 	 * Cause this mob to begin performing an attack
+	 *
 	 * @param direction The direction to attack in
 	 */
 	public void beginAttack(double direction){
 		this.attackDirection = direction;
 		this.attackTime = this.getStats().getAttackSpeed();
 	}
-
+	
 	/**
 	 * Cause this mob to deal damage to the given mob
+	 *
 	 * @param mob The mob to attack
 	 */
 	public void attack(MobThing mob){
 		mob.damage(this.getStats().getStrength());
 	}
-
+	
 	/**
 	 * Attack the nearest mob, in {@link #attackDirection}, in the game which is not this mob
+	 *
 	 * @param game The game where the attack should happen
 	 */
 	public void attackNearest(Game game){
@@ -669,6 +673,7 @@ public abstract class MobThing extends EntityThing {
 	
 	/**
 	 * Cause this mob to be effected by something that deals damage to it's health
+	 *
 	 * @param amount The amount of damage done. Does nothing if this value is less than or equal to 0
 	 */
 	public void damage(double amount){
@@ -690,26 +695,27 @@ public abstract class MobThing extends EntityThing {
 	 * Directly sets the amount of health this mob has.
 	 * Use {@link #damage(double)} when this mob is hit by an attack.
 	 * If the given amount exceeds, maximum health, health is set to the max
+	 *
 	 * @param currentHealth See {@link #currentHealth}
 	 */
 	public void setCurrentHealth(double currentHealth){
 		this.currentHealth = Math.min(currentHealth, this.getStats().getMaxHealth());
 	}
-
+	
 	/** Set {@link #currentHealth} to maximum health */
 	public void healToMaxHealth(){
 		this.setCurrentHealth(this.getStats().getMaxHealth());
 	}
-
+	
 	/** @return The percentage of health this mob has remaining, in the range [0, 1] */
 	public double currentHealthPerc(){
 		double perc = this.getCurrentHealth() / this.getStats().getMaxHealth();
 		return Math.min(1, Math.max(0, perc));
 	}
-
+	
 	@Override
 	public final MobThing asMob(){
 		return this;
 	}
-
+	
 }

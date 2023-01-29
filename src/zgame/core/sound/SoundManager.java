@@ -39,8 +39,8 @@ public class SoundManager implements Destroyable{
 	private double distanceScalar;
 	
 	/**
-	 * A list of every {@link SpeakerDevice} available on the current machine since the last scan.
-	 * There are no guarantees about the order of this list, i.e. the default device could be anywhere in the list
+	 * A list of every {@link SpeakerDevice} available on the current machine since the last scan. There are no guarantees about the order of this list, i.e. the default
+	 * device could be anywhere in the list
 	 */
 	private final List<SpeakerDevice> devices;
 	
@@ -57,7 +57,7 @@ public class SoundManager implements Destroyable{
 	
 	/**
 	 * Initialize the {@link SoundManager} to its default state
-	 * 
+	 *
 	 * @param distanceScalar See {@link #distanceScalar}
 	 */
 	public SoundManager(double distanceScalar){
@@ -75,9 +75,8 @@ public class SoundManager implements Destroyable{
 	}
 	
 	/**
-	 * Scan all available devices for playing back sound, and update the internal values, i.e. {@link #currentDevice}, {@link #defaultDevice}, and {@link #devices}
-	 * If {@link #currentDevice} is no longer available, it is set to the default device.
-	 * This method closes any previously loaded devices, and loads all newly loaded devices
+	 * Scan all available devices for playing back sound, and update the internal values, i.e. {@link #currentDevice}, {@link #defaultDevice}, and {@link #devices} If
+	 * {@link #currentDevice} is no longer available, it is set to the default device. This method closes any previously loaded devices, and loads all newly loaded devices
 	 */
 	public void scanDevices(){
 		// Reset the players for effects and music
@@ -161,7 +160,7 @@ public class SoundManager implements Destroyable{
 	
 	/**
 	 * Add a sound effect used by this {@link SoundManager}. Sounds added here will automatically be deleted when {@link #destroy()} is called
-	 * 
+	 *
 	 * @param effect The sound to add
 	 * @param name The name of the sound, use this value when playing sounds
 	 */
@@ -171,7 +170,7 @@ public class SoundManager implements Destroyable{
 	
 	/**
 	 * Add a sound effect used by this {@link SoundManager}. Sounds added here will automatically be deleted when {@link #destroy()} is called
-	 * 
+	 *
 	 * @param name The name of the sound, which must exist as a .ogg file in {@link ZFilePaths#EFFECTS} use this value when playing sounds
 	 */
 	public void addEffect(String name){
@@ -181,7 +180,7 @@ public class SoundManager implements Destroyable{
 	
 	/**
 	 * Remove a sound effect used by this {@link SoundManager}
-	 * 
+	 *
 	 * @param name The name of the sound to use. After calling this method, the sound with the given name will not be able to play
 	 */
 	public void removeEffect(String name){
@@ -190,7 +189,7 @@ public class SoundManager implements Destroyable{
 	
 	/**
 	 * Add a music sound used by this {@link SoundManager}. Sounds added here will automatically be deleted when {@link #destroy()} is called
-	 * 
+	 *
 	 * @param music The sound to add
 	 * @param name The name of the sound, use this value when playing sounds
 	 */
@@ -200,7 +199,7 @@ public class SoundManager implements Destroyable{
 	
 	/**
 	 * Add a music sound used by this SoundManager Sounds added here will automatically be deleted when {@link #destroy()} is called
-	 * 
+	 *
 	 * @param name The name of the sound, which must exist as a .ogg file in {@link ZFilePaths#MUSIC}, use this value when playing sounds
 	 */
 	public void addMusic(String name){
@@ -209,7 +208,7 @@ public class SoundManager implements Destroyable{
 	
 	/**
 	 * Remove a music sound used by this SoundManager
-	 * 
+	 *
 	 * @param name The name of the sound to use. After calling this method, the sound with the given name will not be able to play
 	 */
 	public void removeMusic(String name){
@@ -218,9 +217,8 @@ public class SoundManager implements Destroyable{
 	
 	/**
 	 * Load all the sounds as effects in {@link ZFilePaths#EFFECTS}, where the name of the file without a file extension is how they will be referred to using
-	 * {@link #playEffect(SoundSource, String)}
-	 * The files should be stored such that {@link ZFilePaths#EFFECTS} contains folders, where each folder is named as the type of sound contained by that folder.
-	 * Then, each of those folders will contain the sound files which will be of the type of the folder they are in
+	 * {@link #playEffect(SoundSource, String)} The files should be stored such that {@link ZFilePaths#EFFECTS} contains folders, where each folder is named as the type of
+	 * sound contained by that folder. Then, each of those folders will contain the sound files which will be of the type of the folder they are in
 	 */
 	public void addAllEffects(){
 		this.effectsManager.addAll();
@@ -235,9 +233,8 @@ public class SoundManager implements Destroyable{
 	}
 	
 	/**
-	 * Load all the sounds as effects in {@link ZFilePaths#EFFECTS},
-	 * and all the sounds as music in {@link ZFilePaths#MUSIC},
-	 * where the name of the file without a file extension is how they will be referred to using {@link #playEffect(SoundSource, String)} and {@link #playMusic(String)}
+	 * Load all the sounds as effects in {@link ZFilePaths#EFFECTS}, and all the sounds as music in {@link ZFilePaths#MUSIC}, where the name of the file without a file
+	 * extension is how they will be referred to using {@link #playEffect(SoundSource, String)} and {@link #playMusic(String)}
 	 */
 	public void addAllSounds(){
 		this.addAllEffects();
@@ -246,7 +243,7 @@ public class SoundManager implements Destroyable{
 	
 	/**
 	 * Play the given sound at the given source
-	 * 
+	 *
 	 * @param source The source to play the sound
 	 * @param name The name of the sound, i.e. the name used when calling {@link #addEffect(EffectSound, String)}
 	 */
@@ -256,7 +253,7 @@ public class SoundManager implements Destroyable{
 	
 	/**
 	 * Play the given music sound
-	 * 
+	 *
 	 * @param name The name of the sound, i.e. the name used when calling {@link #addMusic(String)}
 	 */
 	public void playMusic(String name){
@@ -265,7 +262,7 @@ public class SoundManager implements Destroyable{
 	
 	/**
 	 * Update the position of the listener of this SoundManager
-	 * 
+	 *
 	 * @param x The new x coordinate in game coordinates
 	 * @param y The new y coordinate in game coordinates
 	 */
@@ -275,7 +272,7 @@ public class SoundManager implements Destroyable{
 	
 	/**
 	 * Update the position of the given source based on the scaling of this sound manager
-	 * 
+	 *
 	 * @param s The {@link SoundSource} to update
 	 * @param x The new x coordinate in game coordinates
 	 * @param y The new y coordinate in game coordinates
@@ -286,7 +283,7 @@ public class SoundManager implements Destroyable{
 	
 	/**
 	 * Update the position of the given {@link SoundLocation} based on the scaling of this sound manager
-	 * 
+	 *
 	 * @param s The {@link SoundLocation} to update
 	 * @param x The new x coordinate in game coordinates
 	 * @param y The new y coordinate in game coordinates
@@ -297,7 +294,7 @@ public class SoundManager implements Destroyable{
 	
 	/**
 	 * Create a {@link SoundSource} at the given coordinates which will be scaled by the scalar of this {@link SoundManager}
-	 * 
+	 *
 	 * @param x The new x coordinate in game coordinates
 	 * @param y The new y coordinate in game coordinates
 	 * @return The source
@@ -341,7 +338,9 @@ public class SoundManager implements Destroyable{
 	/** @return A copy of {@link #devices}. The returned list is distinct from the internal list of devices */
 	public SpeakerDevice[] getDevices(){
 		SpeakerDevice[] arr = new SpeakerDevice[this.devices.size()];
-		for(int i = 0; i < arr.length; i++){ arr[i] = this.devices.get(i); }
+		for(int i = 0; i < arr.length; i++){
+			arr[i] = this.devices.get(i);
+		}
 		return arr;
 	}
 	

@@ -5,6 +5,7 @@ import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
+
 import static org.lwjgl.openal.AL11.*;
 import static org.lwjgl.stb.STBVorbis.*;
 
@@ -25,7 +26,7 @@ public abstract class Sound extends Asset{
 	
 	/**
 	 * Create a new sound. Call {@link #load()} to load in the data itself
-	 * 
+	 *
 	 * @param path The path to load data from
 	 */
 	public Sound(String path){
@@ -34,14 +35,14 @@ public abstract class Sound extends Asset{
 	
 	/**
 	 * Run methods to buffer the data
-	 * 
+	 *
 	 * @param p The data to buffer
 	 */
 	protected abstract void bufferData(PointerBuffer p);
 	
 	/**
 	 * Load this {@link Sound} from memory and associate that data with the id of this {@link Sound}
-	 * 
+	 *
 	 * @return The pointer is if is still open, or null if it is not open, also returns null if any load errors occurred
 	 */
 	public PointerBuffer load(){
@@ -50,7 +51,7 @@ public abstract class Sound extends Asset{
 	
 	/**
 	 * Load this sound from memory and associate that data with the id of this {@link Sound}
-	 * 
+	 *
 	 * @param freePointer true to free the pointer used to load the data, false to keep it open
 	 * @return The pointer is if is still open, or null if it is not open, also returns null if any load errors occurred
 	 */

@@ -2,7 +2,7 @@ package zgame.core.sound;
 
 /**
  * A utility class for holding a {@link SoundSource} and a {@link Sound} together
- * 
+ *
  * @param <S> The type of the sound held by this pair
  */
 public class SoundPair<S extends Sound>{
@@ -15,7 +15,7 @@ public class SoundPair<S extends Sound>{
 	
 	/**
 	 * Create a {@link SoundPair} with the given parameters
-	 * 
+	 *
 	 * @param source See {@link #source}
 	 * @param sound See {@link #sound}
 	 */

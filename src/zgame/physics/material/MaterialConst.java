@@ -43,7 +43,7 @@ public class MaterialConst implements Material{
 	
 	/**
 	 * Create a new material using the given fields and no floor or ceiling bounce
-	 * 
+	 *
 	 * @param friction See {@link #friction}
 	 * @param wallBounce The value for {@link #wallBounce}
 	 */
@@ -53,7 +53,7 @@ public class MaterialConst implements Material{
 	
 	/**
 	 * Create a new material using the given fields
-	 * 
+	 *
 	 * @param friction See {@link #friction}
 	 * @param wallBounce The value for {@link #wallBounce}
 	 * @param floorBounce See {@link #floorBounce}
@@ -65,7 +65,7 @@ public class MaterialConst implements Material{
 	
 	/**
 	 * Create a new material using the given fields
-	 * 
+	 *
 	 * @param friction See {@link #friction}
 	 * @param wallBounce The value for {@link #wallBounce}
 	 * @param floorBounce See {@link #floorBounce}

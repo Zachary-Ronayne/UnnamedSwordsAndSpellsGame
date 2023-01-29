@@ -19,7 +19,7 @@ public class Hub extends ZusassRoom{
 	
 	/**
 	 * Create the hub in the default state
-	 * 
+	 *
 	 * @param zgame The {@link Game} using this hub
 	 */
 	public Hub(ZusassGame zgame){

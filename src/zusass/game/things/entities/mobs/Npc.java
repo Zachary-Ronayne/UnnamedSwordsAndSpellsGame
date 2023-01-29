@@ -10,7 +10,7 @@ public class Npc extends ZusassMob{
 	
 	/**
 	 * Create a new Npc with the given bounds
-	 * 
+	 *
 	 * @param x The upper left hand x coordinate
 	 * @param y The upper left hand y coordinate
 	 * @param width The mob's width
@@ -49,7 +49,7 @@ public class Npc extends ZusassMob{
 		
 		// issue#23 make a way of drawing a health bar above the mob, accounting for how this health bar will not be a part of the mob itself, but above it
 		
-		// Draw a bar to represent it's remaining health
+		// Draw a bar to represent its remaining health
 		r.setColor(1, 0, 0);
 		r.drawRectangle(this.getX(), this.getY(), this.getWidth() * .25, this.getHeight() * this.currentHealthPerc());
 		

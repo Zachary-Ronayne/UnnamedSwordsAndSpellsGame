@@ -39,7 +39,6 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * Create an empty {@link GLFWWindow}. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-
 	 */
 	public GLFWWindow(){
 		this("Game Window");
@@ -47,16 +46,16 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * Create a default {@link GLFWWindow}. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 * 
+	 *
 	 * @param title See {@link #getWindowTitle()}
 	 */
 	public GLFWWindow(String title){
 		this(title, 1280, 720, 200, true, false, true);
 	}
-
+	
 	/**
 	 * Create a {@link GLFWWindow} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 * 
+	 *
 	 * @param title See {@link #getWindowTitle()}
 	 * @param winWidth See {@link #getWidth()}
 	 * @param winHeight See {@link #getHeight()}
@@ -71,7 +70,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * Create a {@link GLFWWindow} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 * 
+	 *
 	 * @param title See {@link #getWindowTitle()}
 	 * @param winWidth See {@link #getWidth()}
 	 * @param winHeight See {@link #getHeight()}
@@ -154,9 +153,8 @@ public class GLFWWindow extends GameWindow{
 	}
 	
 	/**
-	 * Assign the current window all needed callbacks, i.e. input.
-	 * This is an expensive operation and should not be regularly called
-	 * 
+	 * Assign the current window all needed callbacks, i.e. input. This is an expensive operation and should not be regularly called
+	 *
 	 * @return true if the callbacks could be set, false if an error occurred
 	 */
 	@Override
@@ -178,7 +176,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * The method directly used as a callback for a GLFW keyboard press
-	 * 
+	 *
 	 * @param window The ID of the window from which the event occurred
 	 * @param key The ID of the key pressed
 	 * @param scanCode The ID of the system specific scancode
@@ -191,7 +189,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * The method directly used as a callback for a GLFW mouse button press
-	 * 
+	 *
 	 * @param window The ID of the window from which the event occurred
 	 * @param button The ID of the button pressed
 	 * @param action The action taken, i.e. released, pressed, held
@@ -203,7 +201,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * The method directly used as a callback for a GLFW mouse movement
-	 * 
+	 *
 	 * @param window The ID of the window from which the event occurred
 	 * @param x The raw x pixel coordinate of the mouse on the GLFW window
 	 * @param y The raw y pixel coordinate of the mouse on the GLFW window
@@ -214,7 +212,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * The method directly used as a callback for a GLFW mouse wheel movement
-	 * 
+	 *
 	 * @param x The amount of distance scrolled on the x axis, unused
 	 * @param y The amount of distance scrolled on the y axis, used as the scroll amount
 	 */
@@ -224,7 +222,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * The method directly used as a callback for a GLFW window size change
-	 * 
+	 *
 	 * @param window The id of the window which was changed
 	 * @param w The new width
 	 * @param h The new height
@@ -235,7 +233,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * The method directly used as a callback for a GLFW window getting minimized, i.e. iconified
-	 * 
+	 *
 	 * @param window The id of the window which had its state changed
 	 * @param min true if the window was minimized, false otherwise
 	 */
@@ -245,7 +243,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * The method directly used as a callback for a GLFW window losing or gaining focus, i.e. iconified
-	 * 
+	 *
 	 * @param window The id of the window which had its state changed
 	 * @param focus true if the window gained focus, false otherwise
 	 */
@@ -289,9 +287,8 @@ public class GLFWWindow extends GameWindow{
 	}
 	
 	/**
-	 * Create a window to use for the fullscreen. In the case of multiple monitors,
-	 * the monitor which will be used is the one with the upper left hand corner of the window in it
-	 * The id is stored in {@link #fullScreenID}
+	 * Create a window to use for the fullscreen. In the case of multiple monitors, the monitor which will be used is the one with the upper left hand corner of the window in
+	 * it The id is stored in {@link #fullScreenID}
 	 */
 	protected void createFullScreenWindow(){
 		// Find which monitor the window is on and center it, additionally, save the old position before entering fullscreen
@@ -320,8 +317,7 @@ public class GLFWWindow extends GameWindow{
 	}
 	
 	/**
-	 * Update the {@link #width} and {@link #height} variables with the current size of the window
-	 * Primarily used to update the values when entering fullscreen
+	 * Update the {@link #width} and {@link #height} variables with the current size of the window Primarily used to update the values when entering fullscreen
 	 */
 	@Override
 	public Dimension getWindowSize(){
@@ -338,7 +334,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * Center the window to the given monitor. Uses the primary monitor if the given monitor is NULL
-	 * 
+	 *
 	 * @param monitor The monitor id to center to
 	 * @return The monitor id which the window was centered to
 	 */
@@ -374,7 +370,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * Find the monitor which contains the upper left hand corner of the window
-	 * 
+	 *
 	 * @return the id, or the primary monitor if no monitor is found
 	 */
 	public long getCurrentMonitor(){
@@ -417,7 +413,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * Get the ID of the currently used window, i.e. either the windowed version or the full screen version
-	 * 
+	 *
 	 * @return The id
 	 */
 	public long getCurrentWindowID(){

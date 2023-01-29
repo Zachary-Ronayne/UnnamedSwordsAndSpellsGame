@@ -14,7 +14,7 @@ public final class ZusassColorTiles{
 	
 	/**
 	 * Set the colors used by {@link #BACK_COLOR} and {@link #BACK_COLOR_DARK}
-	 * 
+	 *
 	 * @param c1 The value for {@link #BACK_COLOR}
 	 * @param c2 The value for {@link #BACK_COLOR_DARK}
 	 */

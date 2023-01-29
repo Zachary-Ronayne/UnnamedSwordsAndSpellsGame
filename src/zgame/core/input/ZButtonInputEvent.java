@@ -6,8 +6,8 @@ package zgame.core.input;
 public abstract class ZButtonInputEvent{
 	
 	/**
-	 * The numerical value which represents the specific button or action that was activated during the event.
-	 * This could be mouse buttons, keys on a keyboard, buttons on a video game controller, etc
+	 * The numerical value which represents the specific button or action that was activated during the event. This could be mouse buttons, keys on a keyboard, buttons on a
+	 * video game controller, etc
 	 */
 	private final int id;
 	
@@ -25,7 +25,7 @@ public abstract class ZButtonInputEvent{
 	
 	/**
 	 * Create a new {@link ZButtonInputEvent} with the given information
-	 * 
+	 *
 	 * @param id See {@link #id}
 	 * @param shiftDown See {@link #shiftDown}
 	 * @param altDown See {@link #altDown}

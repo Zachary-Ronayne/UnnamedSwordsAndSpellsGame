@@ -9,7 +9,7 @@ public class SavesRefreshButton extends SavesMenuButton{
 	
 	/**
 	 * Create the {@link SavesBackButton}
-	 * 
+	 *
 	 * @param menu See {@link #getMenu()}
 	 * @param zgame The {@link Game} associated with this button
 	 */

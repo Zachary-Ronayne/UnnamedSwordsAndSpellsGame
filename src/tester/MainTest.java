@@ -444,12 +444,13 @@ public class MainTest extends Game{
 			r.unlimitBounds();
 			
 			String s = """
-						TL qgy Text on
-						multiple lines
-						and another
-						    and spaces
-						
-						and a nothing line""";
+					   TL qgy Text on
+					   multiple lines
+					   and another
+					                and spaces
+					   				
+					   and a nothing line
+					   """;
 			r.pushAttributes();
 			r.setFontSize(32);
 			r.setFontLineSpace(40);

@@ -42,7 +42,7 @@ public abstract class SoundPlayer<S extends Sound>{
 	
 	/**
 	 * Queue the given {@link Sound} at the given {@link SoundSource} to play using this {@link SoundPlayer} on the next update
-	 * 
+	 *
 	 * @param source The source which will play the sound
 	 * @param sound The sound to play
 	 */
@@ -51,9 +51,9 @@ public abstract class SoundPlayer<S extends Sound>{
 	}
 	
 	/**
-	 * Immediately use this {@link SoundPlayer} to play the given {@link Sound} at the given {@link SoundSource}
-	 * This method should not be called outside of {@link #updateState()} or related method calls
-	 * 
+	 * Immediately use this {@link SoundPlayer} to play the given {@link Sound} at the given {@link SoundSource} This method should not be called outside of
+	 * {@link #updateState()} or related method calls
+	 *
 	 * @param source The source which will play the sound
 	 * @param sound The sound to play
 	 */
@@ -75,19 +75,17 @@ public abstract class SoundPlayer<S extends Sound>{
 	}
 	
 	/**
-	 * Implement this method so that this {@link SoundPlayer} will play the given {@link Sound} at the given {@link SoundSource}.
-	 * Implementation will vary depending on if the entire sound should be loaded all at once, or buffered in sections.
-	 * This method should not interact at all with volume, position of the sound in space, velocity, etc, this method
-	 * is only responsible for setting when the sound will play
-	 * 
+	 * Implement this method so that this {@link SoundPlayer} will play the given {@link Sound} at the given {@link SoundSource}. Implementation will vary depending on if the
+	 * entire sound should be loaded all at once, or buffered in sections. This method should not interact at all with volume, position of the sound in space, velocity, etc,
+	 * this method is only responsible for setting when the sound will play
+	 *
 	 * @param source The source which will play the sound
 	 * @param sound The sound to play
 	 */
 	protected abstract void runSound(SoundSource source, S sound);
 	
 	/**
-	 * A method to be called when this {@link SoundPlayer} needs to be updated.
-	 * For example if a music track needs to loop
+	 * A method to be called when this {@link SoundPlayer} needs to be updated. For example if a music track needs to loop
 	 */
 	public void updateState(){
 		// Play all sounds and clear the queue
@@ -181,10 +179,10 @@ public abstract class SoundPlayer<S extends Sound>{
 	}
 	
 	/**
-	 * Get an array of every {@link SoundSource} currently playing through this {@link SoundPlayer}
-	 * This array is separate from the internal storage of this {@link SoundPlayer}, i.e. moving the elements of the returned array will not affect the player,
-	 * however, modifying the individual objects in the array will affect the player
-	 * 
+	 * Get an array of every {@link SoundSource} currently playing through this {@link SoundPlayer} This array is separate from the internal storage of this
+	 * {@link SoundPlayer}, i.e. moving the elements of the returned array will not affect the player, however, modifying the individual objects in the array will affect the
+	 * player
+	 *
 	 * @return The array
 	 */
 	public SoundSource[] getPlaying(){
@@ -193,7 +191,7 @@ public abstract class SoundPlayer<S extends Sound>{
 	
 	/**
 	 * Remove any sounds from this {@link SoundPlayer} which are finished playing
-	 * 
+	 *
 	 * @return true if at least one sound was removed, false otherwise
 	 */
 	public boolean removeFinishedSounds(){

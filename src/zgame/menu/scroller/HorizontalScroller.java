@@ -9,7 +9,7 @@ public class HorizontalScroller extends MenuScroller{
 	
 	/**
 	 * Create a new {@link HorizontalScroller} at the specified location and min and max
-	 * 
+	 *
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}

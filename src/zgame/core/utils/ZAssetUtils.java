@@ -23,7 +23,7 @@ public final class ZAssetUtils{
 	
 	/**
 	 * Get every file and folder name at a specified directory
-	 * 
+	 *
 	 * @param basePath The path to look for names
 	 * @param includeExtension true to include the extension on the end of files, false for only the name
 	 * @return A list containing every file name. This will contain both files and folders in no guaranteed order
@@ -95,9 +95,8 @@ public final class ZAssetUtils{
 	}
 	
 	/**
-	 * Get the name of only the files or only the folders contained by the given path.
-	 * This method assumes that all files have a file extension
-	 * 
+	 * Get the name of only the files or only the folders contained by the given path. This method assumes that all files have a file extension
+	 *
 	 * @param basePath The path to find the names
 	 * @param files true to only include files in the list, false to only include folders
 	 * @param extensions true to include file extensions, false otherwise. Only applies if files is true
@@ -125,9 +124,8 @@ public final class ZAssetUtils{
 	}
 	
 	/**
-	 * Get the name of only the files contained by the given path.
-	 * This method assumes that all files have a file extension
-	 * 
+	 * Get the name of only the files contained by the given path. This method assumes that all files have a file extension
+	 *
 	 * @param basePath The path to find the files
 	 * @param extension true to include file extensions, false otherwise.
 	 * @return A {@link List} containing the name of every file
@@ -137,9 +135,8 @@ public final class ZAssetUtils{
 	}
 	
 	/**
-	 * Get the name of only the folders contained by the given path.
-	 * This method assumes that all files have a file extension
-	 * 
+	 * Get the name of only the folders contained by the given path. This method assumes that all files have a file extension
+	 *
 	 * @param basePath The path to find the folders
 	 * @return A {@link List} containing the name of every folder
 	 */
@@ -149,7 +146,7 @@ public final class ZAssetUtils{
 	
 	/**
 	 * Get an {@link InputStream} which can load files directly from the jar file
-	 * 
+	 *
 	 * @param path The path to load from
 	 * @return The stream
 	 */
@@ -159,7 +156,7 @@ public final class ZAssetUtils{
 	
 	/**
 	 * Get the bytes of a file directly from the jar file
-	 * 
+	 *
 	 * @param path The path to the file
 	 * @return A {@link ByteBuffer} containing the data
 	 */
@@ -168,8 +165,9 @@ public final class ZAssetUtils{
 		InputStream stream;
 		try{
 			stream = getJarInputStream(path);
-			if(stream == null){ throw new IllegalArgumentException("Could not generate an input stream from the jar at location: " +
-				path); }
+			if(stream == null){
+				throw new IllegalArgumentException("Could not generate an input stream from the jar at location: " + path);
+			}
 			byte[] bytes = stream.readAllBytes();
 			buff = BufferUtils.createByteBuffer(bytes.length);
 			buff.put(bytes);

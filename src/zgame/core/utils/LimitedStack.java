@@ -4,7 +4,7 @@ import java.util.Stack;
 
 /**
  * A type of {@link Stack} that always has at least one element, i.e., if there is only one element left and the stack is popped, do nothing
- * 
+ *
  * @param <T> The type of objects in the stack
  */
 public class LimitedStack<T>{
@@ -20,7 +20,7 @@ public class LimitedStack<T>{
 	
 	/**
 	 * Create a new limited stack with one element
-	 * 
+	 *
 	 * @param initial The initial element in the stack, also the value of {@link #defaultItem}
 	 */
 	public LimitedStack(T initial){
@@ -29,7 +29,7 @@ public class LimitedStack<T>{
 	
 	/**
 	 * Create a new limited stack with one element
-	 * 
+	 *
 	 * @param initial The initial element in the stack, also the value of {@link #defaultItem}
 	 * @param replaceFirst See {@link #replaceFirst}
 	 */
@@ -47,7 +47,7 @@ public class LimitedStack<T>{
 	
 	/**
 	 * Set the default bottom of the stack, also replaces the bottom of the stack if {@link #isReplaceFirst()} returns true
-	 * 
+	 *
 	 * @param defaultItem See {@link #defaultItem}
 	 */
 	public void setDefaultItem(T defaultItem){
@@ -67,7 +67,7 @@ public class LimitedStack<T>{
 	
 	/**
 	 * Push the current top of the stack, onto the stack. Be weary of this operation if T is mutable
-	 * 
+	 *
 	 * @return The item on the top of the stack
 	 */
 	public T push(){
@@ -76,7 +76,7 @@ public class LimitedStack<T>{
 	
 	/**
 	 * Add the given item to the top of the stack
-	 * 
+	 *
 	 * @param item The item to add
 	 * @return item
 	 */
@@ -86,7 +86,7 @@ public class LimitedStack<T>{
 	
 	/**
 	 * Replace the top of the stack with the given item
-	 * 
+	 *
 	 * @param item The item
 	 * @return The item that was at the top of the stack, or null if the top couldn't be replaced
 	 */
@@ -98,9 +98,9 @@ public class LimitedStack<T>{
 	}
 	
 	/**
-	 * Remove the element on the top of this stack. If no element can be popped and {@link #isReplaceFirst()} returns true,
-	 * {@link #defaultItem} becomes the only element in the stack
-	 * 
+	 * Remove the element on the top of this stack. If no element can be popped and {@link #isReplaceFirst()} returns true, {@link #defaultItem} becomes the only element in
+	 * the stack
+	 *
 	 * @return The removed element, or null if no element could be removed
 	 */
 	public T pop(){

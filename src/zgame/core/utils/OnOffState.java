@@ -21,7 +21,7 @@ public enum OnOffState{
 	
 	/**
 	 * Get the state corresponding to a boolean value
-	 * 
+	 *
 	 * @param enter true to get the state for turning on, false for turning off
 	 * @return {@link #ENTER} or {@link #EXIT} depending on enter
 	 */

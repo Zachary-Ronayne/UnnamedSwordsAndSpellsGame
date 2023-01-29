@@ -34,7 +34,7 @@ public class PauseMenu extends Menu{
 	
 	/**
 	 * Make a new pause menu
-	 * 
+	 *
 	 * @param zgame The game which will use this pause menu
 	 */
 	public PauseMenu(ZusassGame zgame){
@@ -95,7 +95,7 @@ public class PauseMenu extends Menu{
 	
 	/**
 	 * Exit out of this pause menu and go back to the game
-	 * 
+	 *
 	 * @param zgame The game using this button
 	 */
 	public void exitMenu(ZusassGame zgame){

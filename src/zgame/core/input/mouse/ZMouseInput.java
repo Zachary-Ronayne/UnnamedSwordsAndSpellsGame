@@ -4,13 +4,10 @@ import zgame.core.input.ZButtonInput;
 import zgame.core.window.GameWindow;
 
 /**
- * A class that handles tracking mouse input for a {@link GameWindow}
- * Coordinates are tracked as (0, 0) being the upper left hand corner of the rendered screen of the {@link GameWindow},
- * then x represents the number of rendered pixels to the right of that corner,
- * and y represents the number of rendered pixels below that corner.
- * This means that coordinates do not necessarily exactly correspond to the pixels on the window.
- * So if the {@link GameWindow} has black bars on the sides, and the mouse is at the right hand side of the left hand bar, then the x coordinate in this {@link ZMouseInput} would
- * be zero, not the pixel coordinate of the bar position.
+ * A class that handles tracking mouse input for a {@link GameWindow} Coordinates are tracked as (0, 0) being the upper left hand corner of the rendered screen of the
+ * {@link GameWindow}, then x represents the number of rendered pixels to the right of that corner, and y represents the number of rendered pixels below that corner. This
+ * means that coordinates do not necessarily exactly correspond to the pixels on the window. So if the {@link GameWindow} has black bars on the sides, and the mouse is at the
+ * right hand side of the left hand bar, then the x coordinate in this {@link ZMouseInput} would be zero, not the pixel coordinate of the bar position.
  */
 public abstract class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	
@@ -30,7 +27,7 @@ public abstract class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	
 	/**
 	 * Create a simple {@link ZMouseInput} and initialize every value
-	 * 
+	 *
 	 * @param window The {@link GameWindow} which uses this input object
 	 */
 	public ZMouseInput(GameWindow window){
@@ -51,7 +48,7 @@ public abstract class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	
 	/**
 	 * The method called when a mouse button is pressed
-	 * 
+	 *
 	 * @param button The mouse button which is pressed
 	 * @param press true if the button was pressed, false for released
 	 * @param shift true if shift is pressed, false otherwise
@@ -64,7 +61,7 @@ public abstract class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	
 	/**
 	 * The method called when the mouse moves
-	 * 
+	 *
 	 * @param x The raw x pixel coordinate on the GLFW window
 	 * @param y The raw y pixel coordinate on the GLFW window
 	 */
@@ -78,7 +75,7 @@ public abstract class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	
 	/**
 	 * The method called when the mouse wheel scrolls
-	 * 
+	 *
 	 * @param amount The amount the scroll wheel was moved
 	 */
 	public void mouseWheelMove(double amount){
@@ -117,9 +114,9 @@ public abstract class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	}
 	
 	/**
-	 * Get the amount of distance the scroll wheel has moved since the last time this method was called.
-	 * After calling this method, this method will return 0 until the scroll wheel has been moved
-	 * 
+	 * Get the amount of distance the scroll wheel has moved since the last time this method was called. After calling this method, this method will return 0 until the scroll
+	 * wheel has been moved
+	 *
 	 * @return The scroll amount used, positive for scroll up, negative for scroll down
 	 */
 	public double useScrollAmount(){
