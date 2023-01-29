@@ -26,7 +26,7 @@ import zgame.core.state.GameState;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
-import zgame.core.window.AWindow;
+import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
 import zgame.world.Room;
 
@@ -44,7 +44,7 @@ public class Game implements Saveable, Destroyable{
 	 */
 	public static final int DEFAULT_SOUND_UPDATES = 100;
 	
-	/** The {@link AWindow} used by this {@link Game} as the core interaction */
+	/** The {@link GlfwWindow} used by this {@link Game} as the core interaction */
 	private final GameWindow window;
 	
 	/** The {@link SoundManager} used by this {@link Game} to create sounds */
@@ -195,7 +195,7 @@ public class Game implements Saveable, Destroyable{
 		this.sounds = new SoundManager();
 		
 		// Init window
-		this.window = new AWindow(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
+		this.window = new GlfwWindow(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
 		
 		// Init images
 		this.images = new ImageManager();
