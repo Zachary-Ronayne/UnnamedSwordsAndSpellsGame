@@ -69,7 +69,11 @@ public class AWindow extends GameWindow{
 	}
 	
 	/**
+<<<<<<< HEAD:src/zgame/core/window/AWindow.java
 	 * Create a {@link AWindow} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
+=======
+	 * Create a {@link GlfwWindow} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
+>>>>>>> bd5e61ee11f471c7394c2c0df44937acd40a8baa:src/zgame/core/window/GlfwWindow.java
 	 *
 	 * @param title See {@link #getWindowTitle()}
 	 * @param winWidth See {@link #getWidth()}
