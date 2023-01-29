@@ -132,9 +132,9 @@ public class GameLooper{
 				this.nsPerLoop = this.timeProcessing / this.funcCalls;
 				if(this.willPrintRate()){
 					if(this.isPrintNsPerLoop()){
-						ZStringUtils.print(ZStringUtils.pad(ZStringUtils.concat(this.getName(), ": ", this.getFuncCalls()), 10), "\t",
+						ZStringUtils.print(ZStringUtils.pad(ZStringUtils.concat(this.getName(), ": ", this.getFuncCalls()), 10), " |\t",
 								ZStringUtils.pad(ZStringUtils.concat("ns/loop", ": ", this.getNsPerLoop()), 30), "\t",
-								ZStringUtils.pad(ZStringUtils.concat("ns total", ": ", this.timeProcessing), 30), "\t",
+								ZStringUtils.pad(ZStringUtils.concat("ns total", ": ", this.timeProcessing), 30), " |\t",
 								ZStringUtils.pad(ZStringUtils.concat("ms/loop", ": ", this.getMsPerLoop()), 10), "\t",
 								ZStringUtils.pad(ZStringUtils.concat("ms total", ": ", (long)(this.timeProcessing * 1E-6)), 10));
 					}

@@ -727,7 +727,6 @@ public class Renderer implements Destroyable{
 		this.updateGpuModelView();
 		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
-		glBindVertexArray(0);
 		this.popMatrix();
 		
 		return true;
@@ -823,7 +822,6 @@ public class Renderer implements Destroyable{
 		this.updateGpuModelView();
 		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
-		glBindVertexArray(0);
 		
 		this.popMatrix();
 		
@@ -993,7 +991,6 @@ public class Renderer implements Destroyable{
 		this.updateGpuModelView();
 		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
-		glBindVertexArray(0);
 		this.popMatrix();
 	}
 	

@@ -1,6 +1,8 @@
 package zgame.core.window;
 
 import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL43.GL_DEBUG_SEVERITY_NOTIFICATION;
+import static org.lwjgl.opengl.GL43.glDebugMessageControl;
 
 import zgame.core.Game;
 import zgame.core.graphics.Destroyable;
@@ -15,6 +17,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLUtil;
 
 import java.awt.Dimension;
+import java.nio.IntBuffer;
 
 /**
  * A class that handles one central window. This includes an option to move to full screen
@@ -154,6 +157,9 @@ public abstract class GameWindow implements Destroyable{
 		// creates the GLCapabilities instance and makes the OpenGL
 		// bindings available for use.
 		GL.createCapabilities();
+		
+		// Turn off debug notifications
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, (IntBuffer)null, false);
 		
 		// Additional error messaging
 		GLUtil.setupDebugMessageCallback(System.err);
