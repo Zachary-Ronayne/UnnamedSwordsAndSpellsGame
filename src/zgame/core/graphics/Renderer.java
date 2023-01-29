@@ -329,7 +329,7 @@ public class Renderer implements Destroyable{
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public void resize(int width, int height){
-		this.bufferStack.getDefaultItem().regenerateBuffer(width, height);
+		this.bufferStack.peek().regenerateBuffer(width, height);
 	}
 	
 	/**

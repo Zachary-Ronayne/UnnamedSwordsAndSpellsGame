@@ -357,17 +357,19 @@ public abstract class GameWindow implements Destroyable{
 			this.setWindowPosition(this.oldPosition.x, this.oldPosition.y);
 		}
 		// Reset the renderer vertex objects
-		this.getRenderer().destroyVertexes();
-		this.getRenderer().initVertexes();
+		var r = this.getRenderer();
+		r.destroyVertexes();
+		r.initVertexes();
 		
 		// Ensure the current window has the callbacks
 		this.initCallBacks();
 		
-		// Update v-sync
+		// Update v-sync to account for full screen
 		this.updateVsync();
 		
 		// Update screen width and height
 		this.updateWindowSize();
+		this.resizeScreen(this.getScreenWidth(), this.getScreenHeight());
 		
 		// Ensure the window has appropriate texture settings
 		initTextureSettings();

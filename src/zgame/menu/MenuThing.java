@@ -406,8 +406,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * @param window The window to center by
 	 */
 	public void center(GameWindow window){
-		centerHorizontal(window.getWidth());
-		centerVertical(window.getHeight());
+		centerHorizontal(window.getScreenWidth());
+		centerVertical(window.getScreenHeight());
 	}
 	
 	/** Move this {@link MenuThing} to the center bounds of its parent. Does nothing if this thing has no parent */
