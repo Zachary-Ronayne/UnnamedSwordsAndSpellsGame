@@ -24,7 +24,7 @@ import java.awt.Point;
 import java.awt.Dimension;
 
 /** An implementation of {@link GameWindow} which uses GLFW methods */
-public class GLFWWindow extends GameWindow{
+public class GlfwWindow extends GameWindow{
 	
 	/** The number used by glfw to track the main window */
 	private long windowID;
@@ -38,23 +38,23 @@ public class GLFWWindow extends GameWindow{
 	private final GLFWKeyInput keyInput;
 	
 	/**
-	 * Create an empty {@link GLFWWindow}. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
+	 * Create an empty {@link GlfwWindow}. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
 	 */
-	public GLFWWindow(){
+	public GlfwWindow(){
 		this("Game Window");
 	}
 	
 	/**
-	 * Create a default {@link GLFWWindow}. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
+	 * Create a default {@link GlfwWindow}. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
 	 *
 	 * @param title See {@link #getWindowTitle()}
 	 */
-	public GLFWWindow(String title){
+	public GlfwWindow(String title){
 		this(title, 1280, 720, 200, true, false, true);
 	}
 	
 	/**
-	 * Create a {@link GLFWWindow} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
+	 * Create a {@link GlfwWindow} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
 	 *
 	 * @param title See {@link #getWindowTitle()}
 	 * @param winWidth See {@link #getWidth()}
@@ -64,12 +64,12 @@ public class GLFWWindow extends GameWindow{
 	 * @param stretchToFill See {@link #isStretchToFill()}
 	 * @param printFps See {@link Game#isPrintFps()}
 	 */
-	public GLFWWindow(String title, int winWidth, int winHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps){
+	public GlfwWindow(String title, int winWidth, int winHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps){
 		this(title, winWidth, winHeight, winWidth, winHeight, maxFps, useVsync, stretchToFill, printFps, 60, true);
 	}
 	
 	/**
-	 * Create a {@link GLFWWindow} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
+	 * Create a {@link GlfwWindow} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
 	 *
 	 * @param title See {@link #getWindowTitle()}
 	 * @param winWidth See {@link #getWidth()}
@@ -80,7 +80,7 @@ public class GLFWWindow extends GameWindow{
 	 * @param useVsync See {@link #usesVsync()}
 	 * @param stretchToFill See {@link #isStretchToFill()}
 	 */
-	public GLFWWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
+	public GlfwWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
 		super(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
 		
 		// Set up window behavior
