@@ -17,17 +17,17 @@ import zgame.core.utils.ZStringUtils;
 public abstract class AssetManager<A extends Asset> implements Destroyable{
 	
 	/** A map containing all assets handled by this {@link AssetManager} */
-	private Map<String, A> assets;
+	private final Map<String, A> assets;
 	
 	/** The path to the files where the assets this manager will manage */
-	private String folderLoc;
+	private final String folderLoc;
 	
 	/** The valid file extension, without a '.' for assets in this manager */
-	private String fileFormat;
+	private final String fileFormat;
 	
 	/** Create a new empty {@link AssetManager} */
 	public AssetManager(String folderLoc, String fileFormat){
-		this.assets = new HashMap<String, A>();
+		this.assets = new HashMap<>();
 		this.folderLoc = folderLoc;
 		this.fileFormat = fileFormat;
 	}

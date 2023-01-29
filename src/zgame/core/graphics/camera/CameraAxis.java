@@ -97,7 +97,7 @@ public class CameraAxis{
 		return this.zoomPower;
 	}
 	
-	/** @param x See {@link #zoomPower} */
+	/** @param zoomPower See {@link #zoomPower} */
 	public void setZoomPower(double zoomPower){
 		this.zoomPower = zoomPower;
 	}

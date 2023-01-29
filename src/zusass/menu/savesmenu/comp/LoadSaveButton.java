@@ -23,7 +23,7 @@ public class LoadSaveButton extends SavesMenuButton{
 	public static final double TOTAL_SPACE = SPACE + HEIGHT;
 	
 	/** The path to the file that this button should load */
-	private String path;
+	private final String path;
 	
 	/**
 	 * Create a new {@link LoadSaveButton} with the specified values
@@ -32,7 +32,7 @@ public class LoadSaveButton extends SavesMenuButton{
 	 * @param y See {@link #getY()}
 	 * @param text The name of the file to display
 	 * @param path See {@link #path}
-	 * @param game The {@link ZusassGame} associated with this button
+	 * @param zgame The {@link ZusassGame} associated with this button
 	 */
 	public LoadSaveButton(double x, double y, String text, String path, SavesMenu menu, ZusassGame zgame){
 		super(x, y, text, menu, zgame);

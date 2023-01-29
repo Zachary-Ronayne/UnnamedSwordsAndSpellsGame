@@ -9,8 +9,7 @@ import zusass.ZusassGame;
 public final class ZusassStyle{
 	
 	public static void applyStyle(ZusassGame zgame, MenuThing thing){
-		if(thing instanceof MenuText){
-			MenuText text = (MenuText)thing;
+		if(thing instanceof MenuText text){
 			text.setFontColor(new ZColor(.2));
 			text.setFontSize(50);
 			text.setTextX(10);
@@ -21,7 +20,7 @@ public final class ZusassStyle{
 		thing.setBorder(new ZColor(.6));
 	}
 	
-	/** Cannot instantiate {@link #ZusassStyle()} */
+	/** Cannot instantiate {@link ZusassStyle} */
 	private ZusassStyle(){
 	}
 	

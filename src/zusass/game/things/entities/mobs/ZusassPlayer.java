@@ -56,7 +56,7 @@ public class ZusassPlayer extends ZusassMob{
 		ZMouseInput mi = game.getMouseInput();
 		boolean rightPressed = mi.rightDown();
 		if(rightPressed) this.attackPressed = true;
-		else if(this.attackPressed && !rightPressed){
+		if(this.attackPressed){
 			this.attackPressed = false;
 			this.beginAttack(ZMath.lineAngle(this.centerX(), this.centerY(), game.mouseGX(), game.mouseGY()));
 		}
@@ -130,7 +130,7 @@ public class ZusassPlayer extends ZusassMob{
 	}
 	
 	/**
-	 * If the camera should be locked to this {@link Player}, then lock the camera, otherwise do nothing
+	 * If the camera should be locked to this {@link ZusassPlayer}, then lock the camera, otherwise do nothing
 	 * 
 	 * @param game The game to get the camera from
 	 */

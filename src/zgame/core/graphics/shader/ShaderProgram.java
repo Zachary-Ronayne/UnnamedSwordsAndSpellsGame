@@ -12,10 +12,10 @@ import zgame.core.utils.ZStringUtils;
 public class ShaderProgram{
 	
 	/** The vertex Shader used by this {@link ShaderProgram} */
-	private Shader vertex;
+	private final Shader vertex;
 	
 	/** The fragment Shader used by this {@link ShaderProgram} */
-	private Shader fragment;
+	private final Shader fragment;
 	
 	/** The OpenGL program id associated with this {@link ShaderProgram} */
 	private int id;

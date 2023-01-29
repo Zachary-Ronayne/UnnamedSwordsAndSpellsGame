@@ -295,7 +295,7 @@ public class MenuTextBox extends MenuButton{
 		return this.cursorColor;
 	}
 	
-	/** @param cursorWidth See {@link #cursorColor} */
+	/** @param cursorColor See {@link #cursorColor} */
 	public void setCursorColor(ZColor cursorColor){
 		this.cursorColor = cursorColor;
 	}
@@ -305,7 +305,7 @@ public class MenuTextBox extends MenuButton{
 		return this.blinkTime;
 	}
 	
-	/** @param cursorWidth See {@link #blinkTime} */
+	/** @param blinkTime See {@link #blinkTime} */
 	public void setBlinkTime(double blinkTime){
 		this.blinkTime = blinkTime;
 	}
@@ -325,7 +325,7 @@ public class MenuTextBox extends MenuButton{
 		return this.cursorIndex;
 	}
 	
-	/** @param See {@link #cursorIndex}. If the index is out of bounds of {@link #getText()}, it goes on the end of the string it's closest to */
+	/** @param cursorIndex See {@link #cursorIndex}. If the index is out of bounds of {@link #getText()}, it goes on the end of the string it's closest to */
 	public void setCursorIndex(int cursorIndex){
 		// Keep the cursor index in bounds
 		if(cursorIndex < -1) cursorIndex = -1;

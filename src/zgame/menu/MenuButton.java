@@ -62,7 +62,7 @@ public class MenuButton extends MenuText{
 	}
 	
 	/**
-	 * Call {@link #click()} if the mouse was released while on top of this button
+	 * Call {@link #click(Game)} if the mouse was released while on top of this button
 	 */
 	@Override
 	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
@@ -97,8 +97,8 @@ public class MenuButton extends MenuText{
 	}
 	
 	/**
-	 * @param The game used by this {@link MenuButton}
-	 * @return true if a highlight on top of this button should render. By default renders when the mouse is over it
+	 * @param game The game used by this {@link MenuButton}
+	 * @return true if a highlight on top of this button should render. By default, renders when the mouse is over it
 	 */
 	public boolean showHighlight(Game game){
 		return this.getBounds().contains(game.mouseSX(), game.mouseSY());

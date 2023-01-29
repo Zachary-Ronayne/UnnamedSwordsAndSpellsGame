@@ -8,10 +8,11 @@ import static org.lwjgl.opengl.GL30.*;
  * 
  * @deprecated This uses outdated OpenGL methods
  */
+@Deprecated
 public abstract class DisplayList{
 	
 	/** The id used by OpenGL to track this DisplayList */
-	private int id;
+	private final int id;
 	
 	/**
 	 * Create an empty display list, which will perform the actions of {@link #listFunc()}

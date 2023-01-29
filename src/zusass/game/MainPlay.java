@@ -21,7 +21,7 @@ public class MainPlay extends PlayState{
 	/**
 	 * Initialize the main play state for the Zusass game
 	 * 
-	 * @param game The {@link Game} using this state
+	 * @param zgame The {@link Game} using this state
 	 */
 	public MainPlay(ZusassGame zgame){
 		this.enterHub(zgame);
@@ -30,7 +30,7 @@ public class MainPlay extends PlayState{
 	/**
 	 * Set the current room of the game to the main hub
 	 * 
-	 * @param game The {@link Game} using this state
+	 * @param zgame The {@link Game} using this state
 	 */
 	public void enterHub(ZusassGame zgame){
 		// Make the hub

@@ -87,8 +87,7 @@ public final class ZStringUtils{
 	/**
 	 * Print a list of the objects in the given array concatenated together using efficient string concatenation, formatted as [e1, e2, e3]
 	 * 
-	 * @param arr The array to get the string
-	 * @return The resulting string
+	 * @param arr The array of values to print
 	 */
 	public static void printArr(Object[] arr){
 		System.out.println(arrStr(arr));
@@ -144,6 +143,6 @@ public final class ZStringUtils{
 	
 	/** Cannot instantiate this class */
 	private ZStringUtils(){
-	};
+	}
 	
 }

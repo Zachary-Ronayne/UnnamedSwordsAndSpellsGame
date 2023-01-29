@@ -35,7 +35,7 @@ public class MusicPlayer extends SoundPlayer<MusicSound>{
 	
 	@Override
 	protected void runSound(SoundSource source, MusicSound sound){
-		this.currentSong = new SoundPair<MusicSound>(source, sound);
+		this.currentSong = new SoundPair<>(source, sound);
 		int sourceID = source.getId();
 		
 		// Set the source to play relative to the listener

@@ -13,7 +13,7 @@ public final class ZCollision{
 	/**
 	 * Given the rectangular bounds of an unmoving object, and the rectangular bounds of an object to collide with the unmoving object, determine how the latter object should
 	 * collide
-	 * 
+	 * <p>
 	 * All coordinates are treated as the upper left hand corner of the bounds
 	 * 
 	 * @param cx The x coordinate of the unmoving bounds
@@ -30,10 +30,7 @@ public final class ZCollision{
 	public static CollisionResponse rectToRectBasic(double cx, double cy, double cw, double ch, double x, double y, double w, double h, Material m){
 		// If the rectangles do not intersect, then there was no collision
 		ZRect unmoving = new ZRect(cx, cy, cw, ch);
-		if(!unmoving.intersects(x, y, w, h)){
-			var r = new CollisionResponse();
-			return r;
-		}
+		if(!unmoving.intersects(x, y, w, h)) return new CollisionResponse();
 		// Initial Variable values
 		double xDis = 0;
 		double yDis = 0;
@@ -116,7 +113,7 @@ public final class ZCollision{
 	/**
 	 * Given the rectangular bounds of an unmoving object, and the rectangular bounds of an object to collide with the unmoving object, determine how the latter object should
 	 * collide
-	 * 
+	 * <p>
 	 * All coordinates are treated as the upper left hand corner of the bounds
 	 * 
 	 * @param cx The x coordinate of the unmoving bounds
@@ -223,7 +220,7 @@ public final class ZCollision{
 	}
 	
 	/**
-	 * A helper method for {@link #rectToRect(double, double, double, double, double, double, double, double, double, double)} for handling comparing lines of a rectangle
+	 * A helper method for {@link #rectToRect(double, double, double, double, double, double, double, double, double, double, Material)} for handling comparing lines of a rectangle
 	 * 
 	 * @param line The line of the rectangle
 	 * @param moveLine The line which the colliding object is moving on
@@ -246,7 +243,7 @@ public final class ZCollision{
 		return null;
 	}
 	
-	/** @return {@link #rectToRectAprox(double, double, double, double, double, double, double, double, double, double, Material) with a default of 5 iterations. */
+	/** @return {@link #rectToRectAprox(double, double, double, double, double, double, double, double, double, double, int, Material)}  with a default of 5 iterations. */
 	public static CollisionResponse rectToRectAprox(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, Material m){
 		return rectToRectAprox(cx, cy, cw, ch, x, y, w, h, px, py, 5, m);
 	}
@@ -258,7 +255,7 @@ public final class ZCollision{
 	 * This method does not account for the case where the previous position and new position both do not touch the colliding bounds, but would touch the colliding bounds, had the
 	 * moving bounds properly went through the entire path it moved.
 	 * I.e., the moving bounds will teleport through the colliding bounds the moving bounds moves too fast
-	 * 
+	 * <p>
 	 * All coordinates are treated as the upper left hand corner of the bounds
 	 * 
 	 * @param cx The x coordinate of the unmoving bounds
@@ -288,8 +285,8 @@ public final class ZCollision{
 		if(!moving.intersects(colliding)) return new CollisionResponse();
 		
 		// Initial Variable values
-		double xDis = 0;
-		double yDis = 0;
+		double xDis;
+		double yDis;
 		boolean left = false;
 		boolean right = false;
 		boolean top = false;
@@ -363,8 +360,7 @@ public final class ZCollision{
 	 *         3: first is below second
 	 */
 	public static boolean[] orientation(double x, double y, double w, double h, double cx, double cy, double cw, double ch){
-		boolean[] b = new boolean[]{toLeft(x, cx), toRight(x, w, cx, cw), above(y, cy), below(y, h, cy, ch)};
-		return b;
+		return new boolean[]{toLeft(x, cx), toRight(x, w, cx, cw), above(y, cy), below(y, h, cy, ch)};
 	}
 	
 	/**
@@ -400,7 +396,7 @@ public final class ZCollision{
 	}
 	
 	/**
-	 * Treat n and cn as the lower coordinate of two rectangle's axis, and determine if n is smaller than cn.
+	 * Treat n and cn as the lower coordinate of two rectangles axis, and determine if n is smaller than cn.
 	 * Used for determining if the relative position of rectangles.
 	 * Essentially, check if n is to the left or above c
 	 * 
@@ -413,7 +409,7 @@ public final class ZCollision{
 	}
 	
 	/**
-	 * Treat n and cn as the lower coordinate of two rectangle's axis, and s and cs as the sizes, and determine if n is larger than cn.
+	 * Treat n and cn as the lower coordinate of two rectangles axis, and s and cs as the sizes, and determine if n is larger than cn.
 	 * Used for determining if the relative position of rectangles
 	 * Essentially, check if n is to the right or below cn
 	 * 

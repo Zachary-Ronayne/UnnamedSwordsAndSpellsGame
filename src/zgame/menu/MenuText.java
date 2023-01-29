@@ -16,7 +16,7 @@ import zgame.core.utils.ZRect;
 public class MenuText extends MenuThing{
 	
 	/** The {@link TextBuffer} which this {@link MenuText} will use to draw text */
-	private TextBuffer buffer;
+	private final TextBuffer buffer;
 	
 	/** The {@link ZColor} to use to color {@link #text} */
 	private ZColor fontColor;
@@ -127,12 +127,12 @@ public class MenuText extends MenuThing{
 		this.fontColor = fontColor;
 	}
 	
-	/** @return See {@link #fontSize} */
+	/** @return See {@link GameFont#size} */
 	public double getFontSize(){
 		return this.getFont().getSize();
 	}
 	
-	/** @param fontSize See {@link #fontSize} */
+	/** @param fontSize See {@link GameFont#size} */
 	public void setFontSize(double fontSize){
 		this.setFont(this.getFont().size(fontSize));
 	}

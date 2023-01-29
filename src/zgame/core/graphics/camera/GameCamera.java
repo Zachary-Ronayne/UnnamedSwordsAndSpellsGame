@@ -11,10 +11,10 @@ import zgame.core.window.GameWindow;
 public class GameCamera{
 	
 	/** The x axis of the camera */
-	private CameraAxis x;
+	private final CameraAxis x;
 	
 	/** The y axis of the camera */
-	private CameraAxis y;
+	private final CameraAxis y;
 	
 	/** The x axis anchor position for panning */
 	private double anchorX;
@@ -43,7 +43,7 @@ public class GameCamera{
 	 * Apply OpenGL transformations to position objects to where the camera should be, based on the given {@link GameWindow}
 	 * This translation will treat {@link #x} and {@link #y} positions as the upper left hand corner of the screen
 	 * 
-	 * @param window The {@link window}
+	 * @param window The {@link GameWindow}
 	 */
 	public void transform(GameWindow window){
 		// Find the distance the camera must travel, in OpenGL coordinates
@@ -112,7 +112,7 @@ public class GameCamera{
 	/**
 	 * Zoom in on both axis. This method does not adjust camera position
 	 * 
-	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
+	 * @param zoom The factor to zoom in by, which will be added to {@link CameraAxis#zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
 	 */
 	public void zoom(double zoom){
 		this.getX().zoom(zoom);
@@ -214,7 +214,7 @@ public class GameCamera{
 	}
 	
 	/**
-	 * Convert an y axis size in game space, to a size in screen space
+	 * Convert a y axis size in game space, to a size in screen space
 	 * 
 	 * @param y The value to convert
 	 * @return The converted value
@@ -234,7 +234,7 @@ public class GameCamera{
 	}
 	
 	/**
-	 * Convert an y axis size in screen space, to a size in game space
+	 * Convert a y axis size in screen space, to a size in game space
 	 * 
 	 * @param y The value to convert
 	 * @return The converted value

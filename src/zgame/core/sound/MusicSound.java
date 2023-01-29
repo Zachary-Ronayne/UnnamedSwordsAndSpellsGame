@@ -17,13 +17,13 @@ import java.util.Arrays;
 public class MusicSound extends Sound{
 	
 	/** The values used by OpenAL to track the buffers of this {@link MusicSound} */
-	private int[] ids;
+	private final int[] ids;
 	
 	/** The number of buffers used by this music sound for splitting audio into multiple buffers */
-	private int numBuffers;
+	private final int numBuffers;
 	
 	/** The number of samples in each buffer */
-	private int bufferSize;
+	private final int bufferSize;
 	
 	/** The pointer pointing to the data for this {@link MusicSound} */
 	private PointerBuffer pointer;

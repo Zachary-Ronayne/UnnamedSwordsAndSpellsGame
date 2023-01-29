@@ -8,6 +8,7 @@ import zgame.core.file.Saveable;
 import zgame.core.file.ZJsonFile;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.camera.CameraAxis;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.font.GameFont;
@@ -38,29 +39,29 @@ public class Game implements Saveable, Destroyable{
 	
 	/**
 	 * By default, the number of times a second the sound will be updated, i.e. updating streaming sounds, checking if sounds are still playing, checking which sounds need to play,
-	 * etc
+	 * etc.
 	 * Generally shouldn't modify the value in a {@link Game}, but it can be modified through {@link Game#setSoundUpdates(int)}
 	 * Setting the value too low can result in sounds getting stuck, particularly streaming sounds, i.e. music
 	 */
 	public static final int DEFAULT_SOUND_UPDATES = 100;
 	
 	/** The {@link GLFWWindow} used by this {@link Game} as the core interaction */
-	private GameWindow window;
+	private final GameWindow window;
 	
 	/** The {@link SoundManager} used by this {@link Game} to create sounds */
-	private SoundManager sounds;
+	private final SoundManager sounds;
 	
 	/** The {@link ImageManager} used by this {@link Game} to load images for ease of use in rendering */
-	private ImageManager images;
+	private final ImageManager images;
 	
 	/** The {@link FontManager} used by this {@link Game} to load fonts for rendering text */
-	private FontManager fonts;
+	private final FontManager fonts;
 	
 	/** The looper to run the main OpenGL loop */
-	private GameLooper renderLooper;
+	private final GameLooper renderLooper;
 	
 	/** The Camera which determines the relative location and scale of objects drawn in the game */
-	private GameCamera camera;
+	private final GameCamera camera;
 	
 	/** The {@link GameState} which this game is currently in */
 	private GameState currentState;
@@ -72,7 +73,7 @@ public class Game implements Saveable, Destroyable{
 	private GameState destroyState;
 	
 	/** The {@link GameLooper} which runs the regular time intervals */
-	private GameLooper tickLooper;
+	private final GameLooper tickLooper;
 	/** The {@link Thread} which runs the game tick loop. This is a separate thread from the main thread, which the OpenGL loop will run on */
 	private Thread tickThread;
 	/** The {@link Runnable} used by {@link #tickThread} to run its thread */
@@ -86,7 +87,7 @@ public class Game implements Saveable, Destroyable{
 	private double totalTickTime;
 	
 	/** The {@link GameLooper} which regularly updates the sound */
-	private GameLooper soundLooper;
+	private final GameLooper soundLooper;
 	/** The {@link Thread} which runs the game sound loop. This is a separate thread from the main thread, which the OpenGL loop will run on */
 	private Thread soundThread;
 	/** The {@link Runnable} used by {@link #soundThread} to run its thread */
@@ -291,7 +292,7 @@ public class Game implements Saveable, Destroyable{
 	 * Called when the window receives a key press. Can overwrite this method to perform actions directly when keys are pressed.
 	 * Can also provide this {@link Game} with a {@link GameState} via {@link #setCurrentState(GameState)} to perform that state's actions.
 	 * 
-	 * @param key The id of the key
+	 * @param button The id of the key
 	 * @param press true if the key was pressed, false for released
 	 * @param shift true if shift is pressed, false otherwise
 	 * @param alt true if alt is pressed, false otherwise
@@ -418,7 +419,7 @@ public class Game implements Saveable, Destroyable{
 	}
 	
 	/**
-	 * Called once each time a frame is rendered to the screen, after the main render. Use this method to define what is drawn on top of the screen, i.e. a hud, menu, etc
+	 * Called once each time a frame is rendered to the screen, after the main render. Use this method to define what is drawn on top of the screen, i.e. a hud, menu, etc.
 	 * Do not manually call this method
 	 * Can also provide this {@link Game} with a {@link GameState} via {@link #setCurrentState(GameState)} to perform that state's actions.
 	 * 
@@ -761,7 +762,7 @@ public class Game implements Saveable, Destroyable{
 		return this.tickLooper.getRate();
 	}
 	
-	/** @param See {@link #getTps()} */
+	/** @param tps See {@link #getTps()} */
 	public void setTps(int tps){
 		tps = Math.max(1, tps);
 		this.tickLooper.setRate(tps);
@@ -860,9 +861,7 @@ public class Game implements Saveable, Destroyable{
 		if(this.nextCurrentState == null) return;
 		this.destroyState = this.currentState;
 		this.currentState = this.nextCurrentState;
-		PlayState convert = this.currentState.asPlay();
-		if(convert != null) this.playState = convert;
-		else this.playState = null;
+		this.playState = this.currentState.asPlay();
 		this.currentState.onSet(this);
 		this.nextCurrentState = null;
 	}
@@ -883,8 +882,8 @@ public class Game implements Saveable, Destroyable{
 	 * Zoom in the screen with {@link #camera} on just the x axis
 	 * The zoom will reposition the camera so that the given coordinates are zoomed towards
 	 * These coordinates are screen coordinates
-	 * 
-	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
+	 *
+	 * @param zoom The factor to zoom in by, which will be added to {@link CameraAxis#zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
 	 * @param x The x coordinate to base the zoom
 	 */
 	public void zoomX(double zoom, double x){
@@ -896,7 +895,7 @@ public class Game implements Saveable, Destroyable{
 	 * The zoom will reposition the camera so that the given coordinates are zoomed towards
 	 * These coordinates are screen coordinates
 	 * 
-	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
+	 * @param zoom The factor to zoom in by, which will be added to {@link CameraAxis#zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
 	 * @param y The y coordinate to base the zoom
 	 */
 	public void zoomY(double zoom, double y){
@@ -908,7 +907,7 @@ public class Game implements Saveable, Destroyable{
 	 * The zoom will reposition the camera so that the given coordinates are zoomed towards
 	 * These coordinates are screen coordinates
 	 * 
-	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
+	 * @param zoom The factor to zoom in by, which will be added to {@link CameraAxis#zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
 	 * @param x The x coordinate to base the zoom
 	 * @param y The y coordinate to base the zoom
 	 */

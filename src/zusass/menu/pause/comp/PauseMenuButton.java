@@ -8,7 +8,7 @@ import zusass.menu.pause.PauseMenu;
 public class PauseMenuButton extends ZusassButton{
 	
 	/** The menu using this button */
-	private PauseMenu menu;
+	private final PauseMenu menu;
 
 	/**
 	 * Create a {@link PauseMenuButton} with the given values

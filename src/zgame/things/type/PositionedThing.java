@@ -29,9 +29,9 @@ public abstract class PositionedThing extends GameThing implements Position{
 		this.x = x;
 		this.y = y;
 	}
-	
-	@Override
+
 	/** @return See {@link #x} */
+	@Override
 	public double getX(){
 		return this.x;
 	}
@@ -49,9 +49,9 @@ public abstract class PositionedThing extends GameThing implements Position{
 	public void addX(double x){
 		this.setX(this.getX() + x);
 	}
-	
-	@Override
+
 	/** @return See {@link #y} */
+	@Override
 	public double getY(){
 		return this.y;
 	}

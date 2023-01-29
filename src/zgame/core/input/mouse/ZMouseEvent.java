@@ -9,9 +9,9 @@ import zgame.core.input.ZButtonInputEvent;
 public class ZMouseEvent extends ZButtonInputEvent{
 	
 	/** The x pixel coordinate when the event happened */
-	private double x;
+	private final double x;
 	/** The y pixel coordinate when the event happened */
-	private double y;
+	private final double y;
 	
 	/**
 	 * Create a new {@link ZMouseEvent} with the given information

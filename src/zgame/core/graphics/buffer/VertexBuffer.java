@@ -12,34 +12,22 @@ import static org.lwjgl.opengl.GL30.*;
 public class VertexBuffer implements Destroyable{
 	
 	/** The id used by OpenGL to track this {@link VertexBuffer} */
-	private int id;
+	private final int id;
 	
 	/** The vertex data of this {@link VertexBuffer} in an array */
 	private float[] data;
 	
 	/** The data of {@link #data} in a float buffer */
-	private FloatBuffer buff;
+	private final FloatBuffer buff;
 	
 	/** The index which OpenGL uses to refer to this type of vertex data */
-	private int index;
+	private final int index;
 	
 	/** The number of numbers in each vertex, i.e. a 3D positional vertex would have 3 values, a color in RGBA would have 4 values, etc. */
-	private int vertexLength;
+	private final int vertexLength;
 	
 	/** The mode used by glBufferData for the usage parameter. Either GL_STREAM_DRAW, GL_STATIC_DRAW, or GL_DYNAMIC_DRAW */
-	private int drawMode;
-	
-	/**
-	 * Create a basic {@link VertexArray} based on the given values. Calling this constructor will create the buffer ID, assign the data to the created buffer, and assign the
-	 * buffer to the current vertex array. The data in this {@link VertexBuffer} makes no guarantees about what will be stored as the initial data
-	 * 
-	 * @param index See {@link #index}
-	 * @param vertexLength See {@link #vertexLength}
-	 * @param vertices The number of vertices in this {@link VertexBuffer}
-	 */
-	public VertexBuffer(int index, int vertexLength, int vertices){
-		this(index, vertexLength, vertices, GL_DYNAMIC_DRAW);
-	}
+	private final int drawMode;
 	
 	/**
 	 * Create a basic {@link VertexArray} based on the given values. Calling this constructor will create the buffer ID, assign the data to the created buffer, and assign the
@@ -51,7 +39,7 @@ public class VertexBuffer implements Destroyable{
 	 * @param vertices The number of vertices in this {@link VertexBuffer}
 	 */
 	public VertexBuffer(int index, int vertexLength, int drawMode, int vertices){
-		this(index, vertexLength, new float[vertexLength * vertices]);
+		this(index, vertexLength, drawMode, new float[vertexLength * vertices]);
 	}
 	
 	/**

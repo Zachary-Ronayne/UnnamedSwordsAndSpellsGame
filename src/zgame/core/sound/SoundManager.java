@@ -18,16 +18,16 @@ import zgame.core.utils.ZStringUtils;
 public class SoundManager implements Destroyable{
 	
 	/** The {@link EffectsPlayer} tracking the sound effects played by this {@link SoundManager} */
-	private EffectsPlayer effectsPlayer;
+	private final EffectsPlayer effectsPlayer;
 	
 	/** The {@link MusicPlayer} tracking the music played by this {@link SoundManager} */
-	private MusicPlayer musicPlayer;
+	private final MusicPlayer musicPlayer;
 	
 	/** The single {@link SoundSource} which plays music. Will automatically always play relative to the OpenAL listener */
-	private SoundSource musicSource;
+	private final SoundSource musicSource;
 	
 	/** The single {@link SoundListener} which determines where sound is located */
-	private SoundListener listener;
+	private final SoundListener listener;
 	
 	/** The {@link SpeakerDevice} which is currently being used to play sounds */
 	private SpeakerDevice currentDevice;
@@ -42,13 +42,13 @@ public class SoundManager implements Destroyable{
 	 * A list of every {@link SpeakerDevice} available on the current machine since the last scan.
 	 * There are no guarantees about the order of this list, i.e. the default device could be anywhere in the list
 	 */
-	private List<SpeakerDevice> devices;
+	private final List<SpeakerDevice> devices;
 	
 	/** The object managing every {@link EffectSound} currently available through this {@link SoundManager} */
-	private EffectsManager effectsManager;
+	private final EffectsManager effectsManager;
 	
-	/** The object managing every every piece of music currently available through this {@link SoundManager}. The key is a string representing the name of the sound */
-	private MusicManager musicManager;
+	/** The object managing every piece of music currently available through this {@link SoundManager}. The key is a string representing the name of the sound */
+	private final MusicManager musicManager;
 	
 	/** Initialize the {@link SoundManager} to its default state */
 	public SoundManager(){
@@ -65,7 +65,7 @@ public class SoundManager implements Destroyable{
 		this.effectsManager = new EffectsManager();
 		this.musicManager = new MusicManager();
 		
-		this.devices = new ArrayList<SpeakerDevice>();
+		this.devices = new ArrayList<>();
 		this.scanDevices();
 		
 		this.effectsPlayer = new EffectsPlayer();
@@ -92,7 +92,8 @@ public class SoundManager implements Destroyable{
 		
 		// First get the newly loaded names and the names before this scan
 		List<String> names = ALUtil.getStringList(0, ALC_ALL_DEVICES_SPECIFIER);
-		List<String> oldNames = new ArrayList<String>();
+		if(names == null) names = List.of();
+		List<String> oldNames = new ArrayList<>();
 		for(SpeakerDevice d : this.devices) oldNames.add(d.getName());
 		// Next remove any devices with names which are not in the new list of names
 		for(int i = 0; i < this.devices.size(); i++){
@@ -218,7 +219,7 @@ public class SoundManager implements Destroyable{
 	/**
 	 * Load all the sounds as effects in {@link ZFilePaths#EFFECTS}, where the name of the file without a file extension is how they will be referred to using
 	 * {@link #playEffect(SoundSource, String)}
-	 * The files should be stored such that {@link ZFilePaths#EFFECT} contains folders, where each folder is named as the type of sound contained by that folder.
+	 * The files should be stored such that {@link ZFilePaths#EFFECTS} contains folders, where each folder is named as the type of sound contained by that folder.
 	 * Then, each of those folders will contain the sound files which will be of the type of the folder they are in
 	 */
 	public void addAllEffects(){
@@ -256,7 +257,7 @@ public class SoundManager implements Destroyable{
 	/**
 	 * Play the given music sound
 	 * 
-	 * @param name The name of the sound, i.e. the name used when calling {@link #addMusic(EffectSound, String)}
+	 * @param name The name of the sound, i.e. the name used when calling {@link #addMusic(String)}
 	 */
 	public void playMusic(String name){
 		this.getMusicPlayer().playSound(this.getMusicSource(), this.musicManager.get(name));

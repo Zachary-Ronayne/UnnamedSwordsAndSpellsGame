@@ -19,12 +19,12 @@ public class Tile extends PositionedRectangleThing implements Materialable{
 	public static final double TILE_SIZE_INVERSE = 1.0 / TILE_SIZE;
 
 	/** The index of this tile on the x axis */
-	private int xIndex;
+	private final int xIndex;
 	/** The index of this tile on the y axis */
-	private int yIndex;
+	private final int yIndex;
 	
 	/** The type of this tile */
-	private TileType type;
+	private final TileType type;
 	
 	/**
 	 * Make a new tile at the given index of the default color

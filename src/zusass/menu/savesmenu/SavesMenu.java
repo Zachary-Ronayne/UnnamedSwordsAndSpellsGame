@@ -23,13 +23,13 @@ public class SavesMenu extends ZusassMenu{
 	public static final double MESSAGE_TIME = 4;
 	
 	/** The list of buttons used to load and save files */
-	private LoadSaveButtonList loadButtons;
+	private final LoadSaveButtonList loadButtons;
 	
 	/** The scroller that allows the list of buttons to move up and down */
-	private SavesMenuScroller scroller;
+	private final SavesMenuScroller scroller;
 	
 	/** An object to hold the buttons that will be hidden when no file is selected */
-	private MenuHolder extraButtonHolder;
+	private final MenuHolder extraButtonHolder;
 	
 	/** Text to display for a temporary amount of time */
 	private String messageText;

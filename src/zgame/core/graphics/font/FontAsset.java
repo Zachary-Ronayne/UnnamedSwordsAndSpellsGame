@@ -43,24 +43,24 @@ public class FontAsset extends Asset{
 	private STBTTFontinfo info;
 	
 	/** The width, in pixels, of the bitmap of this {@link FontAsset} */
-	private int width;
+	private final int width;
 	/** The height, in pixels, of the bitmap of this {@link FontAsset} */
-	private int height;
+	private final int height;
 	
 	/** The first_char value used by stb_truetype for rendering fonts */
-	private int firstChar;
+	private final int firstChar;
 	
 	/** The resolution of the font, i.e. the number of pixels tall the font has to work with. Higher resolutions look better at larger font sizes, but take up more memory */
-	private int resolution;
+	private final int resolution;
 	
 	/** The inverse of {@link #resolution} */
-	private double resolutionInverse;
+	private final double resolutionInverse;
 	
-	/** Two times the value of {@link #doubleResolutionInverse}. Used for hacky weird reasons */
-	private double doubleResolutionInverse;
+	/** Two times the value of {@link #resolutionInverse}. Used for hacky weird reasons */
+	private final double doubleResolutionInverse;
 	
 	/** The number of characters to load from the font */
-	private int loadChars;
+	private final int loadChars;
 	
 	/** The amount a character goes up from the line where it is drawn. This value must be scaled */
 	private int ascent;
@@ -70,16 +70,16 @@ public class FontAsset extends Asset{
 	private int lineGap;
 	
 	/** A map, mapped by font size, whose values are maps containing the width of every character used by this font, computed dynamically as the width of characters is requested */
-	private Map<Double, Map<Character, Double>> widthMap;
+	private final Map<Double, Map<Character, Double>> widthMap;
 	/** A map, mapped by font size, mapping the maximum height, in pixels, a character can take up, computed when a height is requested */
-	private Map<Double, Double> maxHeightMap;
+	private final Map<Double, Double> maxHeightMap;
 	/** A map, mapped by font size, mapping the ratio returned by stbtt_ScaleForPixelHeight */
-	private Map<Double, Float> pixelRatioMap;
+	private final Map<Double, Float> pixelRatioMap;
 	
 	/** Buffers used internally by stb true type methods */
-	private IntBuffer[] intBuffers;
+	private final IntBuffer[] intBuffers;
 	/** Buffers used internally by stb true type methods */
-	private FloatBuffer[] floatBuffers;
+	private final FloatBuffer[] floatBuffers;
 	/** A buffer used internally by stb true type methods */
 	private STBTTAlignedQuad quadBuffer;
 	
@@ -132,9 +132,9 @@ public class FontAsset extends Asset{
 		this.height = sizeRatio * this.resolution;
 		this.loadChars = loadChars;
 		
-		this.widthMap = new HashMap<Double, Map<Character, Double>>();
-		this.maxHeightMap = new HashMap<Double, Double>();
-		this.pixelRatioMap = new HashMap<Double, Float>();
+		this.widthMap = new HashMap<>();
+		this.maxHeightMap = new HashMap<>();
+		this.pixelRatioMap = new HashMap<>();
 		
 		this.intBuffers = new IntBuffer[INT_BUFFERS];
 		this.floatBuffers = new FloatBuffer[FLOAT_BUFFERS];
@@ -226,7 +226,7 @@ public class FontAsset extends Asset{
 	 * @param c The character
 	 */
 	private synchronized void computeWidth(double size, char c){
-		if(!this.widthMap.containsKey(size)) this.widthMap.put(size, new HashMap<Character, Double>());
+		if(!this.widthMap.containsKey(size)) this.widthMap.put(size, new HashMap<>());
 		Map<Character, Double> cMap = this.widthMap.get(size);
 		
 		FloatBuffer xb = this.getFloatBuffer(0);
@@ -298,7 +298,7 @@ public class FontAsset extends Asset{
 	 */
 	public int charIndex(char c){
 		int charIndex = c - this.getFirstChar();
-		if(c < 0 || c >= this.getLoadChars()) charIndex = 0;
+		if(c >= this.getLoadChars()) charIndex = 0;
 		return charIndex;
 	}
 	
@@ -354,7 +354,7 @@ public class FontAsset extends Asset{
 		return this.resolutionInverse;
 	}
 	
-	/** See {@link #getDoubleResolutionInverse} */
+	/** See {@link #doubleResolutionInverse} */
 	public double getDoubleResolutionInverse(){
 		return doubleResolutionInverse;
 	}

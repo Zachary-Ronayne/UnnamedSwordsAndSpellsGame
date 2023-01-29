@@ -8,20 +8,20 @@ import zgame.core.window.GameWindow;
 /**
  * A class designed for input devices which use buttons that can either be pressed or not pressed
  * 
- * @param B The {@link ZButtonInputEvent} which will represent events performed by this input object
+ * @param <B> The {@link ZButtonInputEvent} which will represent events performed by this input object
  */
 public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	
 	/** The {@link GameWindow} using this {@link ZButtonInput} */
-	private GameWindow window;
+	private final GameWindow window;
 	
 	/** The {@link Map} storing the state of every button and its associated actions */
-	private Map<Integer, B> buttonsDown;
+	private final Map<Integer, B> buttonsDown;
 	
 	/** Create a simple {@link ZButtonInput} and initialize every value */
 	public ZButtonInput(GameWindow window){
 		this.window = window;
-		this.buttonsDown = new HashMap<Integer, B>();
+		this.buttonsDown = new HashMap<>();
 	}
 	
 	/** Set all buttons to be not pressed */

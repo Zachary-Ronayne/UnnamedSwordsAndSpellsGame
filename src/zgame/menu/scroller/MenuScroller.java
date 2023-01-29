@@ -11,7 +11,7 @@ import zgame.menu.MenuThing;
 public abstract class MenuScroller extends MenuThing{
 	
 	/** The amount scrolled */
-	private ScrollAxis scroller;
+	private final ScrollAxis scroller;
 	
 	/** The amount this scroller can move on its axis {@link MenuThing}s to */
 	private double amount;
@@ -23,7 +23,7 @@ public abstract class MenuScroller extends MenuThing{
 	private MenuThing movingThing;
 	
 	/** The button to use for scrolling */
-	private MenuScrollerButton button;
+	private final MenuScrollerButton button;
 	
 	/** The degree to which the scroll wheel will scroll. Also see {@link #scrollWheelAsPercent} */
 	private double scrollWheelStrength;
@@ -40,7 +40,7 @@ public abstract class MenuScroller extends MenuThing{
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}
-	 * @param See {@link #getHeight()}
+	 * @param h See {@link #getHeight()}
 	 * @param amount See {@link #amount}
 	 * @param game The game associated with this thing
 	 */
@@ -83,7 +83,7 @@ public abstract class MenuScroller extends MenuThing{
 		this.scroll(amount);
 	}
 	
-	/** @param See {@link #movingThing} */
+	/** @param thing See {@link #movingThing} */
 	public void setMovingThing(MenuThing thing){
 		this.movingThing = thing;
 		// Update the position of this scroller

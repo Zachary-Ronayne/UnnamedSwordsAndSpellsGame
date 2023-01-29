@@ -6,7 +6,7 @@ import static org.lwjgl.opengl.GL30.*;
 public class VertexArray{
 	
 	/** The id used by OpenGL to track this {@link VertexArray} */
-	private int id;
+	private final int id;
 	
 	/** Generate a new VertexArray and bind this {@link VertexArray} */
 	public VertexArray(){

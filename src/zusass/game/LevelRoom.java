@@ -29,9 +29,9 @@ public class LevelRoom extends ZusassRoom{
 	private boolean[] levelDisp;
 	
 	/** The first color of the checkerboard pattern of this room */
-	private ZColor checker1;
+	private final ZColor checker1;
 	/** The second color of the checkerboard pattern of this room */
-	private ZColor checker2;
+	private final ZColor checker2;
 	
 	/** true if this room has its completion requirements satisfied, and the player is able to leave the room */
 	private boolean roomCleared;
@@ -63,7 +63,7 @@ public class LevelRoom extends ZusassRoom{
 		
 		// Add enemies
 		Npc enemy = new Npc(400, 400, 60, 80);
-		enemy.setWalkSpeedMax(100 + 100 * (1 - (10 / (level + 10))));
+		enemy.setWalkSpeedMax(100 + 100 * (1 - (10 / (level + 10.0))));
 		enemy.getStats().setMaxHealth(10 + level * 3);
 		enemy.getStats().setStrength(10 + level);
 		enemy.healToMaxHealth();
@@ -110,7 +110,7 @@ public class LevelRoom extends ZusassRoom{
 		return this.level;
 	}
 	
-	/** @param See {@link #level} */
+	/** @param level See {@link #level} */
 	private void setLevel(int level){
 		this.level = Math.max(1, level);
 		

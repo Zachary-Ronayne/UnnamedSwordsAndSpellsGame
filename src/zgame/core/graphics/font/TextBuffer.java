@@ -21,7 +21,7 @@ public class TextBuffer extends DrawableBuffer{
 	
 	/**
 	 * Create a {@link TextBuffer} of the given size.
-	 * Will likely want to call {@link #setPosition(double, double)}. The default position is 0 for x, and half the height for y, which may cause some text to get clipped
+	 * Will likely want to call {@link #setTextPosition(double, double)}. The default position is 0 for x, and half the height for y, which may cause some text to get clipped
 	 * off
 	 * 
 	 * @param width See {@link #getWidth()}
@@ -33,7 +33,7 @@ public class TextBuffer extends DrawableBuffer{
 
 	/**
 	 * Create a {@link TextBuffer} of the given size.
-	 * Will likely want to call {@link #setPosition(double, double)}. The default position is 0 for x, and half the height for y, which may cause some text to get clipped
+	 * Will likely want to call {@link #setTextPosition(double, double)}. The default position is 0 for x, and half the height for y, which may cause some text to get clipped
 	 * off
 	 * 
 	 * @param width See {@link #getWidth()}
@@ -103,8 +103,8 @@ public class TextBuffer extends DrawableBuffer{
 	/**
 	 * Update the values of {@link #textX} and {@link #textY}, but do not redraw anything
 	 * 
-	 * @param textX See {@link #textX}
-	 * @param textY See {@link #textY}
+	 * @param x See {@link #textX}
+	 * @param y See {@link #textY}
 	 */
 	public void setTextPosition(double x, double y){
 		this.updateRedraw(x != this.textX || y != this.textY);

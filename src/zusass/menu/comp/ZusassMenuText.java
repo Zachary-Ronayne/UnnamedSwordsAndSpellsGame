@@ -15,7 +15,7 @@ public class ZusassMenuText extends MenuText{
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 * @param text The text to display
-	 * @param game The game associated with this text
+	 * @param zgame The game associated with this text
 	 */
 	public ZusassMenuText(double x, double y, double w, double h, String text, ZusassGame zgame){
 		this(x, y, w, h, text, zgame, false);
@@ -29,7 +29,7 @@ public class ZusassMenuText extends MenuText{
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 * @param text The text to display
-	 * @param game The game associated with this text
+	 * @param zgame The game associated with this text
 	 * @param textOnly true if only the text should display, false for a background and border
 	 * 
 	 */

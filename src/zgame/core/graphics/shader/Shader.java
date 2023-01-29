@@ -23,7 +23,7 @@ public class Shader extends Asset{
 	private int id;
 	
 	/** The type of shader, i.e. either GL_VERTEX_SHADER or GL_FRAGMENT_SHADER */
-	private int type;
+	private final int type;
 	
 	public Shader(String path, int type){
 		super(path);
@@ -47,7 +47,7 @@ public class Shader extends Asset{
 			file = new Scanner(stream);
 			
 			// Read the entire file and put it into the code variable
-			StringBuilder sb = new StringBuilder("");
+			StringBuilder sb = new StringBuilder();
 			while(file.hasNextLine()){
 				sb.append(file.nextLine());
 				sb.append("\n");

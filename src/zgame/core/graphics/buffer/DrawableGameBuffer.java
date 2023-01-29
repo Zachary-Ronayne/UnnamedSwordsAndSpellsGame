@@ -19,7 +19,7 @@ public class DrawableGameBuffer extends DrawableBuffer{
 		super(Math.max(1, (int)Math.round(width)), Math.max(1, (int)Math.round(height)));
 	}
 	
-	/** {@link #draw(Renderer)} is not used by this class, use {@link #draw(Game, Renderer)} instead */
+	/** {@link DrawableBuffer#draw(Renderer)} is not used by this class, use {@link #draw(Game, Renderer)} instead */
 	@Override
 	public final void draw(Renderer r){
 	}

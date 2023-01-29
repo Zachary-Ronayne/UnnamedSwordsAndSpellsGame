@@ -15,7 +15,7 @@ public class SavesMenuButton extends ZusassButton{
 	public static final double HEIGHT = 40;
 	
 	// The {@link SavesMenu} associated with this button
-	private SavesMenu menu;
+	private final SavesMenu menu;
 	
 	/**
 	 * Create a main menu button with the appropriate parameters

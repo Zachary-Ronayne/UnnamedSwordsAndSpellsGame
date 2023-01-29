@@ -13,7 +13,7 @@ public class ColorTile extends TileType{
 	private ZColor color;
 	
 	/** The {@link Material} of this {@link ColorTile} */
-	private Material material;
+	private final Material material;
 	
 	/**
 	 * Create a new {@link ColorTile} using the given data

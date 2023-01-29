@@ -51,7 +51,7 @@ public class GameBuffer implements Destroyable{
 	 * 
 	 * @param width See {@link #width}
 	 * @param height See {@link #height}
-	 * @param true if the buffer should generate right away, false to not generate it
+	 * @param generate true if the buffer should generate right away, false to not generate it
 	 */
 	public GameBuffer(int width, int height, boolean generate){
 		this.bufferGenerated = false;
@@ -235,7 +235,7 @@ public class GameBuffer implements Destroyable{
 		return new ZRect(0, 0, this.getWidth(), this.getHeight());
 	}
 	
-	/** @return See {@link #isBufferGenerated()} */
+	/** @return See {@link #bufferGenerated} */
 	public boolean isBufferGenerated(){
 		return this.bufferGenerated;
 	}

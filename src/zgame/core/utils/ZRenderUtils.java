@@ -4,6 +4,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 
 /** A class used to make some basic renderings using {@link Renderer} */
+@SuppressWarnings("unused")
 public final class ZRenderUtils{
 	
 	/**
@@ -35,7 +36,6 @@ public final class ZRenderUtils{
 	
 	/** Cannot instantiate {@link ZRenderUtils} */
 	private ZRenderUtils(){
-		
 	}
 	
 }

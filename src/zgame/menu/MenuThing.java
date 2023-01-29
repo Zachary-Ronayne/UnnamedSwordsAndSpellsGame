@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * An object which can be contained by a Menu
- * 
+ * <p>
  * All {@link MenuThing}s should be rendered via their relative coordinates
  */
 public class MenuThing implements GameInteractable, Destroyable{
@@ -46,7 +46,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	private MenuThing parent;
 	
 	/** A collection of every {@link MenuThing} in this {@link Menu} */
-	private List<MenuThing> things;
+	private final List<MenuThing> things;
 	
 	/**
 	 * The buffer used by this {@link MenuThing} to keep track of what's drawn for {@link #renderHud(Game, Renderer)}, or null if using a buffer is not enabled.
@@ -103,7 +103,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.borderWidth = 0;
 		
 		this.parent = null;
-		this.things = new ArrayList<MenuThing>();
+		this.things = new ArrayList<>();
 		
 		this.setBuffer(useBuffer);
 		this.drawThingsToBuffer = true;
@@ -111,7 +111,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	// issue#11 add option to make things only render in the bounds regardless of a buffer, fix render checking first
 	
-	/** @param true to enable using the buffer, false otherwise */
+	/** @param use true to enable using the buffer, false otherwise */
 	public void setBuffer(boolean use){
 		if(use && this.buffer == null) this.initBuffer();
 		else if(!use){
@@ -122,7 +122,6 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/**
 	 * Does nothing if {@link #buffer} is null. Otherwise, forces the contents of the buffer to be redrawn the next time the buffer is requested to be drawn to something.
-	 * 
 	 * Essentially, call this method if the state of this thing changed, and should be drawn again
 	 */
 	public void forceRedraw(){
@@ -137,8 +136,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/**
 	 * Force the underlying buffer for this {@link MenuThing} to be recreated. This is an expensive operation, and should not be used frequently.
-	 * Also forces this object to use a buffer, even if it was previously not using one
-	 * 
+	 * Also forces this object to use a buffer, even if it was previously not using one.
 	 * Essentially, call this method to make this thing use a buffer
 	 */
 	public void updateBuffer(){
@@ -147,8 +145,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/**
-	 * Force this {@link MenuThing} to stop using a buffer, also destroy the buffer if was using one
-	 * 
+	 * Force this {@link MenuThing} to stop using a buffer, also destroy the buffer if it was using one.
 	 * Essentially, call this method to stop using a buffer
 	 */
 	public void deleteBuffer(){
@@ -350,11 +347,11 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/**
 	 * Add a {@link MenuThing} to this {@link Menu}
 	 * If thing is the same as this object, the thing is not added.
-	 * Should avoid adding things in a circular manor, i.e. if thing1 contains thing2 and thing2 contains thing3, then thing3 should not contain thing1.
-	 * If things are added in a circular manor, infinite recursion will occur.
+	 * Should avoid adding things in a circular manner, i.e. if thing1 contains thing2 and thing2 contains thing3, then thing3 should not contain thing1.
+	 * If things are added in a circular manner, infinite recursion will occur.
 	 * Once added, any actions which apply to this {@link MenuThing} will also apply to the given thing. This means input, rendering, and game ticks
 	 * If thing already is in something else, i.e. it already has a parent, thing will not be added.
-	 * First remove thing from it's current parent using {@link #removeThing(MenuThing)}, then call {@link #addThing(MenuThing)}
+	 * First remove thing from its current parent using {@link #removeThing(MenuThing)}, then call this method
 	 * 
 	 * @param thing The thing to add
 	 * @return true if the thing was added, false otherwise
@@ -420,19 +417,19 @@ public class MenuThing implements GameInteractable, Destroyable{
 		centerVertical(window.getHeight());
 	}
 	
-	/** Move this {@link MenuThing} to the center bounds of it's parent. Does nothing if this thing has no parent */
+	/** Move this {@link MenuThing} to the center bounds of its parent. Does nothing if this thing has no parent */
 	public void center(){
 		centerHorizontal();
 		centerVertical();
 	}
 	
-	/** Move this {@link MenuThing} to the center horizontal bounds of it's parent. Does nothing if this thing has no parent */
+	/** Move this {@link MenuThing} to the center horizontal bounds of its parent. Does nothing if this thing has no parent */
 	public void centerHorizontal(){
 		if(this.parent == null) return;
 		centerHorizontal(this.parent.getWidth());
 	}
 	
-	/** Move this {@link MenuThing} to the center vertical bounds of it's parent. Does nothing if this thing has no parent */
+	/** Move this {@link MenuThing} to the center vertical bounds of its parent. Does nothing if this thing has no parent */
 	public void centerVertical(){
 		if(this.parent == null) return;
 		centerVertical(this.parent.getHeight());
@@ -545,7 +542,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/**
-	 * Render this {@link MenuThing} to the given renderer using the given game, relative to the the internal buffer
+	 * Render this {@link MenuThing} to the given renderer using the given game, relative to the internal buffer
 	 * 
 	 * @param game The game
 	 * @param r The renderer
@@ -582,10 +579,10 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/** A helper class for drawing {@link MenuThing}s */
-	public class MenuBuffer extends DrawableGameBuffer{
+	public static class MenuBuffer extends DrawableGameBuffer{
 		
 		/** The thing drawn by this buffer */
-		private MenuThing thing;
+		private final MenuThing thing;
 		
 		/**
 		 * Create the new buffer

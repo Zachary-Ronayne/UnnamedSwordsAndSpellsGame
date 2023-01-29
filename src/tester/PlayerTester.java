@@ -20,12 +20,12 @@ public class PlayerTester extends MobThing implements RectangleHitBox{
 	private boolean lockCamera;
 	
 	/**
-	 * Create a new {@link Player} of the given size
+	 * Create a new {@link PlayerTester} of the given size
 	 * 
-	 * @param x The x coordinate of the {@link Player}
-	 * @param y The y coordinate of the {@link Player}
-	 * @param width The width of the {@link Player} hit box
-	 * @param height The height of the {@link Player} hit box
+	 * @param x The x coordinate of the {@link PlayerTester}
+	 * @param y The y coordinate of the {@link PlayerTester}
+	 * @param width The width of the {@link PlayerTester} hit box
+	 * @param height The height of the {@link PlayerTester} hit box
 	 */
 	public PlayerTester(double x, double y, double width, double height){
 		super(x, y);
@@ -66,7 +66,7 @@ public class PlayerTester extends MobThing implements RectangleHitBox{
 	}
 	
 	/**
-	 * If the camera should be locked to this {@link Player}, then lock the camera, otherwise do nothing
+	 * If the camera should be locked to this {@link PlayerTester}, then lock the camera, otherwise do nothing
 	 * 
 	 * @param game The game to get the camera from
 	 */

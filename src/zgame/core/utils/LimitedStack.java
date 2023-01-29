@@ -10,7 +10,7 @@ import java.util.Stack;
 public class LimitedStack<T>{
 	
 	/** The {@link Stack} this object uses to keep track of its elements */
-	private Stack<T> stack;
+	private final Stack<T> stack;
 	
 	/** The item to keep in the stack if the last element is popped */
 	private T defaultItem;
@@ -34,7 +34,7 @@ public class LimitedStack<T>{
 	 * @param replaceFirst See {@link #replaceFirst}
 	 */
 	public LimitedStack(T initial, boolean replaceFirst){
-		this.stack = new Stack<T>();
+		this.stack = new Stack<>();
 		this.defaultItem = initial;
 		this.replaceFirst = replaceFirst;
 		this.stack.push(this.defaultItem);

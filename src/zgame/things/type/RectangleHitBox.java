@@ -8,58 +8,58 @@ import zgame.physics.material.Material;
 public interface RectangleHitBox extends HitBox, RectangleBounds{
 	
 	/** @param x The new x coordinate for this object */
-	public void setX(double x);
+	void setX(double x);
 	
 	/** @param y The new y coordinate for this object */
-	public void setY(double y);
+	void setY(double y);
 	
 	@Override
-	public default boolean keepLeft(double x){
+	default boolean keepLeft(double x){
 		if(this.getX() + this.getWidth() <= x) return false;
 		this.setX(x - this.getWidth());
 		return true;
 	}
 	
 	@Override
-	public default boolean keepRight(double x){
+	default boolean keepRight(double x){
 		if(this.getX() >= x) return false;
 		this.setX(x);
 		return true;
 	}
 	
 	@Override
-	public default boolean keepAbove(double y){
+	default boolean keepAbove(double y){
 		if(this.getY() + this.getHeight() <= y) return false;
 		this.setY(y - this.getHeight());
 		return true;
 	}
 	
 	@Override
-	public default boolean keepBelow(double y){
+	default boolean keepBelow(double y){
 		if(this.getY() >= y) return false;
 		this.setY(y);
 		return true;
 	}
 	
 	@Override
-	public default CollisionResponse calculateRectCollision(double x, double y, double w, double h, Material m){
+	default CollisionResponse calculateRectCollision(double x, double y, double w, double h, Material m){
 		return ZCollision.rectToRectBasic(x, y, w, h, this.getX(), this.getY(), this.getWidth(), this.getHeight(), m);
 	}
 
 	@Override
-	public default CollisionResponse calculateCollision(HitBox h){
+	default CollisionResponse calculateCollision(HitBox h){
 		// This assumes the given hitbox is purely a rectangle
 		// issue#20 need to eventually have a way of allowing any type of hitbox to collide with any other type of hitbox
 		return this.calculateRectCollision(h.getX(), h.getY(), h.getWidth(), h.getHeight(), h.getMaterial());
 	}
 	
 	@Override
-	public default double maxX(){
+	default double maxX(){
 		return this.getX() + this.getWidth();
 	}
 	
 	@Override
-	public default double maxY(){
+	default double maxY(){
 		return this.getY() + this.getHeight();
 	}
 }

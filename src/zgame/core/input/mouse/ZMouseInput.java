@@ -23,9 +23,9 @@ public abstract class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 	/** The previous y coordinate */
 	private double lastY;
 	
-	/** The amount of distance the scrollwheel moved when it was last scrolled */
+	/** The amount of distance the scroll wheel moved when it was last scrolled */
 	private double lastScroll;
-	/** The amount of distance the scrollwheel has moved since this value was last used */
+	/** The amount of distance the scroll wheel has moved since this value was last used */
 	private double scrollAmount;
 	
 	/**
@@ -38,7 +38,7 @@ public abstract class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 		this.currentX = 0;
 		this.currentY = 0;
 		this.lastX = 0;
-		this.lastX = 0;
+		this.lastY = 0;
 		
 		this.lastScroll = 0;
 		this.scrollAmount = 0;

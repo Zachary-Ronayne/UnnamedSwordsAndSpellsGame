@@ -11,7 +11,7 @@ import zgame.core.utils.ZConfig;
 public class SoundSource extends SoundLocation implements Destroyable{
 	
 	/** The id used by OpenAL to track this source */
-	private int id;
+	private final int id;
 	
 	/**
 	 * The current level of loudness of this {@link SoundSource}. 0 = muted, 1 = maximum volume without peaking. Value can be higher than 1, but could result in unintentionally

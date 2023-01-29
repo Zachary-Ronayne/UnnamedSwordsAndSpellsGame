@@ -12,7 +12,7 @@ public interface Saveable{
 	 * @param obj The object to save to
 	 * @return The modified version of obj if the save was successful, null otherwise
 	 */
-	public default JsonObject save(JsonObject obj){
+	default JsonObject save(JsonObject obj){
 		return obj;
 	}
 	
@@ -22,7 +22,7 @@ public interface Saveable{
 	 * 
 	 * @return The saved object
 	 */
-	public default JsonObject save(){
+	default JsonObject save(){
 		return this.save(new JsonObject());
 	}
 	
@@ -37,7 +37,7 @@ public interface Saveable{
 	 * @throws IllegalStateException If the property loaded is a JsonArray but contains more than a single element
 	 * @throws NullPointerException If a property returns null and is attempted to be accessed
 	 */
-	public default JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException, NullPointerException{
+	default JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException, NullPointerException{
 		return obj;
 	}
 	
@@ -49,7 +49,7 @@ public interface Saveable{
 	 * @param obj The object to check in
 	 * @return The loaded object if the load was successful, null otherwise
 	 */
-	public default JsonObject load(String key, JsonObject obj) throws ClassCastException, IllegalStateException, NullPointerException{
+	default JsonObject load(String key, JsonObject obj) throws ClassCastException, IllegalStateException, NullPointerException{
 		return this.load(obj.get(key).getAsJsonObject());
 	}
 	

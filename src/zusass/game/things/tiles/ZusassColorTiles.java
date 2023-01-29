@@ -10,13 +10,13 @@ public final class ZusassColorTiles{
 	/** A tile with no hitbox that displays 1 solid color */
 	public static final ColorTile BACK_COLOR = new ColorTile("backColor", "zusassColor", TileHitbox.NONE, new ZColor(0));
 	/** A tile with no hitbox that displays a darker color than {@link #BACK_COLOR} */
-	public static final ColorTile BACK_COLOR_DARK = new ColorTile("backColorDark", "zussassColor", TileHitbox.NONE, new ZColor(0));
+	public static final ColorTile BACK_COLOR_DARK = new ColorTile("backColorDark", "zusassColor", TileHitbox.NONE, new ZColor(0));
 	
 	/**
-	 * Set the colors used by {@link #color} and {@link #colorDark}
+	 * Set the colors used by {@link #BACK_COLOR} and {@link #BACK_COLOR_DARK}
 	 * 
-	 * @param c1 The value for {@link #color}
-	 * @param c2 The value for {@link #colorDark}
+	 * @param c1 The value for {@link #BACK_COLOR}
+	 * @param c2 The value for {@link #BACK_COLOR_DARK}
 	 */
 	public static void setColors(ZColor c1, ZColor c2){
 		BACK_COLOR.setColor(c1);

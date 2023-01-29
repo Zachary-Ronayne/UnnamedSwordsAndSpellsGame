@@ -40,7 +40,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	}
 	
 	/**
-	 * Draw this {@link GameThing} to the given {@link Renderer}, only if {@link #shouldRender()} returns true
+	 * Draw this {@link GameThing} to the given {@link Renderer}, only if {@link #shouldRender(Game, Renderer)} returns true
 	 * 
 	 * @param game The {@link Game} to draw this {@link GameThing} relative to
 	 * @param r The {@link Renderer} to draw this {@link GameThing} on
@@ -64,11 +64,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	
 	@Override
 	public int compareTo(GameThing gt){
-		int r = this.getRenderPriority();
-		int t = gt.getRenderPriority();
-		if(r < t) return -1;
-		if(r > t) return 1;
-		else return 0;
+		return Integer.compare(this.getRenderPriority(), gt.getRenderPriority());
 	}
 	
 	/**

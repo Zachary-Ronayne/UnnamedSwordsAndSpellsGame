@@ -7,7 +7,7 @@ public class ZConfig{
 	private static final boolean PRINT_ERRORS = true;
 	/** true if, when assets are loaded by the engine, if it should print to the main System.out, false otherwise */
 	private static final boolean PRINT_SUCCESS = true;
-	/** true if debug statements should print print to the main System.out, false otherwise */
+	/** true if debug statements should print to the main System.out, false otherwise */
 	private static final boolean PRINT_DEBUG = false;
 	
 	/**

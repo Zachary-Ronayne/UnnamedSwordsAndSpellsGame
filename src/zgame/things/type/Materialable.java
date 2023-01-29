@@ -6,6 +6,6 @@ import zgame.physics.material.Material;
 public interface Materialable{
 	
 	/** @return The material which this object is made of */
-	public Material getMaterial();
+	Material getMaterial();
 	
 }

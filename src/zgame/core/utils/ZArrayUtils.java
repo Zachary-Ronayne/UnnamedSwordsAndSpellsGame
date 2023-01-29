@@ -50,12 +50,12 @@ public class ZArrayUtils{
 	 * @param findInsert true to return the location of where the element should be inserted to remain sorted if the element is not found, false to return -1 if the value isn't
 	 *        found
 	 * @return The index of the value, or if the value is not found, then if findInsert is true the index of where that element
-	 *         would lie if it were to be inserted into the list in a sorted manor, or -1 if findInsert is false
+	 *         would lie if it were to be inserted into the list in a sorted manner, or -1 if findInsert is false
 	 */
 	public static <E extends Comparable<E>> int binarySearch(List<E> arr, E e, boolean findInsert){
 		int low = 0;
 		int high = arr.size();
-		int mid = 0;
+		int mid;
 		
 		// Track the middle element
 		E midO;

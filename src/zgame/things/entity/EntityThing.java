@@ -50,17 +50,14 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	/** The current force of friction on this {@link EntityThing}. */
 	private ZVector frictionForce;
 	
-	/** Thg current force which is causing this {@link EntityThing} to slide down a wall */
-	private ZVector wallSlideForce;
-	
 	/** The current force of drag acting against gravity on this {@link #EntityThing()} */
 	private ZVector gravityDragForce;
 	
 	/** Every force currently acting on this {@link EntityThing}, mapped by a name */
-	private Map<String, ZVector> forces;
+	private final Map<String, ZVector> forces;
 	
 	/** A set of all the uuids which are currently colliding with this entity */
-	private HashSet<String> collidingUuids;
+	private final HashSet<String> collidingUuids;
 	
 	/** A {@link ZVector} representing the total force acting on this {@link EntityThing} */
 	private ZVector totalForce;
@@ -124,8 +121,8 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		
 		this.velocity = new ZVector();
 		
-		this.collidingUuids = new HashSet<String>();
-		this.forces = new HashMap<String, ZVector>();
+		this.collidingUuids = new HashSet<>();
+		this.forces = new HashMap<>();
 		this.totalForce = new ZVector();
 		
 		this.gravity = new ZVector();
@@ -138,9 +135,8 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		
 		this.gravityDragForce = new ZVector();
 		this.setForce(FORCE_NAME_GRAVITY_DRAG, this.gravityDragForce);
-		
-		this.wallSlideForce = new ZVector();
-		this.setForce(FORCE_NAME_WALL_SLIDE, this.wallSlideForce);
+
+		this.setForce(FORCE_NAME_WALL_SLIDE, new ZVector());
 		
 		this.leaveFloor();
 		this.leaveCeiling();
@@ -170,7 +166,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	}
 	
 	/**
-	 * Update the position and velocity of this {@link EntityThing} based on it's current forces and velocity
+	 * Update the position and velocity of this {@link EntityThing} based on its current forces and velocity
 	 * 
 	 * @param game The {@link Game} where the update takes place
 	 * @param dt The amount of time, in seconds, which passed in the tick where this update took place
@@ -270,14 +266,12 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		// The base amount of force to apply for sliding is the opposite of gravity
 		double slideForce = -this.getGravity().getY();
 		double mass = this.getMass();
-		// If falling faster than the maximum sliding speed, increase the slide force to slow the falling (slideForce will be a negative number)
-		if(vy > maxSlideVel){
-			slideForce -= slideStopForce;
-			
-			// If the new slide force would put the velocity below the maximum sliding speed, adjust the force such that the next tick will put it on the sliding speed
-			double newVel = vy + slideForce / mass * dt;
-			if(newVel < maxSlideVel) slideForce = (maxSlideVel - vy) / dt * mass;
-		}
+		// If we get to this point, then we are falling faster than the maximum sliding speed, increase the slide force to slow the falling (slideForce will be a negative number)
+		slideForce -= slideStopForce;
+
+		// If the new slide force would put the velocity below the maximum sliding speed, adjust the force such that the next tick will put it on the sliding speed
+		double newVel = vy + slideForce / mass * dt;
+		if(newVel < maxSlideVel) slideForce = (maxSlideVel - vy) / dt * mass;
 		// Set the force
 		this.setForceY(FORCE_NAME_WALL_SLIDE, slideForce);
 	}
@@ -317,7 +311,12 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	public Material getMaterial(){
 		return this.material;
 	}
-	
+
+	/** @param material See {@link #material} */
+	public void setMaterial(Material material){
+		this.material = material;
+	}
+
 	/** @return A {@link ZVector} representing the total of all forces on this object */
 	public ZVector getForce(){
 		return this.totalForce;
@@ -460,7 +459,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		// issue#21 make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
 		
 		// Check any stored entities, and remove them if they are not intersecting or are not in the room
-		ArrayList<String> toRemove = new ArrayList<String>(this.collidingUuids.size());
+		ArrayList<String> toRemove = new ArrayList<>(this.collidingUuids.size());
 		for(String eUuid : this.collidingUuids){
 			EntityThing e = room.getEntity(eUuid);
 			if(e == null || !this.intersects(e)) toRemove.add(eUuid);
@@ -541,14 +540,14 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		if(r.floor()) this.touchFloor(r.material());
 	}
 	
-	/** @param The new current velocity of this {@link EntityThing} */
+	/** @param velocity The new current velocity of this {@link EntityThing} */
 	public void setVelocity(ZVector velocity){
 		this.velocity = velocity;
 	}
 	
 	/**
 	 * @param x The new x velocity of this {@link EntityThing}
-	 * @param x The new y velocity of this {@link EntityThing}
+	 * @param y The new y velocity of this {@link EntityThing}
 	 */
 	public void setVelocity(double x, double y){
 		this.setVelocity(new ZVector(x, y));
@@ -612,7 +611,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	}
 	
 	/**
-	 * Remove the {@link ZForce} with the specified name object from this {@link EntityThing}'s forces
+	 * Remove the {@link ZVector} with the specified name object from this {@link EntityThing}'s forces
 	 * 
 	 * @param name The name of the force to remove
 	 * 

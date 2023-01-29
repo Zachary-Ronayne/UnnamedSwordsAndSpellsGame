@@ -83,9 +83,9 @@ public class SoundMap extends HashMap<Integer, SoundSource>{
 	/** @return An array containing every {@link SoundSource} in this {@link SoundMap} */
 	public SoundSource[] toArray(){
 		Collection<SoundSource> s = this.values();
-		return s.toArray(new SoundSource[s.size()]);
+		return s.toArray(new SoundSource[0]);
 	}
-	
+
 	/**
 	 * Remove any sounds from this {@link SoundMap} which are finished playing, i.e. their AL_SOURCE_STATE equals AL_STOPPED
 	 * 

@@ -12,10 +12,10 @@ import zgame.core.utils.ZStringUtils;
 public class EffectSound extends Sound{
 	
 	/** The id OpenAL id tracking this sound */
-	private int id;
+	private final int id;
 	
 	/** The type of sound that this effect is, i.e., is this dialog, footsteps, background noises, etc. Can be null to use no specified type */
-	private String type;
+	private final String type;
 	
 	/**
 	 * Create a new {@link EffectSound}. Call {@link #load()} to load in the data itself

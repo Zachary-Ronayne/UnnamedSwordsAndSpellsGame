@@ -13,7 +13,7 @@ public final class ZMath{
 	public static final double TAU = Math.PI * 2.0;
 	
 	/**
-	 * Convert an integer to an array of boolean values representing it's binary
+	 * Convert an integer to an array of boolean values representing its binary
 	 * 
 	 * @param n The number to convert
 	 * @return The array. true = 1, false = 0,

@@ -11,7 +11,7 @@ import zgame.menu.Menu;
 
 /**
  * A class which handles a single state that a game can be in. A state could be things like playing the game, or being in the main menu.
- * 
+ * <P>
  * A state is essentially a separate place where you can easily define what happens for input and rendering
  */
 public abstract class GameState implements GameInteractable, Saveable, Destroyable{
@@ -37,7 +37,7 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	 */
 	public GameState(boolean useCamera){
 		this.setUseCamera(useCamera);
-		this.menuStack = new ArrayList<MenuNode>();
+		this.menuStack = new ArrayList<>();
 		this.minMenuStack = 0;
 	}
 	
@@ -61,7 +61,7 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	
 	/** @param menu The new root menu of this {@link MenuState}, i.e. the menu on the bottom before popups */
 	public void setMenu(Menu menu){
-		if(this.menuStack == null || !this.menuStack.isEmpty()) this.menuStack = new ArrayList<MenuNode>();
+		if(this.menuStack == null || !this.menuStack.isEmpty()) this.menuStack = new ArrayList<>();
 		this.menuStack.add(0, new MenuNode(menu));
 	}
 	

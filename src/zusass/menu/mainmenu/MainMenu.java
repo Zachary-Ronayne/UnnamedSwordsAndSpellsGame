@@ -17,7 +17,7 @@ public class MainMenu extends ZusassMenu{
 	/**
 	 * Initialize the {@link MainMenu}
 	 * 
-	 * @param game The Zusass game associated with this {@link MainMenu}
+	 * @param zgame The Zusass game associated with this {@link MainMenu}
 	 */
 	public MainMenu(ZusassGame zgame){
 		super(zgame, "ZUSASS");

@@ -13,7 +13,7 @@ public class HorizontalScroller extends MenuScroller{
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}
-	 * @param See {@link #getHeight()}
+	 * @param h See {@link #getHeight()}
 	 * @param amount See {@link #amount}
 	 * @param game The game associated with this thing
 	 */

@@ -2,6 +2,7 @@ package zgame.core.window;
 
 import static org.lwjgl.opengl.GL30.*;
 
+import zgame.core.Game;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.keyboard.ZKeyInput;
@@ -42,7 +43,7 @@ public abstract class GameWindow implements Destroyable{
 	private OnOffState updateVsync;
 	
 	/** The renderer used by this {@link GameWindow} to draw to a buffer which can later be drawn to the window */
-	private Renderer renderer;
+	private final Renderer renderer;
 	
 	/** A lambda function which is called each time a key is pressed or released, can be null to do nothing */
 	private ButtonAction keyActionMethod;
@@ -94,7 +95,7 @@ public abstract class GameWindow implements Destroyable{
 		 * @param alt true if alt is pressed, false otherwise
 		 * @param ctrl true if ctrl is pressed, false otherwise
 		 */
-		public void act(int key, boolean press, boolean shift, boolean alt, boolean ctrl);
+		void act(int key, boolean press, boolean shift, boolean alt, boolean ctrl);
 	}
 	
 	/** An interface for a lambda method which is called each time a mouse is moved */
@@ -105,7 +106,7 @@ public abstract class GameWindow implements Destroyable{
 		 * @param x The x coordinate in screen coordinates
 		 * @param y The y coordinate in screen coordinates
 		 */
-		public void act(double x, double y);
+		void act(double x, double y);
 	}
 	
 	/** An interface for a lambda method which is called each time a mouse wheel is moved */
@@ -115,7 +116,7 @@ public abstract class GameWindow implements Destroyable{
 		 * 
 		 * @param amount The amount the scroll wheel was moved
 		 */
-		public void act(double amount);
+		void act(double amount);
 	}
 	
 	/**
@@ -126,15 +127,13 @@ public abstract class GameWindow implements Destroyable{
 	 * @param winHeight See {@link #height}
 	 * @param screenWidth The width, in pixels, of the internal buffer to draw to
 	 * @param screenHeight The height, in pixels, of the internal buffer to draw to
-	 * @param maxFps See {@link #getMaxFps()}
+	 * @param maxFps See {@link Game#getMaxFps()}
 	 * @param useVsync See {@link #useVsync}
 	 * @param stretchToFill See {@link #stretchToFill}
 	 */
 	public GameWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
 		// Init general values
 		this.windowTitle = title;
-		this.width = 1;
-		this.height = 1;
 		this.width = winWidth;
 		this.height = winHeight;
 		this.focused = true;
@@ -182,7 +181,7 @@ public abstract class GameWindow implements Destroyable{
 	protected abstract void createContext();
 	
 	/**
-	 * Call this method once at the beginning of each OpenGL loop to check for events, i.e. keyboard input, mouse input, window size changed, etc
+	 * Call this method once at the beginning of each OpenGL loop to check for events, i.e. keyboard input, mouse input, window size changed, etc.
 	 * This method will also update the fullscreen and vsync status
 	 */
 	public void checkEvents(){
@@ -411,7 +410,7 @@ public abstract class GameWindow implements Destroyable{
 	 * Depending on implementation, this method may do nothing if the window is currently in full screen
 	 * 
 	 * @param x the x coordinate position
-	 * @param x the y coordinate position
+	 * @param y the y coordinate position
 	 */
 	public abstract void setWindowPosition(int x, int y);
 	

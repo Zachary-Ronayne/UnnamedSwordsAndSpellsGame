@@ -145,7 +145,7 @@ public abstract class MobThing extends EntityThing {
 	private double currentHealth;
 	
 	/** The stats used by this mob */
-	private Stats stats;
+	private final Stats stats;
 	
 	/**
 	 * Create a new {@link MobThing} at the given position
@@ -258,7 +258,7 @@ public abstract class MobThing extends EntityThing {
 	}
 	
 	/**
-	 * Perform any necessary updates for the mob based on it's current stats
+	 * Perform any necessary updates for the mob based on its current stats
 	 * 
 	 * @param game The game to update the stats on
 	 */

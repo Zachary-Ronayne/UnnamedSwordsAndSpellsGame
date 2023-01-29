@@ -31,10 +31,10 @@ public class SavesDeleteButton extends SavesMenuButton{
 		String path = button.getPath();
 		try{
 			File file = new File(path);
-			file.delete();
-			menu.getLoadButtons().setSelected(null);
+			var success = file.delete();
+			if(success) menu.getLoadButtons().setSelected(null);
 			menu.getLoadButtons().populate(zgame);
-			menu.showMessage(ZStringUtils.concat("Delete success for: ", button.getText()));
+			menu.showMessage(ZStringUtils.concat("Delete ", success ? "failed" : "success", " for: ", button.getText()));
 			
 		}catch(SecurityException | NullPointerException e){
 			if(ZConfig.printErrors()){

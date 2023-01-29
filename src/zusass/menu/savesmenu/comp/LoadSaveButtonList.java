@@ -16,7 +16,7 @@ import zusass.utils.ZusassConfig;
 public class LoadSaveButtonList extends MenuHolder{
 	
 	/** The {@link SavesMenu} using this list */
-	private SavesMenu menu;
+	private final SavesMenu menu;
 	
 	/** The buttons displayed */
 	private List<LoadSaveButton> buttons;
@@ -25,9 +25,9 @@ public class LoadSaveButtonList extends MenuHolder{
 	private LoadSaveButton selected;
 	
 	/**
-	 * Create a new {@link LoadButtonList} at the specified location
+	 * Create a new {@link LoadSaveButtonList} at the specified location
 	 * 
-	 * @param scroller See {@link #scroller}
+	 * @param menu See {@link #menu}
 	 * @param zgame The game that uses this list
 	 */
 	public LoadSaveButtonList(SavesMenu menu, ZusassGame zgame){
@@ -38,17 +38,19 @@ public class LoadSaveButtonList extends MenuHolder{
 	}
 	
 	/**
-	 * Find all files at {@link #path} and generate the list of buttons
+	 * Find all files at {@link #} and generate the list of buttons
 	 * 
-	 * @param game The {@link Game} associated with this list
+	 * @param zgame The {@link Game} associated with this list
 	 * @return true if the files were found, false otherwise
 	 */
 	public boolean populate(ZusassGame zgame){
 		// Reset the button array
 		this.setSelected(null);
 		this.removeAll();
-		if(this.buttons != null) this.buttons.forEach(b -> removeThing(b));
-		this.buttons = new ArrayList<LoadSaveButton>();
+		if(this.buttons != null) {
+			for(var b : this.buttons) removeThing(b);
+		}
+		this.buttons = new ArrayList<>();
 		
 		// Find all files and make sure they exist
 		String path = ZusassConfig.getSavesLocation();
@@ -80,8 +82,7 @@ public class LoadSaveButtonList extends MenuHolder{
 	 */
 	@Override
 	public boolean addThing(MenuThing thing){
-		if(!(thing instanceof LoadSaveButton)) return false;
-		LoadSaveButton button = (LoadSaveButton)thing;
+		if(!(thing instanceof LoadSaveButton button)) return false;
 		this.buttons.add(button);
 		return super.addThing(thing);
 	}

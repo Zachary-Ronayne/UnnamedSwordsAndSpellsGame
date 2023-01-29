@@ -72,22 +72,17 @@ public final class ZusassConfig{
 	 */
 	public static List<File> getAllFiles(){
 		String path = ZusassConfig.getSavesLocation();
-		List<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 		try{
 			// Find all files
 			File file = new File(path);
 			if(!file.isDirectory()) return null;
 			File[] loadedFiles = file.listFiles();
+			if(loadedFiles == null) return null;
 			
 			// Sort files by last modified
 			files.addAll(Arrays.asList(loadedFiles));
-			files.sort((a, b) -> {
-				double aDate = a.lastModified();
-				double bDate = b.lastModified();
-				if(aDate < bDate) return 1;
-				if(aDate > bDate) return -1;
-				return 0;
-			});
+			files.sort((a, b) -> Double.compare(b.lastModified(), a.lastModified()));
 			
 		}catch(NullPointerException | SecurityException e){
 			if(ZConfig.printErrors()){

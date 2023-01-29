@@ -10,16 +10,16 @@ import org.lwjgl.BufferUtils;
 public class IndexBuffer{
 	
 	/** The number OpenGL uses to track this index buffer */
-	private int id;
+	private final int id;
 	
 	/** The index data used by this {@link IndexBuffer} */
-	private byte[] data;
+	private final byte[] data;
 	
 	/** The buffer holding {@link #data} */
-	private ByteBuffer buff;
+	private final ByteBuffer buff;
 	
 	/** The mode used by glBufferData for the usage parameter. Either GL_STREAM_DRAW, GL_STATIC_DRAW, or GL_DYNAMIC_DRAW */
-	private int drawMode;
+	private final int drawMode;
 	
 	/**
 	 * Create a new {@link IndexBuffer} with the given data and buffer the indexes

@@ -7,12 +7,12 @@ import zusass.ZusassGame;
 public class NewGameTextBox extends ZusassTextBox{
 
 	/** The popup which uses this text box */
-	private NewGamePopup popup;
+	private final NewGamePopup popup;
 	
 	/**
 	 * Initialize the {@link NewGameTextBox}
 	 * 
-	 * @param game The Zusass game used by this thing
+	 * @param zgame The Zusass game used by this thing
 	 * @param popup See {@link #popup}
 	 */
 	public NewGameTextBox(ZusassGame zgame, NewGamePopup popup){

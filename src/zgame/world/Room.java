@@ -36,21 +36,21 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	/** The index for {@link #wallSolid} that represents the floor (bottom wall) */
 	public static final int WALL_FLOOR = 3;
 	
-	/** All of the {@link GameThing} objects which exist in in the game */
-	private NotNullList<GameThing> things;
-	/** All of the {@link EntityThing} objects which exist in in the game */
-	private NotNullList<EntityThing> entities;
+	/** All of the {@link GameThing} objects which exist in the game */
+	private final NotNullList<GameThing> things;
+	/** All of the {@link EntityThing} objects which exist in the game */
+	private final NotNullList<EntityThing> entities;
 	/** A map containing the elements of {@link #entities}, mapped by their uuid */
-	private HashMap<String, EntityThing> entityMap;
-	/** All of the {@link MobThing} objects which exist in in the game */
-	private NotNullList<MobThing> mobs;
-	/** All of the {@link HitBox} objects which exist in in the game */
-	private NotNullList<HitBox> hitBoxThings;
-	/** All of the {@link GameTickable} objects which exist in in the game */
-	private NotNullList<GameTickable> tickableThings;
+	private final HashMap<String, EntityThing> entityMap;
+	/** All of the {@link MobThing} objects which exist in the game */
+	private final NotNullList<MobThing> mobs;
+	/** All of the {@link HitBox} objects which exist in the game */
+	private final NotNullList<HitBox> hitBoxThings;
+	/** All of the {@link GameTickable} objects which exist in the game */
+	private final NotNullList<GameTickable> tickableThings;
 	
 	/** All of the {@link GameThing} objects which will be removed on the next game tick */
-	private List<GameThing> thingsToRemove;
+	private final List<GameThing> thingsToRemove;
 	
 	// The 2D grid of {@link Tile} objects defining this {@link Room}
 	private ArrayList<ArrayList<Tile>> tiles;
@@ -70,7 +70,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	 * A 4 element array which determines which of the walls are solid. If a wall is solid, then any entity outside of that wall will be forced back inside the wall
 	 * Use {@link #WALL_LEFT}, {@link #WALL_RIGHT}, {@value #WALL_CEILING}, and {@value #WALL_FLOOR} for specifying walls
 	 */
-	private boolean[] wallSolid;
+	private final boolean[] wallSolid;
 	
 	/** Create a new empty {@link Room} */
 	public Room(){
@@ -84,14 +84,14 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	 * @param yTiles The number of tiles on the y axis
 	 */
 	public Room(int xTiles, int yTiles){
-		this.things = new NotNullList<GameThing>();
-		this.entities = new NotNullList<EntityThing>();
-		this.entityMap = new HashMap<String, EntityThing>();
-		this.mobs = new NotNullList<MobThing>();
-		this.hitBoxThings = new NotNullList<HitBox>();
-		this.tickableThings = new NotNullList<GameTickable>();
+		this.things = new NotNullList<>();
+		this.entities = new NotNullList<>();
+		this.entityMap = new HashMap<>();
+		this.mobs = new NotNullList<>();
+		this.hitBoxThings = new NotNullList<>();
+		this.tickableThings = new NotNullList<>();
 		
-		this.thingsToRemove = new ArrayList<GameThing>();
+		this.thingsToRemove = new ArrayList<>();
 		
 		this.initTiles(xTiles, yTiles);
 		
@@ -118,16 +118,16 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	 * 
 	 * @param xTiles The number of tiles on the x axis
 	 * @param yTiles The number of tiles on the y axis
-	 * @param c The color for every tile
+	 * @param t The type for every tile
 	 */
 	public void initTiles(int xTiles, int yTiles, TileType t){
 		this.xTiles = xTiles;
 		this.yTiles = yTiles;
 		this.width = xTiles * Tile.TILE_SIZE;
 		this.height = yTiles * Tile.TILE_SIZE;
-		this.tiles = new ArrayList<ArrayList<Tile>>(xTiles);
+		this.tiles = new ArrayList<>(xTiles);
 		for(int i = 0; i < xTiles; i++){
-			ArrayList<Tile> col = new ArrayList<Tile>(yTiles);
+			ArrayList<Tile> col = new ArrayList<>(yTiles);
 			this.tiles.add(col);
 			for(int j = 0; j < yTiles; j++){ col.add(new Tile(i, j, t)); }
 		}
@@ -296,7 +296,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	/**
 	 * Called each time a thing is removed via {@link #tick(Game, double)}, i.e. the thing was added to {@link #thingsToRemove}, and now it's being removed
 	 * 
-	 * @param thing
+	 * @param thing The thing to remove
 	 */
 	public void tickRemoveThing(GameThing thing){
 		this.things.remove(thing);

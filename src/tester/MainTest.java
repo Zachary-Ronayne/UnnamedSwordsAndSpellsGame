@@ -89,19 +89,19 @@ import com.google.gson.JsonObject;
  * shift + space = toggle between the game play state and the demo state
  * ctrl + c = save gave to file
  * ctrl + v = load game from file
- * 
+ * <p>
  * Indicators in the upper left hand corner for muted/paused: black = neither, red = muted, blue = paused, magenta = both muted and paused.
  * The size of the box represents the volume, a bigger box means higher volume
  * The left indicator is effects, the right indicator is music
  * The bigger the indicator, the higher the volume, if there is no indicator, the volume is set to zero
- * 
+ * <p>
  * Indicator on the upper right hand corner for not updating or rendering the game:
  * black = always do it
  * red = don't do it when not in focus
  * blue = don't do it when minimized
  * magenta = don't do it when minimized or when not in focus
  * Left indicator is for rendering, right is for updating
- * 
+ * <p>
  * In play state:
  * left arrow key = move left
  * right arrow key = move right
@@ -121,7 +121,6 @@ public class MainTest extends Game{
 	public static GameWindow window;
 	
 	public static double camSpeed = 400;
-	public static double camZoom = 2;
 	public static boolean zoomOnlyX = false;
 	public static boolean zoomOnlyY = false;
 	
@@ -140,7 +139,6 @@ public class MainTest extends Game{
 	public static double changeB = 0;
 	
 	public static boolean[] down = new boolean[]{false, false, false, false, false};
-	public static int R = 0;
 	public static int ONE = 1;
 	public static int TWO = 2;
 	public static int THREE = 3;
@@ -210,7 +208,7 @@ public class MainTest extends Game{
 	}
 	
 	public static class GameEngineState extends PlayState{
-		private PlayerTester player;
+		private final PlayerTester player;
 		
 		public GameEngineState(){
 			super(false);
@@ -305,7 +303,7 @@ public class MainTest extends Game{
 	
 	public static class TesterGameState extends GameState{
 		
-		private TextBuffer textBuffer;
+		private final TextBuffer textBuffer;
 		
 		private static final ZRect bufferBounds = new ZRect(0, 500, 500, 150);
 		

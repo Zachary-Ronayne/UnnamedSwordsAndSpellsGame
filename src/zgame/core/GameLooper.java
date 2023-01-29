@@ -11,7 +11,7 @@ import zgame.core.utils.ZLambda.BooleanFunc;
  */
 public class GameLooper{
 	
-	/** The number of nano seconds in a second */
+	/** The number of nanoseconds in a second */
 	public static final long NANO_SECOND = (long)1E9;
 	
 	/** The number of times per second which this loop will activate. Use zero to run as many times per second as possible */
@@ -25,8 +25,6 @@ public class GameLooper{
 	
 	/** The number of times the loop has been activated since the last time it printed the calculated rate. It prints once time each second */
 	private int funcCalls;
-	/** The timestamp, in nanoseconds, of the last time the calculated rate was printed */
-	private long lastPrint;
 	/** The amount of time spent processing, not waiting, in the loop over the last second */
 	private long timeProcessing;
 	/** The number of nanoseconds the loop last took to run, averaged over the last second */
@@ -83,7 +81,6 @@ public class GameLooper{
 		this.setRate(rate);
 		this.lastFunCall = 0;
 		this.funcCalls = 0;
-		this.lastPrint = 0;
 		this.setPrintRate(printRate);
 		this.setName(name);
 		this.setRunFunc(runFunc);
@@ -105,7 +102,6 @@ public class GameLooper{
 	 * @param runFunc See {@link #runFunc}
 	 * @param shouldRunFunc See {@link #shouldRunFunc}
 	 * @param keepRunningFunc See {@link #keepRunningFunc}
-	 * @param waitBetweenLoopsFunc See {@link #waitBetweenLoopsFunc}
 	 */
 	public GameLooper(int rate, EmptyFunc runFunc, BooleanFunc shouldRunFunc, BooleanFunc keepRunningFunc){
 		this(rate, runFunc, shouldRunFunc, keepRunningFunc, null, "Looper Rate", false);
@@ -206,11 +202,6 @@ public class GameLooper{
 	/** @return See {@link #funcCalls} */
 	public int getFuncCalls(){
 		return this.funcCalls;
-	}
-	
-	/** @return See {@link #lastPrint} */
-	public long getLastPrint(){
-		return this.lastPrint;
 	}
 	
 	/** @return See {@link #nsPerLoop} */

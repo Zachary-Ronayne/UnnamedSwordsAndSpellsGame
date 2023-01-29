@@ -10,22 +10,22 @@ import zgame.core.utils.ZRect;
 public class GameFont{
 	
 	/** The font itself to use for rendering */
-	private FontAsset asset;
+	private final FontAsset asset;
 	
 	/** The current size, in pixels, to render font. This size is effected by zooming with the camera */
-	private double size;
+	private final double size;
 	/** The extra space added between lines of text on top of the font size, can be negative to reduce the space. This amount of space is based on the font size */
-	private double lineSpace;
+	private final double lineSpace;
 	/** The extra space added between individual characters of text, can be negative to reduce the space. This amount of space is based on the font size */
-	private double charSpace;
+	private final double charSpace;
 	
 	/**
 	 * The product of the {@link #size} of this font with the resolution of its {@link #asset}
 	 * This value is multiplied by things like the amount of space to add between characters and lines of text to account for the way the resolution effects rendering
 	 */
-	private double resolutionRatio;
+	private final double resolutionRatio;
 	/** The inverse of {@link #resolutionRatio} */
-	private double resolutionRatioInverse;
+	private final double resolutionRatioInverse;
 	
 	/**
 	 * Create a new font object with default values. After the font is created, the values of this object cannot be modified
@@ -71,7 +71,6 @@ public class GameFont{
 			double lineY = (this.getSize() + this.getLineSpace()) * this.getResolutionRatioInverse();
 			x.put(0, 0.0f);
 			y.put(0, (float)(y.get(0) + lineY));
-			newLine = true;
 		}
 		// Otherwise, get the bounds
 		else a.findBakedQuad(c, x, y, quad);
@@ -161,9 +160,8 @@ public class GameFont{
 	 * @param x The x coordinate where the string is drawn, in screen coordinates
 	 * @param y The y coordinate where the string is drawn, in screen coordinates
 	 * @param padding true to add an amount of distance around each bounds, 0 for no padding
-	 * @param calcIndividuals If true, the full array will be populated, if false, only the last element, containing the full string bounds will be populated
 	 * @return An array of the bounds of each character, matching the index of text.
-	 *         The array also contains one extra element, indexed as the the length of the string: the total bounds of the entire string,
+	 *         The array also contains one extra element, indexed as the length of the string: the total bounds of the entire string,
 	 *         padded in the same way as individual characters
 	 *         An array with one empty rectangle is returned if the string is empty or not given
 	 */
@@ -180,7 +178,7 @@ public class GameFont{
 	 * @param padding true to add an amount of distance around each bounds, 0 for no padding
 	 * @param calcIndividuals If true, the full array will be populated, if false, only the last element, containing the full string bounds will be populated
 	 * @return An array of the bounds of each character, matching the index of text.
-	 *         The array also contains one extra element, indexed as the the length of the string: the total bounds of the entire string,
+	 *         The array also contains one extra element, indexed as the length of the string: the total bounds of the entire string,
 	 *         padded in the same way as individual characters
 	 *         An empty array is returned if the string is empty or not given
 	 */
@@ -305,7 +303,7 @@ public class GameFont{
 		return this.resolutionRatioInverse;
 	}
 	
-	/** @return See {@link #maxHeight} */
+	/** @return See {@link FontAsset#getMaxHeight(double)} */
 	public double getMaxHeight(){
 		return this.getAsset().getMaxHeight(this.getSize());
 	}

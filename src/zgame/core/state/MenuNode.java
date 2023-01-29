@@ -98,7 +98,7 @@ public class MenuNode{
 	 * Does nothing if {@link #isKeyAction()} returns false
 	 * 
 	 * @param game The {@link Game} which called this method
-	 * @param key The id of the key
+	 * @param button The id of the key
 	 * @param press true if the key was pressed, false for released
 	 * @param shift true if shift is pressed, false otherwise
 	 * @param alt true if alt is pressed, false otherwise
@@ -168,7 +168,7 @@ public class MenuNode{
 		this.menu = menu;
 	}
 	
-	/** @return See {@link #shouldTick} */
+	/** @return See {@link #isTick} */
 	public boolean isTick(){
 		return this.isTick;
 	}

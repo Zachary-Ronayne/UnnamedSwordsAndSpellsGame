@@ -1,5 +1,7 @@
 package zgame.physics;
 
+import zgame.core.utils.ZMath;
+
 /** A Vector with an x and y component. The internal values of this object cannot be modified after the object is created, i.e. this object is immutable
  */
 public class ZVector{
@@ -57,7 +59,7 @@ public class ZVector{
 	
 	/** Update the internal angle and magnitude values based on the current values of {@link #x} and {@link #y} */
 	private void calcAngleMag(){
-		this.angle = (Math.atan2(this.getY(), this.getX()) + 2 * Math.PI) % (Math.PI * 2);
+		this.angle = (Math.atan2(this.getY(), this.getX()) + ZMath.TAU) % ZMath.TAU;
 		this.magnitude = Math.sqrt(Math.pow(this.getX(), 2) + Math.pow(this.getY(), 2));
 	}
 	

@@ -17,7 +17,7 @@ public abstract class MenuScrollerButton extends MenuButton{
 	private double anchorOffset;
 	
 	/** The {@link MenuScroller} which uses this {@link MenuScrollerButton} */
-	private MenuScroller scroller;
+	private final MenuScroller scroller;
 	
 	/**
 	 * Create a new basic {@link MenuScrollerButton}
@@ -77,7 +77,7 @@ public abstract class MenuScrollerButton extends MenuButton{
 	}
 	
 	/**
-	 * Update the relative position of {@link #getButton()} and the given thing, based on the current percentage scrolled
+	 * Update the relative position of this and the given thing, based on the current percentage scrolled
 	 * 
 	 * @param thing The thing to update
 	 */

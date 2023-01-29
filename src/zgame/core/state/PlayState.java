@@ -134,7 +134,7 @@ public class PlayState extends GameState{
 		this.playMouseMove(game, x, y);
 	}
 	
-	/** See {@link #gameMouseMove(Game, double, double)} Override this method instead to perform actions when the mouse moves */
+	/** See {@link #mouseMove(Game, double, double)} Override this method instead to perform actions when the mouse moves */
 	public void playMouseMove(Game game, double x, double y){
 	}
 	

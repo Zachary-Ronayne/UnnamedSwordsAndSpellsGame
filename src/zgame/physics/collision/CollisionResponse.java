@@ -8,20 +8,20 @@ import zgame.physics.material.Materials;
 public class CollisionResponse{
 	
 	/** The amount to add to the x coordinate so that it no longer collides */
-	private double x;
+	private final double x;
 	/** The amount to add to the y coordinate so that it no longer collides */
-	private double y;
+	private final double y;
 	
 	/** true if the collision was into a wall to the left, false otherwise */
-	private boolean left;
+	private final boolean left;
 	/** true if the collision was into a wall to the right, false otherwise */
-	private boolean right;
+	private final boolean right;
 	/** true if the collision was into a ceiling above, false otherwise */
-	private boolean ceiling;
+	private final boolean ceiling;
 	/** true if the collision was into a floor below, false otherwise */
-	private boolean floor;
+	private final boolean floor;
 	/** The material which was hit during this collision, or null if no collision took place */
-	private Material material;
+	private final Material material;
 	
 	/** A response representing no collision occurring */
 	public CollisionResponse(){

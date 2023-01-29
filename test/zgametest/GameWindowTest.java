@@ -1,7 +1,6 @@
 package zgametest;
 
 import static org.junit.jupiter.api.Assertions.*;
-// import static zgametest.Tester.DELTA;
 
 import org.junit.jupiter.api.*;
 

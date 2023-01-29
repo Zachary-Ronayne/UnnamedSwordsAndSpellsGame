@@ -2,6 +2,7 @@ package zgame.core.window;
 
 import org.lwjgl.glfw.*;
 
+import zgame.core.Game;
 import zgame.core.input.GLFWModUtils;
 import zgame.core.input.keyboard.GLFWKeyInput;
 import zgame.core.input.mouse.GLFWMouseInput;
@@ -31,15 +32,14 @@ public class GLFWWindow extends GameWindow{
 	private long fullScreenID;
 	
 	/** The object tracking mouse input events */
-	private GLFWMouseInput mouseInput;
+	private final GLFWMouseInput mouseInput;
 	
 	/** The object tracking keyboard input events */
-	private GLFWKeyInput keyInput;
+	private final GLFWKeyInput keyInput;
 	
 	/**
 	 * Create an empty {@link GLFWWindow}. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 * 
-	 * @param title See {@link #windowTitle}
+
 	 */
 	public GLFWWindow(){
 		this("Game Window");
@@ -53,16 +53,17 @@ public class GLFWWindow extends GameWindow{
 	public GLFWWindow(String title){
 		this(title, 1280, 720, 200, true, false, true);
 	}
-	
+
 	/**
 	 * Create a {@link GLFWWindow} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
 	 * 
 	 * @param title See {@link #getWindowTitle()}
 	 * @param winWidth See {@link #getWidth()}
 	 * @param winHeight See {@link #getHeight()}
-	 * @param maxFps See {@link #getMaxFps()}
+	 * @param maxFps See {@link Game#getMaxFps()}
 	 * @param useVsync See {@link #usesVsync()}
 	 * @param stretchToFill See {@link #isStretchToFill()}
+	 * @param printFps See {@link Game#isPrintFps()}
 	 */
 	public GLFWWindow(String title, int winWidth, int winHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps){
 		this(title, winWidth, winHeight, winWidth, winHeight, maxFps, useVsync, stretchToFill, printFps, 60, true);
@@ -76,7 +77,7 @@ public class GLFWWindow extends GameWindow{
 	 * @param winHeight See {@link #getHeight()}
 	 * @param screenWidth The width, in pixels, of the internal buffer to draw to
 	 * @param screenHeight The height, in pixels, of the internal buffer to draw to
-	 * @param maxFps See {@link #getMaxFps()}
+	 * @param maxFps See {@link Game#getMaxFps()}
 	 * @param useVsync See {@link #usesVsync()}
 	 * @param stretchToFill See {@link #isStretchToFill()}
 	 */
@@ -142,7 +143,8 @@ public class GLFWWindow extends GameWindow{
 		}
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
-		glfwSetErrorCallback(null).free();
+		var func = glfwSetErrorCallback(null);
+		if(func != null) func.free();
 	}
 	
 	@Override
@@ -301,10 +303,13 @@ public class GLFWWindow extends GameWindow{
 		}
 		// Put the found monitor in full screen on that window
 		GLFWVidMode mode = glfwGetVideoMode(monitor);
+		if(mode == null){
+			if(ZConfig.printErrors()) ZStringUtils.print("Failed to get a video mode to create a fullscreen window");
+			return;
+		}
 		this.fullScreenID = glfwCreateWindow(mode.width(), mode.height(), ZStringUtils.concat(this.getWindowTitle(), " | Fullscreen"), monitor, this.getWindowID());
 		if(this.fullScreenID == NULL){
 			if(ZConfig.printErrors()) ZStringUtils.print("Failed to create a fullscreen window");
-			return;
 		}
 	}
 	
@@ -347,6 +352,10 @@ public class GLFWWindow extends GameWindow{
 		
 		// Find the monitor width and center it
 		GLFWVidMode mode = glfwGetVideoMode(monitor);
+		if(mode == null){
+			if(ZConfig.printErrors()) ZStringUtils.print("Failed to center window, could not find window mode");
+			return NULL;
+		}
 		int w = mode.width();
 		int h = mode.height();
 		glfwSetWindowPos(this.getWindowID(), mx.get(0) + (w - this.getWidth()) / 2, my.get(0) + (h - this.getHeight()) / 2);
@@ -378,6 +387,7 @@ public class GLFWWindow extends GameWindow{
 		while(buff.hasRemaining()){
 			long id = buff.get();
 			GLFWVidMode mode = glfwGetVideoMode(id);
+			if(mode == null) continue;
 			int w = mode.width();
 			int h = mode.height();
 			IntBuffer mx = BufferUtils.createIntBuffer(1);

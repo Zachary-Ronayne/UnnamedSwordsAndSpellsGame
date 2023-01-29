@@ -22,13 +22,13 @@ import java.nio.IntBuffer;
 public class SpeakerDevice implements Destroyable{
 	
 	/** The id used by OpenAL to represent this {@link SpeakerDevice} */
-	private long id;
+	private final long id;
 	
 	/** A value used by OpenAL to refer to the context of this {@link SpeakerDevice} */
 	private long context;
 	
 	/** The human readable name associated with this {@link SpeakerDevice} */
-	private String name;
+	private final String name;
 	
 	/** The {@link ALCapabilities} used by this device. Can be null if none have been set yet */
 	private ALCapabilities alCapabilities;
@@ -39,7 +39,7 @@ public class SpeakerDevice implements Destroyable{
 	/**
 	 * Create a new SpeakerDevice based on the given name
 	 * 
-	 * @param name The name of the device, this should not be be a made up name, this is the actual name of the device on the machine
+	 * @param name The name of the device, this should not be a made up name, this is the actual name of the device on the machine
 	 */
 	public SpeakerDevice(String name){
 		this.name = name;

@@ -22,15 +22,15 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 public class PauseMenu extends Menu{
 	
 	/** See object docs */
-	private PauseReturnButton returnButton;
+	private final PauseReturnButton returnButton;
 	/** See object docs */
-	private PauseMainMenuButton mainMenuButton;
+	private final PauseMainMenuButton mainMenuButton;
 	/** See object docs */
-	private PauseQuitButton quitButton;
+	private final PauseQuitButton quitButton;
 	/** See object docs */
-	private PauseSaveButton saveButton;
+	private final PauseSaveButton saveButton;
 	/** See object docs */
-	private PauseHubButton hubButton;
+	private final PauseHubButton hubButton;
 	
 	/**
 	 * Make a new pause menu

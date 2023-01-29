@@ -6,16 +6,16 @@ import static org.lwjgl.openal.AL11.*;
 
 /**
  * A class that handles and keeps track of a list of playing sounds
- * 
- * @param S The {@link Sound} type which this {@link SoundPlayer} can handle
+ *
+ * @param <S> The {@link Sound} type which this {@link SoundPlayer} can handle
  */
 public abstract class SoundPlayer<S extends Sound>{
 	
 	/** A collection of every sound currently played by this {@link SoundPlayer} */
-	private SoundMap playing;
+	private final SoundMap playing;
 	
 	/** The queue of sounds which will begin playing on the next update */
-	private LinkedList<SoundPair<S>> queue;
+	private final LinkedList<SoundPair<S>> queue;
 	
 	/** true if this {@link SoundPlayer} should not make any sound, but sounds should continue to play, false otherwise */
 	private boolean muted;
@@ -26,7 +26,7 @@ public abstract class SoundPlayer<S extends Sound>{
 	/** Create an empty {@link SoundPlayer} with no currently playing sounds */
 	public SoundPlayer(){
 		this.playing = new SoundMap();
-		this.queue = new LinkedList<SoundPair<S>>();
+		this.queue = new LinkedList<>();
 		this.unmute();
 		this.unpause();
 	}
@@ -47,7 +47,7 @@ public abstract class SoundPlayer<S extends Sound>{
 	 * @param sound The sound to play
 	 */
 	protected void playSound(SoundSource source, S sound){
-		this.queue.push(new SoundPair<S>(source, sound));
+		this.queue.push(new SoundPair<>(source, sound));
 	}
 	
 	/**
@@ -170,7 +170,7 @@ public abstract class SoundPlayer<S extends Sound>{
 		return this.playing.getVolume();
 	}
 	
-	/** @param See The volume to set every sound in this {@link SoundPlayer} to play at */
+	/** @param volume The volume to set every sound in this {@link SoundPlayer} to play at */
 	public void setVolume(double volume){
 		this.playing.setVolume(volume);
 	}

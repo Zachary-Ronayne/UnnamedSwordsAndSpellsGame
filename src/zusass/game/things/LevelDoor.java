@@ -15,10 +15,10 @@ import zusass.utils.ZusassConvert;
 public class LevelDoor extends ZusassDoor{
 	
 	/** The level of the room that this door will lead to */
-	private int level;
+	private final int level;
 	
 	/** The room which contains this {@link LevelDoor} */
-	private ZusassRoom room;
+	private final ZusassRoom room;
 	
 	/**
 	 * Create a new LevelDoor at the default location

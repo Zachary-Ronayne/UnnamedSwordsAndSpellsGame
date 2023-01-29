@@ -13,7 +13,7 @@ public abstract class MainMenuButton extends ZusassButton{
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param text The text to display
-	 * @param game The {@link Game} that uses this button
+	 * @param zgame The {@link Game} that uses this button
 	 */
 	public MainMenuButton(double x, double y, String text, ZusassGame zgame){
 		super(x, y, 500, 120, text, zgame);

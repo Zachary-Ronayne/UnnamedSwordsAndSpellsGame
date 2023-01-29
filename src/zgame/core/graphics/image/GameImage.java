@@ -65,7 +65,7 @@ public class GameImage extends Asset{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w.get(0), h.get(0), 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
 		
 		// Free the data
-		stbi_image_free(img);
+		if(img != null) stbi_image_free(img);
 		
 		// Unbind the texture
 		glBindTexture(GL_TEXTURE_2D, 0);
