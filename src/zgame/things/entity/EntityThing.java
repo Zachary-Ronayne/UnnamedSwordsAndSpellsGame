@@ -138,9 +138,13 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		
 		this.setForce(FORCE_NAME_WALL_SLIDE, new ZVector());
 		
-		this.leaveFloor();
-		this.leaveCeiling();
-		this.leaveWall();
+		this.groundMaterial = Materials.NONE;
+		this.groundTime = 0;
+		this.ceilingMaterial = Materials.NONE;
+		this.ceilingTime = 0;
+		this.wallMaterial = Materials.NONE;
+		this.wallTime = 0;
+		
 		this.px = this.getX();
 		this.py = this.getY();
 	}

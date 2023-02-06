@@ -19,7 +19,7 @@ public class Npc extends ZusassMob{
 	public Npc(double x, double y, double width, double height){
 		super(x, y, width, height);
 		
-		this.setWalkSpeedMax(100);
+		this.getWalk().setWalkSpeedMax(100);
 		this.getStats().setAttackSpeed(1);
 	}
 	
@@ -27,16 +27,17 @@ public class Npc extends ZusassMob{
 	public void tick(Game game, double dt){
 		super.tick(game, dt);
 		ZusassGame zgame = (ZusassGame)game;
+		var walk = this.getWalk();
 		
 		// Simplistic ai to move to the player
 		ZusassPlayer player = zgame.getCurrentRoom().getPlayer();
 		double playerX = player.centerX();
 		double thisX = this.centerX();
 		if(Math.abs(playerX - thisX) > this.getWidth() * 0.5){
-			if(playerX > this.centerX()) this.walkRight();
-			else this.walkLeft();
+			if(playerX > this.centerX()) walk.walkRight();
+			else walk.walkLeft();
 		}
-		else this.stopWalking();
+		else walk.stopWalking();
 		// If the AI has an attack available, begin attacking
 		if(this.getAttackTime() <= 0) this.beginAttack(ZMath.lineAngle(this.centerX(), this.centerY(), playerX, player.centerY()));
 	}

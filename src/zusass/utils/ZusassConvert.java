@@ -1,6 +1,5 @@
 package zusass.utils;
 
-import zgame.things.entity.MobThing;
 import zgame.things.type.GameThing;
 import zusass.game.things.entities.mobs.Npc;
 import zusass.game.things.entities.mobs.ZusassMob;
@@ -14,10 +13,9 @@ public final class ZusassConvert{
 	 * @return The ZusassPlayer, or null if it could not be converted to a ZusassPlayer
 	 */
 	public static ZusassPlayer toPlayer(GameThing thing){
-		MobThing m = thing.asMob();
-		if(m == null) return null;
-		ZusassPlayer p = (ZusassPlayer)m;
-		return p.asPlayer();
+		// TODO remove instanceof
+		if(thing instanceof ZusassPlayer z) return z;
+		return null;
 	}
 	
 	/**
@@ -25,10 +23,9 @@ public final class ZusassConvert{
 	 * @return The Npc, or null if it could not be converted to an Npc
 	 */
 	public static Npc toNpc(GameThing thing){
-		MobThing m = thing.asMob();
-		if(m == null) return null;
-		ZusassMob zm = (ZusassMob)m;
-		return zm.asNpc();
+		// TODO remove instanceof
+		if(thing instanceof Npc n) return n;
+		return null;
 	}
 	
 	/** Cannot instantiate {@link ZusassConvert} */

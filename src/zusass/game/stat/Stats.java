@@ -1,4 +1,4 @@
-package zgame.things;
+package zusass.game.stat;
 
 /**
  * An object keeping track of all the information, i.e. health, skills, etc., about a mob

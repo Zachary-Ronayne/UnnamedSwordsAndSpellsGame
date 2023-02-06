@@ -7,7 +7,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.utils.ZMath;
-import zgame.things.Stats;
+import zusass.game.stat.Stats;
 import zgame.world.Room;
 import zusass.ZusassGame;
 
@@ -45,9 +45,9 @@ public class ZusassPlayer extends ZusassMob{
 	public void tick(Game game, double dt){
 		ZusassGame zgame = (ZusassGame)game;
 		
-		this.handleMovementControls(zgame, dt);
-		
 		super.tick(game, dt);
+		
+		this.handleMovementControls(zgame, dt);
 		
 		handleDoorPress(zgame);
 		handleToggleCameraPress(zgame);
@@ -66,20 +66,24 @@ public class ZusassPlayer extends ZusassMob{
 	}
 	
 	public void handleMovementControls(Game game, double dt){
+		// TODO move this stuff to a generic player interface
+		// TODO move some of this stuff to walk
+		// TODO make walk an interface? Maybe all the values come from a map of values?
 		// Move left and right
 		ZKeyInput ki = game.getKeyInput();
-		if(ki.buttonDown(GLFW_KEY_LEFT)) this.walkLeft();
-		else if(ki.buttonDown(GLFW_KEY_RIGHT)) this.walkRight();
-		else this.stopWalking();
+		var walk = this.getWalk();
+		if(ki.buttonDown(GLFW_KEY_LEFT)) walk.walkLeft();
+		else if(ki.buttonDown(GLFW_KEY_RIGHT)) walk.walkRight();
+		else walk.stopWalking();
 		
 		// Jump if holding the jump button
-		if(ki.buttonDown(GLFW_KEY_UP)) this.jump(dt);
+		if(ki.buttonDown(GLFW_KEY_UP)) walk.jump(dt);
 			// For not holding the button
 		else{
 			// if jumps should be instant, or no jump time is being built up, then stop the jump
-			if(this.jumpsAreInstant() || this.getJumpTimeBuilt() == 0) this.stopJump();
+			if(walk.jumpsAreInstant() || walk.getJumpTimeBuilt() == 0) walk.stopJump();
 				// Otherwise, perform the built up jump
-			else this.jumpFromBuiltUp(dt);
+			else walk.jumpFromBuiltUp(dt);
 			
 		}
 	}

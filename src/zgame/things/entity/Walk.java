@@ -1,21 +1,17 @@
 package zgame.things.entity;
 
-import java.util.List;
-
 import zgame.core.Game;
-import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
-import zgame.things.Stats;
 
-/** An {@link EntityThing} which represents some kind of creature which can walk around, i.e. the player, an enemy, an animal, a monster, any NPC, etc. */
-public abstract class MobThing extends EntityThing{
+/** A class that handles an {@link EntityThing} moving by walking and jumping */
+public class Walk{
 	
-	/** The string used to identify the force used to make this {@link MobThing} walk */
+	/** The string used to identify the force used to make {@link #thing} walk */
 	public static final String FORCE_NAME_WALKING = "walking";
-	/** The string used to identify the force used to make this {@link MobThing} jump */
+	/** The string used to identify the force used to make {@link #thing} jump */
 	public static final String FORCE_NAME_JUMPING = "jumping";
-	/** The string used to identify the force used to make this {@link MobThing} stop jumping */
+	/** The string used to identify the force used to make {@link #thing} stop jumping */
 	public static final String FORCE_NAME_JUMPING_STOP = "jumpingStop";
 	
 	/** The default value of {@link #jumpPower} */
@@ -51,7 +47,7 @@ public abstract class MobThing extends EntityThing{
 	 */
 	private double jumpPower;
 	
-	/** In the same units as {@link #jumpPower}, the power at which this {@link MobThing} is able to stop jumping while in the air */
+	/** In the same units as {@link #jumpPower}, the power at which {@link #thing} is able to stop jumping while in the air */
 	private double jumpStopPower;
 	
 	/** true if this mob has the ability to stop jumping while it's in the air, false otherwise */
@@ -63,17 +59,17 @@ public abstract class MobThing extends EntityThing{
 	/** true if after building up a jump to max power, the mob should immediately jump, false to make it that it has to wait to jump */
 	private boolean jumpAfterBuildUp;
 	
-	/** The acceleration of this {@link MobThing} while walking, i.e., how fast it gets to #walkSpeedMax */
+	/** The acceleration of {@link #thing} while walking, i.e., how fast it gets to #walkSpeedMax */
 	private double walkAcceleration;
 	
-	/** The maximum walking speed of this {@link MobThing} */
+	/** The maximum walking speed of {@link #thing} */
 	private double walkSpeedMax;
 	
-	/** The ratio of speed this {@link MobThing} can use to walk when it is airborne, i.e. not on the ground */
+	/** The ratio of speed {@link #thing} can use to walk when it is airborne, i.e. not on the ground */
 	private double walkAirControl;
 	
 	/**
-	 * The frictional constant used to slow down this {@link MobThing} when it is trying to move.
+	 * The frictional constant used to slow down {@link #thing} when it is trying to move.
 	 * This value represents the amount of the surface's friction which is applied.
 	 * Zero means no friction is applied while walking. One means apply the same amount of friction as normal, higher than 1 means apply extra friction
 	 * Generally should be 1.
@@ -81,7 +77,7 @@ public abstract class MobThing extends EntityThing{
 	private double walkFriction;
 	
 	/**
-	 * The frictional constant used to slow down this {@link MobThing} when it is trying to stop moving
+	 * The frictional constant used to slow down {@link #thing} when it is trying to stop moving
 	 * This value represents the amount of the surface's friction which is applied.
 	 * Zero means no friction is applied while not walking. One means apply the same amount of friction as normal, higher than 1 means apply extra friction.
 	 * Use a high value to make stopping walking happen quickly, use a low value to make stopping walking slow, and use zero to make it impossible to stop.
@@ -89,18 +85,18 @@ public abstract class MobThing extends EntityThing{
 	 */
 	private double walkStopFriction;
 	
-	/** true if this {@link MobThing} can jump off walls while touching one, otherwise, false */
+	/** true if {@link #thing} can jump off walls while touching one, otherwise, false */
 	private boolean canWallJump;
 	
-	/** The amount of time, in seconds, after touching the ground that this {@link MobThing} has to jump. -1 to make jumping only allowed while touching the ground */
+	/** The amount of time, in seconds, after touching the ground that {@link #thing} has to jump. -1 to make jumping only allowed while touching the ground */
 	private double normalJumpTime;
 	
-	/** The amount of time, in seconds, after touching a wall that this {@link MobThing} has to jump. -1 to make jumping only allowed while touching a wall */
+	/** The amount of time, in seconds, after touching a wall that {@link #thing} has to jump. -1 to make jumping only allowed while touching a wall */
 	private double wallJumpTime;
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	/** true if this {@link MobThing} is in a position where it is allowed to jump, false otherwise */
+	/** true if {@link #thing} is in a position where it is allowed to jump, false otherwise */
 	private boolean canJump;
 	
 	/** true if this mob is currently jumping, false otherwise */
@@ -109,16 +105,16 @@ public abstract class MobThing extends EntityThing{
 	/** true if this mob is able to wall jump, i.e. it has touched the ground since its last wall jump */
 	private boolean wallJumpAvailable;
 	
-	/** The force of jumping on this {@link MobThing} */
+	/** The force of jumping on {@link #thing} */
 	private ZVector jumpingForce;
 	
-	/** The amount of time, in seconds, this {@link MobThing} has built up their jump height */
+	/** The amount of time, in seconds, {@link #thing} has built up their jump height */
 	private double jumpTimeBuilt;
 	
-	/** true if this {@link MobThing} is currently building up a jump, false otherwise */
+	/** true if {@link #thing} is currently building up a jump, false otherwise */
 	private boolean buildingJump;
 	
-	/** true if this {@link MobThing} is currently stopping its jump, false otherwise */
+	/** true if {@link #thing} is currently stopping its jump, false otherwise */
 	private boolean stoppingJump;
 	
 	/**
@@ -127,34 +123,22 @@ public abstract class MobThing extends EntityThing{
 	 */
 	private ZVector jumpingStopForce;
 	
-	/** The vector keeping track of the force of this {@link MobThing} walking */
+	/** The vector keeping track of the force of {@link #thing} walking */
 	private ZVector walkingForce;
 	
-	/** The direction this {@link MobThing} is walking. -1 for walking to the left, 0 for not walking, 1 for walking to the right */
+	/** The direction {@link #thing} is walking. -1 for walking to the left, 0 for not walking, 1 for walking to the right */
 	private int walkingDirection;
 	
-	/** The amount of time, in seconds, until this mob will perform an attack, or a negative value if this mob is not preparing for an attack */
-	private double attackTime;
-	
-	/** The direction, an angle in radians, where the mob will attack */
-	private double attackDirection;
-	
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	/** The current amount of health this mob has */
-	private double currentHealth;
-	
-	/** The stats used by this mob */
-	private final Stats stats;
+	/** The {@link EntityThing} that uses this {@link Walk} */
+	private final EntityThing thing;
 	
 	/**
-	 * Create a new {@link MobThing} at the given position
-	 *
-	 * @param x The x coordinate of the mob
-	 * @param y The y coordinate of the mob
+	 * Make a new {@link Walk} with the given entity
+	 * @param thing See {@link #thing}
 	 */
-	public MobThing(double x, double y){
-		super(x, y);
+	public Walk(EntityThing thing){
+		this.thing = thing;
+		
 		this.canJump = false;
 		this.jumping = false;
 		this.stoppingJump = false;
@@ -164,9 +148,9 @@ public abstract class MobThing extends EntityThing{
 		this.stopWalking();
 		
 		this.jumpingForce = new ZVector();
-		this.setForce(FORCE_NAME_JUMPING, this.jumpingForce);
+		thing.setForce(FORCE_NAME_JUMPING, this.jumpingForce);
 		this.jumpingStopForce = new ZVector();
-		this.setForce(FORCE_NAME_JUMPING_STOP, this.jumpingStopForce);
+		thing.setForce(FORCE_NAME_JUMPING_STOP, this.jumpingStopForce);
 		
 		this.jumpPower = DEFAULT_JUMP_POWER;
 		this.jumpStopPower = DEFAULT_JUMP_STOP_POWER;
@@ -182,60 +166,26 @@ public abstract class MobThing extends EntityThing{
 		this.normalJumpTime = DEFAULT_NORMAL_JUMP_TIME;
 		this.wallJumpTime = DEFAULT_WALL_JUMP_TIME;
 		
-		this.attackTime = -1;
-		this.attackDirection = 0;
-		
 		this.walkingForce = new ZVector();
-		this.setForce(FORCE_NAME_WALKING, this.walkingForce);
-		
-		this.stats = new Stats();
-		this.currentHealth = this.stats.getMaxHealth();
+		thing.setForce(FORCE_NAME_WALKING, this.walkingForce);
 	}
 	
-	@Override
+	/** @return See {@link #thing} */
+	public EntityThing getThing(){
+		return this.thing;
+	}
+	
+	/**
+	 * Perform the game update actions handling {@link #thing}'s walking and jumping
+	 * @param game The {@link Game} where {@link #thing} is in
+	 * @param dt The amount of time that passed in the update
+	 */
 	public void tick(Game game, double dt){
-		// Update the state of the stats
-		this.updateStats(game);
-		
 		// Determine the new walking force
 		this.updateWalkForce(dt);
 		
 		// Update the state of the jumping force
 		this.updateJumpState(dt);
-		
-		// Update the attack timer
-		if(this.attackTime > 0){
-			this.attackTime -= dt;
-			if(this.attackTime <= 0) this.attackNearest(game);
-		}
-		// Do the normal game update
-		super.tick(game, dt);
-	}
-	
-	/**
-	 * Minimal method for drawing a basic attack timer for melee attacks
-	 *
-	 * @param game The game where the attack is performed
-	 * @param r The renderer to draw the attack with
-	 */
-	public void renderAttackTimer(Game game, Renderer r){
-		// issue#23 potentially need some way of ensuring this also gets rendered with the should render thing, or maybe this is just a temporary placeholder
-		if(this.getAttackTime() <= 0) return;
-		double directionX = Math.cos(this.attackDirection);
-		double time = this.getAttackTime();
-		double speed = this.getStats().getAttackSpeed();
-		double attackSize = this.getStats().getAttackRange() * (1 - time / speed);
-		
-		if(directionX < 0) r.drawRectangle(this.centerX() - attackSize, this.centerY(), attackSize, 20);
-		else r.drawRectangle(this.centerX(), this.centerY(), attackSize, 20);
-	}
-	
-	@Override
-	public void updatePosition(Game game, double dt){
-		super.updatePosition(game, dt);
-		
-		// After doing the normal tick and update with the mob's position and velocity and adding the jump velocity, reset the jump force to 0
-		this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, 0);
 	}
 	
 	/** @return See {@link #walkingDirection} */
@@ -259,34 +209,25 @@ public abstract class MobThing extends EntityThing{
 	}
 	
 	/**
-	 * Perform any necessary updates for the mob based on its current stats
+	 * Update the value of {@link #walkingForce} based on the current state of {@link #thing}
 	 *
-	 * @param game The game to update the stats on
-	 */
-	public void updateStats(Game game){
-		// If this thing has 0 or less health, kill it
-		if(this.getCurrentHealth() <= 0) this.die(game);
-	}
-	
-	/**
-	 * Update the value of {@link #walkingForce} based on the current state of this {@link MobThing}
-	 *
-	 * @param dt The amount of time that will pass in the next tick when this {@link MobThing} walks
+	 * @param dt The amount of time that will pass in the next tick when{@link #thing} walks
 	 */
 	public void updateWalkForce(double dt){
+		var entity = this.getThing();
 		// First handle mob movement
-		double mass = this.getMass();
+		double mass = entity.getMass();
 		double acceleration = this.getWalkAcceleration();
 		double walkForce = acceleration * mass * this.getWalkingDirection();
 		boolean walking = walkForce != 0;
 		double maxSpeed = this.getWalkSpeedMax();
 		
 		// If the mob is not on the ground, it's movement force is modified by the air control
-		if(!this.isOnGround()) walkForce *= this.getWalkAirControl();
+		if(!entity.isOnGround()) walkForce *= this.getWalkAirControl();
 		
 		// Only check the walking speed if there is any walking force
 		if(walking){
-			double vx = this.getVX();
+			double vx = entity.getVX();
 			// Find the total velocity if the new walking force is applied on the next tick
 			double sign = walkForce;
 			double newVel = vx + walkForce * dt / mass;
@@ -307,12 +248,6 @@ public abstract class MobThing extends EntityThing{
 		}
 		// Set the amount the mob is walking
 		this.setWalkingForce(walkForce);
-	}
-	
-	@Override
-	public double getFrictionConstant(){
-		// If not on the ground, use the normal amount of friction, otherwise, if currently walking, return walk friction, otherwise, return stop friction
-		return !this.isOnGround() ? 1 : (this.getWalkingDirection() != 0) ? getWalkFriction() : getWalkStopFriction();
 	}
 	
 	/** @return See {@link #canJump} */
@@ -345,16 +280,18 @@ public abstract class MobThing extends EntityThing{
 		return this.wallJumpAvailable;
 	}
 	
-	/** @return true if this {@link MobThing} is able to perform a normal jump off the ground based on the amount of time since it last touched a wall, false otherwise */
+	/** @return true if {@link #thing} is able to perform a normal jump off the ground based on the amount of time since it last touched a wall, false otherwise */
 	public boolean hasTimeToFloorJump(){
-		if(this.getNormalJumpTime() == -1) return this.getGroundTime() == -1;
-		return this.getGroundTime() <= this.getNormalJumpTime();
+		var entity = this.getThing();
+		if(this.getNormalJumpTime() == -1) return entity.getGroundTime() == -1;
+		return entity.getGroundTime() <= this.getNormalJumpTime();
 	}
 	
-	/** @return true if this {@link MobThing} is able to perform a wall jump based on the amount of time since it last touched a wall, false otherwise */
+	/** @return true if this {@link #thing} is able to perform a wall jump based on the amount of time since it last touched a wall, false otherwise */
 	public boolean hasTimeToWallJump(){
-		if(this.getWallJumpTime() == -1) return this.getWallTime() == -1;
-		return this.getWallTime() <= this.getWallJumpTime();
+		var entity = this.getThing();
+		if(this.getWallJumpTime() == -1) return entity.getWallTime() == -1;
+		return entity.getWallTime() <= this.getWallJumpTime();
 	}
 	
 	/** Remove any jump time built up */
@@ -364,9 +301,9 @@ public abstract class MobThing extends EntityThing{
 	}
 	
 	/**
-	 * Update the value of {@link #jumpingForce} and {@link #jumpingStopForce} based on the current state of this {@link MobThing}
+	 * Update the value of {@link #jumpingForce} and {@link #jumpingStopForce} based on the current state of {@link #thing}
 	 *
-	 * @param dt The amount of time, in seconds, that will pass in the next tick when this {@link MobThing} stops jumping
+	 * @param dt The amount of time, in seconds, that will pass in the next tick when {@link #thing} stops jumping
 	 */
 	public void updateJumpState(double dt){
 		// The mob can jump if it's on the ground, or if it can wall jump and is on a wall
@@ -381,22 +318,23 @@ public abstract class MobThing extends EntityThing{
 		if(this.isStoppingJump()){
 			// Can only stop jumping if it's allowed
 			if(!this.isCanStopJump()) return;
+			var entity = this.getThing();
 			// Only need to stop jumping if the mob is moving up
-			double vy = this.getVY();
+			double vy = entity.getVY();
 			if(vy < 0){
-				double mass = this.getMass();
+				double mass = entity.getMass();
 				double newStopJumpVel = this.getJumpStopPower() / mass;
 				double newStopJumpForce = this.getJumpStopPower() / dt;
 				// If the jump force would add extra velocity making its total velocity downwards,
 				// then the jump stop force should be such that the y velocity will be 0 on the next tick
 				if(vy + newStopJumpVel > 0) newStopJumpForce = -vy * mass / dt;
 				
-				this.jumpingStopForce = this.setForce(FORCE_NAME_JUMPING_STOP, 0, newStopJumpForce);
+				this.jumpingStopForce = entity.setForce(FORCE_NAME_JUMPING_STOP, 0, newStopJumpForce);
 			}
 			// Otherwise it is no longer stopping its jump, so remove the stopping force amount
 			else{
 				this.stoppingJump = false;
-				this.jumpingStopForce = this.setForce(FORCE_NAME_JUMPING_STOP, 0, 0);
+				this.jumpingStopForce = entity.setForce(FORCE_NAME_JUMPING_STOP, 0, 0);
 			}
 		}
 	}
@@ -423,6 +361,7 @@ public abstract class MobThing extends EntityThing{
 	 */
 	public void jumpFromBuiltUp(double dt){
 		if(!this.canJump) return;
+		var entity = this.getThing();
 		
 		this.jumping = true;
 		
@@ -434,46 +373,23 @@ public abstract class MobThing extends EntityThing{
 		double jumpAmount = -power / dt;
 		
 		// If falling downwards, add additional force so that the jump force will counteract the current downwards force
-		double vy = this.getVY();
-		if(vy > 0) jumpAmount -= vy / dt * this.getMass();
+		double vy = entity.getVY();
+		if(vy > 0) jumpAmount -= vy / dt * entity.getMass();
 		
-		this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, jumpAmount);
+		this.jumpingForce = entity.setForce(FORCE_NAME_JUMPING, 0, jumpAmount);
 		this.jumpTimeBuilt = 0;
 		this.buildingJump = false;
 	}
 	
-	/** Cause this {@link MobThing} to stop jumping. Does nothing if the mob is not currently jumping */
+	/** Cause this {@link #thing} to stop jumping. Does nothing if the mob is not currently jumping */
 	public void stopJump(){
 		if(!this.isJumping()) return;
-		this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, 0);
+		this.jumpingForce = this.getThing().setForce(FORCE_NAME_JUMPING, 0, 0);
 		this.jumping = false;
 		this.stoppingJump = true;
 	}
 	
-	@Override
-	public void touchFloor(Material m){
-		super.touchFloor(m);
-		this.jumpingForce = this.setForce(FORCE_NAME_JUMPING, 0, 0);
-		this.jumping = false;
-		this.wallJumpAvailable = true;
-	}
-	
-	@Override
-	public void leaveFloor(){
-		super.leaveFloor();
-		
-		// Any jump that was being built up is no longer being built up after leaving the floor
-		this.cancelJump();
-	}
-	
-	@Override
-	public void leaveWall(){
-		super.leaveWall();
-		
-		this.cancelJump();
-	}
-	
-	/** @return true if this {@link MobThing} jumps instantly, false if it has to build up a jump */
+	/** @return true if {@link #thing} jumps instantly, false if it has to build up a jump */
 	public boolean jumpsAreInstant(){
 		return this.jumpBuildTime == 0;
 	}
@@ -615,107 +531,43 @@ public abstract class MobThing extends EntityThing{
 	
 	/** @param movement The amount of force applied to the x axis when this mob is walking */
 	public void setWalkingForce(double movement){
-		this.walkingForce = this.setForce(FORCE_NAME_WALKING, movement, 0);
+		this.walkingForce = this.getThing().setForce(FORCE_NAME_WALKING, movement, 0);
 	}
 	
 	/**
-	 * Called when this stat thing dies
+	 * Update the position and velocity of {@link #thing} based on its current forces and velocity
 	 *
-	 * @param game The game it was in when it died
+	 * @param game The {@link Game} where the update takes place
+	 * @param dt The amount of time, in seconds, which passed in the tick where this update took place
 	 */
-	public void die(Game game){
-		// On death, by default, remove the thing from the game
-		game.getCurrentRoom().removeThing(this);
+	public void updatePosition(Game game, double dt){
+		// After doing the normal tick and update with the mob's position and velocity and adding the jump velocity, reset the jump force to 0
+		this.jumpingForce = this.getThing().setForce(FORCE_NAME_JUMPING, 0, 0);
 	}
 	
-	/** @return See {@link #attackTime} */
-	public double getAttackTime(){
-		return this.attackTime;
+	/** This method should be called when the associated entity touches a floor */
+	public void touchFloor(Material m){
+		this.jumpingForce = this.getThing().setForce(FORCE_NAME_JUMPING, 0, 0);
+		this.jumping = false;
+		this.wallJumpAvailable = true;
 	}
 	
-	/**
-	 * Cause this mob to begin performing an attack
-	 *
-	 * @param direction The direction to attack in
-	 */
-	public void beginAttack(double direction){
-		this.attackDirection = direction;
-		this.attackTime = this.getStats().getAttackSpeed();
+	/** This method should be called when the associated entity leaves a floor */
+	public void leaveFloor(){
+		// Any jump that was being built up is no longer being built up after leaving the floor
+		this.cancelJump();
 	}
 	
-	/**
-	 * Cause this mob to deal damage to the given mob
-	 *
-	 * @param mob The mob to attack
-	 */
-	public void attack(MobThing mob){
-		mob.damage(this.getStats().getStrength());
+	/** This method should be called when the associated entity leaves a wall */
+	public void leaveWall(){
+		this.cancelJump();
 	}
 	
-	/**
-	 * Attack the nearest mob, in {@link #attackDirection}, in the game which is not this mob
-	 *
-	 * @param game The game where the attack should happen
-	 */
-	public void attackNearest(Game game){
-		List<MobThing> mobs = game.getCurrentRoom().getMobs();
-		for(MobThing m : mobs){
-			// Skip the current mob if it is this mob or the mob is out of the attack range
-			if(m == this || this.center().distance(m.center()) >= this.getStats().getAttackRange()) continue;
-			// Also skip the current mob if it is not in the attack direction
-			double directionX = Math.cos(this.attackDirection);
-			if(this.centerX() < m.centerX() == directionX < 0) continue;
-			// Perform the attack
-			this.attack(m);
-			return;
-		}
-	}
-	
-	/**
-	 * Cause this mob to be effected by something that deals damage to it's health
-	 *
-	 * @param amount The amount of damage done. Does nothing if this value is less than or equal to 0
-	 */
-	public void damage(double amount){
-		if(amount <= 0) return;
-		this.setCurrentHealth(this.getCurrentHealth() - amount);
-	}
-	
-	/** @return See {@link #stats} */
-	public Stats getStats(){
-		return this.stats;
-	}
-	
-	/** @return See {@link #currentHealth} */
-	public double getCurrentHealth(){
-		return this.currentHealth;
-	}
-	
-	/**
-	 * Directly sets the amount of health this mob has.
-	 * Use {@link #damage(double)} when this mob is hit by an attack.
-	 * If the given amount exceeds, maximum health, health is set to the max
-	 *
-	 * @param currentHealth See {@link #currentHealth}
-	 */
-	public void setCurrentHealth(double currentHealth){
-		this.currentHealth = Math.min(currentHealth, this.getStats().getMaxHealth());
-	}
-	
-	/** Set {@link #currentHealth} to maximum health */
-	public void healToMaxHealth(){
-		this.setCurrentHealth(this.getStats().getMaxHealth());
-	}
-	
-	/** @return The percentage of health this mob has remaining, in the range [0, 1] */
-	public double currentHealthPerc(){
-		double perc = this.getCurrentHealth() / this.getStats().getMaxHealth();
-		return Math.min(1, Math.max(0, perc));
-	}
-	
-	@Override
-	public final MobThing asMob(){
-		return this;
+	/** @return The friction constant that this thing should have, based on its current walking state */
+	public double getFrictionConstant(){
+		var entity = this.getThing();
+		// If not on the ground, use the normal amount of friction, otherwise, if currently walking, return walk friction, otherwise, return stop friction
+		return !entity.isOnGround() ? 1 : (this.getWalkingDirection() != 0) ? this.getWalkFriction() : this.getWalkStopFriction();
 	}
 	
 }

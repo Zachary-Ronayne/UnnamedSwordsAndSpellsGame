@@ -154,9 +154,9 @@ public class MainTest extends Game{
 	public static void main(String[] args){
 		// Set up game
 		testerGame = new MainTest();
-		testerGame.setCurrentState(new TesterGameState(testerGame));
+//		testerGame.setCurrentState(new TesterGameState(testerGame));
 		// testerGame.setCurrentState(new TesterMenuState(testerGame));
-		// testerGame.setCurrentState(new GameEngineState());
+		 testerGame.setCurrentState(new GameEngineState());
 		
 		window = testerGame.getWindow();
 		window.center();
@@ -222,7 +222,7 @@ public class MainTest extends Game{
 			this.player = new PlayerTester(100, 400, 60, 100);
 			this.player.setMass(100);
 			this.player.setLockCamera(true);
-			this.player.setCanWallJump(true);
+			this.player.getWalk().setCanWallJump(true);
 			firstRoom.addThing(this.player);
 			
 			Door d = new Door(700, 400);
@@ -278,13 +278,14 @@ public class MainTest extends Game{
 			
 			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState(game));
 			
+			var walk = player.getWalk();
 			Room r = getCurrentRoom();
 			if(button == GLFW_KEY_W) r.makeWallState(Room.WALL_CEILING, !r.isSolid(Room.WALL_CEILING));
 			else if(button == GLFW_KEY_A) r.makeWallState(Room.WALL_LEFT, !r.isSolid(Room.WALL_LEFT));
 			else if(button == GLFW_KEY_S) r.makeWallState(Room.WALL_FLOOR, !r.isSolid(Room.WALL_FLOOR));
 			else if(button == GLFW_KEY_D) r.makeWallState(Room.WALL_RIGHT, !r.isSolid(Room.WALL_RIGHT));
-			else if(button == GLFW_KEY_MINUS) player.setJumpPower(player.getJumpPower() - 10);
-			else if(button == GLFW_KEY_EQUAL) player.setJumpPower(player.getJumpPower() + 10);
+			else if(button == GLFW_KEY_MINUS) walk.setJumpPower(walk.getJumpPower() - 10);
+			else if(button == GLFW_KEY_EQUAL) walk.setJumpPower(walk.getJumpPower() + 10);
 			else if(shift && button == GLFW_KEY_L) player.setLockCamera(!player.isLockCamera());
 			else if(button == GLFW_KEY_9) game.getCamera().zoom(-.5);
 			else if(button == GLFW_KEY_0) game.getCamera().zoom(.5);

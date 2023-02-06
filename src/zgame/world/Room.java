@@ -16,7 +16,6 @@ import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing;
-import zgame.things.entity.MobThing;
 import zgame.things.still.tiles.BaseTiles;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType;
@@ -42,8 +41,6 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	private final NotNullList<EntityThing> entities;
 	/** A map containing the elements of {@link #entities}, mapped by their uuid */
 	private final HashMap<String, EntityThing> entityMap;
-	/** All of the {@link MobThing} objects which exist in the game */
-	private final NotNullList<MobThing> mobs;
 	/** All of the {@link HitBox} objects which exist in the game */
 	private final NotNullList<HitBox> hitBoxThings;
 	/** All of the {@link GameTickable} objects which exist in the game */
@@ -87,7 +84,6 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 		this.things = new NotNullList<>();
 		this.entities = new NotNullList<>();
 		this.entityMap = new HashMap<>();
-		this.mobs = new NotNullList<>();
 		this.hitBoxThings = new NotNullList<>();
 		this.tickableThings = new NotNullList<>();
 		
@@ -153,11 +149,6 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 		return this.entityMap.get(uuid);
 	}
 	
-	/** @return See {@link #mobs}. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
-	public NotNullList<MobThing> getMobs(){
-		return this.mobs;
-	}
-	
 	/** @return See {@link #tickableThings}. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
 	public NotNullList<GameTickable> getTickableThings(){
 		return this.tickableThings;
@@ -180,7 +171,6 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 		boolean added = this.entities.add(e);
 		if(added) this.entityMap.put(e.getUuid(), e);
 		
-		this.mobs.add(thing.asMob());
 		this.tickableThings.add(thing.asTickable());
 		this.hitBoxThings.add(thing.asHitBox());
 	}
@@ -303,7 +293,6 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 		this.things.remove(thing);
 		EntityThing e = thing.asEntity();
 		if(this.entities.remove(e)) this.entityMap.remove(e.getUuid());
-		this.mobs.remove(thing.asMob());
 		this.tickableThings.remove(thing.asTickable());
 		this.hitBoxThings.remove(thing.asHitBox());
 	}

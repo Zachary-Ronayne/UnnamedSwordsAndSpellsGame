@@ -1,6 +1,9 @@
 package zusass.game;
 
+import zgame.core.utils.NotNullList;
+import zgame.things.type.GameThing;
 import zgame.world.Room;
+import zusass.game.things.entities.mobs.ZusassMob;
 import zusass.game.things.entities.mobs.ZusassPlayer;
 
 /** A {@link Room} used by the Zusass game */
@@ -8,6 +11,8 @@ public class ZusassRoom extends Room{
 	
 	/** The player which is in this room */
 	private ZusassPlayer player;
+	
+	private final NotNullList<ZusassMob> mobs;
 	
 	/** Create a new room with nothing in it */
 	public ZusassRoom(){
@@ -22,7 +27,26 @@ public class ZusassRoom extends Room{
 	 */
 	public ZusassRoom(int xTiles, int yTiles){
 		super(xTiles, yTiles);
+		this.mobs = new NotNullList<>();
+		
 		this.player = null;
+	}
+	
+	@Override
+	public void addThing(GameThing thing){
+		// TODO abstract this out to add a list of any type in room
+		super.addThing(thing);
+		if(thing instanceof ZusassMob m) this.getMobs().add(m);
+	}
+	
+	@Override
+	public void tickRemoveThing(GameThing thing){
+		super.tickRemoveThing(thing);
+		if(thing instanceof ZusassMob m) this.getMobs().remove(m);
+	}
+	
+	public NotNullList<ZusassMob> getMobs(){
+		return this.mobs;
 	}
 	
 	/** @return See {@link #player} */
