@@ -294,6 +294,31 @@ public class Walk{
 		return entity.getWallTime() <= this.getWallJumpTime();
 	}
 	
+	/**
+	 * A utility method that handles a simple implementation of moving using keyboard controls
+	 * @param moveLeft true if movement should be to the left, false otherwise
+	 * @param moveRight true if movement should be to the right, false otherwise
+	 * @param jump true if jumping should occur, false otherwise
+	 * @param dt The amount of time that passed during this instance of time
+	 */
+	public void handleMovementControls(boolean moveLeft, boolean moveRight, boolean jump, double dt){
+		// Move left and right
+		if(moveLeft) this.walkLeft();
+		else if(moveRight) this.walkRight();
+		else this.stopWalking();
+		
+		// Jump if holding the jump button
+		if(jump) this.jump(dt);
+			// For not holding the button
+		else{
+			// if jumps should be instant, or no jump time is being built up, then stop the jump
+			if(this.jumpsAreInstant() || this.getJumpTimeBuilt() == 0) this.stopJump();
+				// Otherwise, perform the built up jump
+			else this.jumpFromBuiltUp(dt);
+			
+		}
+	}
+	
 	/** Remove any jump time built up */
 	public void cancelJump(){
 		this.buildingJump = false;

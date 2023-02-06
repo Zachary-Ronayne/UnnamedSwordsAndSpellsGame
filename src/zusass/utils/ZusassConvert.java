@@ -2,7 +2,6 @@ package zusass.utils;
 
 import zgame.things.type.GameThing;
 import zusass.game.things.entities.mobs.Npc;
-import zusass.game.things.entities.mobs.ZusassMob;
 import zusass.game.things.entities.mobs.ZusassPlayer;
 
 /** Utility methods for converting objects used by the Zusass game */

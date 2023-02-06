@@ -45,6 +45,7 @@ public class ZusassRoom extends Room{
 		if(thing instanceof ZusassMob m) this.getMobs().remove(m);
 	}
 	
+	/** @return All the mobs which are in this {@link ZusassRoom} */
 	public NotNullList<ZusassMob> getMobs(){
 		return this.mobs;
 	}

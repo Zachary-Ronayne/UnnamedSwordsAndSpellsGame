@@ -2,7 +2,6 @@ package tester;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.core.input.keyboard.ZKeyInput;
 import zgame.physics.material.Material;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.Walk;
@@ -48,23 +47,8 @@ public class PlayerTester extends EntityThing implements RectangleHitBox{
 		walk.updatePosition(game, dt);
 		walk.tick(game, dt);
 		
-		// Move left and right
-		ZKeyInput ki = game.getKeyInput();
-		if(ki.buttonDown(GLFW_KEY_LEFT)) walk.walkLeft();
-		else if(ki.buttonDown(GLFW_KEY_RIGHT)) walk.walkRight();
-		else walk.stopWalking();
-		
-		// Jump if holding the jump button
-		if(ki.buttonDown(GLFW_KEY_UP)) walk.jump(dt);
-			// For not holding the button
-		else{
-			// if jumps should be instant, or no jump time is being built up, then stop the jump
-			if(walk.jumpsAreInstant() || walk.getJumpTimeBuilt() == 0){
-				walk.stopJump();
-			}
-			// Otherwise, perform the built up jump
-			else walk.jumpFromBuiltUp(dt);
-		}
+		var ki = game.getKeyInput();
+		walk.handleMovementControls(ki.pressed(GLFW_KEY_LEFT), ki.pressed(GLFW_KEY_RIGHT), ki.pressed(GLFW_KEY_UP), dt);
 		
 		// Lastly, perform the normal game tick on the player
 		super.tick(game, dt);
