@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
+import zgame.core.utils.Uuidable;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint;
 import zgame.physics.ZVector;
@@ -117,6 +118,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	 */
 	public EntityThing(double x, double y, double mass){
 		super(x, y);
+		// TODO use longs for the uuids
 		this.uuid = UUID.randomUUID().toString();
 		
 		this.velocity = new ZVector();

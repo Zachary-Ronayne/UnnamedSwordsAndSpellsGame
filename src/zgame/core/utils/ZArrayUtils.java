@@ -2,6 +2,7 @@ package zgame.core.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 /** Utility methods for working with arrays. Repurposed code from one of my other projects, Zab Guitar Maker */
@@ -18,11 +19,25 @@ public class ZArrayUtils{
 	 * @return true if the insert is successful, false otherwise
 	 */
 	public static <E extends Comparable<E>> boolean insertSorted(List<E> arr, E e, boolean allowDuplicates){
+		return insertSorted(arr, e, allowDuplicates, Comparable::compareTo);
+	}
+	
+	/**
+	 * Add the given element to the given {@link List}, inserting it into a position so that the list remains sorted.
+	 *
+	 * @param <E> The type of the lists, must be {@link Comparable}
+	 * @param arr A sorted List
+	 * @param e The element to add
+	 * @param allowDuplicates true to allow duplicate values to be added, false to not add them. If the value to add is a duplicate and this parameter is true, nothing
+	 * 		happens and this method returns false
+	 * @return true if the insert is successful, false otherwise
+	 */
+	public static <E> boolean insertSorted(List<E> arr, E e, boolean allowDuplicates, Comparator<E> compObj){
 		// Find the index to place
-		int low = binarySearch(arr, e, true);
+		int low = binarySearch(arr, e, true, compObj);
 		
 		// If duplicates are not allowed, and that index contains the given value, return false
-		if(!allowDuplicates && (low < arr.size() && arr.get(low).compareTo(e) == 0)) return false;
+		if(!allowDuplicates && (low < arr.size() && compObj.compare(arr.get(low), e) == 0)) return false;
 		
 		arr.add(low, e);
 		return true;
@@ -41,6 +56,10 @@ public class ZArrayUtils{
 		return insertSorted(arr, e, true);
 	}
 	
+	public static <E> boolean insertSorted(List<E> arr, E e, Comparator<E> comp){
+		return insertSorted(arr, e, true, comp);
+	}
+	
 	/**
 	 * Search through a sorted list with comparable values via binary search for the specified element
 	 *
@@ -53,6 +72,21 @@ public class ZArrayUtils{
 	 * 		list in a sorted manner, or -1 if findInsert is false
 	 */
 	public static <E extends Comparable<E>> int binarySearch(List<E> arr, E e, boolean findInsert){
+		return binarySearch(arr, e, findInsert, Comparable::compareTo);
+	}
+	
+	/**
+	 * Search through a sorted list with comparable values via binary search for the specified element
+	 *
+	 * @param <E> The type of elements
+	 * @param arr The List to search, must be sorted. If arr is unsorted, this method has undefined behavior
+	 * @param e The value to look for
+	 * @param findInsert true to return the location of where the element should be inserted to remain sorted if the element is not found, false to return -1 if the value
+	 * 		isn't found
+	 * @return The index of the value, or if the value is not found, then if findInsert is true the index of where that element would lie if it were to be inserted into the
+	 * 		list in a sorted manner, or -1 if findInsert is false
+	 */
+	public static <E> int binarySearch(List<E> arr, E e, boolean findInsert, Comparator<E> compObj){
 		int low = 0;
 		int high = arr.size();
 		int mid;
@@ -67,7 +101,7 @@ public class ZArrayUtils{
 			midO = arr.get(mid);
 			
 			// Compare the to add element to the middle element
-			int comp = e.compareTo(midO);
+			int comp = compObj.compare(e, midO);
 			
 			// If the element is before mid, mid becomes the new high
 			if(comp < 0) high = mid;

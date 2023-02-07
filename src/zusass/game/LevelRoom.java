@@ -29,9 +29,9 @@ public class LevelRoom extends ZusassRoom{
 	private boolean[] levelDisp;
 	
 	/** The first color of the checkerboard pattern of this room */
-	private final ZColor checker1;
+	private ZColor checker1;
 	/** The second color of the checkerboard pattern of this room */
-	private final ZColor checker2;
+	private ZColor checker2;
 	
 	/** true if this room has its completion requirements satisfied, and the player is able to leave the room */
 	private boolean roomCleared;
@@ -39,13 +39,19 @@ public class LevelRoom extends ZusassRoom{
 	private int enemiesRemaining;
 	
 	/**
-	 * Create a new randomly generated level
+	 * Create a new empty level
 	 *
 	 * @param level See {@link #level}
 	 */
 	public LevelRoom(int level){
 		super(X_TILES, Y_TILES);
-		
+		this.setLevel(level);
+	}
+	
+	/**
+	 * Initialize the state of this level room by adding all the intended objects, i.e., tiles, mobs, etc.
+	 */
+	public void initRandom(){
 		// Set up the tiles
 		this.checker1 = new ZColor(0.2 + Math.random() * 0.5, 0.2 + Math.random() * 0.5, 0.2 + Math.random() * 0.5);
 		this.checker2 = new ZColor(checker1.red() * 0.5, checker1.green() * 0.5, checker1.blue() * 0.5);
@@ -56,7 +62,6 @@ public class LevelRoom extends ZusassRoom{
 				this.setTile(i, j, (i0 == j0) ? ZusassColorTiles.BACK_COLOR : ZusassColorTiles.BACK_COLOR_DARK);
 			}
 		}
-		this.setLevel(level);
 		
 		// Add the door
 		this.addThing(new LevelDoor(this.getLevel() + 1, this));

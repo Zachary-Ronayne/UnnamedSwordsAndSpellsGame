@@ -50,7 +50,9 @@ public class LevelDoor extends ZusassDoor{
 		ZusassGame zgame = (ZusassGame)game;
 		
 		// Generate the new room, then enter it
-		this.setLeadRoom(new LevelRoom(this.getLevel()), 0, 0);
+		var levelRoom = new LevelRoom(this.getLevel());
+		this.setLeadRoom(levelRoom, 0, 0);
+		levelRoom.initRandom();
 		this.setRoomY(this.getLeadRoom().maxY() - thing.getHeight());
 		boolean success = super.enterRoom(r, thing, game);
 		

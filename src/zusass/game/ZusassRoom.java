@@ -12,8 +12,6 @@ public class ZusassRoom extends Room{
 	/** The player which is in this room */
 	private ZusassPlayer player;
 	
-	private final NotNullList<ZusassMob> mobs;
-	
 	/** Create a new room with nothing in it */
 	public ZusassRoom(){
 		this(0, 0);
@@ -27,16 +25,9 @@ public class ZusassRoom extends Room{
 	 */
 	public ZusassRoom(int xTiles, int yTiles){
 		super(xTiles, yTiles);
-		this.mobs = new NotNullList<>();
+		this.getAllThings().addClass(ZusassMob.class);
 		
 		this.player = null;
-	}
-	
-	@Override
-	public void addThing(GameThing thing){
-		// TODO abstract this out to add a list of any type in room
-		super.addThing(thing);
-		if(thing instanceof ZusassMob m) this.getMobs().add(m);
 	}
 	
 	@Override
@@ -47,7 +38,7 @@ public class ZusassRoom extends Room{
 	
 	/** @return All the mobs which are in this {@link ZusassRoom} */
 	public NotNullList<ZusassMob> getMobs(){
-		return this.mobs;
+		return this.getAllThings().get(ZusassMob.class);
 	}
 	
 	/** @return See {@link #player} */
