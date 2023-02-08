@@ -2,6 +2,9 @@ package tester;
 
 import zgame.core.Game;
 import zgame.core.utils.ClassMappedList;
+import zgame.core.utils.Uuidable;
+
+import java.util.UUID;
 
 /** A class purely for making and testing random specific bits of code */
 public class DebugGame extends Game{
@@ -17,10 +20,17 @@ public class DebugGame extends Game{
 			super(a);
 		}
 	}
-	public static class C extends B{
+	public static class C extends B implements Uuidable{
+		String uuid = UUID.randomUUID().toString();
 		public C(String a){
 			super(a);
-		}}
+		}
+		
+		@Override
+		public String getUuid(){
+			return uuid;
+		}
+	}
 	
 	public static void main(String[] args){
 //		var g = new DebugGame();

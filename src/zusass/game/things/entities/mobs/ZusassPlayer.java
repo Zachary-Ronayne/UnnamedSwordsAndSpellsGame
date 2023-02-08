@@ -162,8 +162,4 @@ public class ZusassPlayer extends ZusassMob{
 		return this;
 	}
 	
-	@Override
-	public int getRenderPriority(){
-		return -100;
-	}
 }

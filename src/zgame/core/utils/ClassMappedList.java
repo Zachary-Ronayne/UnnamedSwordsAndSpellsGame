@@ -1,7 +1,5 @@
 package zgame.core.utils;
 
-import zgame.things.entity.EntityThing;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,9 +66,7 @@ public class ClassMappedList{
 		for(var c : this.map.keySet()){
 			if(c.isInstance(obj)) {
 				var list = (NotNullList<T>)this.get(c);
-				if(canCompare) {
-					ZArrayUtils.insertSorted(list, obj, (a, b) -> ((Comparable<T>)a).compareTo(b)); // TODO make this less stupid
-				}
+				if(canCompare) ZArrayUtils.insertSorted(list, obj, (a, b) -> ((Comparable<T>)a).compareTo(b));
 				else list.add(obj);
 			}
 		}
@@ -95,7 +91,7 @@ public class ClassMappedList{
 			this.get(c).remove(obj);
 		}
 		for(var c : this.uuidMap.keySet()){
-			this.getMap(c).remove(obj);
+			if(c.isInstance(obj)) this.getMap(c).remove(((Uuidable)obj).getUuid());
 		}
 	}
 	
