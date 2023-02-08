@@ -157,9 +157,4 @@ public class ZusassPlayer extends ZusassMob{
 		this.checkCenterCamera(zgame);
 	}
 	
-	@Override
-	public ZusassPlayer asPlayer(){
-		return this;
-	}
-	
 }

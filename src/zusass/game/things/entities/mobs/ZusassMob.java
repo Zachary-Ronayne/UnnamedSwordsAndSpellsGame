@@ -236,14 +236,6 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		return null;
 	}
 	
-	/**
-	 * @return This object, as a {@link ZusassPlayer}, or null if it cannot be a {@link ZusassPlayer}
-	 * The return value of this method should equal this object, not another version or reference, i.e. (this == this.asPlayer()) should evaluate to true
-	 */
-	public ZusassPlayer asPlayer(){
-		return null;
-	}
-	
 	/** @return See {@link #walk} */
 	public Walk getWalk(){
 		return this.walk;

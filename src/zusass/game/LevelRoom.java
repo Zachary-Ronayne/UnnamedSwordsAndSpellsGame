@@ -4,12 +4,10 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZMath;
-import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zusass.game.things.LevelDoor;
 import zusass.game.things.entities.mobs.Npc;
 import zusass.game.things.tiles.ZusassColorTiles;
-import zusass.utils.ZusassConvert;
 
 /** A {@link Room} which represents a randomly generated level for the infinite dungeons */
 public class LevelRoom extends ZusassRoom{
@@ -33,11 +31,6 @@ public class LevelRoom extends ZusassRoom{
 	/** The second color of the checkerboard pattern of this room */
 	private ZColor checker2;
 	
-	/** true if this room has its completion requirements satisfied, and the player is able to leave the room */
-	private boolean roomCleared;
-	/** The number of enemies still in the room */
-	private int enemiesRemaining;
-	
 	/**
 	 * Create a new empty level
 	 *
@@ -46,6 +39,7 @@ public class LevelRoom extends ZusassRoom{
 	public LevelRoom(int level){
 		super(X_TILES, Y_TILES);
 		this.setLevel(level);
+		this.getAllThings().addClass(Npc.class);
 	}
 	
 	/**
@@ -75,29 +69,13 @@ public class LevelRoom extends ZusassRoom{
 		this.addThing(enemy);
 	}
 	
-	@Override
-	public void addThing(GameThing thing){
-		super.addThing(thing);
-		// When adding an npc, keep track of that
-		if(ZusassConvert.toNpc(thing) != null){
-			this.enemiesRemaining++;
-			this.roomCleared = false;
-		}
-	}
-	
-	@Override
-	public void tickRemoveThing(GameThing thing){
-		super.tickRemoveThing(thing);
-		// When removing an npc, keep track of that
-		if(ZusassConvert.toNpc(thing) != null){
-			this.enemiesRemaining--;
-			if(this.enemiesRemaining <= 0) this.roomCleared = true;
-		}
-	}
-	
-	/** @return See {@link #roomCleared} */
+	/** @return true if this room is cleared and can be exited, false otherwise */
 	public boolean isRoomCleared(){
-		return this.roomCleared;
+		return this.getEnemiesRemainingCount() <= 0;
+	}
+	
+	public int getEnemiesRemainingCount(){
+		return this.getAllThings().get(Npc.class).size();
 	}
 	
 	/** @return See {@link #checker1} */
