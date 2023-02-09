@@ -18,7 +18,7 @@ public abstract class ZusassButton extends MenuButton{
 	 */
 	public ZusassButton(double x, double y, double w, double h, String text, ZusassGame zgame){
 		super(x, y, w, h, text, zgame);
-		ZusassStyle.applyStyle(zgame, this);
+		ZusassStyle.applyStyleText(zgame, this);
 		this.setFontSize(40);
 		this.centerText();
 	}

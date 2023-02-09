@@ -6,10 +6,10 @@ import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.buffer.DrawableGameBuffer;
+import zgame.core.utils.ClassMappedList;
 import zgame.core.utils.ZRect;
 import zgame.core.window.GameWindow;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,8 +44,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** The {@link MenuThing} which holds this {@link MenuThing}. Can be null if this {@link MenuThing} has no parent */
 	private MenuThing parent;
 	
-	/** A collection of every {@link MenuThing} in this {@link Menu} */
-	private final List<MenuThing> things;
+	/** Every {@link MenuThing} in this {@link Menu} */
+	private final ClassMappedList things;
 	
 	/**
 	 * The buffer used by this {@link MenuThing} to keep track of what's drawn for {@link #renderHud(Game, Renderer)}, or null if using a buffer is not enabled. If null, the
@@ -102,7 +102,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.borderWidth = 0;
 		
 		this.parent = null;
-		this.things = new ArrayList<>();
+		this.things = new ClassMappedList();
+		this.things.addClass(MenuThing.class);
 		
 		this.setBuffer(useBuffer);
 		this.drawThingsToBuffer = true;
@@ -172,8 +173,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	@Override
 	public void destroy(){
+		var things = this.getThings();
 		this.destroyBuffer();
-		for(int i = 0; i < this.things.size(); i++) this.things.get(i).destroy();
+		for(int i = 0; i < things.size(); i++) things.get(i).destroy();
 	}
 	
 	/**
@@ -352,7 +354,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 	public boolean addThing(MenuThing thing){
 		if(this == thing || this.hasThing(thing) || thing.getParent() != null) return false;
 		thing.setParent(this);
-		return this.things.add(thing);
+		var things = this.getThings();
+		return things.add(thing);
 	}
 	
 	/**
@@ -375,7 +378,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	public boolean removeThing(MenuThing thing, boolean destroy){
 		if(thing == null) return false;
 		if(thing.getParent() == this) thing.setParent(null);
-		boolean success = this.things.remove(thing);
+		boolean success = things.remove(thing);
 		if(destroy) thing.destroy();
 		return success;
 	}
@@ -391,12 +394,18 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * @param destroy true to also destroy every removed thing, false otherwise
 	 */
 	public void removeAll(boolean destroy){
-		if(destroy) for(MenuThing thing : this.things) thing.destroy();
-		this.things.clear();
+		var things = this.getThings();
+		if(destroy) for(MenuThing thing : things) thing.destroy();
+		things.clear();
 	}
 	
 	/** @return See {@link #things} */
 	public List<MenuThing> getThings(){
+		return this.things.get(MenuThing.class);
+	}
+	
+	/** @return See {@link #things} */
+	public ClassMappedList getAllThings(){
 		return this.things;
 	}
 	
@@ -449,8 +458,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** Do not call directly */
 	@Override
 	public void tick(Game game, double dt){
-		for(int i = 0; i < this.things.size(); i++){
-			MenuThing t = this.things.get(i);
+		var things = this.getThings();
+		for(int i = 0; i < things.size(); i++){
+			MenuThing t = things.get(i);
 			t.tick(game, dt);
 		}
 	}
@@ -458,8 +468,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** Do not call directly */
 	@Override
 	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		for(int i = 0; i < this.things.size(); i++){
-			MenuThing t = this.things.get(i);
+		var things = this.getThings();
+		for(int i = 0; i < things.size(); i++){
+			MenuThing t = things.get(i);
 			t.keyAction(game, button, press, shift, alt, ctrl);
 		}
 	}
@@ -467,8 +478,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** Do not call directly */
 	@Override
 	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		for(int i = 0; i < this.things.size(); i++){
-			MenuThing t = this.things.get(i);
+		var things = this.getThings();
+		for(int i = 0; i < things.size(); i++){
+			MenuThing t = things.get(i);
 			t.mouseAction(game, button, press, shift, alt, ctrl);
 		}
 	}
@@ -476,8 +488,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** Do not call directly */
 	@Override
 	public void mouseMove(Game game, double x, double y){
-		for(int i = 0; i < this.things.size(); i++){
-			MenuThing t = this.things.get(i);
+		var things = this.getThings();
+		for(int i = 0; i < things.size(); i++){
+			MenuThing t = things.get(i);
 			t.mouseMove(game, x, y);
 		}
 	}
@@ -485,8 +498,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** Do not call directly */
 	@Override
 	public void mouseWheelMove(Game game, double amount){
-		for(int i = 0; i < this.things.size(); i++){
-			MenuThing t = this.things.get(i);
+		var things = this.getThings();
+		for(int i = 0; i < things.size(); i++){
+			MenuThing t = things.get(i);
 			t.mouseWheelMove(game, amount);
 		}
 	}
@@ -564,8 +578,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 		}
 		// Draw this thing's things
 		// Did I use "thing" enough times?
-		for(int i = 0; i < this.things.size(); i++){
-			MenuThing t = this.things.get(i);
+		var things = this.getThings();
+		for(int i = 0; i < things.size(); i++){
+			MenuThing t = things.get(i);
 			t.renderHud(game, r);
 		}
 		// Put the matrix back to what it was

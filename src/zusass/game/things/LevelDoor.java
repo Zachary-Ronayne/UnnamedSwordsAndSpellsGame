@@ -65,7 +65,6 @@ public class LevelDoor extends ZusassDoor{
 	
 	@Override
 	public boolean canEnter(PositionedHitboxThing thing){
-		// Only players can enter LevelDoors
 		return thing.hasTag(ZusassTags.CAN_ENTER_LEVEL_DOOR);
 	}
 	

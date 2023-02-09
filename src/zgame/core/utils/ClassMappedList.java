@@ -5,6 +5,7 @@ import java.util.Map;
 
 /**
  * A map of lists, where each list contains all the objects added to this object. For each class added to this object, a new list will be created.
+ * This object will never store null values
  * All classes intended to be used should be added before adding any elements.
  * If the given object is {@link Uuidable}, then it will also be stored as a map.
  * If the object implements {@link Comparable}, then the list will be sorted in ascending order.
@@ -61,6 +62,8 @@ public class ClassMappedList{
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> void add(T obj){
+		if(obj == null) return;
+		
 		// Add it to the list
 		var canCompare = Comparable.class.isAssignableFrom(obj.getClass());
 		for(var c : this.map.keySet()){
@@ -85,14 +88,34 @@ public class ClassMappedList{
 	 *
 	 * @param obj The object to remove
 	 * @param <T> The type of the object to remove
+	 * @return true if the object was removed, false otherwise
 	 */
-	public <T> void remove(T obj){
+	public <T> boolean remove(T obj){
+		var removed = true;
+		var found = false;
 		for(var c : this.map.keySet()){
-			this.get(c).remove(obj);
+			removed &= this.get(c).remove(obj);
+			found = true;
 		}
 		for(var c : this.uuidMap.keySet()){
-			if(c.isInstance(obj)) this.getMap(c).remove(((Uuidable)obj).getUuid());
+			if(c.isInstance(obj)) {
+				removed &= this.getMap(c).remove(((Uuidable)obj).getUuid()) != null;
+				found = true;
+			}
 		}
+		return removed && found;
+	}
+	
+	/**
+	 * Remove all objects of the given type from this object
+	 * @param clazz The class of objects to remove
+	 * @param <T> The type of clazz
+	 */
+	public <T> void removeAll(Class<T> clazz){
+		var list = get(clazz);
+		if(list != null) list.clear();
+		var map = getMap(clazz);
+		if(map != null) map.clear();
 	}
 	
 	/**
