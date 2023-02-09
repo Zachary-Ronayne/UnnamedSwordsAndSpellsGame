@@ -1,7 +1,6 @@
 package zusass.game;
 
 import zgame.core.utils.NotNullList;
-import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zusass.game.things.entities.mobs.ZusassMob;
 import zusass.game.things.entities.mobs.ZusassPlayer;
@@ -30,12 +29,6 @@ public class ZusassRoom extends Room{
 		this.player = null;
 	}
 	
-	@Override
-	public void tickRemoveThing(GameThing thing){
-		super.tickRemoveThing(thing);
-		if(thing instanceof ZusassMob m) this.getMobs().remove(m);
-	}
-	
 	/** @return All the mobs which are in this {@link ZusassRoom} */
 	public NotNullList<ZusassMob> getMobs(){
 		return this.getAllThings().get(ZusassMob.class);
@@ -49,14 +42,6 @@ public class ZusassRoom extends Room{
 	/** @param player See player. Note that this will not account for adding the player or removing the player from a room */
 	public void setPlayer(ZusassPlayer player){
 		this.player = player;
-	}
-	
-	/**
-	 * @return This object, as a {@link LevelRoom}, or null if it cannot be a {@link LevelRoom}
-	 * The return value of this method should equal this object, not another version or reference, i.e. (this == this.asLevel()) should evaluate to true
-	 */
-	public LevelRoom asLevel(){
-		return null;
 	}
 	
 }

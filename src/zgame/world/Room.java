@@ -5,8 +5,6 @@ import java.util.List;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
-import zgame.core.file.Saveable;
-import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ClassMappedList;
 import zgame.core.utils.NotNullList;
@@ -15,6 +13,7 @@ import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing;
+import zgame.things.still.Door;
 import zgame.things.still.tiles.BaseTiles;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType;
@@ -23,7 +22,7 @@ import zgame.things.type.HitBox;
 import zgame.things.type.RectangleBounds;
 
 /** An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc. */
-public class Room implements RectangleBounds, Saveable, Destroyable{
+public class Room extends GameThing implements RectangleBounds{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -419,6 +418,23 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	@Override
 	public double centerY(){
 		return this.getHeight() * 0.5;
+	}
+	/**
+	 * Determine if the given {@link GameThing} is allowed to enter this {@link Room} using a {@link Door}
+	 * @param thing The thing to check for
+	 * @return true if it can enter, false otherwise. Always true by default, override to provide custom behavior
+	 */
+	public boolean canEnter(GameThing thing){
+		return true;
+	}
+	
+	/**
+	 * Determine if the given {@link GameThing} is allowed to leave this {@link Room} using a {@link Door}
+	 * @param thing The thing to check for
+	 * @return true if it can leave, false otherwise. Always true by default, override to provide custom behavior
+	 */
+	public boolean canLeave(GameThing thing){
+		return true;
 	}
 	
 	/**

@@ -5,13 +5,21 @@ import zgame.core.GameTickable;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
+import zgame.things.Tag;
 import zgame.things.entity.EntityThing;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 /** An object which exists in the game */
 public abstract class GameThing implements Comparable<GameThing>, Saveable, Destroyable{
 	
+	/** Any arbitrary fields associated with this {@link GameThing} */
+	private final HashSet<Tag> tags;
+	
 	/** Create an empty {@link GameThing} */
 	public GameThing(){
+		this.tags = new HashSet<>();
 	}
 	
 	/** Override this method if this {@link GameThing} uses any resources that must be freed when it is no longer in use */
@@ -88,6 +96,31 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	 */
 	public HitBox asHitBox(){
 		return null;
+	}
+	
+	/**
+	 * Determine if this {@link GameThing} has the given tag
+	 * @param tag The tag to check for
+	 * @return true if it has the tag, false otherwise
+	 */
+	public boolean hasTag(Tag tag){
+		return this.tags.contains(tag);
+	}
+	
+	/**
+	 * Give a list of tags to this {@link GameThing}
+	 * @param tags The tags
+	 */
+	public void addTags(Tag... tags){
+		this.tags.addAll(Arrays.asList(tags));
+	}
+	
+	/**
+	 * Remove tags from this {@link GameThing}
+	 * @param tags The tags
+	 */
+	public void removeTags(Tag... tags){
+		for(var tag : tags) this.tags.remove(tag);
 	}
 	
 }

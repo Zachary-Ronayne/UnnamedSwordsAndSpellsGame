@@ -8,8 +8,6 @@ import zusass.ZusassData;
 import zusass.ZusassGame;
 import zusass.game.LevelRoom;
 import zusass.game.ZusassRoom;
-import zusass.game.things.entities.mobs.ZusassPlayer;
-import zusass.utils.ZusassConvert;
 
 /** A {@link Door} used by the infinitely generating levels */
 public class LevelDoor extends ZusassDoor{
@@ -56,10 +54,6 @@ public class LevelDoor extends ZusassDoor{
 		this.setRoomY(this.getLeadRoom().maxY() - thing.getHeight());
 		boolean success = super.enterRoom(r, thing, game);
 		
-		// If thing is a player, heal it to full
-		ZusassPlayer p = ZusassConvert.toPlayer(thing);
-		if(p != null) p.healToMaxHealth();
-		
 		// Update the highest level room the player has been in
 		if(success){
 			ZusassData d = zgame.getData();
@@ -69,17 +63,20 @@ public class LevelDoor extends ZusassDoor{
 		return success;
 	}
 	
-	// Only players can enter LevelDoors
 	@Override
 	public boolean canEnter(PositionedHitboxThing thing){
-		LevelRoom lr = this.room.asLevel();
-		if(lr != null && !lr.isRoomCleared()) return false;
-		return ZusassConvert.toPlayer(thing) != null;
+		// Only players can enter LevelDoors
+		return thing.hasTag(ZusassTags.CAN_ENTER_LEVEL_DOOR);
 	}
 	
 	/** @return See {@link #level} */
 	public int getLevel(){
 		return this.level;
+	}
+	
+	/** @return  See {@link #room} */
+	public ZusassRoom getRoom(){
+		return this.room;
 	}
 	
 	@Override

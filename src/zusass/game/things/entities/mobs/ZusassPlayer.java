@@ -9,6 +9,7 @@ import zgame.core.utils.ZMath;
 import zusass.game.stat.Stats;
 import zgame.world.Room;
 import zusass.ZusassGame;
+import zusass.game.things.ZusassTags;
 
 /** A player inside the {@link ZusassGame} */
 public class ZusassPlayer extends ZusassMob{
@@ -27,6 +28,8 @@ public class ZusassPlayer extends ZusassMob{
 	/** Create a new default {@link ZusassPlayer} */
 	public ZusassPlayer(){
 		super(0, 0, 75, 125);
+		this.addTags(ZusassTags.CAN_ENTER_LEVEL_DOOR, ZusassTags.IS_PLAYER);
+		
 		this.enterRoomPressed = false;
 		this.toggleCameraPressed = false;
 		this.attackPressed = false;
@@ -152,7 +155,11 @@ public class ZusassPlayer extends ZusassMob{
 				zgame.getPlayState().setCurrentRoom(to);
 			}
 			zgame.getCurrentRoom().setPlayer(this);
+			
+			// If the player is going through a level, heal to full
+			if(to.hasTag(ZusassTags.IS_LEVEL)) this.healToMaxHealth();
 		}
+		
 		// Center the camera to the player
 		this.checkCenterCamera(zgame);
 	}

@@ -4,8 +4,10 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZMath;
+import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zusass.game.things.LevelDoor;
+import zusass.game.things.ZusassTags;
 import zusass.game.things.entities.mobs.Npc;
 import zusass.game.things.tiles.ZusassColorTiles;
 
@@ -38,6 +40,7 @@ public class LevelRoom extends ZusassRoom{
 	 */
 	public LevelRoom(int level){
 		super(X_TILES, Y_TILES);
+		this.addTags(ZusassTags.IS_LEVEL);
 		this.setLevel(level);
 		this.getAllThings().addClass(Npc.class);
 	}
@@ -102,6 +105,12 @@ public class LevelRoom extends ZusassRoom{
 	}
 	
 	@Override
+	public boolean canLeave(GameThing thing){
+		// Players cannot leave the room if it is not cleared
+		return !thing.hasTag(ZusassTags.IS_PLAYER) || this.isRoomCleared();
+	}
+	
+	@Override
 	public void render(Game game, Renderer r){
 		ZusassColorTiles.setColors(this.checker1, this.checker2);
 		
@@ -122,11 +131,6 @@ public class LevelRoom extends ZusassRoom{
 				r.drawRectangle(12 + 12 * i, 152, 6, 16);
 			}
 		}
-	}
-	
-	@Override
-	public LevelRoom asLevel(){
-		return this;
 	}
 	
 }

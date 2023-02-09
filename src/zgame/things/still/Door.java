@@ -118,8 +118,13 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	 * @return true if thing entered this room, false otherwise
 	 */
 	public boolean enterRoom(Room r, PositionedHitboxThing thing, Game game){
+		if(this.leadRoom != null && !this.leadRoom.canEnter(thing)) return false;
+		
 		if(!this.canEnter(thing)) return false;
-		if(r != null) r.removeThing(thing);
+		// If the thing can leave the room, remove it
+		if(r != null && r.canLeave(thing)) r.removeThing(thing);
+		// Otherwise, do not allow the thing to enter the room
+		else return false;
 		if(this.leadRoom != null){
 			thing.setX(this.roomX);
 			thing.setY(this.roomY);
