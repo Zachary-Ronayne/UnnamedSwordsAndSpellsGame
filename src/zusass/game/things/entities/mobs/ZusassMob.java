@@ -3,11 +3,18 @@ package zusass.game.things.entities.mobs;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.material.Material;
+import zgame.stat.StatType;
+import zgame.stat.ValueStat;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.Walk;
 import zgame.things.type.RectangleHitBox;
 import zusass.ZusassGame;
-import zusass.game.stat.Stats;
+import zgame.stat.Stats;
+import zusass.game.stat.AttackDamage;
+import zusass.game.stat.HealthCurrent;
+import zusass.game.stat.HealthMax;
+
+import static zusass.game.stat.ZusassStat.*;
 
 import java.util.List;
 
@@ -28,9 +35,6 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	private double attackDirection;
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	/** The current amount of health this mob has */
-	private double currentHealth;
 	
 	/** The stats used by this mob */
 	private final Stats stats;
@@ -59,7 +63,14 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.attackDirection = 0;
 		
 		this.stats = new Stats();
-		this.currentHealth = this.stats.getMaxHealth();
+		this.stats.add(new HealthMax(this.stats));
+		this.stats.add(new HealthCurrent(this.stats));
+		this.stats.add(new ValueStat(100, this.stats, ATTACK_RANGE));
+		this.stats.add(new ValueStat(.5, this.stats, ATTACK_SPEED));
+		this.stats.add(new AttackDamage(this.stats));
+		this.stats.add(new ValueStat(1, this.stats, STRENGTH));
+		
+		this.healToMaxHealth();
 	}
 	
 	@Override
@@ -94,8 +105,8 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		if(this.getAttackTime() <= 0) return;
 		double directionX = Math.cos(this.attackDirection);
 		double time = this.getAttackTime();
-		double speed = this.getStats().getAttackSpeed();
-		double attackSize = this.getStats().getAttackRange() * (1 - time / speed);
+		double speed = this.stat(ATTACK_SPEED);
+		double attackSize = this.stat(ATTACK_RANGE) * (1 - time / speed);
 		
 		if(directionX < 0) r.drawRectangle(this.centerX() - attackSize, this.centerY(), attackSize, 20);
 		else r.drawRectangle(this.centerX(), this.centerY(), attackSize, 20);
@@ -133,7 +144,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 */
 	public void beginAttack(double direction){
 		this.attackDirection = direction;
-		this.attackTime = this.getStats().getAttackSpeed();
+		this.attackTime = this.stat(ATTACK_SPEED);
 	}
 	
 	/**
@@ -142,7 +153,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * @param mob The mob to attack
 	 */
 	public void attack(ZusassMob mob){
-		mob.damage(this.getStats().getStrength());
+		mob.damage(this.stat(ATTACK_DAMAGE));
 	}
 	
 	/**
@@ -154,7 +165,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		List<ZusassMob> mobs = game.getCurrentRoom().getMobs();
 		for(var m : mobs){
 			// Skip the current mob if it is this mob or the mob is out of the attack range
-			if(m == this || this.center().distance(m.center()) >= this.getStats().getAttackRange()) continue;
+			if(m == this || this.center().distance(m.center()) >= this.stat(ATTACK_RANGE)) continue;
 			// Also skip the current mob if it is not in the attack direction
 			double directionX = Math.cos(this.attackDirection);
 			if(this.centerX() < m.centerX() == directionX < 0) continue;
@@ -171,7 +182,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 */
 	public void damage(double amount){
 		if(amount <= 0) return;
-		this.setCurrentHealth(this.getCurrentHealth() - amount);
+		this.stats.get(HEALTH_CURRENT).addValue(-amount);
 	}
 	
 	/** @return See {@link #stats} */
@@ -179,30 +190,30 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		return this.stats;
 	}
 	
-	/** @return See {@link #currentHealth} */
+	/** @return The value of the given stat */
+	public double stat(StatType type){
+		var stat = this.stats.get(type);
+		if(stat == null) return 0;
+		return stat.get();
+	}
+	
+	public void setStat(StatType type, double value){
+		this.stats.get(type).setValue(value);
+	}
+	
+	/** @return The current amount of heath this {@link ZusassMob} has */
 	public double getCurrentHealth(){
-		return this.currentHealth;
+		return this.stat(HEALTH_CURRENT);
 	}
 	
-	/**
-	 * Directly sets the amount of health this mob has.
-	 * Use {@link #damage(double)} when this mob is hit by an attack.
-	 * If the given amount exceeds, maximum health, health is set to the max
-	 *
-	 * @param currentHealth See {@link #currentHealth}
-	 */
-	public void setCurrentHealth(double currentHealth){
-		this.currentHealth = Math.min(currentHealth, this.getStats().getMaxHealth());
-	}
-	
-	/** Set {@link #currentHealth} to maximum health */
+	/** Set this thing's current health to its maximum health */
 	public void healToMaxHealth(){
-		this.setCurrentHealth(this.getStats().getMaxHealth());
+		this.stats.get(HEALTH_CURRENT).setValue(this.stat(HEALTH_MAX));
 	}
 	
 	/** @return The percentage of health this mob has remaining, in the range [0, 1] */
 	public double currentHealthPerc(){
-		double perc = this.getCurrentHealth() / this.getStats().getMaxHealth();
+		double perc = this.getCurrentHealth() / this.stat(HEALTH_MAX);
 		return Math.min(1, Math.max(0, perc));
 	}
 	

@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZMath;
 import zusass.ZusassGame;
+import static zusass.game.stat.ZusassStat.*;
 
 /** A generic mob which uses health, status, etc, and is not a player */
 public class Npc extends ZusassMob{
@@ -20,7 +21,7 @@ public class Npc extends ZusassMob{
 		super(x, y, width, height);
 		
 		this.getWalk().setWalkSpeedMax(100);
-		this.getStats().setAttackSpeed(1);
+		this.setStat(ATTACK_SPEED,1);
 	}
 	
 	@Override

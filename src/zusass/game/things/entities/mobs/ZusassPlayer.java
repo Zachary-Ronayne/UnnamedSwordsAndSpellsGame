@@ -6,10 +6,10 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.utils.ZMath;
-import zusass.game.stat.Stats;
 import zgame.world.Room;
 import zusass.ZusassGame;
 import zusass.game.things.ZusassTags;
+import static zusass.game.stat.ZusassStat.*;
 
 /** A player inside the {@link ZusassGame} */
 public class ZusassPlayer extends ZusassMob{
@@ -34,11 +34,9 @@ public class ZusassPlayer extends ZusassMob{
 		this.toggleCameraPressed = false;
 		this.attackPressed = false;
 		
-		Stats s = this.getStats();
-		s.setMaxHealth(100);
+		this.setStat(STRENGTH, 10);
+		this.setStat(ATTACK_SPEED, .3);
 		this.healToMaxHealth();
-		s.setStrength(10);
-		s.setAttackSpeed(.3);
 		
 		this.lockCamera = false;
 	}

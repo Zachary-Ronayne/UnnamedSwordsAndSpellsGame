@@ -1,7 +1,6 @@
-package zusass.game.stat;
+package zgame.stat;
 
-/** A {@link Stat} with a minimum and maximum value */
-public class RangeStat extends Stat{
+public class RangeValueStat extends RangeStat{
 	
 	/** The minimum value for this stat */
 	private double min;
@@ -12,16 +11,16 @@ public class RangeStat extends Stat{
 	 * Create a new stat with the given default value
 	 *
 	 * @param value See {@link #value}
+	 * @param min See {@link #min}
+	 * @param max See {@link #max}
+	 * @param stats See {@link #stats}
+	 * @param type See {@link #type}
+	 * @param dependents See {@link #dependents}
 	 */
-	public RangeStat(double value, double min, double max){
-		super(value);
+	public RangeValueStat(double value, double min, double max, Stats stats, StatType type, StatType... dependents){
+		super(value, stats, type, dependents);
 		this.setMin(min);
 		this.setMax(max);
-	}
-	
-	/** Ensure {@link #value} does not exceed {@link #max} and does not go below {@link #min} */
-	private void keepInRange(){
-		super.setValue(Math.max(this.getMin(), Math.min(this.getMax(), this.getValue())));
 	}
 	
 	/** @return See {@link #min} */
@@ -46,9 +45,4 @@ public class RangeStat extends Stat{
 		this.keepInRange();
 	}
 	
-	@Override
-	public void setValue(double value){
-		super.setValue(value);
-		this.keepInRange();
-	}
 }
