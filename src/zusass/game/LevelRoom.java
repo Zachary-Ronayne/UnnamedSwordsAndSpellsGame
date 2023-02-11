@@ -68,7 +68,6 @@ public class LevelRoom extends ZusassRoom{
 		// Add enemies
 		Npc enemy = new Npc(400, 400, 60, 80);
 		enemy.getWalk().setWalkSpeedMax(100 + 100 * (1 - (10 / (this.level + 10.0))));
-		// TODO do a test to see if reducing max health also reduces current health if current health is below the max
 		enemy.setStat(STRENGTH, 10);
 		enemy.getStats().get(STRENGTH).addModifier(this.level, ModifierType.ADD);
 		enemy.healToMaxHealth();

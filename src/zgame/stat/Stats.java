@@ -30,8 +30,11 @@ public class Stats{
 	public void add(Stat s){
 		this.map.put(s.getType(), s);
 		
-		// TODO comment explaining this
-		for(var d : s.getDependents()) {
+		/*
+		 When adding a stat to this object, keep track of the reverse of that stats dependents,
+		  this way, it's easy to find which stats need to be recalculated when a stat updates
+		 */
+		for(var d : s.getDependents()){
 			if(!this.dependents.containsKey(d)) this.dependents.put(d, new HashSet<>());
 			this.dependents.get(d).add(s.getType());
 		}

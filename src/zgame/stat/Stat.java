@@ -74,11 +74,14 @@ public abstract class Stat{
 	
 	/** Tell this {@link Stat} that it needs to be recalculated before {@link #calculated} can be used again */
 	public void flagRecalculate(){
+		// First, flag this stat as needing to be recalculated
 		this.recalculate = true;
-		// TODO add comments explaining this
-		// TODO make sure this is working
+		
+		// Now, find any stats that use this stat
 		var toFlag = this.stats.getDependents().get(this.getType());
+		// If none were found, do nothing
 		if(toFlag == null) return;
+		// Flag each stat as needing to be recalculated
 		for(var s : toFlag){
 			this.stats.get(s).flagRecalculate();
 		}
@@ -113,11 +116,13 @@ public abstract class Stat{
 	/** @param mod The modifier to add */
 	public void addModifier(StatModifier mod){
 		this.modifiers.get(mod.getType()).put(mod.getUuid(), mod);
+		this.flagRecalculate();
 	}
 	
 	/** @param mod The modifier to remove, should be the same object, with the same uuid */
 	public void removeModifier(StatModifier mod){
 		this.modifiers.get(mod.getType()).remove(mod.getUuid());
+		this.flagRecalculate();
 	}
 	
 	/** Put the current value of {@link #calculated} through all its modifiers */

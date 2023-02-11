@@ -27,8 +27,6 @@ public abstract class RangeStat extends ValueStat{
 		this.recalculateMax = true;
 	}
 	
-	// TODO need a way to update min and max for max health whenever strength is updated
-	
 	/** @return See {@link #min} */
 	public double getMin(){
 		if(this.recalculateMin){
