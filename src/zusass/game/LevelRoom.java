@@ -66,15 +66,12 @@ public class LevelRoom extends ZusassRoom{
 		this.addThing(new LevelDoor(this.getLevel() + 1, this));
 		
 		// Add enemies
-		for(int i = 0; i < 500; i++){
-			Npc enemy = new Npc(400, 400, 60, 80);
-			enemy.setStat(MOVE_SPEED, 100 + 200 * (1 - (10 / (this.level + 10.0))));
-			enemy.setStat(STRENGTH, 10);
-			enemy.getStat(STRENGTH).addModifier(this.level, ModifierType.ADD);
-			enemy.setStat(HEALTH_REGEN, 1000);
-			enemy.setToMaxHealth();
-			this.addThing(enemy);
-		}
+		Npc enemy = new Npc(400, 400, 60, 80);
+		enemy.setStat(MOVE_SPEED, 100 + 200 * (1 - (10 / (this.level + 10.0))));
+		enemy.setStat(STRENGTH, 10);
+		enemy.getStat(STRENGTH).addModifier(this.level, ModifierType.ADD);
+		enemy.setToMaxHealth();
+		this.addThing(enemy);
 	}
 	
 	/** @return true if this room is cleared and can be exited, false otherwise */
