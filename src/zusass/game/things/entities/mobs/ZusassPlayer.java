@@ -6,12 +6,9 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.utils.ZMath;
-import zgame.stat.modifier.StatModifier;
 import zgame.world.Room;
 import zusass.ZusassGame;
 import zusass.game.things.ZusassTags;
-
-import java.util.Arrays;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -28,6 +25,8 @@ public class ZusassPlayer extends ZusassMob{
 	private boolean toggleCameraPressed;
 	/** true if the button for attacking is currently pressed down, and releasing it will perform an attack */
 	private boolean attackPressed;
+	/** true if the button for toggling walking and running is currently pressed down, and releasing it will toggle walking and running */
+	private boolean walkPressed;
 	
 	/** Create a new default {@link ZusassPlayer} */
 	public ZusassPlayer(){
@@ -67,9 +66,15 @@ public class ZusassPlayer extends ZusassMob{
 			this.attackPressed = false;
 			this.beginAttack(ZMath.lineAngle(this.centerX(), this.centerY(), game.mouseGX(), game.mouseGY()));
 		}
-		if(!this.attackPressed && rightPressed){
-			this.attackPressed = true;
+		if(!this.attackPressed && rightPressed) this.attackPressed = true;
+		
+		
+		var walkPressed = ki.pressed(GLFW_KEY_SPACE);
+		if(this.walkPressed && !walkPressed){
+			this.walkPressed = false;
+			this.getWalk().toggleWalking();
 		}
+		if(!this.attackPressed && walkPressed) this.walkPressed = true;
 		
 		// Now the camera to the player after repositioning the player
 		this.checkCenterCamera(game);

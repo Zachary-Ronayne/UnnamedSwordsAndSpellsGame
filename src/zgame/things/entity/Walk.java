@@ -34,6 +34,10 @@ public class Walk{
 	public static final double DEFAULT_WALK_FRICTION = 1;
 	/** The default value of {@link #walkStopFriction} */
 	public static final double DEFAULT_WALK_STOP_FRICTION = 10;
+	/** The default value of {@link #walking} */
+	public static final boolean DEFAULT_WALKING = false;
+	/** The default value of {@link #walkingRatio} */
+	public static final double DEFAULT_WALKING_RATIO = 0.5;
 	/** The default value of {@link #canWallJump} */
 	public static final boolean DEFAULT_CAN_WALL_JUMP = false;
 	/** The default value of {@link #normalJumpTime} */
@@ -84,6 +88,12 @@ public class Walk{
 	 * This friction only applies while on the ground. A value of 1 is used while in the air, regardless of if this MobThing is walking or not.
 	 */
 	private double walkStopFriction;
+
+	/** true if {@link #thing} is currently running, false for walking */
+	private boolean walking;
+
+	/** The percentage speed {@link #thing} should move at while walking instead of running. i.e. 0.5 = 50% */
+	private double walkingRatio;
 	
 	/** true if {@link #thing} can jump off walls while touching one, otherwise, false */
 	private boolean canWallJump;
@@ -162,6 +172,8 @@ public class Walk{
 		this.walkAirControl = DEFAULT_WALK_AIR_CONTROL;
 		this.walkFriction = DEFAULT_WALK_FRICTION;
 		this.walkStopFriction = DEFAULT_WALK_STOP_FRICTION;
+		this.walking = DEFAULT_WALKING;
+		this.walkingRatio = DEFAULT_WALKING_RATIO;
 		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
 		this.normalJumpTime = DEFAULT_NORMAL_JUMP_TIME;
 		this.wallJumpTime = DEFAULT_WALL_JUMP_TIME;
@@ -188,8 +200,8 @@ public class Walk{
 		this.updateJumpState(dt);
 	}
 	
-	/** @return true if this object represents currently walking, false otherwise */
-	public boolean isWalking(){
+	/** @return true if this object represents currently walking or running, false otherwise */
+	public boolean isTryingToMove(){
 		return this.walkingDirection != 0;
 	}
 	
@@ -487,6 +499,7 @@ public class Walk{
 	
 	/** @return See {@link #walkSpeedMax} */
 	public double getWalkSpeedMax(){
+		if(walking) return this.walkSpeedMax * this.getWalkingRatio();
 		return this.walkSpeedMax;
 	}
 	
@@ -525,6 +538,31 @@ public class Walk{
 	public void setWalkStopFriction(double walkStopFriction){
 		// Friction cannot go below 0
 		this.walkStopFriction = Math.max(0, walkStopFriction);
+	}
+	
+	/** @return See {@link #walking} */
+	public boolean isWalking(){
+		return this.walking;
+	}
+	
+	/** @param walking See {@link #walking} */
+	public void setWalking(boolean walking){
+		this.walking = walking;
+	}
+	
+	/** toggle the state of {@link #walking} */
+	public void toggleWalking(){
+		this.setWalking(!this.isWalking());
+	}
+	
+	/** @return See {@link #walkingRatio} */
+	public double getWalkingRatio(){
+		return this.walkingRatio;
+	}
+	
+	/** @param walkingRatio See {@link #walkingRatio} */
+	public void setWalkingRatio(double walkingRatio){
+		this.walkingRatio = walkingRatio;
 	}
 	
 	/** @return See {@link #canWallJump} */
