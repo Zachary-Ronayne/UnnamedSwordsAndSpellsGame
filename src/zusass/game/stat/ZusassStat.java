@@ -10,6 +10,8 @@ public enum ZusassStat implements StatType{
 	HEALTH_MAX,
 	/** The current health of a thing */
 	HEALTH_CURRENT,
+	/** The amount of health a thing restores each second */
+	HEALTH_REGEN,
 	
 	/** The amount of time between attacks */
 	ATTACK_SPEED,

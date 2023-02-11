@@ -32,7 +32,7 @@ public class ValueStat extends Stat{
 	
 	@Override
 	public void addValue(double value){
-		super.setValue(value);
+		super.addValue(value);
 		this.setValue(this.getValue() + value);
 	}
 	

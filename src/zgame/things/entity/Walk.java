@@ -476,7 +476,8 @@ public class Walk{
 	
 	/** @param walkAcceleration See {@link #walkAcceleration} */
 	public void setWalkAcceleration(double walkAcceleration){
-		this.walkAcceleration = walkAcceleration;
+		// Walk acceleration cannot go below 0
+		this.walkAcceleration = Math.max(0, walkAcceleration);
 	}
 	
 	/** @return See {@link #walkSpeedMax} */
@@ -486,7 +487,8 @@ public class Walk{
 	
 	/** @param walkSpeedMax See {@link #walkSpeedMax} */
 	public void setWalkSpeedMax(double walkSpeedMax){
-		this.walkSpeedMax = walkSpeedMax;
+		// Walk speed cannot go below 0
+		this.walkSpeedMax = Math.max(0, walkSpeedMax);
 	}
 	
 	/** @return See {@link #walkAirControl} */
@@ -516,7 +518,8 @@ public class Walk{
 	
 	/** @param walkStopFriction See {@link #walkStopFriction} */
 	public void setWalkStopFriction(double walkStopFriction){
-		this.walkStopFriction = walkStopFriction;
+		// Friction cannot go below 0
+		this.walkStopFriction = Math.max(0, walkStopFriction);
 	}
 	
 	/** @return See {@link #canWallJump} */

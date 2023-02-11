@@ -54,6 +54,14 @@ public abstract class Stat{
 		this.modifiers.put(ModifierType.MULT_MULT, new HashMap<>());
 	}
 	
+	/**
+	 * Apply any operations that must happen to this {@link Stat} over time.
+	 * Does nothing by default, can override to provide custom behavior
+	 *
+	 * @param dt The number of sections that have passed
+	 */
+	public void tick(double dt){}
+	
 	/** @return See {@link #dependents} */
 	public HashSet<StatType> getDependents(){
 		return this.dependents;
@@ -119,11 +127,15 @@ public abstract class Stat{
 	
 	/**
 	 * Add a modifier to this {@link Stat}
+	 *
 	 * @param value The value of the modifier
 	 * @param type The way the value is applied to the stat
+	 * @return The modifier created
 	 */
-	public void addModifier(double value, ModifierType type){
-		this.addModifier(new StatModifier(value, type){});
+	public StatModifier addModifier(double value, ModifierType type){
+		var m = new StatModifier(value, type);
+		this.addModifier(m);
+		return m;
 	}
 	
 	/** @param mod The modifier to add */

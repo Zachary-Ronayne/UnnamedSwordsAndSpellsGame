@@ -11,10 +11,7 @@ import zgame.things.entity.Walk;
 import zgame.things.type.RectangleHitBox;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
-import zusass.game.stat.AttackDamage;
-import zusass.game.stat.HealthCurrent;
-import zusass.game.stat.HealthMax;
-import zusass.game.stat.MoveSpeed;
+import zusass.game.stat.*;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -69,6 +66,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		
 		this.stats.add(new HealthMax(this.stats));
 		this.stats.add(new HealthCurrent(this.stats));
+		this.stats.add(new HealthRegen(this.stats));
 		
 		this.stats.add(new ValueStat(100, this.stats, ATTACK_RANGE));
 		this.stats.add(new ValueStat(.5, this.stats, ATTACK_SPEED));
@@ -81,9 +79,10 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	
 	@Override
 	public void tick(Game game, double dt){
-		// Update the state of the stats
-		this.updateStats(game);
 		var zgame = (ZusassGame)game;
+		
+		// Update the state of the stats
+		this.updateStats(zgame, dt);
 		
 		// Update the attack timer
 		if(this.attackTime > 0){
@@ -121,21 +120,24 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	/**
 	 * Perform any necessary updates for the mob based on its current stats
 	 *
-	 * @param game The game to update the stats on
+	 * @param zgame The game to update the stats on
+	 * @param dt The number of seconds which passed in this update
 	 */
-	public void updateStats(Game game){
+	public void updateStats(ZusassGame zgame, double dt){
+		this.stats.tick(dt);
+		
 		// If this thing has 0 or less health, kill it
-		if(this.getCurrentHealth() <= 0) this.die(game);
+		if(this.getCurrentHealth() <= 0) this.die(zgame);
 	}
 	
 	/**
 	 * Called when this stat thing dies
 	 *
-	 * @param game The game it was in when it died
+	 * @param zgame The game it was in when it died
 	 */
-	public void die(Game game){
+	public void die(ZusassGame zgame){
 		// On death, by default, remove the thing from the game
-		game.getCurrentRoom().removeThing(this);
+		zgame.getCurrentRoom().removeThing(this);
 	}
 	
 	/** @return See {@link #attackTime} */

@@ -6,6 +6,8 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.utils.ZMath;
+import zgame.stat.modifier.ModifierType;
+import zgame.stat.modifier.StatModifier;
 import zgame.world.Room;
 import zusass.ZusassGame;
 import zusass.game.things.ZusassTags;
@@ -40,6 +42,8 @@ public class ZusassPlayer extends ZusassMob{
 		
 		this.lockCamera = false;
 	}
+	
+	StatModifier m;
 	
 	@Override
 	public void tick(Game game, double dt){
@@ -136,9 +140,8 @@ public class ZusassPlayer extends ZusassMob{
 	}
 	
 	@Override
-	public void die(Game game){
-		super.die(game);
-		ZusassGame zgame = (ZusassGame)game;
+	public void die(ZusassGame zgame){
+		super.die(zgame);
 		zgame.getPlayState().enterHub(zgame);
 	}
 	

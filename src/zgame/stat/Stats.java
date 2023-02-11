@@ -44,4 +44,13 @@ public class Stats{
 	public Stat get(StatType s){
 		return this.map.get(s);
 	}
+	
+	/**
+	 * Apply any operations that must happen to {@link #map} over time
+	 * @param dt The number of sections that have passed
+	 */
+	public void tick(double dt){
+		for(var s : this.map.values()) s.tick(dt);
+	}
+	
 }
