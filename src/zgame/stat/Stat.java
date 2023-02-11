@@ -152,7 +152,7 @@ public abstract class Stat{
 		if(this.hasModifier(mod)) return;
 		
 		this.modifiers.get(mod.getType()).put(mod.getUuid(), mod);
-		this.flagRecalculate();
+		mod.setStat(this);
 	}
 	
 	/** @param mod The modifier to remove, should be the same object, with the same uuid */

@@ -43,8 +43,6 @@ public class ZusassPlayer extends ZusassMob{
 		this.lockCamera = false;
 	}
 	
-	StatModifier m;
-	
 	@Override
 	public void tick(Game game, double dt){
 		ZusassGame zgame = (ZusassGame)game;

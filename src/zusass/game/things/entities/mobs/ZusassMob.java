@@ -90,7 +90,8 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.setResourcesMax();
 		
 		// Generate modifiers
-		this.staminaWalkDrain = new StatModifier(-35, ModifierType.ADD);
+		this.staminaWalkDrain = new StatModifier(0, ModifierType.ADD);
+		this.getStat(STAMINA_REGEN).addModifier(this.staminaWalkDrain);
 	}
 	
 	@Override
@@ -148,8 +149,8 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		// If walking, need to reduce stamina
 		var sr = this.getStat(STAMINA_REGEN);
 		// TODO make this some kind of sprinting system, like, full speed is sprinting, half speed is walking
-		if(this.getWalk().isWalking() && this.getVX() > this.stat(MOVE_SPEED) * 0.8) sr.addModifier(this.staminaWalkDrain);
-		else sr.removeModifier(this.staminaWalkDrain);
+		if(this.getWalk().isWalking() && this.getVX() > this.stat(MOVE_SPEED) * 0.8) this.staminaWalkDrain.setValue(-35);
+		else this.staminaWalkDrain.setValue(0);
 	}
 	
 	/**
