@@ -17,13 +17,13 @@ public class HealthCurrent extends RangeStat{
 	}
 	
 	@Override
-	public double getMin(){
+	public double calculateMin(){
 		// Returning -1 instead of 0 to ensure health being below 0 can be detected
 		return -1;
 	}
 	
 	@Override
-	public double getMax(){
+	public double calculateMax(){
 		return this.getOther(HEALTH_MAX);
 	}
 }

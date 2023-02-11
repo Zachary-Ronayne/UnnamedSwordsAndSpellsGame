@@ -15,6 +15,7 @@ public class ClassMappedList{
 	/** The map of this object. Key: The class, value: A list of all elements of that class which have been added to this object */
 	private final Map<Class<?>, NotNullList<?>> map;
 	
+	/** The map of maps, mapped by uuid */
 	private final Map<Class<?>, Map<String, ?>> uuidMap;
 	
 	/** Create the new empty object */

@@ -1,7 +1,12 @@
 package zgame.stat;
 
+import zgame.stat.modifier.ModifierType;
+import zgame.stat.modifier.StatModifier;
+
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 /** An object keeping track of a single stat used an object */
 public abstract class Stat{
@@ -21,6 +26,9 @@ public abstract class Stat{
 	/** The value of this stat since it was last calculated */
 	private double calculated;
 	
+	/** The current modifiers applying to this {@link Stat} */
+	private final Map<ModifierType, Map<String, StatModifier>> modifiers;
+	
 	/**
 	 * Create a new stat
 	 *
@@ -32,8 +40,19 @@ public abstract class Stat{
 		this.recalculate = true;
 		this.stats = stats;
 		this.type = type;
+		
 		this.dependents = new HashSet<>();
 		this.dependents.addAll(Arrays.asList(dependents));
+		
+		this.modifiers = new HashMap<>();
+		this.modifiers.put(ModifierType.ADD, new HashMap<>());
+		this.modifiers.put(ModifierType.MULT_ADD, new HashMap<>());
+		this.modifiers.put(ModifierType.MULT_MULT, new HashMap<>());
+	}
+	
+	/** @return See {@link #dependents} */
+	public HashSet<StatType> getDependents(){
+		return this.dependents;
 	}
 	
 	/**
@@ -56,7 +75,11 @@ public abstract class Stat{
 	/** Tell this {@link Stat} that it needs to be recalculated before {@link #calculated} can be used again */
 	public void flagRecalculate(){
 		this.recalculate = true;
-		for(var s : this.dependents){
+		// TODO add comments explaining this
+		// TODO make sure this is working
+		var toFlag = this.stats.getDependents().get(this.getType());
+		if(toFlag == null) return;
+		for(var s : toFlag){
 			this.stats.get(s).flagRecalculate();
 		}
 	}
@@ -67,11 +90,55 @@ public abstract class Stat{
 	/** @return See {@link #calculated} */
 	public double get(){
 		if(this.recalculate){
+			// First calculate the value
 			this.calculated = this.calculateValue();
+			// Now apply modifiers
+			this.applyModifiers();
+			// Clear the recalculate flag
 			this.recalculate = false;
 		}
 		
 		return this.calculated;
+	}
+	
+	/**
+	 * Add a modifier to this {@link Stat}
+	 * @param value The value of the modifier
+	 * @param type The way the value is applied to the stat
+	 */
+	public void addModifier(double value, ModifierType type){
+		this.addModifier(new StatModifier(value, type){});
+	}
+	
+	/** @param mod The modifier to add */
+	public void addModifier(StatModifier mod){
+		this.modifiers.get(mod.getType()).put(mod.getUuid(), mod);
+	}
+	
+	/** @param mod The modifier to remove, should be the same object, with the same uuid */
+	public void removeModifier(StatModifier mod){
+		this.modifiers.get(mod.getType()).remove(mod.getUuid());
+	}
+	
+	/** Put the current value of {@link #calculated} through all its modifiers */
+	public void applyModifiers(){
+		var newCalculated = this.calculated;
+		
+		// Apply add modifiers first
+		var mods = this.modifiers.get(ModifierType.ADD).values();
+		for(var m : mods) newCalculated += m.getValue();
+		
+		// Combine all additive multipliers
+		mods = this.modifiers.get(ModifierType.MULT_ADD).values();
+		double multiplyTotal = 1;
+		for(var m : mods) multiplyTotal += m.getValue();
+		
+		// Apply all multiplicitive multipliers
+		mods = this.modifiers.get(ModifierType.MULT_MULT).values();
+		for(var m : mods) multiplyTotal *= m.getValue();
+		
+		// Apply the final value
+		this.calculated = newCalculated * multiplyTotal;
 	}
 	
 	/**
