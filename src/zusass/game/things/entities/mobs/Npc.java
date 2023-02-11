@@ -42,7 +42,7 @@ public class Npc extends ZusassMob{
 		}
 		else walk.stopWalking();
 		// If the AI has an attack available, begin attacking
-		if(this.getAttackTime() <= 0) this.beginAttack(ZMath.lineAngle(this.centerX(), this.centerY(), playerX, player.centerY()));
+		if(this.getAttackTime() <= 0) this.beginAttackOrSpell(ZMath.lineAngle(this.centerX(), this.centerY(), playerX, player.centerY()));
 	}
 	
 	@Override

@@ -1,4 +1,4 @@
-package zusass.game.stat;
+package zusass.game.stat.resources;
 
 import zgame.stat.ResourceStat;
 import zgame.stat.StatType;
@@ -7,38 +7,37 @@ import zgame.stat.Stats;
 import static zusass.game.stat.ZusassStat.*;
 
 /** The stat keeping track of the current health of a thing */
-public class Health extends ResourceStat{
+public class Stamina extends ResourceStat{
 	
 	/**
 	 * Create a new stat with the given default value
 	 *
 	 * @param stats See {@link #stats}
 	 */
-	public Health(Stats stats){
+	public Stamina(Stats stats){
 		super(stats,
 				/////////////////////////////////////////
-				HEALTH, new StatType[]{},
+				STAMINA, new StatType[]{},
 				/////////////////////////////////////////
-				HEALTH_MIN, new StatType[]{},
+				STAMINA_MIN, new StatType[]{},
 				/////////////////////////////////////////
-				HEALTH_MAX, new StatType[]{STRENGTH},
+				STAMINA_MAX, new StatType[]{STRENGTH, ENDURANCE},
 				/////////////////////////////////////////
-				HEALTH_REGEN, new StatType[]{});
+				STAMINA_REGEN, new StatType[]{ENDURANCE});
 	}
 	
 	@Override
 	public double calculateMinStat(){
-		// Returning -1 instead of 0 to ensure health being below 0 can be detected
-		return -1;
+		return 0;
 	}
 	
 	@Override
 	public double calculateMaxStat(){
-		return super.getOther(STRENGTH) * 5;
+		return super.getOther(STRENGTH) * 2 + super.getOther(ENDURANCE) * 5;
 	}
 	
 	@Override
 	public double calculateRegenStat(){
-		return 2;
+		return super.getOther(ENDURANCE) * 2;
 	}
 }

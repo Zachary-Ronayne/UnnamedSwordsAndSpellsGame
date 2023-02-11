@@ -27,6 +27,8 @@ public class ZusassPlayer extends ZusassMob{
 	private boolean attackPressed;
 	/** true if the button for toggling walking and running is currently pressed down, and releasing it will toggle walking and running */
 	private boolean walkPressed;
+	/** true if the button for toggling between casting a spell and attacking is currently pressed down, and releasing it will toggle */
+	private boolean toggleSelectedAction;
 	
 	/** Create a new default {@link ZusassPlayer} */
 	public ZusassPlayer(){
@@ -36,13 +38,15 @@ public class ZusassPlayer extends ZusassMob{
 		this.enterRoomPressed = false;
 		this.toggleCameraPressed = false;
 		this.attackPressed = false;
+		this.walkPressed = false;
+		this.toggleSelectedAction = false;
 		
 		this.setStat(STRENGTH, 10);
 		this.setStat(ENDURANCE, 10);
 		this.setStat(ATTACK_SPEED, .3);
 		this.setResourcesMax();
 		
-		this.getStats().printStats();
+//		this.getStats().printStats();
 		
 		this.lockCamera = false;
 	}
@@ -54,7 +58,7 @@ public class ZusassPlayer extends ZusassMob{
 		super.tick(game, dt);
 		
 		var ki = game.getKeyInput();
-		this.getWalk().handleMovementControls(ki.pressed(GLFW_KEY_LEFT), ki.pressed(GLFW_KEY_RIGHT), ki.pressed(GLFW_KEY_UP), dt);
+		this.getWalk().handleMovementControls(ki.pressed(GLFW_KEY_A), ki.pressed(GLFW_KEY_D), ki.pressed(GLFW_KEY_W), dt);
 		
 		handleDoorPress(zgame);
 		handleToggleCameraPress(zgame);
@@ -64,17 +68,23 @@ public class ZusassPlayer extends ZusassMob{
 		boolean rightPressed = mi.rightDown();
 		if(this.attackPressed && !rightPressed){
 			this.attackPressed = false;
-			this.beginAttack(ZMath.lineAngle(this.centerX(), this.centerY(), game.mouseGX(), game.mouseGY()));
+			this.beginAttackOrSpell(ZMath.lineAngle(this.centerX(), this.centerY(), game.mouseGX(), game.mouseGY()));
 		}
-		if(!this.attackPressed && rightPressed) this.attackPressed = true;
-		
+		if(rightPressed) this.attackPressed = true;
 		
 		var walkPressed = ki.pressed(GLFW_KEY_SPACE);
 		if(this.walkPressed && !walkPressed){
 			this.walkPressed = false;
 			this.getWalk().toggleWalking();
 		}
-		if(!this.attackPressed && walkPressed) this.walkPressed = true;
+		if(walkPressed) this.walkPressed = true;
+		
+		var castPressed = ki.pressed(GLFW_KEY_Q);
+		if(this.toggleSelectedAction && !castPressed){
+			this.toggleSelectedAction = false;
+			this.toggleCasting();
+		}
+		if(castPressed) this.toggleSelectedAction = true;
 		
 		// Now the camera to the player after repositioning the player
 		this.checkCenterCamera(game);

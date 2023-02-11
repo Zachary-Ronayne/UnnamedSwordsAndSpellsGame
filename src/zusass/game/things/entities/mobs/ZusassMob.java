@@ -14,6 +14,12 @@ import zgame.things.type.RectangleHitBox;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
 import zusass.game.stat.*;
+import zusass.game.stat.attributes.Endurance;
+import zusass.game.stat.attributes.Intelligence;
+import zusass.game.stat.attributes.Strength;
+import zusass.game.stat.resources.Health;
+import zusass.game.stat.resources.Mana;
+import zusass.game.stat.resources.Stamina;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -34,6 +40,9 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	
 	/** The direction, an angle in radians, where the mob will attack */
 	private double attackDirection;
+	
+	/** true if this {@link ZusassMob} is in spell casting mode, false for weapon mode */
+	private boolean casting;
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -65,6 +74,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		
 		this.attackTime = -1;
 		this.attackDirection = 0;
+		this.casting = false;
 		
 		// Create stats
 		this.stats = new Stats();
@@ -74,10 +84,13 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.setStat(STRENGTH, 1);
 		this.stats.add(new Endurance(this.stats));
 		this.setStat(ENDURANCE, 5);
+		this.stats.add(new Intelligence(this.stats));
+		this.setStat(INTELLIGENCE, 5);
 		
 		// Add resources
 		this.stats.add(new Health(this.stats));
 		this.stats.add(new Stamina(this.stats));
+		this.stats.add(new Mana(this.stats));
 		
 		// Add misc stats
 		this.stats.add(new ValueStat(100, this.stats, ATTACK_RANGE));
@@ -166,17 +179,37 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		return this.attackTime;
 	}
 	
+	/** @return See {@link #casting} */
+	public boolean isCasting(){
+		return this.casting;
+	}
+	
+	/** @param casting See {@link #casting} */
+	public void setCasting(boolean casting){
+		this.casting = casting;
+	}
+	
+	/** Toggle the state of {@link #casting} */
+	public void toggleCasting(){
+		this.setCasting(!this.isCasting());
+	}
+	
 	/**
-	 * Cause this mob to begin performing an attack
+	 * Cause this mob to begin performing an attack or casting a spell depending on which mode is selected
 	 *
-	 * @param direction The direction to attack in
+	 * @param direction The direction to attack or cast in
 	 */
-	public void beginAttack(double direction){
-		this.attackDirection = direction;
-		this.attackTime = this.stat(ATTACK_SPEED);
-		
-		// Also drain stamina from the thing
-		this.getStat(STAMINA).addValue(-20);
+	public void beginAttackOrSpell(double direction){
+		if(casting){
+			this.castSpell();
+		}
+		else{
+			this.attackDirection = direction;
+			this.attackTime = this.stat(ATTACK_SPEED);
+			
+			// Also drain stamina from the thing
+			this.getStat(STAMINA).addValue(-20);
+		}
 	}
 	
 	/**
@@ -217,6 +250,13 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.stats.get(HEALTH).addValue(-amount);
 	}
 	
+	/**
+	 * Attempt to cast the currently selected spell. Just a dummy to test using mana for now
+	 */
+	public void castSpell(){
+		this.getStat(MANA).addValue(-10);
+	}
+	
 	/** @return See {@link #stats} */
 	public Stats getStats(){
 		return this.stats;
@@ -224,6 +264,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	
 	/**
 	 * Get a stat from this {@link ZusassMob}
+	 *
 	 * @param type The type of stat to get
 	 * @return The stat
 	 */
@@ -240,6 +281,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	
 	/**
 	 * Set the current value of a stat
+	 *
 	 * @param type The type of stat to set
 	 * @param value The new value
 	 */
@@ -256,6 +298,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	public void setResourcesMax(){
 		this.setToMaxHealth();
 		this.setToMaxStamina();
+		this.setToMaxMana();
 	}
 	
 	/** Set this thing's current health to its maximum health */
@@ -268,6 +311,11 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.setStat(STAMINA, this.stat(STAMINA_MAX));
 	}
 	
+	/** Set this thing's current mana to its maximum stamina */
+	public void setToMaxMana(){
+		this.setStat(MANA, this.stat(MANA_MAX));
+	}
+	
 	/** @return The percentage of health this mob has remaining, in the range [0, 1] */
 	public double currentHealthPerc(){
 		double perc = this.getCurrentHealth() / this.stat(HEALTH_MAX);
@@ -277,6 +325,12 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	/** @return The percentage of stamina this mob has remaining, in the range [0, 1] */
 	public double currentStaminaPerc(){
 		double perc = this.stat(STAMINA) / this.stat(STAMINA_MAX);
+		return Math.min(1, Math.max(0, perc));
+	}
+	
+	/** @return The percentage of mana this mob has remaining, in the range [0, 1] */
+	public double currentManaPerc(){
+		double perc = this.stat(MANA) / this.stat(MANA_MAX);
 		return Math.min(1, Math.max(0, perc));
 	}
 	
@@ -304,7 +358,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	
 	/**
 	 * @return This object, as an {@link Npc}, or null if it cannot be an {@link Npc}
-	 * The return value of this method should equal this object, not another version or reference, i.e. (this == this.asNpc()) should evaluate to true
+	 * 		The return value of this method should equal this object, not another version or reference, i.e. (this == this.asNpc()) should evaluate to true
 	 */
 	public Npc asNpc(){
 		return null;

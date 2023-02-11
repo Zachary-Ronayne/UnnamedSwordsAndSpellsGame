@@ -48,7 +48,7 @@ public abstract class Stat{
 		this.dependents = new int[dependents.length];
 		for(int i = 0; i < this.dependents.length; i++){
 			this.dependents[i] = dependents[i].getOrdinal();
-		};
+		}
 		
 		this.modifiers = new HashMap<>();
 		this.modifiers.put(ModifierType.ADD, new HashMap<>());

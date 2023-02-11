@@ -1,6 +1,5 @@
 package zusass.game.stat;
 
-import zgame.core.utils.ZStringUtils;
 import zgame.stat.StatOrdinal;
 import zgame.stat.StatType;
 
@@ -10,11 +9,15 @@ public enum ZusassStat implements StatType{
 	STRENGTH, STRENGTH_MIN, STRENGTH_MAX, STRENGTH_REGEN,
 	/** For now, governs max speed, max stamina, and stamina regen */
 	ENDURANCE, ENDURANCE_MIN, ENDURANCE_MAX, ENDURANCE_REGEN,
+	/** For now, governs max mana and mana regen */
+	INTELLIGENCE, INTELLIGENCE_MIN, INTELLIGENCE_MAX, INTELLIGENCE_REGEN,
 	
 	/** The health resource of a thing before it dies */
 	HEALTH, HEALTH_MIN, HEALTH_MAX, HEALTH_REGEN,
 	/** The stamina resource of a thing */
 	STAMINA, STAMINA_MIN, STAMINA_MAX, STAMINA_REGEN,
+	/** The mana resource of a thing */
+	MANA, MANA_MIN, MANA_MAX, MANA_REGEN,
 	
 	/** The amount of time between attacks */
 	ATTACK_SPEED,

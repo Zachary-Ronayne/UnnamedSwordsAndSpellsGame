@@ -239,6 +239,9 @@ public class Walk{
 		boolean walking = walkForce != 0;
 		double maxSpeed = this.getWalkSpeedMax();
 		
+		// If the thing is walking, its max speed should be reduced by the ratio
+		if(this.isWalking()) maxSpeed *= this.getWalkingRatio();
+		
 		// If the mob is not on the ground, it's movement force is modified by the air control
 		if(!entity.isOnGround()) walkForce *= this.getWalkAirControl();
 		
@@ -499,7 +502,6 @@ public class Walk{
 	
 	/** @return See {@link #walkSpeedMax} */
 	public double getWalkSpeedMax(){
-		if(walking) return this.walkSpeedMax * this.getWalkingRatio();
 		return this.walkSpeedMax;
 	}
 	

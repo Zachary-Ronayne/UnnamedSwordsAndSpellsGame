@@ -3,6 +3,7 @@ package zusass.game;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.graphics.font.TextBuffer;
 import zgame.core.state.MenuNode;
 import zgame.core.state.PlayState;
 import zusass.ZusassGame;
@@ -18,6 +19,9 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class MainPlay extends PlayState{
 	
+	/** A text buffer holding if the player is casting or attacking */
+	private final TextBuffer castAttackTextBuffer;
+	
 	/**
 	 * Initialize the main play state for the Zusass game
 	 *
@@ -25,6 +29,11 @@ public class MainPlay extends PlayState{
 	 */
 	public MainPlay(ZusassGame zgame){
 		this.enterHub(zgame);
+		this.castAttackTextBuffer = new TextBuffer(200, 200);
+		this.castAttackTextBuffer.setFont(zgame.getDefaultFont().size(30));
+		this.castAttackTextBuffer.setTextX(3);
+		this.castAttackTextBuffer.setTextY(22);
+		this.castAttackTextBuffer.setText(" ");
 	}
 	
 	/**
@@ -104,6 +113,20 @@ public class MainPlay extends PlayState{
 		r.drawRectangle(10, 35, 200, 20);
 		r.setColor(0, 1, 0);
 		r.drawRectangle(10, 35, 200 * p.currentStaminaPerc(), 20);
+		
+		// Draw a mana bar
+		r.setColor(.5, .5, .5);
+		r.drawRectangle(10, 60, 200, 20);
+		r.setColor(0, 0, 1);
+		r.drawRectangle(10, 60, 200 * p.currentManaPerc(), 20);
+		
+		// Draw if the player is casting or attacking
+		r.setColor(1, 1, 1, 1);
+
+		var text = p.isCasting() ? "Spell Mode" : "Attack Mode";
+		// Kind of weird way to update this, but whatever, this is just temporary
+		if(this.castAttackTextBuffer.getText().charAt(0) != text.charAt(0)) this.castAttackTextBuffer.setText(text);
+		this.castAttackTextBuffer.drawToRenderer(10, 85, r);
 	}
 	
 }

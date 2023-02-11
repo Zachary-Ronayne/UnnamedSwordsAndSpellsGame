@@ -1,4 +1,4 @@
-package zusass.game.stat;
+package zusass.game.stat.attributes;
 
 import zgame.stat.Stats;
 import static zusass.game.stat.ZusassStat.*;

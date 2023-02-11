@@ -1,7 +1,5 @@
 package zgame.stat;
 
-import zgame.core.utils.ZStringUtils;
-
 /**
  * An object keeping track of all the information, i.e. health, skills, etc., about a mob
  * This object is less of a state, and more of information about the mob, i.e., it should store maximum health, not current health
