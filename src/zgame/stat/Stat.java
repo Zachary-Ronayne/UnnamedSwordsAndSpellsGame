@@ -17,6 +17,9 @@ public abstract class Stat{
 	/** The {@link StatType} identifying this {@link Stats} */
 	private final StatType type;
 	
+	/** true if this {@link Stat} should be recalculated as soon as something about its state changes, false otherwise, defaults to false */
+	private boolean instantRecalculate;
+	
 	/** The stats that this {@link Stat} uses in calculating itself */
 	private final HashSet<StatType> dependents;
 	
@@ -37,6 +40,7 @@ public abstract class Stat{
 	 * @param dependents See {@link #dependents}
 	 */
 	public Stat(Stats stats, StatType type, StatType... dependents){
+		this.instantRecalculate = false;
 		this.recalculate = true;
 		this.stats = stats;
 		this.type = type;
@@ -74,6 +78,12 @@ public abstract class Stat{
 	
 	/** Tell this {@link Stat} that it needs to be recalculated before {@link #calculated} can be used again */
 	public void flagRecalculate(){
+		// If instantly recalculating, do it now and stop
+		if(this.instantRecalculate){
+			this.recalculate();
+			return;
+		}
+		
 		// First, flag this stat as needing to be recalculated
 		this.recalculate = true;
 		
@@ -92,16 +102,19 @@ public abstract class Stat{
 	
 	/** @return See {@link #calculated} */
 	public double get(){
-		if(this.recalculate){
-			// First calculate the value
-			this.calculated = this.calculateValue();
-			// Now apply modifiers
-			this.applyModifiers();
-			// Clear the recalculate flag
-			this.recalculate = false;
-		}
+		if(this.recalculate) this.recalculate();
 		
 		return this.calculated;
+	}
+	
+	/** Recalculate the current value of this stat */
+	public void recalculate(){
+		// First calculate the value
+		this.calculated = this.calculateValue();
+		// Now apply modifiers
+		this.applyModifiers();
+		// Clear the recalculate flag
+		this.recalculate = false;
 	}
 	
 	/**
@@ -160,6 +173,17 @@ public abstract class Stat{
 	 */
 	public void addValue(double value){
 		this.flagRecalculate();
+	}
+	
+	/** @return See {@link #instantRecalculate} */
+	public boolean isInstantRecalculate(){
+		return instantRecalculate;
+	}
+	
+	/** @param instantRecalculate See {@link #instantRecalculate}. If setting to true, also recalculates the value */
+	public void setInstantRecalculate(boolean instantRecalculate){
+		this.instantRecalculate = instantRecalculate;
+		this.recalculate();
 	}
 	
 }

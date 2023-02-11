@@ -26,8 +26,8 @@ public class ValueStat extends Stat{
 	
 	/** @param value See {@link #value} */
 	public void setValue(double value){
-		super.setValue(value);
 		this.value = value;
+		super.setValue(value);
 	}
 	
 	@Override

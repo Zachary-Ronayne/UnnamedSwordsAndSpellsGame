@@ -3,6 +3,7 @@ package zusass.game.things.entities.mobs;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.material.Material;
+import zgame.stat.Stat;
 import zgame.stat.StatType;
 import zgame.stat.ValueStat;
 import zgame.things.entity.EntityThing;
@@ -13,6 +14,7 @@ import zgame.stat.Stats;
 import zusass.game.stat.AttackDamage;
 import zusass.game.stat.HealthCurrent;
 import zusass.game.stat.HealthMax;
+import zusass.game.stat.MoveSpeed;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -63,12 +65,16 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.attackDirection = 0;
 		
 		this.stats = new Stats();
+		this.stats.add(new ValueStat(1, this.stats, STRENGTH));
+		
 		this.stats.add(new HealthMax(this.stats));
 		this.stats.add(new HealthCurrent(this.stats));
+		
 		this.stats.add(new ValueStat(100, this.stats, ATTACK_RANGE));
 		this.stats.add(new ValueStat(.5, this.stats, ATTACK_SPEED));
 		this.stats.add(new AttackDamage(this.stats));
-		this.stats.add(new ValueStat(1, this.stats, STRENGTH));
+		
+		this.stats.add(new MoveSpeed(Walk.DEFAULT_WALK_SPEED_MAX, this.stats, this));
 		
 		this.healToMaxHealth();
 	}
@@ -188,6 +194,15 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	/** @return See {@link #stats} */
 	public Stats getStats(){
 		return this.stats;
+	}
+	
+	/**
+	 * Get a stat from this {@link ZusassMob}
+	 * @param type The type of stat to get
+	 * @return The stat
+	 */
+	public Stat getStat(StatType type){
+		return this.stats.get(type);
 	}
 	
 	/** @return The value of the given stat */

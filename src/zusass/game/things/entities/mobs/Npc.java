@@ -20,7 +20,7 @@ public class Npc extends ZusassMob{
 	public Npc(double x, double y, double width, double height){
 		super(x, y, width, height);
 		
-		this.getWalk().setWalkSpeedMax(100);
+		this.setStat(MOVE_SPEED,100);
 		this.setStat(ATTACK_SPEED,1);
 	}
 	

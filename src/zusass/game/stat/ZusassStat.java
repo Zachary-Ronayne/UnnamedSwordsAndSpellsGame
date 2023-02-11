@@ -17,4 +17,7 @@ public enum ZusassStat implements StatType{
 	ATTACK_RANGE,
 	/** The amount of damage dealt with a melee attack */
 	ATTACK_DAMAGE,
+	
+	/** The speed at which a thing can move around */
+	MOVE_SPEED,
 }
