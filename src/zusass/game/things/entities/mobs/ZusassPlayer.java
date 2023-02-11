@@ -6,7 +6,6 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.utils.ZMath;
-import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zgame.world.Room;
 import zusass.ZusassGame;
@@ -37,8 +36,9 @@ public class ZusassPlayer extends ZusassMob{
 		this.attackPressed = false;
 		
 		this.setStat(STRENGTH, 10);
+		this.setStat(ENDURANCE, 10);
 		this.setStat(ATTACK_SPEED, .3);
-		this.healToMaxHealth();
+		this.setResourcesMax();
 		
 		this.lockCamera = false;
 	}
@@ -60,10 +60,12 @@ public class ZusassPlayer extends ZusassMob{
 		// Right click to attack in a direction
 		ZMouseInput mi = game.getMouseInput();
 		boolean rightPressed = mi.rightDown();
-		if(rightPressed) this.attackPressed = true;
-		if(this.attackPressed){
+		if(this.attackPressed && !rightPressed){
 			this.attackPressed = false;
 			this.beginAttack(ZMath.lineAngle(this.centerX(), this.centerY(), game.mouseGX(), game.mouseGY()));
+		}
+		if(!this.attackPressed && rightPressed){
+			this.attackPressed = true;
 		}
 		
 		// Now the camera to the player after repositioning the player
@@ -158,7 +160,7 @@ public class ZusassPlayer extends ZusassMob{
 			zgame.getCurrentRoom().setPlayer(this);
 			
 			// If the player is going through a level, heal to full
-			if(to.hasTag(ZusassTags.IS_LEVEL)) this.healToMaxHealth();
+			if(to.hasTag(ZusassTags.IS_LEVEL)) this.setResourcesMax();
 		}
 		
 		// Center the camera to the player

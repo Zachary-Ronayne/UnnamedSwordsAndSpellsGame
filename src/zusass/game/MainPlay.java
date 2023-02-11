@@ -98,6 +98,12 @@ public class MainPlay extends PlayState{
 		r.drawRectangle(10, 10, 200, 20);
 		r.setColor(1, 0, 0);
 		r.drawRectangle(10, 10, 200 * p.currentHealthPerc(), 20);
+		
+		// Draw a stamina bar
+		r.setColor(.5, .5, .5);
+		r.drawRectangle(10, 35, 200, 20);
+		r.setColor(0, 1, 0);
+		r.drawRectangle(10, 35, 200 * p.currentStaminaPerc(), 20);
 	}
 	
 }

@@ -70,7 +70,7 @@ public class LevelRoom extends ZusassRoom{
 		enemy.setStat(MOVE_SPEED, 100 + 200 * (1 - (10 / (this.level + 10.0))));
 		enemy.setStat(STRENGTH, 10);
 		enemy.getStat(STRENGTH).addModifier(this.level, ModifierType.ADD);
-		enemy.healToMaxHealth();
+		enemy.setToMaxHealth();
 		this.addThing(enemy);
 	}
 	

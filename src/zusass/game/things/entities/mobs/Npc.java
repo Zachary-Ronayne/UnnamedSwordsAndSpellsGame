@@ -22,6 +22,8 @@ public class Npc extends ZusassMob{
 		
 		this.setStat(MOVE_SPEED,100);
 		this.setStat(ATTACK_SPEED,1);
+		this.setStat(STAMINA_REGEN,.5);
+		this.setStat(ENDURANCE,4);
 	}
 	
 	@Override

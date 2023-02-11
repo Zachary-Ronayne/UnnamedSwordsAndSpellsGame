@@ -5,7 +5,7 @@ import zgame.stat.StatType;
 import zgame.stat.Stats;
 
 /** A base value stat for a thing, like strength. Attributes do not depend on any other stats */
-public class Attribute extends ResourceStat{
+public abstract class Attribute extends ResourceStat{
 	/**
 	 * Create a new stat with the given default value
 	 *

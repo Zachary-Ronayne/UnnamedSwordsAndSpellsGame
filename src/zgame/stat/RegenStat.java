@@ -41,6 +41,7 @@ public abstract class RegenStat extends RangeStat{
 	 */
 	@Override
 	public void tick(double dt){
+		if(this.getRegen() == 0) return;
 		this.addValue(this.getRegen() * dt);
 	}
 	

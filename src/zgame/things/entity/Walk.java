@@ -188,6 +188,11 @@ public class Walk{
 		this.updateJumpState(dt);
 	}
 	
+	/** @return true if this object represents currently walking, false otherwise */
+	public boolean isWalking(){
+		return this.walkingDirection != 0;
+	}
+	
 	/** @return See {@link #walkingDirection} */
 	public int getWalkingDirection(){
 		return this.walkingDirection;

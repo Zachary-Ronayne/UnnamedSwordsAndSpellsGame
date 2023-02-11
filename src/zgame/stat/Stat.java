@@ -78,7 +78,7 @@ public abstract class Stat{
 	 * @param type The type of stat to get
 	 * @return The value, or 0 if the given stat doesn't exist
 	 */
-	public double getOther(StatType type){
+	public final double getOther(StatType type){
 		var stat = this.stats.get(type);
 		if(stat == null) return 0;
 		return stat.get();
@@ -143,8 +143,14 @@ public abstract class Stat{
 		return m;
 	}
 	
-	/** @param mod The modifier to add */
+	/**
+	 * Apply the given modifier to this stat. Does nothing if this stat already has the given modifier.
+	 *
+	 * @param mod The modifier to add.
+	 */
 	public void addModifier(StatModifier mod){
+		if(this.hasModifier(mod)) return;
+		
 		this.modifiers.get(mod.getType()).put(mod.getUuid(), mod);
 		this.flagRecalculate();
 	}
@@ -153,6 +159,14 @@ public abstract class Stat{
 	public void removeModifier(StatModifier mod){
 		this.modifiers.get(mod.getType()).remove(mod.getUuid());
 		this.flagRecalculate();
+	}
+	
+	/**
+	 * @param mod The modifier to check for
+	 * @return true if this stat is being modified by the given modifier, false otherwise
+	 */
+	public boolean hasModifier(StatModifier mod){
+		return this.modifiers.get(mod.getType()).containsKey(mod.getUuid());
 	}
 	
 	/** Put the current value of {@link #calculated} through all its modifiers */

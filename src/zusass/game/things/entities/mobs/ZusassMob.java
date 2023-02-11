@@ -6,15 +6,14 @@ import zgame.physics.material.Material;
 import zgame.stat.Stat;
 import zgame.stat.StatType;
 import zgame.stat.ValueStat;
+import zgame.stat.modifier.ModifierType;
+import zgame.stat.modifier.StatModifier;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.Walk;
 import zgame.things.type.RectangleHitBox;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
-import zusass.game.stat.AttackDamage;
-import zusass.game.stat.Health;
-import zusass.game.stat.MoveSpeed;
-import zusass.game.stat.Strength;
+import zusass.game.stat.*;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -46,6 +45,9 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	/** The {@link Walk} which this mob uses for movement */
 	private final Walk walk;
 	
+	/** A modifier used to drain this thing's stamina while it walks */
+	private final StatModifier staminaWalkDrain;
+	
 	/**
 	 * Create a new mob with the given bounds
 	 *
@@ -64,20 +66,31 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.attackTime = -1;
 		this.attackDirection = 0;
 		
+		// Create stats
 		this.stats = new Stats();
 		
+		// Add attributes
 		this.stats.add(new Strength(this.stats));
-		this.getStat(STRENGTH).setValue(1);
+		this.setStat(STRENGTH, 1);
+		this.stats.add(new Endurance(this.stats));
+		this.setStat(ENDURANCE, 5);
 		
+		// Add resources
 		this.stats.add(new Health(this.stats));
+		this.stats.add(new Stamina(this.stats));
 		
+		// Add misc stats
 		this.stats.add(new ValueStat(100, this.stats, ATTACK_RANGE));
 		this.stats.add(new ValueStat(.5, this.stats, ATTACK_SPEED));
 		this.stats.add(new AttackDamage(this.stats));
 		
 		this.stats.add(new MoveSpeed(Walk.DEFAULT_WALK_SPEED_MAX, this.stats, this));
 		
-		this.healToMaxHealth();
+		// Ensure this thing stats at full resources
+		this.setResourcesMax();
+		
+		// Generate modifiers
+		this.staminaWalkDrain = new StatModifier(-35, ModifierType.ADD);
 	}
 	
 	@Override
@@ -124,13 +137,19 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * Perform any necessary updates for the mob based on its current stats
 	 *
 	 * @param zgame The game to update the stats on
-	 * @param dt The bynve
+	 * @param dt The number of seconds which passed in this update
 	 */
 	public void updateStats(ZusassGame zgame, double dt){
 		this.stats.tick(dt);
 		
 		// If this thing has 0 or less health, kill it
 		if(this.getCurrentHealth() <= 0) this.die(zgame);
+		
+		// If walking, need to reduce stamina
+		var sr = this.getStat(STAMINA_REGEN);
+		// TODO make this some kind of sprinting system, like, full speed is sprinting, half speed is walking
+		if(this.getWalk().isWalking() && this.getVX() > this.stat(MOVE_SPEED) * 0.8) sr.addModifier(this.staminaWalkDrain);
+		else sr.removeModifier(this.staminaWalkDrain);
 	}
 	
 	/**
@@ -156,6 +175,9 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	public void beginAttack(double direction){
 		this.attackDirection = direction;
 		this.attackTime = this.stat(ATTACK_SPEED);
+		
+		// Also drain stamina from the thing
+		this.getStat(STAMINA).addValue(-20);
 	}
 	
 	/**
@@ -217,6 +239,11 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		return stat.get();
 	}
 	
+	/**
+	 * Set the current value of a stat
+	 * @param type The type of stat to set
+	 * @param value The new value
+	 */
 	public void setStat(StatType type, double value){
 		this.stats.get(type).setValue(value);
 	}
@@ -226,14 +253,31 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		return this.stat(HEALTH);
 	}
 	
+	/** Set every resource, i.e. health, stamina, mana, to their max values */
+	public void setResourcesMax(){
+		this.setToMaxHealth();
+		this.setToMaxStamina();
+	}
+	
 	/** Set this thing's current health to its maximum health */
-	public void healToMaxHealth(){
-		this.stats.get(HEALTH).setValue(this.stat(HEALTH_MAX));
+	public void setToMaxHealth(){
+		this.setStat(HEALTH, this.stat(HEALTH_MAX));
+	}
+	
+	/** Set this thing's current stamina to its maximum stamina */
+	public void setToMaxStamina(){
+		this.setStat(STAMINA, this.stat(STAMINA_MAX));
 	}
 	
 	/** @return The percentage of health this mob has remaining, in the range [0, 1] */
 	public double currentHealthPerc(){
 		double perc = this.getCurrentHealth() / this.stat(HEALTH_MAX);
+		return Math.min(1, Math.max(0, perc));
+	}
+	
+	/** @return The percentage of stamina this mob has remaining, in the range [0, 1] */
+	public double currentStaminaPerc(){
+		double perc = this.stat(STAMINA) / this.stat(STAMINA_MAX);
 		return Math.min(1, Math.max(0, perc));
 	}
 	

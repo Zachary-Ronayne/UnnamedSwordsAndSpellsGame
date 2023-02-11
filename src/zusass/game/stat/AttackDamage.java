@@ -14,11 +14,11 @@ public class AttackDamage extends Stat{
 	 * @param stats The {@link Stats} which use this stat
 	 */
 	public AttackDamage(Stats stats){
-		super(stats, ATTACK_DAMAGE, STRENGTH);
+		super(stats, ATTACK_DAMAGE, STRENGTH, STAMINA, STAMINA_MAX);
 	}
 	
 	@Override
 	public double calculateValue(){
-		return super.getOther(STRENGTH);
+		return this.getOther(STRENGTH) * 2 * (0.5 + 0.5 * (this.getOther(STAMINA) / this.getOther(STAMINA_MAX)));
 	}
 }
