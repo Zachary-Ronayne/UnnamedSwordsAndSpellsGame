@@ -11,7 +11,10 @@ import zgame.things.entity.Walk;
 import zgame.things.type.RectangleHitBox;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
-import zusass.game.stat.*;
+import zusass.game.stat.AttackDamage;
+import zusass.game.stat.Health;
+import zusass.game.stat.MoveSpeed;
+import zusass.game.stat.Strength;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -62,11 +65,11 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.attackDirection = 0;
 		
 		this.stats = new Stats();
-		this.stats.add(new ValueStat(1, this.stats, STRENGTH));
 		
-		this.stats.add(new HealthMax(this.stats));
-		this.stats.add(new HealthCurrent(this.stats));
-		this.stats.add(new HealthRegen(this.stats));
+		this.stats.add(new Strength(this.stats));
+		this.getStat(STRENGTH).setValue(1);
+		
+		this.stats.add(new Health(this.stats));
 		
 		this.stats.add(new ValueStat(100, this.stats, ATTACK_RANGE));
 		this.stats.add(new ValueStat(.5, this.stats, ATTACK_SPEED));
@@ -121,7 +124,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * Perform any necessary updates for the mob based on its current stats
 	 *
 	 * @param zgame The game to update the stats on
-	 * @param dt The number of seconds which passed in this update
+	 * @param dt The bynve
 	 */
 	public void updateStats(ZusassGame zgame, double dt){
 		this.stats.tick(dt);
@@ -190,7 +193,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 */
 	public void damage(double amount){
 		if(amount <= 0) return;
-		this.stats.get(HEALTH_CURRENT).addValue(-amount);
+		this.stats.get(HEALTH).addValue(-amount);
 	}
 	
 	/** @return See {@link #stats} */
@@ -220,12 +223,12 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	
 	/** @return The current amount of heath this {@link ZusassMob} has */
 	public double getCurrentHealth(){
-		return this.stat(HEALTH_CURRENT);
+		return this.stat(HEALTH);
 	}
 	
 	/** Set this thing's current health to its maximum health */
 	public void healToMaxHealth(){
-		this.stats.get(HEALTH_CURRENT).setValue(this.stat(HEALTH_MAX));
+		this.stats.get(HEALTH).setValue(this.stat(HEALTH_MAX));
 	}
 	
 	/** @return The percentage of health this mob has remaining, in the range [0, 1] */

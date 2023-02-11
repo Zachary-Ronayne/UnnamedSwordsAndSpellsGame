@@ -3,15 +3,11 @@ package zusass.game.stat;
 import zgame.stat.StatType;
 
 public enum ZusassStat implements StatType{
-	/** Temporary stat for amount of damage done with melee attacks */
-	STRENGTH,
+	/** How strong a thing is. For now, governs health and attack damage */
+	STRENGTH, STRENGTH_MIN, STRENGTH_MAX, STRENGTH_REGEN,
 	
-	/** The maximum amount of health a thing can have */
-	HEALTH_MAX,
 	/** The current health of a thing */
-	HEALTH_CURRENT,
-	/** The amount of health a thing restores each second */
-	HEALTH_REGEN,
+	HEALTH, HEALTH_MIN, HEALTH_MAX, HEALTH_REGEN,
 	
 	/** The amount of time between attacks */
 	ATTACK_SPEED,

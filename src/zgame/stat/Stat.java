@@ -54,6 +54,11 @@ public abstract class Stat{
 		this.modifiers.put(ModifierType.MULT_MULT, new HashMap<>());
 	}
 	
+	/** @return See {@link #stats} */
+	public Stats getStats(){
+		return this.stats;
+	}
+	
 	/**
 	 * Apply any operations that must happen to this {@link Stat} over time.
 	 * Does nothing by default, can override to provide custom behavior
