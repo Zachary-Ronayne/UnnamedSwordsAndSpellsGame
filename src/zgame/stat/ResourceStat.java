@@ -33,7 +33,7 @@ public abstract class ResourceStat extends RegenStat{
 						/////////////////////////////////////////
 						StatType regen, StatType[] regenDependents){
 		
-		super(0, stats, type, max, regen);
+		super(0, stats, type, min, max, regen);
 		this.min = new Min(stats, min, minDependents);
 		this.max = new Max(stats, max, maxDependents);
 		this.regen = new Regen(stats, regen, regenDependents);

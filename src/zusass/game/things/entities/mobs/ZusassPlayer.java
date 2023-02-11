@@ -10,6 +10,9 @@ import zgame.stat.modifier.StatModifier;
 import zgame.world.Room;
 import zusass.ZusassGame;
 import zusass.game.things.ZusassTags;
+
+import java.util.Arrays;
+
 import static zusass.game.stat.ZusassStat.*;
 
 /** A player inside the {@link ZusassGame} */
@@ -39,6 +42,8 @@ public class ZusassPlayer extends ZusassMob{
 		this.setStat(ENDURANCE, 10);
 		this.setStat(ATTACK_SPEED, .3);
 		this.setResourcesMax();
+		
+		this.getStats().printStats();
 		
 		this.lockCamera = false;
 	}

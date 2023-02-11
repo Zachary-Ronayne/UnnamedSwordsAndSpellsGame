@@ -3,9 +3,7 @@ package zgame.stat;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 /** An object keeping track of a single stat used an object */
@@ -20,8 +18,8 @@ public abstract class Stat{
 	/** true if this {@link Stat} should be recalculated as soon as something about its state changes, false otherwise, defaults to false */
 	private boolean instantRecalculate;
 	
-	/** The stats that this {@link Stat} uses in calculating itself */
-	private final HashSet<StatType> dependents;
+	/** The ordinals, in no particular order, of stats that this {@link Stat} uses in calculating itself */
+	private final int[] dependents;
 	
 	/** true if this stat needs to be recalculated before it is used again */
 	private boolean recalculate;
@@ -30,6 +28,7 @@ public abstract class Stat{
 	private double calculated;
 	
 	/** The current modifiers applying to this {@link Stat} */
+	// TODO do a similar ordinal thing with this?
 	private final Map<ModifierType, Map<String, StatModifier>> modifiers;
 	
 	/**
@@ -45,8 +44,11 @@ public abstract class Stat{
 		this.stats = stats;
 		this.type = type;
 		
-		this.dependents = new HashSet<>();
-		this.dependents.addAll(Arrays.asList(dependents));
+		// Save the ordinals of the dependent stats
+		this.dependents = new int[dependents.length];
+		for(int i = 0; i < this.dependents.length; i++){
+			this.dependents[i] = dependents[i].getOrdinal();
+		};
 		
 		this.modifiers = new HashMap<>();
 		this.modifiers.put(ModifierType.ADD, new HashMap<>());
@@ -68,7 +70,7 @@ public abstract class Stat{
 	public void tick(double dt){}
 	
 	/** @return See {@link #dependents} */
-	public HashSet<StatType> getDependents(){
+	public int[] getDependents(){
 		return this.dependents;
 	}
 	
@@ -101,12 +103,12 @@ public abstract class Stat{
 		this.recalculate = true;
 		
 		// Now, find any stats that use this stat
-		var toFlag = this.stats.getDependents().get(this.getType());
-		// If none were found, do nothing
-		if(toFlag == null) return;
+		var toFlag = this.stats.getDependents()[this.getType().getOrdinal()];
 		// Flag each stat as needing to be recalculated
-		for(var s : toFlag){
-			this.stats.get(s).flagRecalculate();
+		for(int i = 0; i < toFlag.length; i++){
+			var f = toFlag[i];
+			if(!f) continue;
+			this.stats.get(i).flagRecalculate();
 		}
 	}
 	

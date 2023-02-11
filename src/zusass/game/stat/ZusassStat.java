@@ -1,7 +1,10 @@
 package zusass.game.stat;
 
+import zgame.core.utils.ZStringUtils;
+import zgame.stat.StatOrdinal;
 import zgame.stat.StatType;
 
+/** The {@link StatType}s used by the Zusass game */
 public enum ZusassStat implements StatType{
 	/** For now, governs health and attack damage */
 	STRENGTH, STRENGTH_MIN, STRENGTH_MAX, STRENGTH_REGEN,
@@ -22,4 +25,26 @@ public enum ZusassStat implements StatType{
 	
 	/** The speed at which a thing can move around */
 	MOVE_SPEED,
+	;
+	
+	/** The ordinal representing this enum */
+	private final int ordinal;
+	
+	/** Initialize the enum with the next ordinal */
+	ZusassStat(){
+		this.ordinal = StatOrdinal.nextOrdinal();
+	}
+	
+	@Override
+	public int getOrdinal(){
+		return ordinal;
+	}
+	
+	/** Must call this before the game is initialized to ensure stats work */
+	public static void init(){
+		for(var v : values()){
+			v.getOrdinal();
+		}
+	}
+	
 }

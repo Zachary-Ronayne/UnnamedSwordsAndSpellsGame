@@ -5,6 +5,7 @@ import zgame.core.utils.ZConfig;
 import zgame.core.window.GameWindow;
 import zusass.game.MainPlay;
 import zusass.game.ZusassRoom;
+import zusass.game.stat.ZusassStat;
 import zusass.menu.mainmenu.MainMenuState;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -125,6 +126,7 @@ public class ZusassGame extends Game{
 	
 	/** Initialize the object {@link #zgame} */
 	public static void init(){
+		ZusassStat.init();
 		if(zgame != null) return;
 		zgame = new ZusassGame();
 	}

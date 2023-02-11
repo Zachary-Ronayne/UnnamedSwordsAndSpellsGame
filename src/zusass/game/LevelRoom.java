@@ -65,6 +65,7 @@ public class LevelRoom extends ZusassRoom{
 		// Add the door
 		this.addThing(new LevelDoor(this.getLevel() + 1, this));
 		
+		// issue#25 if this is changed to add hundreds of enemies, the TPS talks while not using all the computer's resources. Probably need to make tick looper account for time spent rendering
 		// Add enemies
 		Npc enemy = new Npc(400, 400, 60, 80);
 		enemy.setStat(MOVE_SPEED, 100 + 200 * (1 - (10 / (this.level + 10.0))));
