@@ -28,8 +28,7 @@ public abstract class Stat{
 	private double calculated;
 	
 	/** The current modifiers applying to this {@link Stat} */
-	// TODO do a similar ordinal thing with this?
-	private final Map<ModifierType, Map<String, StatModifier>> modifiers;
+	private final Map<String, StatModifier>[] modifiers;
 	
 	/**
 	 * Create a new stat
@@ -38,6 +37,7 @@ public abstract class Stat{
 	 * @param type See {@link #type}
 	 * @param dependents See {@link #dependents}
 	 */
+	@SuppressWarnings("unchecked")
 	public Stat(Stats stats, StatType type, StatType... dependents){
 		this.instantRecalculate = false;
 		this.recalculate = true;
@@ -49,11 +49,10 @@ public abstract class Stat{
 		for(int i = 0; i < this.dependents.length; i++){
 			this.dependents[i] = dependents[i].getOrdinal();
 		}
-		
-		this.modifiers = new HashMap<>();
-		this.modifiers.put(ModifierType.ADD, new HashMap<>());
-		this.modifiers.put(ModifierType.MULT_ADD, new HashMap<>());
-		this.modifiers.put(ModifierType.MULT_MULT, new HashMap<>());
+		this.modifiers = (HashMap<String, StatModifier>[]) new HashMap[3];
+		this.modifiers[ModifierType.ADD] = new HashMap<>();
+		this.modifiers[ModifierType.MULT_ADD] = new HashMap<>();
+		this.modifiers[ModifierType.MULT_MULT] = new HashMap<>();
 	}
 	
 	/** @return See {@link #stats} */
@@ -139,7 +138,7 @@ public abstract class Stat{
 	 * @param type The way the value is applied to the stat
 	 * @return The modifier created
 	 */
-	public StatModifier addModifier(double value, ModifierType type){
+	public StatModifier addModifier(double value, int type){
 		var m = new StatModifier(value, type);
 		this.addModifier(m);
 		return m;
@@ -153,13 +152,13 @@ public abstract class Stat{
 	public void addModifier(StatModifier mod){
 		if(this.hasModifier(mod)) return;
 		
-		this.modifiers.get(mod.getType()).put(mod.getUuid(), mod);
+		this.modifiers[mod.getType()].put(mod.getUuid(), mod);
 		mod.setStat(this);
 	}
 	
 	/** @param mod The modifier to remove, should be the same object, with the same uuid */
 	public void removeModifier(StatModifier mod){
-		this.modifiers.get(mod.getType()).remove(mod.getUuid());
+		this.modifiers[mod.getType()].remove(mod.getUuid());
 		this.flagRecalculate();
 	}
 	
@@ -168,7 +167,7 @@ public abstract class Stat{
 	 * @return true if this stat is being modified by the given modifier, false otherwise
 	 */
 	public boolean hasModifier(StatModifier mod){
-		return this.modifiers.get(mod.getType()).containsKey(mod.getUuid());
+		return this.modifiers[mod.getType()].containsKey(mod.getUuid());
 	}
 	
 	/** Put the current value of {@link #calculated} through all its modifiers */
@@ -176,16 +175,16 @@ public abstract class Stat{
 		var newCalculated = this.calculated;
 		
 		// Apply add modifiers first
-		var mods = this.modifiers.get(ModifierType.ADD).values();
+		var mods = this.modifiers[ModifierType.ADD].values();
 		for(var m : mods) newCalculated += m.getValue();
 		
 		// Combine all additive multipliers
-		mods = this.modifiers.get(ModifierType.MULT_ADD).values();
+		mods = this.modifiers[ModifierType.MULT_ADD].values();
 		double multiplyTotal = 1;
 		for(var m : mods) multiplyTotal += m.getValue();
 		
 		// Apply all multiplicitive multipliers
-		mods = this.modifiers.get(ModifierType.MULT_MULT).values();
+		mods = this.modifiers[ModifierType.MULT_MULT].values();
 		for(var m : mods) multiplyTotal *= m.getValue();
 		
 		// Apply the final value

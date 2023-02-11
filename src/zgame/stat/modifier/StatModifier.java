@@ -18,15 +18,15 @@ public class StatModifier implements Uuidable{
 	private double value;
 	
 	/** The type of this modifier */
-	private ModifierType type;
+	private int type;
 	
 	/**
 	 * Create a new modifier
 	 *
 	 * @param value See {@link #value}
-	 * @param type See {@link #type}
+	 * @param type See {@link #type}. Should use values from {@link ModifierType}
 	 */
-	public StatModifier(double value, ModifierType type){
+	public StatModifier(double value, int type){
 		this.uuid = UUID.randomUUID().toString();
 		this.value = value;
 		this.type = type;
@@ -49,13 +49,13 @@ public class StatModifier implements Uuidable{
 		this.stat.flagRecalculate();
 	}
 	
-	/** @return See {@link #type} */
-	public ModifierType getType(){
+	/** @return See {@link #type}. Should use values from {@link ModifierType} */
+	public int getType(){
 		return this.type;
 	}
 	
-	/** @param type See {@link #type} */
-	public void setType(ModifierType type){
+	/** @param type See {@link #type} and {@link ModifierType} */
+	public void setType(int type){
 		if(this.type == type) return;
 		this.type = type;
 		this.stat.flagRecalculate();
