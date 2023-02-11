@@ -27,6 +27,7 @@ import zgame.core.state.PlayState;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
+import zgame.stat.StatOrdinal;
 import zgame.world.Room;
 
 /**
@@ -223,6 +224,9 @@ public class Game implements Saveable, Destroyable{
 		
 		// Go to fullscreen if applicable
 		this.window.setInFullScreenNow(enterFullScreen);
+		
+		// Init stats
+		StatOrdinal.init();
 	}
 	
 	/**

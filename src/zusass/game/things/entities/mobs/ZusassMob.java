@@ -81,11 +81,8 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		
 		// Add attributes
 		this.stats.add(new Strength(this.stats));
-		this.setStat(STRENGTH, 1);
 		this.stats.add(new Endurance(this.stats));
-		this.setStat(ENDURANCE, 5);
 		this.stats.add(new Intelligence(this.stats));
-		this.setStat(INTELLIGENCE, 5);
 		
 		// Add resources
 		this.stats.add(new Health(this.stats));
@@ -101,6 +98,11 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		
 		// Ensure this thing stats at full resources
 		this.setResourcesMax();
+		
+		// Set initial stat values
+		this.setStat(STRENGTH, 1);
+		this.setStat(ENDURANCE, 5);
+		this.setStat(INTELLIGENCE, 5);
 		
 		// Generate modifiers
 		this.staminaWalkDrain = new StatModifier(0, ModifierType.ADD);

@@ -9,19 +9,9 @@ public class Stats{
 	/** The {@link Stat}s which this {@link Stats} uses. Index: the {@link StatType} ordinal, value: the stat */
 	private final Stat[] arr;
 	
-	// TODO try making this array static
-	/**
-	 * Mapping which stats must be recalculated when their key stat is updated.
-	 * The outer and inner arrays are both indexed by {@link StatType} ordinal
-	 * i.e. dependents[s][type that must be recalculated when s changes]
-	 * true means there is a dependent relationship, false otherwise
-	 */
-	private final boolean[][] dependents;
-	
 	/** Initialize a new stats object with nothing set */
 	public Stats(){
 		this.arr = new Stat[StatOrdinal.numOrdinals()];
-		this.dependents = new boolean[StatOrdinal.numOrdinals()][StatOrdinal.numOrdinals()];
 	}
 	
 	/** Get the array holding all the stats used by this {@link Stats} */
@@ -29,9 +19,9 @@ public class Stats{
 		return this.arr;
 	}
 	
-	/** @return See {@link #dependents} */
+	/** @return See {@link StatOrdinal#dependents} */
 	public boolean[][] getDependents(){
-		return this.dependents;
+		return StatOrdinal.dependents;
 	}
 	
 	/**
@@ -60,7 +50,7 @@ public class Stats{
 		// Go through all the types, which the length will be the number of ordinals
 		for(int i = 0; i < ds.length; i++){
 			// Set the current dependent as the given stat's type
-			this.dependents[ds[i]][s.getType().getOrdinal()] = true;
+			StatOrdinal.dependents[ds[i]][s.getType().getOrdinal()] = true;
 		}
 	}
 	
