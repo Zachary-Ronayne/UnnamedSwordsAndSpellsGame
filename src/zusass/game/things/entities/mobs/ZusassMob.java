@@ -7,6 +7,8 @@ import zgame.stat.Stat;
 import zgame.stat.StatType;
 import zgame.stat.ValueStat;
 import zgame.stat.modifier.StatModifier;
+import zgame.stat.status.StatusEffect;
+import zgame.stat.status.StatusEffects;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.Walk;
 import zgame.things.type.RectangleHitBox;
@@ -19,6 +21,7 @@ import zusass.game.stat.attributes.Strength;
 import zusass.game.stat.resources.Health;
 import zusass.game.stat.resources.Mana;
 import zusass.game.stat.resources.Stamina;
+import zusass.game.status.StatEffect;
 import zusass.game.things.MobWalk;
 
 import static zusass.game.stat.ZusassStat.*;
@@ -49,6 +52,9 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	/** The stats used by this mob */
 	private final Stats stats;
 	
+	/** The status effects applied to this mob */
+	private final StatusEffects effects;
+	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/** The {@link MobWalk} which this mob uses for movement */
@@ -78,6 +84,9 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		
 		// Create stats
 		this.stats = new Stats();
+		
+		// Create status effects
+		this.effects = new StatusEffects();
 		
 		// Add attributes
 		this.stats.add(new Strength(this.stats));
@@ -112,6 +121,9 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	@Override
 	public void tick(Game game, double dt){
 		var zgame = (ZusassGame)game;
+		
+		// Update the state of the status effects
+		this.effects.tick(zgame, dt);
 		
 		// Update the state of the stats
 		this.updateStats(zgame, dt);
@@ -253,12 +265,34 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	}
 	
 	/**
-	 * Attempt to cast the currently selected spell. Just a dummy to test using mana for now
+	 * Attempt to cast the currently selected spell
 	 */
 	public void castSpell(){
-		var cost = 10;
+		var cost = 50;
 		if(this.stat(MANA) < cost) return;
 		this.getStat(MANA).addValue(-cost);
+		
+		// Casting a spell to move faster as a temporary test
+		this.addStatEffect(5, 2, StatModifier.MULT_MULT, MOVE_SPEED);
+	}
+	
+	/**
+	 * Add and apply a status effect to this mob
+	 *
+	 * @param effect The effect to add
+	 */
+	public void addEffect(StatusEffect effect){
+		this.effects.addEffect(effect);
+	}
+	
+	/**
+	 * Add and apply a {@link StatEffect} to this mob
+	 *
+	 * @param duration The duration of the effect
+	 * @param value The power of the effect
+	 */
+	public void addStatEffect(double duration, double value, int modifierType, StatType statType){
+		this.addEffect(new StatEffect(this.getStats(), duration, value, modifierType, statType));
 	}
 	
 	/** @return See {@link #stats} */

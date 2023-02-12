@@ -11,6 +11,7 @@ public class StatModifier implements Uuidable{
 	/** The total number of modifier types */
 	public static final int TOTAL = 3;
 	
+	// TODO convert this back to an enum, and index by manual ordinals
 	/** Represents adding a stat's value */
 	public static final int ADD = 0;
 	/** Represents a stat that adds itself to other modifiers to get the final multiplier */
@@ -27,7 +28,7 @@ public class StatModifier implements Uuidable{
 	/** The amount of this modifier */
 	private double value;
 	
-	/** The type of this modifier */
+	/** The type of this modifier. See the constants in this class */
 	private int type;
 	
 	/**
