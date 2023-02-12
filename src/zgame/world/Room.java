@@ -5,15 +5,15 @@ import java.util.List;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
-import zgame.core.file.Saveable;
-import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
-import zgame.core.utils.ZArrayUtils;
+import zgame.core.utils.ClassMappedList;
+import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZMath;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing;
+import zgame.things.still.Door;
 import zgame.things.still.tiles.BaseTiles;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType;
@@ -22,7 +22,7 @@ import zgame.things.type.HitBox;
 import zgame.things.type.RectangleBounds;
 
 /** An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc. */
-public class Room implements RectangleBounds, Saveable, Destroyable{
+public class Room extends GameThing implements RectangleBounds{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -33,17 +33,11 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	/** The index for {@link #wallSolid} that represents the floor (bottom wall) */
 	public static final int WALL_FLOOR = 3;
 	
-	/** All of the {@link GameThing} objects which exist in in the game */
-	private List<GameThing> things;
-	/** All of the {@link EntityThing} objects which exist in in the game */
-	private List<EntityThing> entities;
-	/** All of the {@link HitBox} objects which exist in in the game */
-	private List<HitBox> hitBoxThings;
-	/** All of the {@link GameTickable} objects which exist in in the game */
-	private List<GameTickable> tickableThings;
+	/** All of the things in this room */
+	private final ClassMappedList thingsMap;
 	
 	/** All of the {@link GameThing} objects which will be removed on the next game tick */
-	private List<GameThing> thingsToRemove;
+	private final List<GameThing> thingsToRemove;
 	
 	// The 2D grid of {@link Tile} objects defining this {@link Room}
 	private ArrayList<ArrayList<Tile>> tiles;
@@ -63,26 +57,27 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	 * A 4 element array which determines which of the walls are solid. If a wall is solid, then any entity outside of that wall will be forced back inside the wall
 	 * Use {@link #WALL_LEFT}, {@link #WALL_RIGHT}, {@value #WALL_CEILING}, and {@value #WALL_FLOOR} for specifying walls
 	 */
-	private boolean[] wallSolid;
+	private final boolean[] wallSolid;
 	
 	/** Create a new empty {@link Room} */
 	public Room(){
-		this(1000, 500);
+		this(0, 0);
 	}
 	
 	/**
 	 * Create a new empty {@link Room}
-	 * 
+	 *
 	 * @param xTiles The number of tiles on the x axis
 	 * @param yTiles The number of tiles on the y axis
 	 */
 	public Room(int xTiles, int yTiles){
-		this.things = new ArrayList<GameThing>();
-		this.entities = new ArrayList<EntityThing>();
-		this.hitBoxThings = new ArrayList<HitBox>();
-		this.tickableThings = new ArrayList<GameTickable>();
+		this.thingsMap = new ClassMappedList();
+		this.thingsMap.addClass(GameThing.class);
+		this.thingsMap.addClass(EntityThing.class);
+		this.thingsMap.addClass(HitBox.class);
+		this.thingsMap.addClass(GameTickable.class);
 		
-		this.thingsToRemove = new ArrayList<GameThing>();
+		this.thingsToRemove = new ArrayList<>();
 		
 		this.initTiles(xTiles, yTiles);
 		
@@ -91,12 +86,13 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	@Override
 	public void destroy(){
-		for(int i = 0; i < this.things.size(); i++) this.things.get(i).destroy();
+		var things = this.getThings();
+		for(int i = 0; i < things.size(); i++) things.get(i).destroy();
 	}
 	
 	/**
 	 * Initialize {@link #tiles} to the given size where every tile is the default tile
-	 * 
+	 *
 	 * @param xTiles The number of tiles on the x axis
 	 * @param yTiles The number of tiles on the y axis
 	 */
@@ -106,70 +102,81 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Initialize {@link #tiles} to the given size
-	 * 
+	 *
 	 * @param xTiles The number of tiles on the x axis
 	 * @param yTiles The number of tiles on the y axis
-	 * @param c The color for every tile
+	 * @param t The type for every tile
 	 */
 	public void initTiles(int xTiles, int yTiles, TileType t){
 		this.xTiles = xTiles;
 		this.yTiles = yTiles;
 		this.width = xTiles * Tile.TILE_SIZE;
 		this.height = yTiles * Tile.TILE_SIZE;
-		this.tiles = new ArrayList<ArrayList<Tile>>(xTiles);
+		this.tiles = new ArrayList<>(xTiles);
 		for(int i = 0; i < xTiles; i++){
-			ArrayList<Tile> col = new ArrayList<Tile>(yTiles);
+			ArrayList<Tile> col = new ArrayList<>(yTiles);
 			this.tiles.add(col);
-			for(int j = 0; j < yTiles; j++){ col.add(new Tile(i, j, t)); }
+			for(int j = 0; j < yTiles; j++){
+				col.add(new Tile(i, j, t));
+			}
 		}
 	}
 	
-	/** @return See {@link #things}. This is the actual collection holding the things, not a copy */
-	public List<GameThing> getThings(){
-		return this.things;
+	/** @return See {@link #thingsMap} */
+	public ClassMappedList getAllThings(){
+		return this.thingsMap;
 	}
 	
-	/** @return See {@link #entities}. This is the actual collection holding the things, not a copy */
-	public List<EntityThing> getEntities(){
-		return this.entities;
+	/** @return A list of all the things in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
+	public NotNullList<GameThing> getThings(){
+		return this.thingsMap.get(GameThing.class);
 	}
 	
-	/** @return See {@link #tickableThings}. This is the actual collection holding the things, not a copy */
-	public List<GameTickable> getTickableThings(){
-		return this.tickableThings;
+	/** @return A list of all the entities in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
+	public NotNullList<EntityThing> getEntities(){
+		return this.thingsMap.get(EntityThing.class);
 	}
 	
-	/** @return See {@link #hitBoxThings}. This is the actual collection holding the things, not a copy */
-	public List<HitBox> getHitBoxThings(){
-		return this.hitBoxThings;
+	/**
+	 * @param uuid The uuid of the entity to get
+	 * @return The entity, or null if no entity with that uuid exists in this room
+	 */
+	public EntityThing getEntity(String uuid){
+		return this.thingsMap.getMap(EntityThing.class).get(uuid);
+	}
+	
+	/** @return All the tickable things in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
+	public NotNullList<GameTickable> getTickableThings(){
+		return this.thingsMap.get(GameTickable.class);
+	}
+	
+	/** @return All the hitbox things in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
+	public NotNullList<HitBox> getHitBoxThings(){
+		return this.thingsMap.get(HitBox.class);
 	}
 	
 	/**
 	 * Add a {@link GameThing} to this {@link Room}
-	 * 
+	 *
 	 * @param thing The {@link GameThing} to add
 	 */
 	public void addThing(GameThing thing){
-		ZArrayUtils.insertSorted(this.things, thing);
-		if(thing instanceof EntityThing) this.entities.add((EntityThing)thing);
-		if(thing instanceof GameTickable) this.tickableThings.add((GameTickable)thing);
-		if(thing instanceof HitBox) this.hitBoxThings.add((HitBox)thing);
+		this.thingsMap.add(thing);
 	}
 	
 	/**
-	 * Remove a {@link GameTickable} from this {@link Room}
-	 * 
+	 * Remove a {@link GameTickable} from this {@link Room} on the next tick
+	 *
 	 * @param thing The {@link GameTickable} to remove
 	 */
-	public void removeThing(GameThing thing){
+	public final void removeThing(GameThing thing){
 		this.thingsToRemove.add(thing);
 	}
 	
 	/**
 	 * Collide the given {@link EntityThing} with this room. Essentially, attempt to move the given object so that it no longer intersects with anything in this room.
-	 * 
+	 *
 	 * @param obj The object to collide
-	 * 
 	 * @return The CollisionResponse representing the final collision that took place, where the collision material is the floor collision, if one took place
 	 */
 	public CollisionResponse collide(HitBox obj){
@@ -244,29 +251,42 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Update this {@link Room}
-	 * 
+	 *
 	 * @param game The {@link Game} which this {@link Room} should update relative to
 	 * @param dt The amount of time passed in this update
 	 */
 	public void tick(Game game, double dt){
 		// Update all updatable objects
-		for(int i = 0; i < this.tickableThings.size(); i++){
-			GameTickable t = this.tickableThings.get(i);
+		var tickable = this.getTickableThings();
+		for(int i = 0; i < tickable.size(); i++){
+			GameTickable t = tickable.get(i);
 			t.tick(game, dt);
 		}
+		
+		// Update the position of all entities
+		var entities = this.getEntities();
+		for(int i = 0; i < entities.size(); i++) entities.get(i).updatePosition(game, dt);
+		
+		// Check the collision of this room for entities
+		for(int i = 0; i < entities.size(); i++) collide(entities.get(i));
+		
 		// Remove all things that need to be removed
-		for(GameThing thing : this.thingsToRemove){
-			this.things.remove(thing);
-			if(thing instanceof EntityThing) this.entities.remove((EntityThing)thing);
-			if(thing instanceof GameTickable) this.tickableThings.remove((GameTickable)thing);
-			if(thing instanceof HitBox) this.hitBoxThings.remove((HitBox)thing);
-		}
+		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(thing);
 		this.thingsToRemove.clear();
 	}
 	
 	/**
+	 * Called each time a thing is removed via {@link #tick(Game, double)}, i.e. the thing was added to {@link #thingsToRemove}, and now it's being removed
+	 *
+	 * @param thing The thing to remove
+	 */
+	public void tickRemoveThing(GameThing thing){
+		this.thingsMap.remove(thing);
+	}
+	
+	/**
 	 * Draw this {@link Room} to the given {@link Renderer}
-	 * 
+	 *
 	 * @param game The {@link Game} to draw this {@link Room} relative to
 	 * @param r The {@link Renderer} to draw this {@link Room} on
 	 */
@@ -280,7 +300,8 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 		for(int i = startX; i < endX; i++) for(int j = startY; j < endY; j++) this.tiles.get(i).get(j).renderWithCheck(game, r);
 		
 		// Draw all the things
-		for(int i = 0; i < this.things.size(); i++) this.things.get(i).renderWithCheck(game, r);
+		var things = this.getThings();
+		for(int i = 0; i < things.size(); i++) things.get(i).renderWithCheck(game, r);
 	}
 	
 	/** Cause every wall to be solid. See {@link #wallSolid} for details */
@@ -295,7 +316,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Determine if the given wall id is a valid wall id
-	 * 
+	 *
 	 * @param wall The wall id
 	 * @return true if the id is valid, false otherwise
 	 */
@@ -305,7 +326,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Make the specified wall either solid or not solid
-	 * 
+	 *
 	 * @param wall The wall to make solid. See {@link #wallSolid} for details.
 	 * @param solid true to make the wall solid, false to make it not solid
 	 * @return If wall is invalid, this method does nothing and returns false, otherwise it returns true
@@ -318,7 +339,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Make the specified wall solid
-	 * 
+	 *
 	 * @param wall The wall to make solid. See {@link #wallSolid} for details.
 	 * @return If wall is invalid, this method does nothing and returns false, otherwise it returns true
 	 */
@@ -328,7 +349,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Make the specified wall not solid
-	 * 
+	 *
 	 * @param wall The wall to make not solid. See {@link #wallSolid} for details.
 	 * @return If wall is invalid, this method does nothing and returns false, otherwise it returns true
 	 */
@@ -338,7 +359,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Determine if the given wall is solid
-	 * 
+	 *
 	 * @param wall The wall. See {@link #wallSolid} for details.
 	 * @return true if the given wall is valid and solid, false otherwise
 	 */
@@ -398,10 +419,27 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	public double centerY(){
 		return this.getHeight() * 0.5;
 	}
+	/**
+	 * Determine if the given {@link GameThing} is allowed to enter this {@link Room} using a {@link Door}
+	 * @param thing The thing to check for
+	 * @return true if it can enter, false otherwise. Always true by default, override to provide custom behavior
+	 */
+	public boolean canEnter(GameThing thing){
+		return true;
+	}
+	
+	/**
+	 * Determine if the given {@link GameThing} is allowed to leave this {@link Room} using a {@link Door}
+	 * @param thing The thing to check for
+	 * @return true if it can leave, false otherwise. Always true by default, override to provide custom behavior
+	 */
+	public boolean canLeave(GameThing thing){
+		return true;
+	}
 	
 	/**
 	 * Get the tile at the specified index
-	 * 
+	 *
 	 * @param x The tile index on the x axis
 	 * @param y The tile on the y axis
 	 * @return The tile, or null if the tile is outside of the range of the grid
@@ -413,7 +451,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Set the tile at the specified index
-	 * 
+	 *
 	 * @param x The x index
 	 * @param y The y index
 	 * @param t The type of tile to set
@@ -427,7 +465,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Find the index in the x axis of {@link #tiles} which contains the given coordinate
-	 * 
+	 *
 	 * @param x The coordinate
 	 * @return The index, or if the coordinate is outside the bounds, then the index of the closest tile to the side the coordinate is out of bounds on
 	 */
@@ -437,7 +475,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Find the index in the y axis of {@link #tiles} which contains the given coordinate
-	 * 
+	 *
 	 * @param y The coordinate
 	 * @return The index, or if the coordinate is outside the bounds, then the index of the closest tile to the side the coordinate is out of bounds on
 	 */
@@ -447,7 +485,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Determine if the given index is within the tile bounds
-	 * 
+	 *
 	 * @param x The index to check
 	 * @return true if the index is in the x axis range of the tile grid
 	 */
@@ -457,7 +495,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Determine if the given index is within the tile bounds
-	 * 
+	 *
 	 * @param y The index to check
 	 * @return true if the index is in the y axis range of the tile grid
 	 */
@@ -467,7 +505,7 @@ public class Room implements RectangleBounds, Saveable, Destroyable{
 	
 	/**
 	 * Determine if the given indexes are within the tile bounds
-	 * 
+	 *
 	 * @param x The x index to check
 	 * @param y The y index to check
 	 * @return true if the index is in the y axis range of the tile grid

@@ -13,9 +13,9 @@ public final class ZCollision{
 	/**
 	 * Given the rectangular bounds of an unmoving object, and the rectangular bounds of an object to collide with the unmoving object, determine how the latter object should
 	 * collide
-	 * 
+	 * <p>
 	 * All coordinates are treated as the upper left hand corner of the bounds
-	 * 
+	 *
 	 * @param cx The x coordinate of the unmoving bounds
 	 * @param cy The y coordinate of the unmoving bounds
 	 * @param cw The width of the unmoving bounds
@@ -30,10 +30,7 @@ public final class ZCollision{
 	public static CollisionResponse rectToRectBasic(double cx, double cy, double cw, double ch, double x, double y, double w, double h, Material m){
 		// If the rectangles do not intersect, then there was no collision
 		ZRect unmoving = new ZRect(cx, cy, cw, ch);
-		if(!unmoving.intersects(x, y, w, h)){
-			var r = new CollisionResponse();
-			return r;
-		}
+		if(!unmoving.intersects(x, y, w, h)) return new CollisionResponse();
 		// Initial Variable values
 		double xDis = 0;
 		double yDis = 0;
@@ -50,12 +47,12 @@ public final class ZCollision{
 		
 		// The colliding object is to the left of the unmoving object
 		if(toLeft) xDis = x + w - cx;
-		// The colliding object is to the right of the unmoving object
+			// The colliding object is to the right of the unmoving object
 		else if(toRight) xDis = cx + cw - x;
 		
 		// The colliding object is above the unmoving object
 		if(above) yDis = y + h - cy;
-		// The colliding object is below the unmoving object
+			// The colliding object is below the unmoving object
 		else if(below) yDis = cy + ch - y;
 		
 		// Prioritize moving on the axis which has moved more, if the x axis moved more, move on the y axis
@@ -116,9 +113,9 @@ public final class ZCollision{
 	/**
 	 * Given the rectangular bounds of an unmoving object, and the rectangular bounds of an object to collide with the unmoving object, determine how the latter object should
 	 * collide
-	 * 
+	 * <p>
 	 * All coordinates are treated as the upper left hand corner of the bounds
-	 * 
+	 *
 	 * @param cx The x coordinate of the unmoving bounds
 	 * @param cy The y coordinate of the unmoving bounds
 	 * @param cw The width of the unmoving bounds
@@ -155,14 +152,14 @@ public final class ZCollision{
 		if(onlyY){
 			// Need to move to the left
 			if(px < x) xDis = cx - (x + w);
-			// Need to move to the right
+				// Need to move to the right
 			else xDis = cx + cw - x;
 		}
 		// If the y values are the same, it is only vertical motion
 		else if(onlyX){
 			// Need to move up
 			if(py < y) yDis = cy - (y + h);
-			// Need to move down
+				// Need to move down
 			else yDis = cy + ch - y;
 		}
 		else{
@@ -223,8 +220,9 @@ public final class ZCollision{
 	}
 	
 	/**
-	 * A helper method for {@link #rectToRect(double, double, double, double, double, double, double, double, double, double)} for handling comparing lines of a rectangle
-	 * 
+	 * A helper method for {@link #rectToRect(double, double, double, double, double, double, double, double, double, double, Material)} for handling comparing lines of a
+	 * rectangle
+	 *
 	 * @param line The line of the rectangle
 	 * @param moveLine The line which the colliding object is moving on
 	 * @param cornerX The x coordinate value of the corner of the colliding object
@@ -246,21 +244,20 @@ public final class ZCollision{
 		return null;
 	}
 	
-	/** @return {@link #rectToRectAprox(double, double, double, double, double, double, double, double, double, double, Material) with a default of 5 iterations. */
+	/** @return {@link #rectToRectAprox(double, double, double, double, double, double, double, double, double, double, int, Material)}  with a default of 5 iterations. */
 	public static CollisionResponse rectToRectAprox(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, Material m){
 		return rectToRectAprox(cx, cy, cw, ch, x, y, w, h, px, py, 5, m);
 	}
 	
 	/**
 	 * Given the rectangular bounds of an unmoving object, and the rectangular bounds of an object to collide with the unmoving object, determine how the latter object should
-	 * collide. This method approximates how the collision should occur by splitting the distance between the current location of the colliding bounds and a position where that
-	 * bounds would not collide with the colliding bounds, and moving it to a place near, but not colliding with the colliding bounds.
-	 * This method does not account for the case where the previous position and new position both do not touch the colliding bounds, but would touch the colliding bounds, had the
-	 * moving bounds properly went through the entire path it moved.
-	 * I.e., the moving bounds will teleport through the colliding bounds the moving bounds moves too fast
-	 * 
+	 * collide. This method approximates how the collision should occur by splitting the distance between the current location of the colliding bounds and a position where
+	 * that bounds would not collide with the colliding bounds, and moving it to a place near, but not colliding with the colliding bounds. This method does not account for
+	 * the case where the previous position and new position both do not touch the colliding bounds, but would touch the colliding bounds, had the moving bounds properly went
+	 * through the entire path it moved. I.e., the moving bounds will teleport through the colliding bounds the moving bounds moves too fast
+	 * <p>
 	 * All coordinates are treated as the upper left hand corner of the bounds
-	 * 
+	 *
 	 * @param cx The x coordinate of the unmoving bounds
 	 * @param cy The y coordinate of the unmoving bounds
 	 * @param cw The width of the unmoving bounds
@@ -288,8 +285,8 @@ public final class ZCollision{
 		if(!moving.intersects(colliding)) return new CollisionResponse();
 		
 		// Initial Variable values
-		double xDis = 0;
-		double yDis = 0;
+		double xDis;
+		double yDis;
 		boolean left = false;
 		boolean right = false;
 		boolean top = false;
@@ -304,7 +301,7 @@ public final class ZCollision{
 		if(prevMoving.intersects(colliding)){
 			// If the moving bounds entirely contained by the colliding bounds, then base the new position on the colliding bounds
 			if(moving.contains(colliding)) dist = ZMath.hypot(cw, ch);
-			// Otherwise, base it on the moving bounds
+				// Otherwise, base it on the moving bounds
 			else dist = ZMath.hypot(w, h);
 			// Find the new moving bounds
 			newMoving = new ZRect(x + cosA * dist, y + sinA * dist, w, h);
@@ -347,7 +344,7 @@ public final class ZCollision{
 	
 	/**
 	 * Determine the relative orientation of two rectangles
-	 * 
+	 *
 	 * @param x The upper left hand x coordinate of the first rectangle
 	 * @param y The upper left hand y coordinate of the first rectangle
 	 * @param w The width of the first rectangle
@@ -356,54 +353,44 @@ public final class ZCollision{
 	 * @param cy The upper left hand x coordinate of the second rectangle
 	 * @param cw The width of the second rectangle
 	 * @param ch The height of the second rectangle
-	 * @return An array of 4 booleans, indexed as:
-	 *         0: first is left of second
-	 *         1: first is right of second
-	 *         2: first is above second
-	 *         3: first is below second
+	 * @return An array of 4 booleans, indexed as: 0: first is left of second 1: first is right of second 2: first is above second 3: first is below second
 	 */
 	public static boolean[] orientation(double x, double y, double w, double h, double cx, double cy, double cw, double ch){
-		boolean[] b = new boolean[]{toLeft(x, cx), toRight(x, w, cx, cw), above(y, cy), below(y, h, cy, ch)};
-		return b;
+		return new boolean[]{toLeft(x, cx), toRight(x, w, cx, cw), above(y, cy), below(y, h, cy, ch)};
 	}
 	
 	/**
-	 * Determine if a bounds is to the left of another
-	 * See {@link #big(double, double, double, double)} for details
+	 * Determine if a bounds is to the left of another See {@link #big(double, double, double, double)} for details
 	 */
 	public static boolean toLeft(double x, double cx){
 		return small(x, cx);
 	}
 	
 	/**
-	 * Determine if a bounds is to the right of another
-	 * See {@link #big(double, double, double, double)} for details
+	 * Determine if a bounds is to the right of another See {@link #big(double, double, double, double)} for details
 	 */
 	public static boolean toRight(double x, double w, double cx, double cw){
 		return big(x, w, cx, cw);
 	}
 	
 	/**
-	 * Determine if a bounds is above another
-	 * See {@link #big(double, double, double, double)} for details
+	 * Determine if a bounds is above another See {@link #big(double, double, double, double)} for details
 	 */
 	public static boolean above(double y, double cy){
 		return small(y, cy);
 	}
 	
 	/**
-	 * Determine if a bounds is below another
-	 * See {@link #big(double, double, double, double)} for details
+	 * Determine if a bounds is below another See {@link #big(double, double, double, double)} for details
 	 */
 	public static boolean below(double y, double h, double cy, double ch){
 		return big(y, h, cy, ch);
 	}
 	
 	/**
-	 * Treat n and cn as the lower coordinate of two rectangle's axis, and determine if n is smaller than cn.
-	 * Used for determining if the relative position of rectangles.
+	 * Treat n and cn as the lower coordinate of two rectangles axis, and determine if n is smaller than cn. Used for determining if the relative position of rectangles.
 	 * Essentially, check if n is to the left or above c
-	 * 
+	 *
 	 * @param n The coordinate of the rectangle to check
 	 * @param cn The coordinate of the rectangle to check against
 	 * @return true if n is smaller, false otherwise
@@ -413,10 +400,9 @@ public final class ZCollision{
 	}
 	
 	/**
-	 * Treat n and cn as the lower coordinate of two rectangle's axis, and s and cs as the sizes, and determine if n is larger than cn.
-	 * Used for determining if the relative position of rectangles
-	 * Essentially, check if n is to the right or below cn
-	 * 
+	 * Treat n and cn as the lower coordinate of two rectangles axis, and s and cs as the sizes, and determine if n is larger than cn. Used for determining if the relative
+	 * position of rectangles Essentially, check if n is to the right or below cn
+	 *
 	 * @param n The coordinate of the rectangle to check
 	 * @param cn The coordinate of the rectangle to check against
 	 * @param s The size of the rectangle to check

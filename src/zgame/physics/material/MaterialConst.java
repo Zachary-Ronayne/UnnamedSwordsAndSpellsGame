@@ -19,22 +19,22 @@ public class MaterialConst implements Material{
 	public static final double DEFAULT_SLIPPERINESS_ACCELERATION = 400000;
 	
 	/** See {@link Material#getFriction()} */
-	private double friction;
+	private final double friction;
 	
 	/** See {@link Material#getWallBounce()} */
-	private double wallBounce;
+	private final double wallBounce;
 	
 	/** See {@link Material#getFloorBounce()} */
-	private double floorBounce;
+	private final double floorBounce;
 	
 	/** See {@link Material#getCeilingBounce()} */
-	private double ceilingBounce;
+	private final double ceilingBounce;
 	
 	/** See {@link Material#getSlipperinessSpeed()} */
-	private double slipperinessSpeed;
+	private final double slipperinessSpeed;
 	
 	/** See {@link Material#getSlipperinessAcceleration()} */
-	private double slipperinessAcceleration;
+	private final double slipperinessAcceleration;
 	
 	/** Create a new material with all the default values */
 	public MaterialConst(){
@@ -43,9 +43,9 @@ public class MaterialConst implements Material{
 	
 	/**
 	 * Create a new material using the given fields and no floor or ceiling bounce
-	 * 
+	 *
 	 * @param friction See {@link #friction}
-	 * @param wallBounce The value for {@link #leftWallBounce} and {@link #rightWallBounce}
+	 * @param wallBounce The value for {@link #wallBounce}
 	 */
 	public MaterialConst(double friction, double wallBounce){
 		this(friction, wallBounce, DEFAULT_FLOOR_BOUNCE, DEFAULT_CEILING_BOUNCE, DEFAULT_SLIPPERINESS_SPEED, DEFAULT_SLIPPERINESS_ACCELERATION);
@@ -53,9 +53,9 @@ public class MaterialConst implements Material{
 	
 	/**
 	 * Create a new material using the given fields
-	 * 
+	 *
 	 * @param friction See {@link #friction}
-	 * @param wallBounce The value for {@link #leftWallBounce} and {@link #rightWallBounce}
+	 * @param wallBounce The value for {@link #wallBounce}
 	 * @param floorBounce See {@link #floorBounce}
 	 * @param ceilingBounce See {@link #ceilingBounce}
 	 */
@@ -65,9 +65,9 @@ public class MaterialConst implements Material{
 	
 	/**
 	 * Create a new material using the given fields
-	 * 
+	 *
 	 * @param friction See {@link #friction}
-	 * @param wallBounce The value for {@link #leftWallBounce} and {@link #rightWallBounce}
+	 * @param wallBounce The value for {@link #wallBounce}
 	 * @param floorBounce See {@link #floorBounce}
 	 * @param ceilingBounce See {@link #ceilingBounce}
 	 * @param slipperinessSpeed See {@link #slipperinessSpeed}

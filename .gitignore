@@ -2,5 +2,7 @@
 /bin
 /lib
 *.log
-/saves
 /ZUSASS_DATA
+*.iml
+/out
+/.idea

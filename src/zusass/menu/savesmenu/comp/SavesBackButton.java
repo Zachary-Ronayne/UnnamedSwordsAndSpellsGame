@@ -8,8 +8,9 @@ import zusass.menu.savesmenu.SavesMenu;
 /** The {@link SavesMenuButton} that goes back to the main menu */
 public class SavesBackButton extends SavesMenuButton{
 	
-	/** Create the {@link SavesBackButton}
-	 * 
+	/**
+	 * Create the {@link SavesBackButton}
+	 *
 	 * @param menu See {@link #getMenu()}
 	 * @param zgame The {@link Game} associated with this button
 	 */

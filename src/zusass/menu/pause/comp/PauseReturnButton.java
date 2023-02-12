@@ -4,12 +4,12 @@ import zgame.core.Game;
 import zusass.ZusassGame;
 import zusass.menu.pause.PauseMenu;
 
-/** A pause menu button for returning to the game */
+/** The pause menu button for returning to the game */
 public class PauseReturnButton extends PauseMenuButton{
 	
 	/**
 	 * Make a new button
-	 * 
+	 *
 	 * @param zgame The game which uses the button
 	 */
 	public PauseReturnButton(PauseMenu menu, ZusassGame zgame){

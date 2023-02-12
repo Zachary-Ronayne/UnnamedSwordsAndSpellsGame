@@ -11,10 +11,10 @@ import zgame.core.window.GameWindow;
 public class GameCamera{
 	
 	/** The x axis of the camera */
-	private CameraAxis x;
+	private final CameraAxis x;
 	
 	/** The y axis of the camera */
-	private CameraAxis y;
+	private final CameraAxis y;
 	
 	/** The x axis anchor position for panning */
 	private double anchorX;
@@ -42,8 +42,8 @@ public class GameCamera{
 	/**
 	 * Apply OpenGL transformations to position objects to where the camera should be, based on the given {@link GameWindow}
 	 * This translation will treat {@link #x} and {@link #y} positions as the upper left hand corner of the screen
-	 * 
-	 * @param window The {@link window}
+	 *
+	 * @param window The {@link GameWindow}
 	 */
 	public void transform(GameWindow window){
 		// Find the distance the camera must travel, in OpenGL coordinates
@@ -65,7 +65,7 @@ public class GameCamera{
 	/**
 	 * Set the anchor position for panning. Once set, all calls to {@link #pan(double, double)} will be relative to this position until it is set again
 	 * If an anchor is already set, this method does nothing
-	 * 
+	 *
 	 * @param x The x position of the anchor
 	 * @param y The y position of the anchor
 	 */
@@ -84,7 +84,7 @@ public class GameCamera{
 	/**
 	 * Move the camera based on the anchor position.
 	 * If no anchor is set, this method does nothing
-	 * 
+	 *
 	 * @param x The position to move on the x axis, relative to the anchor
 	 * @param y The position to move on the y axis, relative to the anchor
 	 */
@@ -111,8 +111,8 @@ public class GameCamera{
 	
 	/**
 	 * Zoom in on both axis. This method does not adjust camera position
-	 * 
-	 * @param zoom The factor to zoom in by, which will be added to {@link #zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
+	 *
+	 * @param zoom The factor to zoom in by, which will be added to {@link CameraAxis#zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
 	 */
 	public void zoom(double zoom){
 		this.getX().zoom(zoom);
@@ -121,7 +121,7 @@ public class GameCamera{
 	
 	/**
 	 * Move both axes by the given amount
-	 * 
+	 *
 	 * @param x The amount to move the x axis
 	 * @param y The amount to move the y axis
 	 */
@@ -132,7 +132,7 @@ public class GameCamera{
 	
 	/**
 	 * Set the position of both axes
-	 * 
+	 *
 	 * @param x The new x axis position
 	 * @param y The new y axis position
 	 */
@@ -143,7 +143,7 @@ public class GameCamera{
 	
 	/**
 	 * Convert an x coordinate value in game space, to a coordinate in screen space coordinates
-	 * 
+	 *
 	 * @return The value in screen coordinates
 	 */
 	public double gameToScreenX(double x){
@@ -152,7 +152,7 @@ public class GameCamera{
 	
 	/**
 	 * Convert a y coordinate value in game space, to a coordinate in screen space coordinates
-	 * 
+	 *
 	 * @param y The value to convert
 	 * @return The value in screen coordinates
 	 */
@@ -162,7 +162,7 @@ public class GameCamera{
 	
 	/**
 	 * Convert the bounds of a rectangle in game coordinates to the bounds in screen coordinates
-	 * 
+	 *
 	 * @param r The bounds
 	 * @return The converted bounds
 	 */
@@ -172,7 +172,7 @@ public class GameCamera{
 	
 	/**
 	 * Convert the bounds of a rectangle in game coordinates to the bounds in screen coordinates
-	 * 
+	 *
 	 * @param x The x coordinate of the upper right hand corner of the rectangle
 	 * @param y The y coordinate of the upper right hand corner of the rectangle
 	 * @param w The width of the rectangle
@@ -185,7 +185,7 @@ public class GameCamera{
 	
 	/**
 	 * Convert an x coordinate value in screen space, to a coordinate in game space coordinates
-	 * 
+	 *
 	 * @param x The value to convert
 	 * @return The value in game coordinates
 	 */
@@ -195,7 +195,7 @@ public class GameCamera{
 	
 	/**
 	 * Convert a y coordinate value in screen space, to a coordinate in game space coordinates
-	 * 
+	 *
 	 * @param y The value to convert
 	 * @return The value in game coordinates
 	 */
@@ -205,7 +205,7 @@ public class GameCamera{
 	
 	/**
 	 * Convert an x axis size in game space, to a size in screen space
-	 * 
+	 *
 	 * @param x The value to convert
 	 * @return The converted value
 	 */
@@ -214,8 +214,8 @@ public class GameCamera{
 	}
 	
 	/**
-	 * Convert an y axis size in game space, to a size in screen space
-	 * 
+	 * Convert a y axis size in game space, to a size in screen space
+	 *
 	 * @param y The value to convert
 	 * @return The converted value
 	 */
@@ -225,7 +225,7 @@ public class GameCamera{
 	
 	/**
 	 * Convert an x axis size in screen space, to a size in game space
-	 * 
+	 *
 	 * @param x The value to convert
 	 * @return The converted value
 	 */
@@ -234,8 +234,8 @@ public class GameCamera{
 	}
 	
 	/**
-	 * Convert an y axis size in screen space, to a size in game space
-	 * 
+	 * Convert a y axis size in screen space, to a size in game space
+	 *
 	 * @param y The value to convert
 	 * @return The converted value
 	 */
@@ -245,7 +245,7 @@ public class GameCamera{
 	
 	/**
 	 * Convert the bounds of a rectangle in screen coordinates to the bounds in game coordinates
-	 * 
+	 *
 	 * @param r The bounds
 	 * @return The converted bounds
 	 */
@@ -255,7 +255,7 @@ public class GameCamera{
 	
 	/**
 	 * Convert the bounds of a rectangle in screen coordinates to the bounds in game coordinates
-	 * 
+	 *
 	 * @param x The x coordinate of the upper right hand corner of the rectangle
 	 * @param y The y coordinate of the upper right hand corner of the rectangle
 	 * @param w The width of the rectangle

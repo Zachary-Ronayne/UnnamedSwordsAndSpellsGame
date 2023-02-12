@@ -11,30 +11,30 @@ import zgame.core.utils.ZStringUtils;
 
 /**
  * A class that defines common functionality between loading resources
- * 
+ *
  * @param <A> The type of asset to manage
  */
 public abstract class AssetManager<A extends Asset> implements Destroyable{
 	
 	/** A map containing all assets handled by this {@link AssetManager} */
-	private Map<String, A> assets;
+	private final Map<String, A> assets;
 	
 	/** The path to the files where the assets this manager will manage */
-	private String folderLoc;
+	private final String folderLoc;
 	
 	/** The valid file extension, without a '.' for assets in this manager */
-	private String fileFormat;
+	private final String fileFormat;
 	
 	/** Create a new empty {@link AssetManager} */
 	public AssetManager(String folderLoc, String fileFormat){
-		this.assets = new HashMap<String, A>();
+		this.assets = new HashMap<>();
 		this.folderLoc = folderLoc;
 		this.fileFormat = fileFormat;
 	}
 	
 	/**
 	 * Add the given asset to the manager
-	 * 
+	 *
 	 * @param asset The asset to add
 	 * @param name The name of the asset, also use this name to get the asset with {@link #get(String)}
 	 */
@@ -44,7 +44,7 @@ public abstract class AssetManager<A extends Asset> implements Destroyable{
 	
 	/**
 	 * Add the asset of the given name to the manager by loading the asset from {@link #folderLoc}. This method assumes the name corresponds to an asset in {@link #folderLoc}
-	 * 
+	 *
 	 * @param name The name of the asset, also use this name to get the asset
 	 */
 	public void add(String name){
@@ -53,7 +53,7 @@ public abstract class AssetManager<A extends Asset> implements Destroyable{
 	
 	/**
 	 * Get an asset from this manager based on its name
-	 * 
+	 *
 	 * @param name The name of the asset to get
 	 * @return The asset, or null if the asset does not exist
 	 */
@@ -63,7 +63,7 @@ public abstract class AssetManager<A extends Asset> implements Destroyable{
 	
 	/**
 	 * Remove an asset from this manager based on its name
-	 * 
+	 *
 	 * @param name The name of the asset to get
 	 * @return The asset, or null if the asset does not exist
 	 */
@@ -87,7 +87,7 @@ public abstract class AssetManager<A extends Asset> implements Destroyable{
 	
 	/**
 	 * Create an instance of the asset that this manager managers, getting the file from the given path
-	 * 
+	 *
 	 * @param path The path to get the file
 	 * @return The object
 	 */

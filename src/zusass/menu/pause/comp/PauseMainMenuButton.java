@@ -9,13 +9,13 @@ public class PauseMainMenuButton extends PauseMenuButton{
 	
 	/**
 	 * Make a new button
-	 * 
+	 *
 	 * @param zgame The game which uses the button
 	 */
 	public PauseMainMenuButton(PauseMenu menu, ZusassGame zgame){
 		super(0, 230, "Main Menu", menu, zgame);
 	}
-
+	
 	@Override
 	public void click(Game game){
 		ZusassGame zgame = (ZusassGame)game;

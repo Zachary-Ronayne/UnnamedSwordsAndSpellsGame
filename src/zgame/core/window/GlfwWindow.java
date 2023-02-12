@@ -2,6 +2,7 @@ package zgame.core.window;
 
 import org.lwjgl.glfw.*;
 
+import zgame.core.Game;
 import zgame.core.input.GLFWModUtils;
 import zgame.core.input.keyboard.GLFWKeyInput;
 import zgame.core.input.mouse.GLFWMouseInput;
@@ -23,7 +24,7 @@ import java.awt.Point;
 import java.awt.Dimension;
 
 /** An implementation of {@link GameWindow} which uses GLFW methods */
-public class GLFWWindow extends GameWindow{
+public class GlfwWindow extends GameWindow{
 	
 	/** The number used by glfw to track the main window */
 	private long windowID;
@@ -31,56 +32,55 @@ public class GLFWWindow extends GameWindow{
 	private long fullScreenID;
 	
 	/** The object tracking mouse input events */
-	private GLFWMouseInput mouseInput;
+	private final GLFWMouseInput mouseInput;
 	
 	/** The object tracking keyboard input events */
-	private GLFWKeyInput keyInput;
+	private final GLFWKeyInput keyInput;
 	
 	/**
-	 * Create an empty {@link GLFWWindow}. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 * 
-	 * @param title See {@link #windowTitle}
+	 * Create an empty {@link GlfwWindow}. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
 	 */
-	public GLFWWindow(){
+	public GlfwWindow(){
 		this("Game Window");
 	}
 	
 	/**
-	 * Create a default {@link GLFWWindow}. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 * 
+	 * Create a default {@link GlfwWindow}. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
+	 *
 	 * @param title See {@link #getWindowTitle()}
 	 */
-	public GLFWWindow(String title){
+	public GlfwWindow(String title){
 		this(title, 1280, 720, 200, true, false, true);
 	}
 	
 	/**
-	 * Create a {@link GLFWWindow} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 * 
+	 * Create a {@link GlfwWindow} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
+	 *
 	 * @param title See {@link #getWindowTitle()}
 	 * @param winWidth See {@link #getWidth()}
 	 * @param winHeight See {@link #getHeight()}
-	 * @param maxFps See {@link #getMaxFps()}
+	 * @param maxFps See {@link Game#getMaxFps()}
 	 * @param useVsync See {@link #usesVsync()}
 	 * @param stretchToFill See {@link #isStretchToFill()}
+	 * @param printFps See {@link Game#isPrintFps()}
 	 */
-	public GLFWWindow(String title, int winWidth, int winHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps){
+	public GlfwWindow(String title, int winWidth, int winHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps){
 		this(title, winWidth, winHeight, winWidth, winHeight, maxFps, useVsync, stretchToFill, printFps, 60, true);
 	}
 	
 	/**
-	 * Create a {@link GLFWWindow} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 * 
+	 * Create a {@link GlfwWindow} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
+	 *
 	 * @param title See {@link #getWindowTitle()}
 	 * @param winWidth See {@link #getWidth()}
 	 * @param winHeight See {@link #getHeight()}
 	 * @param screenWidth The width, in pixels, of the internal buffer to draw to
 	 * @param screenHeight The height, in pixels, of the internal buffer to draw to
-	 * @param maxFps See {@link #getMaxFps()}
+	 * @param maxFps See {@link Game#getMaxFps()}
 	 * @param useVsync See {@link #usesVsync()}
 	 * @param stretchToFill See {@link #isStretchToFill()}
 	 */
-	public GLFWWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
+	public GlfwWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
 		super(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
 		
 		// Set up window behavior
@@ -142,7 +142,8 @@ public class GLFWWindow extends GameWindow{
 		}
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
-		glfwSetErrorCallback(null).free();
+		var func = glfwSetErrorCallback(null);
+		if(func != null) func.free();
 	}
 	
 	@Override
@@ -152,16 +153,15 @@ public class GLFWWindow extends GameWindow{
 	}
 	
 	/**
-	 * Assign the current window all needed callbacks, i.e. input.
-	 * This is an expensive operation and should not be regularly called
-	 * 
+	 * Assign the current window all needed callbacks, i.e. input. This is an expensive operation and should not be regularly called
+	 *
 	 * @return true if the callbacks could be set, false if an error occurred
 	 */
 	@Override
 	public boolean initCallBacks(){
 		long w = this.getCurrentWindowID();
 		if(w == NULL){
-			if(ZConfig.printErrors()) System.err.println("Error in GLFWWindow.initCallBacks, cannot init callbacks if the current window is NULL");
+			ZConfig.error("Error in GLFWWindow.initCallBacks, cannot init callbacks if the current window is NULL");
 			return false;
 		}
 		glfwSetKeyCallback(w, this::keyPress);
@@ -176,7 +176,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * The method directly used as a callback for a GLFW keyboard press
-	 * 
+	 *
 	 * @param window The ID of the window from which the event occurred
 	 * @param key The ID of the key pressed
 	 * @param scanCode The ID of the system specific scancode
@@ -189,7 +189,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * The method directly used as a callback for a GLFW mouse button press
-	 * 
+	 *
 	 * @param window The ID of the window from which the event occurred
 	 * @param button The ID of the button pressed
 	 * @param action The action taken, i.e. released, pressed, held
@@ -201,7 +201,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * The method directly used as a callback for a GLFW mouse movement
-	 * 
+	 *
 	 * @param window The ID of the window from which the event occurred
 	 * @param x The raw x pixel coordinate of the mouse on the GLFW window
 	 * @param y The raw y pixel coordinate of the mouse on the GLFW window
@@ -212,7 +212,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * The method directly used as a callback for a GLFW mouse wheel movement
-	 * 
+	 *
 	 * @param x The amount of distance scrolled on the x axis, unused
 	 * @param y The amount of distance scrolled on the y axis, used as the scroll amount
 	 */
@@ -222,7 +222,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * The method directly used as a callback for a GLFW window size change
-	 * 
+	 *
 	 * @param window The id of the window which was changed
 	 * @param w The new width
 	 * @param h The new height
@@ -233,7 +233,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * The method directly used as a callback for a GLFW window getting minimized, i.e. iconified
-	 * 
+	 *
 	 * @param window The id of the window which had its state changed
 	 * @param min true if the window was minimized, false otherwise
 	 */
@@ -243,7 +243,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * The method directly used as a callback for a GLFW window losing or gaining focus, i.e. iconified
-	 * 
+	 *
 	 * @param window The id of the window which had its state changed
 	 * @param focus true if the window gained focus, false otherwise
 	 */
@@ -287,24 +287,26 @@ public class GLFWWindow extends GameWindow{
 	}
 	
 	/**
-	 * Create a window to use for the fullscreen. In the case of multiple monitors,
-	 * the monitor which will be used is the one with the upper left hand corner of the window in it
-	 * The id is stored in {@link #fullScreenID}
+	 * Create a window to use for the fullscreen. In the case of multiple monitors, the monitor which will be used is the one with the upper left hand corner of the window in
+	 * it The id is stored in {@link #fullScreenID}
 	 */
 	protected void createFullScreenWindow(){
 		// Find which monitor the window is on and center it, additionally, save the old position before entering fullscreen
 		long monitor = this.center();
 		
 		if(monitor == NULL){
-			if(ZConfig.printErrors()) ZStringUtils.print("Failed to find any monitors to create a fullscreen window");
+			ZConfig.error("Failed to find any monitors to create a fullscreen window");
 			return;
 		}
 		// Put the found monitor in full screen on that window
 		GLFWVidMode mode = glfwGetVideoMode(monitor);
+		if(mode == null){
+			ZConfig.error("Failed to get a video mode to create a fullscreen window");
+			return;
+		}
 		this.fullScreenID = glfwCreateWindow(mode.width(), mode.height(), ZStringUtils.concat(this.getWindowTitle(), " | Fullscreen"), monitor, this.getWindowID());
 		if(this.fullScreenID == NULL){
-			if(ZConfig.printErrors()) ZStringUtils.print("Failed to create a fullscreen window");
-			return;
+			ZConfig.error("Failed to create a fullscreen window");
 		}
 	}
 	
@@ -315,8 +317,7 @@ public class GLFWWindow extends GameWindow{
 	}
 	
 	/**
-	 * Update the {@link #width} and {@link #height} variables with the current size of the window
-	 * Primarily used to update the values when entering fullscreen
+	 * Update the {@link #width} and {@link #height} variables with the current size of the window Primarily used to update the values when entering fullscreen
 	 */
 	@Override
 	public Dimension getWindowSize(){
@@ -333,7 +334,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * Center the window to the given monitor. Uses the primary monitor if the given monitor is NULL
-	 * 
+	 *
 	 * @param monitor The monitor id to center to
 	 * @return The monitor id which the window was centered to
 	 */
@@ -347,6 +348,10 @@ public class GLFWWindow extends GameWindow{
 		
 		// Find the monitor width and center it
 		GLFWVidMode mode = glfwGetVideoMode(monitor);
+		if(mode == null){
+			ZConfig.error("Failed to center window, could not find window mode");
+			return NULL;
+		}
 		int w = mode.width();
 		int h = mode.height();
 		glfwSetWindowPos(this.getWindowID(), mx.get(0) + (w - this.getWidth()) / 2, my.get(0) + (h - this.getHeight()) / 2);
@@ -365,7 +370,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * Find the monitor which contains the upper left hand corner of the window
-	 * 
+	 *
 	 * @return the id, or the primary monitor if no monitor is found
 	 */
 	public long getCurrentMonitor(){
@@ -378,6 +383,7 @@ public class GLFWWindow extends GameWindow{
 		while(buff.hasRemaining()){
 			long id = buff.get();
 			GLFWVidMode mode = glfwGetVideoMode(id);
+			if(mode == null) continue;
 			int w = mode.width();
 			int h = mode.height();
 			IntBuffer mx = BufferUtils.createIntBuffer(1);
@@ -407,7 +413,7 @@ public class GLFWWindow extends GameWindow{
 	
 	/**
 	 * Get the ID of the currently used window, i.e. either the windowed version or the full screen version
-	 * 
+	 *
 	 * @return The id
 	 */
 	public long getCurrentWindowID(){

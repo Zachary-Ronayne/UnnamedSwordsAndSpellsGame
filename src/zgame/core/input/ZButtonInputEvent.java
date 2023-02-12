@@ -6,28 +6,27 @@ package zgame.core.input;
 public abstract class ZButtonInputEvent{
 	
 	/**
-	 * The numerical value which represents the specific button or action that was activated during the event.
-	 * This could be mouse buttons, keys on a keyboard, buttons on a video game controller, etc
+	 * The numerical value which represents the specific button or action that was activated during the event. This could be mouse buttons, keys on a keyboard, buttons on a
+	 * video game controller, etc
 	 */
-	private int id;
+	private final int id;
 	
 	/** true if a shift key was held during this event, false otherwise */
-	private boolean shiftDown;
+	private final boolean shiftDown;
 	
 	/** true if an alt key was held during this event, false otherwise */
-	private boolean altDown;
+	private final boolean altDown;
 	
 	/** true if a ctrl key was held during this event, false otherwise */
-	private boolean ctrlDown;
+	private final boolean ctrlDown;
 	
 	/** true if this event was pressing a button down, false otherwise, i.e. a release of the button */
-	private boolean press;
+	private final boolean press;
 	
 	/**
 	 * Create a new {@link ZButtonInputEvent} with the given information
-	 * 
+	 *
 	 * @param id See {@link #id}
-	 * @param window See {@link #window}
 	 * @param shiftDown See {@link #shiftDown}
 	 * @param altDown See {@link #altDown}
 	 * @param ctrlDown See {@link #ctrlDown}

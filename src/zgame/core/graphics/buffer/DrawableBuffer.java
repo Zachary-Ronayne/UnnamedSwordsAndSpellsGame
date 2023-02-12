@@ -12,7 +12,7 @@ public class DrawableBuffer extends GameBuffer{
 	
 	/**
 	 * Create a {@link DrawableBuffer} of the given size.
-	 * 
+	 *
 	 * @param width See {@link #getWidth()}
 	 * @param height See {@link #getHeight()}
 	 */
@@ -23,7 +23,7 @@ public class DrawableBuffer extends GameBuffer{
 	
 	/**
 	 * Draw the contents of this buffer to the given renderer, redrawing it if needed
-	 * 
+	 *
 	 * @param x The x coordinate to draw the upper left hand corner of the buffer
 	 * @param y The y coordinate to draw the upper left hand corner of the buffer
 	 * @param r The renderer to draw this buffer to
@@ -44,7 +44,7 @@ public class DrawableBuffer extends GameBuffer{
 	/**
 	 * Draw the contents of this buffer. The calls surrounding this method automatically keep track of all the parts of the renderer,
 	 * so that the renderer remains in the same state as it began with when this method exits
-	 * 
+	 *
 	 * @param r The {@link Renderer} to use for drawing
 	 */
 	public void draw(Renderer r){
@@ -57,7 +57,7 @@ public class DrawableBuffer extends GameBuffer{
 	
 	/**
 	 * Redraw the current content of this buffer
-	 * 
+	 *
 	 * @param r The {@link Renderer} to use for drawing the buffer
 	 */
 	private void redraw(Renderer r){
@@ -66,7 +66,7 @@ public class DrawableBuffer extends GameBuffer{
 	
 	/**
 	 * Perform a redraw with an object
-	 * 
+	 *
 	 * @param <D> The type of the object to use with the redraw
 	 * @param r The renderer to give to the draw function
 	 * @param func The function to call to perform the actual drawing
@@ -102,7 +102,7 @@ public class DrawableBuffer extends GameBuffer{
 	
 	/**
 	 * Update the current state of {@link #needRedraw}. Keeps the value true if it's already true, or sets it to true if redraw is true
-	 * 
+	 *
 	 * @param redraw See {@link #needRedraw}
 	 */
 	public void updateRedraw(boolean redraw){

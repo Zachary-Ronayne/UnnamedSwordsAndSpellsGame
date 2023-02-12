@@ -17,7 +17,7 @@ public class ZusassTextBox extends MenuTextBox{
 	 */
 	public ZusassTextBox(double x, double y, double w, double h, ZusassGame zgame){
 		super(x, y, w, h, zgame);
-		ZusassStyle.applyStyle(zgame, this);
+		ZusassStyle.applyStyleText(zgame, this);
 	}
 	
 }

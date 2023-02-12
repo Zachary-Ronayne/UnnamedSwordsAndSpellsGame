@@ -22,6 +22,7 @@ public class RendererTest{
 	@BeforeAll
 	public static void init(){
 		game = new TestGame();
+		window = game.getWindow();
 		renderer = game.getWindow().getRenderer();
 	}
 	

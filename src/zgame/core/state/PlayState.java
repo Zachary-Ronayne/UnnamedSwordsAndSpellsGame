@@ -11,12 +11,12 @@ public class PlayState extends GameState{
 	
 	/** The {@link Room} which is currently used by this {@link PlayState} */
 	private Room currentRoom;
-
+	
 	/** true if this {@link PlayState} is paused and should not perform tick updates, false otherwise */
 	private boolean paused;
 	/** true if this {@link PlayState} should not receive input, false otherwise */
 	private boolean inputPaused;
-
+	
 	/**
 	 * Create a basic empty play state with an empty default room
 	 */
@@ -25,9 +25,8 @@ public class PlayState extends GameState{
 	}
 	
 	/**
-	 * 
 	 * Create a basic empty play state
-	 * 
+	 *
 	 * @param createRoom true to give the {@link PlayState} an empty default room, otherwise use false and call {@link #setCurrentRoom(Room)}
 	 */
 	public PlayState(boolean createRoom){
@@ -49,9 +48,8 @@ public class PlayState extends GameState{
 	}
 	
 	/**
-	 * Set the room to use for this {@link PlayState}
-	 * This method does nothing and returns false if r is null
-	 * 
+	 * Set the room to use for this {@link PlayState} This method does nothing and returns false if r is null
+	 *
 	 * @param r See {@link #currentRoom}
 	 * @return true if the room was set, false otherwise
 	 */
@@ -60,7 +58,7 @@ public class PlayState extends GameState{
 		this.currentRoom = r;
 		return true;
 	}
-
+	
 	/** @return See {@link #paused} */
 	public boolean isPaused(){
 		return this.paused;
@@ -70,7 +68,7 @@ public class PlayState extends GameState{
 	public void setPaused(boolean paused){
 		this.paused = paused;
 	}
-
+	
 	/** @return See {@link #inputPaused} */
 	public boolean isInputPaused(){
 		return this.inputPaused;
@@ -80,13 +78,13 @@ public class PlayState extends GameState{
 	public void setInputPaused(boolean inputPaused){
 		this.inputPaused = inputPaused;
 	}
-
+	
 	/** Pause all tick updates and input for this {@link PlayState} */
 	public void fullPause(){
 		this.setPaused(true);
 		this.setInputPaused(true);
 	}
-
+	
 	/** Unpause all tick updates and input for this {@link PlayState} */
 	public void fullUnpause(){
 		this.setPaused(false);
@@ -97,7 +95,7 @@ public class PlayState extends GameState{
 	public final void tick(Game game, double dt){
 		super.tick(game, dt);
 		if(this.isPaused()) return;
-
+		
 		this.currentRoom.tick(game, dt);
 	}
 	
@@ -106,38 +104,38 @@ public class PlayState extends GameState{
 		boolean currentlyPaused = this.isInputPaused();
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(currentlyPaused) return;
-
+		
 		this.playKeyAction(game, button, press, shift, alt, ctrl);
 	}
 	
 	/** See {@link #keyAction(Game, int, boolean, boolean, boolean, boolean)} Override this method instead to perform actions when the keyboard buttons are pressed */
 	public void playKeyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 	}
-
+	
 	@Override
 	public final void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.mouseAction(game, button, press, shift, alt, ctrl);
 		if(this.isInputPaused()) return;
-
+		
 		this.playMouseAction(game, button, press, shift, alt, ctrl);
 	}
 	
 	/** See {@link #mouseAction(Game, int, boolean, boolean, boolean, boolean)} Override this method instead to perform actions when the mouse buttons are pressed */
 	public void playMouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 	}
-
+	
 	@Override
 	public final void mouseMove(Game game, double x, double y){
 		super.mouseMove(game, x, y);
 		if(this.isInputPaused()) return;
-
+		
 		this.playMouseMove(game, x, y);
 	}
 	
-	/** See {@link #gameMouseMove(Game, double, double)} Override this method instead to perform actions when the mouse moves */
+	/** See {@link #mouseMove(Game, double, double)} Override this method instead to perform actions when the mouse moves */
 	public void playMouseMove(Game game, double x, double y){
 	}
-
+	
 	@Override
 	public final void mouseWheelMove(Game game, double amount){
 		super.mouseWheelMove(game, amount);
@@ -145,7 +143,7 @@ public class PlayState extends GameState{
 		
 		this.playMouseWheelMove(game, amount);
 	}
-
+	
 	/** See {@link #mouseWheelMove(Game, double)} Override this method instead to perform actions when a mouse wheel moves */
 	public void playMouseWheelMove(Game game, double amount){
 	}
@@ -155,5 +153,10 @@ public class PlayState extends GameState{
 		this.currentRoom.render(game, r);
 		super.render(game, r);
 	}
-
+	
+	@Override
+	public PlayState asPlay(){
+		return this;
+	}
+	
 }

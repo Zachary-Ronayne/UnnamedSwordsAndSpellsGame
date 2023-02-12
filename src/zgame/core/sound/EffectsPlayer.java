@@ -11,12 +11,12 @@ import java.util.Map;
 public class EffectsPlayer extends SoundPlayer<EffectSound>{
 	
 	/** A {@link Map} containing every {@link SoundMap} of each type of playing sounds */
-	private Map<String, SoundMap> effects;
+	private final Map<String, SoundMap> effects;
 	
 	/** Create an empty {@link EffectsPlayer} with no currently playing sounds */
 	public EffectsPlayer(){
 		super();
-		this.effects = new HashMap<String, SoundMap>();
+		this.effects = new HashMap<>();
 	}
 	
 	@Override
@@ -32,9 +32,9 @@ public class EffectsPlayer extends SoundPlayer<EffectSound>{
 	
 	/**
 	 * Add the specified source to the map of different types of sound maps
-	 * 
+	 *
 	 * @param source The source to add
-	 * @param type The type of type of the effect which the given source will play
+	 * @param type The type of the effect which the given source will play
 	 */
 	private void addEffect(SoundSource source, String type){
 		// If the map doesn't exist yet, make a new map and add it to the list of effects
@@ -46,7 +46,7 @@ public class EffectsPlayer extends SoundPlayer<EffectSound>{
 	
 	/**
 	 * If the given type of sounds does not yet exist in this {@link EffectsPlayer}, then create a new map for that type, otherwise do nothing
-	 * 
+	 *
 	 * @param type The type to add
 	 */
 	public void addNewType(String type){
@@ -55,10 +55,9 @@ public class EffectsPlayer extends SoundPlayer<EffectSound>{
 	}
 	
 	/**
-	 * Set the volume of a specific type of sounds. If the type does not exist, an empty map of that type is added to the player.
-	 * Any calls to {@link #setVolume(double)} will set the volume of every sound in this {@link EffectsPlayer}, regardless of type.
-	 * Use {@link #setVolume(double)} to set the volume of every sound, use this {@link #setTypeVolume(String, double)} to set the volume of only specific types
-	 * 
+	 * Set the volume of a specific type of sounds. If the type does not exist, an empty map of that type is added to the player. Any calls to {@link #setVolume(double)} will
+	 * set the volume of every sound in this {@link EffectsPlayer}, regardless of type. Use {@link #setVolume(double)} to set the volume of every sound
+	 *
 	 * @param type The type of sounds
 	 * @param volume The new volume
 	 */

@@ -8,11 +8,11 @@ import zusass.menu.pause.PauseMenu;
 public class PauseMenuButton extends ZusassButton{
 	
 	/** The menu using this button */
-	private PauseMenu menu;
-
+	private final PauseMenu menu;
+	
 	/**
 	 * Create a {@link PauseMenuButton} with the given values
-	 * 
+	 *
 	 * @param x The x coordinate of the button
 	 * @param y The y coordinate of the button
 	 * @param text The text for the button
@@ -22,7 +22,7 @@ public class PauseMenuButton extends ZusassButton{
 		super(x, y, 250, 50, text, zgame);
 		this.menu = menu;
 	}
-
+	
 	/** @return See {@link #menu} */
 	public PauseMenu getMenu(){
 		return this.menu;

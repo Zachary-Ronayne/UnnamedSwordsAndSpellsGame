@@ -8,22 +8,18 @@ import zgame.world.Room;
 import zusass.ZusassData;
 import zusass.ZusassGame;
 import zusass.game.things.LevelDoor;
-import zusass.game.things.entities.ZusassPlayer;
 
 /** The {@link Room} which represents the main hub of the game, i.e. where the player can enter levels, make items, etc. */
-public class Hub extends Room{
+public class Hub extends ZusassRoom{
 	
 	/** The number of tiles in a {@link Hub} on the x axis */
 	private static final int X_TILES = 24;
 	/** The number of tiles in a {@link Hub} on the y axis */
 	private static final int Y_TILES = 14;
 	
-	/** The object for the main character the player controls */
-	private ZusassPlayer player;
-	
 	/**
 	 * Create the hub in the default state
-	 * 
+	 *
 	 * @param zgame The {@link Game} using this hub
 	 */
 	public Hub(ZusassGame zgame){
@@ -52,14 +48,6 @@ public class Hub extends Room{
 		LevelDoor levelDoor = new LevelDoor(doorX, 0, 1, this);
 		levelDoor.setY(this.maxY() - levelDoor.getHeight());
 		this.addThing(levelDoor);
-		
-		// Placing the player
-		this.player = new ZusassPlayer();
-		this.player.setX(20);
-		this.player.setY(this.maxY() - this.player.getHeight());
-		this.player.setLockCamera(true);
-		this.addThing(this.player);
-		this.player.centerCamera(zgame);
 	}
 	
 	@Override

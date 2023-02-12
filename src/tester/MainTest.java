@@ -25,7 +25,6 @@ import zgame.menu.MenuTextBox;
 import zgame.menu.scroller.HorizontalScroller;
 import zgame.menu.scroller.MenuScroller;
 import zgame.menu.scroller.VerticalScroller;
-import zgame.things.entity.Player;
 import zgame.things.still.Door;
 import zgame.things.still.tiles.BaseTiles;
 import zgame.world.Room;
@@ -90,19 +89,19 @@ import com.google.gson.JsonObject;
  * shift + space = toggle between the game play state and the demo state
  * ctrl + c = save gave to file
  * ctrl + v = load game from file
- * 
+ * <p>
  * Indicators in the upper left hand corner for muted/paused: black = neither, red = muted, blue = paused, magenta = both muted and paused.
  * The size of the box represents the volume, a bigger box means higher volume
  * The left indicator is effects, the right indicator is music
  * The bigger the indicator, the higher the volume, if there is no indicator, the volume is set to zero
- * 
+ * <p>
  * Indicator on the upper right hand corner for not updating or rendering the game:
  * black = always do it
  * red = don't do it when not in focus
  * blue = don't do it when minimized
  * magenta = don't do it when minimized or when not in focus
  * Left indicator is for rendering, right is for updating
- * 
+ * <p>
  * In play state:
  * left arrow key = move left
  * right arrow key = move right
@@ -122,7 +121,6 @@ public class MainTest extends Game{
 	public static GameWindow window;
 	
 	public static double camSpeed = 400;
-	public static double camZoom = 2;
 	public static boolean zoomOnlyX = false;
 	public static boolean zoomOnlyY = false;
 	
@@ -141,7 +139,6 @@ public class MainTest extends Game{
 	public static double changeB = 0;
 	
 	public static boolean[] down = new boolean[]{false, false, false, false, false};
-	public static int R = 0;
 	public static int ONE = 1;
 	public static int TWO = 2;
 	public static int THREE = 3;
@@ -157,9 +154,9 @@ public class MainTest extends Game{
 	public static void main(String[] args){
 		// Set up game
 		testerGame = new MainTest();
-		testerGame.setCurrentState(new TesterGameState(testerGame));
+//		testerGame.setCurrentState(new TesterGameState(testerGame));
 		// testerGame.setCurrentState(new TesterMenuState(testerGame));
-		// testerGame.setCurrentState(new GameEngineState());
+		 testerGame.setCurrentState(new GameEngineState());
 		
 		window = testerGame.getWindow();
 		window.center();
@@ -211,7 +208,7 @@ public class MainTest extends Game{
 	}
 	
 	public static class GameEngineState extends PlayState{
-		private Player player;
+		private final PlayerTester player;
 		
 		public GameEngineState(){
 			super(false);
@@ -222,10 +219,10 @@ public class MainTest extends Game{
 			for(int i = 0; i < 2; i++) secondRoom.setTile(i, 4, BaseTiles.HIGH_FRICTION);
 			this.setCurrentRoom(firstRoom);
 			
-			this.player = new Player(100, 400, 60, 100);
+			this.player = new PlayerTester(100, 400, 60, 100);
 			this.player.setMass(100);
 			this.player.setLockCamera(true);
-			this.player.setCanWallJump(true);
+			this.player.getWalk().setCanWallJump(true);
 			firstRoom.addThing(this.player);
 			
 			Door d = new Door(700, 400);
@@ -281,13 +278,14 @@ public class MainTest extends Game{
 			
 			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState(game));
 			
+			var walk = player.getWalk();
 			Room r = getCurrentRoom();
 			if(button == GLFW_KEY_W) r.makeWallState(Room.WALL_CEILING, !r.isSolid(Room.WALL_CEILING));
 			else if(button == GLFW_KEY_A) r.makeWallState(Room.WALL_LEFT, !r.isSolid(Room.WALL_LEFT));
 			else if(button == GLFW_KEY_S) r.makeWallState(Room.WALL_FLOOR, !r.isSolid(Room.WALL_FLOOR));
 			else if(button == GLFW_KEY_D) r.makeWallState(Room.WALL_RIGHT, !r.isSolid(Room.WALL_RIGHT));
-			else if(button == GLFW_KEY_MINUS) player.setJumpPower(player.getJumpPower() - 10);
-			else if(button == GLFW_KEY_EQUAL) player.setJumpPower(player.getJumpPower() + 10);
+			else if(button == GLFW_KEY_MINUS) walk.setJumpPower(walk.getJumpPower() - 10);
+			else if(button == GLFW_KEY_EQUAL) walk.setJumpPower(walk.getJumpPower() + 10);
 			else if(shift && button == GLFW_KEY_L) player.setLockCamera(!player.isLockCamera());
 			else if(button == GLFW_KEY_9) game.getCamera().zoom(-.5);
 			else if(button == GLFW_KEY_0) game.getCamera().zoom(.5);
@@ -306,7 +304,7 @@ public class MainTest extends Game{
 	
 	public static class TesterGameState extends GameState{
 		
-		private TextBuffer textBuffer;
+		private final TextBuffer textBuffer;
 		
 		private static final ZRect bufferBounds = new ZRect(0, 500, 500, 150);
 		
@@ -447,12 +445,13 @@ public class MainTest extends Game{
 			r.unlimitBounds();
 			
 			String s = """
-						TL qgy Text on
-						multiple lines
-						and another
-						    and spaces
-						
-						and a nothing line""";
+					   TL qgy Text on
+					   multiple lines
+					   and another
+					                and spaces
+					   				
+					   and a nothing line
+					   """;
 			r.pushAttributes();
 			r.setFontSize(32);
 			r.setFontLineSpace(40);

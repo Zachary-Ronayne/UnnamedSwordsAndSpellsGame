@@ -13,7 +13,7 @@ public abstract class SoundLocation{
 	
 	/**
 	 * Update the current position values of this {@link SoundLocation} based on the given values
-	 * 
+	 *
 	 * @param x The x coordinate of the sound location
 	 * @param y The y coordinate of the sound location
 	 */

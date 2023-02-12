@@ -43,24 +43,24 @@ public class FontAsset extends Asset{
 	private STBTTFontinfo info;
 	
 	/** The width, in pixels, of the bitmap of this {@link FontAsset} */
-	private int width;
+	private final int width;
 	/** The height, in pixels, of the bitmap of this {@link FontAsset} */
-	private int height;
+	private final int height;
 	
 	/** The first_char value used by stb_truetype for rendering fonts */
-	private int firstChar;
+	private final int firstChar;
 	
 	/** The resolution of the font, i.e. the number of pixels tall the font has to work with. Higher resolutions look better at larger font sizes, but take up more memory */
-	private int resolution;
+	private final int resolution;
 	
 	/** The inverse of {@link #resolution} */
-	private double resolutionInverse;
+	private final double resolutionInverse;
 	
-	/** Two times the value of {@link #doubleResolutionInverse}. Used for hacky weird reasons */
-	private double doubleResolutionInverse;
+	/** Two times the value of {@link #resolutionInverse}. Used for hacky weird reasons */
+	private final double doubleResolutionInverse;
 	
 	/** The number of characters to load from the font */
-	private int loadChars;
+	private final int loadChars;
 	
 	/** The amount a character goes up from the line where it is drawn. This value must be scaled */
 	private int ascent;
@@ -69,23 +69,26 @@ public class FontAsset extends Asset{
 	/** The space between one row's descent and the next row's ascent */
 	private int lineGap;
 	
-	/** A map, mapped by font size, whose values are maps containing the width of every character used by this font, computed dynamically as the width of characters is requested */
-	private Map<Double, Map<Character, Double>> widthMap;
+	/**
+	 * A map, mapped by font size, whose values are maps containing the width of every character used by this font, computed dynamically as the width of characters is
+	 * requested
+	 */
+	private final Map<Double, Map<Character, Double>> widthMap;
 	/** A map, mapped by font size, mapping the maximum height, in pixels, a character can take up, computed when a height is requested */
-	private Map<Double, Double> maxHeightMap;
+	private final Map<Double, Double> maxHeightMap;
 	/** A map, mapped by font size, mapping the ratio returned by stbtt_ScaleForPixelHeight */
-	private Map<Double, Float> pixelRatioMap;
+	private final Map<Double, Float> pixelRatioMap;
 	
 	/** Buffers used internally by stb true type methods */
-	private IntBuffer[] intBuffers;
+	private final IntBuffer[] intBuffers;
 	/** Buffers used internally by stb true type methods */
-	private FloatBuffer[] floatBuffers;
+	private final FloatBuffer[] floatBuffers;
 	/** A buffer used internally by stb true type methods */
 	private STBTTAlignedQuad quadBuffer;
 	
 	/**
 	 * Load a font from the given file path
-	 * 
+	 *
 	 * @param path See {@link #path}
 	 */
 	public FontAsset(String path){
@@ -94,7 +97,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Load a font from the given file path
-	 * 
+	 *
 	 * @param path See {@link #path}
 	 * @param resolution See {@link #resolution}
 	 */
@@ -104,7 +107,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Load a font from the given file path
-	 * 
+	 *
 	 * @param path See {@link #path}
 	 * @param resolution See {@link #resolution}
 	 * @param loadChars See {@link #loadChars}
@@ -115,12 +118,12 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Load a font from the given file path
-	 * 
+	 *
 	 * @param path See {@link #path}
 	 * @param resolution See {@link #resolution}
 	 * @param loadChars See {@link #loadChars}
 	 * @param sizeRatio This value is multiplied by the resolution to determine the width and height of the bitmap.
-	 *        Increase this value if more characters from the bitmap need to be loaded
+	 * 		Increase this value if more characters from the bitmap need to be loaded
 	 */
 	public FontAsset(String path, int resolution, int loadChars, int sizeRatio){
 		super(path);
@@ -132,9 +135,9 @@ public class FontAsset extends Asset{
 		this.height = sizeRatio * this.resolution;
 		this.loadChars = loadChars;
 		
-		this.widthMap = new HashMap<Double, Map<Character, Double>>();
-		this.maxHeightMap = new HashMap<Double, Double>();
-		this.pixelRatioMap = new HashMap<Double, Float>();
+		this.widthMap = new HashMap<>();
+		this.maxHeightMap = new HashMap<>();
+		this.pixelRatioMap = new HashMap<>();
 		
 		this.intBuffers = new IntBuffer[INT_BUFFERS];
 		this.floatBuffers = new FloatBuffer[FLOAT_BUFFERS];
@@ -153,15 +156,15 @@ public class FontAsset extends Asset{
 		// Find the font info
 		this.info = STBTTFontinfo.create();
 		boolean infoSuccess = stbtt_InitFont(this.info, this.data);
-		if(ZConfig.printErrors() && !infoSuccess) ZStringUtils.print("Font '", path, "' failed to load font info via stb true type");
+		if(!infoSuccess) ZConfig.error("Font '", path, "' failed to load font info via stb true type");
 		
 		// Check for errors
 		int numFonts = stbtt_GetNumberOfFonts(this.data);
 		
 		boolean success = numFonts != -1;
-		if(ZConfig.printSuccess() && success) ZStringUtils.print("Font '", path, "' loaded successfully. ", numFonts, " total fonts loaded.");
-		else if(ZConfig.printErrors() && !success){
-			ZStringUtils.print("Font '", path, "' failed to load via stb true type");
+		if(success) ZConfig.success("Font '", path, "' loaded successfully. ", numFonts, " total fonts loaded.");
+		else{
+			ZConfig.error("Font '", path, "' failed to load via stb true type");
 			return;
 		}
 		
@@ -169,11 +172,9 @@ public class FontAsset extends Asset{
 		ByteBuffer pixels = BufferUtils.createByteBuffer(this.width * this.height);
 		this.charData = STBTTBakedChar.create(this.loadChars);
 		int numChars = stbtt_BakeFontBitmap(this.data, this.resolution, pixels, this.width, this.height, firstChar, this.charData);
-		if(ZConfig.printSuccess()){
-			if(numChars > 0) ZStringUtils.print("    First unused row: ", numChars);
-			else if(numChars < 0) ZStringUtils.print("    Characters which fit: ", -numChars);
-			else ZStringUtils.print("    No Characters fit: ");
-		}
+		if(numChars > 0) ZConfig.success("    First unused row: ", numChars);
+		else if(numChars < 0) ZConfig.success("    Characters which fit: ", -numChars);
+		else ZConfig.success("    No Characters fit: ");
 		// Create a texture for the font bitmap
 		this.bitmapID = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, this.bitmapID);
@@ -202,7 +203,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Determine the maximum height of a character and store it in {@link #maxHeightMap}
-	 * 
+	 *
 	 * @param size The size of the font to compute the height for
 	 */
 	private synchronized void computeMaxHeight(double size){
@@ -211,7 +212,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Determine the maximum size a font made with this asset can take up
-	 * 
+	 *
 	 * @param size The size of the font
 	 * @return The maximum height
 	 */
@@ -222,11 +223,11 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Compute the width of a character and store it in {@link #widthMap}
-	 * 
+	 *
 	 * @param c The character
 	 */
 	private synchronized void computeWidth(double size, char c){
-		if(!this.widthMap.containsKey(size)) this.widthMap.put(size, new HashMap<Character, Double>());
+		if(!this.widthMap.containsKey(size)) this.widthMap.put(size, new HashMap<>());
 		Map<Character, Double> cMap = this.widthMap.get(size);
 		
 		FloatBuffer xb = this.getFloatBuffer(0);
@@ -238,7 +239,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Get the width a character using this asset takes up
-	 * 
+	 *
 	 * @param size The size of the font
 	 * @param c The character
 	 * @return The width
@@ -252,7 +253,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Get an int buffer at the given index, creating a new one if necessary
-	 * 
+	 *
 	 * @param i The index of {@link #intBuffers} to get
 	 * @return The buffer
 	 */
@@ -263,7 +264,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Get a float buffer at the given index, creating a new one if necessary
-	 * 
+	 *
 	 * @param i The index of {@link #floatBuffers} to get
 	 * @return The buffer
 	 */
@@ -280,7 +281,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Get the bounds for where to draw a character using this {@link FontAsset}
-	 * 
+	 *
 	 * @param c The character to get the bounds for rendering
 	 * @param x The float buffer for the x coordinate. This buffer will be updated to the position of the next character
 	 * @param y The float buffer for the y coordinate. This buffer will be updated to the position of the next character
@@ -292,20 +293,20 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * Determine a valid character index for this {@link FontAsset} based on the given character
-	 * 
+	 *
 	 * @param c The character
 	 * @return The index, or 0 if the index was invalid
 	 */
 	public int charIndex(char c){
 		int charIndex = c - this.getFirstChar();
-		if(c < 0 || c >= this.getLoadChars()) charIndex = 0;
+		if(c >= this.getLoadChars()) charIndex = 0;
 		return charIndex;
 	}
 	
 	/**
 	 * Get a ratio which can be multiplied to determine the number of pixels a font should take up.
 	 * Typically this needs to be multiplied by things like {@link #ascent}, {@link #descent}, and {@link #lineGap}
-	 * 
+	 *
 	 * @param size The font size to use to determine the number of pixels
 	 * @return The ratio
 	 */
@@ -354,7 +355,7 @@ public class FontAsset extends Asset{
 		return this.resolutionInverse;
 	}
 	
-	/** See {@link #getDoubleResolutionInverse} */
+	/** See {@link #doubleResolutionInverse} */
 	public double getDoubleResolutionInverse(){
 		return doubleResolutionInverse;
 	}
@@ -381,7 +382,7 @@ public class FontAsset extends Asset{
 	
 	/**
 	 * A convenience method which creates a {@link FontAsset} with a file of the given name, assuming the file is located in {@link ZFilePaths#FONTS}
-	 * 
+	 *
 	 * @param name The name of the file, including file extension
 	 * @return The new font
 	 */

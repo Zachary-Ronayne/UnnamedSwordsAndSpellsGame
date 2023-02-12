@@ -55,7 +55,7 @@ public class MenuTextBox extends MenuButton{
 	
 	/**
 	 * Create a new {@link MenuTextBox} with the given values
-	 * 
+	 *
 	 * @param x See {@link #getRelX()}
 	 * @param y See {@link #getRelY()}
 	 * @param w See {@link #getWidth()}
@@ -295,7 +295,7 @@ public class MenuTextBox extends MenuButton{
 		return this.cursorColor;
 	}
 	
-	/** @param cursorWidth See {@link #cursorColor} */
+	/** @param cursorColor See {@link #cursorColor} */
 	public void setCursorColor(ZColor cursorColor){
 		this.cursorColor = cursorColor;
 	}
@@ -305,7 +305,7 @@ public class MenuTextBox extends MenuButton{
 		return this.blinkTime;
 	}
 	
-	/** @param cursorWidth See {@link #blinkTime} */
+	/** @param blinkTime See {@link #blinkTime} */
 	public void setBlinkTime(double blinkTime){
 		this.blinkTime = blinkTime;
 	}
@@ -325,7 +325,7 @@ public class MenuTextBox extends MenuButton{
 		return this.cursorIndex;
 	}
 	
-	/** @param See {@link #cursorIndex}. If the index is out of bounds of {@link #getText()}, it goes on the end of the string it's closest to */
+	/** @param cursorIndex See {@link #cursorIndex}. If the index is out of bounds of {@link #getText()}, it goes on the end of the string it's closest to */
 	public void setCursorIndex(int cursorIndex){
 		// Keep the cursor index in bounds
 		if(cursorIndex < -1) cursorIndex = -1;
@@ -343,7 +343,9 @@ public class MenuTextBox extends MenuButton{
 		double newCursorLoc = this.getFont().stringWidth(this.getText().substring(0, this.getCursorIndex() + 1));
 		
 		// If the text takes up less space than the text box, position it so that the beginning of the text aligns with the beginning of the box
-		if(this.getTextWidth() < this.getTextLimit()) this.textOffset = 0;
+		if(this.getTextWidth() < this.getTextLimit()){
+			this.textOffset = 0;
+		}
 		// If the new location of the cursor would place it outside the text box, reposition the text so that the cursor will be inside the text box
 		else{
 			double cursorRel = newCursorLoc + this.getTextOffset();

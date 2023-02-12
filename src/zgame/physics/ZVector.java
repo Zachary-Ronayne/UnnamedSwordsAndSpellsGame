@@ -1,6 +1,10 @@
 package zgame.physics;
 
-/** A Vector with an x and y component. The internal values of this object cannot be modified after the object is created */
+import zgame.core.utils.ZMath;
+
+/**
+ * A Vector with an x and y component. The internal values of this object cannot be modified after the object is created, i.e. this object is immutable
+ */
 public class ZVector{
 	
 	/** The x component of this {@link ZVector} */
@@ -20,7 +24,7 @@ public class ZVector{
 	
 	/**
 	 * Create a new ZVector with the given component values
-	 * 
+	 *
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 */
@@ -30,7 +34,7 @@ public class ZVector{
 	
 	/**
 	 * Create a new ZVector with the given component values
-	 * 
+	 *
 	 * @param a If comps is true, see {@link #x}, otherwise see {@link #angle}
 	 * @param b If comps is true, See {@link #y}, otherwise see {@link #magnitude}
 	 * @param comps true if a and b represent the x and y components of this {@link ZVector}, otherwise, they represent angle and magnitude
@@ -56,7 +60,7 @@ public class ZVector{
 	
 	/** Update the internal angle and magnitude values based on the current values of {@link #x} and {@link #y} */
 	private void calcAngleMag(){
-		this.angle = (Math.atan2(this.getY(), this.getX()) + 2 * Math.PI) % (Math.PI * 2);
+		this.angle = (Math.atan2(this.getY(), this.getX()) + ZMath.TAU) % ZMath.TAU;
 		this.magnitude = Math.sqrt(Math.pow(this.getX(), 2) + Math.pow(this.getY(), 2));
 	}
 	
@@ -88,7 +92,7 @@ public class ZVector{
 	/**
 	 * Add the given {@link ZVector} to this ZVector and return the result.
 	 * This method does not modify either vector
-	 * 
+	 *
 	 * @param newV The ZVector to add
 	 * @return The result of adding both vectors
 	 */
@@ -99,7 +103,7 @@ public class ZVector{
 	/**
 	 * Scale the vector based on the given value, i.e. multiply the x and y components by the given value.
 	 * This method does not modify either vector
-	 * 
+	 *
 	 * @param scalar The value to scale by
 	 * @return The result of scaling the vector
 	 */

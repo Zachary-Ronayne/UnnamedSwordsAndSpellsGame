@@ -23,7 +23,7 @@ public final class ZAssetUtils{
 	
 	/**
 	 * Get every file and folder name at a specified directory
-	 * 
+	 *
 	 * @param basePath The path to look for names
 	 * @param includeExtension true to include the extension on the end of files, false for only the name
 	 * @return A list containing every file name. This will contain both files and folders in no guaranteed order
@@ -37,17 +37,22 @@ public final class ZAssetUtils{
 		}
 		basePath = ZStringUtils.concat("/", basePath);
 		
-		List<String> names = new ArrayList<String>();
+		List<String> names = new ArrayList<>();
 		FileSystem fileSystem = null;
 		Stream<Path> walk = null;
 		try{
 			// Get a URI which represents the location of the files
-			URI uri = ZAssetUtils.class.getResource(basePath).toURI();
+			var resource = ZAssetUtils.class.getResource(basePath);
+			if(resource == null){
+				ZConfig.error("Failed to load resource, could not find resource. Path: ", basePath);
+				return List.of();
+			}
+			URI uri = resource.toURI();
 			Path path;
 			
 			// If the files are loaded from a jar
 			if(uri.getScheme().equals("jar")){
-				fileSystem = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap());
+				fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
 				path = fileSystem.getPath(basePath);
 				
 			}
@@ -79,10 +84,7 @@ public final class ZAssetUtils{
 			}
 			if(fileSystem != null) fileSystem.close();
 		}catch(URISyntaxException | IOException e){
-			if(ZConfig.printErrors()){
-				ZStringUtils.prints("Error in ZAssetUtils in loading files");
-				e.printStackTrace();
-			}
+			ZConfig.error(e, "Error in ZAssetUtils in loading files");
 		}finally{
 			if(walk != null) walk.close();
 		}
@@ -90,9 +92,8 @@ public final class ZAssetUtils{
 	}
 	
 	/**
-	 * Get the name of only the files or only the folders contained by the given path.
-	 * This method assumes that all files have a file extension
-	 * 
+	 * Get the name of only the files or only the folders contained by the given path. This method assumes that all files have a file extension
+	 *
 	 * @param basePath The path to find the names
 	 * @param files true to only include files in the list, false to only include folders
 	 * @param extensions true to include file extensions, false otherwise. Only applies if files is true
@@ -101,7 +102,7 @@ public final class ZAssetUtils{
 	public static List<String> getNameTypes(String basePath, boolean files, boolean extensions){
 		// Get all files and folders
 		List<String> names = getNames(basePath, true);
-		List<String> newNames = new ArrayList<String>();
+		List<String> newNames = new ArrayList<>();
 		
 		// If the file contains a dot, then it is a file with a file extension, otherwise it is a folder
 		for(String s : names){
@@ -120,11 +121,10 @@ public final class ZAssetUtils{
 	}
 	
 	/**
-	 * Get the name of only the files contained by the given path.
-	 * This method assumes that all files have a file extension
-	 * 
+	 * Get the name of only the files contained by the given path. This method assumes that all files have a file extension
+	 *
 	 * @param basePath The path to find the files
-	 * @param extensions true to include file extensions, false otherwise.
+	 * @param extension true to include file extensions, false otherwise.
 	 * @return A {@link List} containing the name of every file
 	 */
 	public static List<String> getAllFiles(String basePath, boolean extension){
@@ -132,9 +132,8 @@ public final class ZAssetUtils{
 	}
 	
 	/**
-	 * Get the name of only the folders contained by the given path.
-	 * This method assumes that all files have a file extension
-	 * 
+	 * Get the name of only the folders contained by the given path. This method assumes that all files have a file extension
+	 *
 	 * @param basePath The path to find the folders
 	 * @return A {@link List} containing the name of every folder
 	 */
@@ -144,7 +143,7 @@ public final class ZAssetUtils{
 	
 	/**
 	 * Get an {@link InputStream} which can load files directly from the jar file
-	 * 
+	 *
 	 * @param path The path to load from
 	 * @return The stream
 	 */
@@ -154,29 +153,30 @@ public final class ZAssetUtils{
 	
 	/**
 	 * Get the bytes of a file directly from the jar file
-	 * 
+	 *
 	 * @param path The path to the file
 	 * @return A {@link ByteBuffer} containing the data
 	 */
 	public static ByteBuffer getJarBytes(String path){
 		ByteBuffer buff = null;
-		InputStream stream = null;
+		InputStream stream;
 		try{
 			stream = getJarInputStream(path);
-			if(stream == null){ throw new IllegalArgumentException("Could not generate an input stream from the jar at location: " +
-				path); }
+			if(stream == null){
+				throw new IllegalArgumentException("Could not generate an input stream from the jar at location: " + path);
+			}
 			byte[] bytes = stream.readAllBytes();
 			buff = BufferUtils.createByteBuffer(bytes.length);
 			buff.put(bytes);
 			buff.flip();
 			stream.close();
 		}catch(IOException e){
-			if(ZConfig.printErrors()) ZStringUtils.print("Failed to load '", path, "' from the jar");
+			ZConfig.error(e, "Failed to load '", path, "' from the jar");
 		}
 		return buff;
 	}
 	
-	/** Cannot instantiate {@link #ZAssetUtils()} */
+	/** Cannot instantiate {@link ZAssetUtils} */
 	private ZAssetUtils(){
 	}
 }

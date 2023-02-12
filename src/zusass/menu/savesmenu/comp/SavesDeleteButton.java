@@ -13,7 +13,7 @@ public class SavesDeleteButton extends SavesMenuButton{
 	
 	/**
 	 * Create the {@link SavesLoadButton}
-	 * 
+	 *
 	 * @param menu See {@link #getMenu()}
 	 * @param zgame The {@link Game} associated with this button
 	 */
@@ -26,21 +26,18 @@ public class SavesDeleteButton extends SavesMenuButton{
 		ZusassGame zgame = (ZusassGame)game;
 		SavesMenu menu = this.getMenu();
 		LoadSaveButton button = menu.getLoadButtons().getSelected();
-
+		
 		if(button == null) return;
 		String path = button.getPath();
 		try{
 			File file = new File(path);
-			file.delete();
-			menu.getLoadButtons().setSelected(null);
+			var success = file.delete();
+			if(success) menu.getLoadButtons().setSelected(null);
 			menu.getLoadButtons().populate(zgame);
-			menu.showMessage(ZStringUtils.concat("Delete success for: ", button.getText()));
+			menu.showMessage(ZStringUtils.concat("Delete ", success ? "success" : "failed", " for: ", button.getText()));
 			
 		}catch(SecurityException | NullPointerException e){
-			if(ZConfig.printErrors()){
-				ZStringUtils.prints("Failed to delete file at path", path);
-				e.printStackTrace();
-			}
+			ZConfig.error(e, "Failed to delete file at path", path);
 			menu.showMessage(ZStringUtils.concat("Delete failed for: ", button.getText()));
 		}
 	}

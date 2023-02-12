@@ -13,11 +13,11 @@ public class ColorTile extends TileType{
 	private ZColor color;
 	
 	/** The {@link Material} of this {@link ColorTile} */
-	private Material material;
+	private final Material material;
 	
 	/**
 	 * Create a new {@link ColorTile} using the given data
-	 * 
+	 *
 	 * @param id See {@link #getId()}
 	 * @param origin See {@link #getOrigin()}
 	 * @param hitbox See {@link #getHitbox()}
@@ -29,7 +29,7 @@ public class ColorTile extends TileType{
 	
 	/**
 	 * Create a new {@link ColorTile} using the given data
-	 * 
+	 *
 	 * @param id See {@link #getId()}
 	 * @param origin See {@link #getOrigin()}
 	 * @param hitbox See {@link #getHitbox()}
@@ -49,7 +49,7 @@ public class ColorTile extends TileType{
 	
 	/**
 	 * Set the color used to render this tile. Note: changing the color of this tile will change the color of all tiles of the same type
-	 * 
+	 *
 	 * @param color see {@link #color}
 	 */
 	public void setColor(ZColor color){

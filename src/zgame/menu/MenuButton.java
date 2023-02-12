@@ -23,7 +23,7 @@ public class MenuButton extends MenuText{
 	
 	/**
 	 * Create a blank {@link MenuButton} at the given position and size
-	 * 
+	 *
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}
@@ -36,7 +36,7 @@ public class MenuButton extends MenuText{
 	
 	/**
 	 * Create a {@link MenuButton} at the given position and size
-	 * 
+	 *
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}
@@ -62,7 +62,7 @@ public class MenuButton extends MenuText{
 	}
 	
 	/**
-	 * Call {@link #click()} if the mouse was released while on top of this button
+	 * Call {@link #click(Game)} if the mouse was released while on top of this button
 	 */
 	@Override
 	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
@@ -76,9 +76,8 @@ public class MenuButton extends MenuText{
 	}
 	
 	/**
-	 * A method that is called when this button is activated, i.e. clicked on.
-	 * Override this method to perform an action when the button is clicked
-	 * 
+	 * A method that is called when this button is activated, i.e. clicked on. Override this method to perform an action when the button is clicked
+	 *
 	 * @param game The {@link Game} which was used when the button was clicked
 	 */
 	public void click(Game game){
@@ -86,10 +85,9 @@ public class MenuButton extends MenuText{
 	}
 	
 	/**
-	 * A method that is called when this button is double clicked, i.e. clicked once, then clicked again, usually after a short time.
-	 * Time can be changed based on {@link #doubleClickThreshold}
-	 * Override this method to perform an action when the button is double clicked
-	 * 
+	 * A method that is called when this button is double clicked, i.e. clicked once, then clicked again, usually after a short time. Time can be changed based on
+	 * {@link #doubleClickThreshold} Override this method to perform an action when the button is double clicked
+	 *
 	 * @param game The {@link Game} which was used when the button was double clicked
 	 */
 	public void doubleClick(Game game){
@@ -97,8 +95,8 @@ public class MenuButton extends MenuText{
 	}
 	
 	/**
-	 * @param The game used by this {@link MenuButton}
-	 * @return true if a highlight on top of this button should render. By default renders when the mouse is over it
+	 * @param game The game used by this {@link MenuButton}
+	 * @return true if a highlight on top of this button should render. By default, renders when the mouse is over it
 	 */
 	public boolean showHighlight(Game game){
 		return this.getBounds().contains(game.mouseSX(), game.mouseSY());

@@ -22,7 +22,6 @@ public class ContinueGameButton extends MainMenuButton{
 		boolean success = game.loadGame(ZusassConfig.getMostRecentSave());
 		if(!success) return;
 		MainPlay play = new MainPlay(zgame);
-		play.enterHub(zgame);
 		game.setCurrentState(play);
 	}
 }

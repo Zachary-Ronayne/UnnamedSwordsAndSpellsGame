@@ -11,7 +11,7 @@ import zgame.core.utils.ZLambda.BooleanFunc;
  */
 public class GameLooper{
 	
-	/** The number of nano seconds in a second */
+	/** The number of nanoseconds in a second */
 	public static final long NANO_SECOND = (long)1E9;
 	
 	/** The number of times per second which this loop will activate. Use zero to run as many times per second as possible */
@@ -25,34 +25,36 @@ public class GameLooper{
 	
 	/** The number of times the loop has been activated since the last time it printed the calculated rate. It prints once time each second */
 	private int funcCalls;
-	/** The timestamp, in nanoseconds, of the last time the calculated rate was printed */
-	private long lastPrint;
+	/** The amount of time spent processing, not waiting, in the loop over the last second */
+	private long timeProcessing;
+	/** The number of nanoseconds the loop last took to run, averaged over the last second */
+	private long nsPerLoop;
+	/** true to include {@link #nsPerLoop} in the statement from {@link #printRate} */
+	private boolean printNsPerLoop;
 	/** true if the current rate should be printed once each second, false otherwise */
 	private boolean printRate;
 	/** The name associated with this looper, this is only used for printing purposes */
 	private String name;
 	
 	/**
-	 * The function to call every time this loop runs.
-	 * Can set to null to automatically use a method that does nothing
+	 * The function to call every time this loop runs. Can set to null to automatically use a method that does nothing
 	 */
 	private EmptyFunc runFunc;
 	/**
-	 * An additional function that determines if {@link #runFunc} should run regardless of how much time has passed since the last loop.
-	 * Can set to null to automatically use a method that always returns false
+	 * An additional function that determines if {@link #runFunc} should run regardless of how much time has passed since the last loop. Can set to null to automatically use a
+	 * method that always returns false
 	 */
 	private BooleanFunc shouldRunFunc;
 	/**
-	 * A function that checks if the loop should automatically end. If this function returns false, this loop will quit out on the next loop iteration.
-	 * Can set to null to automatically use a method that always returns true
+	 * A function that checks if the loop should automatically end. If this function returns false, this loop will quit out on the next loop iteration. Can set to null to
+	 * automatically use a method that always returns true
 	 */
 	private BooleanFunc keepRunningFunc;
 	
 	/**
-	 * A function which returns true if this function should use the amount of time it takes to run each loop to call Thread.wait between calls of {@link #runFunc}
-	 * to avoid wasting resources. It returns false otherwise.
-	 * This will do nothing if {@link #rate} is set to 0
-	 * Can set to null to automatically use a method that always returns false
+	 * A function which returns true if this function should use the amount of time it takes to run each loop to call Thread.wait between calls of {@link #runFunc} to avoid
+	 * wasting resources. It returns false otherwise. This will do nothing if {@link #rate} is set to 0 Can set to null to automatically use a method that always returns
+	 * false
 	 */
 	private BooleanFunc waitBetweenLoopsFunc;
 	
@@ -64,7 +66,7 @@ public class GameLooper{
 	
 	/**
 	 * Create a new GameLooper. The loop will not run until {@link #loop()} is called
-	 * 
+	 *
 	 * @param rate See {@link #rate}
 	 * @param runFunc See {@link #runFunc}
 	 * @param shouldRunFunc See {@link #shouldRunFunc}
@@ -77,7 +79,6 @@ public class GameLooper{
 		this.setRate(rate);
 		this.lastFunCall = 0;
 		this.funcCalls = 0;
-		this.lastPrint = 0;
 		this.setPrintRate(printRate);
 		this.setName(name);
 		this.setRunFunc(runFunc);
@@ -85,18 +86,20 @@ public class GameLooper{
 		this.setKeepRunningFunc(keepRunningFunc);
 		this.setWaitBetweenLoopsFunc(waitBetweenLoops);
 		
+		this.nsPerLoop = 0;
+		this.setPrintNsPerLoop(true);
+		
 		this.forceEnd = false;
 		this.running = false;
 	}
 	
 	/**
 	 * Create a new GameLooper. The loop will not run until {@link #loop()} is called
-	 * 
+	 *
 	 * @param rate See {@link #rate}
 	 * @param runFunc See {@link #runFunc}
 	 * @param shouldRunFunc See {@link #shouldRunFunc}
 	 * @param keepRunningFunc See {@link #keepRunningFunc}
-	 * @param waitBetweenLoopsFunc See {@link #waitBetweenLoopsFunc}
 	 */
 	public GameLooper(int rate, EmptyFunc runFunc, BooleanFunc shouldRunFunc, BooleanFunc keepRunningFunc){
 		this(rate, runFunc, shouldRunFunc, keepRunningFunc, null, "Looper Rate", false);
@@ -120,10 +123,24 @@ public class GameLooper{
 				this.funcCalls++;
 				timeTaken = thisTime - this.lastFunCall;
 				this.lastFunCall = System.nanoTime();
+				
+				// Keep track of the amount of time spent in the function calls
+				this.timeProcessing += this.lastFunCall - thisTime;
 			}
 			// Print the rate once a second
 			if(thisTime - lastTime >= NANO_SECOND){
-				if(this.willPrintRate()) ZStringUtils.print(this.getName(), ": ", this.getFuncCalls());
+				this.nsPerLoop = this.timeProcessing / this.funcCalls;
+				if(this.willPrintRate()){
+					if(this.isPrintNsPerLoop()){
+						ZStringUtils.print(ZStringUtils.pad(ZStringUtils.concat(this.getName(), ": ", this.getFuncCalls()), 10), " |\t",
+								ZStringUtils.pad(ZStringUtils.concat("ns/loop", ": ", this.getNsPerLoop()), 30), "\t",
+								ZStringUtils.pad(ZStringUtils.concat("ns total", ": ", this.timeProcessing), 30), " |\t",
+								ZStringUtils.pad(ZStringUtils.concat("ms/loop", ": ", this.getMsPerLoop()), 10), "\t",
+								ZStringUtils.pad(ZStringUtils.concat("ms total", ": ", (long)(this.timeProcessing * 1E-6)), 10));
+					}
+					else ZStringUtils.print(this.getName(), ": ", this.getFuncCalls());
+					this.timeProcessing = 0;
+				}
 				this.funcCalls = 0;
 				lastTime = System.nanoTime();
 			}
@@ -132,14 +149,12 @@ public class GameLooper{
 				try{
 					Thread.sleep(Math.max(0, (long)((this.getRateTimeNano() - timeTaken) / 1E5)));
 				}catch(Exception e){
-					if(ZConfig.printErrors()){
-						System.err.println("Error in waiting for a thread in GameLooper.loop");
-						e.printStackTrace();
-					}
+					ZConfig.error(e, "Error in waiting for a thread in GameLooper.loop");
 				}
 			}
 		}
 		this.running = false;
+		
 	}
 	
 	/** Force this loop to stop */
@@ -184,9 +199,24 @@ public class GameLooper{
 		return this.funcCalls;
 	}
 	
-	/** @return See {@link #lastPrint} */
-	public long getLastPrint(){
-		return this.lastPrint;
+	/** @return See {@link #nsPerLoop} */
+	public long getNsPerLoop(){
+		return this.nsPerLoop;
+	}
+	
+	/** @return The same as {@link #nsPerLoop}, but in milliseconds */
+	public long getMsPerLoop(){
+		return (long)(this.getNsPerLoop() * 1E-6);
+	}
+	
+	/** @return See {@link #printNsPerLoop} */
+	public boolean isPrintNsPerLoop(){
+		return this.printNsPerLoop;
+	}
+	
+	/** @param printNsPerLoop See {@link #printNsPerLoop} */
+	public void setPrintNsPerLoop(boolean printNsPerLoop){
+		this.printNsPerLoop = printNsPerLoop;
 	}
 	
 	/** @return See {@link #printRate} */

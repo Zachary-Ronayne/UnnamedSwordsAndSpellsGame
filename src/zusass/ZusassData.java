@@ -22,7 +22,7 @@ public class ZusassData implements Saveable{
 	/** true to save the game on actions like getting to a new level, exiting the game, and so on, false to turn off */
 	private boolean autosave;
 	
-	/** Initialize this {@link ZusassData} to it's default state */
+	/** Initialize this {@link ZusassData} to its default state */
 	public ZusassData(){
 		this.highestRoomLevel = 0;
 		this.loadedFile = null;
@@ -51,7 +51,7 @@ public class ZusassData implements Saveable{
 	
 	/**
 	 * Set the value of {@link #highestRoomLevel}, only if the given value is greater than the current value
-	 * 
+	 *
 	 * @param highestRoomLevel The potential new value for {@link #highestRoomLevel}
 	 */
 	public void updatedHighestRoomLevel(int highestRoomLevel){
@@ -81,8 +81,7 @@ public class ZusassData implements Saveable{
 	/** If auto save is enabled, save the game, otherwise, do nothing */
 	public void checkAutoSave(ZusassGame zgame){
 		if(!this.isAutosave()) return;
-		
-		((ZusassGame)zgame).saveLoadedGame();
+		zgame.saveLoadedGame();
 	}
 	
 }

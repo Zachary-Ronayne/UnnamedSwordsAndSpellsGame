@@ -7,21 +7,21 @@ import zgame.core.window.GameWindow;
 
 /**
  * A class designed for input devices which use buttons that can either be pressed or not pressed
- * 
- * @param B The {@link ZButtonInputEvent} which will represent events performed by this input object
+ *
+ * @param <B> The {@link ZButtonInputEvent} which will represent events performed by this input object
  */
 public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	
 	/** The {@link GameWindow} using this {@link ZButtonInput} */
-	private GameWindow window;
+	private final GameWindow window;
 	
 	/** The {@link Map} storing the state of every button and its associated actions */
-	private Map<Integer, B> buttonsDown;
+	private final Map<Integer, B> buttonsDown;
 	
 	/** Create a simple {@link ZButtonInput} and initialize every value */
 	public ZButtonInput(GameWindow window){
 		this.window = window;
-		this.buttonsDown = new HashMap<Integer, B>();
+		this.buttonsDown = new HashMap<>();
 	}
 	
 	/** Set all buttons to be not pressed */
@@ -31,7 +31,7 @@ public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	
 	/**
 	 * The method called when a button has an action performed on it
-	 * 
+	 *
 	 * @param button The mouse button which was pressed
 	 * @param press true if the button was pressed, false for released
 	 * @param shift true if shift is pressed, false otherwise
@@ -44,7 +44,7 @@ public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	
 	/**
 	 * Create a new event caused by this {@link ZButtonInput} object
-	 * 
+	 *
 	 * @param button The id of the button pressed
 	 * @param shift true if shift was down during this event, false otherwise
 	 * @param alt true if alt was down during this event, false otherwise
@@ -61,7 +61,7 @@ public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	
 	/**
 	 * Get a {@link ZButtonInputEvent} containing information about the desired button
-	 * 
+	 *
 	 * @param button The ID of the button
 	 * @return The event, or null if no such event exists
 	 */
@@ -71,7 +71,7 @@ public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	
 	/**
 	 * Determine if a particular button is pressed down
-	 * 
+	 *
 	 * @param button The button to check, same conditions as {@link #buttonEvent(int)}
 	 * @return true if the button is pressed, false otherwise. Will also return false if button represents an invalid button
 	 */
@@ -83,7 +83,7 @@ public abstract class ZButtonInput<B extends ZButtonInputEvent>{
 	
 	/**
 	 * Determine if a particular button is not pressed down
-	 * 
+	 *
 	 * @param button The button to check, same conditions as {@link #buttonEvent(int)}
 	 * @return true if the button is not pressed, false otherwise. Will also return false if button represents an invalid button
 	 */

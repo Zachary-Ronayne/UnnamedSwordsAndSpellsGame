@@ -19,8 +19,8 @@ public class ScrollAxis{
 	}
 	
 	/**
-	 * Set the amount and automatically adjust the the position so it stays in the range [0, 1]
-	 * 
+	 * Set the amount and automatically adjust the position so it stays in the range [0, 1]
+	 *
 	 * @param amount See {@link #amount}
 	 */
 	public void setAmount(double amount){
@@ -28,9 +28,8 @@ public class ScrollAxis{
 	}
 	
 	/**
-	 * Scroll this {@link ScrollAxis} by the given amount,
-	 * and automatically adjust the the position so it stays in the range [0, 1]
-	 * 
+	 * Scroll this {@link ScrollAxis} by the given amount, and automatically adjust the position so it stays in the range [0, 1]
+	 *
 	 * @param amount The amount to move by
 	 */
 	public void scroll(double amount){

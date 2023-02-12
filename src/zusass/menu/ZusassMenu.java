@@ -10,14 +10,14 @@ import zusass.ZusassGame;
 
 /** A base menu class for {@link Menu} in the {@link ZusassGame} */
 public abstract class ZusassMenu extends Menu{
-
+	
 	/** A text buffer holding the text to display the title */
-	private TextBuffer titleBuffer;
+	private final TextBuffer titleBuffer;
 	
 	/**
 	 * Create the new menu with the given title
-	 * 
-	 * @param title See {@link #title}
+	 *
+	 * @param title The text for {@link #titleBuffer}
 	 */
 	public ZusassMenu(ZusassGame zgame, String title){
 		this(zgame, title, 600, 110);
@@ -25,8 +25,8 @@ public abstract class ZusassMenu extends Menu{
 	
 	/**
 	 * Create the new menu with the given title and position of the title
-	 * 
-	 * @param title See {@link #title}
+	 *
+	 * @param title The text for {@link #titleBuffer}
 	 * @param x The x position of the title
 	 * @param y The y position of the title
 	 */
@@ -34,19 +34,19 @@ public abstract class ZusassMenu extends Menu{
 		super(0, 0, zgame.getScreenWidth(), zgame.getScreenHeight(), false);
 		this.setFill(new ZColor(0.2, 0.2, 0.2));
 		
-		this.titleBuffer = new TextBuffer((int)zgame.getScreenWidth(), (int)zgame.getScreenHeight());
+		this.titleBuffer = new TextBuffer(zgame.getScreenWidth(), zgame.getScreenHeight());
 		this.titleBuffer.setFont(zgame.getDefaultFont().size(100));
 		this.titleBuffer.setTextX(x);
 		this.titleBuffer.setTextY(y);
 		this.setTitle(title);
 	}
-
+	
 	@Override
 	public void destroy(){
 		this.titleBuffer.destroy();
 		super.destroy();
 	}
-
+	
 	@Override
 	public void render(Game game, Renderer r, ZRect bounds){
 		super.render(game, r, bounds);
@@ -55,7 +55,7 @@ public abstract class ZusassMenu extends Menu{
 		r.setColor(new ZColor(.8));
 		this.getTitleBuffer().drawToRenderer(0, 0, r);
 	}
-
+	
 	/** @return See {@link #titleBuffer} */
 	public TextBuffer getTitleBuffer(){
 		return this.titleBuffer;

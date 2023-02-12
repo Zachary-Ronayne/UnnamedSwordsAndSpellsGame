@@ -4,13 +4,13 @@ package zgame.core.graphics;
 public class ZColor{
 	
 	/** The red component, in the range [0-1] */
-	private double r;
+	private final double r;
 	/** The blue component, in the range [0-1] */
-	private double g;
+	private final double g;
 	/** The green component, in the range [0-1] */
-	private double b;
+	private final double b;
 	/** The alpha (transparency) component, in the range [0-1] */
-	private double a;
+	private final double a;
 	
 	/**
 	 * Create a gray color with no transparency

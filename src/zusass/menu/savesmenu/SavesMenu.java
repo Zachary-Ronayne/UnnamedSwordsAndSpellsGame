@@ -23,13 +23,13 @@ public class SavesMenu extends ZusassMenu{
 	public static final double MESSAGE_TIME = 4;
 	
 	/** The list of buttons used to load and save files */
-	private LoadSaveButtonList loadButtons;
+	private final LoadSaveButtonList loadButtons;
 	
 	/** The scroller that allows the list of buttons to move up and down */
-	private SavesMenuScroller scroller;
+	private final SavesMenuScroller scroller;
 	
 	/** An object to hold the buttons that will be hidden when no file is selected */
-	private MenuHolder extraButtonHolder;
+	private final MenuHolder extraButtonHolder;
 	
 	/** Text to display for a temporary amount of time */
 	private String messageText;
@@ -38,7 +38,7 @@ public class SavesMenu extends ZusassMenu{
 	
 	/**
 	 * Create a new blank {@link SavesMenu}
-	 * 
+	 *
 	 * @param zgame The game that uses this menu
 	 */
 	public SavesMenu(ZusassGame zgame){
@@ -78,7 +78,7 @@ public class SavesMenu extends ZusassMenu{
 	public void render(Game game, Renderer r, ZRect bounds){
 		super.render(game, r, bounds);
 		if(this.messageTimer < 0) return;
-
+		
 		r.setFont(game.getFont("zfont"));
 		r.setFontSize(25);
 		r.setColor(new ZColor(.8));
@@ -104,7 +104,7 @@ public class SavesMenu extends ZusassMenu{
 	
 	/**
 	 * Show or hide the extra buttons for loading and deleting files
-	 * 
+	 *
 	 * @param show true to show the buttons, false to hide
 	 */
 	public void showExtraButtons(boolean show){
@@ -114,7 +114,7 @@ public class SavesMenu extends ZusassMenu{
 	
 	/**
 	 * Display a temporary message to the menu
-	 * 
+	 *
 	 * @param message The message text to display
 	 */
 	public void showMessage(String message){

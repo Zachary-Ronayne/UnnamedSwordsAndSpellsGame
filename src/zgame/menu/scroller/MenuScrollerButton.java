@@ -17,11 +17,11 @@ public abstract class MenuScrollerButton extends MenuButton{
 	private double anchorOffset;
 	
 	/** The {@link MenuScroller} which uses this {@link MenuScrollerButton} */
-	private MenuScroller scroller;
+	private final MenuScroller scroller;
 	
 	/**
 	 * Create a new basic {@link MenuScrollerButton}
-	 * 
+	 *
 	 * @param scroller See {@link #scroller}
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
@@ -56,8 +56,7 @@ public abstract class MenuScrollerButton extends MenuButton{
 	}
 	
 	/**
-	 * issue#13 fix a bug where sometimes the highlight doesn't show up if not using a buffer?
-	 * Or, maybe it's a problem when using a buffer, like not using opacity correctly?
+	 * issue#13 fix a bug where sometimes the highlight doesn't show up if not using a buffer? Or, maybe it's a problem when using a buffer, like not using opacity correctly?
 	 * Or maybe it has to do with blending, or maybe the shaders?
 	 */
 	
@@ -68,7 +67,7 @@ public abstract class MenuScrollerButton extends MenuButton{
 	
 	/**
 	 * Based on an amount of distance for this {@link MenuScrollerButton} to move, find the percentage of the total scroll bar that value is
-	 * 
+	 *
 	 * @param amount The amount of distance
 	 * @return The corresponding percentage
 	 */
@@ -77,15 +76,15 @@ public abstract class MenuScrollerButton extends MenuButton{
 	}
 	
 	/**
-	 * Update the relative position of {@link #getButton()} and the given thing, based on the current percentage scrolled
-	 * 
+	 * Update the relative position of this and the given thing, based on the current percentage scrolled
+	 *
 	 * @param thing The thing to update
 	 */
 	public abstract void updateRelativePosition(MenuThing thing);
 	
 	/**
 	 * Determine the initial position of where the given thing will be when this {@link MenuScroller} has scrolled zero percent
-	 * 
+	 *
 	 * @param thing The thing to check
 	 * @return The base position
 	 */

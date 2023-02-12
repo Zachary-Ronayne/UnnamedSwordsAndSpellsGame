@@ -8,7 +8,6 @@ import java.util.Scanner;
 import zgame.core.asset.Asset;
 import zgame.core.utils.ZAssetUtils;
 import zgame.core.utils.ZConfig;
-import zgame.core.utils.ZStringUtils;
 
 /**
  * A class that handles an individual shader, i.e. a vertex or fragment shader for OpenGL.
@@ -23,7 +22,7 @@ public class Shader extends Asset{
 	private int id;
 	
 	/** The type of shader, i.e. either GL_VERTEX_SHADER or GL_FRAGMENT_SHADER */
-	private int type;
+	private final int type;
 	
 	public Shader(String path, int type){
 		super(path);
@@ -47,16 +46,16 @@ public class Shader extends Asset{
 			file = new Scanner(stream);
 			
 			// Read the entire file and put it into the code variable
-			StringBuilder sb = new StringBuilder("");
+			StringBuilder sb = new StringBuilder();
 			while(file.hasNextLine()){
 				sb.append(file.nextLine());
 				sb.append("\n");
 			}
 			this.code = sb.toString();
-			if(ZConfig.printSuccess()) ZStringUtils.print("Successfully loaded shader at '", path, "'");
+			ZConfig.success("Successfully loaded shader at '", path, "'");
 		}catch(Exception e){
 			// Error checking
-			if(ZConfig.printErrors()) e.printStackTrace();
+			ZConfig.error(e);
 		}finally{
 			// Ensure the file closes
 			if(file != null) file.close();
@@ -73,8 +72,8 @@ public class Shader extends Asset{
 		
 		// Error check
 		boolean success = glGetShaderi(this.id, GL_COMPILE_STATUS) == GL_TRUE;
-		String status = success ? "success" : "failure";
-		if(ZConfig.printSuccess() && success || ZConfig.printErrors() && !success){ ZStringUtils.print("Shader at path '", this.getPath(), "' initialize ", status); }
+		if(success) ZConfig.success("Shader at path '", this.getPath(), "' initialize failure");
+		else ZConfig.error("Shader at path '", this.getPath(), "' initialized");
 	}
 	
 	@Override

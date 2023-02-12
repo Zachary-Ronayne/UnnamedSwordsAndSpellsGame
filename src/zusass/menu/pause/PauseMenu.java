@@ -22,19 +22,19 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 public class PauseMenu extends Menu{
 	
 	/** See object docs */
-	private PauseReturnButton returnButton;
+	private final PauseReturnButton returnButton;
 	/** See object docs */
-	private PauseMainMenuButton mainMenuButton;
+	private final PauseMainMenuButton mainMenuButton;
 	/** See object docs */
-	private PauseQuitButton quitButton;
+	private final PauseQuitButton quitButton;
 	/** See object docs */
-	private PauseSaveButton saveButton;
+	private final PauseSaveButton saveButton;
 	/** See object docs */
-	private PauseHubButton hubButton;
+	private final PauseHubButton hubButton;
 	
 	/**
 	 * Make a new pause menu
-	 * 
+	 *
 	 * @param zgame The game which will use this pause menu
 	 */
 	public PauseMenu(ZusassGame zgame){
@@ -42,13 +42,13 @@ public class PauseMenu extends Menu{
 		this.center(zgame.getWindow());
 		this.setBorder(new ZColor(0, 0, 0, 0));
 		this.setFill(new ZColor(.5, 0, 0, .5));
-
+		
 		ZusassMenuText title = new ZusassMenuText(0, 20, 330, 120, "Pause", zgame, true);
 		title.setFontSize(100);
 		title.setFontColor(new ZColor(0));
 		title.setFill(new ZColor(.5, .2, .2));
 		title.centerText();
-
+		
 		this.addThing(title);
 		
 		this.returnButton = new PauseReturnButton(this, zgame);
@@ -83,7 +83,7 @@ public class PauseMenu extends Menu{
 		// On releasing escape, exit the pause menu
 		if(button == GLFW_KEY_ESCAPE) this.exitMenu((ZusassGame)game);
 	}
-
+	
 	@Override
 	public void render(Game game, Renderer r, ZRect bounds){
 		// Fade the background
@@ -95,7 +95,7 @@ public class PauseMenu extends Menu{
 	
 	/**
 	 * Exit out of this pause menu and go back to the game
-	 * 
+	 *
 	 * @param zgame The game using this button
 	 */
 	public void exitMenu(ZusassGame zgame){
@@ -105,9 +105,6 @@ public class PauseMenu extends Menu{
 	}
 	
 	public void save(ZusassGame zgame){
-		// if(shift) this.enterMainMenu(zgame);
-		// else this.enterHub(zgame);
-		
 		ZusassData d = zgame.getData();
 		d.checkAutoSave(zgame);
 		zgame.saveLoadedGame();

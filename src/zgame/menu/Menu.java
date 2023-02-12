@@ -12,7 +12,7 @@ public class Menu extends MenuThing{
 	
 	/**
 	 * Create an empty menu at the given coordinates
-	 * 
+	 *
 	 * @param x The x coordinate of the menu
 	 * @param y The y coordinate of the menu
 	 */
@@ -22,7 +22,7 @@ public class Menu extends MenuThing{
 	
 	/**
 	 * Create a {@link Menu} of the given position and size
-	 * 
+	 *
 	 * @param x See {@link #relX}
 	 * @param y See {@link #relY}
 	 * @param width See {@link #width}

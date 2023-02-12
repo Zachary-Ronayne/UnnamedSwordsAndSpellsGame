@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import zgame.core.Game;
+import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZStringUtils;
 import zgame.menu.MenuHolder;
-import zgame.menu.MenuThing;
 import zusass.ZusassGame;
 import zusass.menu.savesmenu.SavesMenu;
 import zusass.utils.ZusassConfig;
@@ -16,39 +16,37 @@ import zusass.utils.ZusassConfig;
 public class LoadSaveButtonList extends MenuHolder{
 	
 	/** The {@link SavesMenu} using this list */
-	private SavesMenu menu;
-	
-	/** The buttons displayed */
-	private List<LoadSaveButton> buttons;
+	private final SavesMenu menu;
 	
 	/** The button in the list which is currently selected, or null if no button is selected */
 	private LoadSaveButton selected;
 	
 	/**
-	 * Create a new {@link LoadButtonList} at the specified location
-	 * 
-	 * @param scroller See {@link #scroller}
+	 * Create a new {@link LoadSaveButtonList} at the specified location
+	 *
+	 * @param menu See {@link #menu}
 	 * @param zgame The game that uses this list
 	 */
 	public LoadSaveButtonList(SavesMenu menu, ZusassGame zgame){
 		super(SavesMenuScroller.X, SavesMenuScroller.Y);
+		this.getAllThings().addClass(SavesLoadButton.class);
 		this.menu = menu;
 		this.selected = null;
 		this.populate(zgame);
 	}
 	
 	/**
-	 * Find all files at {@link #path} and generate the list of buttons
-	 * 
-	 * @param game The {@link Game} associated with this list
+	 * Find all files at {@link #} and generate the list of buttons
+	 *
+	 * @param zgame The {@link Game} associated with this list
 	 * @return true if the files were found, false otherwise
 	 */
 	public boolean populate(ZusassGame zgame){
 		// Reset the button array
 		this.setSelected(null);
 		this.removeAll();
-		if(this.buttons != null) this.buttons.forEach(b -> removeThing(b));
-		this.buttons = new ArrayList<LoadSaveButton>();
+		var buttons = new ArrayList<>(this.getButtons());
+		for(var b : buttons) removeThing(b);
 		
 		// Find all files and make sure they exist
 		String path = ZusassConfig.getSavesLocation();
@@ -69,21 +67,14 @@ public class LoadSaveButtonList extends MenuHolder{
 			i++;
 		}
 		// Set the scrollable size to the space the buttons go off screen
-		this.menu.getScroller().setAmount(Math.min(0, zgame.getScreenHeight() - (this.buttons.size() + 1) * LoadSaveButton.TOTAL_SPACE - LoadSaveButton.SPACE));
+		buttons = this.getButtons();
+		this.menu.getScroller().setAmount(Math.min(0, zgame.getScreenHeight() - (buttons.size() + 1) * LoadSaveButton.TOTAL_SPACE - LoadSaveButton.SPACE));
 		
 		return true;
 	}
 	
-	/**
-	 * Also see {@link MenuThing#addThing(MenuThing)}
-	 * This object can only hold {@link LoadSaveButton}s, anything else will do nothing and return false
-	 */
-	@Override
-	public boolean addThing(MenuThing thing){
-		if(!(thing instanceof LoadSaveButton)) return false;
-		LoadSaveButton button = (LoadSaveButton)thing;
-		this.buttons.add(button);
-		return super.addThing(thing);
+	public NotNullList<SavesLoadButton> getButtons(){
+		return this.getAllThings().get(SavesLoadButton.class);
 	}
 	
 	/** @return See {@link #selected} */
@@ -96,5 +87,5 @@ public class LoadSaveButtonList extends MenuHolder{
 		this.selected = selected;
 		this.menu.showExtraButtons(this.selected != null);
 	}
-
+	
 }

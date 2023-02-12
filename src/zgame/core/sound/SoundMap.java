@@ -28,7 +28,7 @@ public class SoundMap extends HashMap<Integer, SoundSource>{
 	
 	/**
 	 * Add the given source to the map
-	 * 
+	 *
 	 * @param s The source to add
 	 */
 	public void put(SoundSource s){
@@ -42,7 +42,7 @@ public class SoundMap extends HashMap<Integer, SoundSource>{
 	
 	/**
 	 * Set the muted state of every {@link SoundSource} in this {@link SoundMap}
-	 * 
+	 *
 	 * @param muted true to mute the sound, false otherwise
 	 */
 	public void setMuted(boolean muted){
@@ -51,7 +51,7 @@ public class SoundMap extends HashMap<Integer, SoundSource>{
 	
 	/**
 	 * Set the paused state of every {@link SoundSource} in this {@link SoundMap}
-	 * 
+	 *
 	 * @param pause true to pause the sounds, false otherwise
 	 */
 	public void setPaused(boolean pause){
@@ -65,9 +65,9 @@ public class SoundMap extends HashMap<Integer, SoundSource>{
 	}
 	
 	/**
-	 * Set the volume state of every {@link SoundSource} in this {@link SoundMap}
-	 * This only sets the relative volume, i.e. the given volume and the internal volume of each sound are multiplied together
-	 * 
+	 * Set the volume state of every {@link SoundSource} in this {@link SoundMap} This only sets the relative volume, i.e. the given volume and the internal volume of each
+	 * sound are multiplied together
+	 *
 	 * @param volume The volume to set to
 	 */
 	public void setVolume(double volume){
@@ -83,12 +83,12 @@ public class SoundMap extends HashMap<Integer, SoundSource>{
 	/** @return An array containing every {@link SoundSource} in this {@link SoundMap} */
 	public SoundSource[] toArray(){
 		Collection<SoundSource> s = this.values();
-		return s.toArray(new SoundSource[s.size()]);
+		return s.toArray(new SoundSource[0]);
 	}
 	
 	/**
 	 * Remove any sounds from this {@link SoundMap} which are finished playing, i.e. their AL_SOURCE_STATE equals AL_STOPPED
-	 * 
+	 *
 	 * @return true if at least one sound was removed, false otherwise
 	 */
 	public boolean removeFinishedSounds(){

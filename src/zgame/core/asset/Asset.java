@@ -6,12 +6,12 @@ import zgame.core.graphics.Destroyable;
 public abstract class Asset implements Destroyable{
 	
 	/** The path used to obtain this asset */
-	private String path;
+	private final String path;
 	
 	/**
 	 * Create an asset which comes from the given path
-	 * 
-	 * @param path
+	 *
+	 * @param path The file path to the asset
 	 */
 	public Asset(String path){
 		this.path = path;

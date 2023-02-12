@@ -8,19 +8,20 @@ import zgame.things.type.Materialable;
 public abstract class TileType implements Materialable{
 	
 	/** The hitbox of this tile type */
-	private TileHitbox hitbox;
-
+	private final TileHitbox hitbox;
+	
 	/** The unique string that identifies this {@link TileType} from others with the same {@link #origin} */
-	private String id;
-
+	private final String id;
+	
 	/**
 	 * The name of the place where this {@link TileType} comes from. Use "base" for tiles inherent to the base game engine, and create a custom origin for new sets of
 	 * tiles. For instance, individual games might want to use different origin names
 	 */
-	private String origin;
+	private final String origin;
 	
 	/**
 	 * Create a new tile type
+	 *
 	 * @param id See {@link #id}
 	 * @param hitbox See {@link #hitbox}
 	 */
@@ -49,14 +50,14 @@ public abstract class TileType implements Materialable{
 	public TileHitbox getHitbox(){
 		return this.hitbox;
 	}
-
+	
 	/**
 	 * Draw the given tile using this {@link TileType}
-	 * 
+	 *
 	 * @param t The tile to draw
 	 * @param g The game where the tile is drawn
 	 * @param r The renderer to use for drawing
 	 */
 	public abstract void render(Tile t, Game g, Renderer r);
-
+	
 }

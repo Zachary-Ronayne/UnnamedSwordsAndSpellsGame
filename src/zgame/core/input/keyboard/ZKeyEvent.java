@@ -9,7 +9,7 @@ public class ZKeyEvent extends ZButtonInputEvent{
 	
 	/**
 	 * Create a new {@link ZKeyEvent} with the given parameters
-	 * 
+	 *
 	 * @param id The ID of the key
 	 * @param shiftDown See {@link #isShiftDown()}
 	 * @param altDown See {@link #isAltDown()}

@@ -11,12 +11,12 @@ import zusass.utils.ZusassConfig;
 public class CreateGameButton extends ZusassButton{
 	
 	/** The {@link NewGameTextBox} associated with this {@link CreateGameButton} */
-	private NewGameTextBox textBox;
+	private final NewGameTextBox textBox;
 	
 	/**
 	 * Initialize the {@link CreateGameButton}
 	 * 
-	 * @param game The Zusass game used by this thing
+	 * @param zgame The Zusass game used by this thing
 	 */
 	public CreateGameButton(NewGameTextBox textBox, ZusassGame zgame){
 		super(500, 460, 200, 50, "Create", zgame);

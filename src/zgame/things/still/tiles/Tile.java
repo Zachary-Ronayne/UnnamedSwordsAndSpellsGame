@@ -14,21 +14,21 @@ public class Tile extends PositionedRectangleThing implements Materialable{
 	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 64;
-
+	
 	/** The inverse of {@link #TILE_SIZE} */
 	public static final double TILE_SIZE_INVERSE = 1.0 / TILE_SIZE;
-
+	
 	/** The index of this tile on the x axis */
-	private int xIndex;
+	private final int xIndex;
 	/** The index of this tile on the y axis */
-	private int yIndex;
+	private final int yIndex;
 	
 	/** The type of this tile */
-	private TileType type;
+	private final TileType type;
 	
 	/**
 	 * Make a new tile at the given index of the default color
-	 * 
+	 *
 	 * @param x See {@link #xIndex}
 	 * @param y See {@link #yIndex}
 	 */
@@ -38,7 +38,7 @@ public class Tile extends PositionedRectangleThing implements Materialable{
 	
 	/**
 	 * Make a new tile at the given index and of the given color
-	 * 
+	 *
 	 * @param x See {@link #xIndex}
 	 * @param y See {@link #yIndex}
 	 * @param type See {@link #type}
@@ -64,7 +64,7 @@ public class Tile extends PositionedRectangleThing implements Materialable{
 	public TileType getType(){
 		return type;
 	}
-
+	
 	@Override
 	public Material getMaterial(){
 		return this.getType().getMaterial();
@@ -83,7 +83,7 @@ public class Tile extends PositionedRectangleThing implements Materialable{
 	public static double size(){
 		return TILE_SIZE;
 	}
-
+	
 	/** @return The inverse of {@link #size()} */
 	public static double inverseSize(){
 		return TILE_SIZE_INVERSE;

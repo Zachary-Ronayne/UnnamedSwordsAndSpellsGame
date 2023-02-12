@@ -18,7 +18,6 @@ import zgame.core.graphics.font.TextBuffer;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.shader.ShaderProgram;
 import zgame.core.utils.LimitedStack;
-import zgame.core.utils.ZPoint;
 import zgame.core.utils.ZRect;
 import zgame.core.window.GameWindow;
 
@@ -29,13 +28,13 @@ import java.util.ArrayList;
  * A class that handles OpenGL operations related to drawing objects.
  * Create an instance of this class and call draw methods to draw to this Renderer,
  * then call drawToWindow to display the contents of this Renderer.
- * DO NOT directly call any OpenGL methods when using this class, otherwise unexpected results could happen.
- * Coordinate explanation:
- * OpenGL space: the coordinate system used by OpenGL, i.e. the upper left hand corner is (-1, 1) and the lower right hand corner is (1, -1)
- * Window coordinates: The pixels on the GLFW window itself
+ * DO NOT directly call any OpenGL methods when using this class, otherwise unexpected results could happen. <p>
+ * Coordinate explanation:<p>
+ * OpenGL space: the coordinate system used by OpenGL, i.e. the upper left hand corner is (-1, 1) and the lower right hand corner is (1, -1)<p>
+ * Window coordinates: The pixels on the GLFW window itself<p>
  * Screen coordinates: The in game coordinates, relative to what is displayed on the screen.
  * i.e. the upper left hand corner is always (0, 0),
- * and the lower right hand corner is always (Renderer.screen.width, Renderer.screen.height)
+ * and the lower right hand corner is always (Renderer.screen.width, Renderer.screen.height)<p>
  * Game coordinates: The actual position of something in the game, regardless of where it would be rendered
  */
 public class Renderer implements Destroyable{
@@ -52,8 +51,6 @@ public class Renderer implements Destroyable{
 	public static final Boolean DEFAULT_RENDER_ONLY_INSIDE = true;
 	/** Default value for {@link #limitedBoundsStack}. null means no limit */
 	public static final ZRect DEFAULT_LIMITED_BOUNDS = null;
-	/** Default value for {@link #offsetStack} */
-	public static final ZPoint DEFAULT_OFFSET = new ZPoint();
 	
 	/** The vertex buffer index for positional coordinates */
 	public static final int VERTEX_POS_INDEX = 0;
@@ -61,20 +58,20 @@ public class Renderer implements Destroyable{
 	public static final int VERTEX_TEX_INDEX = 1;
 	
 	/** The buffer for the x coordinate when rendering text */
-	private FloatBuffer xTextBuff;
+	private final FloatBuffer xTextBuff;
 	/** The buffer for the y coordinate when rendering text */
-	private FloatBuffer yTextBuff;
+	private final FloatBuffer yTextBuff;
 	/** The STBTTAlignedQuad buffer for the quad for rendering */
-	private STBTTAlignedQuad textQuad;
+	private final STBTTAlignedQuad textQuad;
 	
 	/** The shader used to draw basic shapes, i.e. solid colors */
-	private ShaderProgram shapeShader;
+	private final ShaderProgram shapeShader;
 	/** The shader used to draw textures, i.e. images */
-	private ShaderProgram textureShader;
+	private final ShaderProgram textureShader;
 	/** The shader used to draw font, i.e. text */
-	private ShaderProgram fontShader;
+	private final ShaderProgram fontShader;
 	/** The shader used to draw the frame buffer to the screen, as a texture */
-	private ShaderProgram framebufferShader;
+	private final ShaderProgram framebufferShader;
 	/** The shader which is currently used */
 	private ShaderProgram shader;
 	
@@ -98,15 +95,15 @@ public class Renderer implements Destroyable{
 	private VertexBuffer texCoordBuff;
 	
 	/** The list of all the stacks of this {@link Renderer} keeping track of the state of this {@link Renderer} */
-	private ArrayList<LimitedStack<?>> stacks;
+	private final ArrayList<LimitedStack<?>> stacks;
 	
 	/** The list of all the attribute related stacks of this {@link Renderer} keeping track of the state of this {@link Renderer} */
-	private ArrayList<LimitedStack<?>> attributeStacks;
+	private final ArrayList<LimitedStack<?>> attributeStacks;
 	
 	/** The stack used to keep track of transformations. The last element is always the current model view matrix */
-	private LimitedStack<Matrix4f> modelViewStack;
+	private final LimitedStack<Matrix4f> modelViewStack;
 	/** The buffer used to track {@link #modelView} */
-	private FloatBuffer modelViewBuff;
+	private final FloatBuffer modelViewBuff;
 	/** The current bounds of the renderer, transformed based on {@link #modelView()}, or null if it needs to be recalculated */
 	private ZRect transformedRenderBounds;
 	/** true if {@link #modelView()} has changed since last being sent to the current shader, and must be resent before any rendering operations take place, false otherwise */
@@ -115,10 +112,10 @@ public class Renderer implements Destroyable{
 	private boolean sendColor;
 	
 	/** The stack keeping track of the current color used by this {@link Renderer} */
-	private LimitedStack<ZColor> colorStack;
+	private final LimitedStack<ZColor> colorStack;
 	
 	/** The stack keeping track of the current font of this {@link Renderer}. If the top of the stack is null, no text can be drawn. No font is set by default */
-	private LimitedStack<GameFont> fontStack;
+	private final LimitedStack<GameFont> fontStack;
 	
 	/**
 	 * The stack of buffers which this Renderer draws to, which later can be drawn to a window.
@@ -127,7 +124,7 @@ public class Renderer implements Destroyable{
 	 * Any buffers added to the stack must be externally managed, i.e., this class will not attempt to destroy them.
 	 * If {@link #resize(int, int)} is called, it will destroy the initial buffer created by this object
 	 */
-	private LimitedStack<GameBuffer> bufferStack;
+	private final LimitedStack<GameBuffer> bufferStack;
 	
 	/**
 	 * The stack keeping track of the {@link GameCamera} which determines the relative location and scale of objects drawn in this renderer.
@@ -140,73 +137,73 @@ public class Renderer implements Destroyable{
 	 * true if all render methods should automatically apply transformations to move from game coordinates to OpenGL coordinates, false otherwise.
 	 * Essentially, if this is true, the render methods take game coordinates, if it is false, the render methods take OpenGL coordinates
 	 */
-	private LimitedStack<Boolean> positioningEnabledStack;
+	private final LimitedStack<Boolean> positioningEnabledStack;
 	
 	/**
 	 * A stack keeping track of the attribute of if things will only attempt to render if they are inside this {@link Renderer}'s bounds
-	 * true if objects which would be rendered outside of the bounds of {@link #screen} should not be drawn, false otherwise.
+	 * true if objects which would be rendered outside of the bounds of {@link #bufferStack} should not be drawn, false otherwise.
 	 * If this value is false, then all objects will be rendered, even if they should not be visible, which could cause performance issues
 	 */
-	private LimitedStack<Boolean> renderOnlyInsideStack;
+	private final LimitedStack<Boolean> renderOnlyInsideStack;
 	
 	/** The stack keeping track of the current bounds which rendering is limited to, in game coordinates, or null if no bounds is limited */
-	private LimitedStack<ZRect> limitedBoundsStack;
+	private final LimitedStack<ZRect> limitedBoundsStack;
 	
 	/**
 	 * Create a new empty renderer
-	 * 
+	 *
 	 * @param width The width, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public Renderer(int width, int height){
 		// Initialize stack list
-		this.stacks = new ArrayList<LimitedStack<?>>();
-		this.attributeStacks = new ArrayList<LimitedStack<?>>();
+		this.stacks = new ArrayList<>();
+		this.attributeStacks = new ArrayList<>();
 		
 		// Buffer stack
-		this.bufferStack = new LimitedStack<GameBuffer>(new GameBuffer(width, height, true), false);
+		this.bufferStack = new LimitedStack<>(new GameBuffer(width, height, true), false);
 		this.stacks.add(this.bufferStack);
 		
 		// Camera stack
-		this.cameraStack = new LimitedStack<GameCamera>(null);
+		this.cameraStack = new LimitedStack<>(null);
 		this.stacks.add(this.cameraStack);
 		
 		// Model view initialization
 		// The matrix is 4x4, so 16 floats
 		this.modelViewBuff = BufferUtils.createFloatBuffer(16);
 		// Model view stack
-		this.modelViewStack = new LimitedStack<Matrix4f>(new Matrix4f());
+		this.modelViewStack = new LimitedStack<>(new Matrix4f());
 		this.stacks.add(this.modelViewStack);
 		this.transformedRenderBounds = null;
 		this.sendModelView = true;
 		
 		// Font stack
-		this.fontStack = new LimitedStack<GameFont>(DEFAULT_FONT);
+		this.fontStack = new LimitedStack<>(DEFAULT_FONT);
 		this.stacks.add(this.fontStack);
 		this.attributeStacks.add(this.fontStack);
 		
 		// Color stack
-		this.colorStack = new LimitedStack<ZColor>(DEFAULT_COLOR);
+		this.colorStack = new LimitedStack<>(DEFAULT_COLOR);
 		this.stacks.add(this.colorStack);
 		this.attributeStacks.add(this.colorStack);
 		this.sendColor = true;
 		
 		// Camera stack
-		this.cameraStack = new LimitedStack<GameCamera>(null);
+		this.cameraStack = new LimitedStack<>(null);
 		this.stacks.add(cameraStack);
 		
 		// Positioning enabled stack
-		this.positioningEnabledStack = new LimitedStack<Boolean>(DEFAULT_POSITIONING_ENABLED);
+		this.positioningEnabledStack = new LimitedStack<>(DEFAULT_POSITIONING_ENABLED);
 		this.stacks.add(this.positioningEnabledStack);
 		this.attributeStacks.add(this.positioningEnabledStack);
 		
 		// Render only inside stack
-		this.renderOnlyInsideStack = new LimitedStack<Boolean>(DEFAULT_RENDER_ONLY_INSIDE);
+		this.renderOnlyInsideStack = new LimitedStack<>(DEFAULT_RENDER_ONLY_INSIDE);
 		this.stacks.add(this.renderOnlyInsideStack);
 		this.attributeStacks.add(this.renderOnlyInsideStack);
 		
 		// Limited bounds stack, rendering is unbounded by default
-		this.limitedBoundsStack = new LimitedStack<ZRect>(DEFAULT_LIMITED_BOUNDS);
+		this.limitedBoundsStack = new LimitedStack<>(DEFAULT_LIMITED_BOUNDS);
 		this.stacks.add(this.limitedBoundsStack);
 		this.updateLimitedBounds();
 		
@@ -230,38 +227,38 @@ public class Renderer implements Destroyable{
 	public void initVertexes(){
 		// Generate an index buffer for drawing rectangles
 		this.rectIndexBuff = new IndexBuffer(new byte[]{
-			/////////
-			0, 1, 2,
-			/////////
-			0, 3, 2});
+				/////////
+				0, 1, 2,
+				/////////
+				0, 3, 2});
 		
 		// Generate a vertex array for drawing solid colored rectangles
 		this.rectVertArr = new VertexArray();
 		this.rectVertArr.bind();
 		// Generate a vertex buffer for drawing rectangles that fill the entire screen and can be scaled
 		this.fillScreenPosBuff = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_STATIC_DRAW, new float[]{
-			// Low Left Corner
-			-1, -1,
-			// Low Right Corner
-			1, -1,
-			// Up Right Corner
-			1, 1,
-			// Up Left Corner
-			-1, 1});
+				// Low Left Corner
+				-1, -1,
+				// Low Right Corner
+				1, -1,
+				// Up Right Corner
+				1, 1,
+				// Up Left Corner
+				-1, 1});
 		
 		// Generate a vertex array for rendering images
 		this.imgVertArr = new VertexArray();
 		this.imgVertArr.bind();
 		// Generate a vertex buffer for texture coordinates for rendering images
 		this.texCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_STATIC_DRAW, new float[]{
-			// Low Left Corner
-			0, 0,
-			// Low Right Corner
-			1, 0,
-			// Up Right Corner
-			1, 1,
-			// Up Left Corner
-			0, 1});
+				// Low Left Corner
+				0, 0,
+				// Low Right Corner
+				1, 0,
+				// Up Right Corner
+				1, 1,
+				// Up Left Corner
+				0, 1});
 		// Add the positional data to the image rendering
 		this.fillScreenPosBuff.bind();
 		this.fillScreenPosBuff.applyToVertexArray();
@@ -327,12 +324,12 @@ public class Renderer implements Destroyable{
 	 * Modify the default size of this Renderer. This is a costly operation and should not regularly be run
 	 * This will not modify the current top of the buffer stack, but the default buffer, unless the default buffer is at the top of the stack.
 	 * This method will also destroy the buffer at the bottom of the stack
-	 * 
+	 *
 	 * @param width The width, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public void resize(int width, int height){
-		this.bufferStack.getDefaultItem().regenerateBuffer(width, height);
+		this.bufferStack.peek().regenerateBuffer(width, height);
 	}
 	
 	/**
@@ -388,7 +385,7 @@ public class Renderer implements Destroyable{
 		
 		// issue#6 Transform the render bounds by the current model view matrix so that it aligns with the given draw bounds, figure out where this math is going wrong
 		
-		// Form the matrixes that represent the upper left hand and lower right hand corners of the draw bounds
+		// Form the matrices that represent the upper left hand and lower right hand corners of the draw bounds
 		Vector4d upper = new Vector4d(renderBounds.getX(), renderBounds.getY(), 1, 1);
 		Vector4d lower = new Vector4d(renderBounds.getX() + renderBounds.getWidth(), renderBounds.getY() + renderBounds.getHeight(), 1, 1);
 		
@@ -419,7 +416,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Set the transformation matrix used for rendering
-	 * 
+	 *
 	 * @param matrix The matrix to use
 	 */
 	public void setMatrix(Matrix4f matrix){
@@ -427,7 +424,7 @@ public class Renderer implements Destroyable{
 		this.markModelViewChanged();
 	}
 	
-	/** Tell this {@link Renderer} that {@link #modelView()} has changed, and it's dependent values will need to be recalculated before they can be used */
+	/** Tell this {@link Renderer} that {@link #modelView()} has changed, and its dependent values will need to be recalculated before they can be used */
 	private void markModelViewChanged(){
 		this.sendModelView = true;
 		this.transformedRenderBounds = null;
@@ -451,7 +448,7 @@ public class Renderer implements Destroyable{
 	/**
 	 * Pop the current state of the transformation matrix, i.e. load the previous state of the transformations and discard the current state.
 	 * This method does nothing if the stack is empty
-	 * 
+	 *
 	 * @return true if the stack was popped, false if no element could be popped, i.e. the stack was empty
 	 */
 	public boolean popMatrix(){
@@ -462,7 +459,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Translate the transformation matrix by the given amount. The coordinates are based on OpenGL positions
-	 * 
+	 *
 	 * @param x The amount on the x axis
 	 * @param y The amount on the y axis
 	 */
@@ -473,7 +470,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Scale the transformation matrix by the given amount
-	 * 
+	 *
 	 * @param x The amount on the x axis
 	 * @param y The amount on the y axis
 	 */
@@ -519,7 +516,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Set the currently used shader
-	 * 
+	 *
 	 * @param shader The shader to use.
 	 */
 	private void setShader(ShaderProgram shader){
@@ -544,10 +541,10 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
-	 * Draw the contents of {@link #screen} to the given {@link GameWindow}.
+	 * Draw the contents of {@link #bufferStack} to the given {@link GameWindow}.
 	 * This method will leave this {@link Renderer} in the state for drawing buffers, i.e. {@link #renderModeBuffer()} is called.
 	 * Additionally, this method will make all further drawing operations occur directly on the given {@link GameWindow}
-	 * 
+	 *
 	 * @param window The window to draw to
 	 */
 	public void drawToWindow(GameWindow window){
@@ -583,7 +580,7 @@ public class Renderer implements Destroyable{
 	 * Make this {@link Renderer} only draw things in the given bounds. Call {@link #unlimitBounds()} to turn this off.
 	 * This is off by default
 	 * All values are in game coordinates
-	 * 
+	 *
 	 * @param x The upper left hand x coordinate of the bounds
 	 * @param y The upper left hand y coordinate of the bounds
 	 * @param w The width of the bounds
@@ -597,7 +594,7 @@ public class Renderer implements Destroyable{
 	 * Make this {@link Renderer} only draw things in the given bounds. Call {@link #unlimitBounds()} to turn this off.
 	 * This is off by default
 	 * Turns off the limit if bounds is null
-	 * 
+	 *
 	 * @param bounds The bounds to limit to, in game coordinates
 	 * @return true if the bounds were changed, false otherwise
 	 */
@@ -649,7 +646,7 @@ public class Renderer implements Destroyable{
 	 * Call OpenGL operations that transform to draw to a location in game coordinates.
 	 * This method assumes the coordinates to translate are centered in the given rectangular bounding box in game coordinates
 	 * This method does not push or pop the matrix stack
-	 * 
+	 *
 	 * @param r The bounds
 	 */
 	public void positionObject(ZRect r){
@@ -660,7 +657,7 @@ public class Renderer implements Destroyable{
 	 * Call OpenGL operations that transform to draw to a location in game coordinates.
 	 * This method assumes the coordinates to translate are centered in the given rectangular bounding box in game coordinates
 	 * This method does not push or pop the matrix stack
-	 * 
+	 *
 	 * @param x The x coordinate of the upper left hand corner
 	 * @param y The y coordinate of the upper left hand corner
 	 * @param w The width
@@ -697,8 +694,8 @@ public class Renderer implements Destroyable{
 	/**
 	 * Draw a rectangle, of the current color of this Renderer, at the specified location. All values are in game coordinates
 	 * Coordinate types depend on {@link #positioningEnabledStack}
-	 * 
-	 * @param x The bounds
+	 *
+	 * @param r The bounds
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawRectangle(ZRect r){
@@ -708,7 +705,7 @@ public class Renderer implements Destroyable{
 	/**
 	 * Draw a rectangle, of the current color of this Renderer, at the specified location. All values are in game coordinates
 	 * Coordinate types depend on {@link #positioningEnabledStack}
-	 * 
+	 *
 	 * @param x The x coordinate of the upper left hand corner of the rectangle
 	 * @param y The y coordinate of the upper left hand corner of the rectangle
 	 * @param w The width of the rectangle
@@ -730,7 +727,6 @@ public class Renderer implements Destroyable{
 		this.updateGpuModelView();
 		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
-		glBindVertexArray(0);
 		this.popMatrix();
 		
 		return true;
@@ -740,7 +736,7 @@ public class Renderer implements Destroyable{
 	 * Draw a rectangular buffer at the specified location.
 	 * If the given dimensions have a different aspect ratio that those of the given buffer, then the image will stretch to fit the given dimensions
 	 * Coordinate types depend on {@link #positioningEnabledStack}
-	 * 
+	 *
 	 * @param r The bounds
 	 * @param b The {@link GameBuffer} to draw
 	 * @return true if the object was drawn, false otherwise
@@ -753,7 +749,7 @@ public class Renderer implements Destroyable{
 	 * Draw a rectangular buffer at the specified location.
 	 * If the given dimensions have a different aspect ratio that those of the given buffer, then the image will stretch to fit the given dimensions
 	 * Coordinate types depend on {@link #positioningEnabledStack}
-	 * 
+	 *
 	 * @param x The x coordinate of the upper left hand corner of the buffer
 	 * @param y The y coordinate of the upper left hand corner of the buffer
 	 * @param w The width of the image
@@ -772,11 +768,8 @@ public class Renderer implements Destroyable{
 	 * Draw a rectangular image at the specified location on the given buffer
 	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
 	 * Coordinate types depend on {@link #positioningEnabledStack}
-	 * 
-	 * @param x The x coordinate of the upper left hand corner of the image
-	 * @param y The y coordinate of the upper left hand corner of the image
-	 * @param w The width of the image
-	 * @param h The height of the image
+	 *
+	 * @param r The bounds of the image
 	 * @param img The OpenGL id of the image to draw
 	 * @return true if the object was drawn, false otherwise
 	 */
@@ -788,7 +781,7 @@ public class Renderer implements Destroyable{
 	 * Draw a rectangular image at the specified location.
 	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
 	 * Coordinate types depend on {@link #positioningEnabledStack}
-	 * 
+	 *
 	 * @param x The x coordinate of the upper left hand corner of the image
 	 * @param y The y coordinate of the upper left hand corner of the image
 	 * @param w The width of the image
@@ -808,7 +801,7 @@ public class Renderer implements Destroyable{
 	 * If the given dimensions have a different aspect ratio that those of the given texture, then the texture will stretch to fit the given dimensions
 	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * This method does not set the shader to use, and it does not check if the bounds should be rendered
-	 * 
+	 *
 	 * @param x The x coordinate of the upper left hand corner of the texture
 	 * @param y The y coordinate of the upper left hand corner of the texture
 	 * @param w The width of the texture
@@ -829,7 +822,6 @@ public class Renderer implements Destroyable{
 		this.updateGpuModelView();
 		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
-		glBindVertexArray(0);
 		
 		this.popMatrix();
 		
@@ -842,7 +834,7 @@ public class Renderer implements Destroyable{
 	 * i.e. the text starts at the given coordinates and is draw left to right
 	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
-	 * 
+	 *
 	 * @param x The x position of the text
 	 * @param y The y position of the text
 	 * @param text The text to draw
@@ -858,7 +850,7 @@ public class Renderer implements Destroyable{
 	 * i.e. the text starts at the given coordinates and is draw left to right
 	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
-	 * 
+	 *
 	 * @param x The x position of the text
 	 * @param y The y position of the text
 	 * @param text The text to draw
@@ -911,24 +903,24 @@ public class Renderer implements Destroyable{
 			
 			// Buffer the new data
 			this.posBuff.updateData(new float[]{
-				//////////////////////////////////////
-				this.textQuad.x0(), this.textQuad.y0(),
-				//////////////////////////////////////
-				this.textQuad.x1(), this.textQuad.y0(),
-				//////////////////////////////////////
-				this.textQuad.x1(), this.textQuad.y1(),
-				//////////////////////////////////////
-				this.textQuad.x0(), this.textQuad.y1()});
+					//////////////////////////////////////
+					this.textQuad.x0(), this.textQuad.y0(),
+					//////////////////////////////////////
+					this.textQuad.x1(), this.textQuad.y0(),
+					//////////////////////////////////////
+					this.textQuad.x1(), this.textQuad.y1(),
+					//////////////////////////////////////
+					this.textQuad.x0(), this.textQuad.y1()});
 			
 			this.changeTexCoordBuff.updateData(new float[]{
-				//////////////////////////////////////
-				this.textQuad.s0(), this.textQuad.t0(),
-				//////////////////////////////////////
-				this.textQuad.s1(), this.textQuad.t0(),
-				//////////////////////////////////////
-				this.textQuad.s1(), this.textQuad.t1(),
-				//////////////////////////////////////
-				this.textQuad.s0(), this.textQuad.t1()});
+					//////////////////////////////////////
+					this.textQuad.s0(), this.textQuad.t0(),
+					//////////////////////////////////////
+					this.textQuad.s1(), this.textQuad.t0(),
+					//////////////////////////////////////
+					this.textQuad.s1(), this.textQuad.t1(),
+					//////////////////////////////////////
+					this.textQuad.s0(), this.textQuad.t1()});
 			
 			// Ensure the gpu has the current modelView and color
 			this.updateGpuColor();
@@ -946,7 +938,7 @@ public class Renderer implements Destroyable{
 	 * Determine if the given bounds are contained within the bounds of the given buffer
 	 * i.e. find out if something drawn within the given bounds would appear on the buffer
 	 * This method accounts for the camera repositioning elements, i.e., if the camera will make something off the screen, this method accounts for that
-	 * 
+	 *
 	 * @param x The upper left hand corner x coordinate of the object, in game coordinates
 	 * @param y The upper left hand corner y coordinate of the object, in game coordinates
 	 * @param w The width of the object, in game coordinates
@@ -961,10 +953,11 @@ public class Renderer implements Destroyable{
 	 * Determine if the given bounds are contained within the current state of this {@link Renderer}
 	 * i.e. find out if something drawn within the given bounds would appear on the screen
 	 * This method accounts for the camera repositioning elements, i.e., if the camera will make something off the screen, this method accounts for that
-	 * 
-	 * @param r The bounds
+	 *
+	 * @param drawBounds The bounds
 	 * @return true if the bounds should be drawn, false otherwise
 	 */
+	@SuppressWarnings("unused")
 	public boolean shouldDraw(ZRect drawBounds){
 		// If rendering only inside is not enabled, immediately return true
 		
@@ -998,7 +991,6 @@ public class Renderer implements Destroyable{
 		this.updateGpuModelView();
 		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
-		glBindVertexArray(0);
 		this.popMatrix();
 	}
 	
@@ -1028,7 +1020,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Set the color, fully opaque, currently used to draw basic shapes
-	 * 
+	 *
 	 * @param r The red amount, should be in the range [0-1]
 	 * @param g The green amount, should be in the range [0-1]
 	 * @param b The blue amount, should be in the range [0-1]
@@ -1039,7 +1031,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Set the color currently used to draw basic shapes
-	 * 
+	 *
 	 * @param r The red amount, should be in the range [0-1]
 	 * @param g The green amount, should be in the range [0-1]
 	 * @param b The blue amount, should be in the range [0-1]
@@ -1051,7 +1043,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Set the color currently used to draw basic shapes. The alpha channel of this color also determines the transparency of images, text, buffers, etc.
-	 * 
+	 *
 	 * @param color the new color
 	 */
 	public void setColor(ZColor color){
@@ -1084,7 +1076,7 @@ public class Renderer implements Destroyable{
 		return this.fontStack;
 	}
 	
-	/** @return The size of {@link #font}. See {@link GameFont#getSize()} */
+	/** @return See {@link #getFont()} and {@link GameFont#getSize()} */
 	public double getFontSize(){
 		return this.getFont().getSize();
 	}
@@ -1094,7 +1086,7 @@ public class Renderer implements Destroyable{
 		this.setFont(this.getFont().size(size));
 	}
 	
-	/** @return The line spacing of {@link #font}. See {@link GameFont#getLineSpace()} */
+	/** @return See {@link #getFont()} and {@link GameFont#getLineSpace()} */
 	public double getFontLineSpace(){
 		return this.getFont().getLineSpace();
 	}
@@ -1104,7 +1096,7 @@ public class Renderer implements Destroyable{
 		this.setFont(this.getFont().lineSpace(lineSpace));
 	}
 	
-	/** @return The char spacing of {@link #font}. See {@link GameFont#getCharSpace()} */
+	/** @return See {@link #getFont()} and {@link GameFont#getCharSpace()} */
 	public double getFontCharSpace(){
 		return this.getFont().getCharSpace();
 	}
@@ -1164,20 +1156,20 @@ public class Renderer implements Destroyable{
 		return this.getBuffer().getRatioHW();
 	}
 	
-	/** @return The OpenGL id used by this {@link Renderer}s {@link #buffer} */
+	/** @return The OpenGL id used by the top of this {@link Renderer}s {@link #bufferStack} */
 	public int getBufferId(){
 		return this.getBuffer().getTextureID();
 	}
 	
-	/** @return See {@link #buffer} */
+	/** @return The top of see {@link #bufferStack} */
 	public GameBuffer getBuffer(){
 		return this.bufferStack.peek();
 	}
 	
 	/**
 	 * Set the buffer that this Renderer should draw to by pushing the given buffer onto {@link #bufferStack}
-	 * 
-	 * @param buffer See {@link #buffer}
+	 *
+	 * @param buffer The top of {@link #bufferStack}
 	 * @return The buffer that was being used
 	 */
 	public GameBuffer pushBuffer(GameBuffer buffer){
@@ -1189,7 +1181,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Pop the top buffer off of {@link #bufferStack} and return it
-	 * 
+	 *
 	 * @return The buffer, or null if no buffer could be popped
 	 */
 	public GameBuffer popBuffer(){
@@ -1201,7 +1193,7 @@ public class Renderer implements Destroyable{
 	/**
 	 * Set the current buffer to draw to
 	 * Must be very careful about using this method. Cannot set the buffer if there is only one buffer in the stack
-	 * 
+	 *
 	 * @param buffer The new buffer
 	 * @return The old buffer, or null if it could not be replaced
 	 */
@@ -1220,7 +1212,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Determine if the given bounds are in the bounds of this {@link Renderer}
-	 * 
+	 *
 	 * @param bounds The bounds to check, in game coordinates
 	 * @return true if they intersect, i.e. return true if any part of the given bounds is in this {@link Renderer}'s bounds, false otherwise
 	 */
@@ -1235,8 +1227,8 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert an x coordinate value in window space, to a coordinate in screen space coordinates
-	 * 
-	 * @param GameWindow the {@link GameWindow} to use for reference for converting coordinates
+	 *
+	 * @param window the {@link GameWindow} to use for reference for converting coordinates
 	 * @param x The value to convert
 	 * @return The value in screen coordinates
 	 */
@@ -1246,8 +1238,8 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert a y coordinate value in window space, to a coordinate in screen space coordinates
-	 * 
-	 * @param GameWindow the {@link GameWindow} to use for reference for converting coordinates
+	 *
+	 * @param window the {@link GameWindow} to use for reference for converting coordinates
 	 * @param y The value to convert
 	 * @return The value in screen coordinates
 	 */
@@ -1257,7 +1249,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert a coordinate value in window space, to a coordinate in screen space coordinates
-	 * 
+	 *
 	 * @param p The value to convert
 	 * @param viewportPos The position of the screen when placed on the window
 	 * @param windowInverseSize The inverse of the size of the window
@@ -1270,8 +1262,8 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert an x coordinate value in screen space, to a coordinate in window space coordinates
-	 * 
-	 * @param GameWindow the {@link GameWindow} to use for reference for converting coordinates
+	 *
+	 * @param window the {@link GameWindow} to use for reference for converting coordinates
 	 * @param x The value to convert
 	 * @return The value in window coordinates
 	 */
@@ -1281,8 +1273,8 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert a y coordinate value in screen space, to a coordinate in window space coordinates
-	 * 
-	 * @param GameWindow the {@link GameWindow} to use for reference for converting coordinates
+	 *
+	 * @param window the {@link GameWindow} to use for reference for converting coordinates
 	 * @param y The value to convert
 	 * @return The value in window coordinates
 	 */
@@ -1292,11 +1284,11 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert a coordinate value in screen space, to a coordinate in window space coordinates
-	 * 
+	 *
 	 * @param p The value to convert
 	 * @param viewportPos The position of the screen when placed on the window
 	 * @param windowSize The size of the window
-	 * @param screenSize The size of the screen to convert from
+	 * @param screenInverseSize The inverse of the size of the screen
 	 * @return The value in window coordinates
 	 */
 	public static double screenToWindow(double p, double viewportPos, double windowSize, double screenInverseSize){
@@ -1305,27 +1297,27 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert an x coordinate value in screen space, to a coordinate in OpenGL coordinates
-	 * 
+	 *
 	 * @param x The value to convert
 	 * @return The value in OpenGL coordinates
 	 */
 	public double screenToGlX(GameWindow window, double x){
 		return screenToGl(x, window.viewportX(), window.getWidth(), this.getBuffer().getInverseWidth(), window.getInverseWidth());
-	};
+	}
 	
 	/**
 	 * Convert a y coordinate value in screen space, to a coordinate in OpenGL coordinates
-	 * 
+	 *
 	 * @param y The value to convert
 	 * @return The value in OpenGL coordinates
 	 */
 	public double screenToGlY(GameWindow window, double y){
 		return screenToGl(y, window.viewportY(), window.getHeight(), this.getBuffer().getInverseHeight(), window.getInverseHeight());
-	};
+	}
 	
 	/**
 	 * Convert a coordinate value in screen space, to a coordinate in OpenGL space coordinates
-	 * 
+	 *
 	 * @param p The value to convert
 	 * @param viewportPos The position of the screen when placed on the window
 	 * @param windowSize The size of the window
@@ -1339,29 +1331,29 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert an x coordinate value in OpenGL space, to a coordinate in screen coordinates
-	 * 
+	 *
 	 * @param x The value to convert
 	 * @param window The window to use to convert
 	 * @return The value in screen coordinates
 	 */
 	public double glToScreenX(GameWindow window, double x){
 		return glToScreen(x, window.viewportX(), window.getInverseWidth(), this.getWidth(), window.getWidth());
-	};
+	}
 	
 	/**
 	 * Convert a y coordinate value in OpenGL space, to a coordinate in screen coordinates
-	 * 
+	 *
 	 * @param y The value to convert
 	 * @param window The window to use to convert
 	 * @return The value in screen coordinates
 	 */
 	public double glToScreenY(GameWindow window, double y){
 		return glToScreen(y, window.viewportY(), window.getInverseHeight(), this.getHeight(), window.getHeight());
-	};
+	}
 	
 	/**
 	 * Convert a coordinate value in OpenGL space, to a coordinate in screen space coordinates
-	 * 
+	 *
 	 * @param p The value to convert
 	 * @param viewportPos The position of the screen when placed on the window
 	 * @param windowInverseSize The inverse of the size of the window
@@ -1375,8 +1367,8 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert a size on the x axis in window space, to a size in screen space
-	 * 
-	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 *
+	 * @param window the {@link GameWindow} to use for reference for converting sizes
 	 * @param x The value to convert
 	 * @return The converted size
 	 */
@@ -1386,8 +1378,8 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert a size on the y axis in window space, to a size in screen space
-	 * 
-	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 *
+	 * @param window the {@link GameWindow} to use for reference for converting sizes
 	 * @param y The value to convert
 	 * @return The converted size
 	 */
@@ -1397,7 +1389,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert a size in window space, to a size in screen space
-	 * 
+	 *
 	 * @param p The value to convert
 	 * @param windowInverseSize The size of the window
 	 * @param screenSize The size of the screen to convert to
@@ -1409,8 +1401,8 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert a size on the x axis in screen space, to a size in window space
-	 * 
-	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 *
+	 * @param window the {@link GameWindow} to use for reference for converting sizes
 	 * @param x The value to convert
 	 * @return The converted size
 	 */
@@ -1420,8 +1412,8 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert a size on the y axis in screen space, to a size in window space
-	 * 
-	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 *
+	 * @param window the {@link GameWindow} to use for reference for converting sizes
 	 * @param y The value to convert
 	 * @return The converted size
 	 */
@@ -1431,10 +1423,10 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert a size in screen space, to a size in window space
-	 * 
+	 *
 	 * @param p The value to convert
 	 * @param windowSize The size of the window
-	 * @param screenSize The size of the screen to convert from
+	 * @param screenInverseSize The inverse of the size of the screen to convert from
 	 * @return The converted size
 	 */
 	public static double sizeScreenToWindow(double p, double windowSize, double screenInverseSize){
@@ -1443,29 +1435,29 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert a size on the x axis in screen space, to a size in OpenGL space
-	 * 
-	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 *
+	 * @param window the {@link GameWindow} to use for reference for converting sizes
 	 * @param x The value to convert
 	 * @return The converted size
 	 */
 	public double sizeScreenToGlX(GameWindow window, double x){
 		return sizeScreenToGl(x, window.getWidth(), this.getBuffer().getInverseWidth(), window.getInverseWidth());
-	};
+	}
 	
 	/**
 	 * Convert a size on the y axis in screen space, to a size in OpenGL space
-	 * 
-	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 *
+	 * @param window the {@link GameWindow} to use for reference for converting sizes
 	 * @param y The value to convert
 	 * @return The converted size
 	 */
 	public double sizeScreenToGlY(GameWindow window, double y){
 		return sizeScreenToGl(y, window.getHeight(), this.getBuffer().getInverseHeight(), window.getInverseHeight());
-	};
+	}
 	
 	/**
 	 * Convert a size in screen space, to a size in OpenGL space
-	 * 
+	 *
 	 * @param p The value to convert
 	 * @param windowSize The size of the window
 	 * @param screenInverseSize The inverse of the size of the screen to convert from
@@ -1478,29 +1470,29 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Convert a size on the x axis in OpenGL space, to a size in screen space
-	 * 
-	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 *
+	 * @param window the {@link GameWindow} to use for reference for converting sizes the {@link GameWindow} to use for reference for converting sizes
 	 * @param x The value to convert
 	 * @return The converted size
 	 */
 	public double sizeGlToScreenX(GameWindow window, double x){
 		return sizeGlToScreen(x, window.getInverseWidth(), this.getWidth(), window.getWidth());
-	};
+	}
 	
 	/**
 	 * Convert a size on the y axis in OpenGL space, to a size in screen space
-	 * 
-	 * @param GameWindow the {@link GameWindow} to use for reference for converting sizes
+	 *
+	 * @param window the {@link GameWindow} to use for reference for converting sizes the {@link GameWindow} to use for reference for converting sizes
 	 * @param y The value to convert
 	 * @return The converted size
 	 */
 	public double sizeGlToScreenY(GameWindow window, double y){
 		return sizeGlToScreen(y, window.getInverseHeight(), this.getHeight(), window.getHeight());
-	};
+	}
 	
 	/**
 	 * Convert a size in OpenGL space, to a size in screen space
-	 * 
+	 *
 	 * @param p The value to convert
 	 * @param windowInverseSize The inverse of the size of the window
 	 * @param screenSize The size of the screen to convert to

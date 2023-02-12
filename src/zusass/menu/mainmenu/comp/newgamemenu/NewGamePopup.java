@@ -15,15 +15,15 @@ import zusass.menu.mainmenu.comp.NewGameButton;
 public class NewGamePopup extends Menu{
 	
 	/** Holds the create button if it should be visible */
-	private MenuHolder createHolder;
+	private final MenuHolder createHolder;
 	/** The button used to create a new game */
-	private ZusassButton createButton;
+	private final ZusassButton createButton;
 
 	/**
 	 * Initialize the {@link NewGamePopup}
 	 * 
 	 * @param button The {@link NewGameButton} used by this menu
-	 * @param game The Zusass game used by this thing
+	 * @param zgame The Zusass game used by this thing
 	 */
 	public NewGamePopup(NewGameButton button, ZusassGame zgame){
 		super(0, 0);

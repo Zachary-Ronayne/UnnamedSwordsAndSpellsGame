@@ -4,11 +4,12 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 
 /** A class used to make some basic renderings using {@link Renderer} */
+@SuppressWarnings("unused")
 public final class ZRenderUtils{
 	
 	/**
 	 * Draw a checkerboard pattern of rectangles in a given rectangular space
-	 * 
+	 *
 	 * @param r The {@link Renderer} to use for the drawing operations
 	 * @param x The x coordinate of the upper left hand corner
 	 * @param y The y coordinate of the upper left hand corner
@@ -35,7 +36,6 @@ public final class ZRenderUtils{
 	
 	/** Cannot instantiate {@link ZRenderUtils} */
 	private ZRenderUtils(){
-		
 	}
 	
 }

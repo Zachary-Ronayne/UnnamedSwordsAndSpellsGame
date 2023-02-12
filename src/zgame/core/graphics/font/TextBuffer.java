@@ -21,21 +21,21 @@ public class TextBuffer extends DrawableBuffer{
 	
 	/**
 	 * Create a {@link TextBuffer} of the given size.
-	 * Will likely want to call {@link #setPosition(double, double)}. The default position is 0 for x, and half the height for y, which may cause some text to get clipped
+	 * Will likely want to call {@link #setTextPosition(double, double)}. The default position is 0 for x, and half the height for y, which may cause some text to get clipped
 	 * off
-	 * 
+	 *
 	 * @param width See {@link #getWidth()}
 	 * @param height See {@link #getHeight()}
 	 */
 	public TextBuffer(int width, int height){
 		this(width, height, null);
 	}
-
+	
 	/**
 	 * Create a {@link TextBuffer} of the given size.
-	 * Will likely want to call {@link #setPosition(double, double)}. The default position is 0 for x, and half the height for y, which may cause some text to get clipped
+	 * Will likely want to call {@link #setTextPosition(double, double)}. The default position is 0 for x, and half the height for y, which may cause some text to get clipped
 	 * off
-	 * 
+	 *
 	 * @param width See {@link #getWidth()}
 	 * @param height See {@link #getHeight()}
 	 * @param font See {@link #font}
@@ -76,7 +76,7 @@ public class TextBuffer extends DrawableBuffer{
 	
 	/**
 	 * Update the value of {@link #text}, but do not redraw anything
-	 * 
+	 *
 	 * @param text See {@link #text}
 	 */
 	public void setText(String text){
@@ -92,7 +92,7 @@ public class TextBuffer extends DrawableBuffer{
 	
 	/**
 	 * Update the value of {@link #font}, but do not redraw anything
-	 * 
+	 *
 	 * @param font See {@link #font}
 	 */
 	public void setFont(GameFont font){
@@ -102,9 +102,9 @@ public class TextBuffer extends DrawableBuffer{
 	
 	/**
 	 * Update the values of {@link #textX} and {@link #textY}, but do not redraw anything
-	 * 
-	 * @param textX See {@link #textX}
-	 * @param textY See {@link #textY}
+	 *
+	 * @param x See {@link #textX}
+	 * @param y See {@link #textY}
 	 */
 	public void setTextPosition(double x, double y){
 		this.updateRedraw(x != this.textX || y != this.textY);
@@ -119,7 +119,7 @@ public class TextBuffer extends DrawableBuffer{
 	
 	/**
 	 * Update the value of {@link #textX}, but do not redraw anything
-	 * 
+	 *
 	 * @param textX See {@link #textX}
 	 */
 	public void setTextX(double textX){
@@ -134,7 +134,7 @@ public class TextBuffer extends DrawableBuffer{
 	
 	/**
 	 * Update the value of {@link #textY}, but do not redraw anything
-	 * 
+	 *
 	 * @param textY See {@link #textY}
 	 */
 	public void setTextY(double textY){

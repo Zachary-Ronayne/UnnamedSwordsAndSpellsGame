@@ -10,7 +10,7 @@ public class HorizontalScrollerButton extends MenuScrollerButton{
 	
 	/**
 	 * Create a basic {@link HorizontalScrollerButton} with the given values
-	 * 
+	 *
 	 * @param scroller See {@link #scroller}
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}

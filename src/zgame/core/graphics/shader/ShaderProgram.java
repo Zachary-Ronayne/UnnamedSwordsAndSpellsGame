@@ -12,17 +12,17 @@ import zgame.core.utils.ZStringUtils;
 public class ShaderProgram{
 	
 	/** The vertex Shader used by this {@link ShaderProgram} */
-	private Shader vertex;
+	private final Shader vertex;
 	
 	/** The fragment Shader used by this {@link ShaderProgram} */
-	private Shader fragment;
+	private final Shader fragment;
 	
 	/** The OpenGL program id associated with this {@link ShaderProgram} */
 	private int id;
 	
 	/**
 	 * Create a new {@link ShaderProgram}
-	 * 
+	 *
 	 * @param vertexPath The file path for {@link #vertex}
 	 * @param fragmentPath The file path for {@link #fragment}
 	 */
@@ -37,7 +37,7 @@ public class ShaderProgram{
 	 * Create a new ShaderProgram based on the name.
 	 * This method assumes that the given name represents two files with the form [name].frag and [name].vert,
 	 * where [name] is the given parameter. These files are assumed to be located in {@link ZFilePaths#SHADERS}
-	 * 
+	 *
 	 * @param name The name of the shader
 	 */
 	public ShaderProgram(String name){
@@ -56,10 +56,10 @@ public class ShaderProgram{
 		// Error checking
 		boolean success = glGetProgrami(this.id, GL_LINK_STATUS) == GL_TRUE;
 		String status = success ? "success" : "failure";
-		if(ZConfig.printSuccess() && success || ZConfig.printErrors() && !success){
-			ZStringUtils.print("Created shader program with vertex shader at\n'", this.vertex.getPath(), "'\n and fragment shader at\n'", this.fragment.getPath(),
-					"'\nWith status ", status);
-		}
+		var logObjs = new Object[]{"Created shader program with vertex shader at\n'", this.vertex.getPath(), "'\n and fragment shader at\n'", this.fragment.getPath(),
+				"'\nWith status ", status};
+		if(success) ZConfig.success(logObjs);
+		else ZConfig.error(logObjs);
 	}
 	
 	/**

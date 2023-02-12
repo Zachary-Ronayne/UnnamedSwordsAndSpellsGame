@@ -8,15 +8,14 @@ import zgame.core.graphics.font.TextBuffer;
 import zgame.core.utils.ZRect;
 
 /**
- * A {@link MenuThing} that holds text
- * Note, for this class and anything that extends it, calls to updating the width and height will not update the text buffer's width and height beyond what was given to the
- * constructor. Must call {@link #getBuffer()} and call {@link TextBuffer#regenerateBuffer(int, int)} on it to resize where the text is drawn. It is not recommended to call this
- * method frequently, as it is a very expensive operation
+ * A {@link MenuThing} that holds text Note, for this class and anything that extends it, calls to updating the width and height will not update the text buffer's width and
+ * height beyond what was given to the constructor. Must call {@link #getBuffer()} and call {@link TextBuffer#regenerateBuffer(int, int)} on it to resize where the text is
+ * drawn. It is not recommended to call this method frequently, as it is a very expensive operation
  */
 public class MenuText extends MenuThing{
 	
 	/** The {@link TextBuffer} which this {@link MenuText} will use to draw text */
-	private TextBuffer buffer;
+	private final TextBuffer buffer;
 	
 	/** The {@link ZColor} to use to color {@link #text} */
 	private ZColor fontColor;
@@ -31,7 +30,7 @@ public class MenuText extends MenuThing{
 	
 	/**
 	 * Create a blank {@link MenuText} at the given position and size
-	 * 
+	 *
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}
@@ -43,7 +42,7 @@ public class MenuText extends MenuThing{
 	
 	/**
 	 * Create a {@link MenuText} at the given position and size
-	 * 
+	 *
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}
@@ -127,12 +126,12 @@ public class MenuText extends MenuThing{
 		this.fontColor = fontColor;
 	}
 	
-	/** @return See {@link #fontSize} */
+	/** @return See {@link GameFont#size} */
 	public double getFontSize(){
 		return this.getFont().getSize();
 	}
 	
-	/** @param fontSize See {@link #fontSize} */
+	/** @param fontSize See {@link GameFont#size} */
 	public void setFontSize(double fontSize){
 		this.setFont(this.getFont().size(fontSize));
 	}
@@ -151,7 +150,7 @@ public class MenuText extends MenuThing{
 	
 	/**
 	 * Move the text of this {@link MenuText} so that it's in the center of it's left and right bounds
-	 * 
+	 *
 	 * @param width The width of the text
 	 */
 	private void centerTextHorizontal(double width){
@@ -165,7 +164,7 @@ public class MenuText extends MenuThing{
 	
 	/**
 	 * Move the text of this {@link MenuText} so that it's in the center of it's top and bottom bounds
-	 * 
+	 *
 	 * @param height The height of the text
 	 */
 	private void centerTextVertical(double height){
@@ -189,7 +188,7 @@ public class MenuText extends MenuThing{
 	
 	/**
 	 * Draw the given text on this menu at it's intended location
-	 * 
+	 *
 	 * @param r The Renderer to use to draw the text
 	 * @param text The text to draw
 	 * @param bounds The bounds of this thing as it's being drawn

@@ -11,19 +11,19 @@ import java.nio.ShortBuffer;
 import java.util.Arrays;
 
 /**
- * A {@link Sound} which uses multiple buffers to play long music files.
- * Instances of this class cannot be used on multiple sources at the same time without interfering with one another.
+ * A {@link Sound} which uses multiple buffers to play long music files. Instances of this class cannot be used on multiple sources at the same time without interfering with
+ * one another.
  */
 public class MusicSound extends Sound{
 	
 	/** The values used by OpenAL to track the buffers of this {@link MusicSound} */
-	private int[] ids;
+	private final int[] ids;
 	
 	/** The number of buffers used by this music sound for splitting audio into multiple buffers */
-	private int numBuffers;
+	private final int numBuffers;
 	
 	/** The number of samples in each buffer */
-	private int bufferSize;
+	private final int bufferSize;
 	
 	/** The pointer pointing to the data for this {@link MusicSound} */
 	private PointerBuffer pointer;
@@ -32,7 +32,7 @@ public class MusicSound extends Sound{
 	
 	/**
 	 * Create a {@link MusicSound} with generic buffer sizes
-	 * 
+	 *
 	 * @param path The file path to the music
 	 */
 	public MusicSound(String path){
@@ -41,7 +41,7 @@ public class MusicSound extends Sound{
 	
 	/**
 	 * Create a {@link MusicSound} with the given buffer sizes
-	 * 
+	 *
 	 * @param path The file path to the music
 	 * @param numBuffers See {@link #numBuffers}
 	 * @param bufferSize See {@link #bufferSize}
@@ -87,7 +87,7 @@ public class MusicSound extends Sound{
 	
 	/**
 	 * Buffer the next chunk of data available in {@link #pointer}. Does nothing if there is no data left to buffer
-	 * 
+	 *
 	 * @param id The buffer id to place the data
 	 */
 	protected void bufferDataChunk(int id){
@@ -129,9 +129,9 @@ public class MusicSound extends Sound{
 	}
 	
 	/**
-	 * Load a sound based on the given name. This method assumes the given name is only the file name with no extension,
-	 * that the file is located in {@link ZFilePaths#MUSIC}, and that it is of type .ogg
-	 * 
+	 * Load a sound based on the given name. This method assumes the given name is only the file name with no extension, that the file is located in {@link ZFilePaths#MUSIC},
+	 * and that it is of type .ogg
+	 *
 	 * @param name The name of the file
 	 * @return The loaded sound
 	 */
