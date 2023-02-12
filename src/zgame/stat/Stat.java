@@ -97,17 +97,15 @@ public abstract class Stat{
 			this.recalculate();
 			return;
 		}
-		
+
 		// First, flag this stat as needing to be recalculated
 		this.recalculate = true;
-		
+
 		// Now, find any stats that use this stat
 		var toFlag = this.stats.getDependents()[this.getType().getOrdinal()];
 		// Flag each stat as needing to be recalculated
 		for(int i = 0; i < toFlag.length; i++){
-			var f = toFlag[i];
-			if(!f) continue;
-			this.stats.get(i).flagRecalculate();
+			this.stats.get(toFlag[i]).flagRecalculate();
 		}
 	}
 	

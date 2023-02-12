@@ -46,8 +46,6 @@ public class ZusassPlayer extends ZusassMob{
 		this.setStat(ATTACK_SPEED, .3);
 		this.setResourcesMax();
 		
-//		this.getStats().printStats();
-		
 		this.lockCamera = false;
 	}
 	

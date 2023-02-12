@@ -6,6 +6,20 @@ package zgame.stat;
  */
 public class Stats{
 	
+	/**
+	 * Mapping which stats must be recalculated when their key stat is updated.
+	 * The outer array is indexed by {@link StatType} ordinals
+	 * The inner array is in an arbitrary order, and is just the ordinals which depend on the stat of the outer array
+	 */
+	public static int[][] dependents;
+	
+	/**
+	 * Must be called after all implementations of {@link StatType} have been initialized
+	 */
+	public static void init(){
+		dependents = new int[StatOrdinal.numOrdinals()][0];
+	}
+	
 	/** The {@link Stat}s which this {@link Stats} uses. Index: the {@link StatType} ordinal, value: the stat */
 	private final Stat[] arr;
 	
@@ -19,18 +33,18 @@ public class Stats{
 		return this.arr;
 	}
 	
-	/** @return See {@link StatOrdinal#dependents} */
-	public boolean[][] getDependents(){
-		return StatOrdinal.dependents;
+	/** @return See {@link #dependents} */
+	public int[][] getDependents(){
+		return dependents;
 	}
 	
 	/**
 	 * Get the stat types which depend on the given stat type
 	 *
 	 * @param type The type to look for
-	 * @return Which types are dependents, as an array indexed by stat ordinal type
+	 * @return The dependent ordinals of the given type
 	 */
-	public boolean[] getDependents(StatType type){
+	public int[] getDependents(StatType type){
 		return this.getDependents()[type.getOrdinal()];
 	}
 	
@@ -47,10 +61,26 @@ public class Stats{
 		  this way, it's easy to find which stats need to be recalculated when a stat updates
 		 */
 		var ds = s.getDependents();
+		var ordinal = s.getType().getOrdinal();
 		// Go through all the types, which the length will be the number of ordinals
 		for(int i = 0; i < ds.length; i++){
-			// Set the current dependent as the given stat's type
-			StatOrdinal.dependents[ds[i]][s.getType().getOrdinal()] = true;
+			// Find the array to update
+			var dependentArr = dependents[ds[i]];
+			
+			// See if the ordinal is already in that array
+			var found = false;
+			for(int j = 0; j < dependentArr.length && !found; j++){
+				found = dependentArr[j] == ordinal;
+			}
+			
+			// If the ordinal was found, skip it
+			if(found) continue;
+			// Otherwise resize the array and add the new ordinal
+			dependents[ds[i]] = new int[dependentArr.length + 1];
+			// Resizing the array
+			System.arraycopy(dependentArr, 0, dependents[ds[i]], 0, dependentArr.length);
+			// Setting the new ordinal
+			dependents[ds[i]][dependentArr.length] = ordinal;
 		}
 	}
 	
@@ -85,20 +115,43 @@ public class Stats{
 	 * The columns within a row, say Y if that row's stat type is used when calculating the column's stat type, and a dash otherwise
 	 */
 	public void printStats(){
-		var d = this.getDependents();
 		var arr = this.getArr();
-		System.out.print("\t");
+		var sb = new StringBuilder("----------------------------------------------------------------------------------------\n");
+		sb.append("\t");
+		// Go through all the stats to get their names
 		for(int i = 0; i < arr.length; i++){
-			System.out.print(arr[i].getClass().getSimpleName() + "\t");
+			sb.append(arr[i].getClass().getSimpleName()).append(" (").append(i).append(")\t");
 		}
-		System.out.println();
+		sb.append("\n");
+		// Go through all the stats to show their dependencies
 		for(int i = 0; i < arr.length; i++){
-			System.out.print(arr[i].getClass().getSimpleName() + "\t");
-			for(var y : d[i]){
-				System.out.print((y ? "Y" : "-") + "\t");
+			sb.append(arr[i].getClass().getSimpleName()).append(" (").append(i).append(")\t");
+			var d = dependents[i];
+			// Go through all the stats
+			for(int j = 0; j < arr.length; j++){
+				var found = false;
+				// Check each stat to see if we found a dependency
+				for(int k = 0; k < d.length; k++){
+					if(d[k] == j){
+						found = true;
+						break;
+					}
+				}
+				// Add the correct symbol
+				sb.append(found ? "Y" : "-").append("\t");
 			}
-			System.out.println();
+			sb.append("\n");
 		}
+		sb.append("----------------------------------------------------------------------------------------\n");
+		for(int i = 0; i < dependents.length; i++){
+			sb.append(arr[i].getClass().getSimpleName()).append(" (").append(i).append(")\t");
+			for(int j = 0; j < dependents[i].length; j++){
+				sb.append(dependents[i][j]).append("\t");
+			}
+			sb.append("\n");
+		}
+		sb.append("----------------------------------------------------------------------------------------");
+		System.out.println(sb);
 	}
 	
 }
