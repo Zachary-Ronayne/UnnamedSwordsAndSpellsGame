@@ -29,7 +29,7 @@ public abstract class StatusEffect {
 	 */
 	public boolean tick(Game game, double dt){
 		this.remaining -= dt;
-		var done = this.duration >= 0 && this.remaining <= 0;
+		var done = !this.isPermanent() && this.remaining <= 0;
 		if(done) this.clear();
 		return done;
 	}
@@ -49,4 +49,10 @@ public abstract class StatusEffect {
 	public double getRemaining(){
 		return this.remaining;
 	}
+	
+	/** @return true if this effect lasts forever, false otherwise */
+	public boolean isPermanent(){
+		return this.duration < 0;
+	}
+	
 }

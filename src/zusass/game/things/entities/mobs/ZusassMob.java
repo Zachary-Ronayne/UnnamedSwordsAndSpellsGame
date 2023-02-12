@@ -6,6 +6,7 @@ import zgame.physics.material.Material;
 import zgame.stat.Stat;
 import zgame.stat.StatType;
 import zgame.stat.ValueStat;
+import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.status.StatusEffect;
 import zgame.stat.status.StatusEffects;
@@ -108,13 +109,13 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		// Ensure this thing stats at full resources
 		this.setResourcesMax();
 		
-		// Set initial stat values
+		// Set initial attribute values
 		this.setStat(STRENGTH, 1);
 		this.setStat(ENDURANCE, 5);
 		this.setStat(INTELLIGENCE, 5);
 		
 		// Generate modifiers
-		this.staminaWalkDrain = new StatModifier(0, StatModifier.ADD);
+		this.staminaWalkDrain = new StatModifier(0, ModifierType.ADD);
 		this.getStat(STAMINA_REGEN).addModifier(this.staminaWalkDrain);
 	}
 	
@@ -273,7 +274,12 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.getStat(MANA).addValue(-cost);
 		
 		// Casting a spell to move faster as a temporary test
-		this.addStatEffect(5, 2, StatModifier.MULT_MULT, MOVE_SPEED);
+		this.addStatEffect(5, 2, ModifierType.MULT_MULT, MOVE_SPEED);
+	}
+	
+	/** @return See {@link #effects} */
+	public StatusEffects getEffects(){
+		return this.effects;
 	}
 	
 	/**
@@ -290,8 +296,10 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 *
 	 * @param duration The duration of the effect
 	 * @param value The power of the effect
+	 * @param modifierType The way the modifier applies its value
+	 * @param statType The {@link Stat} to effect
 	 */
-	public void addStatEffect(double duration, double value, int modifierType, StatType statType){
+	public void addStatEffect(double duration, double value, ModifierType modifierType, StatType statType){
 		this.addEffect(new StatEffect(this.getStats(), duration, value, modifierType, statType));
 	}
 	

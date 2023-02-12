@@ -176,8 +176,11 @@ public class ZusassPlayer extends ZusassMob{
 			}
 			zgame.getCurrentRoom().setPlayer(this);
 			
-			// If the player is going through a level, heal to full
-			if(to.hasTag(ZusassTags.IS_LEVEL)) this.setResourcesMax();
+			// If the player is going through a level, heal to full, and remove all effects
+			if(to.hasTag(ZusassTags.IS_LEVEL)) {
+				this.setResourcesMax();
+				this.getEffects().removeAllTemporary();
+			}
 		}
 		
 		// Center the camera to the player

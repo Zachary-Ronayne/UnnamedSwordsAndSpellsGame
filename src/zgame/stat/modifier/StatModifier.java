@@ -8,17 +8,6 @@ import java.util.UUID;
 /** An amount that effects a stat */
 public class StatModifier implements Uuidable{
 	
-	/** The total number of modifier types */
-	public static final int TOTAL = 3;
-	
-	// TODO convert this back to an enum, and index by manual ordinals
-	/** Represents adding a stat's value */
-	public static final int ADD = 0;
-	/** Represents a stat that adds itself to other modifiers to get the final multiplier */
-	public static final int MULT_ADD = 1;
-	/** Represents a stat that multiplies its value with other modifiers multiplicatively */
-	public static final int MULT_MULT = 2;
-	
 	/** The uuid of this {@link StatModifier} */
 	private final String uuid;
 	
@@ -28,16 +17,16 @@ public class StatModifier implements Uuidable{
 	/** The amount of this modifier */
 	private double value;
 	
-	/** The type of this modifier. See the constants in this class */
-	private int type;
+	/** The type of this modifier */
+	private ModifierType type;
 	
 	/**
 	 * Create a new modifier
 	 *
 	 * @param value See {@link #value}
-	 * @param type See {@link #type}. Should use constants from this class
+	 * @param type See {@link #type}
 	 */
-	public StatModifier(double value, int type){
+	public StatModifier(double value, ModifierType type){
 		this.uuid = UUID.randomUUID().toString();
 		this.value = value;
 		this.type = type;
@@ -60,13 +49,13 @@ public class StatModifier implements Uuidable{
 		this.stat.flagRecalculate();
 	}
 	
-	/** @return See {@link #type}. Should use constants from this class */
-	public int getType(){
+	/** @return See {@link #type} */
+	public ModifierType getType(){
 		return this.type;
 	}
 	
-	/** @param type See {@link #type} and the constants from this class */
-	public void setType(int type){
+	/** @param type See {@link #type} */
+	public void setType(ModifierType type){
 		if(this.type == type) return;
 		this.type = type;
 		this.stat.flagRecalculate();

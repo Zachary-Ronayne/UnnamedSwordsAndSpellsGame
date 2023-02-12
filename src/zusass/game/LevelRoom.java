@@ -4,7 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZMath;
-import zgame.stat.modifier.StatModifier;
+import zgame.stat.modifier.ModifierType;
 import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zusass.game.things.LevelDoor;
@@ -70,7 +70,7 @@ public class LevelRoom extends ZusassRoom{
 		Npc enemy = new Npc(400, 400, 60, 80);
 		enemy.setStat(MOVE_SPEED, 100 + 200 * (1 - (10 / (this.level + 10.0))));
 		enemy.setStat(STRENGTH, 10);
-		enemy.getStat(STRENGTH).addModifier(this.level, StatModifier.ADD);
+		enemy.getStat(STRENGTH).addModifier(this.level, ModifierType.ADD);
 		enemy.setToMaxHealth();
 		this.addThing(enemy);
 	}

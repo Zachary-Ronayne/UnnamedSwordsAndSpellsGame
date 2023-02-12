@@ -27,7 +27,6 @@ public abstract class Attribute extends Stat{
 		this.getStats().add(this.base);
 		this.getStats().add(this.level);
 		this.getStats().add(this.regen);
-		this.setToMax();
 	}
 	
 	@Override
@@ -44,11 +43,6 @@ public abstract class Attribute extends Stat{
 	@Override
 	public void addValue(double value){
 		this.base.addValue(value);
-	}
-	
-	/** Set the current base value of this attribute to its maximum value */
-	public void setToMax(){
-		this.setValue(this.level.getValue());
 	}
 	
 	/** The {@link RangeStat} holding the base value of this {@link Attribute} before modifiers */

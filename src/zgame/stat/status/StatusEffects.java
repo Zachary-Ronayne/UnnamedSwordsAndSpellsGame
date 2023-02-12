@@ -26,6 +26,18 @@ public class StatusEffects{
 		effect.clear();
 	}
 	
+	/** Clear every non-permanent status effect from this object's owner */
+	public void removeAllTemporary(){
+		for(int i = 0; i < this.effects.size(); i++) {
+			var e = this.effects.get(i);
+			if(!e.isPermanent()){
+				e.clear();
+				this.effects.remove(i);
+				i--;
+			}
+		}
+	}
+	
 	/**
 	 * Update the state of {@link #effects}, clearing them when they run out of duration
 	 *
