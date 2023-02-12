@@ -10,8 +10,6 @@ import static zusass.game.stat.ZusassStat.*;
 /** The {@link Stat} keeping track of a thing's speed */
 public class MoveSpeed extends ValueStat{
 	
-	// issue#24
-	
 	/** The {@link ZusassMob} using this stat */
 	private final ZusassMob mob;
 	

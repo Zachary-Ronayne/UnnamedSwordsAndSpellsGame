@@ -88,10 +88,10 @@ public class Walk{
 	 * This friction only applies while on the ground. A value of 1 is used while in the air, regardless of if this MobThing is walking or not.
 	 */
 	private double walkStopFriction;
-
+	
 	/** true if {@link #thing} is currently running, false for walking */
 	private boolean walking;
-
+	
 	/** The percentage speed {@link #thing} should move at while walking instead of running. i.e. 0.5 = 50% */
 	private double walkingRatio;
 	
@@ -144,6 +144,7 @@ public class Walk{
 	
 	/**
 	 * Make a new {@link Walk} with the given entity
+	 *
 	 * @param thing See {@link #thing}
 	 */
 	public Walk(EntityThing thing){
@@ -189,6 +190,7 @@ public class Walk{
 	
 	/**
 	 * Perform the game update actions handling {@link #thing}'s walking and jumping
+	 *
 	 * @param game The {@link Game} where {@link #thing} is in
 	 * @param dt The amount of time that passed in the update
 	 */
@@ -236,18 +238,24 @@ public class Walk{
 		double mass = entity.getMass();
 		double acceleration = this.getWalkAcceleration();
 		double walkForce = acceleration * mass * this.getWalkingDirection();
-		boolean walking = walkForce != 0;
 		double maxSpeed = this.getWalkSpeedMax();
-		
 		// If the thing is walking, its max speed should be reduced by the ratio
 		if(this.isWalking()) maxSpeed *= this.getWalkingRatio();
+		
+		// If the current velocity is greater than the max speed, and thing is trying to walk in the same direction as the current velocity, walk force will always be zero
+		var vx = entity.getVX();
+		if(vx > 0 && walkForce > 0 && vx > maxSpeed || vx < 0 && walkForce < 0 && vx < -maxSpeed){
+			walkForce = 0;
+		}
+		
+		boolean walking = walkForce != 0;
 		
 		// If the mob is not on the ground, it's movement force is modified by the air control
 		if(!entity.isOnGround()) walkForce *= this.getWalkAirControl();
 		
 		// Only check the walking speed if there is any walking force
 		if(walking){
-			double vx = entity.getVX();
+			
 			// Find the total velocity if the new walking force is applied on the next tick
 			double sign = walkForce;
 			double newVel = vx + walkForce * dt / mass;
@@ -266,6 +274,7 @@ public class Walk{
 				if(sign < 0) walkForce *= -1;
 			}
 		}
+		
 		// Set the amount the mob is walking
 		this.setWalkingForce(walkForce);
 	}
@@ -316,6 +325,7 @@ public class Walk{
 	
 	/**
 	 * A utility method that handles a simple implementation of moving using keyboard controls
+	 *
 	 * @param moveLeft true if movement should be to the left, false otherwise
 	 * @param moveRight true if movement should be to the right, false otherwise
 	 * @param jump true if jumping should occur, false otherwise
