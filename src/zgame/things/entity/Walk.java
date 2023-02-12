@@ -399,14 +399,18 @@ public class Walk{
 	 * Only runs if the mob is in a position to jump, has not begun to build up jump time, and is not already jumping
 	 *
 	 * @param dt The amount of time, in seconds, that will pass in one tick after the mob jumps off the ground
+	 * @return true if the jump occurred or started building up, false otherwise
 	 */
-	public void jump(double dt){
-		if(!this.canJump || this.getJumpTimeBuilt() > 0 || this.isJumping()) return;
+	public boolean jump(double dt){
+		if(!this.canJump || this.getJumpTimeBuilt() > 0 || this.isJumping()) return false;
 		
 		// If it takes no time to jump, jump right away
-		if(this.jumpsAreInstant()) this.jumpFromBuiltUp(dt);
-			// Otherwise, start building up a jump
+		if(this.jumpsAreInstant()){
+			this.jumpFromBuiltUp(dt);
+		}
+		// Otherwise, start building up a jump
 		else this.buildingJump = true;
+		return true;
 	}
 	
 	/**

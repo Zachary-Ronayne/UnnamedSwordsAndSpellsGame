@@ -119,6 +119,6 @@ public class MainPlay extends PlayState{
 		// Using draw text like this is inefficient, but whatever, this is temp code
 		r.setColor(textColor);
 		r.setFontSize(20);
-		r.drawText(10, 28 + space, Math.round(c) + " / " + Math.round(m));
+		r.drawText(10, 28 + space, Math.round(Math.max(0, c)) + " / " + Math.round(m));
 	}
 }

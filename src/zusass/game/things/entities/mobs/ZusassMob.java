@@ -20,6 +20,7 @@ import zusass.game.stat.attributes.Strength;
 import zusass.game.stat.resources.Health;
 import zusass.game.stat.resources.Mana;
 import zusass.game.stat.resources.Stamina;
+import zusass.game.things.MobWalk;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -51,8 +52,8 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	/** The {@link Walk} which this mob uses for movement */
-	private final Walk walk;
+	/** The {@link MobWalk} which this mob uses for movement */
+	private final MobWalk walk;
 	
 	/** A modifier used to drain this thing's stamina while it walks */
 	private final StatModifier staminaWalkDrain;
@@ -67,7 +68,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 */
 	public ZusassMob(double x, double y, double width, double height){
 		super(x, y);
-		this.walk = new Walk(this);
+		this.walk = new MobWalk(this);
 		
 		this.width = width;
 		this.height = height;
