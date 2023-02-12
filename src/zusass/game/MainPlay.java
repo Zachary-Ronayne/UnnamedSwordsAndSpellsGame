@@ -3,10 +3,11 @@ package zusass.game;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
-import zgame.core.graphics.font.TextBuffer;
 import zgame.core.state.MenuNode;
 import zgame.core.state.PlayState;
+import zgame.stat.StatType;
 import zusass.ZusassGame;
+import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassPlayer;
 import zusass.menu.mainmenu.MainMenuState;
 import zusass.menu.pause.PauseMenu;
@@ -19,9 +20,6 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class MainPlay extends PlayState{
 	
-	/** A text buffer holding if the player is casting or attacking */
-	private final TextBuffer castAttackTextBuffer;
-	
 	/**
 	 * Initialize the main play state for the Zusass game
 	 *
@@ -29,11 +27,6 @@ public class MainPlay extends PlayState{
 	 */
 	public MainPlay(ZusassGame zgame){
 		this.enterHub(zgame);
-		this.castAttackTextBuffer = new TextBuffer(200, 200);
-		this.castAttackTextBuffer.setFont(zgame.getDefaultFont().size(30));
-		this.castAttackTextBuffer.setTextX(3);
-		this.castAttackTextBuffer.setTextY(22);
-		this.castAttackTextBuffer.setText(" ");
 	}
 	
 	/**
@@ -103,30 +96,29 @@ public class MainPlay extends PlayState{
 		// Draw a basic health bar
 		ZusassPlayer p = this.getCurrentRoom().getPlayer();
 		if(p == null) return;
-		r.setColor(.5, .5, .5);
-		r.drawRectangle(10, 10, 200, 20);
-		r.setColor(1, 0, 0);
-		r.drawRectangle(10, 10, 200 * p.currentHealthPerc(), 20);
-		
-		// Draw a stamina bar
-		r.setColor(.5, .5, .5);
-		r.drawRectangle(10, 35, 200, 20);
-		r.setColor(0, 1, 0);
-		r.drawRectangle(10, 35, 200 * p.currentStaminaPerc(), 20);
-		
-		// Draw a mana bar
-		r.setColor(.5, .5, .5);
-		r.drawRectangle(10, 60, 200, 20);
-		r.setColor(0, 0, 1);
-		r.drawRectangle(10, 60, 200 * p.currentManaPerc(), 20);
+		this.drawResourceBar(r, p, ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, 0, new ZColor(1, 0, 0), new ZColor(1));
+		this.drawResourceBar(r, p, ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, 1, new ZColor(0, 1, 0), new ZColor(.2));
+		this.drawResourceBar(r, p, ZusassStat.MANA, ZusassStat.MANA_MAX, 2, new ZColor(0, 0, 1), new ZColor(1));
 		
 		// Draw if the player is casting or attacking
 		r.setColor(1, 1, 1, 1);
-
-		var text = p.isCasting() ? "Spell Mode" : "Attack Mode";
-		// Kind of weird way to update this, but whatever, this is just temporary
-		if(this.castAttackTextBuffer.getText().charAt(0) != text.charAt(0)) this.castAttackTextBuffer.setText(text);
-		this.castAttackTextBuffer.drawToRenderer(10, 85, r);
+		// Using draw text like this is inefficient, but whatever, this is temp code
+		r.drawText(10, 100, p.isCasting() ? "Spell Mode" : "Attack Mode");
 	}
 	
+	/** Temporary code for simplicity of testing */
+	private void drawResourceBar(Renderer r, ZusassPlayer p, StatType current, StatType max, int index, ZColor color, ZColor textColor){
+		var c = p.stat(current);
+		var m = p.stat(max);
+		var space = 25 * index;
+		
+		r.setColor(.5, .5, .5);
+		r.drawRectangle(10, 10 + space, 200, 20);
+		r.setColor(color);
+		r.drawRectangle(10, 10 + space, 200 * c / m, 20);
+		// Using draw text like this is inefficient, but whatever, this is temp code
+		r.setColor(textColor);
+		r.setFontSize(20);
+		r.drawText(10, 28 + space, Math.round(c) + " / " + Math.round(m));
+	}
 }

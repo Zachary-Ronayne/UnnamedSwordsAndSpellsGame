@@ -256,7 +256,9 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * Attempt to cast the currently selected spell. Just a dummy to test using mana for now
 	 */
 	public void castSpell(){
-		this.getStat(MANA).addValue(-10);
+		var cost = 10;
+		if(this.stat(MANA) < cost) return;
+		this.getStat(MANA).addValue(-cost);
 	}
 	
 	/** @return See {@link #stats} */
