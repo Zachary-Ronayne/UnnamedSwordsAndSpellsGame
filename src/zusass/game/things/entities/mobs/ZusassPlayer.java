@@ -43,6 +43,7 @@ public class ZusassPlayer extends ZusassMob{
 		
 		this.setStat(STRENGTH, 10);
 		this.setStat(ENDURANCE, 10);
+		this.setStat(INTELLIGENCE, 10);
 		this.setStat(ATTACK_SPEED, .3);
 		this.setResourcesMax();
 		

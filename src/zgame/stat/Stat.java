@@ -1,6 +1,5 @@
 package zgame.stat;
 
-import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 
 import java.util.HashMap;
@@ -50,9 +49,9 @@ public abstract class Stat{
 			this.dependents[i] = dependents[i].getOrdinal();
 		}
 		this.modifiers = (HashMap<String, StatModifier>[]) new HashMap[3];
-		this.modifiers[ModifierType.ADD] = new HashMap<>();
-		this.modifiers[ModifierType.MULT_ADD] = new HashMap<>();
-		this.modifiers[ModifierType.MULT_MULT] = new HashMap<>();
+		this.modifiers[StatModifier.ADD] = new HashMap<>();
+		this.modifiers[StatModifier.MULT_ADD] = new HashMap<>();
+		this.modifiers[StatModifier.MULT_MULT] = new HashMap<>();
 	}
 	
 	/** @return See {@link #stats} */
@@ -173,16 +172,16 @@ public abstract class Stat{
 		var newCalculated = this.calculated;
 		
 		// Apply add modifiers first
-		var mods = this.modifiers[ModifierType.ADD].values();
+		var mods = this.modifiers[StatModifier.ADD].values();
 		for(var m : mods) newCalculated += m.getValue();
 		
 		// Combine all additive multipliers
-		mods = this.modifiers[ModifierType.MULT_ADD].values();
+		mods = this.modifiers[StatModifier.MULT_ADD].values();
 		double multiplyTotal = 1;
 		for(var m : mods) multiplyTotal += m.getValue();
 		
 		// Apply all multiplicitive multipliers
-		mods = this.modifiers[ModifierType.MULT_MULT].values();
+		mods = this.modifiers[StatModifier.MULT_MULT].values();
 		for(var m : mods) multiplyTotal *= m.getValue();
 		
 		// Apply the final value

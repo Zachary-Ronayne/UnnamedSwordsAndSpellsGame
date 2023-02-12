@@ -1,5 +1,6 @@
 package zusass.game.stat.attributes;
 
+import zgame.stat.Attribute;
 import zgame.stat.Stats;
 
 import static zusass.game.stat.ZusassStat.*;
@@ -13,6 +14,6 @@ public class Strength extends Attribute{
 	 * @param stats See {@link #stats}
 	 */
 	public Strength(Stats stats){
-		super(stats, STRENGTH, STRENGTH_MIN, STRENGTH_MAX, STRENGTH_REGEN);
+		super(stats, STRENGTH, STRENGTH_BASE, STRENGTH_LEVEL, STRENGTH_REGEN);
 	}
 }

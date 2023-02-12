@@ -3,15 +3,15 @@ package zgame.stat;
 /** The stat keeping track of a resource like health of a thing. A resource has a min, max, and regen rate, potentially based on other stats */
 public abstract class ResourceStat extends RegenStat{
 	
-	/** The stat for the minimum value of this stat */
+	/** The stat for the minimum value of this resource */
 	private final Min min;
-	/** The stat for the maximum value of this stat */
+	/** The stat for the maximum value of this resource */
 	private final Max max;
-	/** The stat for the regeneration value of this stat */
+	/** The stat for the regeneration value of this resource */
 	private final Regen regen;
 	
 	/**
-	 * Create a new stat with the given default value
+	 * Create a new resource with the given default value
 	 *
 	 * @param stats See {@link #stats}
 	 * @param type See {@link #type}
@@ -58,7 +58,7 @@ public abstract class ResourceStat extends RegenStat{
 	
 	@Override
 	public final double calculateMax(){
-		return this.getOther(this.max.getType());
+		return this.max.get();
 	}
 	
 	/**
@@ -70,7 +70,7 @@ public abstract class ResourceStat extends RegenStat{
 	
 	@Override
 	public final double calculateRegen(){
-		return this.getOther(this.regen.getType());
+		return this.regen.get();
 	}
 	
 	/**

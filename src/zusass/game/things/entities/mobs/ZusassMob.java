@@ -6,7 +6,6 @@ import zgame.physics.material.Material;
 import zgame.stat.Stat;
 import zgame.stat.StatType;
 import zgame.stat.ValueStat;
-import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.Walk;
@@ -106,7 +105,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.setStat(INTELLIGENCE, 5);
 		
 		// Generate modifiers
-		this.staminaWalkDrain = new StatModifier(0, ModifierType.ADD);
+		this.staminaWalkDrain = new StatModifier(0, StatModifier.ADD);
 		this.getStat(STAMINA_REGEN).addModifier(this.staminaWalkDrain);
 	}
 	
