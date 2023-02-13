@@ -1,8 +1,10 @@
 package zgame.stat;
 
+import zgame.core.utils.ZArrayUtils;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,8 +29,13 @@ public abstract class Stat{
 	/** The value of this stat since it was last calculated */
 	private double calculated;
 	
-	/** The current modifiers applying to this {@link Stat} */
-	private final Map<String, StatModifier>[] modifiers;
+	/**
+	 * The current modifiers applying to this {@link Stat}.
+	 * The outer array is indexed by {@link ModifierType}
+	 * The Map is mapped by modifier sourceId
+	 * The ArrayList is sorted descending by modifier power
+	 */
+	private final Map<String, ArrayList<StatModifier>>[] modifiers;
 	
 	/**
 	 * Create a new stat
@@ -49,7 +56,7 @@ public abstract class Stat{
 		for(int i = 0; i < this.dependents.length; i++){
 			this.dependents[i] = dependents[i].getOrdinal();
 		}
-		this.modifiers = (HashMap<String, StatModifier>[]) new HashMap[ModifierType.values().length];
+		this.modifiers = (HashMap<String, ArrayList<StatModifier>>[])new HashMap[ModifierType.values().length];
 		this.modifiers[ModifierType.ADD.getIndex()] = new HashMap<>();
 		this.modifiers[ModifierType.MULT_ADD.getIndex()] = new HashMap<>();
 		this.modifiers[ModifierType.MULT_MULT.getIndex()] = new HashMap<>();
@@ -97,20 +104,15 @@ public abstract class Stat{
 			this.recalculate();
 			return;
 		}
-
+		
 		// First, flag this stat as needing to be recalculated
 		this.recalculate = true;
-
+		
 		// Now, find any stats that use this stat
 		var toFlag = this.stats.getDependents()[this.getType().getOrdinal()];
 		// Flag each stat as needing to be recalculated
 		for(int i = 0; i < toFlag.length; i++){
-			try{
-				
-				this.stats.get(toFlag[i]).flagRecalculate();
-			}catch(Exception e){
-				e.printStackTrace();
-			}
+			this.stats.get(toFlag[i]).flagRecalculate();
 		}
 	}
 	
@@ -137,12 +139,13 @@ public abstract class Stat{
 	/**
 	 * Add a modifier to this {@link Stat}
 	 *
+	 * @param sourceId The id representing the source of the modifier
 	 * @param value The value of the modifier
 	 * @param type The way the value is applied to the stat
 	 * @return The modifier created
 	 */
-	public StatModifier addModifier(double value, ModifierType type){
-		var m = new StatModifier(value, type);
+	public StatModifier addModifier(String sourceId, double value, ModifierType type){
+		var m = new StatModifier(sourceId, value, type);
 		this.addModifier(m);
 		return m;
 	}
@@ -153,15 +156,23 @@ public abstract class Stat{
 	 * @param mod The modifier to add.
 	 */
 	public void addModifier(StatModifier mod){
-		if(this.hasModifier(mod)) return;
-		
-		this.modifiers[mod.getType().getIndex()].put(mod.getUuid(), mod);
+		var map = this.modifiers[mod.getType().getIndex()];
+		var id = mod.getSourceId();
+		if(!map.containsKey(id)) map.put(id, new ArrayList<>());
+		var list = map.get(id);
+		if(list.contains(mod)) return;
+		ZArrayUtils.insertSorted(list, mod);
 		mod.setStat(this);
 	}
 	
 	/** @param mod The modifier to remove, should be the same object, with the same uuid */
 	public void removeModifier(StatModifier mod){
-		this.modifiers[mod.getType().getIndex()].remove(mod.getUuid());
+		var map = this.modifiers[mod.getType().getIndex()];
+		var id = mod.getSourceId();
+		if(!map.containsKey(id)) return;
+		
+		var list = map.get(id);
+		list.remove(mod);
 		this.flagRecalculate();
 	}
 	
@@ -170,7 +181,11 @@ public abstract class Stat{
 	 * @return true if this stat is being modified by the given modifier, false otherwise
 	 */
 	public boolean hasModifier(StatModifier mod){
-		return this.modifiers[mod.getType().getIndex()].containsKey(mod.getUuid());
+		var map = this.modifiers[mod.getType().getIndex()];
+		var id = mod.getSourceId();
+		if(!map.containsKey(id)) return false;
+		var list = map.get(id);
+		return list.contains(mod);
 	}
 	
 	/** Put the current value of {@link #calculated} through all its modifiers */
@@ -179,16 +194,25 @@ public abstract class Stat{
 		
 		// Apply add modifiers first
 		var mods = this.modifiers[ModifierType.ADD.getIndex()].values();
-		for(var m : mods) newCalculated += m.getValue();
+		for(var m : mods) {
+			if(m.isEmpty()) continue;
+			newCalculated += m.get(0).getValue();
+		}
 		
 		// Combine all additive multipliers
 		mods = this.modifiers[ModifierType.MULT_ADD.getIndex()].values();
 		double multiplyTotal = 1;
-		for(var m : mods) multiplyTotal += m.getValue();
+		for(var m : mods){
+			if(m.isEmpty()) continue;
+			multiplyTotal += m.get(0).getValue();
+		}
 		
 		// Apply all multiplicitive multipliers
 		mods = this.modifiers[ModifierType.MULT_MULT.getIndex()].values();
-		for(var m : mods) multiplyTotal *= m.getValue();
+		for(var m : mods){
+			if(m.isEmpty()) continue;
+			multiplyTotal *= m.get(0).getValue();
+		}
 		
 		// Apply the final value
 		this.calculated = newCalculated * multiplyTotal;

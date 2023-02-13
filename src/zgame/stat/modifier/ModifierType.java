@@ -1,5 +1,8 @@
 package zgame.stat.modifier;
 
+import zgame.stat.Stat;
+
+/** Constants that represent different ways {@link StatModifier}s can be applied to {@link Stat}s */
 public enum ModifierType{
 	
 	/** Represents adding a stat's value */

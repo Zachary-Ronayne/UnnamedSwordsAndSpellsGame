@@ -44,7 +44,7 @@ public class ZusassGame extends Game{
 		super();
 		// Window and performance settings
 		this.setTps(100);
-		this.setMaxFps(0);
+		this.setMaxFps(100);
 		this.setCurrentState(new MainMenuState(this));
 		GameWindow w = this.getWindow();
 		w.setUseVsync(true);

@@ -3,7 +3,6 @@ package zusass.game.status;
 import zgame.stat.Stat;
 import zgame.stat.StatType;
 import zgame.stat.Stats;
-import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.modifier.TypedModifier;
 import zgame.stat.status.StatusEffect;
@@ -24,12 +23,10 @@ public class StatEffect extends StatusEffect{
 	 *
 	 * @param stats See {@link #stats}
 	 * @param duration The duration of the effect
-	 * @param value The amount of the effect
 	 * @param statType The stat to effect
-	 * @param modifierType The way the modifier applies its effect
 	 */
-	public StatEffect(Stats stats, double duration, double value, ModifierType modifierType, StatType statType){
-		this(stats, duration, List.of(new TypedModifier(new StatModifier(value, modifierType), statType)));
+	public StatEffect(Stats stats, double duration, StatModifier mod, StatType statType){
+		this(stats, duration, List.of(new TypedModifier(mod, statType)));
 	}
 	
 	/**

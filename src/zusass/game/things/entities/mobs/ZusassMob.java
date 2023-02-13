@@ -61,9 +61,6 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	/** The {@link MobWalk} which this mob uses for movement */
 	private final MobWalk walk;
 	
-	/** A modifier used to drain this thing's stamina while it walks */
-	private final StatModifier staminaWalkDrain;
-	
 	/**
 	 * Create a new mob with the given bounds
 	 *
@@ -113,10 +110,6 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.setStat(STRENGTH, 1);
 		this.setStat(ENDURANCE, 5);
 		this.setStat(INTELLIGENCE, 5);
-		
-		// Generate modifiers
-		this.staminaWalkDrain = new StatModifier(0, ModifierType.ADD);
-		this.getStat(STAMINA_REGEN).addModifier(this.staminaWalkDrain);
 	}
 	
 	@Override
@@ -139,6 +132,9 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		
 		walk.updatePosition(game, dt);
 		walk.tick(game, dt);
+		
+		// If walking, need to reduce stamina
+		if(!this.getWalk().isWalking() && this.getWalk().isTryingToMove()) this.getStat(STAMINA).addValue(-35 * dt);
 		
 		// Do the normal game update
 		super.tick(game, dt);
@@ -173,10 +169,6 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		
 		// If this thing has 0 or less health, kill it
 		if(this.getCurrentHealth() <= 0) this.die(zgame);
-		
-		// If walking, need to reduce stamina
-		if(!this.getWalk().isWalking() && this.getWalk().isTryingToMove()) this.staminaWalkDrain.setValue(-35);
-		else this.staminaWalkDrain.setValue(0);
 	}
 	
 	/**
@@ -269,12 +261,12 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * Attempt to cast the currently selected spell
 	 */
 	public void castSpell(){
-		var cost = 50;
+		var cost = 20;
 		if(this.stat(MANA) < cost) return;
 		this.getStat(MANA).addValue(-cost);
 		
 		// Casting a spell to move faster as a temporary test
-		this.addStatEffect(5, 2, ModifierType.MULT_MULT, MOVE_SPEED);
+		this.addStatEffect(this.getUuid(), 5, 2, ModifierType.MULT_MULT, MOVE_SPEED);
 	}
 	
 	/** @return See {@link #effects} */
@@ -294,13 +286,14 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	/**
 	 * Add and apply a {@link StatEffect} to this mob
 	 *
+	 * @param sourceId The id of whatever caused the effect to be applied to this mob
 	 * @param duration The duration of the effect
 	 * @param value The power of the effect
 	 * @param modifierType The way the modifier applies its value
 	 * @param statType The {@link Stat} to effect
 	 */
-	public void addStatEffect(double duration, double value, ModifierType modifierType, StatType statType){
-		this.addEffect(new StatEffect(this.getStats(), duration, value, modifierType, statType));
+	public void addStatEffect(String sourceId, double duration, double value, ModifierType modifierType, StatType statType){
+		this.addEffect(new StatEffect(this.getStats(), duration, new StatModifier(sourceId, value, modifierType), statType));
 	}
 	
 	/** @return See {@link #stats} */

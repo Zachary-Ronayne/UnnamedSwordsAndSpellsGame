@@ -70,8 +70,8 @@ public class LevelRoom extends ZusassRoom{
 		Npc enemy = new Npc(400, 400, 60, 80);
 		enemy.setStat(MOVE_SPEED, 100 + 200 * (1 - (10 / (this.level + 10.0))));
 		enemy.setStat(STRENGTH, 10);
-		enemy.getStat(STRENGTH).addModifier(this.level, ModifierType.ADD);
-		enemy.setToMaxHealth();
+		enemy.getStat(STRENGTH).addModifier(enemy.getUuid(), this.level, ModifierType.ADD);
+		enemy.setResourcesMax();
 		this.addThing(enemy);
 	}
 	

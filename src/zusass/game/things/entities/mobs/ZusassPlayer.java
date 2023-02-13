@@ -6,6 +6,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.utils.ZMath;
+import zgame.stat.modifier.ModifierType;
 import zgame.world.Room;
 import zusass.ZusassGame;
 import zusass.game.things.ZusassTags;
@@ -46,6 +47,8 @@ public class ZusassPlayer extends ZusassMob{
 		this.setStat(INTELLIGENCE, 10);
 		this.setStat(ATTACK_SPEED, .3);
 		this.setResourcesMax();
+		
+		this.addStatEffect(this.getUuid(), -1, 5, ModifierType.ADD, STAMINA_REGEN);
 		
 		this.lockCamera = false;
 	}

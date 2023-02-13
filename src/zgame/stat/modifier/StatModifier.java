@@ -1,15 +1,12 @@
 package zgame.stat.modifier;
 
-import zgame.core.utils.Uuidable;
 import zgame.stat.Stat;
 
-import java.util.UUID;
-
 /** An amount that effects a stat */
-public class StatModifier implements Uuidable{
+public class StatModifier implements Comparable<StatModifier>{
 	
-	/** The uuid of this {@link StatModifier} */
-	private final String uuid;
+	/** The id representing the source of where this modifier came from */
+	private final String sourceId;
 	
 	/** The {@link Stat} which uses this modifier */
 	private Stat stat;
@@ -23,18 +20,19 @@ public class StatModifier implements Uuidable{
 	/**
 	 * Create a new modifier
 	 *
+	 * @param sourceId See {@link #sourceId}
 	 * @param value See {@link #value}
 	 * @param type See {@link #type}
 	 */
-	public StatModifier(double value, ModifierType type){
-		this.uuid = UUID.randomUUID().toString();
+	public StatModifier(String sourceId, double value, ModifierType type){
+		this.sourceId = sourceId;
 		this.value = value;
 		this.type = type;
 	}
 	
-	@Override
-	public String getUuid(){
-		return uuid;
+	/** @return See {@link #sourceId} */
+	public String getSourceId(){
+		return this.sourceId;
 	}
 	
 	/** @return See {@link #value} */
@@ -70,5 +68,11 @@ public class StatModifier implements Uuidable{
 	public void setStat(Stat stat){
 		this.stat = stat;
 		this.stat.flagRecalculate();
+	}
+	
+	@Override
+	public int compareTo(StatModifier o){
+		// Sort descending
+		return (int)(o.getValue() - this.getValue());
 	}
 }
