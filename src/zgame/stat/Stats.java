@@ -1,5 +1,7 @@
 package zgame.stat;
 
+import zusass.game.stat.ZusassStat;
+
 /**
  * An object keeping track of all the information, i.e. health, skills, etc., about a mob
  * This object is less of a state, and more of information about the mob, i.e., it should store maximum health, not current health
@@ -120,12 +122,12 @@ public class Stats{
 		sb.append("\t");
 		// Go through all the stats to get their names
 		for(int i = 0; i < arr.length; i++){
-			sb.append(arr[i].getClass().getSimpleName()).append(" (").append(i).append(")\t");
+			sb.append(ZusassStat.ATTACK_SPEED.getFromOrdinal(i)).append(" (").append(i).append(")\t");
 		}
 		sb.append("\n");
 		// Go through all the stats to show their dependencies
 		for(int i = 0; i < arr.length; i++){
-			sb.append(arr[i].getClass().getSimpleName()).append(" (").append(i).append(")\t");
+			sb.append(ZusassStat.ATTACK_SPEED.getFromOrdinal(i)).append(" (").append(i).append(")\t");
 			var d = dependents[i];
 			// Go through all the stats
 			for(int j = 0; j < arr.length; j++){
@@ -144,9 +146,9 @@ public class Stats{
 		}
 		sb.append("----------------------------------------------------------------------------------------\n");
 		for(int i = 0; i < dependents.length; i++){
-			sb.append(arr[i].getClass().getSimpleName()).append(" (").append(i).append(")\t");
+			sb.append(ZusassStat.ATTACK_SPEED.getFromOrdinal(i)).append(" (").append(i).append(")\t");
 			for(int j = 0; j < dependents[i].length; j++){
-				sb.append(dependents[i][j]).append("\t");
+				sb.append(ZusassStat.ATTACK_SPEED.getFromOrdinal(dependents[i][j])).append(" (").append(dependents[i][j]).append(")\t");
 			}
 			sb.append("\n");
 		}

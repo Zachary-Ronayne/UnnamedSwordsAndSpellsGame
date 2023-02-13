@@ -9,4 +9,11 @@ public interface StatType{
 	/** @return The unique integer ordinal to assign to this {@link StatType}. Should obtain this value by calling {@link StatOrdinal#nextOrdinal()} */
 	int getOrdinal();
 	
+	/**
+	 * Get the type from the ordinal. Primarily should be used for debugging, or when performance doesn't matter
+	 * @param ordinal The ordinal of the stat type to get
+	 * @return The type, or null if none exists from the origin of this call
+	 */
+	StatType getFromOrdinal(int ordinal);
+	
 }

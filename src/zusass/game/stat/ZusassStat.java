@@ -50,4 +50,11 @@ public enum ZusassStat implements StatType{
 		}
 	}
 	
+	@Override
+	public StatType getFromOrdinal(int ordinal){
+		for(var v : values()){
+			if(ordinal == v.ordinal) return v;
+		}
+		return null;
+	}
 }
