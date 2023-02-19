@@ -186,6 +186,11 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		return this.attackTime;
 	}
 	
+	/** @return See {@link #attackDirection} */
+	public double getAttackDirection(){
+		return this.attackDirection;
+	}
+	
 	/** @return See {@link #casting} */
 	public boolean isCasting(){
 		return this.casting;
@@ -204,14 +209,15 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	/**
 	 * Cause this mob to begin performing an attack or casting a spell depending on which mode is selected
 	 *
+	 * @param zgame The game where the attack or spell took place
 	 * @param direction The direction to attack or cast in
 	 */
-	public void beginAttackOrSpell(double direction){
+	public void beginAttackOrSpell(ZusassGame zgame, double direction){
+		this.attackDirection = direction;
 		if(casting){
-			this.castSpell();
+			this.castSpell(zgame);
 		}
 		else{
-			this.attackDirection = direction;
 			this.attackTime = this.stat(ATTACK_SPEED);
 			
 			// Also drain stamina from the thing
@@ -259,8 +265,10 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	
 	/**
 	 * Attempt to cast the currently selected spell
+	 *
+	 * @param zgame The {@link ZusassGame} where the spell was cast
 	 */
-	public void castSpell(){
+	public void castSpell(ZusassGame zgame){
 		var cost = 20;
 		if(this.stat(MANA) < cost) return;
 		this.getStat(MANA).addValue(-cost);

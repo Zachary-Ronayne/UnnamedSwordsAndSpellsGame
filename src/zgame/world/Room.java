@@ -39,13 +39,13 @@ public class Room extends GameThing implements RectangleBounds{
 	/** All of the {@link GameThing} objects which will be removed on the next game tick */
 	private final List<GameThing> thingsToRemove;
 	
-	// The 2D grid of {@link Tile} objects defining this {@link Room}
+	/** The 2D grid of {@link Tile} objects defining this {@link Room} */
 	private ArrayList<ArrayList<Tile>> tiles;
 	
-	// The number of tiles wide this room is, i.e. the number of tiles on the x axis
+	/** The number of tiles wide this room is, i.e. the number of tiles on the x axis */
 	private int xTiles;
 	
-	// The number of tiles high this room is, i.e. the number of tiles on the y axis
+	/** The number of tiles high this room is, i.e. the number of tiles on the y axis */
 	private int yTiles;
 	
 	/** The width of the room. */
@@ -181,6 +181,7 @@ public class Room extends GameThing implements RectangleBounds{
 	 */
 	public CollisionResponse collide(HitBox obj){
 		// Find touching tiles and collide with them
+		// TODO find a way to abstract this?
 		int minX = this.tileX(obj.getX());
 		int minY = this.tileY(obj.getY());
 		int maxX = this.tileX(obj.maxX());
@@ -446,6 +447,19 @@ public class Room extends GameThing implements RectangleBounds{
 	 */
 	public Tile getTile(int x, int y){
 		if(!ZMath.in(0, x, this.tiles.size() - 1) || !ZMath.in(0, y, this.tiles.get(x).size() - 1)) return null;
+		return this.getTileUnchecked(x, y);
+	}
+	
+	/**
+	 * Get the tile at the specified index
+	 * Will cause an {@link IndexOutOfBoundsException} if the indexes are outside the range of the grid.
+	 * Only call this method if the bounds are being checked separately. Use {@link #getTile(int, int)} instead to return null if the indexes go out of bounds
+	 *
+	 * @param x The tile index on the x axis
+	 * @param y The tile on the y axis
+	 * @return The tile
+	 */
+	public Tile getTileUnchecked(int x, int y){
 		return this.tiles.get(x).get(y);
 	}
 	
@@ -455,7 +469,7 @@ public class Room extends GameThing implements RectangleBounds{
 	 * @param x The x index
 	 * @param y The y index
 	 * @param t The type of tile to set
-	 * @return true if the tile was set, false if it was not i.e. the indexes were outside the grid
+	 * @return true if the tile was set, false if it was not i.e. the index was outside the grid
 	 */
 	public boolean setTile(int x, int y, TileType t){
 		if(!this.inTiles(x, y)) return false;

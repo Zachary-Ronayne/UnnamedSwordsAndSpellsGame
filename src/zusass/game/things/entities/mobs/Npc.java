@@ -48,11 +48,11 @@ public class Npc extends ZusassMob{
 		// If the AI has an attack available, and stamina is at least about a third, begin attacking
 		var staminaPerc = this.currentStaminaPerc();
 		if(this.getAttackTime() <= 0 && playerDist < this.stat(ATTACK_RANGE) * 1.5 && staminaPerc > .33){
-			this.beginAttackOrSpell(ZMath.lineAngle(this.centerX(), this.centerY(), playerX, player.centerY()));
+			this.beginAttackOrSpell(zgame, ZMath.lineAngle(this.centerX(), this.centerY(), playerX, player.centerY()));
 		}
 		
 		// Try to cast a spell
-		this.castSpell();
+		this.castSpell(zgame);
 		
 		// If running and stamina is below half, stop running
 		var walking = walk.isWalking();

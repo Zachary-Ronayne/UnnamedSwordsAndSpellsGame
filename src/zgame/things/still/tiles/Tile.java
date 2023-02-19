@@ -70,8 +70,14 @@ public class Tile extends PositionedRectangleThing implements Materialable{
 		return this.getType().getMaterial();
 	}
 	
+	/** See {@link TileHitbox#collide(Tile, HitBox)} */
 	public CollisionResponse collide(HitBox obj){
 		return this.getType().getHitbox().collide(this, obj);
+	}
+	
+	/** See {@link TileHitbox#intersects(Tile, HitBox)} */
+	public boolean intersects(HitBox obj){
+		return this.getType().getHitbox().intersects(this, obj);
 	}
 	
 	@Override

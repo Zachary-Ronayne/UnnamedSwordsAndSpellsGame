@@ -1,11 +1,12 @@
 package zgame.things.type;
 
+import zgame.core.utils.Uuidable;
 import zgame.core.utils.ZRect;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
-public interface HitBox extends Bounds, Materialable{
+public interface HitBox extends Bounds, Materialable, Uuidable{
 	
 	/**
 	 * Apply the given {@link CollisionResponse} to this object

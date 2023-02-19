@@ -3,10 +3,12 @@ package zgame.things.still.tiles;
 import zgame.physics.collision.CollisionResponse;
 import zgame.things.type.HitBox;
 
-/** An enum that represents the hitbox of a tile, i.e., what parts of the tile have collision */
-public interface TileHitbox{
+/** An object that represents the hitbox of a tile, i.e., what parts of the tile have collision */
+public interface TileHitbox {
 	
+	/** See {@link None} */
 	None NONE = new None();
+	/** See {@link Full} */
 	Full FULL = new Full();
 	
 	/**
@@ -19,11 +21,22 @@ public interface TileHitbox{
 	 */
 	CollisionResponse collide(Tile t, HitBox obj);
 	
+	/**
+	 * Determine if a hitbox hits this {@link TileHitbox}
+	 * @param obj The hitbox to check
+	 * @return true if they intersect, false otherwise
+	 */
+	boolean intersects(Tile t, HitBox obj);
+	
 	/** For tiles with no collision */
 	class None implements TileHitbox{
 		@Override
 		public CollisionResponse collide(Tile t, HitBox obj){
 			return new CollisionResponse();
+		}
+		@Override
+		public boolean intersects(Tile t, HitBox obj){
+			return false;
 		}
 	}
 	
@@ -32,6 +45,11 @@ public interface TileHitbox{
 		@Override
 		public CollisionResponse collide(Tile t, HitBox obj){
 			return obj.calculateRectCollision(t.getX(), t.getY(), t.getWidth(), t.getHeight(), t.getType().getMaterial());
+		}
+		
+		@Override
+		public boolean intersects(Tile t, HitBox obj){
+			return obj.intersects(t.getX(), t.getY(), t.getWidth(), t.getHeight());
 		}
 	}
 	

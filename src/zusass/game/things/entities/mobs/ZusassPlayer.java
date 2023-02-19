@@ -6,10 +6,12 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.utils.ZMath;
+import zgame.physics.ZVector;
 import zgame.stat.modifier.ModifierType;
 import zgame.world.Room;
 import zusass.ZusassGame;
 import zusass.game.things.ZusassTags;
+import zusass.game.things.entities.projectile.MagicProjectile;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -70,7 +72,7 @@ public class ZusassPlayer extends ZusassMob{
 		boolean rightPressed = mi.rightDown();
 		if(this.attackPressed && !rightPressed){
 			this.attackPressed = false;
-			this.beginAttackOrSpell(ZMath.lineAngle(this.centerX(), this.centerY(), game.mouseGX(), game.mouseGY()));
+			this.beginAttackOrSpell(zgame, ZMath.lineAngle(this.centerX(), this.centerY(), game.mouseGX(), game.mouseGY()));
 		}
 		if(rightPressed) this.attackPressed = true;
 		
@@ -159,6 +161,17 @@ public class ZusassPlayer extends ZusassMob{
 	/** If the camera is locked, unlock it, otherwise, lock it */
 	public void toggleLockCamera(){
 		this.setLockCamera(!this.isLockCamera());
+	}
+	
+	@Override
+	public void castSpell(ZusassGame zgame){
+		// TODO abstract this into using a spell casting system
+		if(this.stat(MANA) < 10) return;
+		this.getStat(MANA).addValue(-10);
+		
+		var r = zgame.getCurrentRoom();
+		var vel = new ZVector(this.getAttackDirection(), 400, false);
+		r.addThing(new MagicProjectile(this.centerX(), this.centerY(), this.getUuid(), vel));
 	}
 	
 	@Override
