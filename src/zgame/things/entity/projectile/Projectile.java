@@ -6,8 +6,15 @@ import zgame.things.entity.EntityThing;
 import zgame.things.still.tiles.Tile;
 import zgame.things.type.HitBox;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
+
 /** An {@link EntityThing} which represents a thing flying through the air */
-public abstract class Projectile extends EntityThing {
+public abstract class Projectile extends EntityThing{
+	
+	// TODO give this a real doc
+	private final Map<Class<?>, Consumer<?>> mappedFuncs;
 	
 	/**
 	 * Create a projectile at the specified location, moving at the given velocity
@@ -19,6 +26,20 @@ public abstract class Projectile extends EntityThing {
 	public Projectile(double x, double y, ZVector launchVelocity){
 		super(x, y);
 		this.addVelocity(launchVelocity);
+		this.mappedFuncs = new HashMap<>();
+	}
+	
+	// TODO give this a real doc
+	public <T> void addHitFunc(Class<T> clazz, Consumer<T> func){
+		mappedFuncs.put(clazz, func);
+	}
+	
+	// TODO give this a real doc
+	@SuppressWarnings("unchecked")
+	public <T> void hit(Class<T> clazz, T thing){
+		var func = (Consumer<T>)this.mappedFuncs.get(clazz);
+		if(func == null) return;
+		func.accept(thing);
 	}
 	
 	@Override

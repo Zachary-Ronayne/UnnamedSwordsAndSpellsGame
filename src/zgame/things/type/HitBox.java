@@ -4,6 +4,7 @@ import zgame.core.utils.Uuidable;
 import zgame.core.utils.ZRect;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
+import zgame.things.entity.projectile.Projectile;
 
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
 public interface HitBox extends Bounds, Materialable, Uuidable{
@@ -66,6 +67,12 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 		// issue#20 need to eventually have a way of allowing any type of hitbox to collide with any other type of hitbox
 		return this.intersects(h.getBounds());
 	}
+	
+	/**
+	 * Called when this {@link HitBox} is hit by a projectile. Does nothing by default, implement to provide custom behavior
+	 * @param p The projectile which hit this {@link HitBox}
+	 */
+	default void hitBy(Projectile p){}
 	
 	/**
 	 * Reposition this object so that it is to the left of the given x coordinate.

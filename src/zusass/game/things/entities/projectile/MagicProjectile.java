@@ -2,14 +2,12 @@ package zusass.game.things.entities.projectile;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.core.utils.ZStringUtils;
 import zgame.physics.ZVector;
-import zgame.physics.collision.CollisionResponse;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.projectile.UsedProjectile;
 import zgame.things.type.HitBox;
 import zgame.things.type.RectangleHitBox;
-import zgame.world.Room;
+import zusass.game.things.entities.mobs.ZusassMob;
 
 /** A {@link UsedProjectile} which applies a magic effect when it hits something other than its caster */
 // TODO make this projectile a circular hitbox
@@ -26,17 +24,18 @@ public class MagicProjectile extends UsedProjectile implements RectangleHitBox{
 	public MagicProjectile(double x, double y, String ignoreUuid, ZVector launchVelocity){
 		super(x, y, ignoreUuid, launchVelocity);
 		// Turn off gravity
+		// TODO allow the amount of gravity to change
 		setForce(EntityThing.FORCE_NAME_GRAVITY, new ZVector());
 		// TODO add a spell object as a parameter
+		
+		// Add a function to effect a hit mob with magic
+		this.addHitFunc(ZusassMob.class, m -> m.damage(10));
 	}
-	
-	// TODO allow the amount of gravity to change
-	
 	
 	@Override
 	public void hit(Game game, HitBox thing){
 		super.hit(game, thing);
-		ZStringUtils.prints("Magic hit:", thing); // TODO Remove
+		thing.hitBy(this);
 	}
 	
 	@Override

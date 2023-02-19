@@ -12,6 +12,7 @@ import zgame.stat.status.StatusEffect;
 import zgame.stat.status.StatusEffects;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.Walk;
+import zgame.things.entity.projectile.Projectile;
 import zgame.things.type.RectangleHitBox;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
@@ -24,6 +25,7 @@ import zusass.game.stat.resources.Mana;
 import zusass.game.stat.resources.Stamina;
 import zusass.game.status.StatEffect;
 import zusass.game.things.MobWalk;
+import zusass.game.things.entities.projectile.MagicProjectile;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -179,6 +181,11 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	public void die(ZusassGame zgame){
 		// On death, by default, remove the thing from the game
 		zgame.getCurrentRoom().removeThing(this);
+	}
+	
+	@Override
+	public void hitBy(Projectile p){
+		p.hit(ZusassMob.class, this);
 	}
 	
 	/** @return See {@link #attackTime} */
