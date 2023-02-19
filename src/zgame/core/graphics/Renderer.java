@@ -18,6 +18,7 @@ import zgame.core.graphics.font.TextBuffer;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.shader.ShaderProgram;
 import zgame.core.utils.LimitedStack;
+import zgame.core.utils.ZMath;
 import zgame.core.utils.ZRect;
 import zgame.core.window.GameWindow;
 
@@ -81,6 +82,15 @@ public class Renderer implements Destroyable{
 	private VertexBuffer fillScreenPosBuff;
 	/** The index buffer that tracks the indexes for drawing a rectangle */
 	private IndexBuffer rectIndexBuff;
+	
+	/** The number of points used to draw an ellipse */
+	public static final int NUM_ELLIPSE_POINTS = 36;
+	/** The {@link VertexArray} for drawing plain ellipses */
+	private VertexArray ellipseVertArr;
+	/** The {@link VertexBuffer} which represents positional values that generate an ellipse */
+	private VertexBuffer ellipsePosBuff;
+	/** The index buffer that tracks the indexes for drawing an ellipse */
+	private IndexBuffer ellipseIndexBuff;
 	
 	/** A {@link VertexArray} for drawing text */
 	private VertexArray textVertArr;
@@ -272,6 +282,32 @@ public class Renderer implements Destroyable{
 		// Generate a vertex buffer for texture coordinates that regularly change
 		this.changeTexCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_DYNAMIC_DRAW, 4);
 		this.changeTexCoordBuff.applyToVertexArray();
+		
+		// Generate a vertex array for rendering ellipses
+		// Make indexes for the number of triangles minus 1
+		var ellipseIndexes = new byte[(NUM_ELLIPSE_POINTS - 1) * 3];
+		// Make one point for each of the points on the circle
+		var ellipsePoints = new float[NUM_ELLIPSE_POINTS * 2];
+		// Go through each point
+		for(int i = 0; i < NUM_ELLIPSE_POINTS; i++){
+			// Find the current angle based on the index
+			var a = ZMath.TAU * ((float)i / NUM_ELLIPSE_POINTS);
+			var x = Math.cos(a);
+			var y = Math.sin(a);
+			// Apply the angle
+			ellipsePoints[i * 2] = (float)x;
+			ellipsePoints[i * 2 + 1] = (float)y;
+			// Don't add the last index, that would cause the last triangle to overlap
+			if(i >= NUM_ELLIPSE_POINTS - 1) continue;
+			ellipseIndexes[i * 3] = (byte)(0);
+			ellipseIndexes[i * 3 + 1] = (byte)(i);
+			ellipseIndexes[i * 3 + 2] = (byte)(i + 1);
+		}
+		this.ellipseVertArr = new VertexArray();
+		this.ellipseVertArr.bind();
+		this.ellipseIndexBuff = new IndexBuffer(ellipseIndexes);
+		this.ellipsePosBuff = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_STATIC_DRAW, ellipsePoints);
+		this.ellipsePosBuff.applyToVertexArray();
 	}
 	
 	/** Free all resources used by the vertex arrays and vertex buffers */
@@ -727,6 +763,33 @@ public class Renderer implements Destroyable{
 		this.updateGpuModelView();
 		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
+		this.popMatrix();
+		
+		return true;
+	}
+	
+	public boolean drawEllipse(ZRect r){
+		return this.drawEllipse(r.getX(), r.getY(), r.getWidth(), r.getHeight());
+	}
+	
+	// TODO make docs
+	public boolean drawEllipse(double x, double y, double w, double h){
+		if(!this.shouldDraw(x, y, w, h)) return false;
+		
+		// Use the shape shader and the rectangle vertex array
+		this.renderModeShapes();
+		this.ellipseVertArr.bind();
+		
+		this.pushMatrix();
+		this.positionObject(x, y, w, h);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
+		// TODO make a method that draws a circle
+		glDrawElements(GL_TRIANGLE_FAN, this.ellipseIndexBuff.getBuff());
+		
 		this.popMatrix();
 		
 		return true;

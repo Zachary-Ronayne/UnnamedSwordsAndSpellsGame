@@ -5,12 +5,12 @@ import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.projectile.UsedProjectile;
+import zgame.things.type.CircleHitBox;
 import zgame.things.type.HitBox;
 import zgame.things.type.RectangleHitBox;
 import zusass.game.things.entities.mobs.ZusassMob;
 
 /** A {@link UsedProjectile} which applies a magic effect when it hits something other than its caster */
-// TODO make this projectile a circular hitbox
 public class MagicProjectile extends UsedProjectile implements RectangleHitBox{
 	
 	/**
@@ -41,7 +41,7 @@ public class MagicProjectile extends UsedProjectile implements RectangleHitBox{
 	@Override
 	protected void render(Game game, Renderer r){
 		r.setColor(.6, .6, 1, .8);
-		r.drawRectangle(this.getBounds());
+		r.drawEllipse(this.getBounds());
 	}
 	
 	@Override
