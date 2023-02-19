@@ -25,7 +25,6 @@ import zusass.game.stat.resources.Mana;
 import zusass.game.stat.resources.Stamina;
 import zusass.game.status.StatEffect;
 import zusass.game.things.MobWalk;
-import zusass.game.things.entities.projectile.MagicProjectile;
 
 import static zusass.game.stat.ZusassStat.*;
 

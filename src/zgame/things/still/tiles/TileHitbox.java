@@ -4,7 +4,7 @@ import zgame.physics.collision.CollisionResponse;
 import zgame.things.type.HitBox;
 
 /** An object that represents the hitbox of a tile, i.e., what parts of the tile have collision */
-public interface TileHitbox {
+public interface TileHitbox{
 	
 	/** See {@link None} */
 	None NONE = new None();
@@ -23,6 +23,7 @@ public interface TileHitbox {
 	
 	/**
 	 * Determine if a hitbox hits this {@link TileHitbox}
+	 *
 	 * @param obj The hitbox to check
 	 * @return true if they intersect, false otherwise
 	 */
@@ -34,6 +35,7 @@ public interface TileHitbox {
 		public CollisionResponse collide(Tile t, HitBox obj){
 			return new CollisionResponse();
 		}
+		
 		@Override
 		public boolean intersects(Tile t, HitBox obj){
 			return false;

@@ -4,7 +4,6 @@ import zgame.core.Game;
 import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
-import zgame.things.still.tiles.Tile;
 import zgame.things.type.HitBox;
 
 /** A {@link Projectile} which destroys itself when it hits anything */
@@ -48,30 +47,13 @@ public abstract class OnHitProjectile extends Projectile{
 	
 	@Override
 	public void collide(CollisionResponse r){
-		// OnHit projectiles have no collision
-	}
-	
-	@Override
-	public boolean willHit(Tile tile){
-		return tile.intersects(this);
+		// OnHit projectiles are removed on collision
+		if(r.isCollided()) this.willRemove = true;
 	}
 	
 	@Override
 	public void hit(Game game, HitBox thing){
 		this.removeFrom(game);
-	}
-	
-	@Override
-	public void hit(Game game, Tile thing){
-		this.removeFrom(game);
-	}
-	
-	/**
-	 * Remove this projectile from the given game
-	 * @param game The game to remove it from
-	 */
-	private void removeFrom(Game game){
-		game.getCurrentRoom().removeThing(this);
 	}
 	
 }

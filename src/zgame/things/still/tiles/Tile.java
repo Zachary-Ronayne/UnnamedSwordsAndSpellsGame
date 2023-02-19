@@ -4,13 +4,10 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
-import zgame.things.type.GameThing;
-import zgame.things.type.HitBox;
-import zgame.things.type.Materialable;
-import zgame.things.type.PositionedRectangleThing;
+import zgame.things.type.*;
 
 /** A {@link GameThing} with a rectangular hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
-public class Tile extends PositionedRectangleThing implements Materialable{
+public class Tile extends PositionedRectangleThing implements Materialable, RectangleHitBox{
 	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 64;
@@ -95,4 +92,56 @@ public class Tile extends PositionedRectangleThing implements Materialable{
 		return TILE_SIZE_INVERSE;
 	}
 	
+	// Tiles do not move or collide
+	@Override
+	public void collide(CollisionResponse r){}
+	
+	@Override
+	public void touchFloor(Material touched){}
+	
+	@Override
+	public void leaveFloor(){}
+	
+	@Override
+	public void touchCeiling(Material touched){}
+	
+	@Override
+	public void leaveCeiling(){}
+	
+	@Override
+	public void touchWall(Material touched){}
+	
+	@Override
+	public void leaveWall(){}
+	
+	@Override
+	public boolean isOnGround(){
+		return false;
+	}
+	
+	@Override
+	public boolean isOnCeiling(){
+		return false;
+	}
+	
+	@Override
+	public boolean isOnWall(){
+		return false;
+	}
+	
+	@Override
+	public double getPX(){
+		return this.getX();
+	}
+	
+	@Override
+	public double getPY(){
+		return this.getY();
+	}
+	
+	/** @return Always an empty string, tiles do not use uuids */
+	@Override
+	public String getUuid(){
+		return "";
+	}
 }

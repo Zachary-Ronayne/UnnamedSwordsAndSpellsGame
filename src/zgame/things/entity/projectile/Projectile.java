@@ -4,7 +4,6 @@ import zgame.core.Game;
 import zgame.core.utils.FunctionMap;
 import zgame.physics.ZVector;
 import zgame.things.entity.EntityThing;
-import zgame.things.still.tiles.Tile;
 import zgame.things.type.HitBox;
 
 import java.util.function.Consumer;
@@ -61,32 +60,13 @@ public abstract class Projectile extends EntityThing{
 		// Check if this projectile hits any of the hitbox things in the game
 		// TODO replace this with checkEntityCollision?
 		var r = game.getCurrentRoom();
-		var hit = false;
 		var things = r.getAllThings().get(HitBox.class);
 		for(int i = 0; i < things.size(); i++){
 			// Ignore the current thing if the projectile will not hit it
 			var thing = things.get(i);
 			if(!this.willHit(thing)) continue;
 			this.hit(game, thing);
-			hit = true;
 			break;
-		}
-		
-		// Check if this projectile hits any tiles, only if it didn't hit a hitbox
-		if(hit) return;
-		// TODO find a way to abstract this
-		int minX = r.tileX(this.getX());
-		int minY = r.tileY(this.getY());
-		int maxX = r.tileX(this.maxX());
-		int maxY = r.tileY(this.maxY());
-		for(int x = minX; x <= maxX; x++){
-			for(int y = minY; y <= maxY; y++){
-				// Ignore the current tile if the projectile will not hit it
-				var tile = r.getTileUnchecked(x, y);
-				if(!this.willHit(tile)) continue;
-				this.hit(game, tile);
-				break;
-			}
 		}
 	}
 	
@@ -99,14 +79,6 @@ public abstract class Projectile extends EntityThing{
 	public abstract void hit(Game game, HitBox thing);
 	
 	/**
-	 * Called when this {@link Projectile} hits the given {@link Tile}
-	 *
-	 * @param game The game where tile was hit
-	 * @param thing The {@link Tile} which was hit
-	 */
-	public abstract void hit(Game game, Tile thing);
-	
-	/**
 	 * Determine if this {@link Projectile} will hit the given {@link HitBox} thing when their hitboxes intersect
 	 *
 	 * @param thing The hitbox to check
@@ -115,13 +87,5 @@ public abstract class Projectile extends EntityThing{
 	public boolean willHit(HitBox thing){
 		return this != thing && this.intersects(thing);
 	}
-	
-	/**
-	 * Determine if this {@link Projectile} will hit the given {@link Tile} thing when their bounds intersect
-	 *
-	 * @param tile The tile to check
-	 * @return true tile will hit this, false otherwise
-	 */
-	public abstract boolean willHit(Tile tile);
 	
 }
