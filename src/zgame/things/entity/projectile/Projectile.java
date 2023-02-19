@@ -1,20 +1,22 @@
 package zgame.things.entity.projectile;
 
 import zgame.core.Game;
+import zgame.core.utils.FunctionMap;
 import zgame.physics.ZVector;
 import zgame.things.entity.EntityThing;
 import zgame.things.still.tiles.Tile;
 import zgame.things.type.HitBox;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Consumer;
 
 /** An {@link EntityThing} which represents a thing flying through the air */
 public abstract class Projectile extends EntityThing{
 	
-	// TODO give this a real doc
-	private final Map<Class<?>, Consumer<?>> mappedFuncs;
+	/**
+	 * A mapping of the functions to call when certain object types are hit. This essentially replaces manually defining abstract functions in this class, allowing a specific
+	 * function to be called for a specific type
+	 */
+	private final FunctionMap mappedFuncs;
 	
 	/**
 	 * Create a projectile at the specified location, moving at the given velocity
@@ -26,20 +28,29 @@ public abstract class Projectile extends EntityThing{
 	public Projectile(double x, double y, ZVector launchVelocity){
 		super(x, y);
 		this.addVelocity(launchVelocity);
-		this.mappedFuncs = new HashMap<>();
+		this.mappedFuncs = new FunctionMap();
 	}
 	
-	// TODO give this a real doc
+	/**
+	 * Add a new function for {@link #mappedFuncs}
+	 * @param clazz The class of the type of the object accepted by the function
+	 * @param func The function
+	 * @param <T> The type of clazz
+	 */
 	public <T> void addHitFunc(Class<T> clazz, Consumer<T> func){
-		mappedFuncs.put(clazz, func);
+		this.mappedFuncs.addFunc(clazz, func);
 	}
 	
-	// TODO give this a real doc
-	@SuppressWarnings("unchecked")
+	/**
+	 * Call a function from {@link #mappedFuncs}.
+	 * Does nothing if no function exists
+	 *
+	 * @param clazz The class of the type of the object accepted by the function
+	 * @param thing The object to pass to the function
+	 * @param <T> The type of clazz
+	 */
 	public <T> void hit(Class<T> clazz, T thing){
-		var func = (Consumer<T>)this.mappedFuncs.get(clazz);
-		if(func == null) return;
-		func.accept(thing);
+		this.mappedFuncs.func(clazz, thing);
 	}
 	
 	@Override
