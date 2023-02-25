@@ -768,11 +768,27 @@ public class Renderer implements Destroyable{
 		return true;
 	}
 	
+	/**
+	 * Draw an ellipse, of the current color of this Renderer, at the specified location. All values are in game coordinates
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 *
+	 * @param r The bounds
+	 * @return true if the object was drawn, false otherwise
+	 */
 	public boolean drawEllipse(ZRect r){
 		return this.drawEllipse(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
 	
-	// TODO make docs
+	/**
+	 * Draw an ellipse, of the current color of this Renderer, at the specified location. All values are in game coordinates
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 *
+	 * @param x The x coordinate of the upper left hand corner of the ellipse
+	 * @param y The y coordinate of the upper left hand corner of the ellipse
+	 * @param w The width of the ellipse
+	 * @param h The height of the ellipse
+	 * @return true if the object was drawn, false otherwise
+	 */
 	public boolean drawEllipse(double x, double y, double w, double h){
 		if(!this.shouldDraw(x, y, w, h)) return false;
 		
@@ -787,9 +803,7 @@ public class Renderer implements Destroyable{
 		this.updateGpuColor();
 		this.updateGpuModelView();
 		
-		// TODO make a method that draws a circle
 		glDrawElements(GL_TRIANGLE_FAN, this.ellipseIndexBuff.getBuff());
-		
 		this.popMatrix();
 		
 		return true;

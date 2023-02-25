@@ -4,7 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 
 /** A {@link PositionedThing} which also has a rectangular bounds */
-public abstract class PositionedRectangleThing extends PositionedThing implements RectangleBounds{
+public abstract class PositionedRectangleThing extends PositionedThing implements Bounds{
 	
 	/** The width of this thing */
 	private double width;

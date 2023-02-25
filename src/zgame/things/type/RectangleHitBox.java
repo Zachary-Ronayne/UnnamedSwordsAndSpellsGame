@@ -5,7 +5,7 @@ import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
 
 /** An interface which describe a simple hitbox with a width and height, representing a non rotating rectangle */
-public interface RectangleHitBox extends HitBox, RectangleBounds{
+public interface RectangleHitBox extends HitBox, Bounds{
 	
 	/** @param x The new x coordinate for this object */
 	void setX(double x);

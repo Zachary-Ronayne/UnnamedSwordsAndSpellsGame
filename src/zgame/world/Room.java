@@ -17,12 +17,12 @@ import zgame.things.still.Door;
 import zgame.things.still.tiles.BaseTiles;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType;
+import zgame.things.type.Bounds;
 import zgame.things.type.GameThing;
 import zgame.things.type.HitBox;
-import zgame.things.type.RectangleBounds;
 
 /** An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc. */
-public class Room extends GameThing implements RectangleBounds{
+public class Room extends GameThing implements Bounds{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;

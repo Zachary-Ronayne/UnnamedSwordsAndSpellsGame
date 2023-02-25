@@ -4,9 +4,9 @@ import zgame.physics.collision.CollisionResponse;
 import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
 
+/** An object representing an ellipse that cannot rotate  */
+public interface EllipseHitBox extends HitBox, Bounds{
 // TODO implement this, currently it's just a copy of the rectangle hitbox
-// TODO make docs
-public interface CircleHitBox extends HitBox, RectangleBounds{
 	
 	/** @param x The new x coordinate for this object */
 	void setX(double x);
