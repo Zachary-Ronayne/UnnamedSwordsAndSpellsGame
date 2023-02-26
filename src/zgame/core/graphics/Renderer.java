@@ -780,6 +780,19 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
+	 * Draw a circle, of the current color of this Renderer, at the specified location. All values are in game coordinates
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 *
+	 * @param x The x coordinate of the center of the circle
+	 * @param y The y coordinate of the center of the circle
+	 * @param r The radius of the circle
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawCircle(double x, double y, double r){
+		return this.drawEllipse(x - r, y - r, r * 2, r * 2);
+	}
+	
+	/**
 	 * Draw an ellipse, of the current color of this Renderer, at the specified location. All values are in game coordinates
 	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 *

@@ -4,6 +4,6 @@ package zgame.things.type;
 public enum HitboxType{
 	/** A non rotating rectangular hitbox */
 	RECT,
-	/** A non rotating elliptical hitbox */
-	ELLIPSE
+	/** A circle hitbox */
+	CIRCLE
 }

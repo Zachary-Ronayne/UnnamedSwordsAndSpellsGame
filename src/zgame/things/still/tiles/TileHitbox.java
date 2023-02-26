@@ -1,7 +1,9 @@
 package zgame.things.still.tiles;
 
+import zgame.core.utils.ZStringUtils;
 import zgame.physics.collision.CollisionResponse;
 import zgame.things.type.HitBox;
+import zusass.game.things.entities.projectile.MagicProjectile;
 
 /** An object that represents the hitbox of a tile, i.e., what parts of the tile have collision */
 public interface TileHitbox {
@@ -47,13 +49,16 @@ public interface TileHitbox {
 		@Override
 		public CollisionResponse collide(Tile t, HitBox obj){
 			// TODO verify implementation works, and add another hitbox type, like a slab type
-			return obj.calculateCollision(t);
+			return obj.calculateRectCollision(t.getX(), t.getY(), t.getWidth(), t.getHeight(), t.getMaterial());
 		}
 		
 		@Override
 		public boolean intersectsTile(Tile t, HitBox obj){
 			// TODO verify implementation works, and add another hitbox type, like a slab type
-			return obj.intersects(t);
+			if(obj instanceof MagicProjectile){
+				ZStringUtils.prints(obj); // TODO Remove
+			}
+			return obj.intersectsRect(t.getX(), t.getY(), t.getWidth(), t.getHeight());
 		}
 	}
 	

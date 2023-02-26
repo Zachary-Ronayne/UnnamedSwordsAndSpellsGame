@@ -1,13 +1,12 @@
 package zgame.things.type;
 
+import zgame.core.utils.ZMath;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
 
-import java.awt.geom.Ellipse2D;
-
 /** An interface which describe a simple hitbox with a width and height, representing a non rotating rectangle */
-public interface RectangleHitBox extends HitBox, Bounds{
+public interface RectangleHitBox extends HitBox{
 	
 	@Override
 	default HitboxType getType(){
@@ -20,7 +19,8 @@ public interface RectangleHitBox extends HitBox, Bounds{
 	}
 	
 	@Override
-	default CollisionResponse calculateEllipseCollision(double x, double y, double w, double h, Material m){
+	default CollisionResponse calculateCircleCollision(double x, double y, double r, Material m){
+		// TODO implement
 		return new CollisionResponse();
 	}
 	
@@ -30,7 +30,7 @@ public interface RectangleHitBox extends HitBox, Bounds{
 	}
 	
 	@Override
-	default boolean intersectsEllipse(double x, double y, double w, double h){
-		return new Ellipse2D.Double(x, y, w, h).intersects(this.getBounds());
+	default boolean intersectsCircle(double x, double y, double r){
+		return ZMath.circleIntersectsRect(x, y, r, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 }

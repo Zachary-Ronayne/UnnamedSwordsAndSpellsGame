@@ -84,6 +84,18 @@ public final class ZMath{
 	}
 	
 	/**
+	 * Determine if a number is between two other numbers
+	 *
+	 * @param a The lower number to check
+	 * @param b The middle number
+	 * @param c The higher number
+	 * @return true if b is between or equal to a and c, false otherwise
+	 */
+	public static boolean in(double a, double b, double c){
+		return a <= b && b <= c;
+	}
+	
+	/**
 	 * Determine if two numbers have the same sign. Behavior of this method is not guaranteed for weird values, i.e. infinity and NaN
 	 *
 	 * @param a The first number
@@ -180,8 +192,96 @@ public final class ZMath{
 		return Math.sqrt(w * w + h * h);
 	}
 	
-	/** Cannot instantiate {@link ZMath} */
-	private ZMath(){
+	/**
+	 * Determine if a circle intersects a non-rotated rectangle
+	 *
+	 * @param cx The x coordinate of the center of the circle
+	 * @param cy The y coordinate of the center of the circle
+	 * @param r The radius of the circle
+	 * @param x The x coordinate of the upper left hand coordinate of the rectangle
+	 * @param y The y coordinate of the upper left hand coordinate of the rectangle
+	 * @param w The width of the rectangle
+	 * @param h The height of the rectangle
+	 * @return true if the shapes intersect, false otherwise
+	 */
+	public static boolean circleIntersectsRect(double cx, double cy, double r, double x, double y, double w, double h){
+		// First, check if the center point of the circle is inside the rectangle, if it is, they intersect
+		if(in(x, cx, x + w) && in(y, cy, y + h)) return true;
+		
+		// Check if the distance of the circle's center to at least one of the line segments of the rectangle is less than or equal to the circle's radius.
+		// If none are close enough, there's no intersection
+		var leftDist = Math.abs(x - cx);
+		var rightDist = Math.abs(x + w - cx);
+		var topDist = Math.abs(y - cy);
+		var botDist = Math.abs(y + h - cy);
+		var touchLeft = leftDist <= r;
+		var touchRight = rightDist <= r;
+		var touchTop = topDist <= r;
+		var touchBot = botDist <= r;
+		if(!touchLeft && !touchRight && !touchTop && !touchBot) return false;
+		
+		// Check if the center of the circle is close enough, or in between, the corners of the rectangle, if it is, then they intersect
+		var tl = new ZPoint(x, y);
+		var tr = new ZPoint(x + w, y);
+		var bl = new ZPoint(x, y + h);
+		var br = new ZPoint(x + w, y + h);
+		
+		var tld = tl.distance(cx, cy);
+		var trd = tr.distance(cx, cy);
+		var bld = bl.distance(cx, cy);
+		var brd = br.distance(cx, cy);
+		
+		// If any corner is touching, then the shapes intersect
+		if(tld <= r || trd <= r || bld <= r || brd <= r) return true;
+		
+		// Check if we are touching any lines
+		if(touchLeft) {
+			var touch = circleIntersectsLine(cx, cy, r, tl.getX(), tl.getY(), bl.getX(), bl.getY());
+			if(touch) return true;
+		}
+		if(touchRight) {
+			var touch =  circleIntersectsLine(cx, cy, r, tr.getX(), tr.getY(), br.getX(), br.getY());
+			if(touch) return true;
+		}
+		if(touchTop) {
+			var touch =  circleIntersectsLine(cx, cy, r, tl.getX(), tl.getY(), tr.getX(), tr.getY());
+			if(touch) return true;
+		}
+		// Must be touching the bottom at this point
+		return circleIntersectsLine(cx, cy, r, bl.getX(), bl.getY(), br.getX(), br.getY());
 	}
+	
+	/**
+	 * Check if a line segment intersects a circle, only for horizontal and vertical lines
+	 *
+	 * @param cx The x coordinate of the center of the circle
+	 * @param cy The y coordinate of the center of the circle
+	 * @param r The radius of the circle
+	 * @param x1 The x coordinate of the first endpoint of the line segment
+	 * @param y1 The y coordinate of the first endpoint of the line segment
+	 * @param x2 The x coordinate of the second endpoint of the line segment
+	 * @param y2 The y coordinate of the second endpoint of the line segment
+	 * @return true if they intersect, false if they do not, or the line is not either horizontal or vertical
+	 */
+	public static boolean circleIntersectsLine(double cx, double cy, double r, double x1, double y1, double x2, double y2){
+		// If the line is horizontal
+		if((y1 == y2)){
+			double minX = Math.min(x1, x2);
+			double maxX = Math.max(x1, x2);
+			// Checking the point is between the min and max of the x coordinates, and close enough to the y coordinate
+			return cx > minX && cx < maxX && Math.abs(cy - y1) < r;
+		}
+		// If the line is vertical
+		else if(x1 == x2){
+			double minY = Math.min(y1, y2);
+			double maxY = Math.max(y1, y2);
+			return cy > minY && cy < maxY && Math.abs(cx - x1) < r;
+		}
+		// If not horizontal or vertical, just return false, this method does not handle those cases
+		return false;
+	}
+	
+	/** Cannot instantiate {@link ZMath} */
+	private ZMath(){}
 	
 }

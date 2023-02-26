@@ -49,18 +49,16 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 	CollisionResponse calculateRectCollision(double x, double y, double w, double h, Material m);
 	
 	/**
-	 * Determine a {@link CollisionResponse} from colliding this object with the given elliptical bounds. Essentially, move this object so that it no longer intersecting with
-	 * the
-	 * given bounds. This method should not change the state of this object, it should only return an object representing how the collision should happen.
+	 * Determine a {@link CollisionResponse} from colliding this object with the given circular bounds. Essentially, move this object so that it no longer intersecting with
+	 * the given bounds. This method should not change the state of this object, it should only return an object representing how the collision should happen.
 	 *
 	 * @param x The x coordinate of the upper left hand corner of the bounds
 	 * @param y The y coordinate of the upper left hand corner of the bounds
-	 * @param w The width of the bounds
-	 * @param h The height of the bounds
+	 * @param r The radius of the circle
 	 * @param m The material which was collided with
 	 * @return The information about the collision
 	 */
-	CollisionResponse calculateEllipseCollision(double x, double y, double w, double h, Material m);
+	CollisionResponse calculateCircleCollision(double x, double y, double r, Material m);
 	
 	/**
 	 * Calculate a {@link CollisionResponse} from colliding with the given {@link HitBox}
@@ -70,8 +68,8 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 	 */
 	default CollisionResponse calculateCollision(HitBox h){
 		switch(this.getType()){
-			case ELLIPSE -> {
-				return this.calculateEllipseCollision(h.getX(), h.getY(), h.getWidth(), h.getHeight(), h.getMaterial());
+			case CIRCLE -> {
+				return this.calculateCircleCollision(h.getX(), h.getY(), h.getWidth() * 0.5, h.getMaterial());
 			}
 			case RECT -> {
 				return this.calculateRectCollision(h.getX(), h.getY(), h.getWidth(), h.getHeight(), h.getMaterial());
@@ -90,25 +88,24 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 	boolean intersectsRect(double x, double y, double w, double h);
 	
 	/**
-	 * @param x The upper left hand x ellipse
-	 * @param y The upper left hand y ellipse
-	 * @param w The width of the ellipse
-	 * @param h The height of the ellipse
-	 * @return true if this object intersects the given ellipse bounds, false otherwise
+	 * @param x The center x coordinate of the circle
+	 * @param y The center y coordinate of the circle
+	 * @param r The radius of the circle
+	 * @return true if this object intersects the given circle bounds, false otherwise
 	 */
-	boolean intersectsEllipse(double x, double y, double w, double h);
+	boolean intersectsCircle(double x, double y, double r);
 	
 	/**
 	 * @param h The hitbox to check
 	 * @return true if this hitbox intersects the given hitbox, false otherwise
 	 */
 	default boolean intersects(HitBox h){
-		switch(this.getType()){
-			case ELLIPSE -> {
-				return this.intersectsRect(h.getX(), h.getY(), h.getWidth(), h.getHeight());
+		switch(h.getType()){
+			case CIRCLE -> {
+				return this.intersectsCircle(h.centerX(), h.centerY(), h.getWidth() * 0.5);
 			}
 			case RECT -> {
-				return this.intersectsEllipse(h.getX(), h.getY(), h.getWidth(), h.getHeight());
+				return this.intersectsRect(h.getX(), h.getY(), h.getWidth(), h.getHeight());
 			}
 		}
 		return false;

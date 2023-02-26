@@ -171,7 +171,10 @@ public class ZusassPlayer extends ZusassMob{
 		
 		var r = zgame.getCurrentRoom();
 		var vel = new ZVector(this.getAttackDirection(), 400, false);
-		r.addThing(new MagicProjectile(this.centerX(), this.centerY(), this.getUuid(), vel));
+		var p = new MagicProjectile(this.centerX(), this.centerY(), this.getUuid(), vel);
+		p.addX(-p.getWidth() * .5);
+		p.addY(-p.getHeight() * .5);
+		r.addThing(p);
 	}
 	
 	@Override

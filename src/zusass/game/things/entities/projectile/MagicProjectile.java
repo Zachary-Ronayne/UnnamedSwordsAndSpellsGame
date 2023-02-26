@@ -5,12 +5,12 @@ import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.projectile.UsedProjectile;
-import zgame.things.type.EllipseHitBox;
+import zgame.things.type.CircleHitBox;
 import zgame.things.type.HitBox;
 import zusass.game.things.entities.mobs.ZusassMob;
 
 /** A {@link UsedProjectile} which applies a magic effect when it hits something other than its caster */
-public class MagicProjectile extends UsedProjectile implements EllipseHitBox{
+public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	
 	/**
 	 * Create a projectile at the specified location, moving at the given velocity
@@ -49,13 +49,8 @@ public class MagicProjectile extends UsedProjectile implements EllipseHitBox{
 	}
 	
 	@Override
-	public double getWidth(){
-		return 20;
-	}
-	
-	@Override
-	public double getHeight(){
-		return 20;
+	public double getRadius(){
+		return 100;
 	}
 	
 	@Override
