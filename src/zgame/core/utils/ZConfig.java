@@ -6,9 +6,9 @@ import zgame.core.window.GameWindow;
 public class ZConfig{
 	
 	/** true if, when an error occurs in the engine, if it should print to the main System.out, false otherwise */
-	private static final boolean PRINT_ERRORS = false;
+	private static final boolean PRINT_ERRORS = true;
 	/** true if, when assets are loaded by the engine, if it should print to the main System.out, false otherwise */
-	private static final boolean PRINT_SUCCESS = false;
+	private static final boolean PRINT_SUCCESS = true;
 	/** true if debug statements should print to the main System.out, false otherwise */
 	private static final boolean PRINT_DEBUG = false;
 	

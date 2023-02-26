@@ -10,6 +10,8 @@ public interface TileHitbox {
 	None NONE = new None();
 	/** See {@link Full} */
 	Full FULL = new Full();
+	/** See {@link Full} */
+	BottomSlab BOTTOM_SLAB = new BottomSlab();
 	
 	/**
 	 * Based on the given rectangular bounds, determine the new position of the rectangle when it collides with the given tile
@@ -54,6 +56,21 @@ public interface TileHitbox {
 		public boolean intersectsTile(Tile t, HitBox obj){
 			// TODO verify implementation works, and add another hitbox type, like a slab type
 			return obj.intersectsRect(t.getX(), t.getY(), t.getWidth(), t.getHeight());
+		}
+	}
+	
+	/** For tiles whose hitbox takes up the entire tile */
+	class BottomSlab implements TileHitbox{
+		@Override
+		public CollisionResponse collide(Tile t, HitBox obj){
+			var h = t.getHeight() * 0.5;
+			return obj.calculateRectCollision(t.getX(), t.getY() + h, t.getWidth(), h, t.getMaterial());
+		}
+		
+		@Override
+		public boolean intersectsTile(Tile t, HitBox obj){
+			var h = t.getHeight() * 0.5;
+			return obj.intersectsRect(t.getX(), t.getY() + h, t.getWidth(), h);
 		}
 	}
 	

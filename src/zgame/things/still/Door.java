@@ -123,7 +123,7 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 		if(!this.canEnter(thing)) return false;
 		// If the thing can leave the room, remove it
 		if(r != null && r.canLeave(thing)) r.removeThing(thing);
-		// Otherwise, do not allow the thing to enter the room
+			// Otherwise, do not allow the thing to enter the room
 		else return false;
 		if(this.leadRoom != null){
 			thing.setX(this.roomX);
@@ -151,7 +151,11 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 		
 		// Check every entity and if it touches this door, move it to this Room
 		Collection<EntityThing> entities = game.getCurrentRoom().getEntities();
-		for(EntityThing e : entities) if(e.intersectsRect(this.getX(), this.getY(), this.getWidth(), this.getHeight())) this.enterRoom(game.getCurrentRoom(), e, game);
+		for(EntityThing e : entities){
+			if(e.intersectsRect(this.getX(), this.getY(), this.getWidth(), this.getHeight())){
+				this.enterRoom(game.getCurrentRoom(), e, game);
+			}
+		}
 	}
 	
 	@Override

@@ -19,6 +19,8 @@ public final class BaseTiles{
 	public static final ColorTile WALL_DARK = new ColorTile("wallDark", BASE_ORIGIN, TileHitbox.FULL, new ZColor(.55));
 	/** A tile with a solid hitbox that displays as a light solid color */
 	public static final ColorTile WALL_LIGHT = new ColorTile("wallLight", BASE_ORIGIN, TileHitbox.FULL, new ZColor(.65));
+	/** A tile with a solid hitbox that displays as a light solid color */
+	public static final ColorTile WALL_BOTTOM_SLAB = new ColorTile("wallLight", BASE_ORIGIN, TileHitbox.BOTTOM_SLAB, new ZColor(.5));
 	/** A pink tile with a lot of bounciness */
 	public static final ColorTile BOUNCY = new ColorTile("bouncy", BASE_ORIGIN, TileHitbox.FULL, new ZColor(1, .5, .5), Materials.BOUNCE);
 	/** A brown tile with a huge friction value */

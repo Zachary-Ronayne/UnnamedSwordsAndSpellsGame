@@ -155,8 +155,8 @@ public class MainTest extends Game{
 		// Set up game
 		testerGame = new MainTest();
 //		testerGame.setCurrentState(new TesterGameState(testerGame));
-		// testerGame.setCurrentState(new TesterMenuState(testerGame));
-		 testerGame.setCurrentState(new GameEngineState());
+//		testerGame.setCurrentState(new TesterMenuState(testerGame));
+		testerGame.setCurrentState(new GameEngineState());
 		
 		window = testerGame.getWindow();
 		window.center();
@@ -253,6 +253,8 @@ public class MainTest extends Game{
 			for(int i = 0; i < 4; i++) r.setTile(4 + i, 6, BaseTiles.WALL_DARK);
 			r.setTile(7, 5, BaseTiles.WALL_DARK);
 			r.setTile(11, 3, BaseTiles.WALL_LIGHT);
+			
+			r.setTile(11, 4, BaseTiles.WALL_BOTTOM_SLAB);
 			
 			return r;
 		}
