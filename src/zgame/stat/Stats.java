@@ -1,7 +1,5 @@
 package zgame.stat;
 
-import zusass.game.stat.ZusassStat;
-
 /**
  * An object keeping track of all the information, i.e. health, skills, etc., about a mob
  * This object is less of a state, and more of information about the mob, i.e., it should store maximum health, not current health
@@ -109,51 +107,6 @@ public class Stats{
 	 */
 	public void tick(double dt){
 		for(int i = 0; i < this.arr.length; i++) this.arr[i].tick(dt);
-	}
-	
-	/**
-	 * A debugging tool. Prints an array of all the stats separated by tabs, copy to something like Excel to make it look normal.
-	 * Each row is a stat type.
-	 * The columns within a row, say Y if that row's stat type is used when calculating the column's stat type, and a dash otherwise
-	 */
-	public void printStats(){
-		var arr = this.getArr();
-		var sb = new StringBuilder("----------------------------------------------------------------------------------------\n");
-		sb.append("\t");
-		// Go through all the stats to get their names
-		for(int i = 0; i < arr.length; i++){
-			sb.append(ZusassStat.ATTACK_SPEED.getFromOrdinal(i)).append(" (").append(i).append(")\t");
-		}
-		sb.append("\n");
-		// Go through all the stats to show their dependencies
-		for(int i = 0; i < arr.length; i++){
-			sb.append(ZusassStat.ATTACK_SPEED.getFromOrdinal(i)).append(" (").append(i).append(")\t");
-			var d = dependents[i];
-			// Go through all the stats
-			for(int j = 0; j < arr.length; j++){
-				var found = false;
-				// Check each stat to see if we found a dependency
-				for(int k = 0; k < d.length; k++){
-					if(d[k] == j){
-						found = true;
-						break;
-					}
-				}
-				// Add the correct symbol
-				sb.append(found ? "Y" : "-").append("\t");
-			}
-			sb.append("\n");
-		}
-		sb.append("----------------------------------------------------------------------------------------\n");
-		for(int i = 0; i < dependents.length; i++){
-			sb.append(ZusassStat.ATTACK_SPEED.getFromOrdinal(i)).append(" (").append(i).append(")\t");
-			for(int j = 0; j < dependents[i].length; j++){
-				sb.append(ZusassStat.ATTACK_SPEED.getFromOrdinal(dependents[i][j])).append(" (").append(dependents[i][j]).append(")\t");
-			}
-			sb.append("\n");
-		}
-		sb.append("----------------------------------------------------------------------------------------");
-		System.out.println(sb);
 	}
 	
 }
