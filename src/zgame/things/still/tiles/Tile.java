@@ -7,7 +7,7 @@ import zgame.physics.material.Material;
 import zgame.things.type.*;
 
 /** A {@link GameThing} with a rectangular hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
-public class Tile extends PositionedRectangleThing implements Materialable, RectangleHitBox{
+public class Tile extends PositionedRectangleThing implements RectangleHitBox{
 	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 64;
@@ -58,28 +58,28 @@ public class Tile extends PositionedRectangleThing implements Materialable, Rect
 	}
 	
 	/** @return See {@link TileType} */
-	public TileType getType(){
+	public TileType getTileType(){
 		return type;
 	}
 	
 	@Override
 	public Material getMaterial(){
-		return this.getType().getMaterial();
+		return this.getTileType().getMaterial();
 	}
 	
 	/** See {@link TileHitbox#collide(Tile, HitBox)} */
 	public CollisionResponse collide(HitBox obj){
-		return this.getType().getHitbox().collide(this, obj);
+		return this.getTileType().getHitbox().collide(this, obj);
 	}
 	
-	/** See {@link TileHitbox#intersects(Tile, HitBox)} */
+	/** See {@link TileHitbox#intersectsTile(Tile, HitBox)} */
 	public boolean intersects(HitBox obj){
-		return this.getType().getHitbox().intersects(this, obj);
+		return this.getTileType().getHitbox().intersectsTile(this, obj);
 	}
 	
 	@Override
 	public void render(Game game, Renderer r){
-		this.getType().render(this, game, r);
+		this.getTileType().render(this, game, r);
 	}
 	
 	/** @return The unit size of a tile */

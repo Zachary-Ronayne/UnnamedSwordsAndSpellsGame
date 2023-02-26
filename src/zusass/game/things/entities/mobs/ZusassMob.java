@@ -63,7 +63,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	private final MobWalk walk;
 	
 	/** A modifier used to drain stamina while running */
-	private final StatModifier stanimaRundrain;
+	private final StatModifier staminaRunDrain;
 	
 	/**
 	 * Create a new mob with the given bounds
@@ -108,8 +108,8 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.stats.add(new MoveSpeed(Walk.DEFAULT_WALK_SPEED_MAX, this.stats, this));
 		
 		// Add other modifiers
-		this.stanimaRundrain = new StatModifier("runDrain", 0, ModifierType.ADD);
-		this.getStat(STAMINA_REGEN).addModifier(this.stanimaRundrain);
+		this.staminaRunDrain = new StatModifier("runDrain", 0, ModifierType.ADD);
+		this.getStat(STAMINA_REGEN).addModifier(this.staminaRunDrain);
 		
 		// Ensure this thing stats at full resources
 		this.setResourcesMax();
@@ -142,8 +142,8 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		walk.tick(game, dt);
 		
 		// If walking, need to reduce stamina
-		if(!this.getWalk().isWalking() && this.getWalk().isTryingToMove()) this.stanimaRundrain.setValue(-35);
-		else this.stanimaRundrain.setValue(0);
+		if(!this.getWalk().isWalking() && this.getWalk().isTryingToMove()) this.staminaRunDrain.setValue(-35);
+		else this.staminaRunDrain.setValue(0);
 		
 		// Do the normal game update
 		super.tick(game, dt);

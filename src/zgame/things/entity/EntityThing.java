@@ -14,6 +14,7 @@ import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
+import zgame.things.type.HitBox;
 import zgame.things.type.PositionedHitboxThing;
 import zgame.things.type.PositionedThing;
 import zgame.world.Room;
@@ -22,7 +23,7 @@ import zgame.world.Room;
  * A {@link PositionedThing} which keeps track of an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
  * This is for things like creatures, dropped items, projectiles, etc.
  */
-public abstract class EntityThing extends PositionedHitboxThing implements GameTickable{
+public abstract class EntityThing extends PositionedHitboxThing implements GameTickable, HitBox{
 	
 	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
 	

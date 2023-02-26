@@ -151,7 +151,7 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 		
 		// Check every entity and if it touches this door, move it to this Room
 		Collection<EntityThing> entities = game.getCurrentRoom().getEntities();
-		for(EntityThing e : entities) if(e.intersects(this.getX(), this.getY(), this.getWidth(), this.getHeight())) this.enterRoom(game.getCurrentRoom(), e, game);
+		for(EntityThing e : entities) if(e.intersectsRect(this.getX(), this.getY(), this.getWidth(), this.getHeight())) this.enterRoom(game.getCurrentRoom(), e, game);
 	}
 	
 	@Override

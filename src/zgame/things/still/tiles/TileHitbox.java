@@ -4,7 +4,7 @@ import zgame.physics.collision.CollisionResponse;
 import zgame.things.type.HitBox;
 
 /** An object that represents the hitbox of a tile, i.e., what parts of the tile have collision */
-public interface TileHitbox{
+public interface TileHitbox {
 	
 	/** See {@link None} */
 	None NONE = new None();
@@ -27,7 +27,7 @@ public interface TileHitbox{
 	 * @param obj The hitbox to check
 	 * @return true if they intersect, false otherwise
 	 */
-	boolean intersects(Tile t, HitBox obj);
+	boolean intersectsTile(Tile t, HitBox obj);
 	
 	/** For tiles with no collision */
 	class None implements TileHitbox{
@@ -37,7 +37,7 @@ public interface TileHitbox{
 		}
 		
 		@Override
-		public boolean intersects(Tile t, HitBox obj){
+		public boolean intersectsTile(Tile t, HitBox obj){
 			return false;
 		}
 	}
@@ -46,12 +46,14 @@ public interface TileHitbox{
 	class Full implements TileHitbox{
 		@Override
 		public CollisionResponse collide(Tile t, HitBox obj){
-			return obj.calculateRectCollision(t.getX(), t.getY(), t.getWidth(), t.getHeight(), t.getType().getMaterial());
+			// TODO verify implementation works, and add another hitbox type, like a slab type
+			return obj.calculateCollision(t);
 		}
 		
 		@Override
-		public boolean intersects(Tile t, HitBox obj){
-			return obj.intersects(t.getX(), t.getY(), t.getWidth(), t.getHeight());
+		public boolean intersectsTile(Tile t, HitBox obj){
+			// TODO verify implementation works, and add another hitbox type, like a slab type
+			return obj.intersects(t);
 		}
 	}
 	
