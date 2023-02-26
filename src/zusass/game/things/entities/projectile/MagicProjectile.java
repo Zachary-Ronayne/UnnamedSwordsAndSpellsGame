@@ -50,7 +50,7 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	
 	@Override
 	public double getRadius(){
-		return 100;
+		return 10;
 	}
 	
 	@Override
