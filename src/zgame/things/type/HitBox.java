@@ -37,6 +37,7 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 	 */
 	CollisionResponse calculateCollision(HitBox h);
 	
+	// TODO implement this as any shape being able to intersect any other shape, not just rectangles
 	/**
 	 * @param x The upper left hand x coordinate
 	 * @param y The upper left hand y coordinate
