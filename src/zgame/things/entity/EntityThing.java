@@ -9,21 +9,18 @@ import java.util.UUID;
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.utils.ZMath;
-import zgame.core.utils.ZPoint;
 import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
-import zgame.things.type.HitBox;
 import zgame.things.type.PositionedHitboxThing;
 import zgame.things.type.PositionedThing;
-import zgame.world.Room;
 
 /**
  * A {@link PositionedThing} which keeps track of an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
  * This is for things like creatures, dropped items, projectiles, etc.
  */
-public abstract class EntityThing extends PositionedHitboxThing implements GameTickable, HitBox{
+public abstract class EntityThing extends PositionedHitboxThing implements GameTickable{
 	
 	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
 	
@@ -167,7 +164,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		this.updateWallSideForce(dt);
 		
 		// Check for entity collision, and apply appropriate forces based on what is currently colliding
-		// this.checkEntityCollision(game.getCurrentRoom(), dt);
+		 this.checkEntityCollisions(game, dt);
 	}
 	
 	/**
@@ -455,12 +452,24 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	}
 	
 	/**
-	 * Collide this {@link EntityThing} with the entities in the given room. Can override this to perform custom collision
+	 * Called each this {@link EntityThing} has its entity collision handled.
+	 * Does nothing by default, override to add custom behavior
 	 *
-	 * @param room The room to collide with
+	 * @param game The game the collision happened in
+	 * @param entity The entity that was collided with this entity
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
-	public void checkEntityCollision(Room room, double dt){
+	public void checkEntityCollision(Game game, EntityThing entity, double dt){}
+	
+	/**
+	 * Collide this {@link EntityThing} with the entities in the given room. Can override this to perform custom collision
+	 *
+	 * @param game The game with the current room to collide with
+	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
+	 */
+	public void checkEntityCollisions(Game game, double dt){
+		var room = game.getCurrentRoom();
+		
 		// issue#21 make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
 		
 		// Check any stored entities, and remove them if they are not intersecting or are not in the room
@@ -482,57 +491,58 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		// Iterate through all entities, ignoring this entity, and find the ones intersecting this entity
 		for(EntityThing e : entities){
 			if(e == this || !e.intersects(this)) continue;
+			this.checkEntityCollision(game, e, dt);
 			
-			// If they intersect, determine the force they should have against each other, and apply it to both entities
-			String eUuid = e.getUuid();
-			ZPoint thisP = new ZPoint(this.centerX(), this.maxY());
-			ZPoint eP = new ZPoint(e.centerX(), e.maxY());
-			// Find the distance between the center bottom of the entities, to determine how much force should be applied
-			double dist = thisP.distance(eP);
-			
-			// Find a distance where, if the bottom centers of the entities are further than this distance, they are definitely not intersecting
-			double maxDist = (this.getWidth() + this.getHeight() + e.getWidth() + e.getHeight()) * .5;
-			// The maximum amount of force that can be applied
-			double maxMag = (this.getForce().getMagnitude() + e.getForce().getMagnitude());
-			
-			// In the equation f(x) = mx^2 + b, so that f(x) = 0 is the maximum amount of force, and 0 = mx^2 + b is the maximum distance to use
-			double b = maxMag;
-			double m = b / (maxDist * maxDist);
-			
-			// Use that equation to find the force
-			double mag = m * dist * dist + b;
-			double angle = ZMath.lineAngle(eP.getX(), eP.getY(), thisP.getX(), thisP.getY());
-			
-			// Find the initial amount of force to set
-			ZVector newForce = new ZVector(angle, mag, false);
-			
-			// Apply most of the force as the x component, and less as the y component
-			newForce = new ZVector(newForce.getX(), newForce.getY() * 0.1);
-			
-			//issue#21
-			
-			// Try keeping track of the total velocity an entity collision has added to another entity, and then remove that much velocity when the entities stop colliding
-			
-			// If that amount of force would move the entity too far away, set it so that the entities will only be touching on the next tick
-			// double xForce = newForce.getX();
-			// double xMoved = xForce / this.getMass() * dt * dt;
-			// double xDiff;
-			// if(this.getX() < e.getX()) xDiff = Math.abs(this.getX() + this.getWidth() - e.getX());
-			// else xDiff = Math.abs(e.getX() + e.getWidth() - this.getX());
-			// if(ZMath.sameSign(xMoved, xDiff) && Math.abs(xMoved) > xDiff){
-			// 	double newMoved = xMoved < 0 ? -xDiff : xDiff;
-			// 	newForce = new ZVector(newMoved / (dt * dt) * this.getMass(), newForce.getY());
-			// }
-			
-			double limit = 10000;
-			if(newForce.getX() > limit) newForce = new ZVector(limit, newForce.getY());
-			else if(newForce.getX() < -limit) newForce = new ZVector(-limit, newForce.getY());
-			
-			// Apply the force to both entities, not just this entity
-			this.setForce(eUuid, newForce);
-			this.collidingUuids.add(eUuid);
-			e.setForce(this.getUuid(), newForce.scale(-1));
-			e.collidingUuids.add(this.getUuid());
+//			// If they intersect, determine the force they should have against each other, and apply it to both entities
+//			String eUuid = e.getUuid();
+//			ZPoint thisP = new ZPoint(this.centerX(), this.maxY());
+//			ZPoint eP = new ZPoint(e.centerX(), e.maxY());
+//			// Find the distance between the center bottom of the entities, to determine how much force should be applied
+//			double dist = thisP.distance(eP);
+//
+//			// Find a distance where, if the bottom centers of the entities are further than this distance, they are definitely not intersecting
+//			double maxDist = (this.getWidth() + this.getHeight() + e.getWidth() + e.getHeight()) * .5;
+//			// The maximum amount of force that can be applied
+//			double maxMag = (this.getForce().getMagnitude() + e.getForce().getMagnitude());
+//
+//			// In the equation f(x) = mx^2 + b, so that f(x) = 0 is the maximum amount of force, and 0 = mx^2 + b is the maximum distance to use
+//			double b = maxMag;
+//			double m = b / (maxDist * maxDist);
+//
+//			// Use that equation to find the force
+//			double mag = m * dist * dist + b;
+//			double angle = ZMath.lineAngle(eP.getX(), eP.getY(), thisP.getX(), thisP.getY());
+//
+//			// Find the initial amount of force to set
+//			ZVector newForce = new ZVector(angle, mag, false);
+//
+//			// Apply most of the force as the x component, and less as the y component
+//			newForce = new ZVector(newForce.getX(), newForce.getY() * 0.1);
+//
+//			//issue#21
+//
+//			// Try keeping track of the total velocity an entity collision has added to another entity, and then remove that much velocity when the entities stop colliding
+//
+//			// If that amount of force would move the entity too far away, set it so that the entities will only be touching on the next tick
+//			// double xForce = newForce.getX();
+//			// double xMoved = xForce / this.getMass() * dt * dt;
+//			// double xDiff;
+//			// if(this.getX() < e.getX()) xDiff = Math.abs(this.getX() + this.getWidth() - e.getX());
+//			// else xDiff = Math.abs(e.getX() + e.getWidth() - this.getX());
+//			// if(ZMath.sameSign(xMoved, xDiff) && Math.abs(xMoved) > xDiff){
+//			// 	double newMoved = xMoved < 0 ? -xDiff : xDiff;
+//			// 	newForce = new ZVector(newMoved / (dt * dt) * this.getMass(), newForce.getY());
+//			// }
+//
+//			double limit = 10000;
+//			if(newForce.getX() > limit) newForce = new ZVector(limit, newForce.getY());
+//			else if(newForce.getX() < -limit) newForce = new ZVector(-limit, newForce.getY());
+//
+//			// Apply the force to both entities, not just this entity
+//			this.setForce(eUuid, newForce);
+//			this.collidingUuids.add(eUuid);
+//			e.setForce(this.getUuid(), newForce.scale(-1));
+//			e.collidingUuids.add(this.getUuid());
 		}
 	}
 	

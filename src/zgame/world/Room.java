@@ -181,7 +181,6 @@ public class Room extends GameThing implements Bounds{
 	 */
 	public CollisionResponse collide(HitBox obj){
 		// Find touching tiles and collide with them
-		// TODO find a way to abstract this?
 		int minX = this.tileX(obj.getX());
 		int minY = this.tileY(obj.getY());
 		int maxX = this.tileX(obj.maxX());

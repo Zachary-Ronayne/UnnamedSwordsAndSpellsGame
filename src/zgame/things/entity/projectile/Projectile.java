@@ -53,21 +53,11 @@ public abstract class Projectile extends EntityThing{
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
-		// Do the regular update first
-		super.tick(game, dt);
-		
-		// Check if this projectile hits any of the hitbox things in the game
-		// TODO replace this with checkEntityCollision?
-		var r = game.getCurrentRoom();
-		var things = r.getAllThings().get(HitBox.class);
-		for(int i = 0; i < things.size(); i++){
-			// Ignore the current thing if the projectile will not hit it
-			var thing = things.get(i);
-			if(!this.willHit(thing)) continue;
-			this.hit(game, thing);
-			break;
-		}
+	public void checkEntityCollision(Game game, EntityThing entity, double dt){
+		super.checkEntityCollision(game, entity, dt);
+		// Ignore the current thing if the projectile will not hit it
+		if(!this.willHit(entity)) return;
+		this.hit(game, entity);
 	}
 	
 	/**
