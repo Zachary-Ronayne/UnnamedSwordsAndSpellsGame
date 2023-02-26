@@ -117,7 +117,7 @@ public class Room extends GameThing implements Bounds{
 			ArrayList<Tile> col = new ArrayList<>(yTiles);
 			this.tiles.add(col);
 			for(int j = 0; j < yTiles; j++){
-				col.add(new Tile(i, j, t));
+				col.add(new Tile(i, j, t, t));
 			}
 		}
 	}
@@ -473,6 +473,49 @@ public class Room extends GameThing implements Bounds{
 	public boolean setTile(int x, int y, TileType t){
 		if(!this.inTiles(x, y)) return false;
 		this.tiles.get(x).set(y, new Tile(x, y, t));
+		return true;
+	}
+	
+	/**
+	 * Set the back tile type for the tile at the specified index
+	 *
+	 * @param x The x index
+	 * @param y The y index
+	 * @param t The type of tile to use as the back type
+	 * @return true if the tile was set, false if it was not i.e. the index was outside the grid
+	 */
+	public boolean setBackTile(int x, int y, TileType t){
+		if(!this.inTiles(x, y)) return false;
+		this.tiles.get(x).get(y).setBackType(t);
+		return true;
+	}
+	
+	/**
+	 * Set the front tile type for the tile at the specified index
+	 *
+	 * @param x The x index
+	 * @param y The y index
+	 * @param t The type of tile to use as the front type
+	 * @return true if the tile was set, false if it was not i.e. the index was outside the grid
+	 */
+	public boolean setFrontTile(int x, int y, TileType t){
+		if(!this.inTiles(x, y)) return false;
+		this.tiles.get(x).get(y).setFrontType(t);
+		return true;
+	}
+	
+	/**
+	 * Set the front and back tile types at the specified index
+	 *
+	 * @param x The x index
+	 * @param y The y index
+	 * @param back The type of tile for the back
+	 * @param front The type of tile for the front
+	 * @return true if the tile was set, false if it was not i.e. the index was outside the grid
+	 */
+	public boolean setTile(int x, int y, TileType back, TileType front){
+		if(!this.inTiles(x, y)) return false;
+		this.tiles.get(x).set(y, new Tile(x, y, back, front));
 		return true;
 	}
 	

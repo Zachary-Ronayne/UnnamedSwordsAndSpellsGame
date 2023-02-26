@@ -7,13 +7,10 @@ import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 
 /** A {@link TileType} which renders tiles as a solid color */
-public class ColorTile extends TileType{
+public class ColorTile extends BasicTile{
 	
 	/** The color to draw this tile */
 	private ZColor color;
-	
-	/** The {@link Material} of this {@link ColorTile} */
-	private final Material material;
 	
 	/**
 	 * Create a new {@link ColorTile} using the given data
@@ -37,9 +34,8 @@ public class ColorTile extends TileType{
 	 * @param material See {@link #material}
 	 */
 	public ColorTile(String id, String origin, TileHitbox hitbox, ZColor color, Material material){
-		super(id, origin, hitbox);
+		super(id, origin, hitbox, material);
 		this.color = color;
-		this.material = material;
 	}
 	
 	/** @return See {@link #color} */
@@ -54,11 +50,6 @@ public class ColorTile extends TileType{
 	 */
 	public void setColor(ZColor color){
 		this.color = color;
-	}
-	
-	@Override
-	public Material getMaterial(){
-		return this.material;
 	}
 	
 	@Override

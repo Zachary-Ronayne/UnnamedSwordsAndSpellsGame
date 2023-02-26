@@ -254,7 +254,7 @@ public class MainTest extends Game{
 			r.setTile(7, 5, BaseTiles.WALL_DARK);
 			r.setTile(11, 3, BaseTiles.WALL_LIGHT);
 			
-			r.setTile(11, 4, BaseTiles.WALL_BOTTOM_SLAB);
+			r.setFrontTile(11, 2, BaseTiles.WALL_BOTTOM_SLAB);
 			
 			return r;
 		}
