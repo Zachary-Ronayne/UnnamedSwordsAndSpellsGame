@@ -9,6 +9,22 @@ import zgame.things.entity.projectile.Projectile;
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
 public interface HitBox extends Bounds, Materialable, Uuidable{
 	
+	/** @param x The new x coordinate for this object */
+	void setX(double x);
+	
+	/** @param y The new y coordinate for this object */
+	void setY(double y);
+	
+	@Override
+	default double maxX(){
+		return this.getX() + this.getWidth();
+	}
+	
+	@Override
+	default double maxY(){
+		return this.getY() + this.getHeight();
+	}
+	
 	/**
 	 * Apply the given {@link CollisionResponse} to this object
 	 *
@@ -83,7 +99,11 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 	 * @param x The coordinate
 	 * @return true if the object was moved, false otherwise
 	 */
-	boolean keepLeft(double x);
+	default boolean keepLeft(double x){
+		if(this.getX() + this.getWidth() <= x) return false;
+		this.setX(x - this.getWidth());
+		return true;
+	}
 	
 	/**
 	 * Reposition this object so that it is to the right of the given x coordinate.
@@ -93,7 +113,11 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 	 * @param x The coordinate
 	 * @return true if the object was moved, false otherwise
 	 */
-	boolean keepRight(double x);
+	default boolean keepRight(double x){
+		if(this.getX() >= x) return false;
+		this.setX(x);
+		return true;
+	}
 	
 	/**
 	 * Reposition this object so that it is above the given y coordinate.
@@ -103,7 +127,11 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 	 * @param y The coordinate
 	 * @return true if the object was moved, false otherwise
 	 */
-	boolean keepAbove(double y);
+	default boolean keepAbove(double y){
+		if(this.getY() + this.getHeight() <= y) return false;
+		this.setY(y - this.getHeight());
+		return true;
+	}
 	
 	/**
 	 * Reposition this object so that it is below the given y coordinate.
@@ -113,7 +141,11 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 	 * @param y The coordinate
 	 * @return true if the object was moved, false otherwise
 	 */
-	boolean keepBelow(double y);
+	default boolean keepBelow(double y){
+		if(this.getY() >= y) return false;
+		this.setY(y);
+		return true;
+	}
 	
 	/**
 	 * A method that defines what this object does when it touches a floor
