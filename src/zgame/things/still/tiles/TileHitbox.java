@@ -48,13 +48,11 @@ public interface TileHitbox {
 	class Full implements TileHitbox{
 		@Override
 		public CollisionResponse collide(Tile t, HitBox obj){
-			// TODO verify implementation works, and add another hitbox type, like a slab type
 			return obj.calculateRectCollision(t.getX(), t.getY(), t.getWidth(), t.getHeight(), t.getMaterial());
 		}
 		
 		@Override
 		public boolean intersectsTile(Tile t, HitBox obj){
-			// TODO verify implementation works, and add another hitbox type, like a slab type
 			return obj.intersectsRect(t.getX(), t.getY(), t.getWidth(), t.getHeight());
 		}
 	}
