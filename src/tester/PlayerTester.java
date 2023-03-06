@@ -5,12 +5,11 @@ import zgame.core.graphics.Renderer;
 import zgame.physics.material.Material;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.Walk;
-import zgame.things.type.RectangleHitBox;
 import zgame.world.Room;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class PlayerTester extends EntityThing implements RectangleHitBox{
+public abstract class PlayerTester extends EntityThing {
 	
 	/** The width of this mob */
 	private double width;
@@ -55,12 +54,6 @@ public class PlayerTester extends EntityThing implements RectangleHitBox{
 		
 		// Now the camera to the player after repositioning the player
 		this.checkCenterCamera(game);
-	}
-	
-	@Override
-	public void render(Game game, Renderer r){
-		r.setColor(1, 0, 0);
-		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
 	/** @return See {@link #walk} */

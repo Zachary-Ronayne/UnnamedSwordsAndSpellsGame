@@ -2,6 +2,7 @@ package zgame.things.type;
 
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint;
+import zgame.core.utils.ZStringUtils;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
@@ -46,7 +47,7 @@ public interface CircleHitBox extends HitBox{
 	@Override
 	default CollisionResponse calculateCircleCollision(double x, double y, double r, Material m){
 		// TODO implement
-		return new CollisionResponse();
+		return calculateRectCollision(x - r, y - r, r * 2, r * 2, m);
 	}
 	
 	@Override

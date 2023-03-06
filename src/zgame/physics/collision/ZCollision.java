@@ -413,6 +413,168 @@ public final class ZCollision{
 		return n + s > cn + cs;
 	}
 	
+	/**
+	 * Given the rectangular bounds of an unmoving object, and the circular bounds of an object to collide with the rectangular bounds, determine how the latter object should
+	 * collide
+	 * <p>
+	 *
+	 * @param rx The upper left hand x coordinate of the unmoving bounds
+	 * @param ry The upper left hand y coordinate of the unmoving bounds
+	 * @param rw The width of the unmoving bounds
+	 * @param rh The height of the unmoving bounds
+	 * @param circleX The center x coordinate of the circle to collide
+	 * @param circleY The center y coordinate of the circle to collide
+	 * @param radius The radius of the circle to collide
+	 * @param m The {@link Material} which was collided with
+	 * @return A {@link CollisionResponse} representing the collision
+	 */
+	public static CollisionResponse rectToCircleBasic(double rx, double ry, double rw, double rh, double circleX, double circleY, double radius, Material m){
+		// If the shapes do not intersect, then there was no collision
+		if(!ZMath.circleIntersectsRect(circleX, circleY, radius, rx, ry, rw, rh)) return new CollisionResponse();
+		
+		// Initial Variable values
+		
+		// Diameter
+		double d = radius * 2;
+		// Upper left hand of circle
+		double cx = circleX - radius;
+		double cy = circleY - radius;
+		// Other values
+		double xDis = 0;
+		double yDis = 0;
+		boolean left = false;
+		boolean right = false;
+		boolean top = false;
+		boolean bottom = false;
+		
+		// Determining the position of the colliding object relative to the unmoving object
+		boolean toLeft = cx < rx;
+		boolean toRight = cx + d > rx + rw;
+		boolean above = cy < ry;
+		boolean below = cy + d > ry + rh;
+		
+		// The colliding object is to the left of the unmoving object
+		if(toLeft){
+			xDis = cx + d - rx;
+		}
+		// The colliding object is to the right of the unmoving object
+		else if(toRight){
+			xDis = rx + rw - cx;
+		}
+		
+		// The colliding object is above the unmoving object
+		if(above){
+			yDis = cy + d - ry;
+		}
+		// The colliding object is below the unmoving object
+		else if(below){
+			yDis = ry + rh - cy;
+		}
+		
+		// Prioritize moving on the axis which has moved more, if the x axis moved more, move on the y axis
+		if(Math.abs(yDis) < Math.abs(xDis)){
+			// The floor was collided with
+			if(above){
+				yDis = ry - circleLineIntersection(circleX, circleY, radius, rx, true, false);
+				bottom = true;
+			}
+			// The ceiling was collided with
+			else if(below){
+				// TODO
+				yDis = ry + rh - circleLineIntersection(circleX, circleY, radius, rx, true, true);
+				top = true;
+			}
+			if(ZMath.circleIntersectsRect(circleX, circleY + yDis, d, rx, ry, rw, rh)){
+				if(toLeft){
+					xDis = rx - circleLineIntersection(circleX, circleY + yDis, radius, ry, false, false);
+					right = true;
+				}
+				else if(toRight){
+					// TODO
+//					xDis =
+					left = true;
+				}
+			}
+			else xDis = 0;
+		}
+		// The y axis moved more
+		else{
+			// The right wall was collided with
+			if(toLeft){
+				xDis = rx - circleLineIntersection(circleX, circleY, radius, ry, false, false);
+				right = true;
+			}
+			// The left wall was hit
+			else if(toRight){
+				// TODO
+//				xDis =
+				left = true;
+			}
+			if(ZMath.circleIntersectsRect(circleX + xDis, circleY, d, rx, ry, rw, rh)){
+				if(above){
+					yDis = ry - circleLineIntersection(circleX + xDis, circleY, radius, rx, true, false);
+					bottom = true;
+				}
+				else if(below){
+					// TODO
+					yDis = ry + rh - circleLineIntersection(circleX + xDis, circleY, radius, rx, true, true);
+					top = true;
+				}
+			}
+			else yDis = 0;
+		}
+		if(top || bottom){
+			left = false;
+			right = false;
+		}
+		return new CollisionResponse(xDis, yDis, left, right, top, bottom, m);
+	}
+	
+	/**
+	 * Determine the coordinate of an intersection between a circle and a vertical or horizontal line
+	 *
+	 * @param rx The center x coordinate of the circle
+	 * @param ry The center y coordinate of the circle
+	 * @param r The radius of the circle
+	 * @param line The coordinate of the line
+	 * @param vertical true if the line is vertical and line represents an x coordinate, false if it is horizontal and represents a y coordinate
+	 * @param returnLower true if the lower of the two intersection points should be returned, false for the higher value
+	 * @return The intersection point. It will be a y coordinate if vertical is true, or an x coordinate if vertical is false
+	 * 		If the line and circle do not intersect, NaN is returned
+	 */
+	public static double circleLineIntersection(double rx, double ry, double r, double line, boolean vertical, boolean returnLower){
+		// (x - rx)^2 + (y - ry)^2 = r^2
+		// (x - rx)^2 = r^2 - (y - ry)^2
+		// x - rx = +-sqrt(r^2 - (y - ry)^2)
+		// x = +-sqrt(r^2 - (y - ry)^2) + rx
+		
+		// (x - ry)^2 + (y - ry)^2 = r^2
+		// (y - ry)^2 = r^2 - (x - rx)^2
+		// y - ry = +-sqrt(r^2 - (x - rx)^2)
+		// y = +-sqrt(r^2 - (x - rx)^2) + ry
+		
+		// line is an x coordinate
+		if(vertical){
+			var x = line - rx;
+			var d = r * r - x * x;
+			// If the sqrt value is negative, there's no intersection
+			if(d < 0) return Double.NaN;
+			var y = Math.sqrt(d);
+			// If y is negative, non negated is the lower value
+			if(y < 0) return (returnLower ? y : -y) + ry;
+			else return (returnLower ? -y : y) + ry;
+		}
+		// Line is a y coordinate
+		var y = line - ry;
+		var d = r * r - y * y;
+		// If the sqrt value is negative, there's no intersection
+		if(d < 0) return Double.NaN;
+		var x = Math.sqrt(d);
+		// If x is negative, non negated is the lower value
+		if(x < 0) return (returnLower ? x : -x) + rx;
+		else return (returnLower ? -x : x) + rx;
+	}
+	
 	/** Cannot instantiate {@link ZCollision} */
 	private ZCollision(){
 	}

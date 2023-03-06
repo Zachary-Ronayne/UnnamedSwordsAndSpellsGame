@@ -120,6 +120,8 @@ public class MainTest extends Game{
 	public static Game testerGame;
 	public static GameWindow window;
 	
+	public static final boolean CIRCLE_PLAYER = true;
+	
 	public static double camSpeed = 400;
 	public static boolean zoomOnlyX = false;
 	public static boolean zoomOnlyY = false;
@@ -219,7 +221,9 @@ public class MainTest extends Game{
 			for(int i = 0; i < 2; i++) secondRoom.setTile(i, 4, BaseTiles.HIGH_FRICTION);
 			this.setCurrentRoom(firstRoom);
 			
-			this.player = new PlayerTester(100, 400, 60, 100);
+			if(CIRCLE_PLAYER) this.player = new PlayerTesterCircle(130, 430, 60);
+			else this.player = new PlayerTesterRect(100, 400, 60, 100);
+			
 			this.player.setMass(100);
 			this.player.setLockCamera(true);
 			this.player.getWalk().setCanWallJump(true);
