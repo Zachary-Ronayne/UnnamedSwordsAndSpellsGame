@@ -5,6 +5,7 @@ import java.awt.geom.Line2D;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint;
 import zgame.core.utils.ZRect;
+import zgame.core.utils.ZStringUtils;
 import zgame.physics.material.Material;
 
 /** A class containing methods for calculating where objects should move when colliding */
@@ -433,95 +434,97 @@ public final class ZCollision{
 		if(!ZMath.circleIntersectsRect(circleX, circleY, radius, rx, ry, rw, rh)) return new CollisionResponse();
 		
 		// Initial Variable values
-		
-		// Diameter
-		double d = radius * 2;
-		// Upper left hand of circle
-		double cx = circleX - radius;
-		double cy = circleY - radius;
-		// Other values
-		double xDis = 0;
-		double yDis = 0;
+		double xDis;
+		double yDis;
 		boolean left = false;
 		boolean right = false;
 		boolean top = false;
 		boolean bottom = false;
 		
 		// Determining the position of the colliding object relative to the unmoving object
-		boolean toLeft = cx < rx;
-		boolean toRight = cx + d > rx + rw;
-		boolean above = cy < ry;
-		boolean below = cy + d > ry + rh;
+		boolean toLeft = circleX < rx;
+		boolean toRight = circleX > rx + rw;
+		boolean above = circleY < ry;
+		boolean below = circleY > ry + rh;
 		
+		boolean leftCenter = circleX < rx + rw * 0.5;
+		boolean aboveCenter = circleY < ry + ry * 0.5;
+		
+		// TODO account for the case where it's not toLeft and not toRight, or not above and not below
 		// The colliding object is to the left of the unmoving object
-		if(toLeft){
-			xDis = cx + d - rx;
+		if(toLeft || !toRight && leftCenter){
+			xDis = rx - (circleX + radius);
 		}
 		// The colliding object is to the right of the unmoving object
-		else if(toRight){
-			xDis = rx + rw - cx;
+		else{
+			xDis = (rx + rw) - (circleX - radius);
 		}
 		
 		// The colliding object is above the unmoving object
-		if(above){
-			yDis = cy + d - ry;
+		if(above || !below && aboveCenter){
+			yDis = ry - (circleY + radius);
 		}
 		// The colliding object is below the unmoving object
-		else if(below){
-			yDis = ry + rh - cy;
+		else {
+			yDis = (ry + rh) - (circleY - radius);
 		}
 		
 		// Prioritize moving on the axis which has moved more, if the x axis moved more, move on the y axis
 		if(Math.abs(yDis) < Math.abs(xDis)){
 			// The floor was collided with
 			if(above){
-				yDis = ry - circleLineIntersection(circleX, circleY, radius, rx, true, false);
+				if(toLeft) {
+					yDis = ry - circleLineIntersection(circleX, circleY, radius, rx, true, false);
+					right = true;
+				}
+				else if(toRight){
+					yDis = ry - circleLineIntersection(circleX, circleY, radius, rx + rw, true, false);
+					left = true;
+				}
+
 				bottom = true;
 			}
 			// The ceiling was collided with
 			else if(below){
-				// TODO
-				yDis = ry + rh - circleLineIntersection(circleX, circleY, radius, rx, true, true);
-				top = true;
-			}
-			if(ZMath.circleIntersectsRect(circleX, circleY + yDis, d, rx, ry, rw, rh)){
-				if(toLeft){
-					xDis = rx - circleLineIntersection(circleX, circleY + yDis, radius, ry, false, false);
+				if(toLeft) {
+					yDis = ry + rh - circleLineIntersection(circleX, circleY, radius, rx, true, true);
 					right = true;
 				}
-				else if(toRight){
-					// TODO
-//					xDis =
+				else if(toRight) {
+					yDis = ry + rh - circleLineIntersection(circleX, circleY, radius, rx + rw, true, true);
 					left = true;
 				}
+				top = true;
 			}
-			else xDis = 0;
+			xDis = 0;
 		}
 		// The y axis moved more
 		else{
 			// The right wall was collided with
 			if(toLeft){
-				xDis = rx - circleLineIntersection(circleX, circleY, radius, ry, false, false);
+				if(above) {
+					xDis = rx - circleLineIntersection(circleX, circleY, radius, ry, false, false);
+					bottom = true;
+				}
+				else if(below){
+					xDis = rx - circleLineIntersection(circleX, circleY, radius, ry + rh, false, false);
+					top = true;
+				}
 				right = true;
 			}
 			// The left wall was hit
 			else if(toRight){
-				// TODO
-//				xDis =
-				left = true;
-			}
-			if(ZMath.circleIntersectsRect(circleX + xDis, circleY, d, rx, ry, rw, rh)){
 				if(above){
-					yDis = ry - circleLineIntersection(circleX + xDis, circleY, radius, rx, true, false);
+					xDis = rx + rw - circleLineIntersection(circleX, circleY, radius, ry, false, true);
 					bottom = true;
 				}
 				else if(below){
-					// TODO
-					yDis = ry + rh - circleLineIntersection(circleX + xDis, circleY, radius, rx, true, true);
+					xDis = rx + rw - circleLineIntersection(circleX, circleY, radius, ry + rh, false, true);
 					top = true;
 				}
+				left = true;
 			}
-			else yDis = 0;
+			yDis = 0;
 		}
 		if(top || bottom){
 			left = false;
