@@ -2,7 +2,6 @@ package zgame.things.type;
 
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint;
-import zgame.core.utils.ZStringUtils;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
