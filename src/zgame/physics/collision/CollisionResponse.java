@@ -57,7 +57,7 @@ public class CollisionResponse{
 		this.right = right;
 		this.ceiling = ceiling;
 		this.floor = floor;
-		// Set the ma
+		// Set the material to no material if none is given
 		this.material = (material == null) ? Materials.NONE : material;
 	}
 	
@@ -109,6 +109,17 @@ public class CollisionResponse{
 	/** @return See {@link #material} */
 	public Material material(){
 		return this.material;
+	}
+	
+	/**
+	 * Get an identical copy of this {@link CollisionResponse}, but with the x and y values scaled by the given value
+	 *
+	 * @param s The scaling value. If it is negative, then left/right and ceiling/floor will be inverted
+	 * @return The scaled response
+	 */
+	public CollisionResponse scale(double s){
+		if(s < 0) new CollisionResponse(s * this.x(), s * this.y(), !this.left(), !this.right(), !this.ceiling(), !this.floor(), this.material());
+		return new CollisionResponse(s * this.x(), s * this.y(), this.left(), this.right(), this.ceiling(), this.floor(), this.material());
 	}
 	
 	@Override

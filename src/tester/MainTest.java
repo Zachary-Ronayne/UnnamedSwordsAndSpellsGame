@@ -120,7 +120,7 @@ public class MainTest extends Game{
 	public static Game testerGame;
 	public static GameWindow window;
 	
-	public static final boolean CIRCLE_PLAYER = true;
+	public static final boolean CIRCLE_PLAYER = false;
 	
 	public static double camSpeed = 400;
 	public static boolean zoomOnlyX = false;
@@ -257,6 +257,8 @@ public class MainTest extends Game{
 			for(int i = 0; i < 4; i++) r.setTile(4 + i, 6, BaseTiles.WALL_DARK);
 			r.setTile(7, 5, BaseTiles.WALL_DARK);
 			r.setTile(11, 3, BaseTiles.WALL_LIGHT);
+			
+			r.setFrontTile(7, 4, BaseTiles.WALL_CIRCLE);
 			
 			r.setFrontTile(11, 2, BaseTiles.WALL_BOTTOM_SLAB);
 			
@@ -685,7 +687,6 @@ public class MainTest extends Game{
 			r.setColor(.1, .1, .1);
 			r.fill();
 			super.renderBackground(game, r);
-			
 			
 			r.setFont(game.getFont("zfont"));
 			r.setColor(0, 0, 1);

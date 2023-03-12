@@ -49,6 +49,7 @@ public class DebugGame extends Game{
 		var c = ZCollision.rectToCircleBasic(rect.x, rect.y, rect.width, rect.height, circle.x, circle.y, radius, null);
 		r.setColor(1, 1, 0, .5);
 		r.drawCircle(circle.x + c.x(), circle.y + c.y(), radius);
+		ZStringUtils.prints(c.left(), c.right(), c.floor(), c.ceiling()); // TODO Remove
 		
 		c = ZCollision.rectToRectBasic(rect.x, rect.y, rect.width, rect.height, circle.x - radius, circle.y - radius, radius * 2, radius * 2, null);
 		r.setColor(0, 1, 1, .5);

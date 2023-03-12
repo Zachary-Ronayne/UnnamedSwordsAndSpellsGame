@@ -20,8 +20,8 @@ public interface RectangleHitBox extends HitBox{
 	
 	@Override
 	default CollisionResponse calculateCircleCollision(double x, double y, double r, Material m){
-		// TODO implement
-		return calculateRectCollision(x - r, y - r, r * 2, r * 2, m);
+		if(!this.intersectsCircle(x, y, r)) return new CollisionResponse();
+		return ZCollision.rectToCircleBasic(this.getX(), this.getY(), this.getWidth(), this.getHeight(), x, y, r, m).scale(-1);
 	}
 	
 	@Override

@@ -10,6 +10,8 @@ public interface TileHitbox {
 	None NONE = new None();
 	/** See {@link Full} */
 	Full FULL = new Full();
+	/** See {@link Circle} */
+	Circle CIRCLE = new Circle();
 	/** See {@link Full} */
 	BottomSlab BOTTOM_SLAB = new BottomSlab();
 	
@@ -54,6 +56,19 @@ public interface TileHitbox {
 		@Override
 		public boolean intersectsTile(Tile t, HitBox obj){
 			return obj.intersectsRect(t.getX(), t.getY(), t.getWidth(), t.getHeight());
+		}
+	}
+	
+	/** For tiles whose hitbox is a circle inscribed by the tile */
+	class Circle implements TileHitbox{
+		@Override
+		public CollisionResponse collide(Tile t, HitBox obj){
+			return obj.calculateCircleCollision(t.centerX(), t.centerY(), t.getWidth() * 0.5, t.getMaterial());
+		}
+		
+		@Override
+		public boolean intersectsTile(Tile t, HitBox obj){
+			return obj.intersectsCircle(t.centerX(), t.centerY(), t.getWidth() * 0.5);
 		}
 	}
 	

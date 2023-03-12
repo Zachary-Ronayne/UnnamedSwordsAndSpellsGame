@@ -1,7 +1,6 @@
 package tester;
 
 import zgame.core.Game;
-import zgame.core.graphics.Renderer;
 import zgame.physics.material.Material;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.Walk;

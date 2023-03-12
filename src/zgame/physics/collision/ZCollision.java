@@ -5,7 +5,6 @@ import java.awt.geom.Line2D;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint;
 import zgame.core.utils.ZRect;
-import zgame.core.utils.ZStringUtils;
 import zgame.physics.material.Material;
 
 /** A class containing methods for calculating where objects should move when colliding */
@@ -450,7 +449,6 @@ public final class ZCollision{
 		boolean leftCenter = circleX < rx + rw * 0.5;
 		boolean aboveCenter = circleY < ry + ry * 0.5;
 		
-		// TODO account for the case where it's not toLeft and not toRight, or not above and not below
 		// The colliding object is to the left of the unmoving object
 		if(toLeft || !toRight && leftCenter){
 			xDis = rx - (circleX + radius);
@@ -482,7 +480,7 @@ public final class ZCollision{
 					left = true;
 				}
 
-				bottom = true;
+				top = true;
 			}
 			// The ceiling was collided with
 			else if(below){
@@ -494,7 +492,7 @@ public final class ZCollision{
 					yDis = ry + rh - circleLineIntersection(circleX, circleY, radius, rx + rw, true, true);
 					left = true;
 				}
-				top = true;
+				bottom = true;
 			}
 			xDis = 0;
 		}
@@ -504,11 +502,11 @@ public final class ZCollision{
 			if(toLeft){
 				if(above) {
 					xDis = rx - circleLineIntersection(circleX, circleY, radius, ry, false, false);
-					bottom = true;
+					top = true;
 				}
 				else if(below){
 					xDis = rx - circleLineIntersection(circleX, circleY, radius, ry + rh, false, false);
-					top = true;
+					bottom = true;
 				}
 				right = true;
 			}
@@ -516,11 +514,11 @@ public final class ZCollision{
 			else if(toRight){
 				if(above){
 					xDis = rx + rw - circleLineIntersection(circleX, circleY, radius, ry, false, true);
-					bottom = true;
+					top = true;
 				}
 				else if(below){
 					xDis = rx + rw - circleLineIntersection(circleX, circleY, radius, ry + rh, false, true);
-					top = true;
+					bottom = true;
 				}
 				left = true;
 			}
