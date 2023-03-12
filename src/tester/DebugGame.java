@@ -6,7 +6,6 @@ import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint;
 import zgame.core.utils.ZRect;
-import zgame.core.utils.ZStringUtils;
 import zgame.physics.collision.ZCollision;
 
 /** A class purely for making and testing random specific bits of code */
@@ -53,7 +52,6 @@ public class DebugGame extends Game{
 		r.drawCircle(circle.x + c.x(), circle.y + c.y(), radius);
 		
 		c = ZCollision.rectToRectBasic(rect.x, rect.y, rect.width, rect.height, circle.x - radius, circle.y - radius, radius * 2, radius * 2, null);
-		ZStringUtils.prints(c.left(), c.right(), c.ceiling(), c.floor()); // TODO Remove
 		r.setColor(0, 1, 1, .5);
 		r.drawRectangle(circle.x - radius + c.x(), circle.y - radius + c.y(), radius * 2, radius * 2);
 		
