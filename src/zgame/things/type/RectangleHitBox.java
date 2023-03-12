@@ -20,7 +20,7 @@ public interface RectangleHitBox extends HitBox{
 	
 	@Override
 	default CollisionResponse calculateCircleCollision(double x, double y, double r, Material m){
-		if(!this.intersectsCircle(x, y, r)) return new CollisionResponse();
+		// TODO maybe shouldn't use scale with automatic inverting?
 		return ZCollision.rectToCircleBasic(this.getX(), this.getY(), this.getWidth(), this.getHeight(), x, y, r, m).scale(-1);
 	}
 	

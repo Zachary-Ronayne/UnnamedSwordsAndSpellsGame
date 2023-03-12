@@ -15,6 +15,8 @@ public class DebugGame extends Game{
 	static ZRect rect = new ZRect(300, 100, 600, 300);
 	static ZPoint circle = new ZPoint(500, 300);
 	static double radius = 100;
+	static ZPoint circle2 = new ZPoint(800, 600);
+	static double radius2 = 100;
 	static boolean shift = false;
 	static boolean ctrl = false;
 	static boolean click = false;
@@ -49,9 +51,9 @@ public class DebugGame extends Game{
 		var c = ZCollision.rectToCircleBasic(rect.x, rect.y, rect.width, rect.height, circle.x, circle.y, radius, null);
 		r.setColor(1, 1, 0, .5);
 		r.drawCircle(circle.x + c.x(), circle.y + c.y(), radius);
-		ZStringUtils.prints(c.left(), c.right(), c.floor(), c.ceiling()); // TODO Remove
 		
 		c = ZCollision.rectToRectBasic(rect.x, rect.y, rect.width, rect.height, circle.x - radius, circle.y - radius, radius * 2, radius * 2, null);
+		ZStringUtils.prints(c.left(), c.right(), c.ceiling(), c.floor()); // TODO Remove
 		r.setColor(0, 1, 1, .5);
 		r.drawRectangle(circle.x - radius + c.x(), circle.y - radius + c.y(), radius * 2, radius * 2);
 		
@@ -70,6 +72,12 @@ public class DebugGame extends Game{
 		r.drawCircle(x, py, 6);
 		x = ZCollision.circleLineIntersection(circle.x, circle.y, radius, py, false, false);
 		r.drawCircle(x, py, 6);
+		
+		r.setColor(0, 1, 1);
+		r.drawCircle(circle2.x, circle2.y, radius2);
+		c = ZCollision.circleToCircleBasic(circle2.x, circle2.y, radius2, circle.x, circle.y, radius, null);
+		r.setColor(1, 1, 0, .5);
+		r.drawCircle(circle.x + c.x(), circle.y + c.y(), radius);
 	}
 	
 	@Override

@@ -113,7 +113,7 @@ public final class ZMath{
 	 * @param y The x coordinate of the base of the angle
 	 * @param px The x coordinate of where to go to find the angle
 	 * @param py The y coordinate of where to go to find the angle
-	 * @return The angle, in radians
+	 * @return The angle, in radians, in the range [-Pi, Pi]
 	 */
 	public static double lineAngle(double x, double y, double px, double py){
 		return Math.atan2(py - y, px - x);

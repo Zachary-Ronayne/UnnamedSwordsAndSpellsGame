@@ -463,7 +463,7 @@ public final class ZCollision{
 			yDis = ry - (circleY + radius);
 		}
 		// The colliding object is below the unmoving object
-		else {
+		else{
 			yDis = (ry + rh) - (circleY - radius);
 		}
 		
@@ -471,7 +471,7 @@ public final class ZCollision{
 		if(Math.abs(yDis) < Math.abs(xDis)){
 			// The floor was collided with
 			if(above){
-				if(toLeft) {
+				if(toLeft){
 					yDis = ry - circleLineIntersection(circleX, circleY, radius, rx, true, false);
 					right = true;
 				}
@@ -479,16 +479,16 @@ public final class ZCollision{
 					yDis = ry - circleLineIntersection(circleX, circleY, radius, rx + rw, true, false);
 					left = true;
 				}
-
+				
 				top = true;
 			}
 			// The ceiling was collided with
 			else if(below){
-				if(toLeft) {
+				if(toLeft){
 					yDis = ry + rh - circleLineIntersection(circleX, circleY, radius, rx, true, true);
 					right = true;
 				}
-				else if(toRight) {
+				else if(toRight){
 					yDis = ry + rh - circleLineIntersection(circleX, circleY, radius, rx + rw, true, true);
 					left = true;
 				}
@@ -500,7 +500,7 @@ public final class ZCollision{
 		else{
 			// The right wall was collided with
 			if(toLeft){
-				if(above) {
+				if(above){
 					xDis = rx - circleLineIntersection(circleX, circleY, radius, ry, false, false);
 					top = true;
 				}
@@ -575,6 +575,32 @@ public final class ZCollision{
 		if(x < 0) return (returnLower ? x : -x) + rx;
 		else return (returnLower ? -x : x) + rx;
 	}
+	
+	/**
+	 * Given the circle bounds of an unmoving object, and the circle bounds of an object to collide with the unmoving object, determine how the latter object should collide
+	 *
+	 * @param cx The x center of the unmoving object
+	 * @param cy The y center of the unmoving object
+	 * @param cr The radius of the unmoving object
+	 * @param x The x center of the moving object
+	 * @param y The y center of the moving object
+	 * @param r The radius of the moving object
+	 * @param m The material of the object collided with
+	 * @return The response
+	 */
+	public static CollisionResponse circleToCircleBasic(double cx, double cy, double cr, double x, double y, double r, Material m){
+		var dist = Math.sqrt((cx - x) * (cx - x) + (cy - y) * (cy - y));
+		var radi = cr + r;
+		if(radi < dist) return new CollisionResponse();
+		
+		var offset = radi - dist;
+		var angle = ZMath.lineAngle(cx, cy, x, y);
+		var cos = Math.cos(angle);
+		var sin = Math.sin(angle);
+		
+		return new CollisionResponse(cos * offset, sin * offset, cos > 0, cos < 0, sin > 0, sin < 0, m);
+	}
+	
 	
 	/** Cannot instantiate {@link ZCollision} */
 	private ZCollision(){

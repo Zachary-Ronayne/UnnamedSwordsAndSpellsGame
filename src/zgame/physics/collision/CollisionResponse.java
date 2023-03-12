@@ -118,7 +118,7 @@ public class CollisionResponse{
 	 * @return The scaled response
 	 */
 	public CollisionResponse scale(double s){
-		if(s < 0) new CollisionResponse(s * this.x(), s * this.y(), !this.left(), !this.right(), !this.ceiling(), !this.floor(), this.material());
+		if(s < 0) return new CollisionResponse(s * this.x(), s * this.y(), this.left(), this.right(), !this.ceiling(), !this.floor(), this.material());
 		return new CollisionResponse(s * this.x(), s * this.y(), this.left(), this.right(), this.ceiling(), this.floor(), this.material());
 	}
 	
