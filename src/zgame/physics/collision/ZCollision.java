@@ -441,10 +441,10 @@ public final class ZCollision{
 		boolean bottom = false;
 		
 		// Determining the position of the colliding object relative to the unmoving object
-		boolean toLeft = circleX < rx;
-		boolean toRight = circleX > rx + rw;
-		boolean above = circleY < ry;
-		boolean below = circleY > ry + rh;
+		boolean toLeft = circleX - radius < rx;
+		boolean toRight = circleX + radius > rx + rw;
+		boolean above = circleY - radius < ry;
+		boolean below = circleY + radius > ry + rh;
 		
 		boolean leftCenter = circleX < rx + rw * 0.5;
 		boolean aboveCenter = circleY < ry + ry * 0.5;
