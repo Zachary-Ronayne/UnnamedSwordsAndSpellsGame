@@ -32,8 +32,8 @@ public final class ZCollision{
 		ZRect unmoving = new ZRect(cx, cy, cw, ch);
 		if(!unmoving.intersects(x, y, w, h)) return new CollisionResponse();
 		// Initial Variable values
-		double xDis = 0;
-		double yDis = 0;
+		double xDis;
+		double yDis;
 		boolean left = false;
 		boolean right = false;
 		boolean top = false;
@@ -45,15 +45,22 @@ public final class ZCollision{
 		boolean above = y < cy;
 		boolean below = y + h > cy + ch;
 		
+		boolean leftCenter = x + w * 0.5 < cx + cw * 0.5;
+		boolean aboveCenter = y + h * 0.5 < cy + cy * 0.5;
+		
 		// The colliding object is to the left of the unmoving object
-		if(toLeft) xDis = x + w - cx;
-			// The colliding object is to the right of the unmoving object
-		else if(toRight) xDis = cx + cw - x;
+		if(toLeft || !toRight && leftCenter){
+			xDis = x + w - cx;
+		}
+		// The colliding object is to the right of the unmoving object
+		else xDis = cx + cw - x;
 		
 		// The colliding object is above the unmoving object
-		if(above) yDis = y + h - cy;
-			// The colliding object is below the unmoving object
-		else if(below) yDis = cy + ch - y;
+		if(above || !below && aboveCenter){
+			yDis = y + h - cy;
+		}
+		// The colliding object is below the unmoving object
+		else yDis = cy + ch - y;
 		
 		// Prioritize moving on the axis which has moved more, if the x axis moved more, move on the y axis
 		if(Math.abs(yDis) < Math.abs(xDis)){
@@ -446,6 +453,11 @@ public final class ZCollision{
 		boolean above = circleY - radius < ry;
 		boolean below = circleY + radius > ry + rh;
 		
+		boolean toLeftCentered = circleX < rx;
+		boolean toRightCentered = circleX > rx + rw;
+		boolean aboveCentered = circleY < ry;
+		boolean belowCentered = circleY > ry + rh;
+		
 		boolean leftCenter = circleX < rx + rw * 0.5;
 		boolean aboveCenter = circleY < ry + ry * 0.5;
 		
@@ -470,12 +482,12 @@ public final class ZCollision{
 		// Prioritize moving on the axis which has moved more, if the x axis moved more, move on the y axis
 		if(Math.abs(yDis) < Math.abs(xDis)){
 			// The floor was collided with
-			if(above){
-				if(toLeft){
+			if(aboveCentered){
+				if(toLeftCentered){
 					yDis = ry - circleLineIntersection(circleX, circleY, radius, rx, true, false);
 					right = true;
 				}
-				else if(toRight){
+				else if(toRightCentered){
 					yDis = ry - circleLineIntersection(circleX, circleY, radius, rx + rw, true, false);
 					left = true;
 				}
@@ -483,12 +495,12 @@ public final class ZCollision{
 				bottom = true;
 			}
 			// The ceiling was collided with
-			else if(below){
-				if(toLeft){
+			else if(belowCentered){
+				if(toLeftCentered){
 					yDis = ry + rh - circleLineIntersection(circleX, circleY, radius, rx, true, true);
 					right = true;
 				}
-				else if(toRight){
+				else if(toRightCentered){
 					yDis = ry + rh - circleLineIntersection(circleX, circleY, radius, rx + rw, true, true);
 					left = true;
 				}
@@ -499,24 +511,24 @@ public final class ZCollision{
 		// The y axis moved more
 		else{
 			// The right wall was collided with
-			if(toLeft){
-				if(above){
+			if(toLeftCentered){
+				if(aboveCentered){
 					xDis = rx - circleLineIntersection(circleX, circleY, radius, ry, false, false);
 					bottom = true;
 				}
-				else if(below){
+				else if(belowCentered){
 					xDis = rx - circleLineIntersection(circleX, circleY, radius, ry + rh, false, false);
 					top = true;
 				}
 				right = true;
 			}
 			// The left wall was hit
-			else if(toRight){
-				if(above){
+			else if(toRightCentered){
+				if(aboveCentered){
 					xDis = rx + rw - circleLineIntersection(circleX, circleY, radius, ry, false, true);
 					bottom = true;
 				}
-				else if(below){
+				else if(belowCentered){
 					xDis = rx + rw - circleLineIntersection(circleX, circleY, radius, ry + rh, false, true);
 					top = true;
 				}
