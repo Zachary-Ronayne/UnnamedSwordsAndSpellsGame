@@ -118,6 +118,15 @@ public class CollisionResponse{
 	 * @return The scaled response
 	 */
 	public CollisionResponse scale(double s){
+		if(s < 0){
+			var oppositeSide = !this.left() && !this.right();
+			var oppositeTop = !this.ceiling() && !this.floor();
+			return new CollisionResponse(this.x() * s, this.y() * s,
+					this.left() == oppositeSide, this.right() == oppositeSide,
+					this.ceiling() == oppositeTop, this.floor() == oppositeTop,
+					this.material()
+			);
+		}
 		return new CollisionResponse(s * this.x(), s * this.y(), this.left(), this.right(), this.ceiling(), this.floor(), this.material());
 	}
 	

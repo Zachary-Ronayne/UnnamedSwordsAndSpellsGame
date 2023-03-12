@@ -38,7 +38,7 @@ public interface CircleHitBox extends HitBox{
 	
 	@Override
 	default CollisionResponse calculateRectCollision(double x, double y, double w, double h, Material m){
-		return ZCollision.rectToCircleBasic(x, y, w, h, this.centerX(), this.centerY(), this.getRadius(), m).invertDirections();
+		return ZCollision.rectToCircleBasic(x, y, w, h, this.centerX(), this.centerY(), this.getRadius(), m);
 	}
 	
 	@Override

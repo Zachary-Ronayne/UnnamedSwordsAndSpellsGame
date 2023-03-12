@@ -480,7 +480,7 @@ public final class ZCollision{
 					left = true;
 				}
 				
-				top = true;
+				bottom = true;
 			}
 			// The ceiling was collided with
 			else if(below){
@@ -492,7 +492,7 @@ public final class ZCollision{
 					yDis = ry + rh - circleLineIntersection(circleX, circleY, radius, rx + rw, true, true);
 					left = true;
 				}
-				bottom = true;
+				top = true;
 			}
 			xDis = 0;
 		}
@@ -502,11 +502,11 @@ public final class ZCollision{
 			if(toLeft){
 				if(above){
 					xDis = rx - circleLineIntersection(circleX, circleY, radius, ry, false, false);
-					top = true;
+					bottom = true;
 				}
 				else if(below){
 					xDis = rx - circleLineIntersection(circleX, circleY, radius, ry + rh, false, false);
-					bottom = true;
+					top = true;
 				}
 				right = true;
 			}
@@ -514,11 +514,11 @@ public final class ZCollision{
 			else if(toRight){
 				if(above){
 					xDis = rx + rw - circleLineIntersection(circleX, circleY, radius, ry, false, true);
-					top = true;
+					bottom = true;
 				}
 				else if(below){
 					xDis = rx + rw - circleLineIntersection(circleX, circleY, radius, ry + rh, false, true);
-					bottom = true;
+					top = true;
 				}
 				left = true;
 			}
