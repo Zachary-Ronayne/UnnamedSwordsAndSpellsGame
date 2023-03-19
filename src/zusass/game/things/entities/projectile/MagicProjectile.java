@@ -23,8 +23,8 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	public MagicProjectile(double x, double y, String ignoreUuid, ZVector launchVelocity){
 		super(x, y, ignoreUuid, launchVelocity);
 		// Turn off gravity
-		// TODO allow the amount of gravity to change
-		setForce(EntityThing.FORCE_NAME_GRAVITY, new ZVector());
+		this.setGravityLevel(0);
+		
 		// TODO add a spell object as a parameter
 		
 		// Add a function to effect a hit mob with magic

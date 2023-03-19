@@ -45,6 +45,9 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	/** The current force of gravity on this {@link EntityThing} */
 	private ZVector gravity;
 	
+	/** The percentage of gravity that applies to this {@link EntityThing}, defaults to 1, i.e. 100% */
+	private double gravityLevel;
+	
 	/** The current force of friction on this {@link EntityThing}. */
 	private ZVector frictionForce;
 	
@@ -125,6 +128,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		
 		this.gravity = new ZVector();
 		this.setForce(FORCE_NAME_GRAVITY, gravity);
+		this.setGravityLevel(1);
 		this.setMass(mass);
 		this.material = Materials.DEFAULT_ENTITY;
 		
@@ -334,6 +338,22 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		return this.gravity;
 	}
 	
+	/** Update the amount of gravitational force being applied to this {@link EntityThing} */
+	private void updateGravity(){
+		this.gravity = this.setForce(FORCE_NAME_GRAVITY, 0, GRAVITY_ACCELERATION * this.getMass() * this.getGravityLevel());
+	}
+	
+	/** @return See {@link #gravityLevel} */
+	public double getGravityLevel(){
+		return this.gravityLevel;
+	}
+	
+	/** @param gravityLevel See {@link #gravityLevel} */
+	public void setGravityLevel(double gravityLevel){
+		this.gravityLevel = gravityLevel;
+		this.updateGravity();
+	}
+	
 	/** @return See {@link #frictionForce} */
 	public ZVector getFriction(){
 		return this.frictionForce;
@@ -352,7 +372,7 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	/** @param mass See {@link #mass} */
 	public void setMass(double mass){
 		this.mass = mass;
-		this.gravity = this.setForce(FORCE_NAME_GRAVITY, 0, GRAVITY_ACCELERATION * this.getMass());
+		this.updateGravity();
 	}
 	
 	/** @return See {@link #groundMaterial} */
