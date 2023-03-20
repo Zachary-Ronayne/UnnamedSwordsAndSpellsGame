@@ -6,6 +6,7 @@ package zgame.stat;
  * Otherwise, {@link Stat} and {@link Stats} will be unable to use those enums
  */
 public interface StatType{
+	// TODO change this to be something other than ordinal, because enums use ordinal
 	/** @return The unique integer ordinal to assign to this {@link StatType}. Should obtain this value by calling {@link StatOrdinal#nextOrdinal()} */
 	int getOrdinal();
 	

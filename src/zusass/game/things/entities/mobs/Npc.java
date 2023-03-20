@@ -3,7 +3,12 @@ package zusass.game.things.entities.mobs;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZMath;
+import zgame.stat.modifier.ModifierType;
+import zgame.stat.modifier.StatModifier;
 import zusass.ZusassGame;
+import zusass.game.magic.SelfSpell;
+import zusass.game.magic.effect.SpellEffectStatusEffect;
+import zusass.game.status.StatEffect;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -26,11 +31,19 @@ public class Npc extends ZusassMob{
 		this.setStat(STAMINA_REGEN, 1);
 		this.setStat(ENDURANCE, 4);
 		this.setStat(INTELLIGENCE, 3);
+		
+		// Set a default spell as speed
+		// TODO make this easier to use without so many nested things
+		this.setSelectedSpell(
+				new SelfSpell(new SpellEffectStatusEffect(new StatEffect(this.getStats(), 5, new StatModifier(this.getUuid(), 2, ModifierType.MULT_MULT), MOVE_SPEED))));
+		
+		// TODO figure out why this isn't removing effects when they expire
 	}
 	
 	@Override
 	public void tick(Game game, double dt){
 		super.tick(game, dt);
+		
 		ZusassGame zgame = (ZusassGame)game;
 		var walk = this.getWalk();
 		
@@ -56,8 +69,10 @@ public class Npc extends ZusassMob{
 		
 		// If running and stamina is below half, stop running
 		var walking = walk.isWalking();
-		if(staminaPerc < .5 && !walking) walk.setWalking(true);
-			// If stamina is above 75% and walking, start running
+		if(staminaPerc < .5 && !walking){
+			walk.setWalking(true);
+		}
+		// If stamina is above 75% and walking, start running
 		else if(staminaPerc > .75 && walking) walk.setWalking(false);
 	}
 	

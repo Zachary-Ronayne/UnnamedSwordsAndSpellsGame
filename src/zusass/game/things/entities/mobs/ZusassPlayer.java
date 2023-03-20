@@ -6,12 +6,12 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.utils.ZMath;
-import zgame.physics.ZVector;
 import zgame.stat.modifier.ModifierType;
 import zgame.world.Room;
 import zusass.ZusassGame;
+import zusass.game.magic.ProjectileSpell;
+import zusass.game.magic.effect.SpellEffectStatAdd;
 import zusass.game.things.ZusassTags;
-import zusass.game.things.entities.projectile.MagicProjectile;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -51,6 +51,10 @@ public class ZusassPlayer extends ZusassMob{
 		this.setResourcesMax();
 		
 		this.addStatEffect(this.getUuid(), -1, 5, ModifierType.ADD, STAMINA_REGEN);
+		
+		// Set the default spell to a damage spell
+		// TODO make this easier to select without having to define so many nested objects
+		this.setSelectedSpell(new ProjectileSpell(new SpellEffectStatAdd(HEALTH, -10)));
 		
 		this.lockCamera = false;
 	}
@@ -161,20 +165,6 @@ public class ZusassPlayer extends ZusassMob{
 	/** If the camera is locked, unlock it, otherwise, lock it */
 	public void toggleLockCamera(){
 		this.setLockCamera(!this.isLockCamera());
-	}
-	
-	@Override
-	public void castSpell(ZusassGame zgame){
-		// TODO abstract this into using a spell casting system
-		if(this.stat(MANA) < 10) return;
-		this.getStat(MANA).addValue(-10);
-		
-		var r = zgame.getCurrentRoom();
-		var vel = new ZVector(this.getAttackDirection(), 400, false);
-		var p = new MagicProjectile(this.centerX(), this.centerY(), this.getUuid(), vel);
-		p.addX(-p.getWidth() * .5);
-		p.addY(-p.getHeight() * .5);
-		r.addThing(p);
 	}
 	
 	@Override

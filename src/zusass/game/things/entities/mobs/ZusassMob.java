@@ -16,6 +16,8 @@ import zgame.things.entity.projectile.Projectile;
 import zgame.things.type.RectangleHitBox;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
+import zusass.game.magic.NoneSpell;
+import zusass.game.magic.Spell;
 import zusass.game.stat.*;
 import zusass.game.stat.attributes.Endurance;
 import zusass.game.stat.attributes.Intelligence;
@@ -45,6 +47,9 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	
 	/** The direction, an angle in radians, where the mob will attack */
 	private double attackDirection;
+	
+	/** The current spell selected to be cast by this mob */
+	private Spell selectedSpell;
 	
 	/** true if this {@link ZusassMob} is in spell casting mode, false for weapon mode */
 	private boolean casting;
@@ -118,6 +123,9 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.setStat(STRENGTH, 1);
 		this.setStat(ENDURANCE, 5);
 		this.setStat(INTELLIGENCE, 5);
+		
+		// Select no spell by default
+		this.selectedSpell = new NoneSpell();
 	}
 	
 	@Override
@@ -277,18 +285,23 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.stats.get(HEALTH).addValue(-amount);
 	}
 	
+	/** @return See {@link #selectedSpell} */
+	public Spell getSelectedSpell(){
+		return this.selectedSpell;
+	}
+	
+	/** @param selectedSpell See {@link #selectedSpell} */
+	public void setSelectedSpell(Spell selectedSpell){
+		this.selectedSpell = selectedSpell;
+	}
+	
 	/**
 	 * Attempt to cast the currently selected spell
 	 *
 	 * @param zgame The {@link ZusassGame} where the spell was cast
 	 */
-	public void castSpell(ZusassGame zgame){
-		var cost = 20;
-		if(this.stat(MANA) < cost) return;
-		this.getStat(MANA).addValue(-cost);
-		
-		// Casting a spell to move faster as a temporary test
-		this.addStatEffect(this.getUuid(), 5, 2, ModifierType.MULT_MULT, MOVE_SPEED);
+	public boolean castSpell(ZusassGame zgame){
+		return this.getSelectedSpell().castAttempt(zgame, this);
 	}
 	
 	/** @return See {@link #effects} */

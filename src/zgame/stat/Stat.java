@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-/** An object keeping track of a single stat used an object */
+/** An object keeping track of a single stat used by an object */
 public abstract class Stat{
 	
 	/** The stats object which is used by this {@link Stat} */
