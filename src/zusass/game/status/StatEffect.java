@@ -51,4 +51,9 @@ public class StatEffect extends StatusEffect{
 	public void clear(){
 		for(var m : modifiers) this.stats.get(m.getOrdinal()).removeModifier(m.modifier());
 	}
+	
+	@Override
+	public StatusEffect copy(){
+		return new StatEffect(this.stats, this.getDuration(), this.modifiers);
+	}
 }

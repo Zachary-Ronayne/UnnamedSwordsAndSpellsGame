@@ -14,8 +14,14 @@ public class StatusEffects{
 		this.effects = new NotNullList<>();
 	}
 	
+	/** @return See {@link #effects} */
+	public NotNullList<StatusEffect> get(){
+		return this.effects;
+	}
+	
 	/** @param effect An effect to add to this effects list, and apply it to its owner */
 	public void addEffect(StatusEffect effect){
+		effect = effect.resetCopy();
 		this.effects.add(effect);
 		effect.apply();
 	}
@@ -23,6 +29,12 @@ public class StatusEffects{
 	/** @param effect An effect to remove from this effects list, and clear it from its owner */
 	public void removeEffect(StatusEffect effect){
 		this.effects.remove(effect);
+		effect.clear();
+	}
+	
+	/** @param i The index of the effect to remove from this effects list, and clear it from its owner */
+	public void removeEffect(int i){
+		var effect = this.effects.remove(i);
 		effect.clear();
 	}
 	
@@ -46,7 +58,12 @@ public class StatusEffects{
 	 */
 	public void tick(Game game, double dt){
 		for(int i = 0; i < this.effects.size(); i++){
-			this.effects.get(i).tick(game, dt);
+			var ef = this.effects.get(i);
+			var removed = ef.tick(game, dt);
+			if(removed){
+				this.removeEffect(i);
+				i--;
+			}
 		}
 	}
 	

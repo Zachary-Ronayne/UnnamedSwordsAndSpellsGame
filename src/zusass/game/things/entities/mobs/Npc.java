@@ -36,8 +36,6 @@ public class Npc extends ZusassMob{
 		// TODO make this easier to use without so many nested things
 		this.setSelectedSpell(
 				new SelfSpell(new SpellEffectStatusEffect(new StatEffect(this.getStats(), 5, new StatModifier(this.getUuid(), 2, ModifierType.MULT_MULT), MOVE_SPEED))));
-		
-		// TODO figure out why this isn't removing effects when they expire
 	}
 	
 	@Override

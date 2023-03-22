@@ -299,6 +299,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * Attempt to cast the currently selected spell
 	 *
 	 * @param zgame The {@link ZusassGame} where the spell was cast
+	 * @return true if the spell could be cast, false otherwise i.e. the caster doesn't have enough mana
 	 */
 	public boolean castSpell(ZusassGame zgame){
 		return this.getSelectedSpell().castAttempt(zgame, this);

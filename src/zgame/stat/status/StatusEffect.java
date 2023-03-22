@@ -6,7 +6,7 @@ import zgame.core.Game;
 public abstract class StatusEffect {
 
 	/** The number of seconds this effect should last for. Negative values means the effect lasts forever  */
-	private final double duration;
+	private double duration;
 
 	/** The number of seconds remaining in this effect*/
 	private double remaining;
@@ -25,14 +25,24 @@ public abstract class StatusEffect {
 	 *
 	 * @param game The game where this tick happened
 	 * @param dt The amount of time that passed in this update
-	 * @return true if the effect was cleared, false otherwise
+	 * @return true if the effect shoudld be cleared, false otherwise
 	 */
 	public boolean tick(Game game, double dt){
+		if(this.isPermanent()) return false;
 		this.remaining -= dt;
-		var done = !this.isPermanent() && this.remaining <= 0;
-		if(done) this.clear();
-		return done;
+		return this.remaining <= 0;
 	}
+	
+	/** @return The same effect as a different object, but with {@link #remaining} set to {@link #duration} */
+	public final StatusEffect resetCopy(){
+		var effect = copy();
+		effect.remaining = this.duration;
+		effect.duration = this.duration;
+		return effect;
+	}
+	
+	/** @return A copy of this effect, but as a separate object */
+	public abstract StatusEffect copy();
 	
 	/** Called when this effect is applied to its owner */
 	public abstract void apply();
