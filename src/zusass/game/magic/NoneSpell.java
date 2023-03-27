@@ -14,4 +14,9 @@ public class NoneSpell extends Spell{
 	
 	@Override
 	protected void cast(ZusassGame zgame, ZusassMob caster){}
+	
+	@Override
+	public SpellType getType(){
+		return SpellType.NONE;
+	}
 }

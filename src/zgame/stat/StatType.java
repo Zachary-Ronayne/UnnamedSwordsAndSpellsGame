@@ -16,4 +16,7 @@ public interface StatType{
 	 */
 	StatType getFromId(int id);
 	
+	/** @return The unique name of this stat which can be saved to a file */
+	String name();
+	
 }

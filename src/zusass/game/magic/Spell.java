@@ -2,23 +2,30 @@ package zusass.game.magic;
 
 import static zusass.game.stat.ZusassStat.*;
 
+import com.google.gson.JsonElement;
+import zgame.core.file.Saveable;
 import zgame.stat.StatType;
 import zgame.stat.Stats;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zusass.ZusassGame;
-import zusass.game.magic.effect.SpellEffect;
-import zusass.game.magic.effect.SpellEffectStatAdd;
-import zusass.game.magic.effect.SpellEffectStatusEffect;
+import zusass.game.magic.effect.*;
 import zusass.game.status.StatEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
 
-// TODO make this implement Saveable
 /** An object representing a magic spell that can be cast */
-public abstract class Spell{
+public abstract class Spell implements Saveable{
+	
+	/** The json key storing the type of effect of the spell */
+	private static final String TYPE_KEY = "type";
+	/** The json key storing the effect data of the spell */
+	private static final String EFFECT_KEY = "type";
 	
 	/** The effect to apply when this spell effects a {@link ZusassMob} */
-	private final SpellEffect effect;
+	private SpellEffect effect;
+	
+	/** Create an empty spell. Should only be used when loading from a file and initialization */
+	public Spell(){}
 	
 	/**
 	 * Create a new spell
@@ -64,6 +71,33 @@ public abstract class Spell{
 		return this.effect;
 	}
 	
+	/** @return The type of this spell, used for saving */
+	public abstract SpellType getType();
+	
+	@Override
+	public JsonElement save(JsonElement e){
+		// TODO make some utility methods to make saving and loading less annoying
+		// TODO make a way for the utility methods to load a default value when something is null
+		// TODO make a decentralized way of saving and loading the player so that things can properly load and save when in the main menu
+		var obj = e.getAsJsonObject();
+		obj.addProperty(TYPE_KEY, this.getEffect().getType().name());
+		obj.add(EFFECT_KEY, this.getEffect().save());
+		return e;
+	}
+	
+	@Override
+	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		var obj = e.getAsJsonObject();
+		var type = SpellEffectType.valueOf(obj.get(TYPE_KEY).getAsString());
+		switch(type){
+			case NONE -> this.effect = new SpellEffectNone();
+			case STAT_ADD -> this.effect = new SpellEffectStatAdd();
+			case STATUS_EFFECT -> this.effect = new SpellEffectStatusEffect();
+			default -> throw new IllegalStateException("Invalid spell effect type: " + type);
+		}
+		this.effect.load(obj.get(EFFECT_KEY));
+		return obj;
+	}
 	
 	/**
 	 * Create a {@link ProjectileSpell} which adds the given amount to the given stat when the spell is applied
@@ -87,7 +121,7 @@ public abstract class Spell{
 	 * @return The spell
 	 */
 	public static SelfSpell selfEffect(Stats stats, StatType stat, String source, double magnitude, double duration, ModifierType mod){
-		return new SelfSpell(new SpellEffectStatusEffect(new StatEffect(stats, duration, new StatModifier(source, magnitude, mod), stat)));
+		return new SelfSpell(new SpellEffectStatusEffect(new StatEffect(duration, new StatModifier(source, magnitude, mod), stat)));
 	}
 	
 }

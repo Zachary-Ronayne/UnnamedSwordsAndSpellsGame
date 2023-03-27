@@ -15,4 +15,9 @@ public class SpellEffectNone implements SpellEffect{
 	
 	@Override
 	public void apply(ZusassMob mob){}
+	
+	@Override
+	public SpellEffectType getType(){
+		return SpellEffectType.NONE;
+	}
 }

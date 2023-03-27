@@ -1,18 +1,21 @@
 package zgame.stat.status;
 
 import zgame.core.Game;
+import zgame.core.file.Saveable;
+import zusass.game.things.entities.mobs.ZusassMob;
 
 /** Keeps track of an effect that does something to a thing, potentially for a set amount of time */
-public abstract class StatusEffect {
-
-	/** The number of seconds this effect should last for. Negative values means the effect lasts forever  */
+public abstract class StatusEffect implements Saveable{
+	
+	/** The number of seconds this effect should last for. Negative values means the effect lasts forever */
 	private double duration;
-
-	/** The number of seconds remaining in this effect*/
+	
+	/** The number of seconds remaining in this effect */
 	private double remaining;
 	
 	/**
 	 * Create a new {@link StatusEffect}
+	 *
 	 * @param duration The maximum and current duration of this effect
 	 */
 	public StatusEffect(double duration){
@@ -44,11 +47,19 @@ public abstract class StatusEffect {
 	/** @return A copy of this effect, but as a separate object */
 	public abstract StatusEffect copy();
 	
-	/** Called when this effect is applied to its owner */
-	public abstract void apply();
+	/**
+	 * Called when this effect is applied to a mob
+	 *
+	 * @param mob The mob to apply the effect to
+	 */
+	public abstract void apply(ZusassMob mob);
 	
-	/** Called when this effect has expired and should be removed from its owner */
-	public abstract void clear();
+	/**
+	 * Called when this effect has expired and should be removed from the mob
+	 *
+	 * @param mob The mob to clear the effect from
+	 */
+	public abstract void clear(ZusassMob mob);
 	
 	/** @return See {@link #duration} */
 	public double getDuration(){

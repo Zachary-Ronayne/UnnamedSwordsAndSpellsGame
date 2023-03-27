@@ -1,59 +1,89 @@
 package zusass.game.status;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import zgame.stat.Stat;
 import zgame.stat.StatType;
-import zgame.stat.Stats;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.modifier.TypedModifier;
 import zgame.stat.status.StatusEffect;
+import zusass.game.things.entities.mobs.ZusassMob;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** A {@link StatusEffect} which modifies one or many {@link Stat}s */
 public class StatEffect extends StatusEffect{
 	
+	/** The json key storing {@link #modifiers} */
+	public static final String MODS_KEY = "mods";
+	
 	/** All the stat modifiers applied by this effect */
-	private final List<TypedModifier> modifiers;
+	private List<TypedModifier> modifiers;
 	
-	/** The {@link Stats} which this effect modifies */
-	private final Stats stats;
-	
-	/**
-	 * Create a new status effect for one stat
-	 *
-	 * @param stats See {@link #stats}
-	 * @param duration The duration of the effect
-	 * @param statType The stat to effect
-	 */
-	public StatEffect(Stats stats, double duration, StatModifier mod, StatType statType){
-		this(stats, duration, List.of(new TypedModifier(mod, statType)));
+	/** Create an empty effect, should only be used for loading and saving */
+	public StatEffect(){
+		super(0);
 	}
 	
 	/**
 	 * Create a new status effect for one stat
 	 *
-	 * @param stats See {@link #stats}
+	 * @param duration The duration of the effect
+	 * @param statType The stat to effect
+	 */
+	public StatEffect(double duration, StatModifier mod, StatType statType){
+		this(duration, List.of(new TypedModifier(mod, statType)));
+	}
+	
+	/**
+	 * Create a new status effect for one stat
+	 *
 	 * @param duration The duration of the effect
 	 * @param modifiers The modifiers to apply during the effect
 	 */
-	public StatEffect(Stats stats, double duration, List<TypedModifier> modifiers){
+	public StatEffect(double duration, List<TypedModifier> modifiers){
 		super(duration);
-		this.stats = stats;
 		this.modifiers = modifiers;
 	}
 	
 	@Override
-	public void apply(){
-		for(var m : modifiers) this.stats.get(m.getId()).addModifier(m.modifier());
+	public void apply(ZusassMob mob){
+		for(var m : modifiers) mob.getStats().get(m.getId()).addModifier(m.modifier());
 	}
 	
 	@Override
-	public void clear(){
-		for(var m : modifiers) this.stats.get(m.getId()).removeModifier(m.modifier());
+	public void clear(ZusassMob mob){
+		for(var m : modifiers) mob.getStats().get(m.getId()).removeModifier(m.modifier());
 	}
 	
 	@Override
 	public StatusEffect copy(){
-		return new StatEffect(this.stats, this.getDuration(), this.modifiers);
+		return new StatEffect(this.getDuration(), this.modifiers);
+	}
+	
+	@Override
+	public JsonElement save(JsonElement e){
+		var arr = new JsonArray();
+		e.getAsJsonObject().add(MODS_KEY, arr);
+		for(var m : this.modifiers){
+			var mod = new JsonObject();
+			m.save(mod);
+			arr.add(mod);
+		}
+		return e;
+	}
+	
+	@Override
+	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		var arr = e.getAsJsonObject().get(MODS_KEY).getAsJsonArray();
+		this.modifiers = new ArrayList<>();
+		// TODO finish save and load implementation
+		for(var m : arr){
+			var mod = m.getAsJsonObject();
+			
+		}
+		return e;
 	}
 }

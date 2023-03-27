@@ -628,11 +628,16 @@ public class Game implements Saveable, Destroyable{
 	 */
 	public boolean saveGame(String path){
 		if(path == null) return false;
-		ZJsonFile file = new ZJsonFile(path);
-		JsonObject data = file.getData();
-		this.save(data);
-		file.setData(data);
-		return file.save();
+		try{
+			ZJsonFile file = new ZJsonFile(path);
+			JsonObject data = file.getData();
+			this.save(data);
+			file.setData(data);
+			return file.save();
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	/** @return See {@link #sounds} */

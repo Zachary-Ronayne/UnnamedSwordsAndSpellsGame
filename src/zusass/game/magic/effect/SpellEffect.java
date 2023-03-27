@@ -1,10 +1,11 @@
 package zusass.game.magic.effect;
 
+import zgame.core.file.Saveable;
 import zusass.game.magic.Spell;
 import zusass.game.things.entities.mobs.ZusassMob;
 
 /** An object representing something that a {@link Spell} can do to a mob */
-public interface SpellEffect{
+public interface SpellEffect extends Saveable{
 	
 	/** @return The amount of mana this spell should cost to cast */
 	double getCost();
@@ -14,5 +15,8 @@ public interface SpellEffect{
 	 * @param mob The mob to effect
 	 */
 	void apply(ZusassMob mob);
+	
+	/** @return The type of this effect, used for saving to json */
+	SpellEffectType getType();
 	
 }

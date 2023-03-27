@@ -9,6 +9,11 @@ import zusass.game.things.entities.projectile.MagicProjectile;
 /** A {@link Spell} that creates a projectile when cast */
 public class ProjectileSpell extends Spell{
 	
+	/** Create an empty spell. Should only be used when loading from a file and initialization */
+	public ProjectileSpell(){
+		super();
+	}
+	
 	/**
 	 * Create a new spell that casts a projectile
 	 *
@@ -28,5 +33,10 @@ public class ProjectileSpell extends Spell{
 		p.addX(-p.getWidth() * .5);
 		p.addY(-p.getHeight() * .5);
 		r.addThing(p);
+	}
+	
+	@Override
+	public SpellType getType(){
+		return SpellType.PROJECTILE;
 	}
 }

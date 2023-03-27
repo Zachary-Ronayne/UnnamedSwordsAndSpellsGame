@@ -1,5 +1,6 @@
 package zusass;
 
+import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GameWindow;
@@ -11,8 +12,6 @@ import zusass.menu.mainmenu.MainMenuState;
 import static org.lwjgl.glfw.GLFW.*;
 
 import java.io.File;
-
-import com.google.gson.JsonObject;
 
 /**
  * The main class for the Zusass Game.
@@ -26,6 +25,11 @@ import com.google.gson.JsonObject;
  */
 public class ZusassGame extends Game{
 	
+	/** The json key used to store the main chunk of data about the game */
+	public final static String DATA_KEY = "data";
+	/** The json key used to store the player data */
+	public final static String PLAYER_KEY = "player";
+	
 	/** A class holding all the data used by this {@link ZusassGame} */
 	private ZusassData data;
 	
@@ -35,9 +39,6 @@ public class ZusassGame extends Game{
 	 *
 	 * Get rid of the stupid type parameter for game and just rely on casting for game specific components
 	 */
-	
-	/** The json key used to store the main chunk of data about the game */
-	public final static String DATA_KEY = "data";
 	
 	/** Create the only instance of ZusassGame from this class. This constructor will place the game in the main menu */
 	private ZusassGame(){
@@ -66,15 +67,19 @@ public class ZusassGame extends Game{
 	}
 	
 	@Override
-	public JsonObject save(JsonObject obj){
+	public JsonElement save(JsonElement e){
+		var obj = e.getAsJsonObject();
 		obj.add(DATA_KEY, this.getData().save());
+		obj.add(PLAYER_KEY, this.getCurrentRoom().getPlayer().save());
 		return obj;
 	}
 	
 	@Override
-	public JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException, NullPointerException{
-		this.getData().load(DATA_KEY, obj);
-		return obj;
+	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		this.getData().load(DATA_KEY, e);
+		var room = this.getCurrentRoom();
+		if(room != null) room.getPlayer().load(PLAYER_KEY, e);
+		return e;
 	}
 	
 	@Override

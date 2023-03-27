@@ -1,5 +1,6 @@
 package tester;
 
+import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
@@ -32,8 +33,6 @@ import zgame.world.Room;
 import static org.lwjgl.glfw.GLFW.*;
 
 import java.awt.Rectangle;
-
-import com.google.gson.JsonObject;
 
 /**
  * A simple main class used for testing the game code
@@ -196,14 +195,16 @@ public class MainTest extends Game{
 	}
 	
 	@Override
-	public JsonObject save(JsonObject obj){
+	public JsonElement save(JsonElement e){
+		var obj = e.getAsJsonObject();
 		obj.addProperty("playerX", playerX);
 		obj.addProperty("playerY", playerY);
 		return obj;
 	}
 	
 	@Override
-	public JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException{
+	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException{
+		var obj = e.getAsJsonObject();
 		playerX = obj.get("playerX").getAsDouble();
 		playerY = obj.get("playerY").getAsDouble();
 		return obj;

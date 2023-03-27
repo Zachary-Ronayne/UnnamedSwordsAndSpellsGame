@@ -186,7 +186,7 @@ public class ZusassPlayer extends ZusassMob{
 			// If the player is going through a level, heal to full, and remove all effects
 			if(to.hasTag(ZusassTags.IS_LEVEL)) {
 				this.setResourcesMax();
-				this.getEffects().removeAllTemporary();
+				this.getEffects().removeAllTemporary(this);
 			}
 		}
 		

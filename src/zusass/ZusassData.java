@@ -1,5 +1,6 @@
 package zusass;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import zgame.core.file.Saveable;
@@ -30,7 +31,8 @@ public class ZusassData implements Saveable{
 	}
 	
 	@Override
-	public JsonObject save(JsonObject obj){
+	public JsonElement save(JsonElement e){
+		var obj = e.getAsJsonObject();
 		JsonObject generalData = new JsonObject();
 		generalData.addProperty(HIGHEST_ROOM_LEVEL_KEY, highestRoomLevel);
 		obj.add(GENERAL_DATA_KEY, generalData);
@@ -38,7 +40,8 @@ public class ZusassData implements Saveable{
 	}
 	
 	@Override
-	public JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException, NullPointerException{
+	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		var obj = e.getAsJsonObject();
 		JsonObject generalData = obj.getAsJsonObject(GENERAL_DATA_KEY);
 		this.highestRoomLevel = generalData.get(HIGHEST_ROOM_LEVEL_KEY).getAsInt();
 		return obj;

@@ -1,5 +1,8 @@
 package zusass.game.things.entities.mobs;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.material.Material;
@@ -16,8 +19,7 @@ import zgame.things.entity.projectile.Projectile;
 import zgame.things.type.RectangleHitBox;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
-import zusass.game.magic.NoneSpell;
-import zusass.game.magic.Spell;
+import zusass.game.magic.*;
 import zusass.game.stat.*;
 import zusass.game.stat.attributes.Endurance;
 import zusass.game.stat.attributes.Intelligence;
@@ -34,6 +36,13 @@ import java.util.List;
 
 /** A generic mob in the Zusass game */
 public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
+	
+	/** The json key used to store the spells which this mob has */
+	public final static String SPELLS_KEY = "spells";
+	/** The json key used to store the type of spell */
+	public final static String SPELL_TYPE_KEY = "spellType";
+	/** The json key used to store the spell itself */
+	public final static String SPELL_KEY = "spell";
 	
 	/** The width of this mob */
 	private double width;
@@ -133,7 +142,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		var zgame = (ZusassGame)game;
 		
 		// Update the state of the status effects
-		this.effects.tick(zgame, dt);
+		this.effects.tick(zgame, dt, this);
 		
 		// Update the state of the stats
 		this.updateStats(zgame, dt);
@@ -316,7 +325,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * @param effect The effect to add
 	 */
 	public void addEffect(StatusEffect effect){
-		this.effects.addEffect(effect);
+		this.effects.addEffect(effect, this);
 	}
 	
 	/**
@@ -329,7 +338,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * @param statType The {@link Stat} to effect
 	 */
 	public void addStatEffect(String sourceId, double duration, double value, ModifierType modifierType, StatType statType){
-		this.addEffect(new StatEffect(this.getStats(), duration, new StatModifier(sourceId, value, modifierType), statType));
+		this.addEffect(new StatEffect(duration, new StatModifier(sourceId, value, modifierType), statType));
 	}
 	
 	/** @return See {@link #stats} */
@@ -465,5 +474,37 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	public void touchFloor(Material touched){
 		super.touchFloor(touched);
 		this.getWalk().touchFloor(touched);
+	}
+	
+	@Override
+	public JsonElement save(JsonElement e){
+		var obj = e.getAsJsonObject();
+		var arr = new JsonArray();
+		obj.add(SPELLS_KEY, arr);
+		
+		var spell = new JsonObject();
+		arr.add(spell);
+		
+		spell.addProperty(SPELL_TYPE_KEY, this.selectedSpell.getType().name());
+		var spellObj = new JsonObject();
+		spell.add(SPELL_KEY, spellObj);
+		
+		this.selectedSpell.save(spellObj);
+		return e;
+	}
+	
+	@Override
+	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		var spells = e.getAsJsonObject().get(SPELLS_KEY).getAsJsonArray();
+		var spellJson = spells.get(0).getAsJsonObject();
+		var type = SpellType.valueOf(spellJson.get(SPELL_TYPE_KEY).getAsString());
+		switch(type){
+			case NONE -> this.selectedSpell = new NoneSpell();
+			case PROJECTILE -> this.selectedSpell = new ProjectileSpell();
+			case SELF -> this.selectedSpell = new SelfSpell();
+			default -> throw new IllegalStateException("Invalid spell type: " + type);
+		}
+		this.selectedSpell.load(spellJson.get(SPELL_KEY));
+		return e;
 	}
 }
