@@ -25,7 +25,7 @@ public abstract class StatusEffect {
 	 *
 	 * @param game The game where this tick happened
 	 * @param dt The amount of time that passed in this update
-	 * @return true if the effect shoudld be cleared, false otherwise
+	 * @return true if the effect should be cleared, false otherwise
 	 */
 	public boolean tick(Game game, double dt){
 		if(this.isPermanent()) return false;

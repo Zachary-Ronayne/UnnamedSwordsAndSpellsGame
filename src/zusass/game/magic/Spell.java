@@ -2,8 +2,15 @@ package zusass.game.magic;
 
 import static zusass.game.stat.ZusassStat.*;
 
+import zgame.stat.StatType;
+import zgame.stat.Stats;
+import zgame.stat.modifier.ModifierType;
+import zgame.stat.modifier.StatModifier;
 import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffect;
+import zusass.game.magic.effect.SpellEffectStatAdd;
+import zusass.game.magic.effect.SpellEffectStatusEffect;
+import zusass.game.status.StatEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
 
 // TODO make this implement Saveable
@@ -55,6 +62,32 @@ public abstract class Spell{
 	/** @return See {@link #effect} */
 	public SpellEffect getEffect(){
 		return this.effect;
+	}
+	
+	
+	/**
+	 * Create a {@link ProjectileSpell} which adds the given amount to the given stat when the spell is applied
+	 * @param stat The stat to effect
+	 * @param amount The amount of the stat to add
+	 * @return The spell
+	 */
+	public static ProjectileSpell projectileAdd(StatType stat, double amount){
+		return new ProjectileSpell(new SpellEffectStatAdd(stat, amount));
+	}
+	
+	/**
+	 * Create a spell that applies to the caster when cast and applies a stat status effect.
+	 *
+	 * @param stats The stats object of the caster
+	 * @param stat The stat to effect
+	 * @param source The caster's id
+	 * @param magnitude The amount of power in the spell
+	 * @param duration The duration of the spell, in seconds
+	 * @param mod The way the spell is applied
+	 * @return The spell
+	 */
+	public static SelfSpell selfEffect(Stats stats, StatType stat, String source, double magnitude, double duration, ModifierType mod){
+		return new SelfSpell(new SpellEffectStatusEffect(new StatEffect(stats, duration, new StatModifier(source, magnitude, mod), stat)));
 	}
 	
 }

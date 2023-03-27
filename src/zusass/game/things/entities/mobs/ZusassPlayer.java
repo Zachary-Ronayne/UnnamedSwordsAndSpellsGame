@@ -9,8 +9,7 @@ import zgame.core.utils.ZMath;
 import zgame.stat.modifier.ModifierType;
 import zgame.world.Room;
 import zusass.ZusassGame;
-import zusass.game.magic.ProjectileSpell;
-import zusass.game.magic.effect.SpellEffectStatAdd;
+import zusass.game.magic.Spell;
 import zusass.game.things.ZusassTags;
 
 import static zusass.game.stat.ZusassStat.*;
@@ -53,8 +52,7 @@ public class ZusassPlayer extends ZusassMob{
 		this.addStatEffect(this.getUuid(), -1, 5, ModifierType.ADD, STAMINA_REGEN);
 		
 		// Set the default spell to a damage spell
-		// TODO make this easier to select without having to define so many nested objects
-		this.setSelectedSpell(new ProjectileSpell(new SpellEffectStatAdd(HEALTH, -10)));
+		this.setSelectedSpell(Spell.projectileAdd(HEALTH, -10));
 		
 		this.lockCamera = false;
 	}

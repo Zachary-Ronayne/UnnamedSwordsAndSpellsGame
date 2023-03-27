@@ -4,11 +4,8 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZMath;
 import zgame.stat.modifier.ModifierType;
-import zgame.stat.modifier.StatModifier;
 import zusass.ZusassGame;
-import zusass.game.magic.SelfSpell;
-import zusass.game.magic.effect.SpellEffectStatusEffect;
-import zusass.game.status.StatEffect;
+import zusass.game.magic.Spell;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -33,9 +30,7 @@ public class Npc extends ZusassMob{
 		this.setStat(INTELLIGENCE, 3);
 		
 		// Set a default spell as speed
-		// TODO make this easier to use without so many nested things
-		this.setSelectedSpell(
-				new SelfSpell(new SpellEffectStatusEffect(new StatEffect(this.getStats(), 5, new StatModifier(this.getUuid(), 2, ModifierType.MULT_MULT), MOVE_SPEED))));
+		this.setSelectedSpell(Spell.selfEffect(this.getStats(), MOVE_SPEED, this.getUuid(), 2, 5, ModifierType.MULT_MULT));
 	}
 	
 	@Override
