@@ -1,6 +1,6 @@
 package zusass.game.stat;
 
-import zgame.stat.StatOrdinal;
+import zgame.stat.StatId;
 import zgame.stat.StatType;
 import zgame.stat.Stats;
 
@@ -31,30 +31,30 @@ public enum ZusassStat implements StatType{
 	MOVE_SPEED,
 	;
 	
-	/** The ordinal representing this enum */
-	private final int ordinal;
+	/** The id representing this enum */
+	private final int id;
 	
-	/** Initialize the enum with the next ordinal */
+	/** Initialize the enum with the next id */
 	ZusassStat(){
-		this.ordinal = StatOrdinal.nextOrdinal();
+		this.id = StatId.next();
 	}
 	
 	@Override
-	public int getOrdinal(){
-		return ordinal;
+	public int getId(){
+		return id;
 	}
 	
 	/** Must call this before the game is initialized to ensure stats work */
 	public static void init(){
 		for(var v : values()){
-			v.getOrdinal();
+			v.getId();
 		}
 	}
 	
 	@Override
-	public StatType getFromOrdinal(int ordinal){
+	public StatType getFromId(int id){
 		for(var v : values()){
-			if(ordinal == v.ordinal) return v;
+			if(id == v.id) return v;
 		}
 		return null;
 	}
@@ -71,12 +71,12 @@ public enum ZusassStat implements StatType{
 		sb.append("\t");
 		// Go through all the stats to get their names
 		for(int i = 0; i < arr.length; i++){
-			sb.append(ZusassStat.ATTACK_SPEED.getFromOrdinal(i)).append(" (").append(i).append(")\t");
+			sb.append(ZusassStat.ATTACK_SPEED.getFromId(i)).append(" (").append(i).append(")\t");
 		}
 		sb.append("\n");
 		// Go through all the stats to show their dependencies
 		for(int i = 0; i < arr.length; i++){
-			sb.append(ZusassStat.ATTACK_SPEED.getFromOrdinal(i)).append(" (").append(i).append(")\t");
+			sb.append(ZusassStat.ATTACK_SPEED.getFromId(i)).append(" (").append(i).append(")\t");
 			var d = dependents[i];
 			// Go through all the stats
 			for(int j = 0; j < arr.length; j++){
@@ -95,9 +95,9 @@ public enum ZusassStat implements StatType{
 		}
 		sb.append("----------------------------------------------------------------------------------------\n");
 		for(int i = 0; i < dependents.length; i++){
-			sb.append(ZusassStat.ATTACK_SPEED.getFromOrdinal(i)).append(" (").append(i).append(")\t");
+			sb.append(ZusassStat.ATTACK_SPEED.getFromId(i)).append(" (").append(i).append(")\t");
 			for(int j = 0; j < dependents[i].length; j++){
-				sb.append(ZusassStat.ATTACK_SPEED.getFromOrdinal(dependents[i][j])).append(" (").append(dependents[i][j]).append(")\t");
+				sb.append(ZusassStat.ATTACK_SPEED.getFromId(dependents[i][j])).append(" (").append(dependents[i][j]).append(")\t");
 			}
 			sb.append("\n");
 		}

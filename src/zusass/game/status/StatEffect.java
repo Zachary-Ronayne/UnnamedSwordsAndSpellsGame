@@ -44,12 +44,12 @@ public class StatEffect extends StatusEffect{
 	
 	@Override
 	public void apply(){
-		for(var m : modifiers) this.stats.get(m.getOrdinal()).addModifier(m.modifier());
+		for(var m : modifiers) this.stats.get(m.getId()).addModifier(m.modifier());
 	}
 	
 	@Override
 	public void clear(){
-		for(var m : modifiers) this.stats.get(m.getOrdinal()).removeModifier(m.modifier());
+		for(var m : modifiers) this.stats.get(m.getId()).removeModifier(m.modifier());
 	}
 	
 	@Override

@@ -9,8 +9,8 @@ import zgame.stat.StatType;
  * @param type The type of stat of this object
  */
 public record TypedModifier(StatModifier modifier, StatType type){
-	/** @return The ordinal of the {@link StatType} used by this object */
-	public int getOrdinal(){
-		return this.type.getOrdinal();
+	/** @return The id of the {@link StatType} used by this object */
+	public int getId(){
+		return this.type.getId();
 	}
 }

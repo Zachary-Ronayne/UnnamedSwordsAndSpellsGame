@@ -20,7 +20,7 @@ public abstract class Stat{
 	/** true if this {@link Stat} should be recalculated as soon as something about its state changes, false otherwise, defaults to false */
 	private boolean instantRecalculate;
 	
-	/** The ordinals, in no particular order, of stats that this {@link Stat} uses in calculating itself */
+	/** The ids, in no particular order, of stats that this {@link Stat} uses in calculating itself */
 	private final int[] dependents;
 	
 	/** true if this stat needs to be recalculated before it is used again */
@@ -51,10 +51,10 @@ public abstract class Stat{
 		this.stats = stats;
 		this.type = type;
 		
-		// Save the ordinals of the dependent stats
+		// Save the ids of the dependent stats
 		this.dependents = new int[dependents.length];
 		for(int i = 0; i < this.dependents.length; i++){
-			this.dependents[i] = dependents[i].getOrdinal();
+			this.dependents[i] = dependents[i].getId();
 		}
 		this.modifiers = (HashMap<String, ArrayList<StatModifier>>[])new HashMap[ModifierType.values().length];
 		this.modifiers[ModifierType.ADD.getIndex()] = new HashMap<>();
@@ -109,7 +109,7 @@ public abstract class Stat{
 		this.recalculate = true;
 		
 		// Now, find any stats that use this stat
-		var toFlag = this.stats.getDependents()[this.getType().getOrdinal()];
+		var toFlag = this.stats.getDependents()[this.getType().getId()];
 		// Flag each stat as needing to be recalculated
 		for(int i = 0; i < toFlag.length; i++){
 			this.stats.get(toFlag[i]).flagRecalculate();

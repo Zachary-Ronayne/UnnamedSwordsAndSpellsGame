@@ -8,8 +8,9 @@ public class Stats{
 	
 	/**
 	 * Mapping which stats must be recalculated when their key stat is updated.
-	 * The outer array is indexed by {@link StatType} ordinals
-	 * The inner array is in an arbitrary order, and is just the ordinals which depend on the stat of the outer array
+	 * The outer array is indexed by {@link StatType} ids
+	 * The inner array is in an arbitrary order, and is just the ids which depend on
+	 * the stat of the outer array
 	 */
 	public static int[][] dependents;
 	
@@ -17,15 +18,15 @@ public class Stats{
 	 * Must be called after all implementations of {@link StatType} have been initialized
 	 */
 	public static void init(){
-		dependents = new int[StatOrdinal.numOrdinals()][0];
+		dependents = new int[StatId.numIds()][0];
 	}
 	
-	/** The {@link Stat}s which this {@link Stats} uses. Index: the {@link StatType} ordinal, value: the stat */
+	/** The {@link Stat}s which this {@link Stats} uses. Index: the {@link StatType} id, value: the stat */
 	private final Stat[] arr;
 	
 	/** Initialize a new stats object with nothing set */
 	public Stats(){
-		this.arr = new Stat[StatOrdinal.numOrdinals()];
+		this.arr = new Stat[StatId.numIds()];
 	}
 	
 	/** Get the array holding all the stats used by this {@link Stats} */
@@ -42,10 +43,10 @@ public class Stats{
 	 * Get the stat types which depend on the given stat type
 	 *
 	 * @param type The type to look for
-	 * @return The dependent ordinals of the given type
+	 * @return The dependent ids of the given type
 	 */
 	public int[] getDependents(StatType type){
-		return this.getDependents()[type.getOrdinal()];
+		return this.getDependents()[type.getId()];
 	}
 	
 	/**
@@ -54,33 +55,33 @@ public class Stats{
 	 * @param s The stat to add
 	 */
 	public void add(Stat s){
-		this.arr[s.getType().getOrdinal()] = s;
+		this.arr[s.getType().getId()] = s;
 		
 		/*
 		 When adding a stat to this object, keep track of the reverse of that stats dependents,
 		  this way, it's easy to find which stats need to be recalculated when a stat updates
 		 */
 		var ds = s.getDependents();
-		var ordinal = s.getType().getOrdinal();
-		// Go through all the types, which the length will be the number of ordinals
+		var id = s.getType().getId();
+		// Go through all the types, which the length will be the number of ids
 		for(int i = 0; i < ds.length; i++){
 			// Find the array to update
 			var dependentArr = dependents[ds[i]];
 			
-			// See if the ordinal is already in that array
+			// See if the id is already in that array
 			var found = false;
 			for(int j = 0; j < dependentArr.length && !found; j++){
-				found = dependentArr[j] == ordinal;
+				found = dependentArr[j] == id;
 			}
 			
-			// If the ordinal was found, skip it
+			// If the id was found, skip it
 			if(found) continue;
-			// Otherwise resize the array and add the new ordinal
+			// Otherwise resize the array and add the new id
 			dependents[ds[i]] = new int[dependentArr.length + 1];
 			// Resizing the array
 			System.arraycopy(dependentArr, 0, dependents[ds[i]], 0, dependentArr.length);
-			// Setting the new ordinal
-			dependents[ds[i]][dependentArr.length] = ordinal;
+			// Setting the new id
+			dependents[ds[i]][dependentArr.length] = id;
 		}
 	}
 	
@@ -89,15 +90,15 @@ public class Stats{
 	 * @return A stat that this {@link Stats} uses, or null if no stat exists for the given stat enum
 	 */
 	public Stat get(StatType s){
-		return this.get(s.getOrdinal());
+		return this.get(s.getId());
 	}
 	
 	/**
-	 * @param ordinal The ordinal of the stat type to get
-	 * @return A stat that this {@link Stats} uses, or null if no stat exists for the given stat ordinal
+	 * @param id The id of the stat type to get
+	 * @return A stat that this {@link Stats} uses, or null if no stat exists for the given stat id
 	 */
-	public Stat get(int ordinal){
-		return this.arr[ordinal];
+	public Stat get(int id){
+		return this.arr[id];
 	}
 	
 	/**
