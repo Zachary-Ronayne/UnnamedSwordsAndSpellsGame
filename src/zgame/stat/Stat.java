@@ -162,7 +162,7 @@ public abstract class Stat{
 		var list = map.get(id);
 		if(list.contains(mod)) return;
 		ZArrayUtils.insertSorted(list, mod);
-		mod.setStat(this);
+		this.flagRecalculate();
 	}
 	
 	/** @param mod The modifier to remove, should be the same object, with the same uuid */

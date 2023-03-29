@@ -19,7 +19,7 @@ public abstract class Spell implements Saveable{
 	/** The json key storing the type of effect of the spell */
 	private static final String TYPE_KEY = "type";
 	/** The json key storing the effect data of the spell */
-	private static final String EFFECT_KEY = "type";
+	private static final String EFFECT_KEY = "effect";
 	
 	/** The effect to apply when this spell effects a {@link ZusassMob} */
 	private SpellEffect effect;
@@ -112,7 +112,6 @@ public abstract class Spell implements Saveable{
 	/**
 	 * Create a spell that applies to the caster when cast and applies a stat status effect.
 	 *
-	 * @param stats The stats object of the caster
 	 * @param stat The stat to effect
 	 * @param source The caster's id
 	 * @param magnitude The amount of power in the spell
@@ -120,7 +119,7 @@ public abstract class Spell implements Saveable{
 	 * @param mod The way the spell is applied
 	 * @return The spell
 	 */
-	public static SelfSpell selfEffect(Stats stats, StatType stat, String source, double magnitude, double duration, ModifierType mod){
+	public static SelfSpell selfEffect(StatType stat, String source, double magnitude, double duration, ModifierType mod){
 		return new SelfSpell(new SpellEffectStatusEffect(new StatEffect(duration, new StatModifier(source, magnitude, mod), stat)));
 	}
 	

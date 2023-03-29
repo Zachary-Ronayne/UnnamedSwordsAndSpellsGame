@@ -78,6 +78,7 @@ public class ZusassGame extends Game{
 	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		this.getData().load(DATA_KEY, e);
 		var room = this.getCurrentRoom();
+		// TODO make this actually load the player data
 		if(room != null) room.getPlayer().load(PLAYER_KEY, e);
 		return e;
 	}

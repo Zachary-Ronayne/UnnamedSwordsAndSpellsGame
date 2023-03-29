@@ -159,8 +159,9 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		walk.tick(game, dt);
 		
 		// If walking, need to reduce stamina
-		if(!this.getWalk().isWalking() && this.getWalk().isTryingToMove()) this.staminaRunDrain.setValue(-35);
-		else this.staminaRunDrain.setValue(0);
+		var stamina = this.getStat(STAMINA_REGEN);
+		if(!this.getWalk().isWalking() && this.getWalk().isTryingToMove()) this.staminaRunDrain.setValue(-35, stamina);
+		else this.staminaRunDrain.setValue(0, stamina);
 		
 		// Do the normal game update
 		super.tick(game, dt);

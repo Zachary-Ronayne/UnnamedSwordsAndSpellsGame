@@ -2,7 +2,6 @@ package zusass.game.status;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import zgame.stat.Stat;
 import zgame.stat.StatType;
 import zgame.stat.modifier.StatModifier;
@@ -67,11 +66,7 @@ public class StatEffect extends StatusEffect{
 	public JsonElement save(JsonElement e){
 		var arr = new JsonArray();
 		e.getAsJsonObject().add(MODS_KEY, arr);
-		for(var m : this.modifiers){
-			var mod = new JsonObject();
-			m.save(mod);
-			arr.add(mod);
-		}
+		for(var m : this.modifiers) arr.add(m.save());
 		return e;
 	}
 	
@@ -79,11 +74,12 @@ public class StatEffect extends StatusEffect{
 	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		var arr = e.getAsJsonObject().get(MODS_KEY).getAsJsonArray();
 		this.modifiers = new ArrayList<>();
-		// TODO finish save and load implementation
-		for(var m : arr){
-			var mod = m.getAsJsonObject();
-			
+		for(var m : arr) {
+			var mod = new TypedModifier();
+			mod.load(m);
+			modifiers.add(mod);
 		}
+		
 		return e;
 	}
 }
