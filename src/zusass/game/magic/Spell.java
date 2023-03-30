@@ -76,8 +76,7 @@ public abstract class Spell implements Saveable{
 	@Override
 	public JsonElement save(JsonElement e){
 		// TODO make some utility methods to make saving and loading less annoying
-		// TODO make a way for the utility methods to load a default value when something is null
-		// TODO make a decentralized way of saving and loading the player so that things can properly load and save when in the main menu
+		// TODO make a way for the utility methods to load a default value when something is null instead of throwing an error, log when it loads a default if error logging is enabled
 		var obj = e.getAsJsonObject();
 		obj.addProperty(TYPE_KEY, this.getEffect().getType().name());
 		obj.add(EFFECT_KEY, this.getEffect().save());

@@ -36,7 +36,7 @@ public class ZusassDoor extends Door{
 		ZMouseInput mi = game.getMouseInput();
 		
 		// Find the player
-		ZusassPlayer player = game.getCurrentRoom().getPlayer();
+		ZusassPlayer player = game.getPlayer();
 		if(player == null) return;
 		boolean pressed = player.isEnterRoomPressed();
 		// If the button to enter a door is marked as pressed, but the button is up, then do not enter the door

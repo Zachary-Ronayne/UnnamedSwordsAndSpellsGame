@@ -39,13 +39,12 @@ public class MainPlay extends PlayState{
 		Hub hub = new Hub(zgame);
 		
 		// Place the player
-		ZusassPlayer player = new ZusassPlayer();
+		ZusassPlayer player = zgame.getPlayer();
 		player.setX(20);
 		player.setY(hub.maxY() - player.getHeight());
 		player.setLockCamera(true);
 		hub.addThing(player);
 		player.centerCamera(zgame);
-		hub.setPlayer(player);
 		this.setCurrentRoom(hub);
 	}
 	
@@ -92,9 +91,10 @@ public class MainPlay extends PlayState{
 	@Override
 	public void renderHud(Game game, Renderer r){
 		super.renderHud(game, r);
+		var zgame = (ZusassGame)game;
 		
 		// Draw a basic health bar
-		ZusassPlayer p = this.getCurrentRoom().getPlayer();
+		ZusassPlayer p = zgame.getPlayer();
 		if(p == null) return;
 		this.drawResourceBar(r, p, ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, 0, new ZColor(1, 0, 0), new ZColor(1));
 		this.drawResourceBar(r, p, ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, 1, new ZColor(0, 1, 0), new ZColor(.2));

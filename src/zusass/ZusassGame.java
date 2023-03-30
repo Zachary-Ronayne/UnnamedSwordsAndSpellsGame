@@ -7,7 +7,9 @@ import zgame.core.window.GameWindow;
 import zusass.game.MainPlay;
 import zusass.game.ZusassRoom;
 import zusass.game.stat.ZusassStat;
+import zusass.game.things.entities.mobs.ZusassPlayer;
 import zusass.menu.mainmenu.MainMenuState;
+import zusass.utils.ZusassConfig;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -32,6 +34,20 @@ public class ZusassGame extends Game{
 	
 	/** A class holding all the data used by this {@link ZusassGame} */
 	private ZusassData data;
+	
+	/** The main player which is in this game */
+	private ZusassPlayer player;
+	
+	/** @return See {@link #player} */
+	public ZusassPlayer getPlayer(){
+		return player;
+	}
+	
+	/** @param player See player. Note that this will not account for adding the player or removing the player from a room */
+	public void setPlayer(ZusassPlayer player){
+		this.player = player;
+	}
+	
 	
 	/*
 	 * issue#16 make the infinite levels have the same seed for each level based on the save's seed. You can input a seed when you make the save, or randomly generate one
@@ -66,21 +82,38 @@ public class ZusassGame extends Game{
 		zgame.start();
 	}
 	
+	/**
+	 * Make a new save file for a game
+	 *
+	 * @param name The name of the save file
+	 */
+	public void createNewGame(String name){
+		ZusassPlayer player = new ZusassPlayer();
+		this.setPlayer(player);
+		
+		ZusassData data = new ZusassData();
+		data.setLoadedFile(ZusassConfig.createSaveFilePath(name));
+		zgame.setData(data);
+		
+		MainPlay play = new MainPlay(zgame);
+		zgame.setCurrentState(play);
+		data.checkAutoSave(zgame);
+	}
+	
+	
 	@Override
 	public JsonElement save(JsonElement e){
 		var obj = e.getAsJsonObject();
 		obj.add(DATA_KEY, this.getData().save());
-		obj.add(PLAYER_KEY, this.getCurrentRoom().getPlayer().save());
+		obj.add(PLAYER_KEY, this.getPlayer().save());
 		return obj;
 	}
 	
 	@Override
 	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		this.getData().load(DATA_KEY, e);
-		var room = this.getCurrentRoom();
-		// TODO make this actually load the player data
-		// TODO make the reference to the player persisted in the game object, not the room object
-		if(room != null) room.getPlayer().load(PLAYER_KEY, e);
+		this.player = new ZusassPlayer();
+		this.getPlayer().load(PLAYER_KEY, e);
 		return e;
 	}
 	

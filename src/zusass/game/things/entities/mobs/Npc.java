@@ -41,7 +41,7 @@ public class Npc extends ZusassMob{
 		var walk = this.getWalk();
 		
 		// Simplistic ai to move to the player
-		ZusassPlayer player = zgame.getCurrentRoom().getPlayer();
+		ZusassPlayer player = zgame.getPlayer();
 		double playerX = player.centerX();
 		double thisX = this.centerX();
 		double playerDist = Math.abs(playerX - thisX);

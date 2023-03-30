@@ -1,11 +1,8 @@
 package zusass.menu.mainmenu.comp.newgamemenu;
 
 import zgame.core.Game;
-import zusass.ZusassData;
 import zusass.ZusassGame;
-import zusass.game.MainPlay;
 import zusass.menu.comp.ZusassButton;
-import zusass.utils.ZusassConfig;
 
 /** The button used to confirm to create a new game */
 public class CreateGameButton extends ZusassButton{
@@ -27,19 +24,8 @@ public class CreateGameButton extends ZusassButton{
 	public void click(Game game){
 		String text = this.textBox.getText();
 		if(text == null || text.isEmpty()) return;
-		this.createNewGame(game, text);
-	}
-	
-	public void createNewGame(Game game, String name){
 		ZusassGame zgame = (ZusassGame)game;
-
-		ZusassData data = new ZusassData();
-		data.setLoadedFile(ZusassConfig.createSaveFilePath(name));
-		zgame.setData(data);
-		
-		MainPlay play = new MainPlay(zgame);
-		zgame.setCurrentState(play);
-		data.checkAutoSave(zgame);
+		zgame.createNewGame(text);
 	}
 	
 }

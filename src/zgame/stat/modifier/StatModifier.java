@@ -29,8 +29,6 @@ public class StatModifier implements Comparable<StatModifier>, Saveable{
 	 * @param type See {@link #type}
 	 */
 	public StatModifier(double value, ModifierType type){
-		// TODO figure out how sourceId should be set, and simplify this system to not be as convoluted
-		// TODO make sourceId not stored at all in this class, it should only be used by the mapping in the Stat and Stats classes
 		this.value = value;
 		this.type = type;
 	}

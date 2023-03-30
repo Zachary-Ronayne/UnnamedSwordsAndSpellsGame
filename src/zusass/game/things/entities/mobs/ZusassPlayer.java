@@ -178,11 +178,7 @@ public class ZusassPlayer extends ZusassMob{
 		super.enterRoom(from, to, zgame);
 		if(to != null){
 			// If this is setting the room to a new room, remove the player from that room, and set the new room
-			if(zgame.getCurrentRoom() != to){
-				zgame.getCurrentRoom().setPlayer(null);
-				zgame.getPlayState().setCurrentRoom(to);
-			}
-			zgame.getCurrentRoom().setPlayer(this);
+			if(zgame.getCurrentRoom() != to) zgame.getPlayState().setCurrentRoom(to);
 			
 			// If the player is going through a level, heal to full, and remove all effects
 			if(to.hasTag(ZusassTags.IS_LEVEL)) {

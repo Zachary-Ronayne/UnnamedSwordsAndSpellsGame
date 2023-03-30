@@ -69,7 +69,7 @@ public class SpellEffectStatAdd implements SpellEffect{
 	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		var obj = e.getAsJsonObject();
 		this.stat = ZusassStat.valueOf(obj.get(STAT_KEY).getAsString());
-		this.amount = obj.get(STAT_KEY).getAsDouble();
+		this.amount = obj.get(AMOUNT_KEY).getAsDouble();
 		return SpellEffect.super.load(obj);
 	}
 }
