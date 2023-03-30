@@ -13,8 +13,9 @@ public interface SpellEffect extends Saveable{
 	/**
 	 * Effect the given mob with this effect
 	 * @param mob The mob to effect
+	 * @param sourceId The id which represents who provided this effect
 	 */
-	void apply(ZusassMob mob);
+	void apply(String sourceId, ZusassMob mob);
 	
 	/** @return The type of this effect, used for saving to json */
 	SpellEffectType getType();

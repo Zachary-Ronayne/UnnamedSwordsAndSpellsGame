@@ -12,9 +12,6 @@ public class StatModifier implements Comparable<StatModifier>, Saveable{
 	/** The json key storing {@link #type} */
 	public static final String TYPE_KEY = "type";
 	
-	/** The id representing the source of where this modifier came from */
-	private String sourceId;
-	
 	/** The amount of this modifier */
 	private double value;
 	
@@ -26,32 +23,16 @@ public class StatModifier implements Comparable<StatModifier>, Saveable{
 	public StatModifier(){}
 	
 	/**
-	 * Create a new modifier. Calling this method means that {@link #sourceId} must be set before this modifier is used
+	 * Create a new modifier
 	 *
 	 * @param value See {@link #value}
 	 * @param type See {@link #type}
 	 */
 	public StatModifier(double value, ModifierType type){
 		// TODO figure out how sourceId should be set, and simplify this system to not be as convoluted
-		this(null, value, type);
-	}
-	
-	/**
-	 * Create a new modifier
-	 *
-	 * @param sourceId See {@link #sourceId}
-	 * @param value See {@link #value}
-	 * @param type See {@link #type}
-	 */
-	public StatModifier(String sourceId, double value, ModifierType type){
-		this.sourceId = sourceId;
+		// TODO make sourceId not stored at all in this class, it should only be used by the mapping in the Stat and Stats classes
 		this.value = value;
 		this.type = type;
-	}
-	
-	/** @return See {@link #sourceId} */
-	public String getSourceId(){
-		return this.sourceId;
 	}
 	
 	/** @return See {@link #value} */

@@ -79,6 +79,7 @@ public class ZusassGame extends Game{
 		this.getData().load(DATA_KEY, e);
 		var room = this.getCurrentRoom();
 		// TODO make this actually load the player data
+		// TODO make the reference to the player persisted in the game object, not the room object
 		if(room != null) room.getPlayer().load(PLAYER_KEY, e);
 		return e;
 	}

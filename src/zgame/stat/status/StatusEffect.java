@@ -51,15 +51,17 @@ public abstract class StatusEffect implements Saveable{
 	 * Called when this effect is applied to a mob
 	 *
 	 * @param mob The mob to apply the effect to
+	 * @param sourceId The id representing whatever originally applied the effect
 	 */
-	public abstract void apply(ZusassMob mob);
+	public abstract void apply(String sourceId, ZusassMob mob);
 	
 	/**
 	 * Called when this effect has expired and should be removed from the mob
 	 *
 	 * @param mob The mob to clear the effect from
+	 * @param sourceId The id representing whatever originally applied the effect
 	 */
-	public abstract void clear(ZusassMob mob);
+	public abstract void clear(String sourceId, ZusassMob mob);
 	
 	/** @return See {@link #duration} */
 	public double getDuration(){

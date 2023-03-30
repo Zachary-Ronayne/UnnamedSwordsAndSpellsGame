@@ -122,8 +122,8 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.stats.add(new MoveSpeed(Walk.DEFAULT_WALK_SPEED_MAX, this.stats, this));
 		
 		// Add other modifiers
-		this.staminaRunDrain = new StatModifier("runDrain", 0, ModifierType.ADD);
-		this.getStat(STAMINA_REGEN).addModifier(this.staminaRunDrain);
+		this.staminaRunDrain = new StatModifier(0, ModifierType.ADD);
+		this.getStat(STAMINA_REGEN).addModifier("runDrain", this.staminaRunDrain);
 		
 		// Ensure this thing stats at full resources
 		this.setResourcesMax();
@@ -324,9 +324,10 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * Add and apply a status effect to this mob
 	 *
 	 * @param effect The effect to add
+	 * @param sourceId The id representing whatever originally applied the effect
 	 */
-	public void addEffect(StatusEffect effect){
-		this.effects.addEffect(effect, this);
+	public void addEffect(String sourceId, StatusEffect effect){
+		this.effects.addEffect(effect, sourceId, this);
 	}
 	
 	/**
@@ -339,7 +340,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * @param statType The {@link Stat} to effect
 	 */
 	public void addStatEffect(String sourceId, double duration, double value, ModifierType modifierType, StatType statType){
-		this.addEffect(new StatEffect(duration, new StatModifier(sourceId, value, modifierType), statType));
+		this.addEffect(sourceId, new StatEffect(duration, new StatModifier(value, modifierType), statType));
 	}
 	
 	/** @return See {@link #stats} */

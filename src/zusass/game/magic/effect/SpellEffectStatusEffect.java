@@ -30,8 +30,8 @@ public class SpellEffectStatusEffect implements SpellEffect{
 	}
 	
 	@Override
-	public void apply(ZusassMob mob){
-		mob.addEffect(this.effect);
+	public void apply(String sourceId, ZusassMob mob){
+		mob.addEffect(sourceId, this.effect);
 	}
 	
 	/** @return See {@link #effect} */

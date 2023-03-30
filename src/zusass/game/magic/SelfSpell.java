@@ -23,7 +23,7 @@ public class SelfSpell extends Spell{
 	
 	@Override
 	protected void cast(ZusassGame zgame, ZusassMob caster){
-		this.getEffect().apply(caster);
+		this.getEffect().apply(caster.getUuid(), caster);
 	}
 	
 	@Override

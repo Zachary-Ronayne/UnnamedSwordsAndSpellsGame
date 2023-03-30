@@ -145,46 +145,48 @@ public abstract class Stat{
 	 * @return The modifier created
 	 */
 	public StatModifier addModifier(String sourceId, double value, ModifierType type){
-		var m = new StatModifier(sourceId, value, type);
-		this.addModifier(m);
+		var m = new StatModifier(value, type);
+		this.addModifier(sourceId, m);
 		return m;
 	}
 	
 	/**
 	 * Apply the given modifier to this stat. Does nothing if this stat already has the given modifier.
 	 *
-	 * @param mod The modifier to add.
+	 * @param mod The modifier to add
+	 * @param sourceId The id representing the source of the modifier
 	 */
-	public void addModifier(StatModifier mod){
+	public void addModifier(String sourceId, StatModifier mod){
 		var map = this.modifiers[mod.getType().getIndex()];
-		var id = mod.getSourceId();
-		if(!map.containsKey(id)) map.put(id, new ArrayList<>());
-		var list = map.get(id);
+		if(!map.containsKey(sourceId)) map.put(sourceId, new ArrayList<>());
+		var list = map.get(sourceId);
 		if(list.contains(mod)) return;
 		ZArrayUtils.insertSorted(list, mod);
 		this.flagRecalculate();
 	}
 	
-	/** @param mod The modifier to remove, should be the same object, with the same uuid */
-	public void removeModifier(StatModifier mod){
+	/**
+	 * @param mod The modifier to remove, should be the exact modifier object to remove
+	 * @param sourceId The id representing the source of the modifier
+	 */
+	public void removeModifier(String sourceId, StatModifier mod){
 		var map = this.modifiers[mod.getType().getIndex()];
-		var id = mod.getSourceId();
-		if(!map.containsKey(id)) return;
+		if(!map.containsKey(sourceId)) return;
 		
-		var list = map.get(id);
+		var list = map.get(sourceId);
 		list.remove(mod);
 		this.flagRecalculate();
 	}
 	
 	/**
 	 * @param mod The modifier to check for
+	 * @param sourceId The id representing the source of the modifier
 	 * @return true if this stat is being modified by the given modifier, false otherwise
 	 */
-	public boolean hasModifier(StatModifier mod){
+	public boolean hasModifier(String sourceId, StatModifier mod){
 		var map = this.modifiers[mod.getType().getIndex()];
-		var id = mod.getSourceId();
-		if(!map.containsKey(id)) return false;
-		var list = map.get(id);
+		if(!map.containsKey(sourceId)) return false;
+		var list = map.get(sourceId);
 		return list.contains(mod);
 	}
 	
@@ -194,7 +196,7 @@ public abstract class Stat{
 		
 		// Apply add modifiers first
 		var mods = this.modifiers[ModifierType.ADD.getIndex()].values();
-		for(var m : mods) {
+		for(var m : mods){
 			if(m.isEmpty()) continue;
 			newCalculated += m.get(0).getValue();
 		}

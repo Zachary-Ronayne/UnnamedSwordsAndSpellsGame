@@ -23,12 +23,12 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	 *
 	 * @param x The initial x position of the projectile
 	 * @param y The initial y position of the projectile
-	 * @param ignoreUuid See {@link #ignoreUuid}, i.e. the uuid of the caster of this magic projectile
+	 * @param sourceId See {@link #sourceId}, i.e. the uuid of the caster of this magic projectile
 	 * @param launchVelocity The initial velocity of the projectile
 	 * @param effect See {@link #effect}
 	 */
-	public MagicProjectile(double x, double y, String ignoreUuid, ZVector launchVelocity, SpellEffect effect){
-		this(x, y, 10, ignoreUuid, launchVelocity, effect);
+	public MagicProjectile(double x, double y, String sourceId, ZVector launchVelocity, SpellEffect effect){
+		this(x, y, 10, sourceId, launchVelocity, effect);
 	}
 	
 	/**
@@ -37,12 +37,12 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	 * @param x The initial x position of the projectile
 	 * @param y The initial y position of the projectile
 	 * @param radius See {@link #radius}
-	 * @param ignoreUuid See {@link #ignoreUuid}, i.e. the uuid of the caster of this magic projectile
+	 * @param sourceId See {@link #sourceId}, i.e. the uuid of the caster of this magic projectile
 	 * @param launchVelocity The initial velocity of the projectile
 	 * @param effect See {@link #effect}
 	 */
-	public MagicProjectile(double x, double y, double radius, String ignoreUuid, ZVector launchVelocity, SpellEffect effect){
-		super(x, y, ignoreUuid, launchVelocity);
+	public MagicProjectile(double x, double y, double radius, String sourceId, ZVector launchVelocity, SpellEffect effect){
+		super(x, y, sourceId, launchVelocity);
 		this.setRadius(radius);
 		this.effect = effect;
 		
@@ -50,7 +50,7 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 		this.setGravityLevel(0);
 		
 		// Add a function to effect a hit mob with magic
-		this.addHitFunc(ZusassMob.class, m -> this.getEffect().apply(m));
+		this.addHitFunc(ZusassMob.class, m -> this.getEffect().apply(sourceId, m));
 	}
 	
 	@Override

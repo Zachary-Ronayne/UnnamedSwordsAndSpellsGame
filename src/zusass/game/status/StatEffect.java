@@ -48,13 +48,13 @@ public class StatEffect extends StatusEffect{
 	}
 	
 	@Override
-	public void apply(ZusassMob mob){
-		for(var m : modifiers) mob.getStats().get(m.getId()).addModifier(m.modifier());
+	public void apply(String sourceId, ZusassMob mob){
+		for(var m : modifiers) mob.getStats().get(m.getId()).addModifier(sourceId, m.modifier());
 	}
 	
 	@Override
-	public void clear(ZusassMob mob){
-		for(var m : modifiers) mob.getStats().get(m.getId()).removeModifier(m.modifier());
+	public void clear(String sourceId, ZusassMob mob){
+		for(var m : modifiers) mob.getStats().get(m.getId()).removeModifier(sourceId, m.modifier());
 	}
 	
 	@Override

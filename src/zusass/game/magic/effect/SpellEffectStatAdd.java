@@ -48,7 +48,7 @@ public class SpellEffectStatAdd implements SpellEffect{
 	}
 	
 	@Override
-	public void apply(ZusassMob mob){
+	public void apply(String sourceId, ZusassMob mob){
 		mob.getStat(this.getStat()).addValue(this.getAmount());
 	}
 	

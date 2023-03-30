@@ -5,7 +5,6 @@ import static zusass.game.stat.ZusassStat.*;
 import com.google.gson.JsonElement;
 import zgame.core.file.Saveable;
 import zgame.stat.StatType;
-import zgame.stat.Stats;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zusass.ZusassGame;
@@ -113,14 +112,13 @@ public abstract class Spell implements Saveable{
 	 * Create a spell that applies to the caster when cast and applies a stat status effect.
 	 *
 	 * @param stat The stat to effect
-	 * @param source The caster's id
 	 * @param magnitude The amount of power in the spell
 	 * @param duration The duration of the spell, in seconds
 	 * @param mod The way the spell is applied
 	 * @return The spell
 	 */
-	public static SelfSpell selfEffect(StatType stat, String source, double magnitude, double duration, ModifierType mod){
-		return new SelfSpell(new SpellEffectStatusEffect(new StatEffect(duration, new StatModifier(source, magnitude, mod), stat)));
+	public static SelfSpell selfEffect(StatType stat, double magnitude, double duration, ModifierType mod){
+		return new SelfSpell(new SpellEffectStatusEffect(new StatEffect(duration, new StatModifier(magnitude, mod), stat)));
 	}
 	
 }
