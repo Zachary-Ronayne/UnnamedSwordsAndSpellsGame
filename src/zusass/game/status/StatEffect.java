@@ -21,9 +21,10 @@ public class StatEffect extends StatusEffect{
 	/** All the stat modifiers applied by this effect */
 	private List<TypedModifier> modifiers;
 	
-	/** Create an empty effect, should only be used for loading and saving */
-	public StatEffect(){
+	/** Create a new object using see {@link #load(JsonElement)} */
+	public StatEffect(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		super(0);
+		this.load(e);
 	}
 	
 	/**
@@ -74,12 +75,7 @@ public class StatEffect extends StatusEffect{
 	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		var arr = e.getAsJsonObject().get(MODS_KEY).getAsJsonArray();
 		this.modifiers = new ArrayList<>();
-		for(var m : arr) {
-			var mod = new TypedModifier();
-			mod.load(m);
-			modifiers.add(mod);
-		}
-		
+		for(var m : arr) modifiers.add(new TypedModifier(m));
 		return e;
 	}
 }

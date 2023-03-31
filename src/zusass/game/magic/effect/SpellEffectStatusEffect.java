@@ -11,8 +11,10 @@ public class SpellEffectStatusEffect implements SpellEffect{
 	/** The effect to apply when this spell is applied */
 	private StatusEffect effect;
 	
-	/** Create an empty spell effect. Should only be used when loading */
-	public SpellEffectStatusEffect(){}
+	/** Create a new object using see {@link #load(JsonElement)} */
+	public SpellEffectStatusEffect(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		this.load(e);
+	}
 	
 	/**
 	 * Create a spell effect that applies a status effect when it is applied to a mob
@@ -51,8 +53,8 @@ public class SpellEffectStatusEffect implements SpellEffect{
 	
 	@Override
 	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
-		this.effect = new StatEffect();
-		return this.effect.load(e);
+		this.effect = new StatEffect(e);
+		return e;
 	}
 	
 }

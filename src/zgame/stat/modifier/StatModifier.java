@@ -18,9 +18,10 @@ public class StatModifier implements Comparable<StatModifier>, Saveable{
 	/** The type of this modifier */
 	private ModifierType type;
 	
-	// TODO see if it makes sense to rework these constructors to always be private
-	/** Create an empty stat modifier, should only be used for loading */
-	public StatModifier(){}
+	/** Create a new object using see {@link #load(JsonElement)} */
+	public StatModifier(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		this.load(e);
+	}
 	
 	/**
 	 * Create a new modifier

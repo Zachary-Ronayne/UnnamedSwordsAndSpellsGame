@@ -17,8 +17,10 @@ public class SpellEffectStatAdd implements SpellEffect{
 	/** The amount to add when this effect is applied */
 	private double amount;
 	
-	/** Create an empty spell effect. Should only be used when loading */
-	public SpellEffectStatAdd(){}
+	/** Create a new object using see {@link #load(JsonElement)} */
+	public SpellEffectStatAdd(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		this.load(e);
+	}
 	
 	/**
 	 * Create a spell effect that instantly adds an amount to a stat of a mob when it is applied

@@ -1,5 +1,6 @@
 package zusass.game.magic;
 
+import com.google.gson.JsonElement;
 import zgame.physics.ZVector;
 import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffect;
@@ -9,9 +10,9 @@ import zusass.game.things.entities.projectile.MagicProjectile;
 /** A {@link Spell} that creates a projectile when cast */
 public class ProjectileSpell extends Spell{
 	
-	/** Create an empty spell. Should only be used when loading from a file and initialization */
-	public ProjectileSpell(){
-		super();
+	/** Create a new object using see {@link #load(JsonElement)} */
+	public ProjectileSpell(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		super(e);
 	}
 	
 	/**

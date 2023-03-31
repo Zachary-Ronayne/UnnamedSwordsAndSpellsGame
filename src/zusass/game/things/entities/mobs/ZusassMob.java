@@ -500,13 +500,13 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		var spells = e.getAsJsonObject().get(SPELLS_KEY).getAsJsonArray();
 		var spellJson = spells.get(0).getAsJsonObject();
 		var type = SpellType.valueOf(spellJson.get(SPELL_TYPE_KEY).getAsString());
+		var spellObj = spellJson.get(SPELL_KEY);
 		switch(type){
 			case NONE -> this.selectedSpell = new NoneSpell();
-			case PROJECTILE -> this.selectedSpell = new ProjectileSpell();
-			case SELF -> this.selectedSpell = new SelfSpell();
+			case PROJECTILE -> this.selectedSpell = new ProjectileSpell(spellObj);
+			case SELF -> this.selectedSpell = new SelfSpell(spellObj);
 			default -> throw new IllegalStateException("Invalid spell type: " + type);
 		}
-		this.selectedSpell.load(spellJson.get(SPELL_KEY));
 		return e;
 	}
 }

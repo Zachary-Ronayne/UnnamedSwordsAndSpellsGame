@@ -1,5 +1,6 @@
 package zusass.game.magic;
 
+import com.google.gson.JsonElement;
 import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
@@ -7,9 +8,9 @@ import zusass.game.things.entities.mobs.ZusassMob;
 /** A spell that applies to its caster when cast */
 public class SelfSpell extends Spell{
 	
-	/** Create an empty spell. Should only be used when loading from a file and initialization */
-	public SelfSpell(){
-		super();
+	/** Create a new object using see {@link #load(JsonElement)} */
+	public SelfSpell(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		super(e);
 	}
 	
 	/**

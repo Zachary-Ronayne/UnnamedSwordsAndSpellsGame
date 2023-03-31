@@ -23,8 +23,10 @@ public abstract class Spell implements Saveable{
 	/** The effect to apply when this spell effects a {@link ZusassMob} */
 	private SpellEffect effect;
 	
-	/** Create an empty spell. Should only be used when loading from a file and initialization */
-	public Spell(){}
+	/** Create a new object using see {@link #load(JsonElement)} */
+	public Spell(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		this.load(e);
+	}
 	
 	/**
 	 * Create a new spell
@@ -87,13 +89,13 @@ public abstract class Spell implements Saveable{
 	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		var obj = e.getAsJsonObject();
 		var type = SpellEffectType.valueOf(obj.get(TYPE_KEY).getAsString());
+		var effectObj = obj.get(EFFECT_KEY);
 		switch(type){
 			case NONE -> this.effect = new SpellEffectNone();
-			case STAT_ADD -> this.effect = new SpellEffectStatAdd();
-			case STATUS_EFFECT -> this.effect = new SpellEffectStatusEffect();
+			case STAT_ADD -> this.effect = new SpellEffectStatAdd(effectObj);
+			case STATUS_EFFECT -> this.effect = new SpellEffectStatusEffect(effectObj);
 			default -> throw new IllegalStateException("Invalid spell effect type: " + type);
 		}
-		this.effect.load(obj.get(EFFECT_KEY));
 		return obj;
 	}
 	

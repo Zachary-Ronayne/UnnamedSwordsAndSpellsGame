@@ -18,8 +18,10 @@ public class TypedModifier implements Saveable{
 	/** The type of stat of this object */
 	private StatType type;
 	
-	/** Create an empty {@link TypedModifier}. Should only be used for loading, not for creating new instances */
-	public TypedModifier(){}
+	/** Create a new object using see {@link #load(JsonElement)} */
+	public TypedModifier(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		this.load(e);
+	}
 	
 	/**
 	 * Create an object holding a {@link StatModifier} and {@link StatType}
@@ -57,8 +59,7 @@ public class TypedModifier implements Saveable{
 	@Override
 	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		var obj = e.getAsJsonObject();
-		var mod = new StatModifier();
-		mod.load(obj.get(MOD_KEY));
+		this.modifier = new StatModifier(obj.get(MOD_KEY));
 		this.type = ZusassStat.valueOf(obj.get(TYPE_KEY).getAsString());
 		return e;
 	}
