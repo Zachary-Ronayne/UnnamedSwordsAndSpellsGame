@@ -81,8 +81,9 @@ public class StatModifier implements Comparable<StatModifier>, Saveable{
 	@Override
 	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		var obj = e.getAsJsonObject();
-		this.value = obj.get(VALUE_KEY).getAsDouble();
-		this.type = ModifierType.valueOf(obj.get(TYPE_KEY).getAsString());
+		// TODO go through and use these utility methods for loading everything
+		this.type = Saveable.e(TYPE_KEY, obj, ModifierType.class, ModifierType.ADD);
+		this.value = Saveable.d(VALUE_KEY, obj, this.type == ModifierType.MULT_MULT ? 1 : 0);
 		return e;
 	}
 }
