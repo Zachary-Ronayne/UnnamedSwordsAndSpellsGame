@@ -146,9 +146,9 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.updateStats(zgame, dt);
 		
 		// Update the attack timer
-		if(this.attackTime > 0){
+		if(this.attackTime >= 0){
 			this.attackTime -= dt;
-			if(this.attackTime <= 0) this.attackNearest(zgame);
+			if(this.attackTime < 0) this.attackNearest(zgame);
 		}
 		
 		var walk = this.getWalk();
