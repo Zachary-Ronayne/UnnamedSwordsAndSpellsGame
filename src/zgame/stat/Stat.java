@@ -15,7 +15,7 @@ public abstract class Stat{
 	private final Stats stats;
 	
 	/** The {@link StatType} identifying this {@link Stats} */
-	private final StatType type;
+	private final StatType<?> type;
 	
 	/** true if this {@link Stat} should be recalculated as soon as something about its state changes, false otherwise, defaults to false */
 	private boolean instantRecalculate;
@@ -45,7 +45,7 @@ public abstract class Stat{
 	 * @param dependents See {@link #dependents}
 	 */
 	@SuppressWarnings("unchecked")
-	public Stat(Stats stats, StatType type, StatType... dependents){
+	public Stat(Stats stats, StatType<?> type, StatType<?>... dependents){
 		this.instantRecalculate = false;
 		this.recalculate = true;
 		this.stats = stats;
@@ -86,14 +86,14 @@ public abstract class Stat{
 	 * @param type The type of stat to get
 	 * @return The value, or 0 if the given stat doesn't exist
 	 */
-	public final double getOther(StatType type){
+	public final double getOther(StatType<?> type){
 		var stat = this.stats.get(type);
 		if(stat == null) return 0;
 		return stat.get();
 	}
 	
 	/** @return See {@link #type} */
-	public StatType getType(){
+	public StatType<?> getType(){
 		return this.type;
 	}
 	

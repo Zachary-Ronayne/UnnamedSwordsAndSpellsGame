@@ -1,5 +1,7 @@
 package zgame.stat;
 
+import zusass.game.stat.ZusassStat;
+
 /** A variation on {@link RangeStat} that can automatically regenerates or decreases its value over time */
 public abstract class RegenStat extends RangeStat{
 	
@@ -17,7 +19,7 @@ public abstract class RegenStat extends RangeStat{
 	 * @param type See {@link #type}
 	 * @param dependents See {@link #dependents}
 	 */
-	public RegenStat(double value, Stats stats, StatType type, StatType... dependents){
+	public RegenStat(double value, Stats stats, ZusassStat type, ZusassStat... dependents){
 		super(value, stats, type, dependents);
 		this.recalculateRegen = true;
 	}

@@ -33,7 +33,7 @@ public class StatEffect extends StatusEffect{
 	 * @param duration The duration of the effect
 	 * @param statType The stat to effect
 	 */
-	public StatEffect(double duration, StatModifier mod, StatType statType){
+	public StatEffect(double duration, StatModifier mod, StatType<?> statType){
 		this(duration, List.of(new TypedModifier(mod, statType)));
 	}
 	

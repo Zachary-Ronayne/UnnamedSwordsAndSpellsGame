@@ -5,6 +5,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import zgame.core.utils.ZConfig;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.function.Supplier;
+
 /** An interface that defines this object as being able to save and write with JSON */
 public interface Saveable{
 	
@@ -63,85 +66,125 @@ public interface Saveable{
 	 * Load a double from the given json object
 	 *
 	 * @param key The name of the field in the json object
-	 * @param obj The json object
+	 * @param e The json element
 	 * @param d The default value to use if the value fails to load
 	 * @return The loaded value
 	 */
-	static double d(String key, JsonObject obj, double d){
-		return load(Double.class, key, obj, d);
+	static double d(String key, JsonElement e, double d){
+		return load(Double.class, key, e, d);
 	}
 	
 	/**
 	 * Load an integer from the given json object
 	 *
 	 * @param key The name of the field in the json object
-	 * @param obj The json object
+	 * @param e The json element
 	 * @param d The default value to use if the value fails to load
 	 * @return The loaded value
 	 */
-	static int i(String key, JsonObject obj, int d){
-		return load(Integer.class, key, obj, d);
+	static int i(String key, JsonElement e, int d){
+		return load(Integer.class, key, e, d);
 	}
 	
 	/**
 	 * Load a boolean from the given json object
 	 *
 	 * @param key The name of the field in the json object
-	 * @param obj The json object
+	 * @param e The json element
 	 * @param d The default value to use if the value fails to load
 	 * @return The loaded value
 	 */
-	static boolean b(String key, JsonObject obj, boolean d){
-		return load(Boolean.class, key, obj, d);
+	static boolean b(String key, JsonElement e, boolean d){
+		return load(Boolean.class, key, e, d);
 	}
 	
 	/**
 	 * Load a string from the given json object
 	 *
 	 * @param key The name of the field in the json object
-	 * @param obj The json object
+	 * @param e The json element
 	 * @param d The default value to use if the value fails to load
 	 * @return The loaded value
 	 */
-	static String s(String key, JsonObject obj, String d){
-		return load(String.class, key, obj, d);
+	static String s(String key, JsonElement e, String d){
+		return load(String.class, key, e, d);
 	}
 	
 	/**
 	 * Load a JsonObject from the given json object
 	 *
 	 * @param key The name of the field in the json object
-	 * @param obj The json object
+	 * @param e The json element
 	 * @return The loaded value, or an empty object if the load fails
 	 */
-	static JsonObject obj(String key, JsonObject obj){
-		return load(JsonObject.class, key, obj, new JsonObject());
+	static JsonObject obj(String key, JsonElement e){
+		return load(JsonObject.class, key, e, new JsonObject());
+	}
+	
+	/**
+	 * Load a new instance of a {@link Saveable} object from the given json element.
+	 * This method assumes the given JsonElement is a JsonObject and that a key exists
+	 *
+	 * @param clazz The type of object to load. This class must implement a constructor which accepts one JsonElement as it's parameter
+	 * @param key The name of the field in the json object
+	 * @param e The json element
+	 * @return The loaded value, or null if the load fails
+	 * @param <T> The type of clazz
+	 */
+	static <T extends Saveable> T obj(String key, JsonElement e, Class<T> clazz){
+		return obj(key, e, clazz, null);
+	}
+	/**
+	 * Load a new instance of a {@link Saveable} object from the given json element.
+	 * This method assumes the given JsonElement is a JsonObject and that a key exists
+	 *
+	 * @param clazz The type of object to load. This class must implement a constructor which accepts one JsonElement as it's parameter
+	 * @param key The name of the field in the json object
+	 * @param e The json element
+	 * @param d A function which provides the default value if the load fails. Can be null to return nul by default
+	 * @return The loaded value, or the result of d if the load fails
+	 * @param <T> The type of clazz
+	 */
+	static <T extends Saveable> T obj(String key, JsonElement e, Class<T> clazz, Supplier<T> d){
+		try{
+			var cons = clazz.getConstructor(JsonElement.class);
+			return cons.newInstance(e.getAsJsonObject().get(key));
+		}catch(NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException err){
+			if(ZConfig.printErrors()){
+				ZConfig.error("Cannot load object", clazz, "must implement a constructor which accepts one JsonElement");
+				err.printStackTrace();
+			}
+		}catch(Exception err){
+			ZConfig.error("Failed to load object of type", clazz, "for key", key, "from element", e, "returning null");
+		}
+		if(d == null) return null;
+		return d.get();
 	}
 	
 	/**
 	 * Load a JsonArray from the given json object
 	 *
 	 * @param key The name of the field in the json object
-	 * @param obj The json object
+	 * @param e The json element
 	 * @return The loaded value, or an empty array if the load fails
 	 */
-	static JsonArray arr(String key, JsonObject obj){
-		return load(JsonArray.class, key, obj, new JsonArray());
+	static JsonArray arr(String key, JsonElement e){
+		return load(JsonArray.class, key, e, new JsonArray());
 	}
 	
 	/**
 	 * Load an enum from the given json object
 	 *
 	 * @param key The name of the field in the json object
-	 * @param obj The json object
+	 * @param e The json element
 	 * @param d The default value to use if the value fails to load
 	 * @return The loaded value, or an empty array if the load fails
 	 */
-	static <T extends Enum<T>> T e(String key, JsonObject obj, Class<T> clazz, T d){
-		var str = s(key, obj, null);
+	static <T extends Enum<T>> T e(String key, JsonElement e, Class<T> clazz, T d){
+		var str = s(key, e, null);
 		try{
 			return Enum.valueOf(clazz, str);
-		}catch(IllegalArgumentException e){
+		}catch(IllegalArgumentException err){
 			return d;
 		}
 	}
@@ -151,23 +194,19 @@ public interface Saveable{
 	 *
 	 * @param clazz The type of object to get
 	 * @param key The name of the field in the json object
-	 * @param obj The json object
+	 * @param e The json element to load
 	 * @param d The default value to use if the value fails to load
 	 * @return The loaded value
 	 * @param <T> The type of clazz
 	 */
-	@SuppressWarnings("unchecked")
-	static <T> T load(Class<T> clazz, String key, JsonObject obj, T d){
+	static <T> T load(Class<T> clazz, String key, JsonElement e, T d){
+		if(!e.isJsonObject()) return d;
+		var obj = e.getAsJsonObject();
 		if(!obj.has(key)) return d;
 		var value = obj.get(key);
 		try{
-			if(clazz == Double.class) return (T)Double.valueOf(value.getAsDouble());
-			if(clazz == Integer.class) return (T)Integer.valueOf(value.getAsInt());
-			if(clazz == Boolean.class) return (T)Boolean.valueOf(value.getAsBoolean());
-			if(clazz == String.class) return (T)value.getAsString();
-			if(clazz == JsonObject.class) return (T)value.getAsJsonObject();
-			if(clazz == JsonArray.class) return (T)value.getAsJsonArray();
-		}catch(ClassCastException e){
+			return JsonLoadMap.get(clazz, value);
+		}catch(ClassCastException er){
 			ZConfig.error("Failed to load object of type", clazz, "for key", key, "from object", obj, "returning default:", d);
 		}
 		return d;

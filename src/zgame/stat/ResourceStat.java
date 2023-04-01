@@ -1,5 +1,7 @@
 package zgame.stat;
 
+import zusass.game.stat.ZusassStat;
+
 /** The stat keeping track of a resource like health of a thing. A resource has a min, max, and regen rate, potentially based on other stats */
 public abstract class ResourceStat extends RegenStat{
 	
@@ -25,13 +27,13 @@ public abstract class ResourceStat extends RegenStat{
 	 */
 	public ResourceStat(Stats stats,
 						/////////////////////////////////////////
-						StatType type, StatType[] dependents,
+						ZusassStat type, ZusassStat[] dependents,
 						/////////////////////////////////////////
-						StatType min, StatType[] minDependents,
+						ZusassStat min, ZusassStat[] minDependents,
 						/////////////////////////////////////////
-						StatType max, StatType[] maxDependents,
+						ZusassStat max, ZusassStat[] maxDependents,
 						/////////////////////////////////////////
-						StatType regen, StatType[] regenDependents){
+						ZusassStat regen, ZusassStat[] regenDependents){
 		
 		super(0, stats, type, min, max, regen);
 		this.min = new Min(stats, min, minDependents);
@@ -89,7 +91,7 @@ public abstract class ResourceStat extends RegenStat{
 		 * @param type See {@link #type}
 		 * @param dependents See {@link #dependents}
 		 */
-		public Min(Stats stats, StatType type, StatType... dependents){
+		public Min(Stats stats, ZusassStat type, ZusassStat... dependents){
 			super(stats, type, dependents);
 		}
 		
@@ -108,7 +110,7 @@ public abstract class ResourceStat extends RegenStat{
 		 * @param type See {@link #type}
 		 * @param dependents See {@link #dependents}
 		 */
-		public Max(Stats stats, StatType type, StatType... dependents){
+		public Max(Stats stats, ZusassStat type, ZusassStat... dependents){
 			super(stats, type, dependents);
 		}
 		
@@ -127,7 +129,7 @@ public abstract class ResourceStat extends RegenStat{
 		 * @param type See {@link #type}
 		 * @param dependents See {@link #dependents}
 		 */
-		public Regen(Stats stats, StatType type, StatType... dependents){
+		public Regen(Stats stats, ZusassStat type, ZusassStat... dependents){
 			super(stats, type, dependents);
 		}
 		

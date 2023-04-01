@@ -33,6 +33,7 @@ import zgame.world.Room;
 import static org.lwjgl.glfw.GLFW.*;
 
 import java.awt.Rectangle;
+import java.io.File;
 
 /**
  * A simple main class used for testing the game code
@@ -317,6 +318,9 @@ public class MainTest extends Game{
 		
 		private static final ZRect bufferBounds = new ZRect(0, 500, 500, 150);
 		
+		private static final String SAVES_PATH = "./saves";
+		private static final String FILE_PATH = SAVES_PATH + "/testGame.json";
+		
 		public TesterGameState(Game game){
 			this.textBuffer = new TextBuffer((int)bufferBounds.width, (int)bufferBounds.height, game.getFont("zfont"));
 			this.textBuffer.setText("Text from a buffer");
@@ -376,9 +380,20 @@ public class MainTest extends Game{
 					if(shift) game.setCurrentState(new GameEngineState());
 					else game.setCurrentState(new TesterMenuState(game));
 				}
-				else if(key == GLFW_KEY_C && keys.ctrl()) game.saveGame("./saves/testGame");
-				else if(key == GLFW_KEY_V && keys.ctrl()) game.loadGame("./saves/testGame");
+				else if(key == GLFW_KEY_C && keys.ctrl()){
+					makeSaveDir();
+					game.saveGame(FILE_PATH);
+				}
+				else if(key == GLFW_KEY_V && keys.ctrl()){
+					makeSaveDir();
+					game.loadGame(FILE_PATH);
+				}
 			}
+		}
+		
+		private void makeSaveDir(){
+			File file = new File(SAVES_PATH);
+			if(!file.exists() && !file.mkdir()) ZStringUtils.print("Failed to make saves dir");
 		}
 		
 		@Override

@@ -1,8 +1,8 @@
 package zusass.game.stat.resources;
 
 import zgame.stat.ResourceStat;
-import zgame.stat.StatType;
 import zgame.stat.Stats;
+import zusass.game.stat.ZusassStat;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -17,13 +17,13 @@ public class Mana extends ResourceStat{
 	public Mana(Stats stats){
 		super(stats,
 				/////////////////////////////////////////
-				MANA, new StatType[]{},
+				MANA, new ZusassStat[]{},
 				/////////////////////////////////////////
-				MANA_MIN, new StatType[]{},
+				MANA_MIN, new ZusassStat[]{},
 				/////////////////////////////////////////
-				MANA_MAX, new StatType[]{INTELLIGENCE},
+				MANA_MAX, new ZusassStat[]{INTELLIGENCE},
 				/////////////////////////////////////////
-				MANA_REGEN, new StatType[]{INTELLIGENCE});
+				MANA_REGEN, new ZusassStat[]{INTELLIGENCE});
 	}
 	
 	@Override

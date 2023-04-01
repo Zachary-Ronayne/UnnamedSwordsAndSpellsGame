@@ -7,7 +7,6 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.material.Material;
 import zgame.stat.Stat;
-import zgame.stat.StatType;
 import zgame.stat.ValueStat;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
@@ -339,7 +338,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * @param modifierType The way the modifier applies its value
 	 * @param statType The {@link Stat} to effect
 	 */
-	public void addStatEffect(String sourceId, double duration, double value, ModifierType modifierType, StatType statType){
+	public void addStatEffect(String sourceId, double duration, double value, ModifierType modifierType, ZusassStat statType){
 		this.addEffect(sourceId, new StatEffect(duration, new StatModifier(value, modifierType), statType));
 	}
 	
@@ -354,12 +353,12 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * @param type The type of stat to get
 	 * @return The stat
 	 */
-	public Stat getStat(StatType type){
+	public Stat getStat(ZusassStat type){
 		return this.stats.get(type);
 	}
 	
 	/** @return The value of the given stat */
-	public double stat(StatType type){
+	public double stat(ZusassStat type){
 		var stat = this.stats.get(type);
 		if(stat == null) return 0;
 		return stat.get();
@@ -371,7 +370,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * @param type The type of stat to set
 	 * @param value The new value
 	 */
-	public void setStat(StatType type, double value){
+	public void setStat(ZusassStat type, double value){
 		this.stats.get(type).setValue(value);
 	}
 	

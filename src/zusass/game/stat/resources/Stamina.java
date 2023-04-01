@@ -1,8 +1,8 @@
 package zusass.game.stat.resources;
 
 import zgame.stat.ResourceStat;
-import zgame.stat.StatType;
 import zgame.stat.Stats;
+import zusass.game.stat.ZusassStat;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -17,13 +17,13 @@ public class Stamina extends ResourceStat{
 	public Stamina(Stats stats){
 		super(stats,
 				/////////////////////////////////////////
-				STAMINA, new StatType[]{},
+				STAMINA, new ZusassStat[]{},
 				/////////////////////////////////////////
-				STAMINA_MIN, new StatType[]{},
+				STAMINA_MIN, new ZusassStat[]{},
 				/////////////////////////////////////////
-				STAMINA_MAX, new StatType[]{STRENGTH, ENDURANCE},
+				STAMINA_MAX, new ZusassStat[]{STRENGTH, ENDURANCE},
 				/////////////////////////////////////////
-				STAMINA_REGEN, new StatType[]{ENDURANCE});
+				STAMINA_REGEN, new ZusassStat[]{ENDURANCE});
 	}
 	
 	@Override

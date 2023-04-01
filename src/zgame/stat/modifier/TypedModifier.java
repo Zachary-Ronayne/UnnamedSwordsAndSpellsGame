@@ -3,7 +3,6 @@ package zgame.stat.modifier;
 import com.google.gson.JsonElement;
 import zgame.core.file.Saveable;
 import zgame.stat.StatType;
-import zusass.game.stat.ZusassStat;
 
 /** An object holding a {@link StatModifier} and {@link StatType} */
 public class TypedModifier implements Saveable{
@@ -16,7 +15,7 @@ public class TypedModifier implements Saveable{
 	/** The modifier of this object */
 	private StatModifier modifier;
 	/** The type of stat of this object */
-	private StatType type;
+	private StatType<?> type;
 	
 	/** Create a new object using see {@link #load(JsonElement)} */
 	public TypedModifier(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
@@ -28,7 +27,7 @@ public class TypedModifier implements Saveable{
 	 * @param modifier See {@link #modifier}
 	 * @param type See #type
 	 */
-	public TypedModifier(StatModifier modifier, StatType type){
+	public TypedModifier(StatModifier modifier, StatType<?> type){
 		this.modifier = modifier;
 		this.type = type;
 	}
@@ -39,7 +38,7 @@ public class TypedModifier implements Saveable{
 	}
 	
 	/** @return See #type */
-	public StatType type(){
+	public StatType<?> type(){
 		return this.type;
 	}
 	
@@ -58,9 +57,10 @@ public class TypedModifier implements Saveable{
 	
 	@Override
 	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
-		var obj = e.getAsJsonObject();
-		this.modifier = new StatModifier(obj.get(MOD_KEY));
-		this.type = ZusassStat.valueOf(obj.get(TYPE_KEY).getAsString());
+		var typeString = Saveable.s(TYPE_KEY, e, null);
+		this.type = StatType.get(typeString);
+		// TODO go through and use these utility methods for loading everything
+		this.modifier = Saveable.obj(MOD_KEY, e, StatModifier.class, () -> new StatModifier(0, ModifierType.ADD));
 		return e;
 	}
 }

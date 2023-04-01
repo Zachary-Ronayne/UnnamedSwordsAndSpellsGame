@@ -4,11 +4,11 @@ import static zusass.game.stat.ZusassStat.*;
 
 import com.google.gson.JsonElement;
 import zgame.core.file.Saveable;
-import zgame.stat.StatType;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zusass.ZusassGame;
 import zusass.game.magic.effect.*;
+import zusass.game.stat.ZusassStat;
 import zusass.game.status.StatEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
 
@@ -103,7 +103,7 @@ public abstract class Spell implements Saveable{
 	 * @param amount The amount of the stat to add
 	 * @return The spell
 	 */
-	public static ProjectileSpell projectileAdd(StatType stat, double amount){
+	public static ProjectileSpell projectileAdd(ZusassStat stat, double amount){
 		return new ProjectileSpell(new SpellEffectStatAdd(stat, amount));
 	}
 	
@@ -116,7 +116,7 @@ public abstract class Spell implements Saveable{
 	 * @param mod The way the spell is applied
 	 * @return The spell
 	 */
-	public static SelfSpell selfEffect(StatType stat, double magnitude, double duration, ModifierType mod){
+	public static SelfSpell selfEffect(ZusassStat stat, double magnitude, double duration, ModifierType mod){
 		return new SelfSpell(new SpellEffectStatusEffect(new StatEffect(duration, new StatModifier(magnitude, mod), stat)));
 	}
 	

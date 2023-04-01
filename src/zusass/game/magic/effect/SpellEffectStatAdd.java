@@ -1,7 +1,6 @@
 package zusass.game.magic.effect;
 
 import com.google.gson.JsonElement;
-import zgame.stat.StatType;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassMob;
 
@@ -13,7 +12,7 @@ public class SpellEffectStatAdd implements SpellEffect{
 	public static final String AMOUNT_KEY = "amount";
 	
 	/** The stat which is effected by this effect */
-	private StatType stat;
+	private ZusassStat stat;
 	/** The amount to add when this effect is applied */
 	private double amount;
 	
@@ -28,13 +27,13 @@ public class SpellEffectStatAdd implements SpellEffect{
 	 * @param stat See {@link #stat}
 	 * @param amount See {@link #amount}
 	 */
-	public SpellEffectStatAdd(StatType stat, double amount){
+	public SpellEffectStatAdd(ZusassStat stat, double amount){
 		this.stat = stat;
 		this.amount = amount;
 	}
 	
 	/** @return See {@link #stat} */
-	public StatType getStat(){
+	public ZusassStat getStat(){
 		return this.stat;
 	}
 	

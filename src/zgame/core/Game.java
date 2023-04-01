@@ -27,6 +27,7 @@ import zgame.core.state.PlayState;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
+import zgame.stat.DefaultStatType;
 import zgame.stat.Stats;
 import zgame.world.Room;
 
@@ -188,6 +189,9 @@ public class Game implements Saveable, Destroyable{
 		this.nextCurrentState = null;
 		this.playState = null;
 		this.destroyState = null;
+		
+		// Init stat enum
+		DefaultStatType.init();
 		
 		// Init sound
 		this.sounds = new SoundManager();

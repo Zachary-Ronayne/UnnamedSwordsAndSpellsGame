@@ -27,6 +27,14 @@ public class Stats{
 	/** Initialize a new stats object with nothing set */
 	public Stats(){
 		this.arr = new Stat[StatId.numIds()];
+		
+		// Ensure we have the DEFAULT stat
+		this.add(new Stat(this, DefaultStatType.DEFAULT){
+			@Override
+			public double calculateValue(){
+				return 0;
+			}
+		});
 	}
 	
 	/** Get the array holding all the stats used by this {@link Stats} */
@@ -45,7 +53,7 @@ public class Stats{
 	 * @param type The type to look for
 	 * @return The dependent ids of the given type
 	 */
-	public int[] getDependents(StatType type){
+	public int[] getDependents(StatType<?> type){
 		return this.getDependents()[type.getId()];
 	}
 	
@@ -89,7 +97,7 @@ public class Stats{
 	 * @param s The type of stat to get
 	 * @return A stat that this {@link Stats} uses, or null if no stat exists for the given stat enum
 	 */
-	public Stat get(StatType s){
+	public Stat get(StatType<?> s){
 		return this.get(s.getId());
 	}
 	
@@ -108,6 +116,52 @@ public class Stats{
 	 */
 	public void tick(double dt){
 		for(int i = 0; i < this.arr.length; i++) this.arr[i].tick(dt);
+	}
+	
+	/**
+	 * A debugging tool. Prints an array of all the stats separated by tabs, copy to something like Excel to make it look normal.
+	 * Each row is a stat type.
+	 * The columns within a row, say Y if that row's stat type is used when calculating the column's stat type, and a dash otherwise
+	 */
+	public void printStats(){
+		var dependents = Stats.dependents;
+		var arr = this.getArr();
+		var sb = new StringBuilder("----------------------------------------------------------------------------------------\n");
+		sb.append("\t");
+		// Go through all the stats to get their names
+		for(int i = 0; i < arr.length; i++){
+			sb.append(StatType.intMap.get(i)).append(" (").append(i).append(")\t");
+		}
+		sb.append("\n");
+		// Go through all the stats to show their dependencies
+		for(int i = 0; i < arr.length; i++){
+			sb.append(StatType.intMap.get(i)).append(" (").append(i).append(")\t");
+			var d = dependents[i];
+			// Go through all the stats
+			for(int j = 0; j < arr.length; j++){
+				var found = false;
+				// Check each stat to see if we found a dependency
+				for(int k = 0; k < d.length; k++){
+					if(d[k] == j){
+						found = true;
+						break;
+					}
+				}
+				// Add the correct symbol
+				sb.append(found ? "Y" : "-").append("\t");
+			}
+			sb.append("\n");
+		}
+		sb.append("----------------------------------------------------------------------------------------\n");
+		for(int i = 0; i < dependents.length; i++){
+			sb.append(StatType.intMap.get(i)).append(" (").append(i).append(")\t");
+			for(int j = 0; j < dependents[i].length; j++){
+				sb.append(StatType.intMap.get(dependents[i][j])).append(" (").append(dependents[i][j]).append(")\t");
+			}
+			sb.append("\n");
+		}
+		sb.append("----------------------------------------------------------------------------------------");
+		System.out.println(sb);
 	}
 	
 }

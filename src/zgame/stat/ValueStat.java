@@ -14,7 +14,7 @@ public class ValueStat extends Stat{
 	 * @param type See {@link #type}
 	 * @param dependents See {@link #dependents}
 	 */
-	public ValueStat(double value, Stats stats, StatType type, StatType... dependents){
+	public ValueStat(double value, Stats stats, StatType<?> type, StatType<?>... dependents){
 		super(stats, type, dependents);
 		this.value = value;
 	}

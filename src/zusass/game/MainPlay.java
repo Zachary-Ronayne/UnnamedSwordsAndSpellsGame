@@ -5,7 +5,6 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.state.MenuNode;
 import zgame.core.state.PlayState;
-import zgame.stat.StatType;
 import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassPlayer;
@@ -107,7 +106,7 @@ public class MainPlay extends PlayState{
 	}
 	
 	/** Temporary code for simplicity of testing */
-	private void drawResourceBar(Renderer r, ZusassPlayer p, StatType current, StatType max, int index, ZColor color, ZColor textColor){
+	private void drawResourceBar(Renderer r, ZusassPlayer p, ZusassStat current, ZusassStat max, int index, ZColor color, ZColor textColor){
 		var c = p.stat(current);
 		var m = p.stat(max);
 		var space = 25 * index;
