@@ -34,17 +34,19 @@ public class MainPlay extends PlayState{
 	 * @param zgame The {@link Game} using this state
 	 */
 	public void enterHub(ZusassGame zgame){
-		// Make the hub
+		// Make the hub and set that as the current room
 		Hub hub = new Hub(zgame);
-		
-		// Place the player
-		ZusassPlayer player = zgame.getPlayer();
-		player.setX(20);
-		player.setY(hub.maxY() - player.getHeight());
-		player.setLockCamera(true);
-		hub.addThing(player);
-		player.centerCamera(zgame);
 		this.setCurrentRoom(hub);
+		
+		// Place the player on the next tick
+		hub.onNextTick(() -> {
+			ZusassPlayer player = zgame.getPlayer();
+			player.setX(20);
+			player.setY(hub.maxY() - player.getHeight());
+			player.setLockCamera(true);
+			hub.addThing(player);
+			player.centerCamera(zgame);
+		});
 	}
 	
 	@Override

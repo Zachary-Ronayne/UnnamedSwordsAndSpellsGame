@@ -20,6 +20,7 @@ import zgame.things.still.tiles.TileType;
 import zgame.things.type.Bounds;
 import zgame.things.type.GameThing;
 import zgame.things.type.HitBox;
+import zgame.things.type.PositionedThing;
 
 /** An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc. */
 public class Room extends GameThing implements Bounds{
@@ -59,6 +60,9 @@ public class Room extends GameThing implements Bounds{
 	 */
 	private final boolean[] wallSolid;
 	
+	/** A list of things to do the next time this room is ticked. Once the tick happens, this list will be emptied */
+	private final List<Runnable> nextTickFuncs;
+	
 	/** Create a new empty {@link Room} */
 	public Room(){
 		this(0, 0);
@@ -82,6 +86,8 @@ public class Room extends GameThing implements Bounds{
 		this.initTiles(xTiles, yTiles);
 		
 		this.wallSolid = new boolean[]{true, true, true, true};
+		
+		this.nextTickFuncs = new ArrayList<>();
 	}
 	
 	@Override
@@ -250,6 +256,14 @@ public class Room extends GameThing implements Bounds{
 	}
 	
 	/**
+	 * Make something happen to this {@link PositionedThing} the next time it is ticked
+	 * @param r The function to run
+	 */
+	public void onNextTick(Runnable r){
+		this.nextTickFuncs.add(r);
+	}
+	
+	/**
 	 * Update this {@link Room}
 	 *
 	 * @param game The {@link Game} which this {@link Room} should update relative to
@@ -273,6 +287,10 @@ public class Room extends GameThing implements Bounds{
 		// Remove all things that need to be removed
 		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(thing);
 		this.thingsToRemove.clear();
+		
+		// Run any functions which need to happen
+		for(int i = 0; i < this.nextTickFuncs.size(); i++) this.nextTickFuncs.get(i).run();
+		this.nextTickFuncs.clear();
 	}
 	
 	/**
