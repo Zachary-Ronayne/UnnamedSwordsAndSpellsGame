@@ -70,7 +70,7 @@ public class NewGamePopup extends Menu{
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(press) return;
 		if(button == GLFW_KEY_ESCAPE) game.getCurrentState().removeTopMenu();
-		// TODO make this start the new game on pressing enter
+		else if(button == GLFW_KEY_ENTER) createButton.click(game);
 	}
 	
 }
