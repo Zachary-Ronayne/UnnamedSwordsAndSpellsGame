@@ -1,6 +1,5 @@
 package zusass.game.status;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import zgame.core.file.Saveable;
 import zgame.stat.Stat;
@@ -16,6 +15,8 @@ import java.util.List;
 /** A {@link StatusEffect} which modifies one or many {@link Stat}s */
 public class StatEffect extends StatusEffect{
 	
+	/** The json key storing {@link #duration} */
+	public static final String DURATION_KEY = "duration";
 	/** The json key storing {@link #modifiers} */
 	public static final String MODS_KEY = "mods";
 	
@@ -65,11 +66,11 @@ public class StatEffect extends StatusEffect{
 	}
 	
 	@Override
-	public JsonElement save(JsonElement e){
-		var arr = new JsonArray();
-		e.getAsJsonObject().add(MODS_KEY, arr);
-		for(var m : this.modifiers) arr.add(m.save());
-		return e;
+	public boolean save(JsonElement e){
+		var obj = e.getAsJsonObject();
+		obj.addProperty(DURATION_KEY, this.getDuration());
+		Saveable.saveArr(MODS_KEY, e, this.modifiers);
+		return true;
 	}
 	
 	@Override
@@ -77,6 +78,7 @@ public class StatEffect extends StatusEffect{
 		var arr = Saveable.arr(MODS_KEY, e);
 		this.modifiers = new ArrayList<>();
 		for(var m : arr) modifiers.add(new TypedModifier(m));
+		this.setDuration(Saveable.d(DURATION_KEY, e, 0));
 		return true;
 	}
 }

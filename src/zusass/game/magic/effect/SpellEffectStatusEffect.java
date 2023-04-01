@@ -47,7 +47,7 @@ public class SpellEffectStatusEffect implements SpellEffect{
 	}
 	
 	@Override
-	public JsonElement save(JsonElement e){
+	public boolean save(JsonElement e){
 		return this.getEffect().save(e);
 	}
 	

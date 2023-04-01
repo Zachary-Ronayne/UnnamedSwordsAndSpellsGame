@@ -1,7 +1,6 @@
 package zusass;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import zgame.core.file.Saveable;
 
@@ -39,12 +38,10 @@ public class ZusassData implements Saveable{
 	}
 	
 	@Override
-	public JsonElement save(JsonElement e){
-		var obj = e.getAsJsonObject();
-		JsonObject generalData = new JsonObject();
+	public boolean save(JsonElement e){
+		var generalData = Saveable.newObj(GENERAL_DATA_KEY, e);
 		generalData.addProperty(HIGHEST_ROOM_LEVEL_KEY, highestRoomLevel);
-		obj.add(GENERAL_DATA_KEY, generalData);
-		return obj;
+		return true;
 	}
 	
 	@Override

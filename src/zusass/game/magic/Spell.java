@@ -76,11 +76,11 @@ public abstract class Spell implements Saveable{
 	public abstract SpellType getType();
 	
 	@Override
-	public JsonElement save(JsonElement e){
+	public boolean save(JsonElement e){
 		var obj = e.getAsJsonObject();
 		obj.addProperty(TYPE_KEY, this.getEffect().getType().name());
-		obj.add(EFFECT_KEY, this.getEffect().save());
-		return e;
+		Saveable.save(EFFECT_KEY, e, this.getEffect());
+		return true;
 	}
 	
 	@Override

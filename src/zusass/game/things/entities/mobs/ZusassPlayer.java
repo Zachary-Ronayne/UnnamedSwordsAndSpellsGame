@@ -63,8 +63,8 @@ public class ZusassPlayer extends ZusassMob{
 		this.addStatEffect(this.getUuid(), -1, 5, ModifierType.ADD, STAMINA_REGEN);
 		
 		// Set the default spell to a damage spell
-		this.setSelectedSpell(Spell.projectileAdd(HEALTH, -10));
-//		this.setSelectedSpell(Spell.selfEffect(MOVE_SPEED, 4, 2, ModifierType.MULT_MULT));
+//		this.setSelectedSpell(Spell.projectileAdd(HEALTH, -10));
+		this.setSelectedSpell(Spell.selfEffect(MOVE_SPEED, 4, 2, ModifierType.MULT_MULT));
 		
 		this.lockCamera = false;
 	}

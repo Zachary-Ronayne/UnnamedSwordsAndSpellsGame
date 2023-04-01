@@ -60,11 +60,11 @@ public class SpellEffectStatAdd implements SpellEffect{
 	}
 	
 	@Override
-	public JsonElement save(JsonElement e){
+	public boolean save(JsonElement e){
 		var obj = e.getAsJsonObject();
 		obj.addProperty(STAT_KEY, this.getStat().name());
 		obj.addProperty(AMOUNT_KEY, this.getAmount());
-		return e;
+		return true;
 	}
 	
 	@Override

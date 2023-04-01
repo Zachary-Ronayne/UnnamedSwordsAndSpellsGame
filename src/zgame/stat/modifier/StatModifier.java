@@ -71,11 +71,11 @@ public class StatModifier implements Comparable<StatModifier>, Saveable{
 	}
 	
 	@Override
-	public JsonElement save(JsonElement e){
+	public boolean save(JsonElement e){
 		var obj = e.getAsJsonObject();
 		obj.addProperty(VALUE_KEY, this.value);
 		obj.addProperty(TYPE_KEY, this.type.name());
-		return e;
+		return true;
 	}
 	
 	@Override

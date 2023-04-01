@@ -196,11 +196,11 @@ public class MainTest extends Game{
 	}
 	
 	@Override
-	public JsonElement save(JsonElement e){
+	public boolean save(JsonElement e){
 		var obj = e.getAsJsonObject();
 		obj.addProperty("playerX", playerX);
 		obj.addProperty("playerY", playerY);
-		return obj;
+		return true;
 	}
 	
 	@Override

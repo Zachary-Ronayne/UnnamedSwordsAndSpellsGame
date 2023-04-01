@@ -68,9 +68,19 @@ public abstract class StatusEffect implements Saveable{
 		return this.duration;
 	}
 	
+	/** @param duration See {@link #duration} */
+	public void setDuration(double duration){
+		this.duration = duration;
+	}
+	
 	/** @return See {@link #remaining} */
 	public double getRemaining(){
 		return this.remaining;
+	}
+	
+	/** @param remaining See {@link #remaining} */
+	public void setRemaining(double remaining){
+		this.remaining = remaining;
 	}
 	
 	/** @return true if this effect lasts forever, false otherwise */

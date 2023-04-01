@@ -1,8 +1,6 @@
 package zusass.game.things.entities.mobs;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
@@ -479,20 +477,13 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	}
 	
 	@Override
-	public JsonElement save(JsonElement e){
-		var obj = e.getAsJsonObject();
-		var arr = new JsonArray();
-		obj.add(SPELLS_KEY, arr);
+	public boolean save(JsonElement e){
+		var arr = Saveable.newArr(SPELLS_KEY, e);
 		
-		var spell = new JsonObject();
-		arr.add(spell);
-		
+		var spell = Saveable.newObj(arr);
 		spell.addProperty(SPELL_TYPE_KEY, this.selectedSpell.getType().name());
-		var spellObj = new JsonObject();
-		spell.add(SPELL_KEY, spellObj);
-		
-		this.selectedSpell.save(spellObj);
-		return e;
+		Saveable.save(SPELL_KEY, spell, this.selectedSpell);
+		return true;
 	}
 	
 	@Override

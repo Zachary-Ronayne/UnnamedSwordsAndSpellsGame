@@ -48,11 +48,11 @@ public class TypedModifier implements Saveable{
 	}
 	
 	@Override
-	public JsonElement save(JsonElement e){
+	public boolean save(JsonElement e){
 		var obj = e.getAsJsonObject();
-		obj.add(MOD_KEY, this.modifier.save());
+		Saveable.save(MOD_KEY, e, this.modifier);
 		obj.addProperty(TYPE_KEY, type.name());
-		return e;
+		return true;
 	}
 	
 	@Override

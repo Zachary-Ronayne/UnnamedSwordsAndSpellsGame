@@ -103,12 +103,10 @@ public class ZusassGame extends Game{
 	
 	
 	@Override
-	public JsonElement save(JsonElement e){
-		// TODO abstract out saving to make saving easier
-		var obj = e.getAsJsonObject();
-		obj.add(DATA_KEY, this.getData().save());
-		obj.add(PLAYER_KEY, this.getPlayer().save());
-		return obj;
+	public boolean save(JsonElement e){
+		Saveable.save(DATA_KEY, e, this.getData());
+		Saveable.save(PLAYER_KEY, e, this.getPlayer());
+		return true;
 	}
 	
 	@Override

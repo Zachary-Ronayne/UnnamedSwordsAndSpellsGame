@@ -16,19 +16,19 @@ public interface Saveable{
 	 * Does nothing and returns obj by default, can override to save custom data to obj
 	 *
 	 * @param e The object to save to
-	 * @return The modified version of e if the save was successful, null otherwise
+	 * @return true if the save was successful, false otherwise
 	 */
-	default JsonElement save(JsonElement e){
-		return e;
+	default boolean save(JsonElement e){
+		return true;
 	}
 	
 	/**
 	 * Save the necessary contents of this object to a new {@link JsonObject}.
 	 * This method simply calls {@link #save(JsonElement)} with a new object out of convenience, no need to implement this
 	 *
-	 * @return The saved object
+	 * @return true if the save was successful, false otherwise
 	 */
-	default JsonElement save(){
+	default boolean save(){
 		return this.save(new JsonObject());
 	}
 	
@@ -60,6 +60,73 @@ public interface Saveable{
 	default boolean load(String key, JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		var element = e.getAsJsonObject().get(key);
 		return this.load(element.getAsJsonObject());
+	}
+	
+	/**
+	 * Save the given object to the given json element using the given key
+	 * @param key The key to save under
+	 * @param e The element to save to
+	 * @param s The object to save
+	 * @return e as a json object
+	 */
+	static JsonObject save(String key, JsonElement e, Saveable s){
+		var obj = e.getAsJsonObject();
+		var newObj = newObj(key, e);
+		s.save(newObj);
+		return obj;
+	}
+	
+	/**
+	 * Save the given iterable object as an array to the given json element using the given key
+	 * @param key The key to save under
+	 * @param e The element to save to
+	 * @param it The iterator of savable objects to save
+	 * @return The array
+	 */
+	static <T extends Saveable> JsonArray saveArr(String key, JsonElement e, Iterable<T> it){
+		var arr = newArr(key, e);
+		for(var i : it) {
+			var newObj = new JsonObject();
+			i.save(newObj);
+			arr.add(newObj);
+		}
+		return arr;
+	}
+	
+	/**
+	 * Create a new json object and store it in the given json element as an object with the given key
+	 * @param key The key of the new object
+	 * @param e The object to store the new object in
+	 * @return The new object
+	 */
+	static JsonObject newObj(String key, JsonElement e){
+		var newObj = new JsonObject();
+		e.getAsJsonObject().add(key, newObj);
+		return newObj;
+	}
+	
+	/**
+	 * Create a new json object and store it in the given json array
+	 * @param arr The array to put the object into
+	 * @return The new object
+	 */
+	static JsonObject newObj(JsonArray arr){
+		var newObj = new JsonObject();
+		arr.add(newObj);
+		return newObj;
+	}
+	
+	/**
+	 * Create a new json array and store it in the given json element as an object with the given key
+	 * @param key The key of the new object
+	 * @param e The object to store the new object in
+	 * @return The new object
+	 */
+	static JsonArray newArr(String key, JsonElement e){
+		var obj = e.getAsJsonObject();
+		var newArr = new JsonArray();
+		obj.add(key, newArr);
+		return newArr;
 	}
 	
 	/**
