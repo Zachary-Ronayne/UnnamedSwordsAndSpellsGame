@@ -4,10 +4,13 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.things.still.tiles.BaseTiles;
 import zgame.things.still.tiles.Tile;
+import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zusass.ZusassData;
 import zusass.ZusassGame;
 import zusass.game.things.LevelDoor;
+import zusass.game.things.ZusassTags;
+import zusass.game.things.entities.mobs.ZusassMob;
 
 /** The {@link Room} which represents the main hub of the game, i.e. where the player can enter levels, make items, etc. */
 public class Hub extends ZusassRoom{
@@ -48,6 +51,12 @@ public class Hub extends ZusassRoom{
 		LevelDoor levelDoor = new LevelDoor(doorX, 0, 1, this);
 		levelDoor.setY(this.maxY() - levelDoor.getHeight());
 		this.addThing(levelDoor);
+	}
+	
+	@Override
+	public void addThing(GameThing thing){
+		super.addThing(thing);
+		if(thing.hasTag(ZusassTags.HUB_ENTER_RESTORE)) ((ZusassMob)thing).setResourcesMax();
 	}
 	
 	@Override

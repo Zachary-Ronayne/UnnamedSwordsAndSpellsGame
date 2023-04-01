@@ -46,7 +46,7 @@ public class ZusassPlayer extends ZusassMob{
 	/** Create a new default {@link ZusassPlayer} */
 	public ZusassPlayer(){
 		super(0, 0, 75, 125);
-		this.addTags(ZusassTags.CAN_ENTER_LEVEL_DOOR, ZusassTags.MUST_CLEAR_LEVEL_ROOM);
+		this.addTags(ZusassTags.CAN_ENTER_LEVEL_DOOR, ZusassTags.MUST_CLEAR_LEVEL_ROOM, ZusassTags.HUB_ENTER_RESTORE);
 		
 		this.enterRoomPressed = false;
 		this.toggleCameraPressed = false;
