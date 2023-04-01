@@ -45,8 +45,7 @@ public class SpellEffectStatAdd implements SpellEffect{
 	
 	@Override
 	public double getCost(){
-		// TODO calculate by amount and stat type
-		return 10;
+		return this.stat.getValue() * Math.abs(this.getAmount()) * 0.5;
 	}
 	
 	@Override

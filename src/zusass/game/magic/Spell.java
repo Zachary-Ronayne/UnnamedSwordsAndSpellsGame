@@ -90,7 +90,7 @@ public abstract class Spell implements Saveable{
 		switch(type){
 			case NONE -> this.effect = new SpellEffectNone();
 			case STAT_ADD -> this.effect = new SpellEffectStatAdd(effectObj);
-			case STATUS_EFFECT -> this.effect = new SpellEffectStatusEffect(effectObj);
+			case STAT_EFFECT -> this.effect = new SpellEffectStatEffect(effectObj);
 			default -> throw new IllegalStateException("Invalid spell effect type: " + type);
 		}
 		return true;
@@ -116,7 +116,7 @@ public abstract class Spell implements Saveable{
 	 * @return The spell
 	 */
 	public static SelfSpell selfEffect(ZusassStat stat, double magnitude, double duration, ModifierType mod){
-		return new SelfSpell(new SpellEffectStatusEffect(new StatEffect(duration, new StatModifier(magnitude, mod), stat)));
+		return new SelfSpell(new SpellEffectStatEffect(new StatEffect(duration, new StatModifier(magnitude, mod), stat)));
 	}
 	
 }

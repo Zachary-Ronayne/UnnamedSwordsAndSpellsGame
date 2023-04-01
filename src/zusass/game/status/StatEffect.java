@@ -50,6 +50,11 @@ public class StatEffect extends StatusEffect{
 		this.modifiers = modifiers;
 	}
 	
+	/** @return See {@link #modifiers} */
+	public List<TypedModifier> getModifiers(){
+		return this.modifiers;
+	}
+	
 	@Override
 	public void apply(String sourceId, ZusassMob mob){
 		for(var m : modifiers) mob.getStats().get(m.getId()).addModifier(sourceId, m.modifier());

@@ -42,8 +42,24 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	 * @param effect See {@link #effect}
 	 */
 	public MagicProjectile(double x, double y, double radius, String sourceId, ZVector launchVelocity, SpellEffect effect){
+		this(x, y, radius, -1, sourceId, launchVelocity, effect);
+	}
+	
+	/**
+	 * Create a projectile at the specified location, moving at the given velocity
+	 *
+	 * @param x The initial x position of the projectile
+	 * @param y The initial y position of the projectile
+	 * @param radius See {@link #radius}
+	 * @param range See {@link #range}
+	 * @param sourceId See {@link #sourceId}, i.e. the uuid of the caster of this magic projectile
+	 * @param launchVelocity The initial velocity of the projectile
+	 * @param effect See {@link #effect}
+	 */
+	public MagicProjectile(double x, double y, double radius, double range, String sourceId, ZVector launchVelocity, SpellEffect effect){
 		super(x, y, sourceId, launchVelocity);
 		this.setRadius(radius);
+		this.setRange(range);
 		this.effect = effect;
 		
 		// Turn off gravity

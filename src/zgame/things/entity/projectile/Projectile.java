@@ -17,6 +17,15 @@ public abstract class Projectile extends EntityThing{
 	 */
 	private final FunctionMap mappedFuncs;
 	
+	/** The amount of distance this projectile can travel before being deleted, negative value to never be deleted */
+	private double range;
+	
+	/** The total distance this projectile has traveled since creation */
+	private double totalDistance;
+	
+	/** true if the projectile should be removed in the next tick, false otherwise */
+	private boolean willRemove;
+	
 	/**
 	 * Create a projectile at the specified location, moving at the given velocity
 	 *
@@ -28,6 +37,9 @@ public abstract class Projectile extends EntityThing{
 		super(x, y);
 		this.addVelocity(launchVelocity);
 		this.mappedFuncs = new FunctionMap();
+		this.range = -1;
+		this.totalDistance = 0;
+		this.willRemove = false;
 	}
 	
 	/**
@@ -78,4 +90,34 @@ public abstract class Projectile extends EntityThing{
 		return this != thing && this.intersects(thing);
 	}
 	
+	/** @return See {@link #totalDistance} */
+	public double getTotalDistance(){
+		return this.totalDistance;
+	}
+	
+	/** @return See {@link #range} */
+	public double getRange(){
+		return this.range;
+	}
+	
+	/** @param range See {@link #range} */
+	public void setRange(double range){
+		this.range = range;
+	}
+	
+	/** Tell this projectile to be removed on the next tick */
+	public void removeNext(){
+		this.willRemove = true;
+	}
+	
+	@Override
+	public void tick(Game game, double dt){
+		if(this.willRemove) this.removeFrom(game);
+		
+		var r = this.getRange();
+		if(r >= 0 && this.totalDistance >= r) this.removeNext();
+		
+		super.tick(game, dt);
+		this.totalDistance += this.getVelocity().getMagnitude() * dt;
+	}
 }
