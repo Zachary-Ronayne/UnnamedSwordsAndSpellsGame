@@ -23,8 +23,6 @@ public class SpellEffectStatEffect extends SpellEffectStatusEffect{
 	
 	// TODO allow spells to have different durations for each effect, i.e. the spell can have multiple effects
 	
-	// TODO make a status effect that damages a stat over time
-	
 	@Override
 	public StatEffect getEffect(){
 		return (StatEffect)super.getEffect();
