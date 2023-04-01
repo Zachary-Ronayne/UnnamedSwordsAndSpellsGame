@@ -2,6 +2,7 @@ package zusass;
 
 import com.google.gson.JsonElement;
 import zgame.core.Game;
+import zgame.core.file.Saveable;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GameWindow;
 import zusass.game.MainPlay;
@@ -103,6 +104,7 @@ public class ZusassGame extends Game{
 	
 	@Override
 	public JsonElement save(JsonElement e){
+		// TODO abstract out saving to make saving easier
 		var obj = e.getAsJsonObject();
 		obj.add(DATA_KEY, this.getData().save());
 		obj.add(PLAYER_KEY, this.getPlayer().save());
@@ -110,11 +112,10 @@ public class ZusassGame extends Game{
 	}
 	
 	@Override
-	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
-		this.getData().load(DATA_KEY, e);
-		this.player = new ZusassPlayer();
-		this.getPlayer().load(PLAYER_KEY, e);
-		return e;
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		this.data = Saveable.obj(DATA_KEY, e, ZusassData.class, ZusassData::new);
+		this.player = Saveable.obj(PLAYER_KEY, e, ZusassPlayer.class, ZusassPlayer::new);
+		return true;
 	}
 	
 	@Override

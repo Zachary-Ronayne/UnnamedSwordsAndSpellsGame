@@ -1,6 +1,7 @@
 package zusass.game.magic.effect;
 
 import com.google.gson.JsonElement;
+import zgame.core.file.Saveable;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassMob;
 
@@ -67,10 +68,9 @@ public class SpellEffectStatAdd implements SpellEffect{
 	}
 	
 	@Override
-	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
-		var obj = e.getAsJsonObject();
-		this.stat = ZusassStat.valueOf(obj.get(STAT_KEY).getAsString());
-		this.amount = obj.get(AMOUNT_KEY).getAsDouble();
-		return SpellEffect.super.load(obj);
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		this.stat = Saveable.e(STAT_KEY, e, ZusassStat.class, ZusassStat.ATTACK_SPEED);
+		this.amount = Saveable.d(AMOUNT_KEY, e, 0);
+		return true;
 	}
 }

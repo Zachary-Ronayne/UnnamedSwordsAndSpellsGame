@@ -2,6 +2,7 @@ package zusass.game.status;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import zgame.core.file.Saveable;
 import zgame.stat.Stat;
 import zgame.stat.StatType;
 import zgame.stat.modifier.StatModifier;
@@ -72,10 +73,10 @@ public class StatEffect extends StatusEffect{
 	}
 	
 	@Override
-	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
-		var arr = e.getAsJsonObject().get(MODS_KEY).getAsJsonArray();
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		var arr = Saveable.arr(MODS_KEY, e);
 		this.modifiers = new ArrayList<>();
 		for(var m : arr) modifiers.add(new TypedModifier(m));
-		return e;
+		return true;
 	}
 }

@@ -79,9 +79,9 @@ public class StatModifier implements Comparable<StatModifier>, Saveable{
 	}
 	
 	@Override
-	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		this.type = Saveable.e(TYPE_KEY, e, ModifierType.class, ModifierType.ADD);
 		this.value = Saveable.d(VALUE_KEY, e, this.type == ModifierType.MULT_MULT ? 1 : 0);
-		return e;
+		return true;
 	}
 }

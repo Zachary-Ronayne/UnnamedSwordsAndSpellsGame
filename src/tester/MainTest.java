@@ -204,11 +204,11 @@ public class MainTest extends Game{
 	}
 	
 	@Override
-	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException{
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException{
 		var obj = e.getAsJsonObject();
 		playerX = obj.get("playerX").getAsDouble();
 		playerY = obj.get("playerY").getAsDouble();
-		return obj;
+		return true;
 	}
 	
 	public static class GameEngineState extends PlayState{

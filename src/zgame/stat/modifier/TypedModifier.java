@@ -56,11 +56,10 @@ public class TypedModifier implements Saveable{
 	}
 	
 	@Override
-	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		var typeString = Saveable.s(TYPE_KEY, e, null);
 		this.type = StatType.get(typeString);
-		// TODO go through and use these utility methods for loading everything
 		this.modifier = Saveable.obj(MOD_KEY, e, StatModifier.class, () -> new StatModifier(0, ModifierType.ADD));
-		return e;
+		return true;
 	}
 }

@@ -2,6 +2,7 @@ package zusass.game.things.entities.mobs;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.mouse.ZMouseInput;
@@ -31,6 +32,16 @@ public class ZusassPlayer extends ZusassMob{
 	private boolean walkPressed;
 	/** true if the button for toggling between casting a spell and attacking is currently pressed down, and releasing it will toggle */
 	private boolean toggleSelectedAction;
+	
+	/**
+	 * Create a new object from json
+	 *
+	 * @param e The json
+	 */
+	public ZusassPlayer(JsonElement e){
+		this();
+		this.load(e);
+	}
 	
 	/** Create a new default {@link ZusassPlayer} */
 	public ZusassPlayer(){
@@ -181,7 +192,7 @@ public class ZusassPlayer extends ZusassMob{
 			if(zgame.getCurrentRoom() != to) zgame.getPlayState().setCurrentRoom(to);
 			
 			// If the player is going through a level, heal to full, and remove all effects
-			if(to.hasTag(ZusassTags.IS_LEVEL)) {
+			if(to.hasTag(ZusassTags.IS_LEVEL)){
 				this.setResourcesMax();
 				this.getEffects().removeAllTemporary(this);
 			}

@@ -52,9 +52,9 @@ public class SpellEffectStatusEffect implements SpellEffect{
 	}
 	
 	@Override
-	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		this.effect = new StatEffect(e);
-		return e;
+		return true;
 	}
 	
 }

@@ -617,7 +617,7 @@ public class Game implements Saveable, Destroyable{
 		JsonObject data = file.load();
 		if(data == null) return false;
 		try{
-			return this.load(data) != null;
+			return this.load(data);
 		}catch(ClassCastException | IllegalStateException | NullPointerException e){
 			ZConfig.error(e, "Failed to load a json object because it had invalid formatting. Object data:\n", data);
 		}

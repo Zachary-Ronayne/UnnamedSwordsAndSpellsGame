@@ -34,16 +34,16 @@ public interface Saveable{
 	
 	/**
 	 * Load the necessary contents for this object from the given {@link JsonElement}.
-	 * Does nothing and returns obj by default, can override to load custom data from obj
+	 * Does nothing and returns true, can override to load custom data from obj
 	 *
 	 * @param e The object to load from
-	 * @return e if the load was successful, null otherwise
+	 * @return true if the load succeeded, false otherwise
 	 * @throws ClassCastException If a property loaded is not a valid value for the type requested
 	 * @throws IllegalStateException If the property loaded is a JsonArray but contains more than a single element
 	 * @throws NullPointerException If a property returns null and is attempted to be accessed
 	 */
-	default JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
-		return e;
+	default boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		return true;
 	}
 	
 	/**
@@ -52,14 +52,14 @@ public interface Saveable{
 	 *
 	 * @param key The key to get from the object
 	 * @param e The object to check in
-	 * @return e if the load was successful, null otherwise
+	 * @return true if the load succeeded, false otherwise
 	 * @throws ClassCastException If a property loaded is not a valid value for the type requested
 	 * @throws IllegalStateException If the property loaded is a JsonArray but contains more than a single element
 	 * @throws NullPointerException If a property returns null and is attempted to be accessed
 	 */
-	default JsonElement load(String key, JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+	default boolean load(String key, JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		var element = e.getAsJsonObject().get(key);
-		return element == null ? null : this.load(element.getAsJsonObject());
+		return this.load(element.getAsJsonObject());
 	}
 	
 	/**
@@ -151,11 +151,11 @@ public interface Saveable{
 			return cons.newInstance(e.getAsJsonObject().get(key));
 		}catch(NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException err){
 			if(ZConfig.printErrors()){
-				ZConfig.error("Cannot load object", clazz, "must implement a constructor which accepts one JsonElement");
+				ZConfig.error("Cannot load object. ", clazz, " must implement a constructor which accepts one JsonElement");
 				err.printStackTrace();
 			}
 		}catch(Exception err){
-			ZConfig.error("Failed to load object of type", clazz, "for key", key, "from element", e, "returning null");
+			ZConfig.error("Failed to load object of type ", clazz, " for key ", key, " from element ", e, " returning null");
 		}
 		if(d == null) return null;
 		return d.get();
@@ -207,7 +207,7 @@ public interface Saveable{
 		try{
 			return JsonLoadMap.get(clazz, value);
 		}catch(ClassCastException er){
-			ZConfig.error("Failed to load object of type", clazz, "for key", key, "from object", obj, "returning default:", d);
+			ZConfig.error("Failed to load object of type ", clazz, " for key ", key, " from object ", obj, " returning default: ", d);
 		}
 		return d;
 	}

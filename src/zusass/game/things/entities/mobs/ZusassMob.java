@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import zgame.core.Game;
+import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
 import zgame.physics.material.Material;
 import zgame.stat.Stat;
@@ -495,17 +496,17 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	}
 	
 	@Override
-	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
-		var spells = e.getAsJsonObject().get(SPELLS_KEY).getAsJsonArray();
-		var spellJson = spells.get(0).getAsJsonObject();
-		var type = SpellType.valueOf(spellJson.get(SPELL_TYPE_KEY).getAsString());
-		var spellObj = spellJson.get(SPELL_KEY);
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		var spells = Saveable.arr(SPELLS_KEY, e);
+		var spell = spells.get(0);
+		var type = Saveable.e(SPELL_TYPE_KEY, spell, SpellType.class, SpellType.NONE);
+		var spellObj = Saveable.obj(SPELL_KEY, spell);
 		switch(type){
 			case NONE -> this.selectedSpell = new NoneSpell();
 			case PROJECTILE -> this.selectedSpell = new ProjectileSpell(spellObj);
 			case SELF -> this.selectedSpell = new SelfSpell(spellObj);
 			default -> throw new IllegalStateException("Invalid spell type: " + type);
 		}
-		return e;
+		return true;
 	}
 }

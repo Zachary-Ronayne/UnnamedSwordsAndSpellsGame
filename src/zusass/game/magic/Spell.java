@@ -84,17 +84,16 @@ public abstract class Spell implements Saveable{
 	}
 	
 	@Override
-	public JsonElement load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
-		var obj = e.getAsJsonObject();
-		var type = SpellEffectType.valueOf(obj.get(TYPE_KEY).getAsString());
-		var effectObj = obj.get(EFFECT_KEY);
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		var type = Saveable.e(TYPE_KEY, e, SpellEffectType.class, SpellEffectType.NONE);
+		var effectObj = Saveable.obj(EFFECT_KEY, e);
 		switch(type){
 			case NONE -> this.effect = new SpellEffectNone();
 			case STAT_ADD -> this.effect = new SpellEffectStatAdd(effectObj);
 			case STATUS_EFFECT -> this.effect = new SpellEffectStatusEffect(effectObj);
 			default -> throw new IllegalStateException("Invalid spell effect type: " + type);
 		}
-		return obj;
+		return true;
 	}
 	
 	/**
