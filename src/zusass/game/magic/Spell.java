@@ -3,7 +3,9 @@ package zusass.game.magic;
 import static zusass.game.stat.ZusassStat.*;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import zgame.core.file.Saveable;
+import zgame.core.utils.NotNullList;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zusass.ZusassGame;
@@ -15,15 +17,18 @@ import zusass.game.things.entities.mobs.ZusassMob;
 /** An object representing a magic spell that can be cast */
 public abstract class Spell implements Saveable{
 	
+	/** The json key storing {@link #effects} */
+	private static final String EFFECTS_KEY = "spellEffects";
+	
 	/** The json key storing the type of effect of the spell */
 	private static final String TYPE_KEY = "effectType";
-	/** The json key storing the effect data of the spell */
+	/** The json key storing the data of an effect of the spell */
 	private static final String EFFECT_KEY = "spellEffect";
 	
 	// TODO allow spells to have many spell effects
 	
-	/** The effect to apply when this spell effects a {@link ZusassMob} */
-	private SpellEffect effect;
+	/** The effects to apply when this spell effects a {@link ZusassMob} */
+	private NotNullList<SpellEffect> effects;
 	
 	/** Create a new object using see {@link #load(JsonElement)} */
 	public Spell(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
@@ -31,12 +36,21 @@ public abstract class Spell implements Saveable{
 	}
 	
 	/**
-	 * Create a new spell
+	 * Create a new spell with one effect
 	 *
-	 * @param effect {@link #effect}
+	 * @param effect A single effect for {@link #effects}
 	 */
 	public Spell(SpellEffect effect){
-		this.effect = effect;
+		this(new NotNullList<>(effect));
+	}
+	
+	/**
+	 * Create a new spell with many effects
+	 *
+	 * @param effects See {@link #effects}
+	 */
+	public Spell(NotNullList<SpellEffect> effects){
+		this.effects = effects;
 	}
 	
 	/**
@@ -58,7 +72,9 @@ public abstract class Spell implements Saveable{
 	
 	/** @return The cost of casting this spell */
 	public double getCost(){
-		return this.getEffect().getCost();
+		var totalCost = 0;
+		for(var ef : this.getEffects()) totalCost += ef.getCost();
+		return totalCost;
 	}
 	
 	/**
@@ -69,22 +85,31 @@ public abstract class Spell implements Saveable{
 	 */
 	protected abstract void cast(ZusassGame zgame, ZusassMob caster);
 	
-	/** @return See {@link #effect} */
-	public SpellEffect getEffect(){
-		return this.effect;
+	/** @return See {@link #effects} */
+	public NotNullList<SpellEffect> getEffects(){
+		return this.effects;
 	}
 	
 	@Override
 	public boolean save(JsonElement e){
-		var obj = e.getAsJsonObject();
-		obj.addProperty(TYPE_KEY, SpellEffectType.name(this.getEffect().getClass()));
-		Saveable.save(EFFECT_KEY, e, this.getEffect());
+		var arr = Saveable.newArr(EFFECTS_KEY, e);
+		for(var ef : this.effects){
+			var obj = new JsonObject();
+			arr.add(obj);
+			
+			obj.addProperty(TYPE_KEY, SpellEffectType.name(ef.getClass()));
+			Saveable.save(EFFECT_KEY, obj, ef);
+		}
 		return true;
 	}
 	
 	@Override
 	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
-		this.effect = Saveable.obj(TYPE_KEY, SpellEffectType.class, EFFECT_KEY, e, SpellEffectType.NONE);
+		this.effects = new NotNullList<>();
+		var arr = Saveable.arr(EFFECTS_KEY, e);
+		for(var ef : arr){
+			this.effects.add(Saveable.obj(TYPE_KEY, SpellEffectType.class, EFFECT_KEY, ef, SpellEffectType.NONE));
+		}
 		return true;
 	}
 	

@@ -6,6 +6,8 @@ import zgame.core.utils.ClassEnum;
 public enum SpellCastType implements ClassEnum<Spell>{
 	/** See {@link NoneSpell} */
 	NONE(NoneSpell.class),
+	/** See {@link MultiSpell} */
+	MULTI(MultiSpell.class),
 	/** See {@link ProjectileSpell} */
 	PROJECTILE(ProjectileSpell.class),
 	/** See {@link SelfSpell} */

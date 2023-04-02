@@ -2,6 +2,7 @@ package zusass.game.magic;
 
 import com.google.gson.JsonElement;
 import zgame.core.file.Saveable;
+import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector;
 import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffect;
@@ -33,32 +34,51 @@ public class ProjectileSpell extends Spell{
 	/**
 	 * Create a new spell that casts a projectile
 	 *
-	 * @param effect {@link #effect}
+	 * @param effect A single effect for see effect {@link #effects}
 	 */
 	public ProjectileSpell(SpellEffect effect){
-		this(effect, 10, -1, 400);
+		this(new NotNullList<>(effect));
 	}
 	
 	/**
 	 * Create a new spell that casts a projectile
 	 *
-	 * @param effect {@link #effect}
+	 * @param effect A single effect for see {@link #effects}
 	 * @param radius See {@link MagicProjectile#radius}
 	 * @param range See {@link MagicProjectile#range}
 	 */
 	public ProjectileSpell(SpellEffect effect, double radius, double range, double speed){
-		super(effect);
+		this(new NotNullList<>(effect), radius, range, speed);
+	}
+	
+	/**
+	 * Create a new spell that casts a projectile
+	 *
+	 * @param effects See {@link #effects}
+	 */
+	public ProjectileSpell(NotNullList<SpellEffect> effects){
+		this(effects, 10, -1, 400);
+	}
+	
+	/**
+	 * Create a new spell that casts a projectile
+	 *
+	 * @param effects See {@link #effects}
+	 * @param radius See {@link MagicProjectile#radius}
+	 * @param range See {@link MagicProjectile#range}
+	 */
+	public ProjectileSpell(NotNullList<SpellEffect> effects, double radius, double range, double speed){
+		super(effects);
 		this.radius = radius;
 		this.range = range;
 		this.speed = speed;
 	}
 	
-	
 	@Override
 	protected void cast(ZusassGame zgame, ZusassMob caster){
 		var r = zgame.getCurrentRoom();
 		var vel = new ZVector(caster.getAttackDirection(), this.getSpeed(), false);
-		var p = new MagicProjectile(caster.centerX(), caster.centerY(), caster.getUuid(), vel, this.getEffect());
+		var p = new MagicProjectile(caster.centerX(), caster.centerY(), caster.getUuid(), vel, this.getEffects());
 		p.setRange(this.range);
 		p.setRadius(this.radius);
 		p.addX(-p.getWidth() * .5);

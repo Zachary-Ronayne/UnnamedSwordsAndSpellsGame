@@ -1,6 +1,7 @@
 package zusass.game.magic;
 
 import com.google.gson.JsonElement;
+import zgame.core.utils.NotNullList;
 import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
@@ -14,16 +15,25 @@ public class SelfSpell extends Spell{
 	}
 	
 	/**
-	 * Create a new spell that applies to its caster
+	 * Create a new spell that applies a single effect to its caster
 	 *
-	 * @param effect {@link #effect}
+	 * @param effect A single effect for {@link #effects}
 	 */
 	public SelfSpell(SpellEffect effect){
-		super(effect);
+		this(new NotNullList<>(effect));
+	}
+	
+	/**
+	 * Create a new spell that applies many effects to its caster
+	 *
+	 * @param effects {@link #effects}
+	 */
+	public SelfSpell(NotNullList<SpellEffect> effects){
+		super(effects);
 	}
 	
 	@Override
 	protected void cast(ZusassGame zgame, ZusassMob caster){
-		this.getEffect().apply(caster.getUuid(), caster);
+		for(var ef : this.getEffects()) ef.apply(caster.getUuid(), caster);
 	}
 }
