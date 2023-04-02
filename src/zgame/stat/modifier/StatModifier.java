@@ -42,26 +42,17 @@ public class StatModifier implements Comparable<StatModifier>, Saveable{
 	/**
 	 * @param value See {@link #value}
 	 * @param stat The stat object which uses this modifier
+	 * @param sourceId The source which is providing the modifier
 	 */
-	public void setValue(double value, Stat stat){
+	public void setValue(double value, Stat stat, String sourceId){
 		if(this.value == value) return;
 		this.value = value;
-		stat.flagRecalculate();
+		stat.flagModifiersRecalculate(this.getType(), sourceId);
 	}
 	
 	/** @return See {@link #type} */
 	public ModifierType getType(){
 		return this.type;
-	}
-	
-	/**
-	 * @param type See {@link #type}
-	 * @param stat The stat object which uses this modifier
-	 */
-	public void setType(ModifierType type, Stat stat){
-		if(this.type == type) return;
-		this.type = type;
-		stat.flagRecalculate();
 	}
 	
 	@Override

@@ -1,10 +1,9 @@
 package zgame.stat;
 
-import zgame.core.utils.ZArrayUtils;
+import zgame.stat.modifier.ModifierList;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +31,7 @@ public abstract class Stat{
 	 * The Map is mapped by modifier sourceId
 	 * The ArrayList is sorted descending by modifier power
 	 */
-	private final Map<String, ArrayList<StatModifier>>[] modifiers;
+	private final Map<String, ModifierList>[] modifiers;
 	
 	/**
 	 * Create a new stat
@@ -52,7 +51,7 @@ public abstract class Stat{
 		for(int i = 0; i < this.dependents.length; i++){
 			this.dependents[i] = dependents[i].getId();
 		}
-		this.modifiers = (HashMap<String, ArrayList<StatModifier>>[])new HashMap[ModifierType.values().length];
+		this.modifiers = (HashMap<String, ModifierList>[])new HashMap[ModifierType.values().length];
 		this.modifiers[ModifierType.ADD.getIndex()] = new HashMap<>();
 		this.modifiers[ModifierType.MULT_ADD.getIndex()] = new HashMap<>();
 		this.modifiers[ModifierType.MULT_MULT.getIndex()] = new HashMap<>();
@@ -107,6 +106,19 @@ public abstract class Stat{
 		}
 	}
 	
+	/**
+	 * Tell {@link #modifiers} that there has been a change to the modifier list, and that list needs to be recalculated.
+	 * Also tells the stat itself to be recalculated
+	 *
+	 * @param type The type of modifiers which must be recalculated
+	 */
+	public void flagModifiersRecalculate(ModifierType type, String sourceId){
+		this.flagRecalculate();
+		var m = this.modifiers[type.getIndex()];
+		var list = m.get(sourceId);
+		list.flagRecalculate();
+	}
+	
 	/** @return What {@link #calculated} should be based on the current state of {@link #stats} */
 	public abstract double calculateValue();
 	
@@ -149,11 +161,10 @@ public abstract class Stat{
 	 */
 	public void addModifier(String sourceId, StatModifier mod){
 		var map = this.modifiers[mod.getType().getIndex()];
-		if(!map.containsKey(sourceId)) map.put(sourceId, new ArrayList<>());
+		if(!map.containsKey(sourceId)) map.put(sourceId, new ModifierList(mod.getType()));
 		var list = map.get(sourceId);
 		if(list.contains(mod)) return;
-		// TODO instead of inserting them sorted, sort the list of modifiers each time a value is recalculated, maybe only resort if the list has recently been updated?
-		ZArrayUtils.insertSorted(list, mod);
+		list.add(mod);
 		this.flagRecalculate();
 	}
 	
@@ -186,29 +197,18 @@ public abstract class Stat{
 	public void applyModifiers(){
 		var newCalculated = this.calculated;
 		
-		// TODO if a modifier's value is changed externally, does the list remain sorted? Need to ensure that happens, somehow
-		
 		// Apply add modifiers first
 		var mods = this.modifiers[ModifierType.ADD.getIndex()].values();
-		for(var m : mods){
-			if(m.isEmpty()) continue;
-			newCalculated += m.get(0).getValue();
-		}
+		for(var m : mods) newCalculated += m.currentValue();
 		
 		// Combine all additive multipliers
 		mods = this.modifiers[ModifierType.MULT_ADD.getIndex()].values();
 		double multiplyTotal = 1;
-		for(var m : mods){
-			if(m.isEmpty()) continue;
-			multiplyTotal += m.get(0).getValue();
-		}
+		for(var m : mods) multiplyTotal += m.currentValue();
 		
 		// Apply all multiplicitive multipliers
 		mods = this.modifiers[ModifierType.MULT_MULT.getIndex()].values();
-		for(var m : mods){
-			if(m.isEmpty()) continue;
-			multiplyTotal *= m.get(0).getValue();
-		}
+		for(var m : mods) multiplyTotal *= m.currentValue();
 		
 		// Apply the final value
 		this.calculated = newCalculated * multiplyTotal;

@@ -8,6 +8,7 @@ import zgame.physics.material.Material;
 import zgame.stat.Stat;
 import zgame.stat.ValueStat;
 import zgame.stat.modifier.ModifierType;
+import zgame.stat.modifier.StatModTracker;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.status.StatusEffect;
 import zgame.stat.status.StatusEffects;
@@ -75,7 +76,10 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	private final MobWalk walk;
 	
 	/** A modifier used to drain stamina while running */
-	private final StatModifier staminaRunDrain;
+	private final StatModTracker staminaRunDrain;
+	
+	/** The sourceId of the modifier which drains stamina */
+	private static final String ID_STAMINA_DRAIN = "staminaDrain";
 	
 	/**
 	 * Create a new mob with the given bounds
@@ -120,8 +124,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.stats.add(new MoveSpeed(this.stats));
 		
 		// Add other modifiers
-		this.staminaRunDrain = new StatModifier(0, ModifierType.ADD);
-		this.getStat(STAMINA_REGEN).addModifier("runDrain", this.staminaRunDrain);
+		this.staminaRunDrain = new StatModTracker(0, ModifierType.ADD, this.getStat(STAMINA_REGEN), ID_STAMINA_DRAIN);
 		
 		// Ensure this thing stats at full resources
 		this.setResourcesMax();
@@ -161,10 +164,8 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		walk.updatePosition(game, dt);
 		walk.tick(game, dt);
 		
-		// If walking, need to reduce stamina
-		var stamina = this.getStat(STAMINA_REGEN);
-		if(!this.getWalk().isWalking() && this.getWalk().isTryingToMove()) this.staminaRunDrain.setValue(-35, stamina);
-		else this.staminaRunDrain.setValue(0, stamina);
+		// If running and moving, need to drain stamina
+		this.staminaRunDrain.setValue(!this.getWalk().isWalking() && this.getWalk().isTryingToMove() ? -35 : 0);
 		
 		// Do the normal game update
 		super.tick(game, dt);
