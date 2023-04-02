@@ -3,6 +3,7 @@ package zgame.things.entity.projectile;
 import zgame.core.Game;
 import zgame.core.utils.FunctionMap;
 import zgame.physics.ZVector;
+import zgame.things.BaseTags;
 import zgame.things.entity.EntityThing;
 import zgame.things.type.HitBox;
 
@@ -67,8 +68,8 @@ public abstract class Projectile extends EntityThing{
 	@Override
 	public void checkEntityCollision(Game game, EntityThing entity, double dt){
 		super.checkEntityCollision(game, entity, dt);
-		// Ignore the current thing if the projectile will not hit it
-		if(!this.willHit(entity)) return;
+		// Ignore the current thing if the projectile will not hit it, or if the entity should not collide with projectiles
+		if(!this.willHit(entity) || entity.hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
 		this.hit(game, entity);
 	}
 	

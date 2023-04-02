@@ -2,6 +2,7 @@ package zgame.core.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A list of objects which cannot contain null elements
@@ -13,10 +14,12 @@ public class NotNullList<T> extends ArrayList<T>{
 		super();
 	}
 	
-	/** Create a new list initially with one element */
-	public NotNullList(T e){
+	/** Create a new list iniitally with the given elements
+	 * */
+	@SafeVarargs
+	public NotNullList(T... arr){
 		this();
-		this.add(e);
+		this.addAll(List.of(arr));
 	}
 	
 	/**

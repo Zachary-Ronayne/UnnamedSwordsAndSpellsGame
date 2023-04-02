@@ -4,10 +4,13 @@ import zgame.core.Game;
 import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
+import zgame.things.BaseTags;
 import zgame.things.type.HitBox;
 
 /** A {@link Projectile} which destroys itself when it hits anything */
 public abstract class OnHitProjectile extends Projectile{
+	
+	// TODO implement these projectile sub classes as parameters instead of nested classes
 	
 	/**
 	 * Create a projectile at the specified location, moving at the given velocity
@@ -18,6 +21,7 @@ public abstract class OnHitProjectile extends Projectile{
 	 */
 	public OnHitProjectile(double x, double y, ZVector launchVelocity){
 		super(x, y, launchVelocity);
+		this.addTags(BaseTags.PROJECTILE_NOT_COLLIDE);
 	}
 	
 	@Override

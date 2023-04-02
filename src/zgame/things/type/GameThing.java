@@ -107,7 +107,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	}
 	
 	/**
-	 * Determine if this {@link GameThing} has the given tag
+	 * Determine if this object has the given tag
 	 * @param tag The tag to check for
 	 * @return true if it has the tag, false otherwise
 	 */

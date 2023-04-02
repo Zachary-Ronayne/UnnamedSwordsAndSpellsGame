@@ -2,6 +2,7 @@ package zusass.game.status;
 
 import com.google.gson.JsonElement;
 import zgame.core.file.Saveable;
+import zgame.core.utils.NotNullList;
 import zgame.stat.Stat;
 import zgame.stat.StatType;
 import zgame.stat.modifier.StatModifier;
@@ -10,7 +11,6 @@ import zgame.stat.status.StatusEffect;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassMob;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /** A {@link StatusEffect} which modifies one or many {@link Stat}s */
@@ -22,7 +22,7 @@ public class StatEffect extends StatusEffect{
 	public static final String MODS_KEY = "mods";
 	
 	/** All the stat modifiers applied by this effect */
-	private List<TypedModifier> modifiers;
+	private NotNullList<TypedModifier> modifiers;
 	
 	/** Create a new object using see {@link #load(JsonElement)} */
 	public StatEffect(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
@@ -37,7 +37,7 @@ public class StatEffect extends StatusEffect{
 	 * @param statType The stat to effect
 	 */
 	public StatEffect(double duration, StatModifier mod, StatType<?> statType){
-		this(duration, List.of(new TypedModifier(mod, statType)));
+		this(duration, new NotNullList<>(new TypedModifier(mod, statType)));
 	}
 	
 	/**
@@ -46,7 +46,17 @@ public class StatEffect extends StatusEffect{
 	 * @param duration The duration of the effect
 	 * @param modifiers The modifiers to apply during the effect
 	 */
-	public StatEffect(double duration, List<TypedModifier> modifiers){
+	public StatEffect(double duration, TypedModifier... modifiers){
+		this(duration, new NotNullList<>(modifiers));
+	}
+	
+	/**
+	 * Create a new status effect for one stat
+	 *
+	 * @param duration The duration of the effect
+	 * @param modifiers The modifiers to apply during the effect
+	 */
+	public StatEffect(double duration, NotNullList<TypedModifier> modifiers){
 		super(duration);
 		this.modifiers = modifiers;
 	}
@@ -95,7 +105,7 @@ public class StatEffect extends StatusEffect{
 	@Override
 	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		var arr = Saveable.arr(MODS_KEY, e);
-		this.modifiers = new ArrayList<>();
+		this.modifiers = new NotNullList<>();
 		for(var m : arr) this.modifiers.add(new TypedModifier(m));
 		this.setDuration(Saveable.d(DURATION_KEY, e, 0));
 		return true;

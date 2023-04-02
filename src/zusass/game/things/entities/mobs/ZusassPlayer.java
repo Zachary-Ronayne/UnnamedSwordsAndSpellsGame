@@ -6,13 +6,17 @@ import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.mouse.ZMouseInput;
-import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZMath;
 import zgame.stat.modifier.ModifierType;
+import zgame.stat.modifier.StatModifier;
+import zgame.stat.modifier.TypedModifier;
 import zgame.world.Room;
 import zusass.ZusassGame;
 import zusass.game.magic.MultiSpell;
+import zusass.game.magic.ProjectileSpell;
 import zusass.game.magic.Spell;
+import zusass.game.magic.effect.SpellEffectStatusEffect;
+import zusass.game.status.StatEffect;
 import zusass.game.things.ZusassTags;
 
 import static zusass.game.stat.ZusassStat.*;
@@ -58,7 +62,7 @@ public class ZusassPlayer extends ZusassMob{
 		
 		this.setStat(STRENGTH, 10);
 		this.setStat(ENDURANCE, 10);
-		this.setStat(INTELLIGENCE, 10);
+		this.setStat(INTELLIGENCE, 30);
 		this.setStat(ATTACK_SPEED, .3);
 		this.setResourcesMax();
 		
@@ -67,10 +71,17 @@ public class ZusassPlayer extends ZusassMob{
 		// Set the default spell to a damage spell
 //		this.setSelectedSpell(Spell.projectileAdd(HEALTH, -10));
 //		this.setSelectedSpell(Spell.selfEffect(MOVE_SPEED, 4, 2, ModifierType.MULT_MULT));
-		var spells = new NotNullList<Spell>();
-		spells.add(Spell.projectileAdd(HEALTH, -10));
-		spells.add(Spell.selfEffect(MOVE_SPEED, 1.5, 5, ModifierType.MULT_MULT));
-		this.setSelectedSpell(new MultiSpell(spells));
+		this.setSelectedSpell(new MultiSpell(
+				new MultiSpell(
+						Spell.projectileAdd(HEALTH, -10),
+						new ProjectileSpell(new SpellEffectStatusEffect(
+								new StatEffect(
+										5, new TypedModifier(new StatModifier(-10, ModifierType.ADD), HEALTH_REGEN)
+								)
+						))
+				),
+				new MultiSpell(Spell.selfEffect(MOVE_SPEED, 2, 2, ModifierType.MULT_MULT))
+		));
 		
 		this.lockCamera = false;
 	}

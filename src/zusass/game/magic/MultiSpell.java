@@ -29,6 +29,15 @@ public class MultiSpell extends Spell{
 	/**
 	 * Create a spell which casts multiple other spells at the same time
 	 *
+	 * @param spells The spells to place in {@link #spells}
+	 */
+	public MultiSpell(Spell... spells){
+		this(new NotNullList<>(spells));
+	}
+	
+	/**
+	 * Create a spell which casts multiple other spells at the same time
+	 *
 	 * @param spells See {@link #spells}
 	 */
 	public MultiSpell(NotNullList<Spell> spells){
