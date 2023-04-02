@@ -7,5 +7,5 @@ public enum SpellEffectType{
 	/** See {@link SpellEffectStatAdd} */
 	STAT_ADD,
 	/** See {@link SpellEffectStatusEffect} */
-	STAT_EFFECT
+	STATUS_EFFECT
 }

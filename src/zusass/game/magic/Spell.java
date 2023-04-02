@@ -16,9 +16,9 @@ import zusass.game.things.entities.mobs.ZusassMob;
 public abstract class Spell implements Saveable{
 	
 	/** The json key storing the type of effect of the spell */
-	private static final String TYPE_KEY = "type";
+	private static final String TYPE_KEY = "effectType";
 	/** The json key storing the effect data of the spell */
-	private static final String EFFECT_KEY = "effect";
+	private static final String EFFECT_KEY = "spellEffect";
 	
 	/** The effect to apply when this spell effects a {@link ZusassMob} */
 	private SpellEffect effect;
@@ -73,7 +73,7 @@ public abstract class Spell implements Saveable{
 	}
 	
 	/** @return The type of this spell, used for saving */
-	public abstract SpellType getType();
+	public abstract SpellCaseType getType();
 	
 	@Override
 	public boolean save(JsonElement e){
@@ -90,7 +90,7 @@ public abstract class Spell implements Saveable{
 		switch(type){
 			case NONE -> this.effect = new SpellEffectNone();
 			case STAT_ADD -> this.effect = new SpellEffectStatAdd(effectObj);
-			case STAT_EFFECT -> this.effect = new SpellEffectStatEffect(effectObj);
+			case STATUS_EFFECT -> this.effect = new SpellEffectStatusEffect(effectObj);
 			default -> throw new IllegalStateException("Invalid spell effect type: " + type);
 		}
 		return true;
@@ -116,7 +116,7 @@ public abstract class Spell implements Saveable{
 	 * @return The spell
 	 */
 	public static SelfSpell selfEffect(ZusassStat stat, double magnitude, double duration, ModifierType mod){
-		return new SelfSpell(new SpellEffectStatEffect(new StatEffect(duration, new StatModifier(magnitude, mod), stat)));
+		return new SelfSpell(new SpellEffectStatusEffect(new StatEffect(duration, new StatModifier(magnitude, mod), stat)));
 	}
 	
 }

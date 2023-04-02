@@ -67,8 +67,8 @@ public class ProjectileSpell extends Spell{
 	}
 	
 	@Override
-	public SpellType getType(){
-		return SpellType.PROJECTILE;
+	public SpellCaseType getType(){
+		return SpellCaseType.PROJECTILE;
 	}
 	
 	/** @return See {@link #range} */
@@ -96,7 +96,6 @@ public class ProjectileSpell extends Spell{
 	@Override
 	public boolean save(JsonElement e){
 		var obj = e.getAsJsonObject();
-		// TODO maybe make a way of easily implementing the save/load methods, like, annotate a field with an @GameSave annotation or something
 		obj.addProperty(RADIUS_KEY, this.getRadius());
 		obj.addProperty(RANGE_KEY, this.getRange());
 		obj.addProperty(SPEED_KEY, this.getSpeed());

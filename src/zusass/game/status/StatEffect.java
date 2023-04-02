@@ -7,6 +7,8 @@ import zgame.stat.StatType;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.modifier.TypedModifier;
 import zgame.stat.status.StatusEffect;
+import zgame.stat.status.StatusEffectType;
+import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassMob;
 
 import java.util.ArrayList;
@@ -68,6 +70,29 @@ public class StatEffect extends StatusEffect{
 	@Override
 	public StatusEffect copy(){
 		return new StatEffect(this.getDuration(), this.modifiers);
+	}
+	
+	@Override
+	public StatusEffectType getType(){
+		return StatusEffectType.STAT_EFFECT;
+	}
+	
+	@Override
+	public double getCost(){
+		// This is a very arbitrary calculation atm
+		// Basically bigger numbers mean higher cost
+		// Should make positive and negative effects cancel the cost out, i.e. a speed spell that also damages strength should cost less than if it only granted speed
+		var totalCost = 0;
+		for(var m : this.getModifiers()){
+			double base;
+			switch(m.modifier().getType()){
+				default -> base = 0.1;
+				case MULT_ADD -> base = .2;
+				case MULT_MULT -> base = .3;
+			}
+			totalCost += Math.abs(base * m.modifier().getValue()) * ((ZusassStat)m.type()).getValue();
+		}
+		return totalCost * this.getDuration();
 	}
 	
 	@Override

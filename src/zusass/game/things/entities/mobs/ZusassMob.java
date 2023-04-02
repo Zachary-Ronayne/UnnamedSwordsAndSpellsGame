@@ -38,7 +38,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	/** The json key used to store the spells which this mob has */
 	public final static String SPELLS_KEY = "spells";
 	/** The json key used to store the type of spell */
-	public final static String SPELL_TYPE_KEY = "spellType";
+	public final static String CAST_TYPE_KEY = "castType";
 	/** The json key used to store the spell itself */
 	public final static String SPELL_KEY = "spell";
 	
@@ -481,7 +481,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		var arr = Saveable.newArr(SPELLS_KEY, e);
 		
 		var spell = Saveable.newObj(arr);
-		spell.addProperty(SPELL_TYPE_KEY, this.selectedSpell.getType().name());
+		spell.addProperty(CAST_TYPE_KEY, this.selectedSpell.getType().name());
 		Saveable.save(SPELL_KEY, spell, this.selectedSpell);
 		return true;
 	}
@@ -490,7 +490,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		var spells = Saveable.arr(SPELLS_KEY, e);
 		var spell = spells.get(0);
-		var type = Saveable.e(SPELL_TYPE_KEY, spell, SpellType.class, SpellType.NONE);
+		var type = Saveable.e(CAST_TYPE_KEY, spell, SpellCaseType.class, SpellCaseType.NONE);
 		var spellObj = Saveable.obj(SPELL_KEY, spell);
 		switch(type){
 			case NONE -> this.selectedSpell = new NoneSpell();

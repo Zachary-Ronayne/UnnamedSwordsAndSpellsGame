@@ -28,7 +28,7 @@ public class SelfSpell extends Spell{
 	}
 	
 	@Override
-	public SpellType getType(){
-		return SpellType.SELF;
+	public SpellCaseType getType(){
+		return SpellCaseType.SELF;
 	}
 }

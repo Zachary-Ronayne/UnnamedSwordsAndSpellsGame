@@ -13,6 +13,12 @@ public class NotNullList<T> extends ArrayList<T>{
 		super();
 	}
 	
+	/** Create a new list initially with one element */
+	public NotNullList(T e){
+		this();
+		this.add(e);
+	}
+	
 	/**
 	 * Add the given element to the list. Does nothing if element is null
 	 *

@@ -1,7 +1,7 @@
 package zusass.game.magic;
 
-/** An enum holding the valid values for a type of spell */
-public enum SpellType{
+/** An enum holding the valid values for a casting type of spell */
+public enum SpellCaseType{
 	/** See {@link NoneSpell} */
 	NONE,
 	/** See {@link ProjectileSpell} */
