@@ -6,10 +6,12 @@ import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.mouse.ZMouseInput;
+import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZMath;
 import zgame.stat.modifier.ModifierType;
 import zgame.world.Room;
 import zusass.ZusassGame;
+import zusass.game.magic.MultiSpell;
 import zusass.game.magic.Spell;
 import zusass.game.things.ZusassTags;
 
@@ -63,8 +65,12 @@ public class ZusassPlayer extends ZusassMob{
 		this.addStatEffect(this.getUuid(), -1, 5, ModifierType.ADD, STAMINA_REGEN);
 		
 		// Set the default spell to a damage spell
-		this.setSelectedSpell(Spell.projectileAdd(HEALTH, -10));
+//		this.setSelectedSpell(Spell.projectileAdd(HEALTH, -10));
 //		this.setSelectedSpell(Spell.selfEffect(MOVE_SPEED, 4, 2, ModifierType.MULT_MULT));
+		var spells = new NotNullList<Spell>();
+		spells.add(Spell.projectileAdd(HEALTH, -10));
+		spells.add(Spell.selfEffect(MOVE_SPEED, 1.5, 5, ModifierType.MULT_MULT));
+		this.setSelectedSpell(new MultiSpell(spells));
 		
 		this.lockCamera = false;
 	}

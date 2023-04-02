@@ -25,8 +25,6 @@ public abstract class Spell implements Saveable{
 	/** The json key storing the data of an effect of the spell */
 	private static final String EFFECT_KEY = "spellEffect";
 	
-	// TODO allow spells to have many spell effects
-	
 	/** The effects to apply when this spell effects a {@link ZusassMob} */
 	private NotNullList<SpellEffect> effects;
 	
@@ -60,7 +58,7 @@ public abstract class Spell implements Saveable{
 	 * @param caster The mob that casts the spell
 	 * @return true if the spell could be cast, false otherwise i.e. the caster doesn't have enough mana
 	 */
-	public boolean castAttempt(ZusassGame zgame, ZusassMob caster){
+	public final boolean castAttempt(ZusassGame zgame, ZusassMob caster){
 		var c = this.getCost();
 		if(caster.stat(MANA) < c) return false;
 		
@@ -78,7 +76,8 @@ public abstract class Spell implements Saveable{
 	}
 	
 	/**
-	 * Cast this spell into the game, cast by the given mob
+	 * Cast this spell into the game, cast by the given mob. This method instantly casts the spell and does not account for things like current mana or the amount of time it
+	 * takes to cast the spell. Use {@link #castAttempt(ZusassGame, ZusassMob)} for such cases
 	 *
 	 * @param zgame The game to cast in
 	 * @param caster The mob that cast the spell
@@ -115,6 +114,7 @@ public abstract class Spell implements Saveable{
 	
 	/**
 	 * Create a {@link ProjectileSpell} which adds the given amount to the given stat when the spell is applied
+	 *
 	 * @param stat The stat to effect
 	 * @param amount The amount of the stat to add
 	 * @return The spell

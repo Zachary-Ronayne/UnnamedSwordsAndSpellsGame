@@ -96,7 +96,7 @@ public class StatEffect extends StatusEffect{
 	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		var arr = Saveable.arr(MODS_KEY, e);
 		this.modifiers = new ArrayList<>();
-		for(var m : arr) modifiers.add(new TypedModifier(m));
+		for(var m : arr) this.modifiers.add(new TypedModifier(m));
 		this.setDuration(Saveable.d(DURATION_KEY, e, 0));
 		return true;
 	}
