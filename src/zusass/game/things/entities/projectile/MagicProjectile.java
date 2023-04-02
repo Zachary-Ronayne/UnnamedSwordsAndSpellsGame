@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector;
+import zgame.things.BaseTags;
 import zgame.things.entity.projectile.UsedProjectile;
 import zgame.things.type.CircleHitBox;
 import zgame.things.type.HitBox;
@@ -62,6 +63,8 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 		this.setRadius(radius);
 		this.setRange(range);
 		this.effects = effects;
+		this.setOnHit(true);
+		this.addTags(BaseTags.PROJECTILE_NOT_COLLIDE);
 		
 		// Turn off gravity
 		this.setGravityLevel(0);
@@ -74,7 +77,6 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	
 	@Override
 	public void hit(Game game, HitBox thing){
-		super.hit(game, thing);
 		thing.hitBy(this);
 	}
 	

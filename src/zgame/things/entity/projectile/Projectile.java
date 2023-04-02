@@ -3,6 +3,8 @@ package zgame.things.entity.projectile;
 import zgame.core.Game;
 import zgame.core.utils.FunctionMap;
 import zgame.physics.ZVector;
+import zgame.physics.collision.CollisionResponse;
+import zgame.physics.material.Material;
 import zgame.things.BaseTags;
 import zgame.things.entity.EntityThing;
 import zgame.things.type.HitBox;
@@ -27,6 +29,9 @@ public abstract class Projectile extends EntityThing{
 	/** true if the projectile should be removed in the next tick, false otherwise */
 	private boolean willRemove;
 	
+	/** true if this is a {@link Projectile} which destroys itself when it hits anything, false otherwise */
+	private boolean onHit;
+	
 	/**
 	 * Create a projectile at the specified location, moving at the given velocity
 	 *
@@ -41,6 +46,7 @@ public abstract class Projectile extends EntityThing{
 		this.range = -1;
 		this.totalDistance = 0;
 		this.willRemove = false;
+		this.onHit = false;
 	}
 	
 	/**
@@ -66,11 +72,33 @@ public abstract class Projectile extends EntityThing{
 	}
 	
 	@Override
+	public void touchFloor(Material touched){
+		if(this.isOnHit()) this.removeNext();
+	}
+	
+	@Override
+	public void touchCeiling(Material touched){
+		if(this.isOnHit()) this.removeNext();
+	}
+	
+	@Override
+	public void touchWall(Material touched){
+		if(this.isOnHit()) this.removeNext();
+	}
+	
+	@Override
+	public void collide(CollisionResponse r){
+		// OnHit projectiles are removed on collision
+		if(this.isOnHit() && r.isCollided()) this.removeNext();
+	}
+	
+	@Override
 	public void checkEntityCollision(Game game, EntityThing entity, double dt){
 		super.checkEntityCollision(game, entity, dt);
 		// Ignore the current thing if the projectile will not hit it, or if the entity should not collide with projectiles
 		if(!this.willHit(entity) || entity.hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
 		this.hit(game, entity);
+		if(this.isOnHit()) this.removeNext();
 	}
 	
 	/**
@@ -89,6 +117,16 @@ public abstract class Projectile extends EntityThing{
 	 */
 	public boolean willHit(HitBox thing){
 		return this != thing && this.intersects(thing);
+	}
+	
+	/** @return See {@link #onHit} */
+	public boolean isOnHit(){
+		return this.onHit;
+	}
+	
+	/** @param onHit See {@link #onHit} */
+	public void setOnHit(boolean onHit){
+		this.onHit = onHit;
 	}
 	
 	/** @return See {@link #totalDistance} */

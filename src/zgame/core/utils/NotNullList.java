@@ -14,8 +14,9 @@ public class NotNullList<T> extends ArrayList<T>{
 		super();
 	}
 	
-	/** Create a new list iniitally with the given elements
-	 * */
+	/**
+	 * Create a new list initially with the given elements
+	 */
 	@SafeVarargs
 	public NotNullList(T... arr){
 		this();

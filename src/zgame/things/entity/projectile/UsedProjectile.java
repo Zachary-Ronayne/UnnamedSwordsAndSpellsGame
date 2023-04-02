@@ -3,8 +3,8 @@ package zgame.things.entity.projectile;
 import zgame.physics.ZVector;
 import zgame.things.type.HitBox;
 
-/** A {@link OnHitProjectile} that is used by a particular object, where this projectile can hit anything except for the given {@link HitBox}'s uuid */
-public abstract class UsedProjectile extends OnHitProjectile{
+/** A {@link Projectile} that is used by a particular object, where this projectile can hit anything except for the given {@link HitBox}'s uuid */
+public abstract class UsedProjectile extends Projectile{
 	
 	/** The uuid of the object to ignore, i.e. the source of this projectile */
 	private final String sourceId;
