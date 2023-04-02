@@ -54,11 +54,6 @@ public class SpellEffectStatAdd implements SpellEffect{
 	}
 	
 	@Override
-	public SpellEffectType getType(){
-		return SpellEffectType.STAT_ADD;
-	}
-	
-	@Override
 	public boolean save(JsonElement e){
 		var obj = e.getAsJsonObject();
 		obj.addProperty(STAT_KEY, this.getStat().name());

@@ -26,9 +26,4 @@ public class SelfSpell extends Spell{
 	protected void cast(ZusassGame zgame, ZusassMob caster){
 		this.getEffect().apply(caster.getUuid(), caster);
 	}
-	
-	@Override
-	public SpellCaseType getType(){
-		return SpellCaseType.SELF;
-	}
 }

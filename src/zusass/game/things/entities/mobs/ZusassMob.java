@@ -486,7 +486,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		var arr = Saveable.newArr(SPELLS_KEY, e);
 		
 		var spell = Saveable.newObj(arr);
-		spell.addProperty(CAST_TYPE_KEY, this.selectedSpell.getType().name());
+		spell.addProperty(CAST_TYPE_KEY, SpellCastType.name(this.selectedSpell.getClass()));
 		Saveable.save(SPELL_KEY, spell, this.selectedSpell);
 		return true;
 	}
@@ -495,14 +495,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		var spells = Saveable.arr(SPELLS_KEY, e);
 		var spell = spells.get(0);
-		var type = Saveable.e(CAST_TYPE_KEY, spell, SpellCaseType.class, SpellCaseType.NONE);
-		var spellObj = Saveable.obj(SPELL_KEY, spell);
-		switch(type){
-			case NONE -> this.selectedSpell = new NoneSpell();
-			case PROJECTILE -> this.selectedSpell = new ProjectileSpell(spellObj);
-			case SELF -> this.selectedSpell = new SelfSpell(spellObj);
-			default -> throw new IllegalStateException("Invalid spell type: " + type);
-		}
+		this.selectedSpell = Saveable.obj(CAST_TYPE_KEY, SpellCastType.class, SPELL_KEY, spell, SpellCastType.NONE);
 		return true;
 	}
 }

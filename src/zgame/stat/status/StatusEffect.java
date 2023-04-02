@@ -88,9 +88,6 @@ public abstract class StatusEffect implements Saveable{
 		return this.duration < 0;
 	}
 	
-	/** @return The type of this status effect, used for saving and loading */
-	public abstract StatusEffectType getType();
-	
 	/** @return The amount of mana it costs to cast a spell with this effect */
 	public abstract double getCost();
 	

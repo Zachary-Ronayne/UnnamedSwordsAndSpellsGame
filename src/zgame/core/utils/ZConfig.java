@@ -31,27 +31,43 @@ public class ZConfig{
 	
 	/**
 	 * Print the given objects, only if printing success is enabled. See {@link #printSuccess()} and {@link ZStringUtils#print(Object...)}
+	 *
 	 * @param objs The objects to print
 	 */
 	public static void success(Object... objs){
 		if(ZConfig.printSuccess()) ZStringUtils.print(objs);
 	}
+	
 	/**
 	 * Print the given objects, only if printing errors is enabled. See {@link #printErrors()} and {@link ZStringUtils#print(Object...)}
+	 *
 	 * @param objs The objects to print
 	 */
 	public static void error(Object... objs){
 		if(ZConfig.printErrors()) ZStringUtils.print(objs);
 	}
+	
+	/**
+	 * Print the stack trace of the given exception only if printing errors is turned on
+	 *
+	 * @param e The exception
+	 */
+	public static void exception(Exception e){
+		if(ZConfig.printErrors()) e.printStackTrace();
+	}
+	
 	/**
 	 * Print the stacktrace of the given error if printing errors is enabled. See {@link #printErrors()}
+	 *
 	 * @param e The error to log
 	 */
 	public static void error(Exception e){
 		if(ZConfig.printErrors()) e.printStackTrace();
 	}
+	
 	/**
 	 * Print the given objects, and then the stacktrace of the given error if printing errors is enabled. See {@link #printErrors()}
+	 *
 	 * @param e The error to log
 	 * @param objs The objects to print
 	 */
@@ -59,8 +75,10 @@ public class ZConfig{
 		error(objs);
 		error(e);
 	}
+	
 	/**
 	 * Print the given objects, only if printing debug statements is enabled. See {@link #printDebug()} and {@link ZStringUtils#print(Object...)}
+	 *
 	 * @param objs The objects to print
 	 */
 	public static void debug(Object... objs){

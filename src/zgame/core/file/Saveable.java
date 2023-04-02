@@ -3,6 +3,7 @@ package zgame.core.file;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import zgame.core.utils.ClassEnum;
 import zgame.core.utils.ZConfig;
 
 import java.lang.reflect.InvocationTargetException;
@@ -254,6 +255,35 @@ public interface Saveable{
 		}catch(IllegalArgumentException err){
 			return d;
 		}
+	}
+	
+	/**
+	 *	Load an object based on an enum type.
+	 *
+	 * @param typeKey The key in the json object holding the enum's type as a string
+	 * @param typeClass The enum type for typeKey
+	 * @param objectKey The key in the json object holding the object which holds the data for the object to load
+	 * @param e The json element to load from
+	 * @param defaultType The default type if no value could be loaded for typeKey
+	 * @return The loaded object, or null if loading fails
+	 * @param <T> The enum type of typeKey
+	 * @param <Obj> The type of object to return
+	 */
+	static <T extends Enum<T> & ClassEnum<Obj>, Obj> Obj obj(String typeKey, Class<T> typeClass, String objectKey, JsonElement e, T defaultType){
+		// Grab the object data
+		var obj = Saveable.obj(objectKey, e);
+		// Grab the type
+		var type = Saveable.e(typeKey, e, typeClass, defaultType);
+		var clazz = type.getClazz();
+		try{
+			// Load the object using the json constructor
+			var cons = clazz.getConstructor(JsonElement.class);
+			return cons.newInstance(obj);
+		}catch(NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException err){
+			ZConfig.error("Cannot load object of type ", type, ". enum type: ", typeClass, ". The object must implement a public constructor which accepts a single JsonElement");
+			ZConfig.exception(err);
+		}
+		return null;
 	}
 	
 	/**

@@ -5,7 +5,6 @@ import zgame.core.file.Saveable;
 import zgame.core.utils.NotNullList;
 import zgame.stat.status.StatusEffect;
 import zgame.stat.status.StatusEffectType;
-import zusass.game.status.StatEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
 
 /** A spell effect that applies a status effect when it is applied to a mob */
@@ -56,11 +55,6 @@ public class SpellEffectStatusEffect implements SpellEffect{
 		for(var effect : this.effects) mob.addEffect(sourceId, effect);
 	}
 	
-	@Override
-	public SpellEffectType getType(){
-		return SpellEffectType.STATUS_EFFECT;
-	}
-	
 	/** @return See {@link #effects} */
 	public NotNullList<StatusEffect> getEffects(){
 		return this.effects;
@@ -77,7 +71,7 @@ public class SpellEffectStatusEffect implements SpellEffect{
 		for(var ef : this.effects){
 			var effectItem = Saveable.newObj(arr);
 			Saveable.save(EFFECT_KEY, effectItem, ef);
-			effectItem.addProperty(TYPE_KEY, ef.getType().name());
+			effectItem.addProperty(TYPE_KEY, StatusEffectType.name(ef.getClass()));
 		}
 		return true;
 	}
@@ -86,14 +80,7 @@ public class SpellEffectStatusEffect implements SpellEffect{
 	public boolean load(JsonElement e){
 		this.effects = new NotNullList<>();
 		var effects = Saveable.arr(EFFECTS_KEY, e);
-		for(var ef : effects){
-			var type = Saveable.e(TYPE_KEY, ef, StatusEffectType.class, StatusEffectType.STAT_EFFECT);
-			StatusEffect effect;
-			// For now type will always be a STAT_EFFECT, need to use a switch statement on the type when other status effect types are added
-			if(type != StatusEffectType.STAT_EFFECT) continue;
-			effect = new StatEffect(ef.getAsJsonObject().get(EFFECT_KEY));
-			this.effects.add(effect);
-		}
+		for(var ef : effects) this.effects.add(Saveable.obj(TYPE_KEY, StatusEffectType.class, EFFECT_KEY, ef, StatusEffectType.NONE));
 		return true;
 	}
 	

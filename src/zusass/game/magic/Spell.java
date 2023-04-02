@@ -20,6 +20,8 @@ public abstract class Spell implements Saveable{
 	/** The json key storing the effect data of the spell */
 	private static final String EFFECT_KEY = "spellEffect";
 	
+	// TODO allow spells to have many spell effects
+	
 	/** The effect to apply when this spell effects a {@link ZusassMob} */
 	private SpellEffect effect;
 	
@@ -72,27 +74,17 @@ public abstract class Spell implements Saveable{
 		return this.effect;
 	}
 	
-	/** @return The type of this spell, used for saving */
-	public abstract SpellCaseType getType();
-	
 	@Override
 	public boolean save(JsonElement e){
 		var obj = e.getAsJsonObject();
-		obj.addProperty(TYPE_KEY, this.getEffect().getType().name());
+		obj.addProperty(TYPE_KEY, SpellEffectType.name(this.getEffect().getClass()));
 		Saveable.save(EFFECT_KEY, e, this.getEffect());
 		return true;
 	}
 	
 	@Override
 	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
-		var type = Saveable.e(TYPE_KEY, e, SpellEffectType.class, SpellEffectType.NONE);
-		var effectObj = Saveable.obj(EFFECT_KEY, e);
-		switch(type){
-			case NONE -> this.effect = new SpellEffectNone();
-			case STAT_ADD -> this.effect = new SpellEffectStatAdd(effectObj);
-			case STATUS_EFFECT -> this.effect = new SpellEffectStatusEffect(effectObj);
-			default -> throw new IllegalStateException("Invalid spell effect type: " + type);
-		}
+		this.effect = Saveable.obj(TYPE_KEY, SpellEffectType.class, EFFECT_KEY, e, SpellEffectType.NONE);
 		return true;
 	}
 	

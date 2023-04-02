@@ -152,6 +152,7 @@ public abstract class Stat{
 		if(!map.containsKey(sourceId)) map.put(sourceId, new ArrayList<>());
 		var list = map.get(sourceId);
 		if(list.contains(mod)) return;
+		// TODO instead of inserting them sorted, sort the list of modifiers each time a value is recalculated, maybe only resort if the list has recently been updated?
 		ZArrayUtils.insertSorted(list, mod);
 		this.flagRecalculate();
 	}
@@ -184,6 +185,8 @@ public abstract class Stat{
 	/** Put the current value of {@link #calculated} through all its modifiers */
 	public void applyModifiers(){
 		var newCalculated = this.calculated;
+		
+		// TODO if a modifier's value is changed externally, does the list remain sorted? Need to ensure that happens, somehow
 		
 		// Apply add modifiers first
 		var mods = this.modifiers[ModifierType.ADD.getIndex()].values();

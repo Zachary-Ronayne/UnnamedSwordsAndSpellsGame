@@ -66,11 +66,6 @@ public class ProjectileSpell extends Spell{
 		r.addThing(p);
 	}
 	
-	@Override
-	public SpellCaseType getType(){
-		return SpellCaseType.PROJECTILE;
-	}
-	
 	/** @return See {@link #range} */
 	public double getRange(){
 		return this.range;

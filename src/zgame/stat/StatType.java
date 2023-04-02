@@ -9,6 +9,8 @@ import java.util.Map;
  * An empty interface for defining enums that can be used in {@link Stats} as a mapping
  * When implementing this class, ensure that every enum is accessed so that every enum gets an id assigned.
  * Otherwise, {@link Stat} and {@link Stats} will be unable to use those enums.
+ *
+ * @param <T> The enum type of this stat
  */
 public interface StatType<T extends Enum<T>> extends Saveable{
 	/** @return The unique integer id to assign to this {@link StatType}. Should obtain this value by calling {@link StatId#next()} */
