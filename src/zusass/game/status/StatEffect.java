@@ -82,13 +82,13 @@ public class StatEffect extends StatusEffect{
 		// This is a very arbitrary calculation atm
 		// Basically bigger numbers mean higher cost
 		// Should make positive and negative effects cancel the cost out, i.e. a speed spell that also damages strength should cost less than if it only granted speed
-		var totalCost = 0;
+		double totalCost = 0;
 		for(var m : this.getModifiers()){
 			double base;
 			switch(m.modifier().getType()){
-				default -> base = 0.1;
-				case MULT_ADD -> base = .2;
-				case MULT_MULT -> base = .3;
+				default -> base = 0.5;
+				case MULT_ADD -> base = .8;
+				case MULT_MULT -> base = 1.5;
 			}
 			totalCost += Math.abs(base * m.modifier().getValue()) * ((ZusassStat)m.type()).getValue();
 		}

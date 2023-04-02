@@ -117,7 +117,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.stats.add(new ValueStat(.5, this.stats, ATTACK_SPEED));
 		this.stats.add(new AttackDamage(this.stats));
 		
-		this.stats.add(new MoveSpeed(Walk.DEFAULT_WALK_SPEED_MAX, this.stats, this));
+		this.stats.add(new MoveSpeed(this.stats));
 		
 		// Add other modifiers
 		this.staminaRunDrain = new StatModifier(0, ModifierType.ADD);
@@ -152,6 +152,11 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		}
 		
 		var walk = this.getWalk();
+		// Update the values for speed
+		var v = this.stat(MOVE_SPEED);
+		walk.setWalkSpeedMax(v);
+		walk.setWalkAcceleration(v * 7);
+		walk.setWalkStopFriction(v / 30);
 		
 		walk.updatePosition(game, dt);
 		walk.tick(game, dt);

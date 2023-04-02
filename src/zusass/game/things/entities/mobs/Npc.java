@@ -27,10 +27,10 @@ public class Npc extends ZusassMob{
 		this.setStat(ATTACK_SPEED, 1);
 		this.setStat(STAMINA_REGEN, 1);
 		this.setStat(ENDURANCE, 4);
-		this.setStat(INTELLIGENCE, 3);
+		this.setStat(INTELLIGENCE, 0.5);
 		
 		// Set a default spell as speed
-		this.setSelectedSpell(Spell.selfEffect(MOVE_SPEED, 2, 5, ModifierType.MULT_MULT));
+		this.setSelectedSpell(Spell.selfEffect(MOVE_SPEED, 2, 1, ModifierType.MULT_MULT));
 	}
 	
 	@Override
