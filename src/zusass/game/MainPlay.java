@@ -101,10 +101,17 @@ public class MainPlay extends PlayState{
 		this.drawResourceBar(r, p, ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, 1, new ZColor(0, 1, 0), new ZColor(.2));
 		this.drawResourceBar(r, p, ZusassStat.MANA, ZusassStat.MANA_MAX, 2, new ZColor(0, 0, 1), new ZColor(1));
 		
-		// Draw if the player is casting or attacking
-		r.setColor(1, 1, 1, 1);
 		// Using draw text like this is inefficient, but whatever, this is temp code
-		r.drawText(10, 100, p.isCasting() ? "Spell Mode" : "Attack Mode");
+		String text;
+		if(p.isCasting()) {
+			var name = p.getSelectedSpell().getName();
+			text = name == null ? "No Spell" : "Spell: " + name;
+		}
+		else text = "Attack";
+		
+		// Draw the name of the selected spell or that the player is in attack mode
+		r.setColor(1, 1, 1, 1);
+		r.drawText(10, 100, text);
 	}
 	
 	/** Temporary code for simplicity of testing */

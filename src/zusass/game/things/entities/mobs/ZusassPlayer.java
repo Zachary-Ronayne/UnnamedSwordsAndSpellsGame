@@ -191,8 +191,6 @@ public class ZusassPlayer extends ZusassMob{
 		r.setColor(0, 0, .5);
 		r.drawRectangle(this.getBounds());
 		this.renderAttackTimer(game, r);
-		
-		// TODO render the name of the selected spell on the hud
 	}
 	
 	/**
