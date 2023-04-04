@@ -30,7 +30,8 @@ public class Npc extends ZusassMob{
 		this.setStat(INTELLIGENCE, 0.5);
 		
 		// Set a default spell as speed
-		this.setSelectedSpell(Spell.selfEffect(MOVE_SPEED, 2, 1, ModifierType.MULT_MULT));
+		this.getSpells().addSpell(Spell.selfEffect(MOVE_SPEED, 2, 1, ModifierType.MULT_MULT).named("Small Speed"));
+		this.getSpells().setSelectedSpellIndex(0);
 	}
 	
 	@Override

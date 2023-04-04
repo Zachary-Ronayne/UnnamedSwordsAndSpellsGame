@@ -27,6 +27,7 @@ public class ZusassPlayer extends ZusassMob{
 	/** true to lock the camera to the center of the player, false otherwise */
 	private boolean lockCamera;
 	
+	// TODO finally just abstract out this stupid input thing so it's just an object or something, make it a map or list or whatever so you just add a string key to add an input
 	// issue#18
 	/** true if the button for entering a room is currently pressed down, and releasing it will count as entering the input */
 	private boolean enterRoomPressed;
@@ -38,6 +39,10 @@ public class ZusassPlayer extends ZusassMob{
 	private boolean walkPressed;
 	/** true if the button for toggling between casting a spell and attacking is currently pressed down, and releasing it will toggle */
 	private boolean toggleSelectedAction;
+	/** true if the button for selecting the next spell is currently pressed down, and releasing it will go to the next spell */
+	private boolean nextSpellPressed;
+	/** true if the button for selecting the previous spell is currently pressed down, and releasing it will go to the previous spell */
+	private boolean previousSpellPressed;
 	
 	/**
 	 * Create a new object from json
@@ -59,6 +64,8 @@ public class ZusassPlayer extends ZusassMob{
 		this.attackPressed = false;
 		this.walkPressed = false;
 		this.toggleSelectedAction = false;
+		this.nextSpellPressed = false;
+		this.previousSpellPressed = false;
 		
 		this.setStat(STRENGTH, 10);
 		this.setStat(ENDURANCE, 10);
@@ -69,9 +76,10 @@ public class ZusassPlayer extends ZusassMob{
 		this.addStatEffect(this.getUuid(), -1, 5, ModifierType.ADD, STAMINA_REGEN);
 		
 		// Set the default spell to a damage spell
-//		this.setSelectedSpell(Spell.projectileAdd(HEALTH, -10));
-//		this.setSelectedSpell(Spell.selfEffect(MOVE_SPEED, 4, 2, ModifierType.MULT_MULT));
-		this.setSelectedSpell(new MultiSpell(
+		var spells = this.getSpells();
+		spells.addSpell(Spell.projectileAdd(HEALTH, -10).named("Magic Ball"));
+		spells.addSpell(Spell.selfEffect(MOVE_SPEED, 4, 2, ModifierType.MULT_MULT).named("Go Fast"));
+		spells.addSpell(new MultiSpell(
 				new MultiSpell(
 						Spell.projectileAdd(HEALTH, -10),
 						new ProjectileSpell(new SpellEffectStatusEffect(
@@ -81,7 +89,8 @@ public class ZusassPlayer extends ZusassMob{
 						))
 				),
 				new MultiSpell(Spell.selfEffect(MOVE_SPEED, 2, 2, ModifierType.MULT_MULT))
-		));
+		).named("Bruh"));
+		spells.setSelectedSpellIndex(0);
 		
 		this.lockCamera = false;
 	}
@@ -120,6 +129,20 @@ public class ZusassPlayer extends ZusassMob{
 			this.toggleCasting();
 		}
 		if(castPressed) this.toggleSelectedAction = true;
+		
+		var previousPressed = ki.pressed(GLFW_KEY_LEFT_BRACKET);
+		if(this.previousSpellPressed && !previousPressed){
+			this.previousSpellPressed = false;
+			this.getSpells().previousSpell();
+		}
+		if(previousPressed) this.previousSpellPressed = true;
+		
+		var nextPressed = ki.pressed(GLFW_KEY_RIGHT_BRACKET);
+		if(this.nextSpellPressed && !nextPressed){
+			this.nextSpellPressed = false;
+			this.getSpells().nextSpell();
+		}
+		if(nextPressed) this.nextSpellPressed = true;
 		
 		// Now the camera to the player after repositioning the player
 		this.checkCenterCamera(game);
@@ -168,6 +191,8 @@ public class ZusassPlayer extends ZusassMob{
 		r.setColor(0, 0, .5);
 		r.drawRectangle(this.getBounds());
 		this.renderAttackTimer(game, r);
+		
+		// TODO render the name of the selected spell on the hud
 	}
 	
 	/**

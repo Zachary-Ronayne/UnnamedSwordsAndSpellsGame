@@ -36,12 +36,8 @@ import java.util.List;
 /** A generic mob in the Zusass game */
 public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	
-	/** The json key used to store the spells which this mob has */
-	public final static String SPELLS_KEY = "spells";
-	/** The json key used to store the type of spell */
-	public final static String CAST_TYPE_KEY = "castType";
-	/** The json key used to store the spell itself */
-	public final static String SPELL_KEY = "spell";
+	/** The json key used to store the spellbook which this mob has */
+	public final static String SPELLBOOK_KEY = "spellbook";
 	
 	/** The width of this mob */
 	private double width;
@@ -56,11 +52,11 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	/** The direction, an angle in radians, where the mob will attack */
 	private double attackDirection;
 	
-	/** The current spell selected to be cast by this mob */
-	private Spell selectedSpell;
-	
 	/** true if this {@link ZusassMob} is in spell casting mode, false for weapon mode */
 	private boolean casting;
+	
+	/** The spells known to this mob */
+	private Spellbook spells;
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -134,8 +130,8 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.setStat(ENDURANCE, 5);
 		this.setStat(INTELLIGENCE, 5);
 		
-		// Select no spell by default
-		this.selectedSpell = new NoneSpell();
+		// Init the spellbook to empty
+		this.spells = new Spellbook();
 	}
 	
 	@Override
@@ -299,14 +295,14 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.stats.get(HEALTH).addValue(-amount);
 	}
 	
-	/** @return See {@link #selectedSpell} */
+	/** @return See {@link Spellbook#selectedSpell} */
 	public Spell getSelectedSpell(){
-		return this.selectedSpell;
+		return this.spells.getSelectedSpell();
 	}
 	
-	/** @param selectedSpell See {@link #selectedSpell} */
-	public void setSelectedSpell(Spell selectedSpell){
-		this.selectedSpell = selectedSpell;
+	/** @return See {@link #spells} */
+	public Spellbook getSpells(){
+		return this.spells;
 	}
 	
 	/**
@@ -484,19 +480,13 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	
 	@Override
 	public boolean save(JsonElement e){
-		var arr = Saveable.newArr(SPELLS_KEY, e);
-		
-		var spell = Saveable.newObj(arr);
-		spell.addProperty(CAST_TYPE_KEY, SpellCastType.name(this.selectedSpell.getClass()));
-		Saveable.save(SPELL_KEY, spell, this.selectedSpell);
+		this.spells.save(Saveable.newObj(SPELLBOOK_KEY, e));
 		return true;
 	}
 	
 	@Override
 	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
-		var spells = Saveable.arr(SPELLS_KEY, e);
-		var spell = spells.get(0);
-		this.selectedSpell = Saveable.obj(CAST_TYPE_KEY, SpellCastType.class, SPELL_KEY, spell, SpellCastType.NONE);
+		this.spells = Saveable.obj(SPELLBOOK_KEY, e, Spellbook.class);
 		return true;
 	}
 }

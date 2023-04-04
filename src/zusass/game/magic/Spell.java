@@ -18,15 +18,20 @@ import zusass.game.things.entities.mobs.ZusassMob;
 public abstract class Spell implements Saveable{
 	
 	/** The json key storing {@link #effects} */
-	private static final String EFFECTS_KEY = "spellEffects";
+	public static final String EFFECTS_KEY = "spellEffects";
 	
 	/** The json key storing the type of effect of the spell */
-	private static final String TYPE_KEY = "effectType";
+	public static final String TYPE_KEY = "effectType";
 	/** The json key storing the data of an effect of the spell */
-	private static final String EFFECT_KEY = "spellEffect";
+	public static final String EFFECT_KEY = "spellEffect";
+	/** The json key storing the data of the name of this spell */
+	public static final String NAME_KEY = "name";
 	
 	/** The effects to apply when this spell effects a {@link ZusassMob} */
 	private NotNullList<SpellEffect> effects;
+	
+	/** The name of this spell */
+	private String name;
 	
 	/** Create a new object using see {@link #load(JsonElement)} */
 	public Spell(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
@@ -49,6 +54,26 @@ public abstract class Spell implements Saveable{
 	 */
 	public Spell(NotNullList<SpellEffect> effects){
 		this.effects = effects;
+		this.name = "spell";
+	}
+	
+	/** @return See {@link #name} */
+	public String getName(){
+		return this.name;
+	}
+	
+	/** @param name See {@link #name} */
+	public void setName(String name){
+		this.name = name;
+	}
+	
+	/**
+	 * @param name The new name of this spell
+	 * @return this
+	 */
+	public Spell named(String name){
+		this.setName(name);
+		return this;
 	}
 	
 	/**
@@ -91,9 +116,11 @@ public abstract class Spell implements Saveable{
 	
 	@Override
 	public boolean save(JsonElement e){
+		var obj = e.getAsJsonObject();
+		obj.addProperty(NAME_KEY, this.getName());
 		var arr = Saveable.newArr(EFFECTS_KEY, e);
 		for(var ef : this.effects){
-			var obj = new JsonObject();
+			obj = new JsonObject();
 			arr.add(obj);
 			
 			obj.addProperty(TYPE_KEY, SpellEffectType.name(ef.getClass()));
@@ -104,6 +131,7 @@ public abstract class Spell implements Saveable{
 	
 	@Override
 	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		this.name = Saveable.s(NAME_KEY, e, "spell");
 		this.effects = new NotNullList<>();
 		var arr = Saveable.arr(EFFECTS_KEY, e);
 		for(var ef : arr){

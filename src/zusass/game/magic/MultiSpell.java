@@ -60,11 +60,13 @@ public class MultiSpell extends Spell{
 	
 	@Override
 	public boolean save(JsonElement e){
-		// Don't need to call super, none of that information is needed for a multi spell
+		// Don't need to call super, none of that information is needed for a multi spell, just save the name
+		var obj = e.getAsJsonObject();
+		obj.addProperty(NAME_KEY, this.getName());
 		
 		var arr = Saveable.newArr(SPELLS_KEY, e);
 		for(var s : this.spells){
-			var obj = new JsonObject();
+			obj = new JsonObject();
 			arr.add(obj);
 			
 			obj.addProperty(CAST_TYPE_KEY, SpellCastType.name(s.getClass()));
@@ -75,7 +77,8 @@ public class MultiSpell extends Spell{
 	
 	@Override
 	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
-		// Don't need to call super, none of that information is needed for a multi spell
+		// Don't need to call super, none of that information is needed for a multi spell, just save the name
+		this.setName(Saveable.s(Spell.NAME_KEY, e, "spell"));
 		
 		var arr = Saveable.arr(SPELLS_KEY, e);
 		this.spells = new NotNullList<>();
