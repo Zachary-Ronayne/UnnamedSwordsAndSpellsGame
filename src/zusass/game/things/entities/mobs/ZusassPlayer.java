@@ -5,7 +5,9 @@ import static org.lwjgl.glfw.GLFW.*;
 import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.core.input.mouse.ZMouseInput;
+import zgame.core.input.InputHandler;
+import zgame.core.input.InputHandlers;
+import zgame.core.input.InputType;
 import zgame.core.utils.ZMath;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
@@ -27,22 +29,8 @@ public class ZusassPlayer extends ZusassMob{
 	/** true to lock the camera to the center of the player, false otherwise */
 	private boolean lockCamera;
 	
-	// TODO finally just abstract out this stupid input thing so it's just an object or something, make it a map or list or whatever so you just add a string key to add an input
-	// issue#18
-	/** true if the button for entering a room is currently pressed down, and releasing it will count as entering the input */
-	private boolean enterRoomPressed;
-	/** true if the button for toggling the camera being locked or not is currently pressed down, and it must be released before the next input */
-	private boolean toggleCameraPressed;
-	/** true if the button for attacking is currently pressed down, and releasing it will perform an attack */
-	private boolean attackPressed;
-	/** true if the button for toggling walking and running is currently pressed down, and releasing it will toggle walking and running */
-	private boolean walkPressed;
-	/** true if the button for toggling between casting a spell and attacking is currently pressed down, and releasing it will toggle */
-	private boolean toggleSelectedAction;
-	/** true if the button for selecting the next spell is currently pressed down, and releasing it will go to the next spell */
-	private boolean nextSpellPressed;
-	/** true if the button for selecting the previous spell is currently pressed down, and releasing it will go to the previous spell */
-	private boolean previousSpellPressed;
+	/** The object tracking what is input used by the player */
+	private InputHandlers inputHandlers;
 	
 	/**
 	 * Create a new object from json
@@ -59,13 +47,7 @@ public class ZusassPlayer extends ZusassMob{
 		super(0, 0, 75, 125);
 		this.addTags(ZusassTags.CAN_ENTER_LEVEL_DOOR, ZusassTags.MUST_CLEAR_LEVEL_ROOM, ZusassTags.HUB_ENTER_RESTORE);
 		
-		this.enterRoomPressed = false;
-		this.toggleCameraPressed = false;
-		this.attackPressed = false;
-		this.walkPressed = false;
-		this.toggleSelectedAction = false;
-		this.nextSpellPressed = false;
-		this.previousSpellPressed = false;
+		this.defaultControls();
 		
 		this.setStat(STRENGTH, 10);
 		this.setStat(ENDURANCE, 10);
@@ -79,20 +61,26 @@ public class ZusassPlayer extends ZusassMob{
 		var spells = this.getSpells();
 		spells.addSpell(Spell.projectileAdd(HEALTH, -10).named("Magic Ball"));
 		spells.addSpell(Spell.selfEffect(MOVE_SPEED, 4, 2, ModifierType.MULT_MULT).named("Go Fast"));
-		spells.addSpell(new MultiSpell(
-				new MultiSpell(
-						Spell.projectileAdd(HEALTH, -10),
-						new ProjectileSpell(new SpellEffectStatusEffect(
-								new StatEffect(
-										5, new TypedModifier(new StatModifier(-10, ModifierType.ADD), HEALTH_REGEN)
-								)
-						))
-				),
-				new MultiSpell(Spell.selfEffect(MOVE_SPEED, 2, 2, ModifierType.MULT_MULT))
-		).named("Bruh"));
+		spells.addSpell(new MultiSpell(new MultiSpell(Spell.projectileAdd(HEALTH, -10),
+				new ProjectileSpell(new SpellEffectStatusEffect(new StatEffect(5, new TypedModifier(new StatModifier(-10, ModifierType.ADD), HEALTH_REGEN))))),
+				new MultiSpell(Spell.selfEffect(MOVE_SPEED, 2, 2, ModifierType.MULT_MULT))).named("Bruh"));
 		spells.setSelectedSpellIndex(0);
 		
 		this.lockCamera = false;
+	}
+	
+	/** Set the input buttons to be the default values */
+	public void defaultControls(){
+		// issue#27 avoid hard coding these individual values by using the settings system when it gets added
+		this.inputHandlers = new InputHandlers(
+				new InputHandler(InputType.MOUSE_BUTTONS, GLFW_MOUSE_BUTTON_LEFT),
+				new InputHandler(InputType.KEYBOARD, GLFW_KEY_F10),
+				new InputHandler(InputType.MOUSE_BUTTONS, GLFW_MOUSE_BUTTON_RIGHT),
+				new InputHandler(InputType.KEYBOARD, GLFW_KEY_SPACE),
+				new InputHandler(InputType.KEYBOARD, GLFW_KEY_Q),
+				new InputHandler(InputType.KEYBOARD, GLFW_KEY_LEFT_BRACKET),
+				new InputHandler(InputType.KEYBOARD, GLFW_KEY_RIGHT_BRACKET)
+		);
 	}
 	
 	@Override
@@ -104,86 +92,28 @@ public class ZusassPlayer extends ZusassMob{
 		var ki = game.getKeyInput();
 		this.getWalk().handleMovementControls(ki.pressed(GLFW_KEY_A), ki.pressed(GLFW_KEY_D), ki.pressed(GLFW_KEY_W), dt);
 		
-		handleDoorPress(zgame);
-		handleToggleCameraPress(zgame);
+		this.inputHandlers.tick(game, GLFW_MOUSE_BUTTON_LEFT);
+		if(this.inputHandlers.tick(game, GLFW_KEY_F10)) this.setLockCamera(!this.isLockCamera());
 		
 		// Right click to attack in a direction
-		ZMouseInput mi = game.getMouseInput();
-		boolean rightPressed = mi.rightDown();
-		if(this.attackPressed && !rightPressed){
-			this.attackPressed = false;
-			this.beginAttackOrSpell(zgame, ZMath.lineAngle(this.centerX(), this.centerY(), game.mouseGX(), game.mouseGY()));
-		}
-		if(rightPressed) this.attackPressed = true;
+		if(this.inputHandlers.tick(game, GLFW_MOUSE_BUTTON_RIGHT)) this.beginAttackOrSpell(zgame, ZMath.lineAngle(this.centerX(), this.centerY(), game.mouseGX(), game.mouseGY()));
+		// Toggle walking
+		if(this.inputHandlers.tick(game, GLFW_KEY_SPACE)) this.getWalk().toggleWalking();
 		
-		var walkPressed = ki.pressed(GLFW_KEY_SPACE);
-		if(this.walkPressed && !walkPressed){
-			this.walkPressed = false;
-			this.getWalk().toggleWalking();
-		}
-		if(walkPressed) this.walkPressed = true;
+		// Toggle casting or attacking
+		if(this.inputHandlers.tick(game, GLFW_KEY_Q)) this.toggleCasting();
 		
-		var castPressed = ki.pressed(GLFW_KEY_Q);
-		if(this.toggleSelectedAction && !castPressed){
-			this.toggleSelectedAction = false;
-			this.toggleCasting();
-		}
-		if(castPressed) this.toggleSelectedAction = true;
-		
-		var previousPressed = ki.pressed(GLFW_KEY_LEFT_BRACKET);
-		if(this.previousSpellPressed && !previousPressed){
-			this.previousSpellPressed = false;
-			this.getSpells().previousSpell();
-		}
-		if(previousPressed) this.previousSpellPressed = true;
-		
-		var nextPressed = ki.pressed(GLFW_KEY_RIGHT_BRACKET);
-		if(this.nextSpellPressed && !nextPressed){
-			this.nextSpellPressed = false;
-			this.getSpells().nextSpell();
-		}
-		if(nextPressed) this.nextSpellPressed = true;
+		// Go to next or previous spell
+		if(this.inputHandlers.tick(game, GLFW_KEY_RIGHT_BRACKET)) this.getSpells().previousSpell();
+		if(this.inputHandlers.tick(game, GLFW_KEY_LEFT_BRACKET)) this.getSpells().nextSpell();
 		
 		// Now the camera to the player after repositioning the player
 		this.checkCenterCamera(game);
 	}
 	
-	/**
-	 * Utility method for {@link #tick(Game, double)} for checking if the player clicked a door
-	 *
-	 * @param game The game used by the tick method
-	 */
-	private void handleDoorPress(ZusassGame game){
-		// If the player clicks on a door, and the player is touching the door, mark it as attempting to enter a door
-		ZMouseInput mi = game.getMouseInput();
-		if(!this.enterRoomPressed || mi.leftDown()){
-			if(mi.leftDown()) this.enterRoomPressed = true;
-			return;
-		}
-		this.enterRoomPressed = false;
-	}
-	
-	/** @return See {@link #enterRoomPressed} */
+	/** @return true if the button which means the player should go through a door, is pressed */
 	public boolean isEnterRoomPressed(){
-		return this.enterRoomPressed;
-	}
-	
-	/**
-	 * Utility method for {@link #tick(Game, double)} for checking if the player pressed the button to change if the camera is locked or not
-	 *
-	 * @param game The game used by the tick method
-	 * @return true if the camera was toggled, false otherwise
-	 */
-	private boolean handleToggleCameraPress(ZusassGame game){
-		// Toggle the camera being locked to the player
-		boolean pressed = game.getKeyInput().buttonDown(GLFW_KEY_F10);
-		if(!this.toggleCameraPressed && pressed){
-			this.toggleCameraPressed = true;
-			this.setLockCamera(!this.isLockCamera());
-			return true;
-		}
-		if(!pressed) this.toggleCameraPressed = false;
-		return false;
+		return this.inputHandlers.pressed(GLFW_MOUSE_BUTTON_LEFT);
 	}
 	
 	@Override
