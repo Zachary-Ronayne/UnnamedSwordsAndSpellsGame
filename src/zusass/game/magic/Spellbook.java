@@ -2,7 +2,6 @@ package zusass.game.magic;
 
 import com.google.gson.JsonElement;
 import zgame.core.file.Saveable;
-import zgame.core.utils.ZStringUtils;
 
 import java.util.ArrayList;
 
@@ -30,7 +29,7 @@ public class Spellbook implements Saveable{
 	/**
 	 * Load a spellbook from the given json
 	 *
-	 * @param e The jsonto load from
+	 * @param e The json to load from
 	 */
 	public Spellbook(JsonElement e){
 		this.load(e);

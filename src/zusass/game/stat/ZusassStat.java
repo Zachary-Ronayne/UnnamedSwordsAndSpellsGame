@@ -1,12 +1,7 @@
 package zusass.game.stat;
 
-import zgame.core.Game;
-import zgame.core.graphics.Renderer;
-import zgame.stat.DefaultStatType;
 import zgame.stat.StatId;
 import zgame.stat.StatType;
-import zgame.stat.Stats;
-import zusass.game.things.entities.mobs.ZusassMob;
 
 /** The {@link StatType}s used by the Zusass game */
 public enum ZusassStat implements StatType<ZusassStat>{
