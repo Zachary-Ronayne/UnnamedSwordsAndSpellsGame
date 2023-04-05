@@ -18,6 +18,8 @@ public class Stats{
 	 * Must be called after all implementations of {@link StatType} have been initialized
 	 */
 	public static void init(){
+		// Init default stat enum
+		DefaultStatType.init();
 		dependents = new int[StatId.numIds()][0];
 	}
 	

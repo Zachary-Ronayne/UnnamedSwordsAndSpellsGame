@@ -25,10 +25,10 @@ import zgame.core.state.DefaultState;
 import zgame.core.state.GameState;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZConfig;
+import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
 import zgame.stat.DefaultStatType;
-import zgame.stat.Stats;
 import zgame.world.Room;
 
 /**
@@ -228,9 +228,6 @@ public class Game implements Saveable, Destroyable{
 		
 		// Go to fullscreen if applicable
 		this.window.setInFullScreenNow(enterFullScreen);
-		
-		// Init stats
-		Stats.init();
 	}
 	
 	/**

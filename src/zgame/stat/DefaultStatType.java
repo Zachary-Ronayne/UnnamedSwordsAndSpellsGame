@@ -4,7 +4,7 @@ package zgame.stat;
 public enum DefaultStatType implements StatType<DefaultStatType>{
 	DEFAULT;
 	
-	/** Called to ensure the stat ids get initialized */
+	/** Called to ensure the default stat id get initialized. Should not be called directly, {@link Stats#init()} handles calling this method */
 	public static void init(){
 		DEFAULT.getId();
 		StatType.add(DefaultStatType.values());

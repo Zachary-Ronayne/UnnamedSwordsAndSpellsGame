@@ -3,11 +3,14 @@ package zusass;
 import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.file.Saveable;
+import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GameWindow;
+import zgame.stat.Stats;
 import zusass.game.MainPlay;
 import zusass.game.ZusassRoom;
 import zusass.game.stat.ZusassStat;
+import zusass.game.things.entities.mobs.ZusassMob;
 import zusass.game.things.entities.mobs.ZusassPlayer;
 import zusass.menu.mainmenu.MainMenuState;
 import zusass.utils.ZusassConfig;
@@ -166,6 +169,17 @@ public class ZusassGame extends Game{
 	/** Initialize the object {@link #zgame} */
 	public static void init(){
 		ZusassStat.init();
+		Stats.init();
+		
+		/*
+		 Init all the static stat dependencies by making a new mob, because the stats are all added when the mob is created.
+		 This is kind of stupid, but whatever, it ensures they are initialized on startup
+		 */
+		new ZusassMob(0, 0, 0, 0){
+			@Override
+			protected void render(Game game, Renderer r){}
+		};
+		
 		if(zgame != null) return;
 		zgame = new ZusassGame();
 	}
