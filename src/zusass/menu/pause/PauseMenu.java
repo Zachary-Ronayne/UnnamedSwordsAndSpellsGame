@@ -17,6 +17,7 @@ import zusass.menu.pause.comp.PauseQuitButton;
 import zusass.menu.pause.comp.PauseReturnButton;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_TAB;
 
 /** The {@link Menu} which displays when the game is paused */
 public class PauseMenu extends Menu{
@@ -80,8 +81,8 @@ public class PauseMenu extends Menu{
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(press) return;
 		
-		// On releasing escape, exit the pause menu
-		if(button == GLFW_KEY_ESCAPE) this.exitMenu((ZusassGame)game);
+		// On releasing escape or tab, exit the pause menu
+		if(button == GLFW_KEY_ESCAPE || button == GLFW_KEY_TAB) this.exitMenu((ZusassGame)game);
 	}
 	
 	@Override
@@ -101,7 +102,7 @@ public class PauseMenu extends Menu{
 	public void exitMenu(ZusassGame zgame){
 		MainPlay play = zgame.getPlayState();
 		play.fullUnpause();
-		play.removeTopMenu();
+		play.removeTopMenu(false);
 	}
 	
 	public void save(ZusassGame zgame){

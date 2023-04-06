@@ -8,6 +8,7 @@ import zgame.core.state.PlayState;
 import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassPlayer;
+import zusass.menu.inventory.InventoryMenu;
 import zusass.menu.mainmenu.MainMenuState;
 import zusass.menu.pause.PauseMenu;
 
@@ -19,6 +20,13 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class MainPlay extends PlayState{
 	
+	/** The {@link PauseMenu} to display */
+	private final PauseMenu pauseMenu;
+	/** The {@link InventoryMenu} to display */
+	private final InventoryMenu inventoryMenu;
+	/** true if the inventory menu is being shown, false otherwise */
+	private boolean showingInventory;
+	
 	/**
 	 * Initialize the main play state for the Zusass game
 	 *
@@ -26,6 +34,10 @@ public class MainPlay extends PlayState{
 	 */
 	public MainPlay(ZusassGame zgame){
 		this.enterHub(zgame);
+		
+		this.pauseMenu = new PauseMenu(zgame);
+		this.inventoryMenu = new InventoryMenu(zgame);
+		this.showingInventory = false;
 	}
 	
 	/**
@@ -68,12 +80,18 @@ public class MainPlay extends PlayState{
 		super.playKeyAction(game, button, press, shift, alt, ctrl);
 		if(press) return;
 		
-		// On releasing escape, enter the pause menu
+		// On releasing escape, open the pause menu, or close the pause or inventory menu
 		if(button == GLFW_KEY_ESCAPE){
 			ZusassGame zgame = (ZusassGame)game;
-			MenuNode pauseNode = MenuNode.withAll(new PauseMenu(zgame));
-			zgame.getPlayState().fullPause();
-			this.popupMenu(pauseNode);
+			// If the game is not paused, but the inventory is showing, close the inventory
+			if(!zgame.getPlayState().isPaused() && this.isShowingInventory()) this.closeInventory();
+			// Otherwise, open the pause menu
+			else this.openPauseMenu(zgame);
+		}
+		// On releasing tab, open inventory if it is not open, otherwise, close it
+		else if(button == GLFW_KEY_TAB){
+			if(this.showingInventory) this.closeInventory();
+			else this.openInventory((ZusassGame)game);
 		}
 	}
 	
@@ -103,7 +121,7 @@ public class MainPlay extends PlayState{
 		
 		// Using draw text like this is inefficient, but whatever, this is temp code
 		String text;
-		if(p.isCasting()) {
+		if(p.isCasting()){
 			var name = p.getSelectedSpell().getName();
 			text = name == null ? "No Spell" : "Spell: " + name;
 		}
@@ -128,5 +146,47 @@ public class MainPlay extends PlayState{
 		r.setColor(textColor);
 		r.setFontSize(20);
 		r.drawText(10, 28 + space, Math.round(Math.max(0, c)) + " / " + Math.round(m));
+	}
+	
+	/**
+	 * Open the pause menu for the game, and pause the game
+ 	 * @param zgame The game to pause and open the pause menu
+	 */
+	public void openPauseMenu(ZusassGame zgame){
+		MenuNode pauseNode = MenuNode.withAll(this.pauseMenu);
+		zgame.getPlayState().fullPause();
+		this.popupMenu(pauseNode);
+	}
+	
+	/** Close the display of the player inventory */
+	public void closeInventory(){
+		if(!this.showingInventory) return;
+		this.showingInventory = false;
+		this.removeTopMenu(false);
+	}
+	
+	/**
+	 * Make the player inventory menu show
+	 * @param zgame The game to show the inventory in
+	 */
+	public void openInventory(ZusassGame zgame){
+		if(showingInventory) return;
+		this.showingInventory = true;
+		this.popupMenu(MenuNode.withAll(new InventoryMenu(zgame)));
+	}
+	
+	/** @return See {@link #pauseMenu} */
+	public PauseMenu getPauseMenu(){
+		return this.pauseMenu;
+	}
+	
+	/** @return See {@link #inventoryMenu} */
+	public InventoryMenu getInventoryMenu(){
+		return this.inventoryMenu;
+	}
+	
+	/** @return See {@link #showingInventory} */
+	public boolean isShowingInventory(){
+		return this.showingInventory;
 	}
 }
