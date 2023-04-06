@@ -7,6 +7,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.buffer.DrawableGameBuffer;
 import zgame.core.utils.ClassMappedList;
+import zgame.core.utils.ZPoint;
 import zgame.core.utils.ZRect;
 import zgame.core.window.GameWindow;
 
@@ -52,6 +53,18 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * contents of this {@link MenuThing} will be redrawn every frame
 	 */
 	private DrawableGameBuffer buffer;
+	
+	/**
+	 * If the mouse is clicked and dragged while within this area relative to this {@link MenuThing}, it will be dragged around.
+	 * Null to disable dragging. Null by default
+	 */
+	private ZRect draggableArea;
+	
+	/**
+	 * The point, relative to this {@link MenuThing} where the mouse was last clicked for dragging, or null if dragging is disabled, or null if
+	 * an anchor point is not set
+	 */
+	private ZPoint anchorPoint;
 	
 	/**
 	 * Create a {@link MenuThing} with no size or position
@@ -107,6 +120,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 		
 		this.setBuffer(useBuffer);
 		this.drawThingsToBuffer = true;
+		
+		this.draggableArea = null;
+		this.anchorPoint = null;
 	}
 	
 	// issue#11 add option to make things only render in the bounds regardless of a buffer, fix render checking first
@@ -308,6 +324,25 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.borderWidth = borderWidth;
 	}
 	
+	/** @return See {@link #draggableArea} */
+	public ZRect getDraggableArea(){
+		return this.draggableArea;
+	}
+	
+	/** @param draggableArea See {@link #draggableArea} */
+	public void setDraggableArea(ZRect draggableArea){
+		this.draggableArea = draggableArea;
+		if(this.draggableArea == null){
+			this.anchorPoint = null;
+		}
+	}
+	
+	/** @param draggable true if the entire bounds of this {@link MenuThing} should be draggable by the mouse, false if dragging should be disabled */
+	public void setDraggable(boolean draggable){
+		if(draggable) this.setDraggableArea(new ZRect(0, 0, this.getWidth(), this.getHeight()));
+		else this.setDraggableArea(null);
+	}
+	
 	/** @return See {@link #parent} */
 	public MenuThing getParent(){
 		return this.parent;
@@ -483,7 +518,21 @@ public class MenuThing implements GameInteractable, Destroyable{
 			MenuThing t = things.get(i);
 			t.mouseAction(game, button, press, shift, alt, ctrl);
 		}
+		// TODO make options for which mouse buttons enable dragging
+		var d = this.getDraggableArea();
+		if(d != null){
+			if(press){
+				// TODO make this account for the current position after beginning to drag
+				// TODO test this with nested elements
+				var mx = game.mouseSX() - this.getRelX();
+				var my = game.mouseSY() - this.getRelY();
+				if(d.contains(mx, my)) this.anchorPoint = new ZPoint(mx, my);
+			}
+			else this.anchorPoint = null;
+		}
 	}
+	
+	// TODO make a similar system to this dragging system for expanding a MenuThing by clicking and dragging its edges or corners
 	
 	/** Do not call directly */
 	@Override
@@ -493,7 +542,16 @@ public class MenuThing implements GameInteractable, Destroyable{
 			MenuThing t = things.get(i);
 			t.mouseMove(game, x, y);
 		}
+		if(this.draggableArea != null){
+			var a = this.anchorPoint;
+			if(a != null){
+				this.setRelX(game.mouseSX() - a.getX());
+				this.setRelY(game.mouseSY() - a.getY());
+			}
+		}
 	}
+	
+	// TODO make a way of disabling mouse input for things under this menu, only if they are inside the same area as this menu
 	
 	/** Do not call directly */
 	@Override

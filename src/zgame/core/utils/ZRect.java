@@ -45,6 +45,17 @@ public class ZRect extends Rectangle2D.Double{
 	}
 	
 	/**
+	 * Create a new rectangle shifted by the given amount
+	 *
+	 * @param r The base rectangle
+	 * @param xShift An amount to move on the x axis
+	 * @param yShift An amount to move on the y axis
+	 */
+	public ZRect(ZRect r, double xShift, double yShift){
+		this(r.getX() + xShift, r.getY() + yShift, r.getWidth(), r.getHeight());
+	}
+	
+	/**
 	 * @param padding The distance to add in every direction of this {@link ZRect}
 	 * @return The resulting rectangle
 	 */

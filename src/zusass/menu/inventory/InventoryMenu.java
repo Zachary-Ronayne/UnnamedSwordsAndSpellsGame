@@ -1,6 +1,8 @@
 package zusass.menu.inventory;
 
+import zgame.core.Game;
 import zgame.core.graphics.ZColor;
+import zgame.core.utils.ZRect;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
 
@@ -13,11 +15,27 @@ public class InventoryMenu extends ZusassMenu{
 	 */
 	public InventoryMenu(ZusassGame zgame){
 		super(zgame, "");
-		this.setFill(new ZColor(.5,.5));
+		// TODO make a utility method that sets the solid color, like makes the border invisible and adds the fill
+		this.setBorder(new ZColor(0, 0, 0, 0));
+		this.setFill(new ZColor(.3, 0, 0, .8));
 		this.setWidth(200);
-		this.setHeight(400);
-		this.setRelX(100);
-		this.setRelY(10);
+		this.setHeight(600);
+		this.defaultPosition(zgame);
+		this.setDraggableArea(new ZRect(0, 0, this.getWidth(), 20));
+	}
+	
+	public void defaultPosition(ZusassGame zgame){
+		var w = zgame.getWindow();
+		this.center(w);
+		this.setRelX(w.getWidth() - this.getWidth() * 1.1);
+	}
+	
+	@Override
+	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyAction(game, button, press, shift, alt, ctrl);
+		
+		// If shift is pressed, reposition the menu to the default state
+		if(shift) this.defaultPosition((ZusassGame)game);
 	}
 	
 }

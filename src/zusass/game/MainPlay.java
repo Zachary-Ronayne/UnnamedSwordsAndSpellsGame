@@ -109,8 +109,9 @@ public class MainPlay extends PlayState{
 	
 	@Override
 	public void renderHud(Game game, Renderer r){
-		super.renderHud(game, r);
 		var zgame = (ZusassGame)game;
+		
+		// First draw the in game hud
 		
 		// Draw a basic health bar
 		ZusassPlayer p = zgame.getPlayer();
@@ -130,6 +131,9 @@ public class MainPlay extends PlayState{
 		// Draw the name of the selected spell or that the player is in attack mode
 		r.setColor(1, 1, 1, 1);
 		r.drawText(10, 100, text);
+		
+		// Now draw the rest of the menus
+		super.renderHud(game, r);
 	}
 	
 	/** Temporary code for simplicity of testing */
