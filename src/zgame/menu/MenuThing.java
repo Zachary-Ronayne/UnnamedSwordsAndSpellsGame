@@ -66,6 +66,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	private ZPoint anchorPoint;
 	
+	/** The mouse button for actions using {@link #draggableArea} */
+	private int draggableButton;
+	
 	/**
 	 * Create a {@link MenuThing} with no size or position
 	 */
@@ -123,6 +126,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		
 		this.draggableArea = null;
 		this.anchorPoint = null;
+		this.draggableButton = 0;
 	}
 	
 	// issue#11 add option to make things only render in the bounds regardless of a buffer, fix render checking first
@@ -348,6 +352,16 @@ public class MenuThing implements GameInteractable, Destroyable{
 		else this.setDraggableArea(null);
 	}
 	
+	/** @return See {@link #draggableButton} */
+	public int getDraggableButton(){
+		return this.draggableButton;
+	}
+	
+	/** @param draggableButton See {@link #draggableButton} */
+	public void setDraggableButton(int draggableButton){
+		this.draggableButton = draggableButton;
+	}
+	
 	/** @return See {@link #parent} */
 	public MenuThing getParent(){
 		return this.parent;
@@ -523,9 +537,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 			MenuThing t = things.get(i);
 			t.mouseAction(game, button, press, shift, alt, ctrl);
 		}
-		// TODO make options for which mouse buttons enable dragging
 		var d = this.getDraggableArea();
-		if(d != null){
+		if(button == this.getDraggableButton() && d != null){
 			if(press){
 				var mx = game.mouseSX() - this.getX();
 				var my = game.mouseSY() - this.getY();
