@@ -25,6 +25,7 @@ public class InventoryMenu extends ZusassMenu{
 		this.defaultPosition(zgame);
 		this.setDraggableArea(new ZRect(0, 0, this.getWidth(), 20));
 		this.setDraggableButton(GLFW_MOUSE_BUTTON_LEFT);
+		this.setDraggableSides(true);
 	}
 	
 	public void defaultPosition(ZusassGame zgame){

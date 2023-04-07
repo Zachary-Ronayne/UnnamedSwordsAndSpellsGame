@@ -66,8 +66,31 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	private ZPoint anchorPoint;
 	
-	/** The mouse button for actions using {@link #draggableArea} */
+	/** The mouse button for actions using {@link #draggableArea} and {@link #draggableSides} */
 	private int draggableButton;
+	
+	/** true if the sides of this thing can be clicked and dragged to change the size, false otherwise */
+	private boolean draggableSides;
+	
+	/** the amount of distance inside this thing from the edges where {@link #draggableSides} will activate */
+	private double draggableSideRange;
+	
+	/**
+	 * Dragging state of the x axis {@link #draggableSides}, negative for left, 0 for none, 1 for right.
+	 * If this value and {@link #draggingY} are 0, dragging is for {@link #draggableArea}
+	 */
+	private int draggingX;
+	/**
+	 * Dragging state of the y axis {@link #draggableSides}, negative for up, 0 for none, 1 for down
+	 * If this value and {@link #draggingX} are 0, dragging is for {@link #draggableArea}
+	 */
+	private int draggingY;
+	
+	/** The minimum width which this thing can be dragged to from {@link #draggableSides} */
+	private double minDragWidth;
+	
+	/** The minimum height which this thing can be dragged to from {@link #draggableSides} */
+	private double minDragHeight;
 	
 	/**
 	 * Create a {@link MenuThing} with no size or position
@@ -127,6 +150,13 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.draggableArea = null;
 		this.anchorPoint = null;
 		this.draggableButton = 0;
+		
+		this.draggableSides = false;
+		this.draggableSideRange = 4;
+		this.minDragWidth = this.draggableSideRange * 3;
+		this.minDragHeight = this.draggableSideRange * 3;
+		this.draggingX = 0;
+		this.draggingY = 0;
 	}
 	
 	// issue#11 add option to make things only render in the bounds regardless of a buffer, fix render checking first
@@ -362,6 +392,46 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.draggableButton = draggableButton;
 	}
 	
+	/** @return See {@link #draggableSides} */
+	public boolean isDraggableSides(){
+		return this.draggableSides;
+	}
+	
+	/** @param draggableSides See {@link #draggableSides} */
+	public void setDraggableSides(boolean draggableSides){
+		this.draggableSides = draggableSides;
+	}
+	
+	/** @return See {@link #draggableSideRange} */
+	public double getDraggableSideRange(){
+		return this.draggableSideRange;
+	}
+	
+	/** @param draggableSideRange See {@link #draggableSideRange} */
+	public void setDraggableSideRange(double draggableSideRange){
+		this.draggableSideRange = draggableSideRange;
+	}
+	
+	/** @return See {@link #minDragWidth} */
+	public double getMinDragWidth(){
+		return minDragWidth;
+	}
+	
+	/** @param minDragWidth See {@link #minDragWidth} */
+	public void setMinDragWidth(double minDragWidth){
+		this.minDragWidth = minDragWidth;
+	}
+	
+	/** @return See {@link #minDragHeight} */
+	public double getMinDragHeight(){
+		return minDragHeight;
+	}
+	
+	/** @param minDragHeight See {@link #minDragHeight} */
+	public void setMinDragHeight(double minDragHeight){
+		this.minDragHeight = minDragHeight;
+	}
+	
 	/** @return See {@link #parent} */
 	public MenuThing getParent(){
 		return this.parent;
@@ -537,18 +607,46 @@ public class MenuThing implements GameInteractable, Destroyable{
 			MenuThing t = things.get(i);
 			t.mouseAction(game, button, press, shift, alt, ctrl);
 		}
-		var d = this.getDraggableArea();
-		if(button == this.getDraggableButton() && d != null){
-			if(press){
-				var mx = game.mouseSX() - this.getX();
-				var my = game.mouseSY() - this.getY();
-				if(d.contains(mx, my)) this.anchorPoint = new ZPoint(mx, my);
-			}
-			else this.anchorPoint = null;
-		}
+		
+		this.checkForDraggingStart(game, button, press);
 	}
 	
-	// TODO make a similar system to this dragging system for expanding a MenuThing by clicking and dragging its edges or corners
+	/**
+	 * Helper for {@link #mouseAction(Game, int, boolean, boolean, boolean, boolean)}, checking if this element should begin dragging from the mouse
+	 * @param game The game where the button was pressed
+	 * @param button The pressed button
+	 * @param press true if the button was pressed down, false for released
+	 */
+	public void checkForDraggingStart(Game game, int button, boolean press){
+		if(!press) {
+			this.anchorPoint = null;
+			return;
+		}
+		if(button != this.getDraggableButton()) return;
+		var d = this.getDraggableArea();
+		var x = this.getX();
+		var y = this.getY();
+		var mx = game.mouseSX() - x;
+		var my = game.mouseSY() - y;
+		var dragging = false;
+		if(d != null){
+			if(d.contains(mx, my)){
+				this.draggingX = 0;
+				this.draggingY = 0;
+				dragging = true;
+			}
+		}
+		// Check for the edges being dragged
+		// Left edge
+		var b = new ZRect(this.getBounds(), -x, -y);
+		b.width = this.getDraggableSideRange();
+		if(!dragging && b.contains(mx, my)){
+			this.draggingX = -1;
+			this.draggingY = 0;
+			dragging = true;
+		}
+		if(dragging) this.anchorPoint = new ZPoint(mx, my);
+	}
 	
 	/** Do not call directly */
 	@Override
@@ -558,13 +656,22 @@ public class MenuThing implements GameInteractable, Destroyable{
 			MenuThing t = things.get(i);
 			t.mouseMove(game, x, y);
 		}
-		if(this.draggableArea != null){
-			var a = this.anchorPoint;
-			if(a != null){
+		var a = this.anchorPoint;
+		if(a == null) return;
+		boolean fullDrag = this.draggingX == 0 && this.draggingY == 0 && this.getDraggableArea() != null;
+		if(fullDrag){
+			this.setRelX(game.mouseSX() - a.getX() - this.getParentX());
+			this.setRelY(game.mouseSY() - a.getY() - this.getParentY());
+		}
+		else{
+			if(this.draggingX < 0){
+				var oldX = this.getRelX() + this.getWidth();
 				this.setRelX(game.mouseSX() - a.getX() - this.getParentX());
-				this.setRelY(game.mouseSY() - a.getY() - this.getParentY());
+				// TODO properly account for max width
+				this.setWidth(Math.max(this.minDragWidth, oldX - this.getRelX()));
 			}
 		}
+		// TODO add dragging the other edges
 	}
 	
 	// TODO make a way of disabling mouse input for things under this menu, only if they are inside the same area as this menu
