@@ -3,6 +3,7 @@ package zusass.menu.inventory;
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZRect;
+import zgame.menu.MenuThing;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
 
@@ -22,6 +23,16 @@ public class InventoryMenu extends ZusassMenu{
 		this.setHeight(600);
 		this.defaultPosition(zgame);
 		this.setDraggableArea(new ZRect(0, 0, this.getWidth(), 20));
+		
+		var m = new MenuThing();
+		m.setRelX(10);
+		m.setRelY(10);
+		m.setWidth(100);
+		m.setHeight(100);
+		m.removeBorder();
+		m.setFill(new ZColor(0, 0, 1));
+		m.setDraggable(true);
+		this.addThing(m);
 	}
 	
 	public void defaultPosition(ZusassGame zgame){

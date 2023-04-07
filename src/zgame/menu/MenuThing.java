@@ -314,6 +314,11 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.border = border;
 	}
 	
+	/** Set the border to be completely invisible */
+	public void removeBorder(){
+		this.setBorder(new ZColor(0, 0));
+	}
+	
 	/** @return See {@link #borderWidth} */
 	public double getBorderWidth(){
 		return this.borderWidth;
@@ -522,10 +527,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 		var d = this.getDraggableArea();
 		if(d != null){
 			if(press){
-				// TODO make this account for the current position after beginning to drag
-				// TODO test this with nested elements
-				var mx = game.mouseSX() - this.getRelX();
-				var my = game.mouseSY() - this.getRelY();
+				var mx = game.mouseSX() - this.getX();
+				var my = game.mouseSY() - this.getY();
 				if(d.contains(mx, my)) this.anchorPoint = new ZPoint(mx, my);
 			}
 			else this.anchorPoint = null;
@@ -545,8 +548,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 		if(this.draggableArea != null){
 			var a = this.anchorPoint;
 			if(a != null){
-				this.setRelX(game.mouseSX() - a.getX());
-				this.setRelY(game.mouseSY() - a.getY());
+				this.setRelX(game.mouseSX() - a.getX() - this.getParentX());
+				this.setRelY(game.mouseSY() - a.getY() - this.getParentY());
 			}
 		}
 	}
