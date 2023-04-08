@@ -5,8 +5,14 @@ import java.awt.geom.Rectangle2D;
 /** A convenience class that just extends Rectangle2D.Double, making it easier to code with */
 public class ZRect extends Rectangle2D.Double{
 	
+	/** Create a new blank rectangle */
 	public ZRect(){
 		super();
+	}
+	
+	/** @param r A rectangle to make a copt of */
+	public ZRect(ZRect r){
+		super(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
 	
 	/**
@@ -57,10 +63,50 @@ public class ZRect extends Rectangle2D.Double{
 	
 	/**
 	 * @param padding The distance to add in every direction of this {@link ZRect}
-	 * @return The resulting rectangle
+	 * @return The resulting rectangle as a new object
 	 */
 	public ZRect pad(double padding){
 		return new ZRect(this, padding);
+	}
+	
+	/**
+	 * @param x The new x coordinate for a rectangle
+	 * @return The resulting rectangle as a new object
+	 */
+	public ZRect x(double x){
+		var r = new ZRect(this);
+		r.x = x;
+		return r;
+	}
+	
+	/**
+	 * @param y The new x coordinate for a rectangle
+	 * @return The resulting rectangle as a new object
+	 */
+	public ZRect y(double y){
+		var r = new ZRect(this);
+		r.y = y;
+		return r;
+	}
+	
+	/**
+	 * @param w The new width for a rectangle
+	 * @return The resulting rectangle as a new object
+	 */
+	public ZRect width(double w){
+		var r = new ZRect(this);
+		r.width = w;
+		return r;
+	}
+	
+	/**
+	 * @param h The new height for a rectangle
+	 * @return The resulting rectangle as a new object
+	 */
+	public ZRect height(double h){
+		var r = new ZRect(this);
+		r.height = h;
+		return r;
 	}
 	
 }

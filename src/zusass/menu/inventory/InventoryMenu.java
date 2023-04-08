@@ -23,11 +23,29 @@ public class InventoryMenu extends ZusassMenu{
 		this.setWidth(200);
 		this.setHeight(600);
 		this.defaultPosition(zgame);
-		this.setDraggableArea(new ZRect(0, 0, this.getWidth(), 20));
+		this.setDraggableArea(new ZRect(15, 15, this.getWidth(), 15));
+		this.setMinDragWidth(60);
+		this.setMinDragHeight(40);
 		this.setDraggableButton(GLFW_MOUSE_BUTTON_LEFT);
 		this.setDraggableSides(true);
+		
+		var m = new MenuThing();
+		m.setRelX(10);
+		m.setRelY(40);
+		m.setWidth(60);
+		m.setHeight(60);
+		m.setDraggableButton(GLFW_MOUSE_BUTTON_RIGHT);
+		m.setDraggableSides(true);
+		m.setDraggableArea(new ZRect(10, 10, 40, 40));
+		m.removeBorder();
+		m.setFill(new ZColor(0, 0, 1));
+		this.addThing(m);
 	}
 	
+	/**
+	 * Bring this menu to its default position on the right side
+	 * @param zgame The game used to position the menu
+	 */
 	public void defaultPosition(ZusassGame zgame){
 		var w = zgame.getWindow();
 		this.center(w);

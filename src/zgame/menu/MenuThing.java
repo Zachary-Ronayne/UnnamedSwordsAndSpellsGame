@@ -152,7 +152,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.draggableButton = 0;
 		
 		this.draggableSides = false;
-		this.draggableSideRange = 4;
+		this.draggableSideRange = 6;
 		this.minDragWidth = this.draggableSideRange * 3;
 		this.minDragHeight = this.draggableSideRange * 3;
 		this.draggingX = 0;
@@ -613,12 +613,13 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/**
 	 * Helper for {@link #mouseAction(Game, int, boolean, boolean, boolean, boolean)}, checking if this element should begin dragging from the mouse
+	 *
 	 * @param game The game where the button was pressed
 	 * @param button The pressed button
 	 * @param press true if the button was pressed down, false for released
 	 */
 	public void checkForDraggingStart(Game game, int button, boolean press){
-		if(!press) {
+		if(!press){
 			this.anchorPoint = null;
 			return;
 		}
@@ -629,23 +630,50 @@ public class MenuThing implements GameInteractable, Destroyable{
 		var mx = game.mouseSX() - x;
 		var my = game.mouseSY() - y;
 		var dragging = false;
+		double ax = 0;
+		double ay = 0;
 		if(d != null){
 			if(d.contains(mx, my)){
 				this.draggingX = 0;
 				this.draggingY = 0;
+				ax = mx;
+				ay = my;
 				dragging = true;
 			}
 		}
 		// Check for the edges being dragged
 		// Left edge
+		var s = this.getDraggableSideRange();
 		var b = new ZRect(this.getBounds(), -x, -y);
-		b.width = this.getDraggableSideRange();
-		if(!dragging && b.contains(mx, my)){
+		if(!dragging && b.width(s).contains(mx, my)){
 			this.draggingX = -1;
-			this.draggingY = 0;
+			ax = mx;
+			ay = my;
 			dragging = true;
 		}
-		if(dragging) this.anchorPoint = new ZPoint(mx, my);
+		// Right edge
+		else if(!dragging && b.x(b.getX() + b.getWidth() - s).width(s).contains(mx, my)){
+			this.draggingX = 1;
+			ax = mx - this.getWidth() + this.getParentX();
+			ay = my;
+			dragging = true;
+		}
+		// Top
+		if(!dragging && b.height(s).contains(mx, my)){
+			this.draggingY = -1;
+			ax = mx;
+			ay = my;
+			dragging = true;
+		}
+		// Bottom
+		else if(!dragging && b.y(b.getY() + b.getHeight() - s).height(s).contains(mx, my)){
+			this.draggingY = 1;
+			ax = mx;
+			ay = my - this.getHeight() + this.getParentY();
+			dragging = true;
+		}
+		// If any dragging occurred, set the anchor
+		if(dragging) this.anchorPoint = new ZPoint(ax, ay);
 	}
 	
 	/** Do not call directly */
@@ -664,11 +692,36 @@ public class MenuThing implements GameInteractable, Destroyable{
 			this.setRelY(game.mouseSY() - a.getY() - this.getParentY());
 		}
 		else{
+			// TODO make an option that automatically updates the draggable bounds when these values update
+			
+			// TODO add comments explaining why this makes any sense
+			
+			// TODO fix the weird movement when dragging on the y axis
+			// Drag the left side
 			if(this.draggingX < 0){
 				var oldX = this.getRelX() + this.getWidth();
-				this.setRelX(game.mouseSX() - a.getX() - this.getParentX());
-				// TODO properly account for max width
-				this.setWidth(Math.max(this.minDragWidth, oldX - this.getRelX()));
+				var newWidth = Math.max(this.getMinDragWidth(), oldX - (game.mouseSX() - a.getX() - this.getParentX()));
+				var newX = oldX - newWidth;
+				this.setRelX(newX);
+				this.setWidth(newWidth);
+			}
+			// Drag the right side
+			else if(this.draggingX > 0){
+				var newWidth = Math.max(this.getMinDragWidth(), game.mouseSX() - a.getX() - this.getX() + this.getParentX());
+				this.setWidth(newWidth);
+			}
+			// Drag the top
+			if(this.draggingY < 0){
+				var oldY = this.getRelY() + this.getHeight();
+				var newHeight = Math.max(this.getMinDragHeight(), oldY - (game.mouseSY() - a.getY() - this.getParentY()));
+				var newY = oldY - newHeight;
+				this.setRelY(newY);
+				this.setHeight(newHeight);
+			}
+			// Drag the bottom
+			else if(this.draggingY > 0){
+				var newHeight = Math.max(this.getMinDragHeight(), game.mouseSY() - a.getY() - this.getY() + this.getParentY());
+				this.setHeight(newHeight);
 			}
 		}
 		// TODO add dragging the other edges
