@@ -10,7 +10,7 @@ public class ZRect extends Rectangle2D.Double{
 		super();
 	}
 	
-	/** @param r A rectangle to make a copt of */
+	/** @param r A rectangle to make a copy of */
 	public ZRect(ZRect r){
 		super(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
