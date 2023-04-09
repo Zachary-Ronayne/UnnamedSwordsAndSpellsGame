@@ -2,6 +2,7 @@ package zusass.game;
 
 import zgame.core.utils.NotNullList;
 import zgame.world.Room;
+import zusass.game.things.ZusassDoor;
 import zusass.game.things.entities.mobs.ZusassMob;
 
 /** A {@link Room} used by the Zusass game */
@@ -21,6 +22,7 @@ public class ZusassRoom extends Room{
 	public ZusassRoom(int xTiles, int yTiles){
 		super(xTiles, yTiles);
 		this.getAllThings().addClass(ZusassMob.class);
+		this.getAllThings().addClass(ZusassDoor.class);
 	}
 	
 	/** @return All the mobs which are in this {@link ZusassRoom} */

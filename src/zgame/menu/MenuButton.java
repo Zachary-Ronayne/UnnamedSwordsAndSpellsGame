@@ -65,14 +65,16 @@ public class MenuButton extends MenuText{
 	 * Call {@link #click(Game)} if the mouse was released while on top of this button
 	 */
 	@Override
-	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.mouseAction(game, button, press, shift, alt, ctrl);
+	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		boolean input = super.mouseAction(game, button, press, shift, alt, ctrl);
 		ZMouseInput mi = game.getMouseInput();
 		if(!press && this.getBounds().contains(mi.x(), mi.y())){
 			if(System.currentTimeMillis() - this.getLastClick() <= this.getDoubleClickThreshold()) this.doubleClick(game);
 			this.click(game);
 			this.lastClick = System.currentTimeMillis();
+			return true;
 		}
+		return input;
 	}
 	
 	/**

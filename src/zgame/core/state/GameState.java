@@ -62,7 +62,8 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	/** @param menu The new root menu of this {@link MenuState}, i.e. the menu on the bottom before popups */
 	public void setMenu(Menu menu){
 		if(this.menuStack == null || !this.menuStack.isEmpty()) this.menuStack = new ArrayList<>();
-		this.menuStack.add(0, new MenuNode(menu));
+		var node = new MenuNode(menu);
+		this.menuStack.add(0, node);
 	}
 	
 	/** @return The number of menus currently displayed on this {@link GameState} */
@@ -82,10 +83,10 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	/**
 	 * Add the given {@link Menu} on top of the existing menus on this state
 	 *
-	 * @param menu The node to add
+	 * @param node The node to add
 	 */
-	public void popupMenu(MenuNode menu){
-		this.menuStack.add(menu);
+	public void popupMenu(MenuNode node){
+		this.menuStack.add(node);
 	}
 	
 	/**
@@ -151,42 +152,45 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	
 	@Override
 	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		for(int i = 0; i < this.getStackSize() - 1; i++){
+		Menu menu = this.getTopMenu();
+		if(menu != null) menu.keyAction(game, button, press, shift, alt, ctrl);
+		for(int i = this.getStackSize() - 2; i >= 0; i--){
 			MenuNode m = this.menuStack.get(i);
 			m.keyAction(game, button, press, shift, alt, ctrl);
 		}
-		Menu m = this.getTopMenu();
-		if(m != null) m.keyAction(game, button, press, shift, alt, ctrl);
 	}
 	
 	@Override
-	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		for(int i = 0; i < this.getStackSize() - 1; i++){
+	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		Menu menu = this.getTopMenu();
+		if(menu != null && menu.mouseAction(game, button, press, shift, alt, ctrl)) return true;
+		for(int i = this.getStackSize() - 2; i >= 0; i--){
 			MenuNode m = this.menuStack.get(i);
-			m.mouseAction(game, button, press, shift, alt, ctrl);
+			if(m.mouseAction(game, button, press, shift, alt, ctrl)) return true;
 		}
-		Menu m = this.getTopMenu();
-		if(m != null) m.mouseAction(game, button, press, shift, alt, ctrl);
+		return false;
 	}
 	
 	@Override
-	public void mouseMove(Game game, double x, double y){
-		for(int i = 0; i < this.getStackSize() - 1; i++){
+	public boolean mouseMove(Game game, double x, double y){
+		Menu menu = this.getTopMenu();
+		if(menu != null && menu.mouseMove(game, x, y)) return true;
+		for(int i = this.getStackSize() - 2; i >= 0; i--){
 			MenuNode m = this.menuStack.get(i);
-			m.mouseMove(game, x, y);
+			if(m.mouseMove(game, x, y)) return true;
 		}
-		Menu m = this.getTopMenu();
-		if(m != null) m.mouseMove(game, x, y);
+		return false;
 	}
 	
 	@Override
-	public void mouseWheelMove(Game game, double amount){
-		for(int i = 0; i < this.getStackSize() - 1; i++){
+	public boolean mouseWheelMove(Game game, double amount){
+		Menu menu = this.getTopMenu();
+		if(menu != null && menu.mouseWheelMove(game, amount)) return true;
+		for(int i = this.getStackSize() - 2; i >= 0; i--){
 			MenuNode m = this.menuStack.get(i);
-			m.mouseWheelMove(game, amount);
+			if(m.mouseWheelMove(game, amount)) return true;
 		}
-		Menu m = this.getTopMenu();
-		if(m != null) m.mouseWheelMove(game, amount);
+		return false;
 	}
 	
 	@Override

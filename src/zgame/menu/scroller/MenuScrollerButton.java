@@ -36,23 +36,29 @@ public abstract class MenuScrollerButton extends MenuButton{
 	}
 	
 	@Override
-	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.mouseAction(game, button, press, shift, alt, ctrl);
+	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		boolean input = super.mouseAction(game, button, press, shift, alt, ctrl);
 		if(press){
 			double mx = game.mouseSX();
 			double my = game.mouseSY();
 			if(this.getBounds().contains(mx, my)){
 				this.anchored = true;
 				this.anchorOffset = this.mouseOffset(game);
+				return true;
 			}
 		}
 		else anchored = false;
+		return input;
 	}
 	
 	@Override
-	public void mouseMove(Game game, double x, double y){
-		super.mouseMove(game, x, y);
-		if(this.anchored) this.scroller.scroll(this.scrollToPercent(this.mouseOffset(game) - this.anchorOffset));
+	public boolean mouseMove(Game game, double x, double y){
+		boolean input = super.mouseMove(game, x, y);
+		if(this.anchored) {
+			this.scroller.scroll(this.scrollToPercent(this.mouseOffset(game) - this.anchorOffset));
+			return true;
+		}
+		return input;
 	}
 	
 	/**

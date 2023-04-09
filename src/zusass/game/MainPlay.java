@@ -20,6 +20,12 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class MainPlay extends PlayState{
 	
+	// TODO potentially stop passing around the game object as a parameter and make it a static singleton
+	
+	// TODO make the main game loop have a try catch so the game doesn't freeze if an exception happens
+	
+	// TODO make the game autosave on death
+	
 	/** The {@link PauseMenu} to display */
 	private final PauseMenu pauseMenu;
 	/** The {@link InventoryMenu} to display */
@@ -93,6 +99,14 @@ public class MainPlay extends PlayState{
 			if(this.showingInventory) this.closeInventory();
 			else this.openInventory((ZusassGame)game);
 		}
+	}
+	
+	@Override
+	public boolean playMouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		boolean input = super.playMouseAction(game, button, press, shift, alt, ctrl);
+		if(input) return true;
+		var zgame = (ZusassGame)game;
+		return zgame.getPlayer().mouseAction(zgame, button, press, shift, alt, ctrl);
 	}
 	
 	@Override

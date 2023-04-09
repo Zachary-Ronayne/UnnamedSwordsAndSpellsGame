@@ -157,8 +157,8 @@ public class MainTest extends Game{
 		// Set up game
 		testerGame = new MainTest();
 //		testerGame.setCurrentState(new TesterGameState(testerGame));
-//		testerGame.setCurrentState(new TesterMenuState(testerGame));
-		testerGame.setCurrentState(new GameEngineState());
+		testerGame.setCurrentState(new TesterMenuState(testerGame));
+//		testerGame.setCurrentState(new GameEngineState());
 		
 		window = testerGame.getWindow();
 		window.center();
@@ -306,9 +306,13 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public void playMouseWheelMove(Game game, double amount){
-			super.playMouseWheelMove(game, amount);
-			if(game.getKeyInput().shift()) game.getCamera().zoom(amount);
+		public boolean playMouseWheelMove(Game game, double amount){
+			boolean input = super.playMouseWheelMove(game, amount);
+			if(game.getKeyInput().shift()) {
+				game.getCamera().zoom(amount);
+				return true;
+			}
+			return input;
 		}
 	}
 	
@@ -397,32 +401,41 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+			boolean input = super.mouseAction(game, button, press, shift, alt, ctrl);
 			if(shift && alt && ctrl && !press){
 				changeR = Math.random();
 				changeG = Math.random();
 				changeB = Math.random();
+				return true;
 			}
+			return input;
 		}
 		
 		@Override
-		public void mouseMove(Game game, double x, double y){
+		public boolean mouseMove(Game game, double x, double y){
+			boolean input = super.mouseMove(game, x, y);
 			ZKeyInput keys = game.getKeyInput();
 			ZMouseInput mouse = game.getMouseInput();
 			if(keys.shift() && mouse.middleDown()){
 				changeRect.x += x - mouse.lastX();
 				changeRect.y += y - mouse.lastY();
+				input = true;
 			}
+			return input;
 		}
 		
 		@Override
-		public void mouseWheelMove(Game game, double amount){
+		public boolean mouseWheelMove(Game game, double amount){
+			boolean input = super.mouseWheelMove(game, amount);
 			ZKeyInput keys = game.getKeyInput();
 			if(keys.shift()){
 				double size = changeRect.width * Math.pow(1.1, amount);
 				changeRect.width = (int)size;
 				changeRect.height = (int)size;
+				input = true;
 			}
+			return input;
 		}
 		
 		@Override

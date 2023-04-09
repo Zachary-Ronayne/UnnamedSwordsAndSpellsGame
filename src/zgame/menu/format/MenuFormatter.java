@@ -2,7 +2,7 @@ package zgame.menu.format;
 
 import zgame.menu.MenuThing;
 
-/** An object for {@link MenuThing} which allows its position to be updated when its parents width and height change */
+/** An object for {@link MenuThing} which allows its position to be updated when its parent's width and height change */
 public interface MenuFormatter{
 	
 	/**

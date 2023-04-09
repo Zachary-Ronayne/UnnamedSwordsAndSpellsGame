@@ -1,7 +1,5 @@
 package zusass.game.things;
 
-import zgame.core.Game;
-import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.utils.ZRect;
 import zgame.things.still.Door;
 import zusass.ZusassGame;
@@ -20,32 +18,22 @@ public class ZusassDoor extends Door{
 		super(x, y, false);
 	}
 	
-	@Override
-	public void tick(Game game, double dt){
-		super.tick(game, dt);
-		this.handleDoorPress((ZusassGame)game);
-	}
-	
 	/**
-	 * Utility method for {@link #tick(Game, double)} for checking if the player clicked a door
+	 * Utility method for checking if the player clicked a door
 	 * If the player is attempting to click on a door, have the player enter the door, otherwise do nothing
 	 *
 	 * @param game The game used by the tick method
+	 * @return true if the door was entered, false otherwise
 	 */
-	private void handleDoorPress(ZusassGame game){
-		ZMouseInput mi = game.getMouseInput();
-		
+	public boolean handleDoorPress(ZusassGame game){
 		// Find the player
 		ZusassPlayer player = game.getPlayer();
-		if(player == null) return;
-		boolean pressed = player.isEnterRoomPressed();
-		// If the button to enter a door is marked as pressed, but the button is up, then do not enter the door
-		if(!pressed || mi.leftDown()) return;
+		if(player == null) return false;
 		
-		// Otherwise, check if the player intersects the door, and the player clicked on the door, then enter it
+		// Check if the player intersects the door, and the player clicked on the door, then enter it
 		ZRect dBounds = this.getBounds();
-		if(!dBounds.intersects(player.getBounds()) || !dBounds.contains(game.mouseGX(), game.mouseGY())) return;
-		this.enterRoom(game.getCurrentRoom(), player, game);
+		if(!dBounds.intersects(player.getBounds()) || !dBounds.contains(game.mouseGX(), game.mouseGY())) return false;
+		return this.enterRoom(game.getCurrentRoom(), player, game);
 	}
 	
 }

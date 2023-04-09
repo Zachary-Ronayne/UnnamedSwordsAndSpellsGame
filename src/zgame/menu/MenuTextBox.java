@@ -94,12 +94,14 @@ public class MenuTextBox extends MenuButton{
 	}
 	
 	@Override
-	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.mouseAction(game, button, press, shift, alt, ctrl);
+	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		boolean input = super.mouseAction(game, button, press, shift, alt, ctrl);
 		double mx = game.mouseSX();
 		double my = game.mouseSY();
 		// Determine if the text box is selected
 		this.setSelected(this.getBounds().contains(mx, my));
+		if(this.isSelected()) return true;
+		return input;
 		
 		// Not doing further mouse input for now
 		// // Only check for clicking on the string to select the index if the box is selected

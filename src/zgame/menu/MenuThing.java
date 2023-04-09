@@ -644,16 +644,19 @@ public class MenuThing implements GameInteractable, Destroyable{
 		}
 	}
 	
+	// TODO make disabling input for sub components optional
+	
 	/** Do not call directly */
 	@Override
-	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		var things = this.getThings();
 		for(int i = 0; i < things.size(); i++){
 			MenuThing t = things.get(i);
-			t.mouseAction(game, button, press, shift, alt, ctrl);
+			if(t.mouseAction(game, button, press, shift, alt, ctrl)) return true;
 		}
 		
 		this.checkForDraggingStart(game, button, press);
+		return this.getBounds().contains(game.mouseSX(), game.mouseSY());
 	}
 	
 	/**
@@ -721,14 +724,14 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** Do not call directly */
 	@Override
-	public void mouseMove(Game game, double x, double y){
+	public boolean mouseMove(Game game, double x, double y){
 		var things = this.getThings();
 		for(int i = 0; i < things.size(); i++){
 			MenuThing t = things.get(i);
-			t.mouseMove(game, x, y);
+			if(t.mouseMove(game, x, y)) return true;
 		}
 		var a = this.anchorPoint;
-		if(a == null) return;
+		if(a == null) return this.getBounds().contains(x, y);
 		boolean fullDrag = this.draggingX == 0 && this.draggingY == 0 && this.getDraggableArea() != null;
 		if(fullDrag){
 			// To get the new relative coordinates, take the mouse position, subtract the anchor offset, and subtract the parent offset
@@ -781,20 +784,20 @@ public class MenuThing implements GameInteractable, Destroyable{
 				this.setHeight(newHeight);
 			}
 		}
+		return this.getBounds().contains(x, y);
 	}
-	
-	// TODO make a way of disabling mouse input for things under this menu, only if they are inside the same area as this menu
 	
 	// TODO make an option that automatically updates the draggable bounds when these values update
 	
 	/** Do not call directly */
 	@Override
-	public void mouseWheelMove(Game game, double amount){
+	public boolean mouseWheelMove(Game game, double amount){
 		var things = this.getThings();
 		for(int i = 0; i < things.size(); i++){
 			MenuThing t = things.get(i);
-			t.mouseWheelMove(game, amount);
+			if(t.mouseWheelMove(game, amount)) return true;
 		}
+		return this.getBounds().contains(game.mouseSX(), game.mouseSY());
 	}
 	
 	/** Do not call directly, use {@link #render(Game, Renderer, ZRect)} to draw menu things and override their rendering behavior */

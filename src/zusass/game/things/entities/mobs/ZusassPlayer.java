@@ -4,6 +4,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import com.google.gson.JsonElement;
 import zgame.core.Game;
+import zgame.core.GameInteractable;
 import zgame.core.graphics.Renderer;
 import zgame.core.input.InputHandler;
 import zgame.core.input.InputHandlers;
@@ -19,6 +20,7 @@ import zusass.game.magic.ProjectileSpell;
 import zusass.game.magic.Spell;
 import zusass.game.magic.effect.SpellEffectStatusEffect;
 import zusass.game.status.StatEffect;
+import zusass.game.things.ZusassDoor;
 import zusass.game.things.ZusassTags;
 
 import static zusass.game.stat.ZusassStat.*;
@@ -85,18 +87,13 @@ public class ZusassPlayer extends ZusassMob{
 	
 	@Override
 	public void tick(Game game, double dt){
-		ZusassGame zgame = (ZusassGame)game;
-		
 		super.tick(game, dt);
 		
 		var ki = game.getKeyInput();
 		this.getWalk().handleMovementControls(ki.pressed(GLFW_KEY_A), ki.pressed(GLFW_KEY_D), ki.pressed(GLFW_KEY_W), dt);
 		
-		this.inputHandlers.tick(game, GLFW_MOUSE_BUTTON_LEFT);
 		if(this.inputHandlers.tick(game, GLFW_KEY_F10)) this.setLockCamera(!this.isLockCamera());
 		
-		// Right click to attack in a direction
-		if(this.inputHandlers.tick(game, GLFW_MOUSE_BUTTON_RIGHT)) this.beginAttackOrSpell(zgame, ZMath.lineAngle(this.centerX(), this.centerY(), game.mouseGX(), game.mouseGY()));
 		// Toggle walking
 		if(this.inputHandlers.tick(game, GLFW_KEY_SPACE)) this.getWalk().toggleWalking();
 		
@@ -109,6 +106,26 @@ public class ZusassPlayer extends ZusassMob{
 		
 		// Now the camera to the player after repositioning the player
 		this.checkCenterCamera(game);
+	}
+	
+	/** See {@link GameInteractable#mouseAction(Game, int, boolean, boolean, boolean, boolean)} */
+	public boolean mouseAction(ZusassGame zgame, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		// Left click to go into a door
+		if(!press && button == GLFW_MOUSE_BUTTON_LEFT) {
+			var doors = zgame.getCurrentRoom().getAllThings().get(ZusassDoor.class);
+			if(doors != null){
+				for(var d : doors){
+					if(d.handleDoorPress(zgame)) break;
+				}
+			}
+			return true;
+		}
+		// Right click to attack in a direction
+		else if(press && button == GLFW_MOUSE_BUTTON_RIGHT) {
+			this.beginAttackOrSpell(zgame, ZMath.lineAngle(this.centerX(), this.centerY(), zgame.mouseGX(), zgame.mouseGY()));
+			return true;
+		}
+		return false;
 	}
 	
 	/** @return true if the button which means the player should go through a door, is pressed */

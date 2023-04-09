@@ -14,7 +14,6 @@ public abstract class MenuState extends GameState{
 	 *
 	 * @param menu The menu to use
 	 */
-	
 	public MenuState(Menu menu){
 		this(new MenuNode(menu));
 	}

@@ -29,8 +29,9 @@ public interface GameInteractable{
 	 * @param shift true if shift is pressed, false otherwise
 	 * @param alt true if alt is pressed, false otherwise
 	 * @param ctrl true if ctrl is pressed, false otherwise
+	 * @return true if sub objects of this object should be blocked from further input, false otherwise
 	 */
-	void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl);
+	boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl);
 	
 	/**
 	 * Called when the mouse is moved on the game Override to perform an action when the mouse is moved
@@ -38,16 +39,18 @@ public interface GameInteractable{
 	 * @param game The {@link Game} which called this method
 	 * @param x The x coordinate in screen coordinates
 	 * @param y The y coordinate in screen coordinates
+	 * @return true if sub objects of this object should be blocked from further input, false otherwise
 	 */
-	void mouseMove(Game game, double x, double y);
+	boolean mouseMove(Game game, double x, double y);
 	
 	/**
 	 * Called when the mouse wheel is moved on the game Override to perform an action when the mouse wheel is moved
 	 *
 	 * @param game The {@link Game} which called this method
 	 * @param amount The amount the scroll wheel was moved
+	 * @return true if sub objects of this object should be blocked from further input, false otherwise
 	 */
-	void mouseWheelMove(Game game, double amount);
+	boolean mouseWheelMove(Game game, double amount);
 	
 	/**
 	 * Called each time a game tick occurs. A tick is a game update, i.e. some amount of time passing. Override to perform an action during a game tick
