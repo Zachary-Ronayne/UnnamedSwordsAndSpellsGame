@@ -152,7 +152,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.draggableButton = 0;
 		
 		this.draggableSides = false;
-		this.draggableSideRange = 6;
+		this.draggableSideRange = 15;
 		this.minDragWidth = this.draggableSideRange * 3;
 		this.minDragHeight = this.draggableSideRange * 3;
 		this.draggingX = 0;
@@ -621,56 +621,54 @@ public class MenuThing implements GameInteractable, Destroyable{
 	public void checkForDraggingStart(Game game, int button, boolean press){
 		if(!press){
 			this.anchorPoint = null;
+			this.draggingX = 0;
+			this.draggingY = 0;
 			return;
 		}
 		if(button != this.getDraggableButton()) return;
 		var d = this.getDraggableArea();
-		var x = this.getX();
-		var y = this.getY();
-		var mx = game.mouseSX() - x;
-		var my = game.mouseSY() - y;
+		var mx = game.mouseSX() - this.getRelX() - this.getParentX();
+		var my = game.mouseSY() - this.getRelY() - this.getParentY();
 		var dragging = false;
-		double ax = 0;
-		double ay = 0;
+		double ax = mx;
+		double ay = my;
+		// Checking for dragging the entire thing
 		if(d != null){
 			if(d.contains(mx, my)){
+				dragging = true;
 				this.draggingX = 0;
 				this.draggingY = 0;
-				ax = mx;
-				ay = my;
-				dragging = true;
 			}
 		}
-		// Check for the edges being dragged
-		// Left edge
-		var s = this.getDraggableSideRange();
-		var b = new ZRect(this.getBounds(), -x, -y);
-		if(!dragging && b.width(s).contains(mx, my)){
-			this.draggingX = -1;
-			ax = mx;
-			ay = my;
-			dragging = true;
-		}
-		// Right edge
-		else if(!dragging && b.x(b.getX() + b.getWidth() - s).width(s).contains(mx, my)){
-			this.draggingX = 1;
-			ax = mx - this.getWidth() + this.getParentX();
-			ay = my;
-			dragging = true;
-		}
-		// Top
-		if(!dragging && b.height(s).contains(mx, my)){
-			this.draggingY = -1;
-			ax = mx;
-			ay = my;
-			dragging = true;
-		}
-		// Bottom
-		else if(!dragging && b.y(b.getY() + b.getHeight() - s).height(s).contains(mx, my)){
-			this.draggingY = 1;
-			ax = mx;
-			ay = my - this.getHeight() + this.getParentY();
-			dragging = true;
+		// If the entire thing isn't being dragged, and the sides are draggable, check for dragging edges
+		if(!dragging && this.isDraggableSides()){
+			// Check for the edges being dragged
+			// Left edge
+			var s = this.getDraggableSideRange();
+			var b = new ZRect(0, 0, this.getWidth(), this.getHeight());
+			if(b.width(s).contains(mx, my)){
+				this.draggingX = -1;
+				dragging = true;
+			}
+			// Right edge
+			else if(b.x(b.getX() + b.getWidth() - s).width(s).contains(mx, my)){
+				this.draggingX = 1;
+				// We need to take into account the width at the point of clicking, so that we are anchored relative to the right side of the menu thing
+				ax = mx - this.getWidth();
+				dragging = true;
+			}
+			// Top
+			if(b.height(s).contains(mx, my)){
+				this.draggingY = -1;
+				dragging = true;
+			}
+			// Bottom
+			else if(b.y(b.getY() + b.getHeight() - s).height(s).contains(mx, my)){
+				this.draggingY = 1;
+				// See comments for the right edge
+				ay = my - this.getHeight();
+				dragging = true;
+			}
 		}
 		// If any dragging occurred, set the anchor
 		if(dragging) this.anchorPoint = new ZPoint(ax, ay);
@@ -688,46 +686,62 @@ public class MenuThing implements GameInteractable, Destroyable{
 		if(a == null) return;
 		boolean fullDrag = this.draggingX == 0 && this.draggingY == 0 && this.getDraggableArea() != null;
 		if(fullDrag){
+			// To get the new relative coordinates, take the mouse position, subtract the anchor offset, and subtract the parent offset
 			this.setRelX(game.mouseSX() - a.getX() - this.getParentX());
 			this.setRelY(game.mouseSY() - a.getY() - this.getParentY());
 		}
 		else{
 			// TODO make an option that automatically updates the draggable bounds when these values update
-			
-			// TODO add comments explaining why this makes any sense
-			
-			// TODO fix the weird movement when dragging on the y axis
 			// Drag the left side
 			if(this.draggingX < 0){
+				// This is the old x coordinate of the right side of the menu thing, this coordinate must not change when dragging to the left
 				var oldX = this.getRelX() + this.getWidth();
-				var newWidth = Math.max(this.getMinDragWidth(), oldX - (game.mouseSX() - a.getX() - this.getParentX()));
-				var newX = oldX - newWidth;
+				// This is the new width we want, which will be relative to the mouse position
+				// The new x will be the mouse position, minus the anchor offset, minus the parent position, to get the new relative coordinate
+				var newX = game.mouseSX() - a.getX() - this.getParentX();
+				// The width is the difference of the coordinates
+				var newWidth = oldX - newX;
+				// If the new width will be smaller than the minimum width, adjust the newX so that the right side will be aligned with the minimum width
+				if(newWidth < this.getMinDragWidth()){
+					newWidth = this.getMinDragWidth();
+					newX = oldX - newWidth;
+				}
 				this.setRelX(newX);
 				this.setWidth(newWidth);
 			}
 			// Drag the right side
 			else if(this.draggingX > 0){
-				var newWidth = Math.max(this.getMinDragWidth(), game.mouseSX() - a.getX() - this.getX() + this.getParentX());
+				// The left side will stay the same, so only the width has to change
+				// Using Math.max to ensure a minimum width
+				// Start with the mouse position, subtract out the anchor and parent positions to get the relative coordinates, subtract the relative x to find the new width
+				var newWidth = Math.max(this.getMinDragWidth(), game.mouseSX() - a.getX() - this.getParentX() - this.getRelX());
 				this.setWidth(newWidth);
 			}
 			// Drag the top
 			if(this.draggingY < 0){
+				// See comments for the x axis
 				var oldY = this.getRelY() + this.getHeight();
-				var newHeight = Math.max(this.getMinDragHeight(), oldY - (game.mouseSY() - a.getY() - this.getParentY()));
-				var newY = oldY - newHeight;
+				var newY = game.mouseSY() - a.getY() - this.getParentY();
+				var newHeight = oldY - newY;
+				if(newHeight < this.getMinDragHeight()){
+					newHeight = this.getMinDragHeight();
+					newY = oldY - newHeight;
+				}
 				this.setRelY(newY);
 				this.setHeight(newHeight);
 			}
 			// Drag the bottom
 			else if(this.draggingY > 0){
-				var newHeight = Math.max(this.getMinDragHeight(), game.mouseSY() - a.getY() - this.getY() + this.getParentY());
+				// See comments for the x axis
+				var newHeight = Math.max(this.getMinDragHeight(), game.mouseSY() - a.getY() - this.getParentY() - this.getRelY());
 				this.setHeight(newHeight);
 			}
 		}
-		// TODO add dragging the other edges
 	}
 	
 	// TODO make a way of disabling mouse input for things under this menu, only if they are inside the same area as this menu
+	
+	// TODO make a way of automatically updating the width, height, and position of things, when the parent width and height changes
 	
 	/** Do not call directly */
 	@Override

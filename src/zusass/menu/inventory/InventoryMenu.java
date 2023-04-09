@@ -23,7 +23,7 @@ public class InventoryMenu extends ZusassMenu{
 		this.setWidth(200);
 		this.setHeight(600);
 		this.defaultPosition(zgame);
-		this.setDraggableArea(new ZRect(15, 15, this.getWidth(), 15));
+		this.setDraggableArea(new ZRect(15, 15, this.getWidth(), 30));
 		this.setMinDragWidth(60);
 		this.setMinDragHeight(40);
 		this.setDraggableButton(GLFW_MOUSE_BUTTON_LEFT);
@@ -41,6 +41,8 @@ public class InventoryMenu extends ZusassMenu{
 		m.setFill(new ZColor(0, 0, 1));
 		this.addThing(m);
 	}
+	
+	// TODO make an abstract expandable menu component that has all the dragging and min size and min and max positions all accounted for
 	
 	/**
 	 * Bring this menu to its default position on the right side
