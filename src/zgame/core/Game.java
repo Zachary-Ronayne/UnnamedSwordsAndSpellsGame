@@ -342,57 +342,61 @@ public class Game implements Saveable, Destroyable{
 	 * the main loop
 	 */
 	private void loopFunction(){
-		// Update the state of the game
-		this.updateCurrentState();
-		
-		boolean focused = this.getWindow().isFocused();
-		boolean minimized = this.getWindow().isMinimized();
-		
-		// Update the window
-		this.getWindow().checkEvents();
-		
-		// Only perform rendering operations if the window should be rendered, based on the state of the window's focus and minimize
-		if(!(this.isFocusedRender() && !focused) && !(this.isMinimizedRender() && minimized)){
-			// Clear the main framebuffer
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		try{
+			// Update the state of the game
+			this.updateCurrentState();
 			
-			// Clear the internal renderer and set it up to use the renderer's frame buffer to draw to
-			Renderer r = this.getWindow().getRenderer();
-			r.clear();
+			boolean focused = this.getWindow().isFocused();
+			boolean minimized = this.getWindow().isMinimized();
 			
-			// Render objects using the renderer's frame buffer
-			r.initToDraw();
+			// Update the window
+			this.getWindow().checkEvents();
 			
-			// Draw the background
-			r.setCamera(null);
-			r.identityMatrix();
-			this.renderBackground(r);
+			// Only perform rendering operations if the window should be rendered, based on the state of the window's focus and minimize
+			if(!(this.isFocusedRender() && !focused) && !(this.isMinimizedRender() && minimized)){
+				// Clear the main framebuffer
+				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				
+				// Clear the internal renderer and set it up to use the renderer's frame buffer to draw to
+				Renderer r = this.getWindow().getRenderer();
+				r.clear();
+				
+				// Render objects using the renderer's frame buffer
+				r.initToDraw();
+				
+				// Draw the background
+				r.setCamera(null);
+				r.identityMatrix();
+				this.renderBackground(r);
+				
+				// Draw the foreground, i.e. main objects
+				// Set the camera
+				boolean useCam = this.getCurrentState().isUseCamera();
+				if(useCam) r.setCamera(this.getCamera());
+				else r.setCamera(null);
+				// Move based on the camera, if applicable, and draw the objects
+				r.identityMatrix();
+				if(useCam) this.getCamera().transform(this.getWindow());
+				this.render(r);
+				
+				// Draw the hud
+				r.setCamera(null);
+				r.identityMatrix();
+				this.renderHud(r);
+				
+				// Draw the renderer's frame buffer to the window
+				r.drawToWindow(this.getWindow());
+			}
+			// Update the window
+			this.getWindow().swapBuffers();
 			
-			// Draw the foreground, i.e. main objects
-			// Set the camera
-			boolean useCam = this.getCurrentState().isUseCamera();
-			if(useCam) r.setCamera(this.getCamera());
-			else r.setCamera(null);
-			// Move based on the camera, if applicable, and draw the objects
-			r.identityMatrix();
-			if(useCam) this.getCamera().transform(this.getWindow());
-			this.render(r);
-			
-			// Draw the hud
-			r.setCamera(null);
-			r.identityMatrix();
-			this.renderHud(r);
-			
-			// Draw the renderer's frame buffer to the window
-			r.drawToWindow(this.getWindow());
+			// Check if a state needs to be destroyed
+			if(this.destroyState != null) this.destroyState.destroy();
+		}catch(Exception e){
+			ZConfig.exception(e);
 		}
-		// Update the window
-		this.getWindow().swapBuffers();
-		
-		// Check if a state needs to be destroyed
-		if(this.destroyState != null) this.destroyState.destroy();
 	}
 	
 	/**
@@ -457,11 +461,16 @@ public class Game implements Saveable, Destroyable{
 	 * The function run by the tick GameLooper as its main loop
 	 */
 	private void tickLoopFunction(){
-		boolean focused = this.getWindow().isFocused();
-		boolean minimized = this.getWindow().isMinimized();
-		// If the game should pause when unfocused or minimized, then do nothing
-		if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized) return;
-		this.tick(this.getTickLooper().getRateTime() * this.getGameSpeed());
+		try{
+			boolean focused = this.getWindow().isFocused();
+			boolean minimized = this.getWindow().isMinimized();
+			// If the game should pause when unfocused or minimized, then do nothing
+			if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized) return;
+			this.tick(this.getTickLooper().getRateTime() * this.getGameSpeed());
+			
+		}catch(Exception e){
+			ZConfig.exception(e);
+		}
 	}
 	
 	/**
@@ -503,29 +512,33 @@ public class Game implements Saveable, Destroyable{
 	
 	/** Update the sound state, what sounds are playing, if sounds should be muted, etc */
 	private void updateSounds(){
-		SoundManager sm = this.getSounds();
-		EffectsPlayer ep = sm.getEffectsPlayer();
-		MusicPlayer mp = sm.getMusicPlayer();
-		sm.update();
-		boolean focused = this.getWindow().isFocused();
-		boolean minimized = this.getWindow().isMinimized();
-		if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized){
-			// If the sound has not yet been paused since needing to pause, then save the pause state of the sound players, and then pause them both
-			if(!this.updateSoundState){
-				this.effectsPaused = ep.isPaused();
-				this.musicPaused = ep.isPaused();
-				ep.pause();
-				mp.pause();
-				this.updateSoundState = true;
+		try{
+			SoundManager sm = this.getSounds();
+			EffectsPlayer ep = sm.getEffectsPlayer();
+			MusicPlayer mp = sm.getMusicPlayer();
+			sm.update();
+			boolean focused = this.getWindow().isFocused();
+			boolean minimized = this.getWindow().isMinimized();
+			if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized){
+				// If the sound has not yet been paused since needing to pause, then save the pause state of the sound players, and then pause them both
+				if(!this.updateSoundState){
+					this.effectsPaused = ep.isPaused();
+					this.musicPaused = ep.isPaused();
+					ep.pause();
+					mp.pause();
+					this.updateSoundState = true;
+				}
 			}
-		}
-		else{
-			// If the sound has not been unpaused since no longer needing to be paused, set the pause state to what it was before the pause
-			if(this.updateSoundState){
-				ep.setPaused(this.effectsPaused);
-				mp.setPaused(this.musicPaused);
-				this.updateSoundState = false;
+			else{
+				// If the sound has not been unpaused since no longer needing to be paused, set the pause state to what it was before the pause
+				if(this.updateSoundState){
+					ep.setPaused(this.effectsPaused);
+					mp.setPaused(this.musicPaused);
+					this.updateSoundState = false;
+				}
 			}
+		}catch(Exception e){
+			ZConfig.exception(e);
 		}
 	}
 	

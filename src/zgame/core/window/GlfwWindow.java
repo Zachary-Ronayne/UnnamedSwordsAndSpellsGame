@@ -184,7 +184,11 @@ public class GlfwWindow extends GameWindow{
 	 * @param mods The value containing bits for modifiers, i.e. shift, alt, ctrl
 	 */
 	private void keyPress(long window, int key, int scanCode, int action, int mods){
-		this.keyAction(key, action != GLFW_RELEASE, GLFWModUtils.isShift(mods), GLFWModUtils.isAlt(mods), GLFWModUtils.isCtrl(mods));
+		try{
+			this.keyAction(key, action != GLFW_RELEASE, GLFWModUtils.isShift(mods), GLFWModUtils.isAlt(mods), GLFWModUtils.isCtrl(mods));
+		}catch(Exception e){
+			ZConfig.exception(e);
+		}
 	}
 	
 	/**
@@ -196,7 +200,11 @@ public class GlfwWindow extends GameWindow{
 	 * @param mods The value containing bits for modifiers, i.e. shift, alt, ctrl
 	 */
 	private void mousePress(long window, int button, int action, int mods){
-		this.mouseAction(button, action != GLFW_RELEASE, GLFWModUtils.isShift(mods), GLFWModUtils.isAlt(mods), GLFWModUtils.isCtrl(mods));
+		try{
+			this.mouseAction(button, action != GLFW_RELEASE, GLFWModUtils.isShift(mods), GLFWModUtils.isAlt(mods), GLFWModUtils.isCtrl(mods));
+		}catch(Exception e){
+			ZConfig.exception(e);
+		}
 	}
 	
 	/**
@@ -207,7 +215,11 @@ public class GlfwWindow extends GameWindow{
 	 * @param y The raw y pixel coordinate of the mouse on the GLFW window
 	 */
 	private void mouseMove(long window, double x, double y){
-		this.mouseMove(x, y);
+		try{
+			this.mouseMove(x, y);
+		}catch(Exception e){
+			ZConfig.exception(e);
+		}
 	}
 	
 	/**
@@ -217,7 +229,11 @@ public class GlfwWindow extends GameWindow{
 	 * @param y The amount of distance scrolled on the y axis, used as the scroll amount
 	 */
 	private void mouseWheelMove(long window, double x, double y){
-		this.mouseWheelMove(y);
+		try{
+			this.mouseWheelMove(y);
+		}catch(Exception e){
+			ZConfig.exception(e);
+		}
 	}
 	
 	/**
@@ -228,7 +244,11 @@ public class GlfwWindow extends GameWindow{
 	 * @param h The new height
 	 */
 	private void windowSizeChanged(long window, int w, int h){
-		this.windowSizeChanged(w, h);
+		try{
+			this.windowSizeChanged(w, h);
+		}catch(Exception e){
+			ZConfig.exception(e);
+		}
 	}
 	
 	/**
@@ -238,7 +258,11 @@ public class GlfwWindow extends GameWindow{
 	 * @param min true if the window was minimized, false otherwise
 	 */
 	private void windowMinimize(long window, boolean min){
-		this.windowMinimize(min);
+		try{
+			this.windowMinimize(min);
+		}catch(Exception e){
+			ZConfig.exception(e);
+		}
 	}
 	
 	/**
@@ -248,7 +272,11 @@ public class GlfwWindow extends GameWindow{
 	 * @param focus true if the window gained focus, false otherwise
 	 */
 	private void windowFocus(long window, boolean focus){
-		this.windowFocus(focus);
+		try{
+			this.windowFocus(focus);
+		}catch(Exception e){
+			ZConfig.exception(e);
+		}
 	}
 	
 	@Override
