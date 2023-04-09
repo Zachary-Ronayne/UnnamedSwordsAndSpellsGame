@@ -509,7 +509,8 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		ArrayList<EntityThing> entities = room.getEntities();
 		
 		// Iterate through all entities, ignoring this entity, and find the ones intersecting this entity
-		for(EntityThing e : entities){
+		for(int i = 0; i < entities.size(); i++){
+			var e = entities.get(i);
 			if(e == this || !e.intersects(this)) continue;
 			this.checkEntityCollision(game, e, dt);
 			
