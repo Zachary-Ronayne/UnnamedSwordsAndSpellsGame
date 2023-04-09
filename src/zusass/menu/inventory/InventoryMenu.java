@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZRect;
 import zgame.menu.MenuThing;
+import zgame.menu.format.PercentFormatter;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
 import static org.lwjgl.glfw.GLFW.*;
@@ -39,6 +40,7 @@ public class InventoryMenu extends ZusassMenu{
 		m.setDraggableArea(new ZRect(10, 10, 40, 40));
 		m.removeBorder();
 		m.setFill(new ZColor(0, 0, 1));
+		m.setFormatter(new PercentFormatter(0.5, null, 0.5, null));
 		this.addThing(m);
 	}
 	

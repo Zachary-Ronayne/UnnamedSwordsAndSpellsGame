@@ -10,6 +10,7 @@ import zgame.core.utils.ClassMappedList;
 import zgame.core.utils.ZPoint;
 import zgame.core.utils.ZRect;
 import zgame.core.window.GameWindow;
+import zgame.menu.format.MenuFormatter;
 
 import java.util.List;
 
@@ -92,6 +93,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** The minimum height which this thing can be dragged to from {@link #draggableSides} */
 	private double minDragHeight;
 	
+	/** The object used to dictate how this thing will be formatted when its parent changes, or null to apply no formatting */
+	private MenuFormatter formatter;
+	
 	/**
 	 * Create a {@link MenuThing} with no size or position
 	 */
@@ -131,18 +135,19 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * @param useBuffer true to use {@link #buffer}, false otherwise
 	 */
 	public MenuThing(double x, double y, double width, double height, boolean useBuffer){
+		this.things = new ClassMappedList();
+		this.things.addClass(MenuThing.class);
+		
 		this.relX = x;
 		this.relY = y;
-		this.width = width;
-		this.height = height;
+		this.setWidth(width);
+		this.setHeight(height);
 		
 		this.fill = new ZColor(1, 1);
 		this.border = new ZColor(0, 1);
 		this.borderWidth = 0;
 		
 		this.parent = null;
-		this.things = new ClassMappedList();
-		this.things.addClass(MenuThing.class);
 		
 		this.setBuffer(useBuffer);
 		this.drawThingsToBuffer = true;
@@ -157,6 +162,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.minDragHeight = this.draggableSideRange * 3;
 		this.draggingX = 0;
 		this.draggingY = 0;
+		
+		this.formatter = null;
 	}
 	
 	// issue#11 add option to make things only render in the bounds regardless of a buffer, fix render checking first
@@ -273,9 +280,19 @@ public class MenuThing implements GameInteractable, Destroyable{
 		return this.getRelX() + this.getWidth() * 0.5;
 	}
 	
+	/** @param x The x value that should be the center of this {@link MenuThing} */
+	public void setCenterRelX(double x){
+		this.setRelX(x - this.getWidth() * 0.5);
+	}
+	
 	/** @return The y coordinate of the center of this {@link MenuThing}, relative to the position of its parent */
 	public double centerRelY(){
 		return this.getRelY() + this.getHeight() * 0.5;
+	}
+	
+	/** @param y The y value that should be the center of this {@link MenuThing} */
+	public void setCenterRelY(double y){
+		this.setRelY(y - this.getHeight() * 0.5);
 	}
 	
 	/** @param x See {@link #relX} */
@@ -305,6 +322,10 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** @param width See {@link #width} */
 	public void setWidth(double width){
+		for(var t : this.things.get(MenuThing.class)){
+			var f = t.getFormatter();
+			if(f != null) f.onWidthChange(this, t, width, this.width);
+		}
 		this.width = width;
 	}
 	
@@ -315,6 +336,10 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** @param height See {@link #height} */
 	public void setHeight(double height){
+		for(var t : this.things.get(MenuThing.class)){
+			var f = t.getFormatter();
+			if(f != null) f.onHeightChange(this, t, height, this.height);
+		}
 		this.height = height;
 	}
 	
@@ -457,6 +482,21 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.parent = parent;
 	}
 	
+	/** @return See {@link #formatter} */
+	public MenuFormatter getFormatter(){
+		return this.formatter;
+	}
+	
+	/** @param formatter See #formatter */
+	public void setFormatter(MenuFormatter formatter){
+		this.formatter = formatter;
+	}
+	
+	/** Tell this {@link MenuThing} to not change itself when its parent's width or height changes */
+	public void removeFormatting(){
+		this.setFormatter(null);
+	}
+	
 	/**
 	 * @param thing Check if the given thing is in this object
 	 * @return true if thing is contained by this thing
@@ -477,6 +517,11 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	public boolean addThing(MenuThing thing){
 		if(this == thing || this.hasThing(thing) || thing.getParent() != null) return false;
+		var f = thing.getFormatter();
+		if(f != null){
+			f.onWidthChange(this, thing, this.getWidth(), this.getWidth());
+			f.onHeightChange(this, thing, this.getHeight(), this.getHeight());
+		}
 		thing.setParent(this);
 		var things = this.getThings();
 		return things.add(thing);
@@ -691,7 +736,6 @@ public class MenuThing implements GameInteractable, Destroyable{
 			this.setRelY(game.mouseSY() - a.getY() - this.getParentY());
 		}
 		else{
-			// TODO make an option that automatically updates the draggable bounds when these values update
 			// Drag the left side
 			if(this.draggingX < 0){
 				// This is the old x coordinate of the right side of the menu thing, this coordinate must not change when dragging to the left
@@ -741,7 +785,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	// TODO make a way of disabling mouse input for things under this menu, only if they are inside the same area as this menu
 	
-	// TODO make a way of automatically updating the width, height, and position of things, when the parent width and height changes
+	// TODO make an option that automatically updates the draggable bounds when these values update
 	
 	/** Do not call directly */
 	@Override
