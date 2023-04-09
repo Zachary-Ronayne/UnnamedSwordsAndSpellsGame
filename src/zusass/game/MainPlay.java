@@ -24,8 +24,6 @@ public class MainPlay extends PlayState{
 	
 	// TODO make the main game loop have a try catch so the game doesn't freeze if an exception happens
 	
-	// TODO make the game autosave on death
-	
 	/** The {@link PauseMenu} to display */
 	private final PauseMenu pauseMenu;
 	/** The {@link InventoryMenu} to display */

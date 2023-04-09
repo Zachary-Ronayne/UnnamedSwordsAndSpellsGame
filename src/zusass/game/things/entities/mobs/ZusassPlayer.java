@@ -168,6 +168,7 @@ public class ZusassPlayer extends ZusassMob{
 	public void die(ZusassGame zgame){
 		super.die(zgame);
 		zgame.getPlayState().enterHub(zgame);
+		zgame.getData().checkAutoSave(zgame);
 	}
 	
 	@Override
