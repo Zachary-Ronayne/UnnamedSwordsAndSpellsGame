@@ -20,8 +20,6 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class MainPlay extends PlayState{
 	
-	// TODO potentially stop passing around the game object as a parameter and make it a static singleton
-	
 	/** The {@link PauseMenu} to display */
 	private final PauseMenu pauseMenu;
 	/** The {@link InventoryMenu} to display */

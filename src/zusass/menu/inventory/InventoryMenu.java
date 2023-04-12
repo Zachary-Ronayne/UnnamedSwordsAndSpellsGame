@@ -2,7 +2,6 @@ package zusass.menu.inventory;
 
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
-import zgame.core.utils.ZRect;
 import zgame.menu.MenuThing;
 import zgame.menu.format.PercentFormatter;
 import zusass.ZusassGame;
@@ -24,7 +23,8 @@ public class InventoryMenu extends ZusassMenu{
 		this.setWidth(200);
 		this.setHeight(600);
 		this.defaultPosition(zgame);
-		this.setDraggableArea(new ZRect(15, 15, this.getWidth(), 30));
+		this.setDraggableArea(new MenuThing(0, 15, this.getWidth(), 30));
+		this.setDraggableFormatter(new PercentFormatter(.9, null, 0.5, null));
 		this.setMinDragWidth(60);
 		this.setMinDragHeight(40);
 		this.setDraggableButton(GLFW_MOUSE_BUTTON_LEFT);
@@ -37,7 +37,8 @@ public class InventoryMenu extends ZusassMenu{
 		m.setHeight(60);
 		m.setDraggableButton(GLFW_MOUSE_BUTTON_RIGHT);
 		m.setDraggableSides(true);
-		m.setDraggableArea(new ZRect(10, 10, 40, 40));
+		m.setDraggableArea(new MenuThing(10, 10, 40, 40));
+		m.setDraggableFormatter(new PercentFormatter(.7, .7, .5, .5));
 		m.removeBorder();
 		m.setFill(new ZColor(0, 0, 1));
 		m.setFormatter(new PercentFormatter(0.5, null, 0.5, null));

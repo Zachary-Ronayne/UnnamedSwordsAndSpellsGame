@@ -59,10 +59,10 @@ public class MenuThing implements GameInteractable, Destroyable{
 	private DrawableGameBuffer buffer;
 	
 	/**
-	 * If the mouse is clicked and dragged while within this area relative to this {@link MenuThing}, it will be dragged around.
+	 * If the mouse is clicked and dragged while within the area of the given thing relative to this {@link MenuThing}, it will be dragged around.
 	 * Null to disable dragging. Null by default
 	 */
-	private ZRect draggableArea;
+	private MenuThing draggableArea;
 	
 	/**
 	 * The point, relative to this {@link MenuThing} where the mouse was last clicked for dragging, or null if dragging is disabled, or null if
@@ -98,6 +98,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** The object used to dictate how this thing will be formatted when its parent changes, or null to apply no formatting */
 	private MenuFormatter formatter;
+	
+	/** The object used to dictate how {@link #draggableArea} will be formatted when its parent changes, or null to apply no formatting */
+	private MenuFormatter draggableFormatter;
 	
 	/**
 	 * Create a {@link MenuThing} with no size or position
@@ -169,6 +172,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.draggingY = 0;
 		
 		this.formatter = null;
+		this.draggableFormatter = null;
 	}
 	
 	// issue#11 add option to make things only render in the bounds regardless of a buffer, fix render checking first
@@ -337,8 +341,12 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** @param width See {@link #width} */
 	public void setWidth(double width){
+		var f = this.getDraggableFormatter();
+		var d = this.getDraggableArea();
+		if(f != null && d != null) f.onWidthChange(this, d, width, this.width);
+		
 		for(var t : this.things.get(MenuThing.class)){
-			var f = t.getFormatter();
+			f = t.getFormatter();
 			if(f != null) f.onWidthChange(this, t, width, this.width);
 		}
 		this.width = width;
@@ -351,8 +359,12 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** @param height See {@link #height} */
 	public void setHeight(double height){
+		var f = this.getDraggableFormatter();
+		var d = this.getDraggableArea();
+		if(f != null && d != null) f.onHeightChange(this, d, height, this.height);
+		
 		for(var t : this.things.get(MenuThing.class)){
-			var f = t.getFormatter();
+			f = t.getFormatter();
 			if(f != null) f.onHeightChange(this, t, height, this.height);
 		}
 		this.height = height;
@@ -404,12 +416,12 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/** @return See {@link #draggableArea} */
-	public ZRect getDraggableArea(){
+	public MenuThing getDraggableArea(){
 		return this.draggableArea;
 	}
 	
 	/** @param draggableArea See {@link #draggableArea} */
-	public void setDraggableArea(ZRect draggableArea){
+	public void setDraggableArea(MenuThing draggableArea){
 		this.draggableArea = draggableArea;
 		if(this.draggableArea == null){
 			this.anchorPoint = null;
@@ -418,7 +430,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** @param draggable true if the entire bounds of this {@link MenuThing} should be draggable by the mouse, false if dragging should be disabled */
 	public void setDraggable(boolean draggable){
-		if(draggable) this.setDraggableArea(new ZRect(0, 0, this.getWidth(), this.getHeight()));
+		if(draggable) this.setDraggableArea(new MenuThing(0, 0, this.getWidth(), this.getHeight()));
 		else this.setDraggableArea(null);
 	}
 	
@@ -507,6 +519,17 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.formatter = formatter;
 	}
 	
+	/** @return See {@link #draggableFormatter} */
+	public MenuFormatter getDraggableFormatter(){
+		return this.draggableFormatter;
+	}
+	
+	/** @param draggableFormatter See {@link #draggableFormatter} */
+	public void setDraggableFormatter(MenuFormatter draggableFormatter){
+		this.draggableFormatter = draggableFormatter;
+		this.updateFormat(this.draggableFormatter, this.getDraggableArea());
+	}
+	
 	/** Tell this {@link MenuThing} to not change itself when its parent's width or height changes */
 	public void removeFormatting(){
 		this.setFormatter(null);
@@ -532,14 +555,21 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	public boolean addThing(MenuThing thing){
 		if(this == thing || this.hasThing(thing) || thing.getParent() != null) return false;
-		var f = thing.getFormatter();
-		if(f != null){
-			f.onWidthChange(this, thing, this.getWidth(), this.getWidth());
-			f.onHeightChange(this, thing, this.getHeight(), this.getHeight());
-		}
+		this.updateFormat(thing.getFormatter(), thing);
 		thing.setParent(this);
 		var things = this.getThings();
 		return things.add(thing);
+	}
+	
+	/**
+	 * Helper for updating {@link MenuFormatter} objects
+	 * @param f The formatter to use
+	 * @param thing The thing to update
+	 */
+	private void updateFormat(MenuFormatter f, MenuThing thing){
+		if(f == null || thing == null) return;
+		f.onWidthChange(this, thing, this.getWidth(), this.getWidth());
+		f.onHeightChange(this, thing, this.getHeight(), this.getHeight());
 	}
 	
 	/**
@@ -695,7 +725,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		double ay = my;
 		// Checking for dragging the entire thing
 		if(d != null){
-			if(d.contains(mx, my)){
+			if(d.getBounds().contains(mx, my)){
 				dragging = true;
 				this.draggingX = 0;
 				this.draggingY = 0;
@@ -799,8 +829,6 @@ public class MenuThing implements GameInteractable, Destroyable{
 		}
 		return this.getBounds().contains(x, y);
 	}
-	
-	// TODO make an option that automatically updates the draggable bounds when these values update
 	
 	/** Do not call directly */
 	@Override
