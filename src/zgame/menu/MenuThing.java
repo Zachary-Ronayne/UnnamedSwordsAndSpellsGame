@@ -43,6 +43,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	private boolean drawThingsToBuffer;
 	
+	/** true if, when mouse input is given to this {@link MenuThing}'s bounds, it will not be given to any parent elements, false otherwise, true by default */
+	private boolean stopParentInput;
+	
 	/** The {@link MenuThing} which holds this {@link MenuThing}. Can be null if this {@link MenuThing} has no parent */
 	private MenuThing parent;
 	
@@ -152,6 +155,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.setBuffer(useBuffer);
 		this.drawThingsToBuffer = true;
 		
+		this.stopParentInput = true;
+		
 		this.draggableArea = null;
 		this.anchorPoint = null;
 		this.draggableButton = 0;
@@ -233,6 +238,16 @@ public class MenuThing implements GameInteractable, Destroyable{
 		var things = this.getThings();
 		this.destroyBuffer();
 		for(int i = 0; i < things.size(); i++) things.get(i).destroy();
+	}
+	
+	/** @return See {@link #stopParentInput} */
+	public boolean isStopParentInput(){
+		return this.stopParentInput;
+	}
+	
+	/** @param stopParentInput See {@link #stopParentInput} */
+	public void setStopParentInput(boolean stopParentInput){
+		this.stopParentInput = stopParentInput;
 	}
 	
 	/**
@@ -644,8 +659,6 @@ public class MenuThing implements GameInteractable, Destroyable{
 		}
 	}
 	
-	// TODO make disabling input for sub components optional
-	
 	/** Do not call directly */
 	@Override
 	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
@@ -656,7 +669,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		}
 		
 		this.checkForDraggingStart(game, button, press);
-		return this.getBounds().contains(game.mouseSX(), game.mouseSY());
+		return this.isStopParentInput() && this.getBounds().contains(game.mouseSX(), game.mouseSY());
 	}
 	
 	/**
