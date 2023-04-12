@@ -90,6 +90,10 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	private int draggingY;
 	
+	// TODO repurpose these as general min and max width and height, and also add min and max x and y?
+	
+	// TODO make this entire menu thing based on a formatter, and make the formatter based on a Rectangleable interface, i.e. getters and setters for x, y, width, height
+	
 	/** The minimum width which this thing can be dragged to from {@link #draggableSides} */
 	private double minDragWidth;
 	
