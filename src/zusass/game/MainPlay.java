@@ -184,7 +184,7 @@ public class MainPlay extends PlayState{
 	public void openInventory(ZusassGame zgame){
 		if(showingInventory) return;
 		this.showingInventory = true;
-		this.popupMenu(MenuNode.withAll(new InventoryMenu(zgame)));
+		this.popupMenu(MenuNode.withAll(this.inventoryMenu));
 	}
 	
 	/** @return See {@link #pauseMenu} */

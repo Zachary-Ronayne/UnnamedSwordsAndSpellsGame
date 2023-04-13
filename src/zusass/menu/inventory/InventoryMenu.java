@@ -1,7 +1,9 @@
 package zusass.menu.inventory;
 
 import zgame.core.Game;
+import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.utils.ZRect;
 import zgame.menu.MenuThing;
 import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.MultiFormatter;
@@ -30,13 +32,14 @@ public class InventoryMenu extends ZusassMenu{
 		this.setFill(new ZColor(.3, 0, 0, .8));
 		this.setDraggableArea(new MenuThing(0, 10, 0, 30));
 		this.setDraggableFormatter(new PixelFormatter(10.0, 10.0, null, null));
-		this.setMinDragWidth(60);
-		this.setMinDragHeight(40);
+		this.setMinWidth(60.0);
+		this.setMinHeight(40.0);
 		this.setDraggableButton(GLFW_MOUSE_BUTTON_LEFT);
 		this.setDraggableSides(true);
-		this.setDraggableSideRange(10);
-		this.setMinDragWidth(120);
-		this.setMinDragHeight(75);
+		this.setDraggableSideRange(30);
+		this.setMinWidth(120.0);
+		this.setMinHeight(75.0);
+		this.setKeepInParent(true);
 		
 		this.defaultFormatter = new MultiFormatter(new PixelFormatter(null, 10.0, null, null), new PercentFormatter(null, 0.8, null, 0.5));
 		this.defaultPosition(zgame);
@@ -63,4 +66,12 @@ public class InventoryMenu extends ZusassMenu{
 		if(shift) this.defaultPosition((ZusassGame)game);
 	}
 	
+	@Override
+	public void render(Game game, Renderer r, ZRect bounds){
+		super.render(game, r, bounds);
+		
+		r.setColor(new ZColor(.8, .3));
+		// TODO figure out why the border size or draggable size has to be added to make this line up
+		r.drawRectangle(this.getDraggableArea().getRelBounds().x(bounds.getX() + 10).y(bounds.getY() + 10));
+	}
 }

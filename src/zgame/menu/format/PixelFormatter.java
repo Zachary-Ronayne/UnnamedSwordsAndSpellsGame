@@ -77,26 +77,26 @@ public class PixelFormatter implements MenuFormatter{
 	}
 	
 	@Override
-	public void onWidthChange(MenuThing parent, MenuThing thing, double oldWidth, double newWidth){
+	public void onWidthChange(MenuThing thing, double width){
 		var l = this.getLeft();
 		var r = this.getRight();
 		if(l != null && r != null) {
 			thing.setRelX(l);
-			thing.setWidth(newWidth - l - r);
+			thing.setWidth(width - l - r);
 		}
-		else if(l == null && r != null) thing.setRelX(newWidth - thing.getWidth() - r);
+		else if(l == null && r != null) thing.setRelX(width - thing.getWidth() - r);
 		else if(l != null) thing.setRelX(l);
 	}
 	
 	@Override
-	public void onHeightChange(MenuThing parent, MenuThing thing, double oldHeight, double newHeight){
+	public void onHeightChange(MenuThing thing, double height){
 		var t = this.getTop();
 		var b = this.getBottom();
 		if(t != null && b != null) {
 			thing.setRelY(t);
-			thing.setHeight(newHeight - t - b);
+			thing.setHeight(height - t - b);
 		}
-		else if(t == null && b != null) thing.setRelY(newHeight - thing.getHeight() - b);
+		else if(t == null && b != null) thing.setRelY(height - thing.getHeight() - b);
 		else if(t != null) thing.setRelY(t);
 	
 	}

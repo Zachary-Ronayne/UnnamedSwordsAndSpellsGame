@@ -90,13 +90,22 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	private int draggingY;
 	
-	// TODO repurpose these as general min and max width and height, and also add min and max x and y?
+	/** The minimum width which this thing can be, null for no min */
+	private Double minWidth;
+	/** The maximum width which this thing can be, null for no max */
+	private Double maxWidth;
 	
-	/** The minimum width which this thing can be dragged to from {@link #draggableSides} */
-	private double minDragWidth;
+	/** The minimum height which this thing can be, null for no min */
+	private Double minHeight;
+	/** The maximum height which this thing can be, null for no max */
+	private Double maxHeight;
 	
-	/** The minimum height which this thing can be dragged to from {@link #draggableSides} */
-	private double minDragHeight;
+	/**
+	 * true if this menuThing should not be allowed to leave the bounds of its parent, false to ignore.
+	 * The width and height of this thing will also not exceed that of its parent
+	 * If this has no parent, the bounds will update to the game window during {@link #tick(Game, double)}
+	 */
+	private boolean keepInParent;
 	
 	/** The object used to dictate how this thing will be formatted when its parent changes, or null to apply no formatting */
 	private MenuFormatter formatter;
@@ -168,10 +177,14 @@ public class MenuThing implements GameInteractable, Destroyable{
 		
 		this.draggableSides = false;
 		this.draggableSideRange = 15;
-		this.minDragWidth = this.draggableSideRange * 3;
-		this.minDragHeight = this.draggableSideRange * 3;
 		this.draggingX = 0;
 		this.draggingY = 0;
+		
+		this.minWidth = this.draggableSideRange * 3;
+		this.maxWidth = null;
+		this.minHeight = this.draggableSideRange * 3;
+		this.maxHeight = null;
+		this.keepInParent = false;
 		
 		this.formatter = null;
 		this.draggableFormatter = null;
@@ -184,8 +197,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * @param formatter A formatter to use to set the bounds of the given game window
 	 */
 	public void format(GameWindow window, MenuFormatter formatter){
-		formatter.onWidthChange(this, this, window.getWidth(), window.getWidth());
-		formatter.onHeightChange(this, this, window.getHeight(), window.getHeight());
+		formatter.onWidthChange(this, window.getScreenWidth());
+		formatter.onHeightChange(this, window.getScreenHeight());
 	}
 	
 	// issue#11 add option to make things only render in the bounds regardless of a buffer, fix render checking first
@@ -330,6 +343,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** @param x See {@link #relX} */
 	public void setRelX(double x){
 		this.relX = x;
+		this.keepInParentBounds();
 	}
 	
 	/** @param x The amount to move this thing on the x axis */
@@ -340,6 +354,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** @param y See {@link #relY} */
 	public void setRelY(double y){
 		this.relY = y;
+		this.keepInParentBounds();
 	}
 	
 	/** @param y The amount to move this thing on the x axis */
@@ -354,15 +369,32 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** @param width See {@link #width} */
 	public void setWidth(double width){
+		this.setWidth(width, true);
+	}
+	
+	/**
+	 * @param width See {@link #width}
+	 * @param keepLeft true if theleft of this thing should remain in the same position when the height changes, false to keep the right in the same position
+	 */
+	public void setWidth(double width, boolean keepLeft){
+		var oldX = this.getRelX() + this.getWidth();
+		
+		var m = this.getMaxWidth();
+		if(m != null && width > m) width = m;
+		m = this.getMinWidth();
+		if(m != null && width < m) width = m;
+		this.width = width;
+		
+		if(!keepLeft) this.setRelX(oldX - this.width);
+		
 		var f = this.getDraggableFormatter();
 		var d = this.getDraggableArea();
-		if(f != null && d != null) f.onWidthChange(this, d, width, this.width);
+		if(f != null && d != null) f.onWidthChange(d, this.width);
 		
 		for(var t : this.things.get(MenuThing.class)){
 			f = t.getFormatter();
-			if(f != null) f.onWidthChange(this, t, width, this.width);
+			if(f != null) f.onWidthChange(t, this.width);
 		}
-		this.width = width;
 	}
 	
 	/** @return See {@link #height} */
@@ -372,15 +404,57 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** @param height See {@link #height} */
 	public void setHeight(double height){
+		this.setHeight(height, true);
+	}
+	
+	/**
+	 * @param height See {@link #height}
+	 * @param keepTop true if the top of this thing should remain in the same position when the height changes, false to keep the bottom in the same position
+	 */
+	public void setHeight(double height, boolean keepTop){
+		var oldY = this.getRelY() + this.getHeight();
+		
+		var m = this.getMaxHeight();
+		if(m != null && height > m) height = m;
+		m = this.getMinHeight();
+		if(m != null && height < m) height = m;
+		this.height = height;
+		
+		if(!keepTop) this.setRelY(oldY - this.height);
+		
 		var f = this.getDraggableFormatter();
 		var d = this.getDraggableArea();
-		if(f != null && d != null) f.onHeightChange(this, d, height, this.height);
+		if(f != null && d != null) f.onHeightChange(d, this.height);
 		
 		for(var t : this.things.get(MenuThing.class)){
 			f = t.getFormatter();
-			if(f != null) f.onHeightChange(this, t, height, this.height);
+			if(f != null) f.onHeightChange(t, this.height);
 		}
-		this.height = height;
+	}
+	
+	/**
+	 * Keep this {@link MenuThing} in the given bounds
+	 *
+	 * @param x The upper left hand x coordinate of the relative bounds
+	 * @param y The upper left hand y coordinate of the relative bounds
+	 * @param w The width of the bounds
+	 * @param h The height of the bounds
+	 */
+	public void keepInBounds(double x, double y, double w, double h){
+		// Not using setters to avoid infinite recursion
+		if(this.getWidth() > w) this.width = w;
+		if(this.getHeight() > h) this.height = h;
+		
+		if(this.getRelX() < x) this.setRelX(x);
+		if(this.getRelX() + this.getWidth() > x + w) this.setRelX(x + w - this.getWidth());
+		if(this.getRelY() < y) this.setRelY(y);
+		if(this.getRelY() + this.getHeight() > y + h) this.setRelY(y + h - this.getHeight());
+	}
+	
+	/** Ensure this thing stays within the bounds of its parent. Does nothing if this thing has no parent */
+	public void keepInParentBounds(){
+		var p = this.getParent();
+		if(p != null) this.keepInBounds(0, 0, p.getWidth(), p.getHeight());
 	}
 	
 	/** @return A {@link ZRect} containing the position and size of this {@link MenuThing}, using its absolute coordinates */
@@ -405,6 +479,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/**
 	 * Set {@link #fill} and also remove the border
+	 *
 	 * @param c The color for the fill
 	 */
 	public void setFullColor(ZColor c){
@@ -486,24 +561,54 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.draggableSideRange = draggableSideRange;
 	}
 	
-	/** @return See {@link #minDragWidth} */
-	public double getMinDragWidth(){
-		return minDragWidth;
+	/** @return See {@link #minWidth} */
+	public Double getMinWidth(){
+		return this.minWidth;
 	}
 	
-	/** @param minDragWidth See {@link #minDragWidth} */
-	public void setMinDragWidth(double minDragWidth){
-		this.minDragWidth = minDragWidth;
+	/** @param minWidth See {@link #minWidth} */
+	public void setMinWidth(Double minWidth){
+		this.minWidth = minWidth;
 	}
 	
-	/** @return See {@link #minDragHeight} */
-	public double getMinDragHeight(){
-		return minDragHeight;
+	/** @return See {@link #maxWidth} */
+	public Double getMaxWidth(){
+		return this.maxWidth;
 	}
 	
-	/** @param minDragHeight See {@link #minDragHeight} */
-	public void setMinDragHeight(double minDragHeight){
-		this.minDragHeight = minDragHeight;
+	/** @param maxWidth See {@link #maxWidth} */
+	public void setMaxWidth(Double maxWidth){
+		this.maxWidth = maxWidth;
+	}
+	
+	/** @return See {@link #minHeight} */
+	public Double getMinHeight(){
+		return this.minHeight;
+	}
+	
+	/** @param minHeight See {@link #minHeight} */
+	public void setMinHeight(Double minHeight){
+		this.minHeight = minHeight;
+	}
+	
+	/** @return See {@link #maxHeight} */
+	public Double getMaxHeight(){
+		return this.maxHeight;
+	}
+	
+	/** @param maxHeight See {@link #maxHeight} */
+	public void setMaxHeight(Double maxHeight){
+		this.maxHeight = maxHeight;
+	}
+	
+	/** @return See {@link #keepInParent} */
+	public boolean isKeepInParent(){
+		return this.keepInParent;
+	}
+	
+	/** @param keepInParent See {@link #keepInParent} */
+	public void setKeepInParent(boolean keepInParent){
+		this.keepInParent = keepInParent;
 	}
 	
 	/** @return See {@link #parent} */
@@ -591,8 +696,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	private void updateFormat(MenuFormatter f, MenuThing thing){
 		if(f == null || thing == null) return;
-		f.onWidthChange(this, thing, this.getWidth(), this.getWidth());
-		f.onHeightChange(this, thing, this.getHeight(), this.getHeight());
+		f.onWidthChange(thing, this.getWidth());
+		f.onHeightChange(thing, this.getHeight());
 	}
 	
 	/**
@@ -696,6 +801,11 @@ public class MenuThing implements GameInteractable, Destroyable{
 	@Override
 	public void tick(Game game, double dt){
 		var things = this.getThings();
+		if(this.anchorPoint == null && this.isKeepInParent() && this.parent == null){
+			var w = game.getWindow();
+			this.keepInBounds(0, 0, w.getScreenWidth(), w.getScreenHeight());
+		}
+		
 		for(int i = 0; i < things.size(); i++){
 			MenuThing t = things.get(i);
 			t.tick(game, dt);
@@ -807,47 +917,27 @@ public class MenuThing implements GameInteractable, Destroyable{
 		else{
 			// Drag the left side
 			if(this.draggingX < 0){
-				// This is the old x coordinate of the right side of the menu thing, this coordinate must not change when dragging to the left
-				var oldX = this.getRelX() + this.getWidth();
-				// This is the new width we want, which will be relative to the mouse position
-				// The new x will be the mouse position, minus the anchor offset, minus the parent position, to get the new relative coordinate
-				var newX = game.mouseSX() - a.getX() - this.getParentX();
-				// The width is the difference of the coordinates
-				var newWidth = oldX - newX;
-				// If the new width will be smaller than the minimum width, adjust the newX so that the right side will be aligned with the minimum width
-				if(newWidth < this.getMinDragWidth()){
-					newWidth = this.getMinDragWidth();
-					newX = oldX - newWidth;
-				}
-				this.setRelX(newX);
-				this.setWidth(newWidth);
+				/*
+				 Set the width, starting from the current right side of the bounds,
+				 going left of that bounds by the difference of the mouse x and parent x,
+				 and subtracting out the anchor position to account for the offset
+				 */
+				this.setWidth(this.getRelX() + this.getWidth() - (game.mouseSX() - this.getParentX() - a.getX()), false);
 			}
 			// Drag the right side
 			else if(this.draggingX > 0){
-				// The left side will stay the same, so only the width has to change
-				// Using Math.max to ensure a minimum width
 				// Start with the mouse position, subtract out the anchor and parent positions to get the relative coordinates, subtract the relative x to find the new width
-				var newWidth = Math.max(this.getMinDragWidth(), game.mouseSX() - a.getX() - this.getParentX() - this.getRelX());
-				this.setWidth(newWidth);
+				this.setWidth(game.mouseSX() - a.getX() - this.getParentX() - this.getRelX(), true);
 			}
 			// Drag the top
 			if(this.draggingY < 0){
 				// See comments for the x axis
-				var oldY = this.getRelY() + this.getHeight();
-				var newY = game.mouseSY() - a.getY() - this.getParentY();
-				var newHeight = oldY - newY;
-				if(newHeight < this.getMinDragHeight()){
-					newHeight = this.getMinDragHeight();
-					newY = oldY - newHeight;
-				}
-				this.setRelY(newY);
-				this.setHeight(newHeight);
+				this.setHeight(this.getRelY() + this.getHeight() - (game.mouseSY() - a.getY() - this.getParentY()), false);
 			}
 			// Drag the bottom
 			else if(this.draggingY > 0){
 				// See comments for the x axis
-				var newHeight = Math.max(this.getMinDragHeight(), game.mouseSY() - a.getY() - this.getParentY() - this.getRelY());
-				this.setHeight(newHeight);
+				this.setHeight(game.mouseSY() - a.getY() - this.getParentY() - this.getRelY());
 			}
 		}
 		return this.getBounds().contains(x, y);

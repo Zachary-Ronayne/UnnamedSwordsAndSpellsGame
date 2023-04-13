@@ -22,12 +22,12 @@ public class MultiFormatter implements MenuFormatter{
 	}
 	
 	@Override
-	public void onWidthChange(MenuThing parent, MenuThing thing, double oldWidth, double newWidth){
-		for(var f : this.formatters) f.onWidthChange(parent, thing, oldWidth, newWidth);
+	public void onWidthChange(MenuThing thing, double width){
+		for(var f : this.formatters) f.onWidthChange(thing, width);
 	}
 	
 	@Override
-	public void onHeightChange(MenuThing parent, MenuThing thing, double oldHeight, double newHeight){
-		for(var f : this.formatters) f.onHeightChange(parent, thing, oldHeight, newHeight);
+	public void onHeightChange(MenuThing thing, double height){
+		for(var f : this.formatters) f.onHeightChange(thing, height);
 	}
 }

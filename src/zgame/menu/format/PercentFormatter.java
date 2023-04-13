@@ -75,18 +75,18 @@ public class PercentFormatter implements MenuFormatter{
 	}
 	
 	@Override
-	public void onWidthChange(MenuThing parent, MenuThing thing, double oldWidth, double newWidth){
+	public void onWidthChange(MenuThing thing, double width){
 		var p = this.getPercentWidth();
-		if(p != null) thing.setWidth(newWidth * p);
+		if(p != null) thing.setWidth(width * p);
 		p = this.getCenterX();
-		if(p != null) thing.setCenterRelX(newWidth * p);
+		if(p != null) thing.setCenterRelX(width * p);
 	}
 	
 	@Override
-	public void onHeightChange(MenuThing parent, MenuThing thing, double oldHeight, double newHeight){
+	public void onHeightChange(MenuThing thing, double height){
 		var p = this.getPercentHeight();
-		if(p != null) thing.setHeight(newHeight * p);
+		if(p != null) thing.setHeight(height * p);
 		p = this.getCenterY();
-		if(p != null) thing.setCenterRelY(newHeight * p);
+		if(p != null) thing.setCenterRelY(height * p);
 	}
 }

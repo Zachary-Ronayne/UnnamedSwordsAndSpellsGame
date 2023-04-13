@@ -7,20 +7,16 @@ public interface MenuFormatter{
 	
 	/**
 	 * Called whenever a {@link MenuThing}'s {@link MenuThing#parent}'s width is changed
-	 * @param parent The parent which was changed
 	 * @param thing The thing which is under the parent
-	 * @param oldWidth The width before the change
-	 * @param newWidth The width after the change
+	 * @param width The new width of the parent
 	 */
-	void onWidthChange(MenuThing parent, MenuThing thing, double oldWidth, double newWidth);
+	void onWidthChange(MenuThing thing, double width);
 	
 	/**
 	 * Called whenever a {@link MenuThing}'s {@link MenuThing#parent}'s height is changed
-	 * @param parent The parent which was changed
 	 * @param thing The thing which is under the parent
-	 * @param oldHeight The height before the change
-	 * @param newHeight The height after the change
+	 * @param height The new height of the parent
 	 */
-	void onHeightChange(MenuThing parent, MenuThing thing, double oldHeight, double newHeight);
+	void onHeightChange(MenuThing thing, double height);
 
 }
