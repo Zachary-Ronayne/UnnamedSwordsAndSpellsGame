@@ -47,7 +47,7 @@ public class ZRect extends Rectangle2D.Double{
 	 * @param padding An amount to add around the rectangle on all sides
 	 */
 	public ZRect(ZRect r, double padding){
-		this(r.getX(), r.getY(), r.getWidth(), r.getHeight(), padding * 2);
+		this(r.getX(), r.getY(), r.getWidth(), r.getHeight(), padding);
 	}
 	
 	/**

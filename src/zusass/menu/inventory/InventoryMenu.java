@@ -19,32 +19,22 @@ public class InventoryMenu extends ZusassMenu{
 	public InventoryMenu(ZusassGame zgame){
 		super(zgame, "");
 		// TODO make a utility method that sets the solid color, like makes the border invisible and adds the fill
-		this.setBorder(new ZColor(0, 0, 0, 0));
+		this.setBorder(new ZColor(.1, 0, 0, 0.8));
+		this.setBorderWidth(10);
 		this.setFill(new ZColor(.3, 0, 0, .8));
 		this.setWidth(200);
 		this.setHeight(600);
-		this.defaultPosition(zgame);
-		this.setDraggableArea(new MenuThing(0, 15, this.getWidth(), 30));
-		var f = new PixelFormatter(15.0, 15.0, null, null);
-		this.setDraggableFormatter(f);
+		this.setDraggableArea(new MenuThing(0, 10, 0, 30));
+		this.setDraggableFormatter(new PixelFormatter(10.0, 10.0, null, null));
 		this.setMinDragWidth(60);
 		this.setMinDragHeight(40);
 		this.setDraggableButton(GLFW_MOUSE_BUTTON_LEFT);
 		this.setDraggableSides(true);
+		this.setDraggableSideRange(10);
+		this.setMinDragWidth(120);
+		this.setMinDragHeight(75);
 		
-		var m = new MenuThing();
-		m.setRelX(10);
-		m.setRelY(40);
-		m.setWidth(60);
-		m.setHeight(60);
-		m.setDraggableButton(GLFW_MOUSE_BUTTON_RIGHT);
-		m.setDraggableSides(true);
-		m.setDraggableArea(new MenuThing(10, 10, 40, 40));
-		m.setDraggableFormatter(new PercentFormatter(.7, .7, .5, .5));
-		m.removeBorder();
-		m.setFill(new ZColor(0, 0, 1));
-		m.setFormatter(new PercentFormatter(0.5, null, 0.5, null));
-		this.addThing(m);
+		this.defaultPosition(zgame);
 	}
 	
 	// TODO make an abstract expandable menu component that has all the dragging and min size and min and max positions all accounted for

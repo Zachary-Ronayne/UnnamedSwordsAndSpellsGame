@@ -882,10 +882,18 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	public void render(Game game, Renderer r, ZRect bounds){
 		// issue#12 draw the border as 4 separate rectangles instead of as a big fill
-		r.setColor(this.getBorder());
-		r.drawRectangle(bounds);
-		r.setColor(this.getFill());
 		double b = this.getBorderWidth();
+		r.setColor(this.getBorder());
+		var x = bounds.getX();
+		var y = bounds.getY();
+		var w = bounds.getWidth();
+		var h = bounds.getHeight();
+		r.drawRectangle(x, y, w - b, b);
+		r.drawRectangle(x + w - b, y, b, h - b);
+		r.drawRectangle(x + b, y + h - b, w - b, b);
+		r.drawRectangle(x, y + b, b, h - b);
+		
+		r.setColor(this.getFill());
 		r.drawRectangle(new ZRect(bounds, -b));
 	}
 	

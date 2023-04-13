@@ -499,7 +499,7 @@ public class MainTest extends Game{
 			
 			ZRect[] bs = r.getFont().stringBounds(600, -400, s, 0, true);
 			r.setColor(.25, .25, .25, .2);
-			r.drawRectangle(new ZRect(bs[s.length()], 5));
+			r.drawRectangle(new ZRect(bs[s.length()], 10));
 			r.setColor(.25, .25, .25, .4);
 			r.drawRectangle(bs[s.length()]);
 			r.setColor(.7, .7, .7, .1);
@@ -521,7 +521,7 @@ public class MainTest extends Game{
 			r.setColor(new ZColor(1, 0, 1));
 			r.drawText(1100, 0, s);
 			r.setColor(.25, .25, .25, .2);
-			r.drawRectangle(new ZRect(bs[s.length()], 5));
+			r.drawRectangle(new ZRect(bs[s.length()], 10));
 			r.setColor(.25, .25, .25, .4);
 			r.drawRectangle(bs[s.length()]);
 			r.setColor(.7, .7, .7, .1);
