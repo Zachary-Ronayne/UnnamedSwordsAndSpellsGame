@@ -3,27 +3,31 @@ package zusass.menu.inventory;
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuThing;
+import zgame.menu.format.MenuFormatter;
+import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 /** The menu which displays on top of the game */
 public class InventoryMenu extends ZusassMenu{
 	
+	/** The formatter used to position this menu */
+	private final MenuFormatter defaultFormatter;
+	
 	/**
 	 * Create a new {@link InventoryMenu} for displaying the inventory of something
+	 *
 	 * @param zgame The game which will use this menu
 	 */
 	public InventoryMenu(ZusassGame zgame){
 		super(zgame, "");
-		// TODO make a utility method that sets the solid color, like makes the border invisible and adds the fill
 		this.setBorder(new ZColor(.1, 0, 0, 0.8));
 		this.setBorderWidth(10);
 		this.setFill(new ZColor(.3, 0, 0, .8));
-		this.setWidth(200);
-		this.setHeight(600);
 		this.setDraggableArea(new MenuThing(0, 10, 0, 30));
 		this.setDraggableFormatter(new PixelFormatter(10.0, 10.0, null, null));
 		this.setMinDragWidth(60);
@@ -34,6 +38,7 @@ public class InventoryMenu extends ZusassMenu{
 		this.setMinDragWidth(120);
 		this.setMinDragHeight(75);
 		
+		this.defaultFormatter = new MultiFormatter(new PixelFormatter(null, 10.0, null, null), new PercentFormatter(null, 0.8, null, 0.5));
 		this.defaultPosition(zgame);
 	}
 	
@@ -41,12 +46,13 @@ public class InventoryMenu extends ZusassMenu{
 	
 	/**
 	 * Bring this menu to its default position on the right side
+	 *
 	 * @param zgame The game used to position the menu
 	 */
 	public void defaultPosition(ZusassGame zgame){
 		var w = zgame.getWindow();
-		this.center(w);
-		this.setRelX(w.getWidth() - this.getWidth() * 1.1);
+		this.setWidth(200);
+		this.format(w, this.defaultFormatter);
 	}
 	
 	@Override

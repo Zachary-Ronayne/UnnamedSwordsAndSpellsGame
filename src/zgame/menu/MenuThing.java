@@ -92,8 +92,6 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	// TODO repurpose these as general min and max width and height, and also add min and max x and y?
 	
-	// TODO make this entire menu thing based on a formatter, and make the formatter based on a Rectangleable interface, i.e. getters and setters for x, y, width, height
-	
 	/** The minimum width which this thing can be dragged to from {@link #draggableSides} */
 	private double minDragWidth;
 	
@@ -177,6 +175,17 @@ public class MenuThing implements GameInteractable, Destroyable{
 		
 		this.formatter = null;
 		this.draggableFormatter = null;
+	}
+	
+	/**
+	 * Format this {@link MenuThing} so that it aligns with the given window
+	 *
+	 * @param window The window to format to
+	 * @param formatter A formatter to use to set the bounds of the given game window
+	 */
+	public void format(GameWindow window, MenuFormatter formatter){
+		formatter.onWidthChange(this, this, window.getWidth(), window.getWidth());
+		formatter.onHeightChange(this, this, window.getHeight(), window.getHeight());
 	}
 	
 	// issue#11 add option to make things only render in the bounds regardless of a buffer, fix render checking first
@@ -394,6 +403,15 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.fill = fill;
 	}
 	
+	/**
+	 * Set {@link #fill} and also remove the border
+	 * @param c The color for the fill
+	 */
+	public void setFullColor(ZColor c){
+		this.fill = c;
+		this.border = new ZColor(0, 0);
+	}
+	
 	/** @return See {@link #border} */
 	public ZColor getBorder(){
 		return this.border;
@@ -567,6 +585,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/**
 	 * Helper for updating {@link MenuFormatter} objects
+	 *
 	 * @param f The formatter to use
 	 * @param thing The thing to update
 	 */
