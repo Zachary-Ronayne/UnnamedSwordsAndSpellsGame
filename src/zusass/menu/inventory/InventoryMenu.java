@@ -36,7 +36,7 @@ public class InventoryMenu extends ZusassMenu{
 		this.setMinHeight(40.0);
 		this.setDraggableButton(GLFW_MOUSE_BUTTON_LEFT);
 		this.setDraggableSides(true);
-		this.setDraggableSideRange(30);
+		this.setDraggableSideRange(10);
 		this.setMinWidth(120.0);
 		this.setMinHeight(75.0);
 		this.setKeepInParent(true);
@@ -71,7 +71,7 @@ public class InventoryMenu extends ZusassMenu{
 		super.render(game, r, bounds);
 		
 		r.setColor(new ZColor(.8, .3));
-		// TODO figure out why the border size or draggable size has to be added to make this line up
-		r.drawRectangle(this.getDraggableArea().getRelBounds().x(bounds.getX() + 10).y(bounds.getY() + 10));
+		var d = this.getDraggableArea().getRelBounds();
+		r.drawRectangle(d.x(bounds.getX() + d.getX()).y(bounds.getY() + d.getY()));
 	}
 }
