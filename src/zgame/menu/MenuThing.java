@@ -392,7 +392,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/**
 	 * @param width See {@link #width}
-	 * @param keepLeft true if theleft of this thing should remain in the same position when the height changes, false to keep the right in the same position
+	 * @param keepLeft true if the left of this thing should remain in the same position when the height changes, false to keep the right in the same position
 	 */
 	public void setWidth(double width, boolean keepLeft){
 		var oldX = this.getRelX() + this.getWidth();
@@ -405,10 +405,14 @@ public class MenuThing implements GameInteractable, Destroyable{
 		
 		if(!keepLeft) this.setRelX(oldX - this.width);
 		
+		this.onWidthChange();
+	}
+	
+	/** Called when the width changes */
+	private void onWidthChange(){
 		var f = this.getDraggableFormatter();
 		var d = this.getDraggableArea();
 		if(f != null && d != null) f.onWidthChange(d, this.width);
-		
 		for(var t : this.things.get(MenuThing.class)){
 			f = t.getFormatter();
 			if(f != null) f.onWidthChange(t, this.width);
@@ -440,6 +444,11 @@ public class MenuThing implements GameInteractable, Destroyable{
 		
 		if(!keepTop) this.setRelY(oldY - this.height);
 		
+		onHeightChange();
+	}
+	
+	/** Called when the height changes */
+	private void onHeightChange(){
 		var f = this.getDraggableFormatter();
 		var d = this.getDraggableArea();
 		if(f != null && d != null) f.onHeightChange(d, this.height);
@@ -460,8 +469,14 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	public void keepInBounds(double x, double y, double w, double h){
 		// Not using setters to avoid infinite recursion
-		if(this.getWidth() > w) this.width = w;
-		if(this.getHeight() > h) this.height = h;
+		if(this.getWidth() > w) {
+			this.width = w;
+			this.onWidthChange();
+		}
+		if(this.getHeight() > h) {
+			this.height = h;
+			this.onHeightChange();
+		}
 		
 		if(this.getRelX() < x) this.setRelX(x);
 		if(this.getRelX() + this.getWidth() > x + w) this.setRelX(x + w - this.getWidth());

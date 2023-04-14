@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZRect;
+import zgame.menu.MenuThing;
 import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
@@ -34,6 +35,11 @@ public class InventoryMenu extends ZusassMenu{
 		
 		this.defaultFormatter = new MultiFormatter(new PixelFormatter(null, 10.0, null, null), new PercentFormatter(null, 0.8, null, 0.5));
 		this.defaultPosition(zgame);
+		
+		var m = new MenuThing();
+		m.setFormatter(new PixelFormatter(40));
+		m.setFullColor(new ZColor(.5));
+		this.addThing(m);
 	}
 	
 	/**
