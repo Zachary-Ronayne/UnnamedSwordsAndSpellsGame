@@ -11,8 +11,11 @@ import zgame.core.utils.ZPoint;
 import zgame.core.utils.ZRect;
 import zgame.core.window.GameWindow;
 import zgame.menu.format.MenuFormatter;
+import zgame.menu.format.PixelFormatter;
 
 import java.util.List;
+
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
 /**
  * An object which can be contained by a Menu
@@ -188,6 +191,21 @@ public class MenuThing implements GameInteractable, Destroyable{
 		
 		this.formatter = null;
 		this.draggableFormatter = null;
+	}
+	
+	/**
+	 * Enable {@link #draggableSides} {@link #draggableArea}, and position the draggable area at the top of the menu
+	 * @param borderSize The size of the border and the draggable sides size
+	 * @param draggableHeight The distance from the top draggable side, down to the bottom of the draggable area
+	 */
+	public void makeDraggable(double borderSize, double draggableHeight){
+		this.setBorderWidth(borderSize);
+		this.setDraggableArea(new MenuThing(0, borderSize, 0, draggableHeight));
+		this.setDraggableFormatter(new PixelFormatter(borderSize, borderSize, null, null));
+		this.setDraggableButton(GLFW_MOUSE_BUTTON_LEFT);
+		this.setDraggableSides(true);
+		this.setDraggableSideRange(borderSize);
+		this.setKeepInParent(true);
 	}
 	
 	/**
