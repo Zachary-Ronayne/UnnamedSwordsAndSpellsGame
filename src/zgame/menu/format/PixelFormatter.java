@@ -81,8 +81,8 @@ public class PixelFormatter implements MenuFormatter{
 		var l = this.getLeft();
 		var r = this.getRight();
 		if(l != null && r != null) {
-			thing.setRelX(l);
 			thing.setWidth(width - l - r);
+			thing.setRelX(l);
 		}
 		else if(l == null && r != null) thing.setRelX(width - thing.getWidth() - r);
 		else if(l != null) thing.setRelX(l);
@@ -93,11 +93,10 @@ public class PixelFormatter implements MenuFormatter{
 		var t = this.getTop();
 		var b = this.getBottom();
 		if(t != null && b != null) {
-			thing.setRelY(t);
 			thing.setHeight(height - t - b);
+			thing.setRelY(t);
 		}
 		else if(t == null && b != null) thing.setRelY(height - thing.getHeight() - b);
 		else if(t != null) thing.setRelY(t);
-	
 	}
 }
