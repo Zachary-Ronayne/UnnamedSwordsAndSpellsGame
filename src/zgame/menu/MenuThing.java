@@ -93,6 +93,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	private int draggingY;
 	
+	/** If true, children all key and mouse input for parents when this thing is being dragged, does nothing if false */
+	private boolean disableChildrenWhenDragging;
+	
 	/** The minimum width which this thing can be, null for no min */
 	private Double minWidth;
 	/** The maximum width which this thing can be, null for no max */
@@ -178,6 +181,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.anchorPoint = null;
 		this.draggableButton = 0;
 		
+		this.disableChildrenWhenDragging = true;
 		this.draggableSides = false;
 		this.draggableSideRange = 15;
 		this.draggingX = 0;
@@ -585,6 +589,21 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.draggableSides = draggableSides;
 	}
 	
+	/** @return See {@link #disableChildrenWhenDragging} */
+	public boolean isDisableChildrenWhenDragging(){
+		return this.disableChildrenWhenDragging;
+	}
+	
+	/** @param disableChildrenWhenDragging See {@link #disableChildrenWhenDragging} */
+	public void setDisableChildrenWhenDragging(boolean disableChildrenWhenDragging){
+		this.disableChildrenWhenDragging = disableChildrenWhenDragging;
+	}
+	
+	/** @return true if this thing is being dragged, false otherwise */
+	public boolean currentlyDragging(){
+		return this.anchorPoint != null;
+	}
+	
 	/** @return See {@link #draggableSideRange} */
 	public double getDraggableSideRange(){
 		return this.draggableSideRange;
@@ -849,6 +868,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** Do not call directly */
 	@Override
 	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		if(this.isDisableChildrenWhenDragging() && this.currentlyDragging()) return;
 		var things = this.getThings();
 		for(int i = 0; i < things.size(); i++){
 			MenuThing t = things.get(i);
@@ -856,17 +876,28 @@ public class MenuThing implements GameInteractable, Destroyable{
 		}
 	}
 	
+	/**
+	 * @param x The current x coordinate of the mouse
+	 * @param y The current y coordinate of the mouse
+	 * @return true if the mouse is intersecting this thing and parent input can be stopped, false otherwise
+	 */
+	public boolean shouldDisableMouseInput(double x, double y){
+		return this.isStopParentInput() && this.getBounds().contains(x, y);
+	}
+	
 	/** Do not call directly */
 	@Override
 	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		var things = this.getThings();
-		for(int i = 0; i < things.size(); i++){
-			MenuThing t = things.get(i);
-			if(t.mouseAction(game, button, press, shift, alt, ctrl)) return true;
+		if(!(this.isDisableChildrenWhenDragging() && this.currentlyDragging())){
+			var things = this.getThings();
+			for(int i = 0; i < things.size(); i++){
+				MenuThing t = things.get(i);
+				if(t.mouseAction(game, button, press, shift, alt, ctrl)) return true;
+			}
 		}
 		
 		this.checkForDraggingStart(game, button, press);
-		return this.isStopParentInput() && this.getBounds().contains(game.mouseSX(), game.mouseSY());
+		return shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 	}
 	
 	/**
@@ -935,13 +966,15 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** Do not call directly */
 	@Override
 	public boolean mouseMove(Game game, double x, double y){
-		var things = this.getThings();
-		for(int i = 0; i < things.size(); i++){
-			MenuThing t = things.get(i);
-			if(t.mouseMove(game, x, y)) return true;
+		if(!(this.isDisableChildrenWhenDragging() && this.currentlyDragging())){
+			var things = this.getThings();
+			for(int i = 0; i < things.size(); i++){
+				MenuThing t = things.get(i);
+				if(t.mouseMove(game, x, y)) return true;
+			}
 		}
 		var a = this.anchorPoint;
-		if(a == null) return this.isStopParentInput() && this.getBounds().contains(x, y);
+		if(a == null) return shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 		boolean fullDrag = this.draggingX == 0 && this.draggingY == 0 && this.getDraggableArea() != null;
 		if(fullDrag){
 			// To get the new relative coordinates, take the mouse position, subtract the anchor offset, and subtract the parent offset
@@ -974,18 +1007,20 @@ public class MenuThing implements GameInteractable, Destroyable{
 				this.setHeight(game.mouseSY() - a.getY() - this.getParentY() - this.getRelY());
 			}
 		}
-		return this.isStopParentInput() && this.getBounds().contains(x, y);
+		return shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 	}
 	
 	/** Do not call directly */
 	@Override
 	public boolean mouseWheelMove(Game game, double amount){
-		var things = this.getThings();
-		for(int i = 0; i < things.size(); i++){
-			MenuThing t = things.get(i);
-			if(t.mouseWheelMove(game, amount)) return true;
+		if(!(this.isDisableChildrenWhenDragging() && this.currentlyDragging())){
+			var things = this.getThings();
+			for(int i = 0; i < things.size(); i++){
+				MenuThing t = things.get(i);
+				if(t.mouseWheelMove(game, amount)) return true;
+			}
 		}
-		return this.isStopParentInput() && this.getBounds().contains(game.mouseSX(), game.mouseSY());
+		return shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 	}
 	
 	/** Do not call directly, use {@link #render(Game, Renderer, ZRect)} to draw menu things and override their rendering behavior */
