@@ -172,7 +172,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.setBuffer(useBuffer);
 		this.drawThingsToBuffer = true;
 		
-		this.stopParentInput = true;
+		this.stopParentInput = false;
 		
 		this.draggableArea = null;
 		this.anchorPoint = null;
@@ -206,6 +206,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.setDraggableSides(true);
 		this.setDraggableSideRange(borderSize);
 		this.setKeepInParent(true);
+		this.setStopParentInput(true);
 	}
 	
 	/**
@@ -940,7 +941,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 			if(t.mouseMove(game, x, y)) return true;
 		}
 		var a = this.anchorPoint;
-		if(a == null) return this.getBounds().contains(x, y);
+		if(a == null) return this.isStopParentInput() && this.getBounds().contains(x, y);
 		boolean fullDrag = this.draggingX == 0 && this.draggingY == 0 && this.getDraggableArea() != null;
 		if(fullDrag){
 			// To get the new relative coordinates, take the mouse position, subtract the anchor offset, and subtract the parent offset
@@ -973,7 +974,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 				this.setHeight(game.mouseSY() - a.getY() - this.getParentY() - this.getRelY());
 			}
 		}
-		return this.getBounds().contains(x, y);
+		return this.isStopParentInput() && this.getBounds().contains(x, y);
 	}
 	
 	/** Do not call directly */
@@ -984,7 +985,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 			MenuThing t = things.get(i);
 			if(t.mouseWheelMove(game, amount)) return true;
 		}
-		return this.getBounds().contains(game.mouseSX(), game.mouseSY());
+		return this.isStopParentInput() && this.getBounds().contains(game.mouseSX(), game.mouseSY());
 	}
 	
 	/** Do not call directly, use {@link #render(Game, Renderer, ZRect)} to draw menu things and override their rendering behavior */
