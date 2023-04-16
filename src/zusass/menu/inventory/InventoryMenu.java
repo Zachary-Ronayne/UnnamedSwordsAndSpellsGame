@@ -9,6 +9,7 @@ import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
+import zusass.game.things.entities.mobs.ZusassMob;
 import zusass.menu.ZusassMenu;
 
 /** The menu which displays on top of the game */
@@ -16,6 +17,12 @@ public class InventoryMenu extends ZusassMenu{
 	
 	/** The formatter used to position this menu */
 	private final MenuFormatter defaultFormatter;
+	
+	/** the mob which uses the contents of this menu */
+	private ZusassMob mob;
+	
+	/** The menu thing holding the list of spells to display */
+	private SpellList spellList;
 	
 	/**
 	 * Create a new {@link InventoryMenu} for displaying the inventory of something
@@ -27,13 +34,26 @@ public class InventoryMenu extends ZusassMenu{
 		this.makeDraggable(10, 30);
 		this.setBorder(new ZColor(.1, 0, 0, 0.8));
 		this.setFill(new ZColor(.3, 0, 0, .8));
-		this.setMinWidth(60.0);
-		this.setMinHeight(40.0);
 		this.setMinWidth(120.0);
 		this.setMinHeight(75.0);
 		
 		this.defaultFormatter = new MultiFormatter(new PixelFormatter(null, 10.0, null, null), new PercentFormatter(null, 0.8, null, 0.5));
 		this.defaultPosition(zgame);
+		
+		this.spellList = new SpellList(this, zgame);
+		this.addThing(this.spellList);
+		
+		this.mob = null;
+	}
+	
+	@Override
+	public void onWidthChange(){
+		super.onWidthChange();
+	}
+	
+	@Override
+	public void onHeightChange(){
+		super.onHeightChange();
 	}
 	
 	/**
@@ -54,5 +74,15 @@ public class InventoryMenu extends ZusassMenu{
 		r.setColor(new ZColor(.8, .3));
 		var d = this.getDraggableArea().getRelBounds();
 		r.drawRectangle(d.x(bounds.getX() + d.getX()).y(bounds.getY() + d.getY()));
+	}
+	
+	/** @return See {@link #mob} */
+	public ZusassMob getMob(){
+		return this.mob;
+	}
+	
+	/** @param mob See {@link #mob} */
+	public void setMob(ZusassMob mob){
+		this.mob = mob;
 	}
 }

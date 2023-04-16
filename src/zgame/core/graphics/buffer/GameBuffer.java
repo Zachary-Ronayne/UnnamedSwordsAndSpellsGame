@@ -113,12 +113,11 @@ public class GameBuffer implements Destroyable{
 	public void destroy(){
 		if(!this.bufferGenerated) return;
 		this.bufferGenerated = false;
-		ZConfig.debug("On game buffer: ", this, ", deleted frame buffer ID: ", this.getFrameID(), ", and texture ID: ", this.getTextureID());
 		
 		// Delete the buffer
 		glDeleteFramebuffers(this.getFrameID());
 		glDeleteTextures(this.getTextureID());
-		
+		ZConfig.debug("On game buffer: ", this, ", deleted frame buffer ID: ", this.getFrameID(), ", and texture ID: ", this.getTextureID());
 	}
 	
 	/**

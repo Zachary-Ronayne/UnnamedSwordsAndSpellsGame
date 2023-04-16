@@ -69,6 +69,18 @@ public class MenuText extends MenuThing{
 		this.buffer.destroy();
 	}
 	
+	@Override
+	public void updateBuffer(){
+		super.updateBuffer();
+		this.buffer.regenerateBuffer((int)Math.round(this.getWidth()), (int)Math.round(this.getHeight()));
+	}
+	
+	@Override
+	public void regenerateBuffer(){
+		super.regenerateBuffer();
+		this.buffer.regenerateBuffer((int)Math.round(this.getWidth()), (int)Math.round(this.getHeight()));
+	}
+	
 	/** @return See {@link #text} */
 	public String getText(){
 		return this.text;
@@ -136,7 +148,7 @@ public class MenuText extends MenuThing{
 		this.setFont(this.getFont().size(fontSize));
 	}
 	
-	/** Move the text of this {@link MenuText} so that it's in the center of it's bounds */
+	/** Move the text of this {@link MenuText} so that it's in the center of its bounds */
 	public void centerText(){
 		ZRect b = this.getTextBounds();
 		this.centerTextHorizontal(b.width);

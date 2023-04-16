@@ -1226,9 +1226,19 @@ public class Renderer implements Destroyable{
 		return this.getBuffer().getWidth();
 	}
 	
+	/** @return The base width of the window used by this buffer, regardless of what is on top of the stack */
+	public int getBaseWidth(){
+		return this.bufferStack.getDefaultItem().getWidth();
+	}
+	
 	/** @return The height, in pixels, of the underlying buffer of this Renderer */
 	public int getHeight(){
 		return this.getBuffer().getHeight();
+	}
+	
+	/** @return The base height of the window used by this buffer, regardless of what is on top of the stack */
+	public int getBaseHeight(){
+		return this.bufferStack.getDefaultItem().getHeight();
 	}
 	
 	/** @return A rectangle of the bounds of this {@link Renderer}, i.e. the position will be (0, 0), width will be {@link #getWidth()} and height will be {@link #getHeight()} */

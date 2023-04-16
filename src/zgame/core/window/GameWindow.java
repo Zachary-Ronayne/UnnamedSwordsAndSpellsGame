@@ -532,12 +532,12 @@ public abstract class GameWindow implements Destroyable{
 	
 	/** @return The width, in pixels, of the internal buffer */
 	public int getScreenWidth(){
-		return this.getRenderer().getWidth();
+		return this.getRenderer().getBaseWidth();
 	}
 	
 	/** @return The height, in pixels, of the internal buffer */
 	public int getScreenHeight(){
-		return this.getRenderer().getHeight();
+		return this.getRenderer().getBaseHeight();
 	}
 	
 	/** @return See {@link #stretchToFill} */

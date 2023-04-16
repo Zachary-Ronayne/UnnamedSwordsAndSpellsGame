@@ -187,9 +187,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.draggingX = 0;
 		this.draggingY = 0;
 		
-		this.minWidth = this.draggableSideRange * 3;
+		this.minWidth = null;
 		this.maxWidth = null;
-		this.minHeight = this.draggableSideRange * 3;
+		this.minHeight = null;
 		this.maxHeight = null;
 		this.keepInParent = false;
 		
@@ -199,6 +199,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/**
 	 * Enable {@link #draggableSides} {@link #draggableArea}, and position the draggable area at the top of the menu
+	 *
 	 * @param borderSize The size of the border and the draggable sides size
 	 * @param draggableHeight The distance from the top draggable side, down to the bottom of the draggable area
 	 */
@@ -256,6 +257,11 @@ public class MenuThing implements GameInteractable, Destroyable{
 	public void updateBuffer(){
 		this.destroyBuffer();
 		this.initBuffer();
+	}
+	
+	/** Regenerate {@link #buffer} to the current size of this menu thing, does nothing if {@link #buffer} is already null */
+	public void regenerateBuffer(){
+		if(this.buffer != null) this.buffer.regenerateBuffer((int)this.getWidth(), (int)this.getHeight());
 	}
 	
 	/**
@@ -414,7 +420,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/** Called when the width changes */
-	private void onWidthChange(){
+	public void onWidthChange(){
 		var f = this.getDraggableFormatter();
 		var d = this.getDraggableArea();
 		if(f != null && d != null) f.onWidthChange(d, this.width);
@@ -453,7 +459,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/** Called when the height changes */
-	private void onHeightChange(){
+	public void onHeightChange(){
 		var f = this.getDraggableFormatter();
 		var d = this.getDraggableArea();
 		if(f != null && d != null) f.onHeightChange(d, this.height);
@@ -474,11 +480,11 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	public void keepInBounds(double x, double y, double w, double h){
 		// Not using setters to avoid infinite recursion
-		if(this.getWidth() > w) {
+		if(this.getWidth() > w){
 			this.width = w;
 			this.onWidthChange();
 		}
-		if(this.getHeight() > h) {
+		if(this.getHeight() > h){
 			this.height = h;
 			this.onHeightChange();
 		}
@@ -523,6 +529,11 @@ public class MenuThing implements GameInteractable, Destroyable{
 	public void setFullColor(ZColor c){
 		this.fill = c;
 		this.border = new ZColor(0, 0);
+	}
+	
+	/** Set {@link #fill} and {@link #border} to be fully transparent */
+	public void invisible(){
+		this.setFullColor(new ZColor(0, 0));
 	}
 	
 	/** @return See {@link #border} */
@@ -697,6 +708,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** @param formatter See #formatter */
 	public void setFormatter(MenuFormatter formatter){
 		this.formatter = formatter;
+		this.onWidthChange();
+		this.onHeightChange();
 	}
 	
 	/** @return See {@link #draggableFormatter} */
@@ -885,6 +898,26 @@ public class MenuThing implements GameInteractable, Destroyable{
 		return this.isStopParentInput() && this.getBounds().contains(x, y);
 	}
 	
+	/**
+	 * Called when dragging starts. Does nothing by default, override to provide custom behavior
+	 * @param x See {@link #draggingX}
+	 * @param y See {@link #draggingY}
+	 * @param sideDrag true if the sides of the thing were dragged, false otherwise
+	 */
+	public void onDragStart(double x, double y, boolean sideDrag){
+		var ts = this.getThings();
+		for(var t : ts) t.onDragStart(x, y, sideDrag);
+	}
+	
+	/**
+	 * Called when dragging stops. Calls this method for all child components by default. Override to provide custom behavior
+	 * @param sideDrag true if the sides of the thing were dragged, false otherwise
+	 */
+	public void onDragEnd(boolean sideDrag){
+		var ts = this.getThings();
+		for(var t : ts) t.onDragEnd(sideDrag);
+	}
+	
 	/** Do not call directly */
 	@Override
 	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
@@ -900,6 +933,11 @@ public class MenuThing implements GameInteractable, Destroyable{
 		return shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 	}
 	
+	/** @return true if the sides of this menu thing are currently being dragged, false otherwise. Does not account for if the anchor point is set */
+	public boolean isSideDragging(){
+		return this.draggingX != 0 || this.draggingY != 0;
+	}
+	
 	/**
 	 * Helper for {@link #mouseAction(Game, int, boolean, boolean, boolean, boolean)}, checking if this element should begin dragging from the mouse
 	 *
@@ -909,7 +947,10 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	public void checkForDraggingStart(Game game, int button, boolean press){
 		if(!press){
-			this.anchorPoint = null;
+			if(this.anchorPoint != null){
+				this.anchorPoint = null;
+				this.onDragEnd(isSideDragging());
+			}
 			this.draggingX = 0;
 			this.draggingY = 0;
 			return;
@@ -960,7 +1001,10 @@ public class MenuThing implements GameInteractable, Destroyable{
 			}
 		}
 		// If any dragging occurred, set the anchor
-		if(dragging) this.anchorPoint = new ZPoint(ax, ay);
+		if(dragging) {
+			this.onDragStart(this.draggingX, this.draggingY, this.isSideDragging());
+			this.anchorPoint = new ZPoint(ax, ay);
+		}
 	}
 	
 	/** Do not call directly */
