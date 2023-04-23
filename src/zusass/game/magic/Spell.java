@@ -67,6 +67,11 @@ public abstract class Spell implements Saveable{
 		this.name = name;
 	}
 	
+	/** @return A string representing the name od this spell, and its cost */
+	public String nameAndCost(){
+		return new StringBuilder(this.getName()).append(" (").append(String.format("%.2f", this.getCost())).append(")").toString();
+	}
+	
 	/**
 	 * @param name The new name of this spell
 	 * @return this

@@ -3,6 +3,7 @@ package zusass.menu.inventory;
 import zgame.core.Game;
 import zgame.menu.format.PercentFormatter;
 import zusass.ZusassGame;
+import zusass.game.magic.Spell;
 import zusass.menu.comp.ZusassButton;
 
 /** A button for a {@link SpellList} which displays a single selectable spell */
@@ -22,13 +23,13 @@ public class SpellListButton extends ZusassButton{
 	/**
 	 * Create a {@link ZusassButton} with the appropriate parameters
 	 *
-	 * @param name The name of the spell
+	 * @param spell The spell to display
 	 * @param index The index of this button in spellList
 	 * @param list See {@link #spellList}
 	 * @param zgame The {@link ZusassGame} that uses this button
 	 */
-	public SpellListButton(String name, int index, SpellList list, ZusassGame zgame){
-		super(0, index * (HEIGHT + HEIGHT_SPACE), list.getWidth(),HEIGHT, name, zgame);
+	public SpellListButton(Spell spell, int index, SpellList list, ZusassGame zgame){
+			super(0, index * (HEIGHT + HEIGHT_SPACE), list.getWidth(),HEIGHT, spell.nameAndCost(), zgame);
 		this.spellList = list;
 		this.spellIndex = index;
 		

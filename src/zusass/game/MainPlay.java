@@ -131,12 +131,16 @@ public class MainPlay extends PlayState{
 		// Using draw text like this is inefficient, but whatever, this is temp code
 		String text;
 		if(p.isCasting()){
-			var name = p.getSelectedSpell().getName();
-			text = name == null ? "No Spell" : "Spell: " + name;
+			var spell = p.getSelectedSpell();
+			var name = spell.getName();
+			text = name == null ? "No Spell" : "Spell: " + spell.nameAndCost();
 		}
 		else text = "Attack";
 		
 		// Draw the name of the selected spell or that the player is in attack mode
+		var w = r.getFont().stringWidth(text);
+		r.setColor(0, 0, 0, .5);
+		r.drawRectangle(10, 85, w, 20);
 		r.setColor(1, 1, 1, 1);
 		r.drawText(10, 100, text);
 		

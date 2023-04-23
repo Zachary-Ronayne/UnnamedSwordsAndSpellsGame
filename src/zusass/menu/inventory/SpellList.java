@@ -40,7 +40,7 @@ public class SpellList extends MenuHolder{
 	public void generateButtons(ZusassMob mob, ZusassGame zgame){
 		var spells = mob.getSpells().getSpellList();
 		for(int i = 0; i < spells.size(); i++) {
-			this.addThing(new SpellListButton(spells.get(i).getName(),  i, this, zgame));
+			this.addThing(new SpellListButton(spells.get(i),  i, this, zgame));
 		}
 	}
 	
