@@ -22,7 +22,7 @@ public class InventoryMenu extends ZusassMenu{
 	private ZusassMob mob;
 	
 	/** The menu thing holding the list of spells to display */
-	private SpellList spellList;
+	private final SpellList spellList;
 	
 	/**
 	 * Create a new {@link InventoryMenu} for displaying the inventory of something
@@ -44,6 +44,12 @@ public class InventoryMenu extends ZusassMenu{
 		this.addThing(this.spellList);
 		
 		this.mob = null;
+	}
+	
+	@Override
+	public void regenerateBuffer(){
+		super.regenerateBuffer();
+		this.spellList.regenerateBuffer();
 	}
 	
 	@Override

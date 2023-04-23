@@ -282,6 +282,11 @@ public class MenuThing implements GameInteractable, Destroyable{
 		return this.buffer != null;
 	}
 	
+	/** @return See {@link #buffer} */
+	public DrawableGameBuffer getBuffer(){
+		return this.buffer;
+	}
+	
 	/** @return See {@link #drawThingsToBuffer} */
 	public boolean isDrawThingsToBuffer(){
 		return this.drawThingsToBuffer;
@@ -750,8 +755,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		if(this == thing || this.hasThing(thing) || thing.getParent() != null) return false;
 		this.updateFormat(thing.getFormatter(), thing);
 		thing.setParent(this);
-		var things = this.getThings();
-		return things.add(thing);
+		return this.things.add(thing);
 	}
 	
 	/**

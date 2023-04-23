@@ -18,6 +18,8 @@ public class SpellList extends MenuHolder{
 	 */
 	public SpellList(InventoryMenu menu, ZusassGame zgame){
 		super();
+		this.getAllThings().addClass(SpellListButton.class);
+		
 		this.menu = menu;
 		
 		this.setWidth(100);
@@ -25,11 +27,18 @@ public class SpellList extends MenuHolder{
 		this.setFormatter(new PixelFormatter(20.0, 20.0, 50.0, null));
 		this.invisible();
 		this.addThing(new SpellListButton(0, this, zgame));
-	
 	}
 	/** @return See {@link #menu} */
 	public InventoryMenu getMenu(){
 		return this.menu;
+	}
+	
+	@Override
+	public void regenerateBuffer(){
+		super.regenerateBuffer();
+		var buttons = this.getAllThings().get(SpellListButton.class);
+		if(buttons == null) return;
+		for(var b : buttons) b.updateTextPosition();
 	}
 	
 }

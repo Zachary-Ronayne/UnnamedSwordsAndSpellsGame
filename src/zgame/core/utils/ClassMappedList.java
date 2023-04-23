@@ -60,10 +60,11 @@ public class ClassMappedList{
 	 *
 	 * @param obj The element to add
 	 * @param <T> The type of the element to add
+	 * @return true if the thing was added, false otherwise
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> void add(T obj){
-		if(obj == null) return;
+	public <T> boolean add(T obj){
+		if(obj == null) return false;
 		
 		// Add it to the list
 		var canCompare = Comparable.class.isAssignableFrom(obj.getClass());
@@ -82,6 +83,7 @@ public class ClassMappedList{
 				mapMap.put(((Uuidable)obj).getUuid(), obj);
 			}
 		}
+		return true;
 	}
 	
 	/**

@@ -3,12 +3,19 @@ package zgame.core.graphics.buffer;
 import java.util.function.BiConsumer;
 
 import zgame.core.graphics.Renderer;
+import zgame.core.utils.ZRect;
 
 /** A {@link GameBuffer} that can easily be extended to draw on */
 public class DrawableBuffer extends GameBuffer{
 	
 	/** true if this {@link DrawableBuffer} has had a value changed, and needs to be redrawn before the next time it's displayed */
 	private boolean needRedraw;
+	
+	/**
+	 * true if, before redrawing the contents of this buffer, if any bounds of the renderer are set through {@link Renderer#limitBounds(ZRect)},
+	 * the bounds will be unlimited, false otherwise. true by default
+	 */
+	private boolean forceUnlimit;
 	
 	/**
 	 * Create a {@link DrawableBuffer} of the given size.
@@ -19,6 +26,7 @@ public class DrawableBuffer extends GameBuffer{
 	public DrawableBuffer(int width, int height){
 		super(width, height, false);
 		this.needRedraw = true;
+		this.forceUnlimit = true;
 	}
 	
 	/**
@@ -61,7 +69,15 @@ public class DrawableBuffer extends GameBuffer{
 	 * @param r The {@link Renderer} to use for drawing the buffer
 	 */
 	private void redraw(Renderer r){
-		this.redraw(r, (rr, d) -> draw(r), null);
+		this.redraw(r, (rr, d) -> {
+			var limited = this.isForceUnlimit() && r.getLimitedBounds() != null;
+			if(limited){
+				r.getLimitedBoundsStack().push();
+				r.unlimitBounds();
+			}
+			draw(r);
+			if(limited) r.getLimitedBoundsStack().pop();
+		}, null);
 	}
 	
 	/**
@@ -109,4 +125,13 @@ public class DrawableBuffer extends GameBuffer{
 		this.needRedraw = this.needRedraw || redraw;
 	}
 	
+	/** @return See {@link #forceUnlimit} */
+	public boolean isForceUnlimit(){
+		return this.forceUnlimit;
+	}
+	
+	/** @param forceUnlimit See {@link #forceUnlimit} */
+	public void setForceUnlimit(boolean forceUnlimit){
+		this.forceUnlimit = forceUnlimit;
+	}
 }

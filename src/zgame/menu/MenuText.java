@@ -9,13 +9,13 @@ import zgame.core.utils.ZRect;
 
 /**
  * A {@link MenuThing} that holds text Note, for this class and anything that extends it, calls to updating the width and height will not update the text buffer's width and
- * height beyond what was given to the constructor. Must call {@link #getBuffer()} and call {@link TextBuffer#regenerateBuffer(int, int)} on it to resize where the text is
+ * height beyond what was given to the constructor. Must call {@link #getTextBuffer()} and call {@link TextBuffer#regenerateBuffer(int, int)} on it to resize where the text is
  * drawn. It is not recommended to call this method frequently, as it is a very expensive operation
  */
 public class MenuText extends MenuThing{
 	
 	/** The {@link TextBuffer} which this {@link MenuText} will use to draw text */
-	private final TextBuffer buffer;
+	private final TextBuffer textBuffer;
 	
 	/** The {@link ZColor} to use to color {@link #text} */
 	private ZColor fontColor;
@@ -54,7 +54,7 @@ public class MenuText extends MenuThing{
 		super(x, y, w, h);
 		this.text = text;
 		// Using zfont by default
-		this.buffer = new TextBuffer((int)Math.round(w), (int)Math.round(h), game.getFont("zfont"));
+		this.textBuffer = new TextBuffer((int)Math.round(w), (int)Math.round(h), game.getFont("zfont"));
 		this.setTextX(10);
 		this.setTextY(this.getHeight() * .9);
 		
@@ -66,19 +66,19 @@ public class MenuText extends MenuThing{
 	@Override
 	public void destroy(){
 		super.destroy();
-		this.buffer.destroy();
+		this.textBuffer.destroy();
 	}
 	
 	@Override
 	public void updateBuffer(){
 		super.updateBuffer();
-		this.buffer.regenerateBuffer((int)Math.round(this.getWidth()), (int)Math.round(this.getHeight()));
+		this.textBuffer.regenerateBuffer((int)Math.round(this.getWidth()), (int)Math.round(this.getHeight()));
 	}
 	
 	@Override
 	public void regenerateBuffer(){
 		super.regenerateBuffer();
-		this.buffer.regenerateBuffer((int)Math.round(this.getWidth()), (int)Math.round(this.getHeight()));
+		this.textBuffer.regenerateBuffer((int)Math.round(this.getWidth()), (int)Math.round(this.getHeight()));
 	}
 	
 	/** @return See {@link #text} */
@@ -99,7 +99,7 @@ public class MenuText extends MenuThing{
 	/** @param textX See {@link TextBuffer#textX} */
 	public void setTextX(double textX){
 		this.textX = textX;
-		this.buffer.setTextX(textX);
+		this.textBuffer.setTextX(textX);
 	}
 	
 	/** @return See {@link TextBuffer#textY} */
@@ -109,23 +109,23 @@ public class MenuText extends MenuThing{
 	
 	/** @param textY See {@link TextBuffer#textY} */
 	public void setTextY(double textY){
-		this.buffer.setTextY(textY);
+		this.textBuffer.setTextY(textY);
 		this.textY = textY;
 	}
 	
 	/** @return See {@link TextBuffer#font} */
 	public GameFont getFont(){
-		return this.getBuffer().getFont();
+		return this.getTextBuffer().getFont();
 	}
 	
 	/** @param font See {@link TextBuffer#font} */
 	public void setFont(GameFont font){
-		this.getBuffer().setFont(font);
+		this.getTextBuffer().setFont(font);
 	}
 	
-	/** @return See {@link #buffer} */
-	public TextBuffer getBuffer(){
-		return this.buffer;
+	/** @return See {@link #textBuffer} */
+	public TextBuffer getTextBuffer(){
+		return this.textBuffer;
 	}
 	
 	/** @return See {@link #fontColor} */
@@ -206,10 +206,12 @@ public class MenuText extends MenuThing{
 	 * @param bounds The bounds of this thing as it's being drawn
 	 */
 	public void drawText(Renderer r, String text, ZRect bounds){
-		this.buffer.setText(text);
-		this.buffer.setTextX(this.getTextX());
-		this.buffer.setTextY(this.getTextY());
-		this.buffer.drawToRenderer(bounds.getX(), bounds.getY(), r);
+		this.textBuffer.setText(text);
+		this.textBuffer.setTextX(this.getTextX());
+		this.textBuffer.setTextY(this.getTextY());
+		r.limitBounds(this.getBounds());
+		this.textBuffer.drawToRenderer(bounds.getX(), bounds.getY(), r);
+		r.unlimitBounds();
 	}
 	
 }
