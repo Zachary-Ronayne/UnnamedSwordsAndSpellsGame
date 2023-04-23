@@ -42,6 +42,11 @@ public class Spellbook implements Saveable{
 		this.selectedSpellIndex = 0;
 	}
 	
+	/** @return See {@link #spells}. This is the list storing the spells itself. Do not directly modify this list */
+	public ArrayList<Spell> getSpellList(){
+		return this.spells;
+	}
+	
 	/** @param spell The spell to add to the spellbook, and to select */
 	public void addAndSelectSpell(Spell spell){
 		this.addSpell(spell);

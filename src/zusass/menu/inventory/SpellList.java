@@ -3,6 +3,7 @@ package zusass.menu.inventory;
 import zgame.menu.MenuHolder;
 import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
+import zusass.game.things.entities.mobs.ZusassMob;
 
 /** An object holding the list of spells to display */
 public class SpellList extends MenuHolder{
@@ -26,8 +27,23 @@ public class SpellList extends MenuHolder{
 		this.setHeight(100);
 		this.setFormatter(new PixelFormatter(20.0, 20.0, 50.0, null));
 		this.invisible();
-		this.addThing(new SpellListButton(0, this, zgame));
+		
+		// TODO make the button of the spell list cut off when the menu gets too small, i.e. put a hard limit on the min y value
+		// TODO allow the list to be scrolled through
 	}
+	
+	/**
+	 * Generate the buttons used by this spell list, from the given mob and game
+	 * @param mob The mob, must not be null
+	 * @param zgame The game
+	 */
+	public void generateButtons(ZusassMob mob, ZusassGame zgame){
+		var spells = mob.getSpells().getSpellList();
+		for(int i = 0; i < spells.size(); i++) {
+			this.addThing(new SpellListButton(spells.get(i).getName(),  i, this, zgame));
+		}
+	}
+	
 	/** @return See {@link #menu} */
 	public InventoryMenu getMenu(){
 		return this.menu;

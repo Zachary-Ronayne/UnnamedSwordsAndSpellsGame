@@ -185,6 +185,7 @@ public class MainPlay extends PlayState{
 		if(showingInventory) return;
 		this.showingInventory = true;
 		this.inventoryMenu.setMob(zgame.getPlayer());
+		this.inventoryMenu.regenerateThings(zgame);
 		this.inventoryMenu.regenerateBuffer();
 		this.popupMenu(MenuNode.withAll(this.inventoryMenu));
 	}

@@ -46,6 +46,15 @@ public class InventoryMenu extends ZusassMenu{
 		this.mob = null;
 	}
 	
+	/**
+	 * Regenerate the state of all the things used by this menu, based on the current value of {@link #mob}, should not call unless {@link #mob} is not null
+	 *
+	 * @param zgame The game to regenerate with
+	 */
+	public void regenerateThings(ZusassGame zgame){
+		this.spellList.generateButtons(this.getMob(), zgame);
+	}
+	
 	@Override
 	public void regenerateBuffer(){
 		super.regenerateBuffer();
