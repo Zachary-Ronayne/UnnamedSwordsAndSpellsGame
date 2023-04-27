@@ -28,7 +28,8 @@ public class SpellList extends MenuHolder{
 		this.setFormatter(new PixelFormatter(20.0, 20.0, 50.0, null));
 		this.invisible();
 		
-		// TODO make the button of the spell list cut off when the menu gets too small, i.e. put a hard limit on the min y value
+		// TODO Make the buttons y values not change when the menu is resized
+		// TODO Put a hard limit on the min y value, using the pixel formatter
 		// TODO allow the list to be scrolled through
 	}
 	

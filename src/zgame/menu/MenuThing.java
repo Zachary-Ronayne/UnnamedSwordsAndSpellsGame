@@ -120,6 +120,15 @@ public class MenuThing implements GameInteractable, Destroyable{
 	private MenuFormatter draggableFormatter;
 	
 	/**
+	 * The bounds, relative to this thing, which child elements of this thing can be rendered.
+	 * Children outside of this bounds will be cut off. Or null to not limit the bounds
+	 */
+	private MenuThing childBounds;
+	
+	/** The formatter to use for {@link #childBounds} */
+	private MenuFormatter childBoundsFormatter;
+	
+	/**
 	 * Create a {@link MenuThing} with no size or position
 	 */
 	public MenuThing(){
@@ -195,6 +204,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 		
 		this.formatter = null;
 		this.draggableFormatter = null;
+		
+		this.childBounds = null;
+		this.childBoundsFormatter = null;
 	}
 	
 	/**
@@ -212,6 +224,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.setDraggableSideRange(borderSize);
 		this.setKeepInParent(true);
 		this.setStopParentInput(true);
+		this.setChildBoundsBorder();
 	}
 	
 	/**
@@ -429,6 +442,11 @@ public class MenuThing implements GameInteractable, Destroyable{
 		var f = this.getDraggableFormatter();
 		var d = this.getDraggableArea();
 		if(f != null && d != null) f.onWidthChange(d, this.width);
+		
+		f = this.getChildBoundsFormatter();
+		d = this.getChildBounds();
+		if(f != null && d != null) f.onWidthChange(d, this.width);
+		
 		for(var t : this.things.get(MenuThing.class)){
 			f = t.getFormatter();
 			if(f != null) f.onWidthChange(t, this.width);
@@ -469,6 +487,10 @@ public class MenuThing implements GameInteractable, Destroyable{
 		var d = this.getDraggableArea();
 		if(f != null && d != null) f.onHeightChange(d, this.height);
 		
+		f = this.getChildBoundsFormatter();
+		d = this.getChildBounds();
+		if(f != null && d != null) f.onHeightChange(d, this.height);
+		
 		for(var t : this.things.get(MenuThing.class)){
 			f = t.getFormatter();
 			if(f != null) f.onHeightChange(t, this.height);
@@ -506,12 +528,18 @@ public class MenuThing implements GameInteractable, Destroyable{
 		if(p != null) this.keepInBounds(0, 0, p.getWidth(), p.getHeight());
 	}
 	
-	/** @return A {@link ZRect} containing the position and size of this {@link MenuThing}, using its absolute coordinates */
+	/**
+	 * @return A {@link ZRect} containing the position and size of this {@link MenuThing}, using its absolute coordinates
+	 * 		Modifications to the returned rectangle will not modify this object
+	 */
 	public ZRect getBounds(){
 		return new ZRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
-	/** @return A {@link ZRect} containing the position and size of this {@link MenuThing}, using its relative coordinates */
+	/**
+	 * @return A {@link ZRect} containing the position and size of this {@link MenuThing}, using its relative coordinates
+	 * 		Modifications to the returned rectangle will not modify this object
+	 */
 	public ZRect getRelBounds(){
 		return new ZRect(this.getRelX(), this.getRelY(), this.getWidth(), this.getHeight());
 	}
@@ -728,6 +756,43 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.updateFormat(this.draggableFormatter, this.getDraggableArea());
 	}
 	
+	/** @return See {@link #childBounds} */
+	public MenuThing getChildBounds(){
+		return this.childBounds;
+	}
+	
+	/** @param childBounds See {@link #childBounds} */
+	public void setChildBounds(MenuThing childBounds){
+		this.childBounds = childBounds;
+	}
+	
+	/** @param size The distance from the edges of the bounds of this thing to use for {@link #childBounds}. Also creates a {@link PixelFormatter} to maintain the size */
+	public void setChildBounds(double size){
+		if(this.childBounds == null) this.setChildBounds(new MenuThing());
+		this.childBoundsFormatter = new PixelFormatter(size);
+		this.updateFormat(this.childBoundsFormatter, this);
+	}
+	
+	/** Set {@link #childBounds} to be aligned to the width of the border */
+	public void setChildBoundsBorder(){
+		this.setChildBounds(this.getBorderWidth());
+	}
+	
+	/** Turn off {@link #childBounds} */
+	public void removeChildBounds(){
+		this.setChildBounds(null);
+	}
+	
+	/** @return See {@link #childBoundsFormatter} */
+	public MenuFormatter getChildBoundsFormatter(){
+		return this.childBoundsFormatter;
+	}
+	
+	/** @param childBoundsFormatter See {@link #childBoundsFormatter} */
+	public void setChildBoundsFormatter(MenuFormatter childBoundsFormatter){
+		this.childBoundsFormatter = childBoundsFormatter;
+	}
+	
 	/** Tell this {@link MenuThing} to not change itself when its parent's width or height changes */
 	public void removeFormatting(){
 		this.setFormatter(null);
@@ -904,6 +969,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/**
 	 * Called when dragging starts. Does nothing by default, override to provide custom behavior
+	 *
 	 * @param x See {@link #draggingX}
 	 * @param y See {@link #draggingY}
 	 * @param sideDrag true if the sides of the thing were dragged, false otherwise
@@ -915,6 +981,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/**
 	 * Called when dragging stops. Calls this method for all child components by default. Override to provide custom behavior
+	 *
 	 * @param sideDrag true if the sides of the thing were dragged, false otherwise
 	 */
 	public void onDragEnd(boolean sideDrag){
@@ -1005,7 +1072,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 			}
 		}
 		// If any dragging occurred, set the anchor
-		if(dragging) {
+		if(dragging){
 			this.onDragStart(this.draggingX, this.draggingY, this.isSideDragging());
 			this.anchorPoint = new ZPoint(ax, ay);
 		}
@@ -1107,7 +1174,6 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * @param bounds The bounds which this thing will be rendered relative to
 	 */
 	public void render(Game game, Renderer r, ZRect bounds){
-		// issue#12 draw the border as 4 separate rectangles instead of as a big fill
 		double b = this.getBorderWidth();
 		r.setColor(this.getBorder());
 		var x = bounds.getX();
@@ -1143,13 +1209,24 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * @param r The renderer
 	 * @param reposition true to reposition the coordinates based on {@link #relX} and {@link #relY}, false otherwise
 	 */
-	private void drawThings(Game game, Renderer r, boolean reposition){
+	public void drawThings(Game game, Renderer r, boolean reposition){
 		// Position the renderer to draw this thing's things relative to this thing
 		if(reposition){
 			r.pushMatrix();
 			GameWindow w = game.getWindow();
 			r.translate(w.sizeScreenToGlX(this.getRelX()), w.sizeScreenToGlY(-this.getRelY()));
 		}
+		
+		// Limit the bounds for drawing children if applicable
+		var cb = this.getChildBounds();
+		if(cb != null){
+			r.getLimitedBoundsStack().push();
+			var b = cb.getRelBounds();
+			b.x += this.getX();
+			b.y += this.getY();
+			r.limitBounds(b);
+		}
+		
 		// Draw this thing's things
 		// Did I use "thing" enough times?
 		var things = this.getThings();
@@ -1157,6 +1234,12 @@ public class MenuThing implements GameInteractable, Destroyable{
 			MenuThing t = things.get(i);
 			t.renderHud(game, r);
 		}
+		
+		if(cb != null){
+			r.unlimitBounds();
+			r.getLimitedBoundsStack().pop();
+		}
+		
 		// Put the matrix back to what it was
 		if(reposition) r.popMatrix();
 	}

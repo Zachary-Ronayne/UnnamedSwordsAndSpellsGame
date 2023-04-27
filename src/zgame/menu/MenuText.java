@@ -209,9 +209,9 @@ public class MenuText extends MenuThing{
 		this.textBuffer.setText(text);
 		this.textBuffer.setTextX(this.getTextX());
 		this.textBuffer.setTextY(this.getTextY());
-		r.limitBounds(this.getBounds());
+		r.getLimitedBoundsStack().push(this.getBounds());
 		this.textBuffer.drawToRenderer(bounds.getX(), bounds.getY(), r);
-		r.unlimitBounds();
+		r.getLimitedBoundsStack().pop();
 	}
 	
 }
