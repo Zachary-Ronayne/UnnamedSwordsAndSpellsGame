@@ -675,6 +675,7 @@ public class Renderer implements Destroyable{
 	
 	/** @return See {@link #limitedBoundsStack} */
 	public LimitedStack<ZRect> getLimitedBoundsStack(){
+		// TODO figure out a way to make this limited bounds stack easier to work with, pushing / popping should update the stack
 		return this.limitedBoundsStack;
 	}
 	

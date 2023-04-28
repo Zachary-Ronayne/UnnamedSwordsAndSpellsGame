@@ -70,13 +70,17 @@ public class DrawableBuffer extends GameBuffer{
 	 */
 	private void redraw(Renderer r){
 		this.redraw(r, (rr, d) -> {
-			var limited = this.isForceUnlimit() && r.getLimitedBounds() != null;
+			var b = r.getLimitedBounds();
+			var limited = this.isForceUnlimit() && b != null;
 			if(limited){
-				r.getLimitedBoundsStack().push();
+				r.getLimitedBoundsStack().push(b);
 				r.unlimitBounds();
 			}
-			draw(r);
-			if(limited) r.getLimitedBoundsStack().pop();
+			this.draw(r);
+			if(limited) {
+				r.limitBounds(b);
+				r.getLimitedBoundsStack().pop();
+			}
 		}, null);
 	}
 	

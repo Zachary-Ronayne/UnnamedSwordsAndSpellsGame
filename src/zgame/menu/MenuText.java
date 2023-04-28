@@ -57,7 +57,9 @@ public class MenuText extends MenuThing{
 		this.textBuffer = new TextBuffer((int)Math.round(w), (int)Math.round(h), game.getFont("zfont"));
 		this.setTextX(10);
 		this.setTextY(this.getHeight() * .9);
-		
+		// TODO this should be able to be false, why does it make the text not get drawn at all?
+//		this.textBuffer.setForceUnlimit(false);
+
 		this.setFill(this.getFill().solid());
 		
 		this.fontColor = new ZColor(0);
@@ -209,9 +211,22 @@ public class MenuText extends MenuThing{
 		this.textBuffer.setText(text);
 		this.textBuffer.setTextX(this.getTextX());
 		this.textBuffer.setTextY(this.getTextY());
-		r.getLimitedBoundsStack().push(this.getBounds());
+		
+		var b = this.getTextLimitBounds();
+		if(b != null){
+			r.getLimitedBoundsStack().push();
+			r.limitBounds(b);
+		}
 		this.textBuffer.drawToRenderer(bounds.getX(), bounds.getY(), r);
-		r.getLimitedBoundsStack().pop();
+		if(b != null){
+			r.unlimitBounds();
+			r.getLimitedBoundsStack().pop();
+		}
+	}
+	
+	/** @return The bounds, in absolute coordinates, where text can be drawn. Text outside of this will be cut off */
+	public ZRect getTextLimitBounds(){
+		return this.getBounds();
 	}
 	
 }
