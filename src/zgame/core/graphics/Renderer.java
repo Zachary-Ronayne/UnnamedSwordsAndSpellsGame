@@ -650,6 +650,27 @@ public class Renderer implements Destroyable{
 		this.limitBounds(null);
 	}
 	
+	/**
+	 * Push the current value of {@link #getLimitedBounds()} onto the stack, and limit the bounds to the given bounds
+	 * @param bounds The bounds to limit to, in game coordinates
+	 */
+	public void pushLimitedBounds(ZRect bounds){
+		this.limitedBoundsStack.push();
+		this.limitBounds(bounds);
+	}
+	/**
+	 * Push the current value of {@link #getLimitedBounds()} onto the stack, and unlimit the bounds
+	 */
+	public void pushUnlimitedBounds(){
+		this.pushLimitedBounds(null);
+	}
+	
+	/** Remove the current limited bounds and revert it to the previous limited bounds */
+	public void popLimitedBounds(){
+		this.limitedBoundsStack.pop();
+		this.updateLimitedBounds();
+	}
+	
 	/** Update the current state of the limited bounds via calls to glScissor */
 	private void updateLimitedBounds(){
 		ZRect b = this.getLimitedBounds();
@@ -671,12 +692,6 @@ public class Renderer implements Destroyable{
 		}
 		glEnable(GL_SCISSOR_TEST);
 		glScissor((int)Math.round(x), (int)Math.round(this.getHeight() - y), (int)Math.round(w), (int)Math.round(h));
-	}
-	
-	/** @return See {@link #limitedBoundsStack} */
-	public LimitedStack<ZRect> getLimitedBoundsStack(){
-		// TODO figure out a way to make this limited bounds stack easier to work with, pushing / popping should update the stack
-		return this.limitedBoundsStack;
 	}
 	
 	/**

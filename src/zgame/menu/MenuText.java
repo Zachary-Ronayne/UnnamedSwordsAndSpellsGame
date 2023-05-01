@@ -213,15 +213,9 @@ public class MenuText extends MenuThing{
 		this.textBuffer.setTextY(this.getTextY());
 		
 		var b = this.getTextLimitBounds();
-		if(b != null){
-			r.getLimitedBoundsStack().push();
-			r.limitBounds(b);
-		}
+		if(b != null) r.pushLimitedBounds(b);
 		this.textBuffer.drawToRenderer(bounds.getX(), bounds.getY(), r);
-		if(b != null){
-			r.unlimitBounds();
-			r.getLimitedBoundsStack().pop();
-		}
+		if(b != null) r.popLimitedBounds();
 	}
 	
 	/** @return The bounds, in absolute coordinates, where text can be drawn. Text outside of this will be cut off */

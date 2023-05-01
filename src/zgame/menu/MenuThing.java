@@ -1220,11 +1220,10 @@ public class MenuThing implements GameInteractable, Destroyable{
 		// Limit the bounds for drawing children if applicable
 		var cb = this.getChildBounds();
 		if(cb != null){
-			r.getLimitedBoundsStack().push();
 			var b = cb.getRelBounds();
 			b.x += this.getX();
 			b.y += this.getY();
-			r.limitBounds(b);
+			r.pushLimitedBounds(b);
 		}
 		
 		// Draw this thing's things
@@ -1235,10 +1234,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 			t.renderHud(game, r);
 		}
 		
-		if(cb != null){
-			r.unlimitBounds();
-			r.getLimitedBoundsStack().pop();
-		}
+		if(cb != null) r.popLimitedBounds();
 		
 		// Put the matrix back to what it was
 		if(reposition) r.popMatrix();
