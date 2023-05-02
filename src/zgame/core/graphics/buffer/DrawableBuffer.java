@@ -70,17 +70,13 @@ public class DrawableBuffer extends GameBuffer{
 	 */
 	private void redraw(Renderer r){
 		this.redraw(r, (rr, d) -> {
-			// TODO figure out why these bounds are incorrect, and causing the text to get unaligned
-			var b = r.getLimitedBounds();
-			var limited = this.isForceUnlimit() && b != null;
+			var limited = this.isForceUnlimit();
 			if(limited) r.pushUnlimitedBounds();
-//			else{
-//				r.setColor(0, 1, 1, .5);
-//				r.fill();
-//			}
+			r.pushUnlimitedBounds();
 			
 			this.draw(r);
 			if(limited) r.popLimitedBounds();
+			r.popLimitedBounds();
 		}, null);
 	}
 	

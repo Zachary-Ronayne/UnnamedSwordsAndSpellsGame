@@ -57,8 +57,7 @@ public class MenuText extends MenuThing{
 		this.textBuffer = new TextBuffer((int)Math.round(w), (int)Math.round(h), game.getFont("zfont"));
 		this.setTextX(10);
 		this.setTextY(this.getHeight() * .9);
-		// TODO this should be able to be false, why does it make the text not get drawn at all?
-//		this.textBuffer.setForceUnlimit(false);
+		this.textBuffer.setForceUnlimit(false);
 
 		this.setFill(this.getFill().solid());
 		
@@ -208,6 +207,8 @@ public class MenuText extends MenuThing{
 	 * @param bounds The bounds of this thing as it's being drawn
 	 */
 	public void drawText(Renderer r, String text, ZRect bounds){
+		// TODO fix the text not showing up for a few frames at first
+		
 		this.textBuffer.setText(text);
 		this.textBuffer.setTextX(this.getTextX());
 		this.textBuffer.setTextY(this.getTextY());
