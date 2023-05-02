@@ -200,15 +200,13 @@ public class MenuText extends MenuThing{
 	}
 	
 	/**
-	 * Draw the given text on this menu at it's intended location
+	 * Draw the given text on this menu at its intended location
 	 *
 	 * @param r The Renderer to use to draw the text
 	 * @param text The text to draw
 	 * @param bounds The bounds of this thing as it's being drawn
 	 */
 	public void drawText(Renderer r, String text, ZRect bounds){
-		// TODO fix the text not showing up for a few frames at first
-		
 		this.textBuffer.setText(text);
 		this.textBuffer.setTextX(this.getTextX());
 		this.textBuffer.setTextY(this.getTextY());

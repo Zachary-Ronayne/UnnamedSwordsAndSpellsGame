@@ -70,12 +70,11 @@ public class DrawableBuffer extends GameBuffer{
 	 */
 	private void redraw(Renderer r){
 		this.redraw(r, (rr, d) -> {
-			var limited = this.isForceUnlimit();
-			if(limited) r.pushUnlimitedBounds();
-			r.pushUnlimitedBounds();
+			var unlimited = this.isForceUnlimit();
+			if(unlimited) r.pushUnlimitedBounds();
+			else r.pushLimitedBounds(this.getBounds());
 			
 			this.draw(r);
-			if(limited) r.popLimitedBounds();
 			r.popLimitedBounds();
 		}, null);
 	}
@@ -91,7 +90,7 @@ public class DrawableBuffer extends GameBuffer{
 	protected <D> void redraw(Renderer r, BiConsumer<Renderer, D> func, D data){
 		if(!this.isBufferGenerated()) this.regenerateBuffer(this.getWidth(), this.getHeight());
 		
-		if(skipRedraw()) return;
+		if(this.skipRedraw()) return;
 		
 		// Store the renderer's state
 		r.pushAll();
@@ -132,6 +131,7 @@ public class DrawableBuffer extends GameBuffer{
 	
 	/** @param forceUnlimit See {@link #forceUnlimit} */
 	public void setForceUnlimit(boolean forceUnlimit){
+		if(this.forceUnlimit != forceUnlimit) this.updateRedraw(true);
 		this.forceUnlimit = forceUnlimit;
 	}
 }
