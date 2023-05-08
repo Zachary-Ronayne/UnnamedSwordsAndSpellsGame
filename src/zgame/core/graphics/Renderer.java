@@ -690,6 +690,7 @@ public class Renderer implements Destroyable{
 			w = c.sizeGameToScreenX(w);
 			h = c.sizeGameToScreenY(h);
 		}
+		// TODO figure out why enabling this scissor test makes the text not show up initially
 		glEnable(GL_SCISSOR_TEST);
 		glScissor((int)Math.round(x), (int)Math.round(this.getHeight() - y), (int)Math.round(w), (int)Math.round(h));
 	}

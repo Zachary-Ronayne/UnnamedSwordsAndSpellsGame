@@ -32,7 +32,7 @@ public class InventoryMenu extends ZusassMenu{
 	public InventoryMenu(ZusassGame zgame){
 		super(zgame, "");
 		this.makeDraggable(10, 30);
-		this.setBorder(new ZColor(.1, 0, 0, 0.8));
+		this.setBorder(new ZColor(.1, 0, 0, .8));
 		this.setFill(new ZColor(.3, 0, 0, .8));
 		this.setMinWidth(120.0);
 		this.setMinHeight(75.0);
@@ -59,16 +59,6 @@ public class InventoryMenu extends ZusassMenu{
 	public void regenerateBuffer(){
 		super.regenerateBuffer();
 		this.spellList.regenerateBuffer();
-	}
-	
-	@Override
-	public void onWidthChange(){
-		super.onWidthChange();
-	}
-	
-	@Override
-	public void onHeightChange(){
-		super.onHeightChange();
 	}
 	
 	/**

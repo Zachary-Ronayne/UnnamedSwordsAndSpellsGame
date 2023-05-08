@@ -1,6 +1,7 @@
 package zusass.menu.inventory;
 
 import zgame.core.Game;
+import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZRect;
 import zgame.menu.format.PercentFormatter;
 import zusass.ZusassGame;
@@ -30,7 +31,7 @@ public class SpellListButton extends ZusassButton{
 	 * @param zgame The {@link ZusassGame} that uses this button
 	 */
 	public SpellListButton(Spell spell, int index, SpellList list, ZusassGame zgame){
-			super(0, index * (HEIGHT + HEIGHT_SPACE), list.getWidth(),HEIGHT, spell.nameAndCost(), zgame);
+		super(0, index * (HEIGHT + HEIGHT_SPACE), list.getWidth(), HEIGHT, spell.nameAndCost(), zgame);
 		this.spellList = list;
 		this.spellIndex = index;
 		
@@ -57,6 +58,7 @@ public class SpellListButton extends ZusassButton{
 	
 	@Override
 	public void onDragEnd(boolean sideDrag){
+		// This needs to be in here and not in the parent InventoryMenu, so that the main menu doesn't need to use a buffer to be regularly regenerated
 		super.onDragEnd(sideDrag);
 		if(!sideDrag) return;
 		this.updateTextPosition();
@@ -65,5 +67,13 @@ public class SpellListButton extends ZusassButton{
 	@Override
 	public ZRect getTextLimitBounds(){
 		return super.getTextLimitBounds().pad(-this.getBorderWidth());
+	}
+
+	@Override
+	public void render(Game game, Renderer r, ZRect bounds){
+		super.render(game, r, bounds);
+		// TODO remove
+//		r.setColor(1, 0, 1, .5);
+//		r.fill();
 	}
 }

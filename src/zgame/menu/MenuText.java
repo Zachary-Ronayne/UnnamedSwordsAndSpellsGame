@@ -71,12 +71,6 @@ public class MenuText extends MenuThing{
 	}
 	
 	@Override
-	public void updateBuffer(){
-		super.updateBuffer();
-		this.textBuffer.regenerateBuffer((int)Math.round(this.getWidth()), (int)Math.round(this.getHeight()));
-	}
-	
-	@Override
 	public void regenerateBuffer(){
 		super.regenerateBuffer();
 		this.textBuffer.regenerateBuffer((int)Math.round(this.getWidth()), (int)Math.round(this.getHeight()));
@@ -219,7 +213,8 @@ public class MenuText extends MenuThing{
 	
 	/** @return The bounds, in absolute coordinates, where text can be drawn. Text outside of this will be cut off */
 	public ZRect getTextLimitBounds(){
-		return this.getBounds();
+		// TODO what are the conditions to use relBounds vs bounds?
+		return this.usesBuffer() ? this.getBounds() : this.getRelBounds();
 	}
 	
 }

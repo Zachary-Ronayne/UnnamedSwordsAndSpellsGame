@@ -240,7 +240,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	// issue#11 add option to make things only render in the bounds regardless of a buffer, fix render checking first
 	
-	/** @param use true to enable using the buffer, false otherwise */
+	/** @param use true to enable using the buffer, false otherwise. If setting to true, probably should follow this up with {@link #regenerateBuffer()}  */
 	public void setBuffer(boolean use){
 		if(use && this.buffer == null) this.initBuffer();
 		else if(!use){
@@ -260,21 +260,14 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** Initialize the state of {@link #buffer} based on the state of this {@link MenuThing} */
 	private void initBuffer(){
-		this.buffer = new MenuBuffer(this);
-	}
-	
-	/**
-	 * Force the underlying buffer for this {@link MenuThing} to be recreated. This is an expensive operation, and should not be used frequently. Also forces this object to
-	 * use a buffer, even if it was previously not using one. Essentially, call this method to make this thing use a buffer
-	 */
-	public void updateBuffer(){
 		this.destroyBuffer();
-		this.initBuffer();
+		this.buffer = new MenuBuffer(this);
 	}
 	
 	/** Regenerate {@link #buffer} to the current size of this menu thing, does nothing if {@link #buffer} is already null */
 	public void regenerateBuffer(){
-		if(this.buffer != null) this.buffer.regenerateBuffer((int)this.getWidth(), (int)this.getHeight());
+		if(this.buffer == null) return;
+		this.buffer.regenerateBuffer((int)this.getWidth(), (int)this.getHeight());
 	}
 	
 	/**

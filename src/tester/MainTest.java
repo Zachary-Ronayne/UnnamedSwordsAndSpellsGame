@@ -733,7 +733,7 @@ public class MainTest extends Game{
 			super(100, 250, 830, 380, true);
 			this.setWidth(830);
 			this.setHeight(380);
-			this.updateBuffer();
+			this.regenerateBuffer();
 			this.setFill(new ZColor(.1, .1, .2, 1));
 			
 			MenuScroller scrollX = new HorizontalScroller(0, 370, 800, 20, 200, game){
@@ -747,8 +747,8 @@ public class MainTest extends Game{
 			scrollX.setScrollWheelAsPercent(false);
 			scrollX.setScrollWheelStrength(10);
 			scrollX.setDrawThingsToBuffer(false);
-			scrollX.updateBuffer();
-			scrollX.getButton().updateBuffer();
+			scrollX.regenerateBuffer();
+			scrollX.getButton().regenerateBuffer();
 			this.addThing(scrollX);
 			MenuScroller scrollY = new VerticalScroller(820, 0, 20, 350, 200, game){
 				@Override
@@ -774,7 +774,7 @@ public class MainTest extends Game{
 			};
 			t.setFill(new ZColor(0, .2, .7));
 			t.setText("Back");
-			t.updateBuffer();
+			t.regenerateBuffer();
 			base.addThing(t);
 			
 			t = new MenuButton(50, 100, 200, 100, game){

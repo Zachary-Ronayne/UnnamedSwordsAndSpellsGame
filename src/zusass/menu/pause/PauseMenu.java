@@ -41,6 +41,7 @@ public class PauseMenu extends Menu{
 	public PauseMenu(ZusassGame zgame){
 		super(0, 0, 350, 500, false);
 		this.center(zgame.getWindow());
+		// TODO why isn't the pause menu border showing?
 		this.setBorder(new ZColor(0, 0, 0, 0));
 		this.setFill(new ZColor(.5, 0, 0, .5));
 		
