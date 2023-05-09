@@ -35,6 +35,8 @@ public class SpellListButton extends ZusassButton{
 		this.spellList = list;
 		this.spellIndex = index;
 		
+		// TODO make the text buffer the maximum width of the inventory menu to avoid the text getting awkwardly cut off when expanding the menu
+		
 		this.setFormatter(new PercentFormatter(1.0, null, 0.5, null));
 		this.setFontSize(24);
 		this.updateTextPosition();
@@ -66,14 +68,12 @@ public class SpellListButton extends ZusassButton{
 	
 	@Override
 	public ZRect getTextLimitBounds(){
-		return super.getTextLimitBounds().pad(-this.getBorderWidth());
+		var b = super.getTextLimitBounds();
+		return b == null ? null : b.pad(-this.getBorderWidth());
 	}
 
 	@Override
 	public void render(Game game, Renderer r, ZRect bounds){
 		super.render(game, r, bounds);
-		// TODO remove
-//		r.setColor(1, 0, 1, .5);
-//		r.fill();
 	}
 }

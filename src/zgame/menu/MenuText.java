@@ -23,11 +23,6 @@ public class MenuText extends MenuThing{
 	/** The text to display for this menu */
 	private String text;
 	
-	/** The x coordinate to draw this things text */
-	private double textX;
-	/** The x coordinate to draw this things text */
-	private double textY;
-	
 	/**
 	 * Create a blank {@link MenuText} at the given position and size
 	 *
@@ -88,24 +83,22 @@ public class MenuText extends MenuThing{
 	
 	/** @return See {@link TextBuffer#textX} */
 	public double getTextX(){
-		return this.textX;
+		return this.textBuffer.getTextX();
 	}
 	
 	/** @param textX See {@link TextBuffer#textX} */
 	public void setTextX(double textX){
-		this.textX = textX;
 		this.textBuffer.setTextX(textX);
 	}
 	
 	/** @return See {@link TextBuffer#textY} */
 	public double getTextY(){
-		return this.textY;
+		return this.textBuffer.getTextY();
 	}
 	
 	/** @param textY See {@link TextBuffer#textY} */
 	public void setTextY(double textY){
 		this.textBuffer.setTextY(textY);
-		this.textY = textY;
 	}
 	
 	/** @return See {@link TextBuffer#font} */
@@ -202,8 +195,6 @@ public class MenuText extends MenuThing{
 	 */
 	public void drawText(Renderer r, String text, ZRect bounds){
 		this.textBuffer.setText(text);
-		this.textBuffer.setTextX(this.getTextX());
-		this.textBuffer.setTextY(this.getTextY());
 		
 		var b = this.getTextLimitBounds();
 		if(b != null) r.pushLimitedBounds(b);
@@ -213,8 +204,17 @@ public class MenuText extends MenuThing{
 	
 	/** @return The bounds, in absolute coordinates, where text can be drawn. Text outside of this will be cut off */
 	public ZRect getTextLimitBounds(){
-		// TODO what are the conditions to use relBounds vs bounds?
-		return this.usesBuffer() ? this.getBounds() : this.getRelBounds();
+		// TODO abstract this out
+		// Must find the bounds relative to the first parent which uses a buffer
+		MenuThing p = this;
+		double x = 0;
+		double y = 0;
+		while(p != null && !p.usesBuffer()){
+			x += p.getRelX();
+			y += p.getRelY();
+			p = p.getParent();
+		}
+		return new ZRect(x, y, this.getWidth(), this.getHeight());
 	}
 	
 }
