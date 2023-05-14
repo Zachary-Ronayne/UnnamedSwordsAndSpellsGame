@@ -204,17 +204,8 @@ public class MenuText extends MenuThing{
 	
 	/** @return The bounds, in absolute coordinates, where text can be drawn. Text outside of this will be cut off */
 	public ZRect getTextLimitBounds(){
-		// TODO abstract this out
 		// Must find the bounds relative to the first parent which uses a buffer
-		MenuThing p = this;
-		double x = 0;
-		double y = 0;
-		while(p != null && !p.usesBuffer()){
-			x += p.getRelX();
-			y += p.getRelY();
-			p = p.getParent();
-		}
-		return new ZRect(x, y, this.getWidth(), this.getHeight());
+		return this.getBoundsToBuffer();
 	}
 	
 }

@@ -537,6 +537,19 @@ public class MenuThing implements GameInteractable, Destroyable{
 		return new ZRect(this.getRelX(), this.getRelY(), this.getWidth(), this.getHeight());
 	}
 	
+	/** @return A {@link ZRect} of the bounds of this thing, where the position is relative to first thing in the tree of menu things that uses a buffer */
+	public ZRect getBoundsToBuffer(){
+		MenuThing p = this;
+		double x = 0;
+		double y = 0;
+		while(p != null && !p.usesBuffer()){
+			x += p.getRelX();
+			y += p.getRelY();
+			p = p.getParent();
+		}
+		return new ZRect(x, y, this.getWidth(), this.getHeight());
+	}
+	
 	/** @return See {@link #fill} */
 	public ZColor getFill(){
 		return this.fill;
