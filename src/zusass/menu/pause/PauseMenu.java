@@ -41,14 +41,16 @@ public class PauseMenu extends Menu{
 	public PauseMenu(ZusassGame zgame){
 		super(0, 0, 350, 500, false);
 		this.center(zgame.getWindow());
-		// TODO why isn't the pause menu border showing?
-		this.setBorder(new ZColor(0, 0, 0, 0));
+		this.setBorder(new ZColor(.2, 0, 0, .5));
+		this.setBorderWidth(8);
 		this.setFill(new ZColor(.5, 0, 0, .5));
 		
 		ZusassMenuText title = new ZusassMenuText(0, 20, 330, 120, "Pause", zgame, true);
 		title.setFontSize(100);
 		title.setFontColor(new ZColor(0));
 		title.setFill(new ZColor(.5, .2, .2));
+		title.setBorder(new ZColor(.2, 0, 0));
+		title.setBorderWidth(2);
 		title.centerText();
 		
 		this.addThing(title);
@@ -89,7 +91,7 @@ public class PauseMenu extends Menu{
 	@Override
 	public void render(Game game, Renderer r, ZRect bounds){
 		// Fade the background
-		r.setColor(.1, .1, .1, .3);
+		r.setColor(.1, .1, .1, .5);
 		r.fill();
 		// Then draw the menu
 		super.render(game, r, bounds);
