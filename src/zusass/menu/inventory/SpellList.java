@@ -35,13 +35,14 @@ public class SpellList extends MenuHolder{
 	
 	/**
 	 * Generate the buttons used by this spell list, from the given mob and game
+	 *
 	 * @param mob The mob, must not be null
 	 * @param zgame The game
 	 */
 	public void generateButtons(ZusassMob mob, ZusassGame zgame){
 		var spells = mob.getSpells().getSpellList();
-		for(int i = 0; i < spells.size(); i++) {
-			this.addThing(new SpellListButton(spells.get(i),  i, this, zgame));
+		for(int i = 0; i < spells.size(); i++){
+			this.addThing(new SpellListButton(spells.get(i), i, this, zgame));
 		}
 	}
 	

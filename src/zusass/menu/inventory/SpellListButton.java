@@ -1,7 +1,6 @@
 package zusass.menu.inventory;
 
 import zgame.core.Game;
-import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZRect;
 import zgame.menu.format.PercentFormatter;
 import zusass.ZusassGame;
@@ -70,10 +69,5 @@ public class SpellListButton extends ZusassButton{
 	public ZRect getTextLimitBounds(){
 		var b = super.getTextLimitBounds();
 		return b == null ? null : b.pad(-this.getBorderWidth());
-	}
-
-	@Override
-	public void render(Game game, Renderer r, ZRect bounds){
-		super.render(game, r, bounds);
 	}
 }

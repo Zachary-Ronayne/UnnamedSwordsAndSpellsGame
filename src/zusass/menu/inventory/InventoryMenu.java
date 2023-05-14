@@ -32,7 +32,7 @@ public class InventoryMenu extends ZusassMenu{
 	public InventoryMenu(ZusassGame zgame){
 		super(zgame, "");
 		// TODO why does making this use a buffer make the menu extra transparent?
-//		this.setBuffer(true);
+		this.setBuffer(true);
 		this.makeDraggable(10, 30);
 		this.setBorder(new ZColor(.1, 0, 0, .8));
 		this.setFill(new ZColor(.3, 0, 0, .8));

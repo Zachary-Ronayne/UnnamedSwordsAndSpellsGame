@@ -53,6 +53,9 @@ public class Renderer implements Destroyable{
 	/** Default value for {@link #limitedBoundsStack}. null means no limit */
 	public static final ZRect DEFAULT_LIMITED_BOUNDS = null;
 	
+	/** true if the bounds should never be limited, false otherwise. Should always be false, unless debugging graphics */
+	public static final boolean DISABLE_LIMITING_BOUNDS = false;
+	
 	/** The vertex buffer index for positional coordinates */
 	public static final int VERTEX_POS_INDEX = 0;
 	/** The vertex buffer index for texture coordinates */
@@ -673,6 +676,11 @@ public class Renderer implements Destroyable{
 	
 	/** Update the current state of the limited bounds via calls to glScissor */
 	private void updateLimitedBounds(){
+		if(DISABLE_LIMITING_BOUNDS){
+			glDisable(GL_SCISSOR_TEST);
+			return;
+		}
+		
 		ZRect b = this.getLimitedBounds();
 		if(b == null){
 			glDisable(GL_SCISSOR_TEST);

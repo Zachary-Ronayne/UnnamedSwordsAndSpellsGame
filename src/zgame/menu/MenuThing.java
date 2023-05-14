@@ -1226,9 +1226,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 		// Limit the bounds for drawing children if applicable
 		var cb = this.getChildBounds();
 		if(cb != null){
-			var b = cb.getRelBounds();
-			b.x += this.getX();
-			b.y += this.getY();
+			var bufferedBounds = this.getBoundsToBuffer();
+			var b = new ZRect(cb.getRelBounds(), bufferedBounds.getX(), bufferedBounds.getY());
 			r.pushLimitedBounds(b);
 		}
 		
