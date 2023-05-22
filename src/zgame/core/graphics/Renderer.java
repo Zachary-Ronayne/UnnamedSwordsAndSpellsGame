@@ -124,6 +124,9 @@ public class Renderer implements Destroyable{
 	/** true if {@link #getColor()} has changed since last being sent to the current shader */
 	private boolean sendColor;
 	
+	/** The last used mode for rendering alpha values */
+	private AlphaMode alphaMode;
+	
 	/** The stack keeping track of the current color used by this {@link Renderer} */
 	private final LimitedStack<ZColor> colorStack;
 	
@@ -169,6 +172,8 @@ public class Renderer implements Destroyable{
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public Renderer(int width, int height){
+		this.alphaMode = AlphaMode.NORMAL;
+		
 		// Initialize stack list
 		this.stacks = new ArrayList<>();
 		this.attributeStacks = new ArrayList<>();
@@ -589,6 +594,7 @@ public class Renderer implements Destroyable{
 	public void drawToWindow(GameWindow window){
 		// Set the current shader for drawing a frame buffer
 		this.renderModeBuffer();
+		AlphaMode.NORMAL.apply();
 		this.pushColor(this.getColor().solid());
 		this.pushMatrix();
 		this.identityMatrix();
@@ -655,12 +661,14 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Push the current value of {@link #getLimitedBounds()} onto the stack, and limit the bounds to the given bounds
+	 *
 	 * @param bounds The bounds to limit to, in game coordinates
 	 */
 	public void pushLimitedBounds(ZRect bounds){
 		this.limitedBoundsStack.push();
 		this.limitBounds(bounds);
 	}
+	
 	/**
 	 * Push the current value of {@link #getLimitedBounds()} onto the stack, and unlimit the bounds
 	 */
@@ -698,7 +706,7 @@ public class Renderer implements Destroyable{
 			w = c.sizeGameToScreenX(w);
 			h = c.sizeGameToScreenY(h);
 		}
-		// TODO figure out why enabling this scissor test makes the text not show up initially
+		// issue#29 figure out why enabling this scissor test makes the text not show up initially. Is it something because of text buffers?
 		glEnable(GL_SCISSOR_TEST);
 		glScissor((int)Math.round(x), (int)Math.round(this.getHeight() - y), (int)Math.round(w), (int)Math.round(h));
 	}
@@ -847,6 +855,14 @@ public class Renderer implements Destroyable{
 		return true;
 	}
 	
+	/** @param mode The new mode to use */
+	private void updateAlphaMode(AlphaMode mode){
+		if(mode == null) mode = AlphaMode.NORMAL;
+		if(mode == this.alphaMode) return;
+		this.alphaMode = mode;
+		this.alphaMode.apply();
+	}
+	
 	/**
 	 * Draw a rectangular buffer at the specified location.
 	 * If the given dimensions have a different aspect ratio that those of the given buffer, then the image will stretch to fit the given dimensions
@@ -854,10 +870,11 @@ public class Renderer implements Destroyable{
 	 *
 	 * @param r The bounds
 	 * @param b The {@link GameBuffer} to draw
+	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawBuffer(ZRect r, GameBuffer b){
-		return this.drawBuffer(r.getX(), r.getY(), r.getWidth(), r.getHeight(), b);
+	public boolean drawBuffer(ZRect r, GameBuffer b, AlphaMode mode){
+		return this.drawBuffer(r.getX(), r.getY(), r.getWidth(), r.getHeight(), b, mode);
 	}
 	
 	/**
@@ -870,12 +887,13 @@ public class Renderer implements Destroyable{
 	 * @param w The width of the image
 	 * @param h The height of the image
 	 * @param b The {@link GameBuffer} to draw
+	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawBuffer(double x, double y, double w, double h, GameBuffer b){
+	public boolean drawBuffer(double x, double y, double w, double h, GameBuffer b, AlphaMode mode){
 		if(!this.shouldDraw(x, y, w, h)) return false;
 		this.renderModeBuffer();
-		return this.drawTexture(x, y, w, h, b.getTextureID());
+		return this.drawTexture(x, y, w, h, b.getTextureID(), mode);
 	}
 	
 	/**
@@ -886,10 +904,11 @@ public class Renderer implements Destroyable{
 	 *
 	 * @param r The bounds of the image
 	 * @param img The OpenGL id of the image to draw
+	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawImage(ZRect r, GameImage img){
-		return this.drawImage(r.getX(), r.getY(), r.getWidth(), r.getHeight(), img);
+	public boolean drawImage(ZRect r, GameImage img, AlphaMode mode){
+		return this.drawImage(r.getX(), r.getY(), r.getWidth(), r.getHeight(), img, mode);
 	}
 	
 	/**
@@ -902,12 +921,13 @@ public class Renderer implements Destroyable{
 	 * @param w The width of the image
 	 * @param h The height of the image
 	 * @param img The {@link GameImage} to draw
+	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawImage(double x, double y, double w, double h, GameImage img){
+	public boolean drawImage(double x, double y, double w, double h, GameImage img, AlphaMode mode){
 		if(!this.shouldDraw(x, y, w, h)) return false;
 		this.renderModeImage();
-		return this.drawTexture(x, y, w, h, img.getId());
+		return this.drawTexture(x, y, w, h, img.getId(), mode);
 	}
 	
 	/**
@@ -922,15 +942,18 @@ public class Renderer implements Destroyable{
 	 * @param w The width of the texture
 	 * @param h The height of the texture
 	 * @param img The OpenGL id of the texture to draw
+	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	private boolean drawTexture(double x, double y, double w, double h, int img){
+	private boolean drawTexture(double x, double y, double w, double h, int img, AlphaMode mode){
 		this.imgVertArr.bind();
 		glBindTexture(GL_TEXTURE_2D, img);
+		updateAlphaMode(mode);
 		
 		// Perform the drawing operation
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
+		
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuColor();
@@ -956,7 +979,24 @@ public class Renderer implements Destroyable{
 	 * @return true if the text was drawn, false otherwise
 	 */
 	public boolean drawText(double x, double y, String text){
-		return drawText(x, y, text, this.getFont());
+		return drawText(x, y, text, this.getFont(), null);
+	}
+	
+	/**
+	 * Draw the given text to the given position
+	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
+	 * i.e. the text starts at the given coordinates and is draw left to right
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
+	 *
+	 * @param x The x position of the text
+	 * @param y The y position of the text
+	 * @param text The text to draw
+	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
+	 * @return true if the text was drawn, false otherwise
+	 */
+	public boolean drawText(double x, double y, String text, AlphaMode mode){
+		return drawText(x, y, text, this.getFont(), mode);
 	}
 	
 	/**
@@ -973,6 +1013,24 @@ public class Renderer implements Destroyable{
 	 * @return true if the text was drawn, false otherwise
 	 */
 	public boolean drawText(double x, double y, String text, GameFont f){
+		return this.drawText(x, y, text, f, null);
+	}
+	
+	/**
+	 * Draw the given text to the given position
+	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
+	 * i.e. the text starts at the given coordinates and is draw left to right
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
+	 *
+	 * @param x The x position of the text
+	 * @param y The y position of the text
+	 * @param text The text to draw
+	 * @param f The font to use for drawing
+	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
+	 * @return true if the text was drawn, false otherwise
+	 */
+	public boolean drawText(double x, double y, String text, GameFont f, AlphaMode mode){
 		// Make sure a font exists, and that there is some text
 		if(f == null || text == null || text.isEmpty()) return false;
 		FontAsset fa = f.getAsset();
@@ -980,6 +1038,7 @@ public class Renderer implements Destroyable{
 		// Bounds check for if the text should be drawn
 		ZRect[] rects = f.stringBounds(x, y, text, 1, true);
 		if(!this.shouldDraw(rects[text.length()])) return false;
+		updateAlphaMode(mode);
 		
 		// Mark the drawing bounds
 		// Use the font shaders
@@ -1072,7 +1131,6 @@ public class Renderer implements Destroyable{
 	 * @param drawBounds The bounds
 	 * @return true if the bounds should be drawn, false otherwise
 	 */
-	@SuppressWarnings("unused")
 	public boolean shouldDraw(ZRect drawBounds){
 		// If rendering only inside is not enabled, immediately return true
 		

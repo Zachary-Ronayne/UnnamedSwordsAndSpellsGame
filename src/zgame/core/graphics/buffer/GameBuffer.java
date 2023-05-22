@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
 
+import zgame.core.graphics.AlphaMode;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.image.GameImage;
@@ -45,6 +46,9 @@ public class GameBuffer implements Destroyable{
 	/** true if the buffer has been generated, false otherwise */
 	private boolean bufferGenerated;
 	
+	/** The way this buffer should be rendered for the alpha channel */
+	private AlphaMode alphaMode;
+	
 	/**
 	 * Create a GameBuffer of the given size
 	 *
@@ -53,6 +57,7 @@ public class GameBuffer implements Destroyable{
 	 * @param generate true if the buffer should generate right away, false to not generate it
 	 */
 	public GameBuffer(int width, int height, boolean generate){
+		this.alphaMode = AlphaMode.NORMAL;
 		this.bufferGenerated = false;
 		if(generate) this.regenerateBuffer(width, height);
 		else{
@@ -129,7 +134,7 @@ public class GameBuffer implements Destroyable{
 	 * @param r The {@link Renderer} to use
 	 */
 	public void drawToRenderer(double x, double y, Renderer r){
-		r.drawBuffer(x, y, this.getWidth(), this.getHeight(), this);
+		r.drawBuffer(x, y, this.getWidth(), this.getHeight(), this, this.getAlphaMode());
 	}
 	
 	/** After calling this method, all further OpenGL rendering operations will draw to this GameBuffer */
@@ -146,6 +151,16 @@ public class GameBuffer implements Destroyable{
 	public void clear(){
 		glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+	
+	/** @return See {@link #alphaMode} */
+	public AlphaMode getAlphaMode(){
+		return this.alphaMode;
+	}
+	
+	/** @param alphaMode See {@link #alphaMode} */
+	public void setAlphaMode(AlphaMode alphaMode){
+		this.alphaMode = alphaMode;
 	}
 	
 	/** @return See {@link #textureID} */

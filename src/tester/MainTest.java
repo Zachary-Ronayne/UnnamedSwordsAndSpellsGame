@@ -465,9 +465,9 @@ public class MainTest extends Game{
 			this.textBuffer.drawToRenderer(bufferBounds.x, bufferBounds.y, r);
 			
 			r.makeOpaque();
-			r.drawImage(playerX, playerY, 150, 150, game.getImage("player"));
+			r.drawImage(playerX, playerY, 150, 150, game.getImage("player"), null);
 			r.setAlpha(.5);
-			r.drawImage(550, 100, 50, 50, game.getImage("goal"));
+			r.drawImage(550, 100, 50, 50, game.getImage("goal"), null);
 			
 			r.setColor(0, 0, 1, 0.5);
 			r.drawRectangle(140, 70, 90, 400);
