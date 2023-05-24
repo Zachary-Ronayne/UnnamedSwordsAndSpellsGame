@@ -142,4 +142,10 @@ public class TextBuffer extends DrawableBuffer{
 		this.textY = textY;
 	}
 	
+	@Override
+	public boolean regenerateBuffer(int width, int height){
+		var t = this.getText();
+		if(t == null || t.isBlank()) return false;
+		return super.regenerateBuffer(width, height);
+	}
 }

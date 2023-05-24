@@ -8,6 +8,7 @@ import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
+import zgame.menu.scroller.VerticalScroller;
 import zusass.ZusassGame;
 import zusass.game.things.entities.mobs.ZusassMob;
 import zusass.menu.ZusassMenu;
@@ -23,6 +24,10 @@ public class InventoryMenu extends ZusassMenu{
 	
 	/** The menu thing holding the list of spells to display */
 	private final SpellList spellList;
+	
+	// TODO make a Zusass component for this
+	/** The scroller used for this menu for scrolling through spells */
+	private final VerticalScroller spellScroller;
 	
 	/**
 	 * Create a new {@link InventoryMenu} for displaying the inventory of something
@@ -48,6 +53,16 @@ public class InventoryMenu extends ZusassMenu{
 		this.spellList = new SpellList(this, zgame);
 		this.addThing(this.spellList);
 		
+		// TODO make the amount for the scroller dynamically change as the height changes, and depend on the number of buttons
+		// TODO Avoid the weird glitchy movement with the scroller when resizing the menu
+		this.spellScroller = new VerticalScroller(1, 1, 10, 100, 200, zgame);
+		this.spellScroller.setScrollWheelEnabled(true);
+		this.spellScroller.setScrollWheelInverse(true);
+		var d = this.getDraggableArea().getRelBounds();
+		this.spellScroller.setFormatter(new PixelFormatter(null, 5.0, d.getHeight() * 1.4, 20.0));
+		this.addThing(this.spellScroller);
+		
+		this.spellScroller.setMovingThing(this.spellList);
 		this.mob = null;
 	}
 	

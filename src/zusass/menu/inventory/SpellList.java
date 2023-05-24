@@ -27,8 +27,6 @@ public class SpellList extends MenuHolder{
 		this.setHeight(100);
 		this.setFormatter(new PixelFormatter(20.0, 20.0, 50.0, null));
 		this.invisible();
-		
-		// TODO allow the list to be scrolled through
 	}
 	
 	/**
