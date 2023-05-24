@@ -28,8 +28,7 @@ public class SpellList extends MenuHolder{
 		this.setFormatter(new PixelFormatter(20.0, 20.0, 50.0, null));
 		this.invisible();
 		
-		// TODO Make the buttons y values not change when the menu is resized
-		// TODO Put a hard limit on the min y value, using the pixel formatter
+		// TODO make the text not display outside the buttons when the buttons are outside the menu
 		// TODO allow the list to be scrolled through
 	}
 	

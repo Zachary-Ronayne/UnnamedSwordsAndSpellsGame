@@ -33,6 +33,7 @@ public class SpellListButton extends ZusassButton{
 		super(0, index * (HEIGHT + HEIGHT_SPACE), list.getWidth(), HEIGHT, spell.nameAndCost(), zgame);
 		this.spellList = list;
 		this.spellIndex = index;
+		this.setKeepInParent(false);
 		
 		this.setFormatter(new PercentFormatter(1.0, null, 0.5, null));
 		this.setFontSize(24);

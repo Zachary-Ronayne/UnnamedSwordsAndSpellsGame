@@ -383,7 +383,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** @param x See {@link #relX} */
 	public void setRelX(double x){
 		this.relX = x;
-		this.keepInParentBounds();
+		if(this.isKeepInParent()) this.keepInParentBounds();
 	}
 	
 	/** @param x The amount to move this thing on the x axis */
@@ -394,7 +394,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** @param y See {@link #relY} */
 	public void setRelY(double y){
 		this.relY = y;
-		this.keepInParentBounds();
+		if(this.isKeepInParent()) this.keepInParentBounds();
 	}
 	
 	/** @param y The amount to move this thing on the x axis */
