@@ -79,12 +79,14 @@ public class InventoryMenu extends ZusassMenu{
 	
 	@Override
 	public void render(Game game, Renderer r, ZRect bounds){
+		r.pushLimitedBounds(bounds);
 		super.render(game, r, bounds);
 		
 		// #issue28 If this uses a buffer, the fill is solid, but this value is transparent and should be on top of the solid color, then this part is still transparent. Why?
 		r.setColor(new ZColor(.8, .3));
 		var d = this.getDraggableArea().getRelBounds();
 		r.drawRectangle(d.x(bounds.getX() + d.getX()).y(bounds.getY() + d.getY()));
+		r.popLimitedBounds();
 	}
 	
 	/** @return See {@link #mob} */

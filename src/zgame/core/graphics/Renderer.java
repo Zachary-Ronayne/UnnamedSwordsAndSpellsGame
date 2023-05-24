@@ -670,6 +670,35 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
+	 * Push the current value of {@link #getLimitedBounds()} onto the stack, and limit the bounds to the union of the given bounds and the current limited bounds.
+	 * If the bounds are not currently limited, this call is equivalent to {@link #pushLimitedBounds(ZRect)}
+	 *
+	 * @param bounds The bounds to limit to, in game coordinates
+	 */
+	public void pushLimitedBoundsUnion(ZRect bounds){
+		var newBounds = this.getLimitedBounds();
+		if(newBounds == null) newBounds = bounds;
+		else newBounds = new ZRect(newBounds.createUnion(bounds));
+		
+		this.pushLimitedBounds(newBounds);
+	}
+	
+	/**
+	 * Push the current value of {@link #getLimitedBounds()} onto the stack, and limit the bounds to the intersection of the given bounds and the current limited bounds.
+	 * If the bounds are not currently limited, this call is equivalent to {@link #pushLimitedBounds(ZRect)}
+	 *
+	 * @param bounds The bounds to limit to, in game coordinates
+	 */
+	public void pushLimitedBoundsIntersection(ZRect bounds){
+		var newBounds = this.getLimitedBounds();
+		if(newBounds == null) newBounds = bounds;
+		else newBounds = new ZRect(newBounds.createIntersection(bounds));
+		if(newBounds.getWidth() <= 0 || newBounds.getHeight() <= 0) newBounds = new ZRect();
+		
+		this.pushLimitedBounds(newBounds);
+	}
+	
+	/**
 	 * Push the current value of {@link #getLimitedBounds()} onto the stack, and unlimit the bounds
 	 */
 	public void pushUnlimitedBounds(){

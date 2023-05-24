@@ -1,6 +1,7 @@
 package zusass.menu.inventory;
 
 import zgame.core.Game;
+import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZRect;
 import zgame.menu.format.PercentFormatter;
 import zusass.ZusassGame;

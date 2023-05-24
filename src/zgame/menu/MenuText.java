@@ -23,6 +23,9 @@ public class MenuText extends MenuThing{
 	/** The text to display for this menu */
 	private String text;
 	
+	/** When rendering text, force the bounds to be limited to the intersection of bounds of this thing and the current limited bounds, false otherwise */
+	private boolean limitIntersectionBounds;
+	
 	/**
 	 * Create a blank {@link MenuText} at the given position and size
 	 *
@@ -57,6 +60,8 @@ public class MenuText extends MenuThing{
 		this.setFill(this.getFill().solid());
 		
 		this.fontColor = new ZColor(0);
+		
+		this.setLimitIntersectionBounds(true);
 	}
 	
 	@Override
@@ -141,6 +146,16 @@ public class MenuText extends MenuThing{
 		this.setFont(this.getFont().size(fontSize));
 	}
 	
+	/** @return See {@link #limitIntersectionBounds} */
+	public boolean isLimitIntersectionBounds(){
+		return this.limitIntersectionBounds;
+	}
+	
+	/** @param limitIntersectionBounds See {@link #limitIntersectionBounds} */
+	public void setLimitIntersectionBounds(boolean limitIntersectionBounds){
+		this.limitIntersectionBounds = limitIntersectionBounds;
+	}
+	
 	/** Move the text of this {@link MenuText} so that it's in the center of its bounds */
 	public void centerText(){
 		ZRect b = this.getTextBounds();
@@ -202,15 +217,22 @@ public class MenuText extends MenuThing{
 		this.textBuffer.setText(text);
 		
 		var b = this.getTextLimitBounds();
-		if(b != null) r.pushLimitedBounds(b);
+		var limit = b != null;
+		if(limit) {
+			if(this.isLimitIntersectionBounds()) r.pushLimitedBoundsIntersection(b);
+			else r.pushLimitedBounds(b);
+		}
 		this.textBuffer.drawToRenderer(bounds.getX(), bounds.getY(), r);
-		if(b != null) r.popLimitedBounds();
+		if(limit) r.popLimitedBounds();
 	}
 	
 	/** @return The bounds, in absolute coordinates, where text can be drawn. Text outside of this will be cut off */
 	public ZRect getTextLimitBounds(){
 		// Must find the bounds relative to the first parent which uses a buffer
+		
+		// issue#30 Which of these is correct? Or does it need to be something else?
 		return this.getBoundsToBuffer();
+//		return this.getBounds();
 	}
 	
 }
