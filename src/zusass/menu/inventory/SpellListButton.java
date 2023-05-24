@@ -34,11 +34,18 @@ public class SpellListButton extends ZusassButton{
 		this.spellList = list;
 		this.spellIndex = index;
 		
-		// TODO make the text buffer the maximum width of the inventory menu to avoid the text getting awkwardly cut off when expanding the menu
-		
 		this.setFormatter(new PercentFormatter(1.0, null, 0.5, null));
 		this.setFontSize(24);
 		this.updateTextPosition();
+		
+		var t = this.getTextBuffer();
+		t.regenerateBuffer(zgame.getScreenWidth(), t.getHeight());
+	}
+	
+	@Override
+	public void regenerateTextBuffer(){
+		var t = this.getTextBuffer();
+		t.regenerateBuffer(t.getWidth(), t.getHeight());
 	}
 	
 	@Override

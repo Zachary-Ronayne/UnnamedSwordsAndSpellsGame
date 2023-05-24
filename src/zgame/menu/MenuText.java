@@ -68,6 +68,11 @@ public class MenuText extends MenuThing{
 	@Override
 	public void regenerateBuffer(){
 		super.regenerateBuffer();
+		this.regenerateTextBuffer();
+	}
+	
+	/** Regenerate {@link #textBuffer} to the size of this thing, or override for custom behavior */
+	public void regenerateTextBuffer(){
 		this.textBuffer.regenerateBuffer((int)Math.round(this.getWidth()), (int)Math.round(this.getHeight()));
 	}
 	
