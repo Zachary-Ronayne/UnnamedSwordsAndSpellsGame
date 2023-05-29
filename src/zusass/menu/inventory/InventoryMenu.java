@@ -16,6 +16,13 @@ import zusass.menu.ZusassMenu;
 /** The menu which displays on top of the game */
 public class InventoryMenu extends ZusassMenu{
 	
+	/** The size of the border of this menu */
+	public static final double BORDER_SIZE = 10;
+	/** The height of the draggable area at the top of the menu for moving it around the screen */
+	public static final double DRAGGABLE_HEIGHT = 30;
+	/** The color used for the border */
+	private static final ZColor BORDER_COLOR = new ZColor(.1, 0, 0, .8);
+	
 	/** The formatter used to position this menu */
 	private final MenuFormatter defaultFormatter;
 	
@@ -41,8 +48,8 @@ public class InventoryMenu extends ZusassMenu{
 //		this.setBuffer(true);
 //		this.getBuffer().setAlphaMode(AlphaMode.BUFFER);
 		
-		this.makeDraggable(10, 30);
-		this.setBorder(new ZColor(.1, 0, 0, .8));
+		this.makeDraggable(BORDER_SIZE, DRAGGABLE_HEIGHT);
+		this.setBorder(BORDER_COLOR);
 		this.setFill(new ZColor(.3, 0, 0, .8));
 		this.setMinWidth(120.0);
 		this.setMinHeight(75.0);
@@ -58,8 +65,7 @@ public class InventoryMenu extends ZusassMenu{
 		this.spellScroller = new VerticalScroller(1, 1, 10, 100, 200, zgame);
 		this.spellScroller.setScrollWheelEnabled(true);
 		this.spellScroller.setScrollWheelInverse(true);
-		var d = this.getDraggableArea().getRelBounds();
-		this.spellScroller.setFormatter(new PixelFormatter(null, 5.0, d.getHeight() * 1.4, 20.0));
+		this.spellScroller.setFormatter(new PixelFormatter(null, BORDER_SIZE, DRAGGABLE_HEIGHT * 1.4, 20.0));
 		this.addThing(this.spellScroller);
 		
 		this.spellScroller.setMovingThing(this.spellList);
@@ -100,7 +106,13 @@ public class InventoryMenu extends ZusassMenu{
 		// #issue28 If this uses a buffer, the fill is solid, but this value is transparent and should be on top of the solid color, then this part is still transparent. Why?
 		r.setColor(new ZColor(.8, .3));
 		var d = this.getDraggableArea().getRelBounds();
-		r.drawRectangle(d.x(bounds.getX() + d.getX()).y(bounds.getY() + d.getY()));
+		d = d.x(bounds.getX() + d.getX()).y(bounds.getY() + d.getY());
+		r.drawRectangle(d);
+		
+		r.setColor(BORDER_COLOR);
+		d.y += d.getHeight();
+		r.drawRectangle(d.height(BORDER_SIZE));
+		
 		r.popLimitedBounds();
 	}
 	

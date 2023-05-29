@@ -33,6 +33,9 @@ public abstract class MenuScroller extends MenuThing{
 	/** true if this scroll wheel should interact, false otherwise */
 	private boolean scrollWheelEnabled;
 	
+	/** true if the direction the scroller moves should be inverted, false otherwise */
+	private boolean inverseMove;
+	
 	/**
 	 * Create a new {@link MenuScroller} at the specified location and min and max
 	 *
@@ -56,6 +59,8 @@ public abstract class MenuScroller extends MenuThing{
 		this.button = this.generateButton(game);
 		super.addThing(button);
 		this.movingThing = null;
+		
+		this.inverseMove = false;
 	}
 	
 	@Override
@@ -123,7 +128,7 @@ public abstract class MenuScroller extends MenuThing{
 	
 	/** @return The amount of distance the child of this {@link MenuScroller} currently has scrolled */
 	public double getScrolledAmount(){
-		return this.getPercent() * this.getAmount();
+		return (this.isInverseMove() ? -1 : 1) * this.getPercent() * this.getAmount();
 	}
 	
 	/** @return The percentage of the way down this {@link MenuScroller} has moved, in the range [0, 1] */
@@ -176,4 +181,13 @@ public abstract class MenuScroller extends MenuThing{
 		this.scrollWheelEnabled = enabled;
 	}
 	
+	/** @return See {@link #inverseMove} */
+	public boolean isInverseMove(){
+		return this.inverseMove;
+	}
+	
+	/** @param inverseMove See {@link #inverseMove} */
+	public void setInverseMove(boolean inverseMove){
+		this.inverseMove = inverseMove;
+	}
 }

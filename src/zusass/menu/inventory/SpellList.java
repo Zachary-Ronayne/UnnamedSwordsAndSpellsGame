@@ -1,5 +1,8 @@
 package zusass.menu.inventory;
 
+import zgame.core.Game;
+import zgame.core.graphics.Renderer;
+import zgame.core.utils.ZRect;
 import zgame.menu.MenuHolder;
 import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
@@ -25,7 +28,7 @@ public class SpellList extends MenuHolder{
 		
 		this.setWidth(100);
 		this.setHeight(100);
-		this.setFormatter(new PixelFormatter(20.0, 20.0, 50.0, null));
+		this.setFormatter(new PixelFormatter(InventoryMenu.BORDER_SIZE * 1.5, InventoryMenu.BORDER_SIZE * 2.5, InventoryMenu.DRAGGABLE_HEIGHT + InventoryMenu.BORDER_SIZE * 3, null));
 		this.invisible();
 	}
 	
@@ -53,6 +56,17 @@ public class SpellList extends MenuHolder{
 		var buttons = this.getAllThings().get(SpellListButton.class);
 		if(buttons == null) return;
 		for(var b : buttons) b.updateTextPosition();
+	}
+	
+	@Override
+	public void drawThings(Game game, Renderer r, boolean reposition){
+		var b = this.menu.getRelBounds();
+		var h = InventoryMenu.DRAGGABLE_HEIGHT + InventoryMenu.BORDER_SIZE * 2;
+		b.y += h;
+		b.height -= h;
+		r.pushLimitedBoundsIntersection(b);
+		super.drawThings(game, r, reposition);
+		r.popLimitedBounds();
 	}
 	
 }
