@@ -34,7 +34,6 @@ public class InventoryMenu extends ZusassMenu{
 	/** The menu thing holding the list of spells to display */
 	private final SpellList spellList;
 	
-	// TODO make a Zusass component for this
 	/** The scroller used for this menu for scrolling through spells */
 	private final VerticalScroller spellScroller;
 	

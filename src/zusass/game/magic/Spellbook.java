@@ -83,6 +83,11 @@ public class Spellbook implements Saveable{
 		this.setSelectedSpellIndex(this.selectedSpellIndex - 1);
 	}
 	
+	/** @return See {@link #selectedSpellIndex} */
+	public int getSelectedSpellIndex(){
+		return this.selectedSpellIndex;
+	}
+	
 	/**
 	 * Go to the given spell index in the spellbook
 	 *

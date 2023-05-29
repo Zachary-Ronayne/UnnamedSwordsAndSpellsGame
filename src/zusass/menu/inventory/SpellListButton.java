@@ -1,6 +1,7 @@
 package zusass.menu.inventory;
 
 import zgame.core.Game;
+import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZRect;
 import zgame.menu.format.PercentFormatter;
 import zusass.ZusassGame;
@@ -78,5 +79,17 @@ public class SpellListButton extends ZusassButton{
 	public ZRect getTextLimitBounds(){
 		var b = super.getTextLimitBounds();
 		return b == null ? null : b.pad(-this.getBorderWidth());
+	}
+	
+	@Override
+	public void render(Game game, Renderer r, ZRect bounds){
+		super.render(game, r, bounds);
+		
+		// Draw a highlight if this button is the currently selected spell
+		var zgame = (ZusassGame)game;
+		if(zgame.getPlayer().getSpells().getSelectedSpellIndex() == this.spellIndex){
+			r.setColor(.8, .8, 1, 0.5);
+			r.drawRectangle(bounds);
+		}
 	}
 }
