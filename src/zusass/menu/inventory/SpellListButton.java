@@ -1,7 +1,6 @@
 package zusass.menu.inventory;
 
 import zgame.core.Game;
-import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZRect;
 import zgame.menu.format.PercentFormatter;
 import zusass.ZusassGame;
@@ -72,6 +71,7 @@ public class SpellListButton extends ZusassButton{
 		super.onDragEnd(sideDrag);
 		if(!sideDrag) return;
 		this.updateTextPosition();
+		this.spellList.getMenu().updateScrollAmount();
 	}
 	
 	@Override

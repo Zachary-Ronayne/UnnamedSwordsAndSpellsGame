@@ -2,7 +2,6 @@ package zusass.menu.inventory;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.core.utils.ZRect;
 import zgame.menu.MenuHolder;
 import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
@@ -61,9 +60,8 @@ public class SpellList extends MenuHolder{
 	@Override
 	public void drawThings(Game game, Renderer r, boolean reposition){
 		var b = this.menu.getRelBounds();
-		var h = InventoryMenu.DRAGGABLE_HEIGHT + InventoryMenu.BORDER_SIZE * 2;
-		b.y += h;
-		b.height -= h;
+		b.y += InventoryMenu.SCROLLER_POSITION;
+		b.height -= InventoryMenu.SCROLLER_POSITION;
 		r.pushLimitedBoundsIntersection(b);
 		super.drawThings(game, r, reposition);
 		r.popLimitedBounds();

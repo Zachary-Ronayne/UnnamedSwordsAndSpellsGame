@@ -20,6 +20,8 @@ public class InventoryMenu extends ZusassMenu{
 	public static final double BORDER_SIZE = 10;
 	/** The height of the draggable area at the top of the menu for moving it around the screen */
 	public static final double DRAGGABLE_HEIGHT = 30;
+	/** The position, relative to this menu, for the maximum height of the scroller */
+	public static final double SCROLLER_POSITION = InventoryMenu.DRAGGABLE_HEIGHT + InventoryMenu.BORDER_SIZE * 2;
 	/** The color used for the border */
 	private static final ZColor BORDER_COLOR = new ZColor(.1, 0, 0, .8);
 	
@@ -60,8 +62,7 @@ public class InventoryMenu extends ZusassMenu{
 		this.spellList = new SpellList(this, zgame);
 		this.addThing(this.spellList);
 		
-		// TODO make the amount for the scroller dynamically change as the height changes, and depend on the number of buttons
-		// TODO Avoid the weird glitchy movement with the scroller when resizing the menu
+		// issue#31 Stop the weird glitchy movement with the scroller when resizing the menu
 		this.spellScroller = new VerticalScroller(1, 1, 10, 100, 200, zgame);
 		this.spellScroller.setScrollWheelEnabled(true);
 		this.spellScroller.setScrollWheelInverse(true);
@@ -70,6 +71,8 @@ public class InventoryMenu extends ZusassMenu{
 		
 		this.spellScroller.setMovingThing(this.spellList);
 		this.mob = null;
+		
+		this.updateScrollAmount();
 	}
 	
 	/**
@@ -85,6 +88,11 @@ public class InventoryMenu extends ZusassMenu{
 	public void regenerateBuffer(){
 		super.regenerateBuffer();
 		this.spellList.regenerateBuffer();
+	}
+	
+	/** Update the values in {@link #spellScroller} based on the current size of the menu */
+	public void updateScrollAmount(){
+		this.spellScroller.setAmount(Math.max(0, this.spellList.getHeight() - (this.getHeight() - SCROLLER_POSITION - BORDER_SIZE * 3)));
 	}
 	
 	/**
