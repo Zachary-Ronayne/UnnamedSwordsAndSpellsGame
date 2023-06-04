@@ -20,6 +20,7 @@ import zusass.game.magic.ProjectileSpell;
 import zusass.game.magic.Spell;
 import zusass.game.magic.effect.SpellEffectStatusEffect;
 import zusass.game.status.StatEffect;
+import zusass.game.things.ZThingClickDetector;
 import zusass.game.things.ZusassDoor;
 import zusass.game.things.ZusassTags;
 
@@ -110,15 +111,15 @@ public class ZusassPlayer extends ZusassMob{
 	
 	/** See {@link GameInteractable#mouseAction(Game, int, boolean, boolean, boolean, boolean)} */
 	public boolean mouseAction(ZusassGame zgame, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		// Left click to go into a door
+		// Left click to interact with something on click
 		if(!press && button == GLFW_MOUSE_BUTTON_LEFT) {
-			var doors = zgame.getCurrentRoom().getAllThings().get(ZusassDoor.class);
-			if(doors != null){
-				for(var d : doors){
-					if(d.handlePress(zgame)) break;
+			var clickables = zgame.getCurrentRoom().getAllThings().get(ZThingClickDetector.class);
+			if(clickables != null){
+				for(var c : clickables){
+					if(c.handlePress(zgame)) return true;
 				}
 			}
-			return true;
+			return false;
 		}
 		// Right click to attack in a direction
 		else if(press && button == GLFW_MOUSE_BUTTON_RIGHT) {
