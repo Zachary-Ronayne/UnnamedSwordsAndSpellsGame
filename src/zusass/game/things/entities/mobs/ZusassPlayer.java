@@ -115,7 +115,7 @@ public class ZusassPlayer extends ZusassMob{
 			var doors = zgame.getCurrentRoom().getAllThings().get(ZusassDoor.class);
 			if(doors != null){
 				for(var d : doors){
-					if(d.handleDoorPress(zgame)) break;
+					if(d.handlePress(zgame)) break;
 				}
 			}
 			return true;

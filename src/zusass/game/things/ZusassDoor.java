@@ -3,10 +3,9 @@ package zusass.game.things;
 import zgame.core.utils.ZRect;
 import zgame.things.still.Door;
 import zusass.ZusassGame;
-import zusass.game.things.entities.mobs.ZusassPlayer;
 
 /** A {@link Door} specifically used by the Zusass game */
-public class ZusassDoor extends Door{
+public class ZusassDoor extends Door implements ZThingClickDetector{
 	
 	/**
 	 * Create a new door at the given position
@@ -18,22 +17,23 @@ public class ZusassDoor extends Door{
 		super(x, y, false);
 	}
 	
+	@Override
+	public ZRect getThingBounds(){
+		return this.getBounds();
+	}
+	
 	/**
 	 * Utility method for checking if the player clicked a door
 	 * If the player is attempting to click on a door, have the player enter the door, otherwise do nothing
 	 *
-	 * @param game The game used by the tick method
+	 * @param zgame The game used by the tick method
 	 * @return true if the door was entered, false otherwise
 	 */
-	public boolean handleDoorPress(ZusassGame game){
-		// Find the player
-		ZusassPlayer player = game.getPlayer();
-		if(player == null) return false;
+	public boolean handlePress(ZusassGame zgame){
+		if(!ZThingClickDetector.super.handlePress(zgame)) return false;
 		
-		// Check if the player intersects the door, and the player clicked on the door, then enter it
-		ZRect dBounds = this.getBounds();
-		if(!dBounds.intersects(player.getBounds()) || !dBounds.contains(game.mouseGX(), game.mouseGY())) return false;
-		return this.enterRoom(game.getCurrentRoom(), player, game);
+		var player = zgame.getPlayer();
+		return this.enterRoom(zgame.getCurrentRoom(), player, zgame);
 	}
 	
 }
