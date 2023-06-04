@@ -3,7 +3,6 @@ package zusass.game;
 import zgame.core.utils.NotNullList;
 import zgame.world.Room;
 import zusass.game.things.ZThingClickDetector;
-import zusass.game.things.ZusassDoor;
 import zusass.game.things.entities.mobs.ZusassMob;
 
 /** A {@link Room} used by the Zusass game */

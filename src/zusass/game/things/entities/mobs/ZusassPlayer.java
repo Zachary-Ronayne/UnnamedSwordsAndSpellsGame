@@ -21,7 +21,6 @@ import zusass.game.magic.Spell;
 import zusass.game.magic.effect.SpellEffectStatusEffect;
 import zusass.game.status.StatEffect;
 import zusass.game.things.ZThingClickDetector;
-import zusass.game.things.ZusassDoor;
 import zusass.game.things.ZusassTags;
 
 import static zusass.game.stat.ZusassStat.*;

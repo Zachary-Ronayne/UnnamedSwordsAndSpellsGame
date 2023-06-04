@@ -1,7 +1,5 @@
 package zusass.game.things;
 
-import zgame.core.Game;
-import zgame.core.utils.ZRect;
 import zgame.things.still.Door;
 import zusass.ZusassGame;
 
@@ -18,22 +16,14 @@ public class ZusassDoor extends Door implements ZThingClickDetector{
 		super(x, y, false);
 	}
 	
-	@Override
-	public ZRect getThingBounds(){
-		return this.getBounds();
-	}
-	
 	/**
 	 * If the player is attempting to click on a door, have the player enter the door, otherwise do nothing
 	 *
-	 * @param game The game used by the tick method
+	 * @param zgame The game used by the tick method
 	 * @return true if the door was entered, false otherwise
 	 */
 	@Override
-	public boolean handlePress(Game game){
-		var zgame = (ZusassGame)game;
-		if(!ZThingClickDetector.super.handlePress(zgame)) return false;
-		
+	public boolean handleZPress(ZusassGame zgame){
 		var player = zgame.getPlayer();
 		return this.enterRoom(zgame.getCurrentRoom(), player, zgame);
 	}
