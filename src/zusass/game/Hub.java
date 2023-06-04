@@ -9,6 +9,7 @@ import zgame.world.Room;
 import zusass.ZusassData;
 import zusass.ZusassGame;
 import zusass.game.things.LevelDoor;
+import zusass.game.things.SpellMakerThing;
 import zusass.game.things.ZusassTags;
 import zusass.game.things.entities.mobs.ZusassMob;
 
@@ -51,6 +52,11 @@ public class Hub extends ZusassRoom{
 		LevelDoor levelDoor = new LevelDoor(doorX, 0, 1, this);
 		levelDoor.setY(this.maxY() - levelDoor.getHeight());
 		this.addThing(levelDoor);
+		
+		// Add the spell maker
+		var spellMaker = new SpellMakerThing(100, 0);
+		spellMaker.setY(this.maxY() - spellMaker.getHeight());
+		this.addThing(spellMaker);
 	}
 	
 	@Override

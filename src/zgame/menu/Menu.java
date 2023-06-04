@@ -5,6 +5,9 @@ package zgame.menu;
  */
 public class Menu extends MenuThing{
 	
+	/** true if this menu should be destroyed by default when it is removed, false otherwise. This value is true by default */
+	private boolean defaultDestroyRemove;
+	
 	/** Create an empty menu at (0, 0) */
 	public Menu(){
 		this(0, 0);
@@ -32,6 +35,16 @@ public class Menu extends MenuThing{
 	public Menu(double x, double y, double width, double height, boolean useBuffer){
 		super(x, y, width, height, useBuffer);
 		this.setFill(this.getFill().solid());
+		this.setDefaultDestroyRemove(true);
 	}
 	
+	/** @return See {@link #defaultDestroyRemove} */
+	public boolean isDefaultDestroyRemove(){
+		return this.defaultDestroyRemove;
+	}
+	
+	/** @param defaultDestroyRemove See {@link #defaultDestroyRemove} */
+	public void setDefaultDestroyRemove(boolean defaultDestroyRemove){
+		this.defaultDestroyRemove = defaultDestroyRemove;
+	}
 }

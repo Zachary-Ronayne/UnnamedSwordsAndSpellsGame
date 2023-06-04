@@ -90,24 +90,30 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	}
 	
 	/**
-	 * Remove and destroy the menu on the top of this menu state.
+	 * Remove and potentially destroy the menu on the top of this menu state.
 	 *
 	 * @return The removed menu, or null if only the base menu exists
 	 */
 	public Menu removeTopMenu(){
-		return this.removeTopMenu(true);
+		if(this.getStackSize() <= getMinMenuStack()) return null;
+		Menu removed = this.menuStack.remove(this.menuStack.size() - 1).getMenu();
+		if(removed.isDefaultDestroyRemove()) removed.destroy();
+		return removed;
 	}
 	
 	/**
 	 * Remove the menu on the top of this menu state.
 	 *
 	 * @param destroy true to destroy the menu after it's removed, false otherwise If destroy is false, then does not destroy the removed menu or any of its allocated
-	 * 		resources. It is the responsibility of the caller of this method to destroy the returned menu
+	 * 		resources. It is the responsibility of the caller of this method to destroy the returned menu if the menu is not destroyed by default
 	 * @return The removed menu, or null if only the base menu exists
 	 */
 	public Menu removeTopMenu(boolean destroy){
-		if(this.getStackSize() <= getMinMenuStack()) return null;
-		Menu removed = this.menuStack.remove(this.menuStack.size() - 1).getMenu();
+		var removed = this.removeTopMenu();
+		if(removed == null) return null;
+		// If we are destroying the menu by default, don't try to destroy it again
+		if(removed.isDefaultDestroyRemove()) return removed;
+		// Otherwise, destroy it
 		if(destroy) removed.destroy();
 		return removed;
 	}

@@ -44,6 +44,7 @@ public class InventoryMenu extends ZusassMenu{
 	 */
 	public InventoryMenu(ZusassGame zgame){
 		super(zgame, "");
+		this.setDefaultDestroyRemove(false);
 		
 		// issue#28 why does making this use a buffer make the menu extra transparent?
 //		this.setBuffer(true);
@@ -111,6 +112,8 @@ public class InventoryMenu extends ZusassMenu{
 		super.render(game, r, bounds);
 		
 		// #issue28 If this uses a buffer, the fill is solid, but this value is transparent and should be on top of the solid color, then this part is still transparent. Why?
+		
+		// TODO abstract this out as an option for a popup menu
 		r.setColor(new ZColor(.8, .3));
 		var d = this.getDraggableArea().getRelBounds();
 		d = d.x(bounds.getX() + d.getX()).y(bounds.getY() + d.getY());

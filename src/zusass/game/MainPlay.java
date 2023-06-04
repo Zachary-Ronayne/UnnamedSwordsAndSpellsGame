@@ -80,11 +80,11 @@ public class MainPlay extends PlayState{
 		super.playKeyAction(game, button, press, shift, alt, ctrl);
 		if(press) return;
 		
-		// On releasing escape, open the pause menu, or close the pause or inventory menu
+		// On releasing escape, open the pause menu if no menus are open, or close whatever other menu is open
 		if(button == GLFW_KEY_ESCAPE){
 			ZusassGame zgame = (ZusassGame)game;
-			// If the game is not paused, but the inventory is showing, close the inventory
-			if(!zgame.getPlayState().isPaused() && this.isShowingInventory()) this.closeInventory();
+			var c = zgame.getCurrentState();
+			if(c.getStackSize() > 0) c.removeTopMenu();
 			// Otherwise, open the pause menu
 			else this.openPauseMenu(zgame);
 		}

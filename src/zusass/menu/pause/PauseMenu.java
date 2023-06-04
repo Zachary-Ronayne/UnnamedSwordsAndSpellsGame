@@ -40,6 +40,8 @@ public class PauseMenu extends Menu{
 	 */
 	public PauseMenu(ZusassGame zgame){
 		super(0, 0, 350, 500, false);
+		this.setDefaultDestroyRemove(false);
+		
 		this.center(zgame.getWindow());
 		this.setBorder(new ZColor(.2, 0, 0, .5));
 		this.setBorderWidth(8);

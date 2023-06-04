@@ -225,6 +225,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.setKeepInParent(true);
 		this.setStopParentInput(true);
 		this.setChildBoundsBorder();
+		this.setMinWidth(borderSize * 2);
+		this.setMinHeight(borderSize * 2);
 	}
 	
 	/**
