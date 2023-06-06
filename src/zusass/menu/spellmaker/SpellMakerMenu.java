@@ -1,5 +1,6 @@
 package zusass.menu.spellmaker;
 
+import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.format.PercentFormatter;
 import zusass.ZusassGame;
@@ -10,16 +11,34 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	/**
 	 * Create the menu
+	 *
 	 * @param zgame The game using the menu
 	 */
 	public SpellMakerMenu(ZusassGame zgame){
 		super(zgame, "Spell Creation");
 		
-		this.setFill(new ZColor(.6, 0, .4, .5));
+		this.setFill(new ZColor(.6, 0, .4, .8));
 		this.setBorder(new ZColor(.3, 0, .5, .5));
 		this.makeDraggable(10, 30);
 		
-		// TODO make the ZusassMenu title follow the formatter, like, reposition it when the menu is moved around
-		this.format(zgame.getWindow(), new PercentFormatter(.8, .8, .5, .5));
+		this.format(zgame.getWindow(), new PercentFormatter(.8, .95, .5, .5));
+		this.reformat(zgame);
+	}
+	
+	/**
+	 * Format the components of this menu based on its current size
+	 * @param zgame The game to reformat to
+	 */
+	private void reformat(ZusassGame zgame){
+		var t = this.getTitleThing();
+		t.format(new PercentFormatter(1.0, 1.0, .5, .5));
+		t.centerTextHorizontal();
+	}
+	
+	@Override
+	public void onDragEnd(Game game, boolean sideDrag){
+		// TODO fix the title buffer not being fully cleared when it's resized
+		super.onDragEnd(game, sideDrag);
+		this.reformat((ZusassGame)game);
 	}
 }

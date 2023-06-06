@@ -230,14 +230,36 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/**
+	 * Format this {@link MenuThing} so that it aligns to its parent. Does nothing if the parent is null
+	 *
+	 * @param formatter A formatter to use to set the bounds based on the parent
+	 */
+	public void format(MenuFormatter formatter){
+		var p = this.getParent();
+		if(p == null) return;
+		this.format(formatter, p.getWidth(), p.getHeight());
+	}
+	
+	/**
 	 * Format this {@link MenuThing} so that it aligns with the given window
 	 *
 	 * @param window The window to format to
-	 * @param formatter A formatter to use to set the bounds of the given game window
+	 * @param formatter A formatter to use to set the bounds based on the given game window
 	 */
 	public void format(GameWindow window, MenuFormatter formatter){
-		formatter.onWidthChange(this, window.getScreenWidth());
-		formatter.onHeightChange(this, window.getScreenHeight());
+		this.format(formatter, window.getScreenWidth(), window.getScreenHeight());
+	}
+	
+	/**
+	 * Format this {@link MenuThing} so that it aligns with the given dimensions
+	 *
+	 * @param formatter A formatter to use to set the bounds based on the given dimensions
+	 * @param width The width to format to
+	 * @param height The height to format to
+	 */
+	public void format(MenuFormatter formatter, double width, double height){
+		formatter.onWidthChange(this, width);
+		formatter.onHeightChange(this, height);
 	}
 	
 	// issue#11 add option to make things only render in the bounds regardless of a buffer, fix render checking first
@@ -978,23 +1000,25 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/**
 	 * Called when dragging starts. Does nothing by default, override to provide custom behavior
 	 *
+	 * @param game The game where the drag began in
 	 * @param x See {@link #draggingX}
 	 * @param y See {@link #draggingY}
 	 * @param sideDrag true if the sides of the thing were dragged, false otherwise
 	 */
-	public void onDragStart(double x, double y, boolean sideDrag){
+	public void onDragStart(Game game, double x, double y, boolean sideDrag){
 		var ts = this.getThings();
-		for(var t : ts) t.onDragStart(x, y, sideDrag);
+		for(var t : ts) t.onDragStart(game, x, y, sideDrag);
 	}
 	
 	/**
 	 * Called when dragging stops. Calls this method for all child components by default. Override to provide custom behavior
 	 *
+	 * @param game The game where the drag ended
 	 * @param sideDrag true if the sides of the thing were dragged, false otherwise
 	 */
-	public void onDragEnd(boolean sideDrag){
+	public void onDragEnd(Game game, boolean sideDrag){
 		var ts = this.getThings();
-		for(var t : ts) t.onDragEnd(sideDrag);
+		for(var t : ts) t.onDragEnd(game, sideDrag);
 	}
 	
 	/** Do not call directly */
@@ -1028,7 +1052,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		if(!press){
 			if(this.anchorPoint != null){
 				this.anchorPoint = null;
-				this.onDragEnd(isSideDragging());
+				this.onDragEnd(game, this.isSideDragging());
 			}
 			this.draggingX = 0;
 			this.draggingY = 0;
@@ -1081,7 +1105,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		}
 		// If any dragging occurred, set the anchor
 		if(dragging){
-			this.onDragStart(this.draggingX, this.draggingY, this.isSideDragging());
+			this.onDragStart(game, this.draggingX, this.draggingY, this.isSideDragging());
 			this.anchorPoint = new ZPoint(ax, ay);
 		}
 	}

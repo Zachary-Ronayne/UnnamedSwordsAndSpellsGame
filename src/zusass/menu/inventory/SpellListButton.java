@@ -67,9 +67,9 @@ public class SpellListButton extends ZusassButton{
 	}
 	
 	@Override
-	public void onDragEnd(boolean sideDrag){
+	public void onDragEnd(Game game, boolean sideDrag){
 		// This needs to be in here and not in the parent InventoryMenu, so that the main menu doesn't need to use a buffer to be regularly regenerated
-		super.onDragEnd(sideDrag);
+		super.onDragEnd(game, sideDrag);
 		if(!sideDrag) return;
 		this.updateTextPosition();
 		this.spellList.getMenu().updateScrollAmount();
