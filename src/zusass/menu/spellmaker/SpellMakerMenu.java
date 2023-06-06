@@ -2,7 +2,9 @@ package zusass.menu.spellmaker;
 
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
+import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
+import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
 
@@ -23,6 +25,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.makeDraggable(10, 30);
 		
 		this.getTitleThing().setFontSize(40);
+		this.getTitleThing().setTextY(50);
 		
 		this.format(zgame.getWindow(), new PercentFormatter(.8, .95, .5, .5));
 		this.reformat(zgame);
@@ -34,7 +37,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	 */
 	private void reformat(ZusassGame zgame){
 		var t = this.getTitleThing();
-		t.format(new PercentFormatter(1.0, 1.0, .5, .48));
+		t.format(new MultiFormatter(new PercentFormatter(1.0, 1.0, 0.5, 0.5), new PixelFormatter(null, null, 50.0, null)));
 		t.centerTextHorizontal();
 	}
 	
