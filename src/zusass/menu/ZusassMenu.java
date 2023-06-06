@@ -1,10 +1,6 @@
 package zusass.menu;
 
-import zgame.core.Game;
-import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
-import zgame.core.graphics.font.TextBuffer;
-import zgame.core.utils.ZRect;
 import zgame.menu.Menu;
 import zgame.menu.MenuText;
 import zusass.ZusassGame;

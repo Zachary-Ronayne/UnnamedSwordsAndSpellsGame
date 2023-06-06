@@ -1,9 +1,6 @@
 package zusass.menu.inventory;
 
-import zgame.core.Game;
-import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
-import zgame.core.utils.ZRect;
 import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
@@ -53,6 +50,7 @@ public class InventoryMenu extends ZusassMenu{
 		this.makeDraggable(BORDER_SIZE, DRAGGABLE_HEIGHT);
 		this.setBorder(BORDER_COLOR);
 		this.setFill(new ZColor(.3, 0, 0, .8));
+		this.setDraggableColor(new ZColor(.8, .3));
 		this.setMinWidth(120.0);
 		this.setMinHeight(75.0);
 		
@@ -104,26 +102,6 @@ public class InventoryMenu extends ZusassMenu{
 		var w = zgame.getWindow();
 		this.setWidth(200);
 		this.format(w, this.defaultFormatter);
-	}
-	
-	@Override
-	public void render(Game game, Renderer r, ZRect bounds){
-		r.pushLimitedBounds(bounds);
-		super.render(game, r, bounds);
-		
-		// #issue28 If this uses a buffer, the fill is solid, but this value is transparent and should be on top of the solid color, then this part is still transparent. Why?
-		
-		// TODO abstract this out as an option for a popup menu
-		r.setColor(new ZColor(.8, .3));
-		var d = this.getDraggableArea().getRelBounds();
-		d = d.x(bounds.getX() + d.getX()).y(bounds.getY() + d.getY());
-		r.drawRectangle(d);
-		
-		r.setColor(BORDER_COLOR);
-		d.y += d.getHeight();
-		r.drawRectangle(d.height(BORDER_SIZE));
-		
-		r.popLimitedBounds();
 	}
 	
 	/** @return See {@link #mob} */

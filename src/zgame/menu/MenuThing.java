@@ -82,6 +82,12 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** the amount of distance inside this thing from the edges where {@link #draggableSides} will activate */
 	private double draggableSideRange;
 	
+	/** The color of the draggable area */
+	private ZColor draggableColor;
+	
+	/** true to display {@link #draggableColor} in the area when dragging is enabled can be dragged */
+	private boolean displayDraggableColor;
+	
 	/**
 	 * Dragging state of the x axis {@link #draggableSides}, negative for left, 0 for none, 1 for right.
 	 * If this value and {@link #draggingY} are 0, dragging is for {@link #draggableArea}
@@ -195,6 +201,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.draggableSideRange = 15;
 		this.draggingX = 0;
 		this.draggingY = 0;
+		this.setDraggableColor(new ZColor(.5, .5));
+		this.setDisplayDraggableColor(false);
 		
 		this.minWidth = null;
 		this.maxWidth = null;
@@ -222,6 +230,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.setDraggableButton(GLFW_MOUSE_BUTTON_LEFT);
 		this.setDraggableSides(true);
 		this.setDraggableSideRange(borderSize);
+		this.setDisplayDraggableColor(true);
 		this.setKeepInParent(true);
 		this.setStopParentInput(true);
 		this.setChildBoundsBorder();
@@ -629,6 +638,11 @@ public class MenuThing implements GameInteractable, Destroyable{
 		return this.draggableArea;
 	}
 	
+	/** @return true if this thing can be dragged around, false otherwise */
+	public boolean isDraggable(){
+		return this.draggableArea != null;
+	}
+	
 	/** @param draggableArea See {@link #draggableArea} */
 	public void setDraggableArea(MenuThing draggableArea){
 		this.draggableArea = draggableArea;
@@ -686,6 +700,26 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** @param draggableSideRange See {@link #draggableSideRange} */
 	public void setDraggableSideRange(double draggableSideRange){
 		this.draggableSideRange = draggableSideRange;
+	}
+	
+	/** @return See {@link #draggableColor} */
+	public ZColor getDraggableColor(){
+		return this.draggableColor;
+	}
+	
+	/** @param draggableColor See {@link #draggableColor} */
+	public void setDraggableColor(ZColor draggableColor){
+		this.draggableColor = draggableColor;
+	}
+	
+	/** @return See {@link #displayDraggableColor} */
+	public boolean isDisplayDraggableColor(){
+		return this.displayDraggableColor;
+	}
+	
+	/** @param displayDraggableColor See {@link #displayDraggableColor} */
+	public void setDisplayDraggableColor(boolean displayDraggableColor){
+		this.displayDraggableColor = displayDraggableColor;
 	}
 	
 	/** @return See {@link #minWidth} */
@@ -1122,7 +1156,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		}
 		var a = this.anchorPoint;
 		if(a == null) return shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
-		boolean fullDrag = this.draggingX == 0 && this.draggingY == 0 && this.getDraggableArea() != null;
+		boolean fullDrag = this.draggingX == 0 && this.draggingY == 0 && this.isDraggable();
 		if(fullDrag){
 			// To get the new relative coordinates, take the mouse position, subtract the anchor offset, and subtract the parent offset
 			this.setRelX(game.mouseSX() - a.getX() - this.getParentX());
@@ -1219,6 +1253,18 @@ public class MenuThing implements GameInteractable, Destroyable{
 		
 		r.setColor(this.getFill());
 		r.drawRectangle(new ZRect(bounds, -b));
+		
+		if(this.isDisplayDraggableColor() && this.isDraggable()){
+			// #issue28 If this uses a buffer, the fill is solid, but this value is transparent and should be on top of the solid color, then this part is still transparent. Why?
+			r.setColor(this.getDraggableColor());
+			var d = this.getDraggableArea().getRelBounds();
+			d = d.x(bounds.getX() + d.getX()).y(bounds.getY() + d.getY());
+			r.drawRectangle(d);
+			
+			r.setColor(this.getBorder());
+			d.y += d.getHeight();
+			r.drawRectangle(d.height(this.getBorderWidth()));
+		}
 	}
 	
 	/**

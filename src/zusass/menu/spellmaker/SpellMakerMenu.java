@@ -17,9 +17,12 @@ public class SpellMakerMenu extends ZusassMenu{
 	public SpellMakerMenu(ZusassGame zgame){
 		super(zgame, "Spell Creation");
 		
-		this.setFill(new ZColor(.6, 0, .4, .8));
+		this.setFill(new ZColor(.4, 0, .6, .8));
 		this.setBorder(new ZColor(.3, 0, .5, .5));
+		this.setDraggableColor(new ZColor(.6, 0, .85, .8));
 		this.makeDraggable(10, 30);
+		
+		this.getTitleThing().setFontSize(40);
 		
 		this.format(zgame.getWindow(), new PercentFormatter(.8, .95, .5, .5));
 		this.reformat(zgame);
@@ -31,7 +34,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	 */
 	private void reformat(ZusassGame zgame){
 		var t = this.getTitleThing();
-		t.format(new PercentFormatter(1.0, 1.0, .5, .5));
+		t.format(new PercentFormatter(1.0, 1.0, .5, .48));
 		t.centerTextHorizontal();
 	}
 	
@@ -41,4 +44,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		super.onDragEnd(game, sideDrag);
 		this.reformat((ZusassGame)game);
 	}
+	
+	// TODO close this menu if the player gets too far away from the spell maker? Should the player be allowed to move/attack while making spells?
+	
 }
