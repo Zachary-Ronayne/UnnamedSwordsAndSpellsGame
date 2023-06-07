@@ -83,6 +83,8 @@ public class StatEffect extends StatusEffect{
 	
 	@Override
 	public double getCost(){
+		// TODO figure out a way to make spell costs reasonable
+		
 		// This is a very arbitrary calculation atm
 		// Basically bigger numbers mean higher cost
 		// Should make positive and negative effects cancel the cost out, i.e. a speed spell that also damages strength should cost less than if it only granted speed
@@ -91,7 +93,7 @@ public class StatEffect extends StatusEffect{
 			double base = m.modifier().getType().getValue();
 			totalCost += Math.abs(base * m.modifier().getValue()) * ((ZusassStat)m.type()).getValue();
 		}
-		return totalCost * this.getDuration();
+		return totalCost * this.getDuration() * .1;
 	}
 	
 	@Override

@@ -7,6 +7,7 @@ import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
+import zusass.menu.comp.ZusassButton;
 
 /** The {@link ZusassMenu} for creating spells */
 public class SpellMakerMenu extends ZusassMenu{
@@ -29,6 +30,10 @@ public class SpellMakerMenu extends ZusassMenu{
 		
 		this.format(zgame.getWindow(), new PercentFormatter(.8, .95, .5, .5));
 		this.reformat(zgame);
+		
+		// The button for creating a new spell
+		var createButton = new SpellCreateButton(this, zgame);
+		this.addThing(createButton);
 	}
 	
 	/**
