@@ -44,5 +44,6 @@ public class SpellCreateButton extends ZusassButton{
 		player.getSpells().addSpell(spell);
 		
 		// TODO refresh the inventory menu spell list when a spell is added
+		// TODO make sure the scroller size gets updated correctly with the number of buttons
 	}
 }

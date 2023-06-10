@@ -47,8 +47,6 @@ public class InventoryMenu extends ZusassMenu{
 //		this.setBuffer(true);
 //		this.getBuffer().setAlphaMode(AlphaMode.BUFFER);
 		
-		// TODO fix the buttons having part of their text cut off
-		
 		this.makeDraggable(BORDER_SIZE, DRAGGABLE_HEIGHT);
 		this.setBorder(BORDER_COLOR);
 		this.setFill(new ZColor(.3, 0, 0, .8));
