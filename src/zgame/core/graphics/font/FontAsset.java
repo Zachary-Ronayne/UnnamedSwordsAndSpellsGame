@@ -92,7 +92,7 @@ public class FontAsset extends Asset{
 	 * @param path See {@link #path}
 	 */
 	public FontAsset(String path){
-		this(path, 32);
+		this(path, 64);
 	}
 	
 	/**
