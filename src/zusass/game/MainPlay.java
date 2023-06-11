@@ -58,6 +58,7 @@ public class MainPlay extends PlayState{
 			player.setLockCamera(true);
 			hub.addThing(player);
 			player.centerCamera(zgame);
+			this.getInventoryMenu().setMob(player);
 		});
 	}
 	

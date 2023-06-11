@@ -72,7 +72,6 @@ public class SpellListButton extends ZusassButton{
 		super.onDragEnd(game, sideDrag);
 		if(!sideDrag) return;
 		this.updateTextPosition();
-		this.spellList.getMenu().updateScrollAmount();
 	}
 	
 	@Override

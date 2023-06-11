@@ -239,6 +239,13 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/**
+	 * Format this {@link MenuThing} so that it aligns to its parent based on {@link #formatter}. Does nothing if the parent is null
+	 */
+	public void format(){
+		this.format(this.getFormatter());
+	}
+	
+	/**
 	 * Format this {@link MenuThing} so that it aligns to its parent. Does nothing if the parent is null
 	 *
 	 * @param formatter A formatter to use to set the bounds based on the parent
@@ -267,6 +274,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * @param height The height to format to
 	 */
 	public void format(MenuFormatter formatter, double width, double height){
+		if(formatter == null) return;
 		formatter.onWidthChange(this, width);
 		formatter.onHeightChange(this, height);
 	}
@@ -795,6 +803,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** @param parent See {@link #parent} */
 	public void setParent(MenuThing parent){
 		this.parent = parent;
+		this.format();
 	}
 	
 	/** @return See {@link #formatter} */

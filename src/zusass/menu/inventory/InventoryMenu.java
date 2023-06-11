@@ -1,5 +1,6 @@
 package zusass.menu.inventory;
 
+import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.MultiFormatter;
@@ -65,12 +66,17 @@ public class InventoryMenu extends ZusassMenu{
 		this.spellScroller.setScrollWheelEnabled(true);
 		this.spellScroller.setScrollWheelInverse(true);
 		this.spellScroller.setFormatter(new PixelFormatter(null, BORDER_SIZE, DRAGGABLE_HEIGHT * 1.4, 20.0));
+		// TODO allow scroll strength to be based on the distance that can be scrolled, instead of the distance the scroll bar can be moved, both as a percent and constant
+		this.spellScroller.setScrollWheelAsPercent(true);
+		this.spellScroller.setScrollWheelStrength(.02);
 		this.addThing(this.spellScroller);
 		
 		this.spellScroller.setMovingThing(this.spellList);
 		this.mob = null;
 		
 		this.updateScrollAmount();
+		
+		this.spellList.format();
 	}
 	
 	/**
@@ -83,6 +89,12 @@ public class InventoryMenu extends ZusassMenu{
 	}
 	
 	@Override
+	public void onDragEnd(Game game, boolean sideDrag){
+		super.onDragEnd(game, sideDrag);
+		this.updateScrollAmount();
+	}
+	
+	@Override
 	public void regenerateBuffer(){
 		super.regenerateBuffer();
 		this.spellList.regenerateBuffer();
@@ -90,7 +102,7 @@ public class InventoryMenu extends ZusassMenu{
 	
 	/** Update the values in {@link #spellScroller} based on the current size of the menu */
 	public void updateScrollAmount(){
-		this.spellScroller.setAmount(Math.max(0, this.spellList.getHeight() - (this.getHeight() - SCROLLER_POSITION - BORDER_SIZE * 3)));
+		this.spellScroller.setAmount(Math.max(0, this.spellList.getHeight() - (this.getHeight() - DRAGGABLE_HEIGHT - BORDER_SIZE * 5)));
 	}
 	
 	/**

@@ -7,7 +7,6 @@ import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
-import zusass.menu.comp.ZusassButton;
 
 /** The {@link ZusassMenu} for creating spells */
 public class SpellMakerMenu extends ZusassMenu{

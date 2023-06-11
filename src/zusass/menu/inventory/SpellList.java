@@ -25,10 +25,15 @@ public class SpellList extends MenuHolder{
 		
 		this.menu = menu;
 		
-		this.setWidth(100);
-		this.setHeight(100);
+		this.setWidth(1);
+		this.setHeight(1);
 		this.setFormatter(new PixelFormatter(InventoryMenu.BORDER_SIZE * 1.5, InventoryMenu.BORDER_SIZE * 2.5, InventoryMenu.DRAGGABLE_HEIGHT + InventoryMenu.BORDER_SIZE * 3, null));
 		this.invisible();
+	}
+	
+	@Override
+	public void onHeightChange(){
+		super.onHeightChange();
 	}
 	
 	/**
@@ -39,8 +44,13 @@ public class SpellList extends MenuHolder{
 	 */
 	public void generateButtons(ZusassMob mob, ZusassGame zgame){
 		var spells = mob.getSpells().getSpellList();
-		for(int i = 0; i < spells.size(); i++){
-			this.addThing(new SpellListButton(spells.get(i), i, this, zgame));
+		var size = spells.size();
+		SpellListButton firstButton = null;
+		for(int i = 0; i < size; i++){
+			var b = new SpellListButton(spells.get(i), i, this, zgame);
+			if(i == 0) firstButton = b;
+			this.addThing(b);
+			if(i == size - 1) setHeight(b.getY() + b.getHeight() - firstButton.getY());
 		}
 	}
 	

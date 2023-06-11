@@ -26,7 +26,7 @@ public abstract class MenuScroller extends MenuThing{
 	
 	/** The degree to which the scroll wheel will scroll. Also see {@link #scrollWheelAsPercent} */
 	private double scrollWheelStrength;
-	/** true if {@link #scrollWheelStrength} is the percentage of the scroll bat that should move per mouse wheel, false if it should be a distance */
+	/** true if {@link #scrollWheelStrength} is the percentage of the scroll that should move per mouse wheel, false if it should be a distance */
 	private boolean scrollWheelAsPercent;
 	/** true if the scroll wheel's direction should be inverted, false otherwise */
 	private boolean scrollWheelInverse;
