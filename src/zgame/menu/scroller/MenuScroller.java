@@ -28,6 +28,8 @@ public abstract class MenuScroller extends MenuThing{
 	private double scrollWheelStrength;
 	/** true if {@link #scrollWheelStrength} is the percentage of the scroll that should move per mouse wheel, false if it should be a distance */
 	private boolean scrollWheelAsPercent;
+	/** true if {@link #scrollWheelAsPercent} and {@link #scrollWheelStrength} should be based on the size of the scroll bar, false if it should be based on {@link #amount} */
+	private boolean scrollByBar;
 	/** true if the scroll wheel's direction should be inverted, false otherwise */
 	private boolean scrollWheelInverse;
 	/** true if this scroll wheel should interact, false otherwise */
@@ -50,6 +52,7 @@ public abstract class MenuScroller extends MenuThing{
 		super(x, y);
 		this.scrollWheelStrength = 0.1;
 		this.scrollWheelAsPercent = true;
+		this.scrollByBar = false;
 		this.scrollWheelInverse = true;
 		this.scrollWheelEnabled = true;
 		this.setWidth(w);
@@ -83,7 +86,10 @@ public abstract class MenuScroller extends MenuThing{
 		if(!this.isScrollWheelEnabled()) return input;
 		amount *= this.getScrollWheelStrength();
 		if(this.isScrollWheelInverse()) amount = -amount;
-		if(!this.isScrollWheelAsPercent()) amount = this.button.scrollToPercent(amount);
+		if(!this.isScrollWheelAsPercent()) {
+			if(this.isScrollByBar()) amount = this.button.scrollToPercent(amount);
+			else amount = amount / this.getAmount();
+		}
 		this.scroll(amount);
 		return true;
 	}
@@ -159,6 +165,16 @@ public abstract class MenuScroller extends MenuThing{
 	/** @param scrollWheelAsPercent See {@link #scrollWheelAsPercent} */
 	public void setScrollWheelAsPercent(boolean scrollWheelAsPercent){
 		this.scrollWheelAsPercent = scrollWheelAsPercent;
+	}
+	
+	/** @return See {@link #scrollByBar} */
+	public boolean isScrollByBar(){
+		return this.scrollByBar;
+	}
+	
+	/** @param scrollByBar See {@link #scrollByBar} */
+	public void setScrollByBar(boolean scrollByBar){
+		this.scrollByBar = scrollByBar;
 	}
 	
 	/** @return See {@link #scrollWheelInverse} */

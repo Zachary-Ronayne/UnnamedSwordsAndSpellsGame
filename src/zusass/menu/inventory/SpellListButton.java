@@ -12,9 +12,9 @@ import zusass.menu.comp.ZusassButton;
 public class SpellListButton extends ZusassButton{
 	
 	/** The height of each button */
-	private static final double HEIGHT = 32;
+	public static final double HEIGHT = 32;
 	/** The space between each button */
-	private static final double HEIGHT_SPACE = 2;
+	public static final double HEIGHT_SPACE = 2;
 	
 	/** The spell list containing this button */
 	private final SpellList spellList;

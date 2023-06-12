@@ -66,9 +66,8 @@ public class InventoryMenu extends ZusassMenu{
 		this.spellScroller.setScrollWheelEnabled(true);
 		this.spellScroller.setScrollWheelInverse(true);
 		this.spellScroller.setFormatter(new PixelFormatter(null, BORDER_SIZE, DRAGGABLE_HEIGHT * 1.4, 20.0));
-		// TODO allow scroll strength to be based on the distance that can be scrolled, instead of the distance the scroll bar can be moved, both as a percent and constant
-		this.spellScroller.setScrollWheelAsPercent(true);
-		this.spellScroller.setScrollWheelStrength(.02);
+		this.spellScroller.setScrollWheelAsPercent(false);
+		this.spellScroller.setScrollWheelStrength((SpellListButton.HEIGHT + SpellListButton.HEIGHT_SPACE) * 0.5);
 		this.addThing(this.spellScroller);
 		
 		this.spellScroller.setMovingThing(this.spellList);
