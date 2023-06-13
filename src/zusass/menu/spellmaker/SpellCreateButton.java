@@ -35,12 +35,16 @@ public class SpellCreateButton extends ZusassButton{
 	@Override
 	public void click(Game game){
 		super.click(game);
+		
+		var name = this.menu.getEnteredName();
+		if(name == null || name.isBlank()) return;
+		
 		var zgame = (ZusassGame)game;
 		var player = zgame.getPlayer();
 		
 		// TODO determine the information for the spell from the creation menu
 		var spell = new SelfSpell(new SpellEffectStatusEffect(new StatEffect(10, new StatModifier(100, ModifierType.ADD), ZusassStat.HEALTH_MAX)));
-		spell.setName("Test Spell");
+		spell.setName(name);
 		player.getSpells().addSpell(spell);
 		
 		var inventoryMenu = zgame.getPlayState().getInventoryMenu();

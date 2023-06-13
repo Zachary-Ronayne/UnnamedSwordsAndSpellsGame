@@ -83,6 +83,8 @@ public class MenuTextBox extends MenuButton{
 		this.setText("");
 	}
 	
+	// TODO properly clear the buffer after text changes
+	
 	@Override
 	public void tick(Game game, double dt){
 		super.tick(game, dt);

@@ -7,9 +7,13 @@ import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
+import zusass.menu.mainmenu.comp.newgamemenu.ZusassTextBox;
 
 /** The {@link ZusassMenu} for creating spells */
 public class SpellMakerMenu extends ZusassMenu{
+	
+	/** The text box holding the user entered name for the spell */
+	private final ZusassTextBox spellNameTextBox;
 	
 	/**
 	 * Create the menu
@@ -31,8 +35,19 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.reformat(zgame);
 		
 		// The button for creating a new spell
+		// TODO add an inherent way to disable a button or any input menu thing, and make this button disabled if a spell name is not set
 		var createButton = new SpellCreateButton(this, zgame);
 		this.addThing(createButton);
+		
+		// TODO disable all other input when the text box is selected
+		this.spellNameTextBox = new ZusassTextBox(0, 120, 1, 50, zgame);
+		this.spellNameTextBox.setHint("Enter a name...");
+		this.spellNameTextBox.setFormatter(new PercentFormatter(.9, null, 0.5, null));
+		this.addThing(this.spellNameTextBox);
+		
+		// TODO make a way of abstracting this out so that you don't have to do this when something gets resized
+		this.spellNameTextBox.format();
+		this.spellNameTextBox.regenerateBuffer();
 	}
 	
 	/**
@@ -57,6 +72,11 @@ public class SpellMakerMenu extends ZusassMenu{
 		return false;
 	}
 	
-	// TODO close this menu if the player gets too far away from the spell maker? Should the player be allowed to move/attack while making spells?
+	/** @return The text the user has input for the spell name */
+	public String getEnteredName(){
+		return this.spellNameTextBox.getText();
+	}
+	
+	// TODO clear the contents of the menu after clicking create
 	
 }

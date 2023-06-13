@@ -76,6 +76,8 @@ public class InventoryMenu extends ZusassMenu{
 		this.updateScrollAmount();
 		
 		this.spellList.format();
+		
+		// TODO add a way to delete spells
 	}
 	
 	/**
