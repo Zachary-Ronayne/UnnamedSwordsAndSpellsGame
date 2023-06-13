@@ -61,6 +61,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	private DrawableGameBuffer buffer;
 	
+	/** true if this thing should use a buffer when it is added to a thing, false to not use a buffer */
+	private boolean defaultUseBuffer;
+	
 	/**
 	 * If the mouse is clicked and dragged while within the area of the given thing relative to this {@link MenuThing}, it will be dragged around.
 	 * Null to disable dragging. Null by default
@@ -187,7 +190,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		
 		this.parent = null;
 		
-		this.setBuffer(useBuffer);
+		this.defaultUseBuffer = useBuffer;
 		this.drawThingsToBuffer = true;
 		
 		this.stopParentInput = false;
@@ -282,7 +285,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	// issue#11 add option to make things only render in the bounds regardless of a buffer, fix render checking first
 	
 	/** @param use true to enable using the buffer, false otherwise. If setting to true, probably should follow this up with {@link #regenerateBuffer()}  */
-	public void setBuffer(boolean use){
+	private void setBuffer(boolean use){
 		if(use && this.buffer == null) this.initBuffer();
 		else if(!use){
 			this.destroyBuffer();
@@ -342,6 +345,18 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** @param drawThingsToBuffer See {@link #drawThingsToBuffer} */
 	public void setDrawThingsToBuffer(boolean drawThingsToBuffer){
 		this.drawThingsToBuffer = drawThingsToBuffer;
+	}
+	
+	/** @return See {@link #defaultUseBuffer} */
+	public boolean getDefaultUseBuffer(){
+		return this.defaultUseBuffer;
+	}
+	
+	/** @param defaultUseBuffer See {@link #defaultUseBuffer} */
+	public void setDefaultUseBuffer(boolean defaultUseBuffer){
+		if(this.defaultUseBuffer == defaultUseBuffer) return;
+		this.defaultUseBuffer = defaultUseBuffer;
+		this.setBuffer(this.defaultUseBuffer);
 	}
 	
 	@Override
@@ -891,8 +906,10 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	public boolean addThing(MenuThing thing){
 		if(this == thing || this.hasThing(thing) || thing.getParent() != null) return false;
-		this.updateFormat(thing.getFormatter(), thing);
+		// TODO make a way of only doing this when the buffer needs to be regenerated
+		thing.setBuffer(this.defaultUseBuffer);
 		thing.setParent(this);
+		thing.format();
 		return this.things.add(thing);
 	}
 	

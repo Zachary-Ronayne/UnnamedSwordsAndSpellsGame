@@ -27,6 +27,8 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.setBorder(new ZColor(.3, 0, .5, .5));
 		this.setDraggableColor(new ZColor(.6, 0, .85, .8));
 		this.makeDraggable(10, 30);
+		this.setMinWidth(600.0);
+		this.setMinHeight(400.0);
 		
 		this.getTitleThing().setFontSize(40);
 		this.getTitleThing().setTextY(50);
@@ -46,8 +48,6 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.addThing(this.spellNameTextBox);
 		
 		// TODO make a way of abstracting this out so that you don't have to do this when something gets resized
-		this.spellNameTextBox.format();
-		this.spellNameTextBox.regenerateBuffer();
 	}
 	
 	/**
