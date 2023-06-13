@@ -1,6 +1,7 @@
 package zusass.game.things;
 
 import zgame.core.Game;
+import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.core.state.MenuNode;
 import zgame.things.type.GameThing;
@@ -8,13 +9,36 @@ import zgame.things.type.PositionedRectangleThing;
 import zusass.ZusassGame;
 import zusass.menu.spellmaker.SpellMakerMenu;
 
+import java.util.UUID;
+
 /** A {@link GameThing} used as a station for the player to click on to open the spell making interface */
-public class SpellMakerThing extends PositionedRectangleThing implements ZThingClickDetector{
+public class SpellMakerThing extends PositionedRectangleThing implements ZThingClickDetector, GameTickable{
 	
-	public SpellMakerThing(double x, double y){
+	/** The uuid of this thing */
+	private final String uuid;
+	
+	/** The menu that this thing controls */
+	private final SpellMakerMenu menu;
+	
+	/**
+	 * Make a spell maker at the given position
+	 * @param zgame The game which this thing will exist in
+	 * @param x The upper left hand x coordinate
+	 * @param y The upper left hand y coordinate
+	 */
+	public SpellMakerThing(ZusassGame zgame, double x, double y){
 		super(x, y);
 		this.setWidth(130);
 		this.setHeight(70);
+		this.uuid = UUID.randomUUID().toString();
+		
+		this.menu = new SpellMakerMenu(zgame);
+	}
+	
+	@Override
+	public void destroy(){
+		super.destroy();
+		this.menu.destroy();
 	}
 	
 	@Override
@@ -35,10 +59,27 @@ public class SpellMakerThing extends PositionedRectangleThing implements ZThingC
 	@Override
 	public boolean handleZPress(ZusassGame zgame){
 		var c = zgame.getCurrentState();
-		// Don't pop up this menu if there is already a menu open
-		if(c.getStackSize() != 0) return false;
+		// Don't pop up this menu if it is already showing this menu
+		if(c.showingMenu(menu)) return false;
 		
-		c.popupMenu(MenuNode.withAll(new SpellMakerMenu(zgame)));
+		c.popupMenu(MenuNode.withAll(this.menu));
 		return true;
+	}
+	
+	@Override
+	public void tick(Game game, double dt){
+		var zgame = (ZusassGame)game;
+		var p = zgame.getPlayer();
+		var play = zgame.getPlayState();
+		if(play.showingMenu(this.menu) && !p.getBounds().intersects(this.getBounds())){
+			// TODO allow this specific menu to be removed instead of always the top menu
+			zgame.onNextLoop(() -> play.removeMenu(this.menu));
+		}
+	}
+	
+	/** @return See {@link #uuid} */
+	@Override
+	public String getUuid(){
+		return this.uuid;
 	}
 }

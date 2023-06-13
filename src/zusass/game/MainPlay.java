@@ -24,8 +24,6 @@ public class MainPlay extends PlayState{
 	private final PauseMenu pauseMenu;
 	/** The {@link InventoryMenu} to display */
 	private final InventoryMenu inventoryMenu;
-	/** true if the inventory menu is being shown, false otherwise */
-	private boolean showingInventory;
 	
 	/**
 	 * Initialize the main play state for the Zusass game
@@ -37,7 +35,6 @@ public class MainPlay extends PlayState{
 		
 		this.pauseMenu = new PauseMenu(zgame);
 		this.inventoryMenu = new InventoryMenu(zgame);
-		this.showingInventory = false;
 	}
 	
 	/**
@@ -86,12 +83,12 @@ public class MainPlay extends PlayState{
 			ZusassGame zgame = (ZusassGame)game;
 			var c = zgame.getCurrentState();
 			if(c.getStackSize() > 0) c.removeTopMenu();
-			// Otherwise, open the pause menu
+				// Otherwise, open the pause menu
 			else this.openPauseMenu(zgame);
 		}
 		// On releasing tab, open inventory if it is not open, otherwise, close it
 		else if(button == GLFW_KEY_TAB){
-			if(this.showingInventory) this.closeInventory();
+			if(this.getTopMenu() == this.inventoryMenu) this.closeInventory();
 			else this.openInventory((ZusassGame)game);
 		}
 	}
@@ -167,7 +164,8 @@ public class MainPlay extends PlayState{
 	
 	/**
 	 * Open the pause menu for the game, and pause the game
- 	 * @param zgame The game to pause and open the pause menu
+	 *
+	 * @param zgame The game to pause and open the pause menu
 	 */
 	public void openPauseMenu(ZusassGame zgame){
 		MenuNode pauseNode = MenuNode.withAll(this.pauseMenu);
@@ -177,18 +175,15 @@ public class MainPlay extends PlayState{
 	
 	/** Close the display of the player inventory */
 	public void closeInventory(){
-		if(!this.showingInventory) return;
-		this.showingInventory = false;
-		this.removeTopMenu(false);
+		this.removeMenu(this.inventoryMenu);
 	}
 	
 	/**
 	 * Make the player inventory menu show
+	 *
 	 * @param zgame The game to show the inventory in
 	 */
 	public void openInventory(ZusassGame zgame){
-		if(showingInventory) return;
-		this.showingInventory = true;
 		this.inventoryMenu.setMob(zgame.getPlayer());
 		this.inventoryMenu.regenerateThings(zgame);
 		this.inventoryMenu.regenerateBuffer();
@@ -205,8 +200,4 @@ public class MainPlay extends PlayState{
 		return this.inventoryMenu;
 	}
 	
-	/** @return See {@link #showingInventory} */
-	public boolean isShowingInventory(){
-		return this.showingInventory;
-	}
 }

@@ -54,7 +54,7 @@ public class Hub extends ZusassRoom{
 		this.addThing(levelDoor);
 		
 		// Add the spell maker
-		var spellMaker = new SpellMakerThing(100, 0);
+		var spellMaker = new SpellMakerThing(zgame, 100, 0);
 		spellMaker.setY(this.maxY() - spellMaker.getHeight());
 		this.addThing(spellMaker);
 	}

@@ -52,6 +52,11 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.reformat((ZusassGame)game);
 	}
 	
+	@Override
+	public boolean isDefaultDestroyRemove(){
+		return false;
+	}
+	
 	// TODO close this menu if the player gets too far away from the spell maker? Should the player be allowed to move/attack while making spells?
 	
 }

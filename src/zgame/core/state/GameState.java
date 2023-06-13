@@ -81,12 +81,63 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	}
 	
 	/**
-	 * Add the given {@link Menu} on top of the existing menus on this state
+	 * Put given {@link Menu} on top of the existing menus on this state
 	 *
 	 * @param node The node to add
 	 */
 	public void popupMenu(MenuNode node){
-		this.menuStack.add(node);
+		var menu = node.getMenu();
+		var foundIndex = this.findIndex(menu);
+		
+		// If the new menu is already in this state, swap it with the one on top
+		if(foundIndex != -1){
+			var end = this.menuStack.size() - 1;
+			var old = this.menuStack.get(foundIndex);
+			this.menuStack.set(foundIndex, this.menuStack.get(end));
+			this.menuStack.set(end, old);
+		}
+		// Otherwise, just add the menu to the top
+		else this.menuStack.add(node);
+	}
+	
+	/**
+	 * Determine if this state is displaying the given menu
+	 * @param menu The menu to check for
+	 * @return true if it is displaying the menu, false otherwise
+	 */
+	public boolean showingMenu(Menu menu){
+		for(var n : this.menuStack){
+			if(n.getMenu() == menu) return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Find the index of the given menu in the menu stack
+ 	 * @param menu The menu to look for
+	 * @return The index in the stack, or -1 if it is not in the stack
+	 */
+	public int findIndex(Menu menu){
+		for(int i = 0; i < this.menuStack.size(); i++){
+			var m = this.menuStack.get(i).getMenu();
+			if(m == menu) return i;
+		}
+		return -1;
+	}
+	
+	/**
+	 * Remove the given menu from the menu stack
+	 * @param menu The menu to remove. This should be the actual object reference to remove, not based on any kind of identifier
+	 * @return The removed menu, or null if the menu is not a part of the stack. The returned menu will be destroyed if {@link Menu#isDefaultDestroyRemove()} returns true
+	 */
+	public Menu removeMenu(Menu menu){
+		var i = findIndex(menu);
+		if(i == -1) return null;
+		var n = this.menuStack.remove(i);
+		if(n == null) return null;
+		var m = n.getMenu();
+		if(m.isDefaultDestroyRemove()) m.destroy();
+		return m;
 	}
 	
 	/**

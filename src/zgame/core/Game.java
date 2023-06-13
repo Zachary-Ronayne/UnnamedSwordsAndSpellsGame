@@ -30,6 +30,9 @@ import zgame.core.window.GameWindow;
 import zgame.stat.DefaultStatType;
 import zgame.world.Room;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The central class used to create a game. Create an extension of this class to begin making a game
  */
@@ -105,6 +108,9 @@ public class Game implements Saveable, Destroyable{
 	/** Used to track if the state of the paused sounds have been updated since the window lost or gained focused, or was minimized or unminimized */
 	private boolean updateSoundState;
 	
+	/** A list of things to do the next time this game has its open gl loop called. Once the loop happens, this list will be emptied */
+	private final List<Runnable> nextLoopFuncs;
+	
 	/** A simple helper class used by {@link #tickLooper} to run its loop on a separate thread */
 	private class TickLoopTask implements Runnable{
 		@Override
@@ -172,6 +178,8 @@ public class Game implements Saveable, Destroyable{
 	 * @param printTps true to, every second, print the number of ticks that occurred in that last second, false otherwise
 	 */
 	public Game(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
+		this.nextLoopFuncs = new ArrayList<>();
+		
 		// Init misc values
 		this.gameSpeed = 1;
 		this.totalTickTime = 0;
@@ -289,6 +297,14 @@ public class Game implements Saveable, Destroyable{
 	}
 	
 	/**
+	 * Run a function on the next OpenGL loop
+	 * @param r The function to run
+	 */
+	public void onNextLoop(Runnable r){
+		this.nextLoopFuncs.add(r);
+	}
+	
+	/**
 	 * Called when the window receives a key press. Can overwrite this method to perform actions directly when keys are pressed. Can also provide this {@link Game} with a
 	 * {@link GameState} via {@link #setCurrentState(GameState)} to perform that state's actions.
 	 *
@@ -346,10 +362,15 @@ public class Game implements Saveable, Destroyable{
 			// Update the state of the game
 			this.updateCurrentState();
 			
-			boolean focused = this.getWindow().isFocused();
-			boolean minimized = this.getWindow().isMinimized();
+			// Run any functions that need to be run on the next OpenGL loop
+			if(!this.nextLoopFuncs.isEmpty()){
+				for(var f : this.nextLoopFuncs) f.run();
+				this.nextLoopFuncs.clear();
+			}
 			
 			// Update the window
+			boolean focused = this.getWindow().isFocused();
+			boolean minimized = this.getWindow().isMinimized();
 			this.getWindow().checkEvents();
 			
 			// Only perform rendering operations if the window should be rendered, based on the state of the window's focus and minimize

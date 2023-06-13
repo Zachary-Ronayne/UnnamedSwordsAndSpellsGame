@@ -84,6 +84,8 @@ public class InventoryMenu extends ZusassMenu{
 	 * @param zgame The game to regenerate with
 	 */
 	public void regenerateThings(ZusassGame zgame){
+		// TODO keep the buffers for the buttons so they don't have to be recreated every time the inventory is opened and closed
+		// TODO only make a new buffer when a new button is added to the menu
 		this.spellList.generateButtons(this.getMob(), zgame);
 	}
 	
