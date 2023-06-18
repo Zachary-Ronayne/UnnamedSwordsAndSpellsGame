@@ -48,6 +48,10 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.addThing(this.spellNameTextBox);
 		
 		// TODO make a way of abstracting this out so that you don't have to do this when something gets resized
+		
+		// TODO add a button to reset the state of the menu, like clear all selections
+		
+		// TODO make buttons not highlight on mouse hover if they are not currently clickable
 	}
 	
 	/**

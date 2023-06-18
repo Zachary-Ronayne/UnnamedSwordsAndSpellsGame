@@ -7,6 +7,8 @@ import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.TextBuffer;
 import zgame.core.utils.ZRect;
 
+import java.util.Objects;
+
 /**
  * A {@link MenuThing} that holds text Note, for this class and anything that extends it, calls to updating the width and height will not update the text buffer's width and
  * height beyond what was given to the constructor. Must call {@link #getTextBuffer()} and call {@link TextBuffer#regenerateBuffer(int, int)} on it to resize where the text is
@@ -88,7 +90,9 @@ public class MenuText extends MenuThing{
 	
 	/** @param text See {@link #text} */
 	public void setText(String text){
+		if(Objects.equals(text, this.text)) return;
 		this.text = text;
+		this.getTextBuffer().updateRedraw(true);
 	}
 	
 	/** @return See {@link TextBuffer#textX} */
@@ -203,7 +207,7 @@ public class MenuText extends MenuThing{
 		r.setColor(this.getFontColor());
 		r.setFontSize(this.getFontSize());
 		
-		this.drawText(r, this.getText(), bounds);
+		if(this.getText() != null && !this.getText().isEmpty()) this.drawText(r, this.getText(), bounds);
 	}
 	
 	/**

@@ -72,7 +72,6 @@ public class SpellMakerThing extends PositionedRectangleThing implements ZThingC
 		var p = zgame.getPlayer();
 		var play = zgame.getPlayState();
 		if(play.showingMenu(this.menu) && !p.getBounds().intersects(this.getBounds())){
-			// TODO allow this specific menu to be removed instead of always the top menu
 			zgame.onNextLoop(() -> play.removeMenu(this.menu));
 		}
 	}

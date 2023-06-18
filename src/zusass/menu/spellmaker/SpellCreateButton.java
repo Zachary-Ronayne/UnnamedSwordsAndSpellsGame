@@ -17,7 +17,7 @@ import zusass.menu.comp.ZusassButton;
 public class SpellCreateButton extends ZusassButton{
 	
 	/** The menu using this button */
-	private SpellMakerMenu menu;
+	private final SpellMakerMenu menu;
 	
 	/**
 	 * Create a {@link SpellCreateButton} with the appropriate parameters

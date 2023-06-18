@@ -74,6 +74,8 @@ public class DrawableBuffer extends GameBuffer{
 			if(unlimited) r.pushUnlimitedBounds();
 			else r.pushLimitedBounds(this.getBounds());
 			
+			// Clear the contents of the buffer and draw it
+			this.clear();
 			this.draw(r);
 			r.popLimitedBounds();
 		}, null);
@@ -87,7 +89,7 @@ public class DrawableBuffer extends GameBuffer{
 	 * @param func The function to call to perform the actual drawing
 	 * @param data The data to use for rendering
 	 */
-	protected <D> void redraw(Renderer r, BiConsumer<Renderer, D> func, D data){
+	protected final <D> void redraw(Renderer r, BiConsumer<Renderer, D> func, D data){
 		if(!this.isBufferGenerated()) this.regenerateBuffer(this.getWidth(), this.getHeight());
 		
 		if(this.skipRedraw()) return;
@@ -100,9 +102,6 @@ public class DrawableBuffer extends GameBuffer{
 		
 		// Use this object's buffer
 		r.setBuffer(this);
-		
-		// Clear this buffer
-		this.clear();
 		
 		// Perform the actual drawing
 		r.identityMatrix();
