@@ -83,6 +83,11 @@ public class MenuText extends MenuThing{
 		this.textBuffer.regenerateBuffer((int)Math.round(this.getWidth()), (int)Math.round(this.getHeight()));
 	}
 	
+	/** @return true if this text box contains no text, false otherwise */
+	public boolean isEmpty(){
+		return this.text == null || this.text.isEmpty();
+	}
+	
 	/** @return See {@link #text} */
 	public String getText(){
 		return this.text;

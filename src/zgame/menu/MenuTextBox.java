@@ -250,6 +250,7 @@ public class MenuTextBox extends MenuButton{
 		GameFont f = this.getFont();
 		this.letterBounds = f.characterBounds(this.getRelX() + this.getTextX(), this.getRelY() + this.getTextY(), this.getText(), 1);
 		this.textWidth = this.letterBounds[this.getText().length()].getWidth();
+		if(this.cursorIndex > text.length() - 1) this.setCursorIndex(text.length() - 1);
 	}
 	
 	/** @return See {@link #textWidth} */

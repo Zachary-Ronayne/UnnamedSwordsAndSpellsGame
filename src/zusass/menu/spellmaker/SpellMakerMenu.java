@@ -7,6 +7,7 @@ import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
+import zusass.menu.comp.ZusassButton;
 import zusass.menu.mainmenu.comp.newgamemenu.ZusassTextBox;
 
 /** The {@link ZusassMenu} for creating spells */
@@ -14,6 +15,9 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	/** The text box holding the user entered name for the spell */
 	private final ZusassTextBox spellNameTextBox;
+	
+	/** The button used to create a spell */
+	private final SpellCreateButton createButton;
 	
 	/**
 	 * Create the menu
@@ -36,19 +40,34 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.format(zgame.getWindow(), new PercentFormatter(.8, .95, .5, .5));
 		
 		// The button for creating a new spell
-		// TODO add an inherent way to disable a button or any input menu thing, and make this button disabled if a spell name is not set
-		var createButton = new SpellCreateButton(this, zgame);
-		this.addThing(createButton);
+		this.createButton = new SpellCreateButton(this, zgame);
+		this.addThing(this.createButton);
 		
-		// TODO disable all other input when the text box is selected
-		this.spellNameTextBox = new ZusassTextBox(0, 120, 1, 50, zgame);
+		// The button for resetting the menu
+		var resetButton = new ZusassButton(1, 1, 160, 40, "Reset", zgame){
+			@Override
+			public void click(Game game){
+				reset();
+			}
+		};
+		resetButton.setFormatter(new PixelFormatter(null, 15.0, null, 15.0));
+		resetButton.setFontSize(30);
+		resetButton.centerText();
+		this.addThing(resetButton);
+		
+		// TODO disable all other input, i.e. player movement, when the text box is selected
+		this.spellNameTextBox = new ZusassTextBox(0, 120, 1, 50, zgame){
+			@Override
+			public void setText(String text){
+				super.setText(text);
+				updateDisabled();
+			}
+		};
 		this.spellNameTextBox.setHint("Enter a name...");
 		this.spellNameTextBox.setFormatter(new PercentFormatter(.9, null, 0.5, null));
 		this.addThing(this.spellNameTextBox);
 		
 		// TODO make a way of abstracting this out so that you don't have to do this when something gets resized
-		
-		// TODO add a button to reset the state of the menu, like clear all selections
 		
 		// TODO make buttons not highlight on mouse hover if they are not currently clickable
 		this.reformat(zgame);
@@ -82,6 +101,15 @@ public class SpellMakerMenu extends ZusassMenu{
 		return this.spellNameTextBox.getText();
 	}
 	
-	// TODO clear the contents of the menu after clicking create
+	/** Update the state of the create button for if it should be disabled or enabled */
+	public void updateDisabled(){
+		var d = this.spellNameTextBox == null || this.spellNameTextBox.isEmpty();
+		this.createButton.setDisabled(d);
+	}
+	
+	/** Reset the state of this menu to have nothing input */
+	public void reset(){
+		this.spellNameTextBox.setText("");
+	}
 	
 }
