@@ -34,7 +34,6 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.getTitleThing().setTextY(50);
 		
 		this.format(zgame.getWindow(), new PercentFormatter(.8, .95, .5, .5));
-		this.reformat(zgame);
 		
 		// The button for creating a new spell
 		// TODO add an inherent way to disable a button or any input menu thing, and make this button disabled if a spell name is not set
@@ -52,6 +51,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		// TODO add a button to reset the state of the menu, like clear all selections
 		
 		// TODO make buttons not highlight on mouse hover if they are not currently clickable
+		this.reformat(zgame);
 	}
 	
 	/**
@@ -62,11 +62,12 @@ public class SpellMakerMenu extends ZusassMenu{
 		var t = this.getTitleThing();
 		t.format(new MultiFormatter(new PercentFormatter(1.0, 1.0, 0.5, 0.5), new PixelFormatter(null, null, 50.0, null)));
 		t.centerTextHorizontal();
+		
+		this.spellNameTextBox.regenerateBuffer();
 	}
 	
 	@Override
 	public void onDragEnd(Game game, boolean sideDrag){
-		// TODO fix the title buffer not being fully cleared when it's resized
 		super.onDragEnd(game, sideDrag);
 		this.reformat((ZusassGame)game);
 	}

@@ -235,8 +235,9 @@ public class MenuText extends MenuThing{
 		// Must find the bounds relative to the first parent which uses a buffer
 		
 		// issue#30 Which of these is correct? Or does it need to be something else?
-		return this.getBoundsToBuffer();
-//		return this.getBounds();
+//		return this.getBoundsToBuffer();
+//		return this.getRelBounds();
+		return this.getBounds();
 	}
 	
 }

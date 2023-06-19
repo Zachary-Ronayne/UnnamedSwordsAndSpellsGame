@@ -817,6 +817,7 @@ public class MainTest extends Game{
 					ZStringUtils.prints(this.getText());
 				}
 			};
+			textBox.setHint("Type stuff");
 			textBox.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
 			base.addThing(textBox);
 		}
