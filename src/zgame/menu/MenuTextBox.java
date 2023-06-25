@@ -53,6 +53,23 @@ public class MenuTextBox extends MenuButton{
 	/** The bounds of each letter rendered, from the beginning of the text to that letter */
 	private ZRect[] letterBounds;
 	
+	/** The current mode of this text box */
+	private Mode mode;
+	
+	/** An enum describing what can be entered in this text box */
+	public enum Mode{
+		/** The default behavior, all values allowed */
+		DEFAULT,
+		/** Only allow valid integers to be typed in */
+		INT,
+		/** Only allow positive integers */
+		INT_POS,
+		/** Only allow valid floating point values */
+		FLOAT,
+		/** Only allow positive floating point values */
+		FLOAT_POS,
+	}
+	
 	/**
 	 * Create a new {@link MenuTextBox} with the given values
 	 *
@@ -64,6 +81,7 @@ public class MenuTextBox extends MenuButton{
 	 */
 	public MenuTextBox(double x, double y, double w, double h, Game game){
 		super(x, y, w, h, game);
+		this.mode = Mode.DEFAULT;
 		this.selected = false;
 		this.setTextX(5);
 		this.setTextY(this.getHeight() - 5);
@@ -198,9 +216,49 @@ public class MenuTextBox extends MenuButton{
 		}
 		if(toAdd != null){
 			if(shift && 'a' <= toAdd && toAdd <= 'z') toAdd = Character.toUpperCase(toAdd);
-			this.setText(ZStringUtils.insertString(this.getText(), Math.max(0, this.getCursorIndex() + 1), toAdd));
-			this.cursorRight();
+			this.applyCharacter(toAdd);
 		}
+	}
+	
+	/**
+	 * Apply the given character to this text box.
+	 * @param c The character to add
+	 */
+	public void applyCharacter(Character c){
+		var m = this.getMode();
+		switch(m){
+			case DEFAULT -> insertCharacter(c);
+			case INT, INT_POS -> {
+				if('0' <= c && c <= '9') insertCharacter(c);
+			}
+			case FLOAT, FLOAT_POS -> {
+				if('0' <= c && c <= '9') insertCharacter(c);
+				else if(c == '.'){
+					var s = this.getText();
+					var dotIndex = s.indexOf('.');
+					if(this.getCursorIndex() > -1 || s.indexOf('-') == -1){
+						if(dotIndex != -1) this.setText(s.substring(0, dotIndex) + s.substring(dotIndex + 1));
+						insertCharacter('.');
+					}
+				}
+			}
+		}
+		if((m == Mode.INT || m == Mode.FLOAT) && c == '-'){
+			var s = this.getText();
+			if(s != null && s.length() > 0){
+				if(s.charAt(0) == '-') this.setText(s.substring(1));
+				else this.setText('-' + s);
+			}
+		}
+	}
+	
+	/**
+	 * Insert the given character to the current value at {@link #cursorIndex}
+	 * @param c The character to insert
+	 */
+	public void insertCharacter(Character c){
+		this.setText(ZStringUtils.insertString(this.getText(), Math.max(0, this.getCursorIndex() + 1), c));
+		this.cursorRight();
 	}
 	
 	/** @return See {@link #selected} */
@@ -374,6 +432,16 @@ public class MenuTextBox extends MenuButton{
 	/** @return See {@link #cursorLocation} */
 	public double getCursorLocation(){
 		return this.cursorLocation;
+	}
+	
+	/** @return See {@link #mode} */
+	public Mode getMode(){
+		return this.mode;
+	}
+	
+	/** @param mode See {@link #mode} */
+	public void setMode(Mode mode){
+		this.mode = mode;
 	}
 	
 }

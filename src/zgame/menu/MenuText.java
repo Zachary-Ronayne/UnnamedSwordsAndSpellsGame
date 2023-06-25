@@ -93,6 +93,24 @@ public class MenuText extends MenuThing{
 		return this.text;
 	}
 	
+	/** @return The value of {@link #text} assuming it's an integer. If it cannot be parsed as an integer, returns null */
+	public Integer getTextAsInt(){
+		try{
+			return Integer.parseInt(this.getText());
+		}catch(NumberFormatException e){
+			return null;
+		}
+	}
+	
+	/** @return The value of {@link #text} assuming it's a double. If it cannot be parsed as a double, returns null */
+	public Double getTextAsDouble(){
+		try{
+			return Double.parseDouble(this.getText());
+		}catch(NumberFormatException e){
+			return null;
+		}
+	}
+	
 	/** @param text See {@link #text} */
 	public void setText(String text){
 		if(Objects.equals(text, this.text)) return;

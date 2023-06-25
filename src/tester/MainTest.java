@@ -19,10 +19,7 @@ import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect;
 import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
-import zgame.menu.Menu;
-import zgame.menu.MenuButton;
-import zgame.menu.MenuHolder;
-import zgame.menu.MenuTextBox;
+import zgame.menu.*;
 import zgame.menu.scroller.HorizontalScroller;
 import zgame.menu.scroller.MenuScroller;
 import zgame.menu.scroller.VerticalScroller;
@@ -731,6 +728,7 @@ public class MainTest extends Game{
 		
 		public TesterMenu(Game game){
 			super(100, 250, 830, 380, true);
+			
 			this.setWidth(830);
 			this.setHeight(380);
 			this.regenerateBuffer();
@@ -749,7 +747,6 @@ public class MainTest extends Game{
 			scrollX.setDrawThingsToBuffer(false);
 			scrollX.regenerateBuffer();
 			scrollX.getButton().regenerateBuffer();
-			this.addThing(scrollX);
 			MenuScroller scrollY = new VerticalScroller(820, 0, 20, 350, 200, game){
 				@Override
 				public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
@@ -757,7 +754,6 @@ public class MainTest extends Game{
 					setScrollWheelEnabled(!shift);
 				}
 			};
-			this.addThing(scrollY);
 			
 			MenuButton t;
 			
@@ -811,14 +807,40 @@ public class MainTest extends Game{
 			t.setFont(new GameFont(game.getFontAsset("zfont"), 25, 0, 0));
 			base.addThing(t);
 			
-			MenuTextBox textBox = new MenuTextBox(300, 100, 300, 50, game){
+			base.getAllThings().addClass(MenuTextBox.class);
+			makeTextBox(base, game, 100, MenuTextBox.Mode.DEFAULT);
+			makeTextBox(base, game, 160, MenuTextBox.Mode.INT);
+			makeTextBox(base, game, 220, MenuTextBox.Mode.INT_POS);
+			makeTextBox(base, game, 280, MenuTextBox.Mode.FLOAT);
+			makeTextBox(base, game, 340, MenuTextBox.Mode.FLOAT_POS);
+			
+			this.addThing(scrollX);
+			this.addThing(scrollY);
+		}
+		
+		private void makeTextBox(MenuThing base, Game game, double y, MenuTextBox.Mode mode){
+			var textBox = new MenuTextBox(300, y, 300, 50, game){
 				@Override
 				public void click(Game game){
-					ZStringUtils.prints(this.getText());
+					if(mode == Mode.INT || mode == Mode.INT_POS) ZStringUtils.prints(getTextAsInt());
+					else if(mode == Mode.FLOAT || mode == Mode.FLOAT_POS) ZStringUtils.prints(getTextAsDouble());
+					else ZStringUtils.prints(getText());
+				}
+				
+				@Override
+				public void setSelected(boolean selected){
+					super.setSelected(selected);
+					if(selected){
+						var boxes = base.getAllThings().get(MenuTextBox.class);
+						for(var b : boxes) {
+							if(b != this) b.setSelected(false);
+						}
+					}
 				}
 			};
-			textBox.setHint("Type stuff");
-			textBox.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
+			textBox.setHint("Type " + mode.name().toLowerCase());
+			textBox.setFontSize(32);
+			textBox.setMode(mode);
 			base.addThing(textBox);
 		}
 		
