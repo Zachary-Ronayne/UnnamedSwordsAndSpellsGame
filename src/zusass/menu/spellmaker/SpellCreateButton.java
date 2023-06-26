@@ -7,6 +7,7 @@ import zgame.menu.format.PixelFormatter;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zusass.ZusassGame;
+import zusass.game.magic.ProjectileSpell;
 import zusass.game.magic.SelfSpell;
 import zusass.game.magic.effect.SpellEffectStatusEffect;
 import zusass.game.stat.ZusassStat;
@@ -36,15 +37,15 @@ public class SpellCreateButton extends ZusassButton{
 	public void click(Game game){
 		super.click(game);
 		
-		var name = this.menu.getEnteredName();
-		if(name == null || name.isBlank()) return;
-		
 		var zgame = (ZusassGame)game;
 		var player = zgame.getPlayer();
 		
 		// TODO determine the information for the spell from the creation menu
-		var spell = new SelfSpell(new SpellEffectStatusEffect(new StatEffect(10, new StatModifier(100, ModifierType.ADD), ZusassStat.HEALTH_MAX)));
-		spell.setName(name);
+		var spell = new ProjectileSpell(
+				// TODO depending on if the effect should be negative or not, make the magnitude negative or positive
+				new SpellEffectStatusEffect(new StatEffect(this.menu.getDuration(), new StatModifier(-this.menu.getMagnitude(), ModifierType.ADD), ZusassStat.HEALTH_REGEN)),
+				this.menu.getSize(), this.menu.getRange(), this.menu.getSpeed());
+		spell.setName(this.menu.getEnteredName());
 		player.getSpells().addSpell(spell);
 		
 		var inventoryMenu = zgame.getPlayState().getInventoryMenu();

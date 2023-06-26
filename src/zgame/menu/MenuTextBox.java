@@ -225,6 +225,7 @@ public class MenuTextBox extends MenuButton{
 	 * @param c The character to add
 	 */
 	public void applyCharacter(Character c){
+		// TODO fix characters not typing correctly sometimes
 		var m = this.getMode();
 		switch(m){
 			case DEFAULT -> insertCharacter(c);
