@@ -8,7 +8,6 @@ import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zusass.ZusassGame;
 import zusass.game.magic.ProjectileSpell;
-import zusass.game.magic.SelfSpell;
 import zusass.game.magic.effect.SpellEffectStatusEffect;
 import zusass.game.stat.ZusassStat;
 import zusass.game.status.StatEffect;

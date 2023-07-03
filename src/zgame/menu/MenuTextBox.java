@@ -148,8 +148,10 @@ public class MenuTextBox extends MenuButton{
 		if(button == GLFW_KEY_BACKSPACE){
 			String t = this.getText();
 			if(this.getCursorIndex() < t.length() && this.cursorIndex >= 0){
+				var atEnd = this.getCursorIndex() == t.length() - 1;
 				this.setText(ZStringUtils.removeChar(t, this.getCursorIndex()));
-				this.cursorLeft();
+				if(atEnd) this.cursorRight();
+				else this.cursorLeft();
 			}
 			return;
 		}
@@ -225,7 +227,6 @@ public class MenuTextBox extends MenuButton{
 	 * @param c The character to add
 	 */
 	public void applyCharacter(Character c){
-		// TODO fix characters not typing correctly sometimes
 		var m = this.getMode();
 		switch(m){
 			case DEFAULT -> insertCharacter(c);
@@ -237,8 +238,13 @@ public class MenuTextBox extends MenuButton{
 				else if(c == '.'){
 					var s = this.getText();
 					var dotIndex = s.indexOf('.');
-					if(this.getCursorIndex() > -1 || s.indexOf('-') == -1){
-						if(dotIndex != -1) this.setText(s.substring(0, dotIndex) + s.substring(dotIndex + 1));
+					var initialCursor = this.getCursorIndex();
+					if(initialCursor > -1 || s.indexOf('-') == -1){
+						if(dotIndex != -1) {
+							this.setText(ZStringUtils.removeChar(this.getText(), dotIndex));
+							if(initialCursor >= this.getText().length()) this.cursorRight();
+							else if(dotIndex < initialCursor) this.cursorLeft();
+						}
 						insertCharacter('.');
 					}
 				}
