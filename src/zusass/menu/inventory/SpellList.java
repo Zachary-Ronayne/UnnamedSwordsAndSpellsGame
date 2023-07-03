@@ -7,6 +7,8 @@ import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
 import zusass.game.things.entities.mobs.ZusassMob;
 
+import java.util.ArrayList;
+
 /** An object holding the list of spells to display */
 public class SpellList extends MenuHolder{
 	
@@ -43,6 +45,9 @@ public class SpellList extends MenuHolder{
 	 * @param zgame The game
 	 */
 	public void generateButtons(ZusassMob mob, ZusassGame zgame){
+		var existingButtons = new ArrayList<>(this.getAllThings().get(SpellListButton.class));
+		for(var e : existingButtons) this.removeThing(e);
+		
 		var spells = mob.getSpells().getSpellList();
 		var size = spells.size();
 		SpellListButton firstButton = null;
@@ -50,7 +55,7 @@ public class SpellList extends MenuHolder{
 			var b = new SpellListButton(spells.get(i), i, this, zgame);
 			if(i == 0) firstButton = b;
 			this.addThing(b);
-			if(i == size - 1) setHeight(b.getY() + b.getHeight() - firstButton.getY());
+			if(i == size - 1) this.setHeight(b.getY() + b.getHeight() - firstButton.getY());
 		}
 	}
 	

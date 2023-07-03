@@ -1,5 +1,6 @@
 package zusass.menu.inventory;
 
+import org.lwjgl.glfw.GLFW;
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.format.MenuFormatter;
@@ -76,8 +77,6 @@ public class InventoryMenu extends ZusassMenu{
 		this.updateScrollAmount();
 		
 		this.spellList.format();
-		
-		// TODO add a way to delete spells
 	}
 	
 	/**
@@ -129,5 +128,15 @@ public class InventoryMenu extends ZusassMenu{
 	public void setMob(ZusassGame zgame, ZusassMob mob){
 		this.mob = mob;
 		this.regenerateThings(zgame);
+	}
+	
+	@Override
+	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyAction(game, button, press, shift, alt, ctrl);
+		if(this == game.getCurrentState().getMenu() && !press && button == GLFW.GLFW_KEY_DELETE){
+			var zgame = (ZusassGame)game;
+			this.mob.getSpells().removeSelectedSpell();
+			game.onNextLoop(() -> this.regenerateThings(zgame));
+		}
 	}
 }

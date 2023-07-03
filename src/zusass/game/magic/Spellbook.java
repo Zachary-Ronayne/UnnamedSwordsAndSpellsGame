@@ -68,6 +68,14 @@ public class Spellbook implements Saveable{
 		return this.spells.remove(index);
 	}
 	
+	/**
+	 * Remove the currently selected spell in this spellbook
+	 * @return The removed spell, or null if no spell could be removed
+	 */
+	public Spell removeSelectedSpell(){
+		return this.removeSpell(this.getSelectedSpellIndex());
+	}
+	
 	/** @return See {@link #selectedSpell} */
 	public Spell getSelectedSpell(){
 		return this.selectedSpell;
