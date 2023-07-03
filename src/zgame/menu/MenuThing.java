@@ -906,8 +906,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	public boolean addThing(MenuThing thing){
 		if(this == thing || this.hasThing(thing) || thing.getParent() != null) return false;
-		// TODO make a way of only doing this when the buffer needs to be regenerated
-		thing.setBuffer(this.defaultUseBuffer);
+		if((this.getBuffer() == null) != this.defaultUseBuffer) thing.setBuffer(this.defaultUseBuffer);
 		thing.setParent(this);
 		thing.format();
 		return this.things.add(thing);
