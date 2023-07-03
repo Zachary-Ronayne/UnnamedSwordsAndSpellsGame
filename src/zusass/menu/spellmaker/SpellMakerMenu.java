@@ -74,23 +74,16 @@ public class SpellMakerMenu extends ZusassMenu{
 		resetButton.centerText();
 		this.addThing(resetButton);
 		
-		// TODO disable all other input, i.e. player movement, when the text box is selected
-		this.spellNameTextBox = new ZusassTextBox(0, 120, 1, 50, zgame){
-			@Override
-			public void setText(String text){
-				super.setText(text);
-				updateDisabled();
-			}
-		};
-		this.spellNameTextBox.setHint("Enter a name...");
+		this.spellNameTextBox = this.initTextBox(zgame, "Enter a name...", 120, MenuTextBox.Mode.DEFAULT, false);
+		this.spellNameTextBox.setHeight(50);
 		this.spellNameTextBox.setFormatter(new PercentFormatter(.9, null, 0.5, null));
 		this.addThing(this.spellNameTextBox);
 		
-		this.durationTextBox = initTextBox(zgame, "Duration...", 180, MenuTextBox.Mode.FLOAT_POS);
-		this.magnitudeTextBox = initTextBox(zgame, "Magnitude...", 230, MenuTextBox.Mode.FLOAT_POS);
-		this.speedTextBox = initTextBox(zgame, "Speed...", 280, MenuTextBox.Mode.FLOAT_POS);
-		this.sizeTextBox = initTextBox(zgame, "Size...", 330, MenuTextBox.Mode.FLOAT_POS);
-		this.rangeTextBox = initTextBox(zgame, "Range...", 380, MenuTextBox.Mode.FLOAT_POS);
+		this.durationTextBox = initTextBox(zgame, "Duration...", 180, MenuTextBox.Mode.FLOAT_POS, true);
+		this.magnitudeTextBox = initTextBox(zgame, "Magnitude...", 230, MenuTextBox.Mode.FLOAT_POS, true);
+		this.speedTextBox = initTextBox(zgame, "Speed...", 280, MenuTextBox.Mode.FLOAT_POS, true);
+		this.sizeTextBox = initTextBox(zgame, "Size...", 330, MenuTextBox.Mode.FLOAT_POS, true);
+		this.rangeTextBox = initTextBox(zgame, "Range...", 380, MenuTextBox.Mode.FLOAT_POS, true);
 		
 		// TODO make a way of abstracting this out so that you don't have to do this when something gets resized
 		
@@ -106,25 +99,42 @@ public class SpellMakerMenu extends ZusassMenu{
 	 * @param mode The input mode of the box
 	 * @return The new box
 	 */
-	private ZusassTextBox initTextBox(ZusassGame zgame, String hint, double y, MenuTextBox.Mode mode){
+	private ZusassTextBox initTextBox(ZusassGame zgame, String hint, double y, MenuTextBox.Mode mode, boolean add){
 		var box = new ZusassTextBox(0, y, 1, 40, zgame){
+			@Override
+			public void setText(String text){
+				super.setText(text);
+				updateDisabled();
+			}
 			@Override
 			public void setSelected(boolean selected){
 				super.setSelected(selected);
-				if(selected){
-					var boxes = getTextBoxes();
-					for(var b : boxes){
-						if(this != b) b.setSelected(false);
-					}
-				}
+				selectOneTextBox(zgame, selected, this);
 			}
 		};
 		box.setHint(hint);
 		box.setMode(mode);
 		box.setFontSize(30);
 		box.setFormatter(new PercentFormatter(.5, null, 0.5, null));
-		this.addThing(box);
+		if(add) this.addThing(box);
 		return box;
+	}
+	
+	/**
+	 * Set it so that only the given text box is selected
+	 * @param zgame The game using this menu
+	 * @param selected true if the box was set to selected, false otherwise
+	 * @param box The box which was selected or not selected
+	 */
+	private void selectOneTextBox(ZusassGame zgame, boolean selected, ZusassTextBox box){
+		if(selected){
+			var boxes = getTextBoxes();
+			for(var b : boxes){
+				if(box != b) b.setSelected(false);
+			}
+			zgame.getPlayer().setInputDisabled(true);
+		}
+		if(!selected) zgame.getPlayer().setInputDisabled(false);
 	}
 	
 	/** @return The text boxes used by this menu */
@@ -166,7 +176,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	/** @return The duration for the spell, or null if one was not entered */
 	public Double getDuration(){
-		if(this.spellNameTextBox == null) return null;
+		if(this.durationTextBox == null) return null;
 		return this.durationTextBox.getTextAsDouble();
 	}
 	

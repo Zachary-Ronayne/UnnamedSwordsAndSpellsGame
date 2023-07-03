@@ -34,6 +34,9 @@ public class ZusassPlayer extends ZusassMob{
 	/** The object tracking what is input used by the player */
 	private InputHandlers inputHandlers;
 	
+	/** true if player input is disabled, false otherwise */
+	private boolean inputDisabled;
+	
 	/**
 	 * Create a new object from json
 	 *
@@ -47,6 +50,7 @@ public class ZusassPlayer extends ZusassMob{
 	/** Create a new default {@link ZusassPlayer} */
 	public ZusassPlayer(){
 		super(0, 0, 75, 125);
+		this.inputDisabled = false;
 		this.addTags(ZusassTags.CAN_ENTER_LEVEL_DOOR, ZusassTags.MUST_CLEAR_LEVEL_ROOM, ZusassTags.HUB_ENTER_RESTORE);
 		
 		this.defaultControls();
@@ -89,6 +93,18 @@ public class ZusassPlayer extends ZusassMob{
 	public void tick(Game game, double dt){
 		super.tick(game, dt);
 		
+		if(!this.isInputDisabled()) this.checkInput(game, dt);
+		
+		// Now the camera to the player after repositioning the player
+		this.checkCenterCamera(game);
+	}
+	
+	/**
+	 * Perform any actions needed for player input
+	 * @param game The game the input took place in
+	 * @param dt The amount of time, in seconds, passed in the tick representing this input
+	 */
+	private void checkInput(Game game, double dt){
 		var ki = game.getKeyInput();
 		this.getWalk().handleMovementControls(ki.pressed(GLFW_KEY_A), ki.pressed(GLFW_KEY_D), ki.pressed(GLFW_KEY_W), dt);
 		
@@ -103,13 +119,11 @@ public class ZusassPlayer extends ZusassMob{
 		// Go to next or previous spell
 		if(this.inputHandlers.tick(game, GLFW_KEY_RIGHT_BRACKET)) this.getSpells().previousSpell();
 		if(this.inputHandlers.tick(game, GLFW_KEY_LEFT_BRACKET)) this.getSpells().nextSpell();
-		
-		// Now the camera to the player after repositioning the player
-		this.checkCenterCamera(game);
 	}
 	
 	/** See {@link GameInteractable#mouseAction(Game, int, boolean, boolean, boolean, boolean)} */
 	public boolean mouseAction(ZusassGame zgame, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		if(this.isInputDisabled()) return false;
 		// Left click to interact with something on click
 		if(!press && button == GLFW_MOUSE_BUTTON_LEFT) {
 			var clickables = zgame.getCurrentRoom().getAllThings().get(ZThingClickDetector.class);
@@ -130,6 +144,7 @@ public class ZusassPlayer extends ZusassMob{
 	
 	/** @return true if the button which means the player should go through a door, is pressed */
 	public boolean isEnterRoomPressed(){
+		if(this.isInputDisabled()) return false;
 		return this.inputHandlers.pressed(GLFW_MOUSE_BUTTON_LEFT);
 	}
 	
@@ -193,4 +208,13 @@ public class ZusassPlayer extends ZusassMob{
 		this.checkCenterCamera(zgame);
 	}
 	
+	/** @return See {@link #inputDisabled} */
+	public boolean isInputDisabled(){
+		return this.inputDisabled;
+	}
+	
+	/** @param inputDisabled See {@link #inputDisabled} */
+	public void setInputDisabled(boolean inputDisabled){
+		this.inputDisabled = inputDisabled;
+	}
 }
