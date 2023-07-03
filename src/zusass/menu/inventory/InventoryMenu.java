@@ -86,8 +86,6 @@ public class InventoryMenu extends ZusassMenu{
 	 * @param zgame The game to regenerate with
 	 */
 	public void regenerateThings(ZusassGame zgame){
-		// TODO keep the buffers for the buttons so they don't have to be recreated every time the inventory is opened and closed
-		// TODO only make a new buffer when a new button is added to the menu
 		this.spellList.generateButtons(this.getMob(), zgame);
 	}
 	
@@ -124,8 +122,12 @@ public class InventoryMenu extends ZusassMenu{
 		return this.mob;
 	}
 	
-	/** @param mob See {@link #mob} */
-	public void setMob(ZusassMob mob){
+	/**
+	 * @param zgame The game where the mob is set in
+	 * @param mob See {@link #mob}
+	 */
+	public void setMob(ZusassGame zgame, ZusassMob mob){
 		this.mob = mob;
+		this.regenerateThings(zgame);
 	}
 }

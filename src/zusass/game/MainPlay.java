@@ -55,8 +55,14 @@ public class MainPlay extends PlayState{
 			player.setLockCamera(true);
 			hub.addThing(player);
 			player.centerCamera(zgame);
-			this.getInventoryMenu().setMob(player);
 		});
+	}
+	
+	@Override
+	public void onSet(Game game){
+		super.onSet(game);
+		var zgame = (ZusassGame)game;
+		zgame.onNextLoop(() -> this.getInventoryMenu().setMob(zgame, zgame.getPlayer()));
 	}
 	
 	@Override
@@ -184,9 +190,6 @@ public class MainPlay extends PlayState{
 	 * @param zgame The game to show the inventory in
 	 */
 	public void openInventory(ZusassGame zgame){
-		this.inventoryMenu.setMob(zgame.getPlayer());
-		this.inventoryMenu.regenerateThings(zgame);
-		this.inventoryMenu.regenerateBuffer();
 		this.popupMenu(MenuNode.withAll(this.inventoryMenu));
 	}
 	
