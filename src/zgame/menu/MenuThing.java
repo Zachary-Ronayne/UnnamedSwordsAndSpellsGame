@@ -105,6 +105,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** If true, children all key and mouse input for parents when this thing is being dragged, does nothing if false */
 	private boolean disableChildrenWhenDragging;
 	
+	/** true if the mouse is currently on this thing, and nothing else is on top of this thing and blocking it */
+	private boolean mouseOn;
+	
 	/** The minimum width which this thing can be, null for no min */
 	private Double minWidth;
 	/** The maximum width which this thing can be, null for no max */
@@ -213,6 +216,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.maxHeight = null;
 		this.keepInParent = false;
 		
+		this.mouseOn = false;
+		
 		this.formatter = null;
 		this.draggableFormatter = null;
 		
@@ -284,7 +289,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	// issue#11 add option to make things only render in the bounds regardless of a buffer, fix render checking first
 	
-	/** @param use true to enable using the buffer, false otherwise. If setting to true, probably should follow this up with {@link #regenerateBuffer()}  */
+	/** @param use true to enable using the buffer, false otherwise. If setting to true, probably should follow this up with {@link #regenerateBuffer()} */
 	private void setBuffer(boolean use){
 		if(use && this.buffer == null) this.initBuffer();
 		else if(!use){
@@ -886,6 +891,24 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.setFormatter(null);
 	}
 	
+	/** @return See {@link #mouseOn} */
+	public boolean isMouseOn(){
+		return this.mouseOn;
+	}
+	
+	/**
+	 * Update the state of if the mouse is on this thing or not
+	 *
+	 * @param on true if the mouse is on this thing, false otherwise
+	 * @param game The game where the update happened
+	 */
+	private void setMouseOn(Game game, boolean on){
+		if(on == this.mouseOn) return;
+		this.mouseOn = on;
+		if(on) this.mouseEnter(game);
+		else this.mouseExit(game);
+	}
+	
 	/**
 	 * @param thing Check if the given thing is in this object
 	 * @return true if thing is contained by this thing
@@ -1180,12 +1203,12 @@ public class MenuThing implements GameInteractable, Destroyable{
 			}
 		}
 		var a = this.anchorPoint;
-		if(a == null) return shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
+		if(a == null) return shouldDisableMouseInput(x, y);
 		boolean fullDrag = this.draggingX == 0 && this.draggingY == 0 && this.isDraggable();
 		if(fullDrag){
 			// To get the new relative coordinates, take the mouse position, subtract the anchor offset, and subtract the parent offset
-			this.setRelX(game.mouseSX() - a.getX() - this.getParentX());
-			this.setRelY(game.mouseSY() - a.getY() - this.getParentY());
+			this.setRelX(x - a.getX() - this.getParentX());
+			this.setRelY(y - a.getY() - this.getParentY());
 		}
 		else{
 			// Drag the left side
@@ -1195,25 +1218,49 @@ public class MenuThing implements GameInteractable, Destroyable{
 				 going left of that bounds by the difference of the mouse x and parent x,
 				 and subtracting out the anchor position to account for the offset
 				 */
-				this.setWidth(this.getRelX() + this.getWidth() - (game.mouseSX() - this.getParentX() - a.getX()), false);
+				this.setWidth(this.getRelX() + this.getWidth() - (x - this.getParentX() - a.getX()), false);
 			}
 			// Drag the right side
 			else if(this.draggingX > 0){
 				// Start with the mouse position, subtract out the anchor and parent positions to get the relative coordinates, subtract the relative x to find the new width
-				this.setWidth(game.mouseSX() - a.getX() - this.getParentX() - this.getRelX(), true);
+				this.setWidth(x - a.getX() - this.getParentX() - this.getRelX(), true);
 			}
 			// Drag the top
 			if(this.draggingY < 0){
 				// See comments for the x axis
-				this.setHeight(this.getRelY() + this.getHeight() - (game.mouseSY() - a.getY() - this.getParentY()), false);
+				this.setHeight(this.getRelY() + this.getHeight() - (y - a.getY() - this.getParentY()), false);
 			}
 			// Drag the bottom
 			else if(this.draggingY > 0){
 				// See comments for the x axis
-				this.setHeight(game.mouseSY() - a.getY() - this.getParentY() - this.getRelY());
+				this.setHeight(y - a.getY() - this.getParentY() - this.getRelY());
 			}
 		}
-		return shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
+		return shouldDisableMouseInput(x, y);
+	}
+	
+	/**
+	 * Based on the position of the mouse, this thing, and any of its children, update the state of if the mouse is on this thing.
+	 * This updates both this thing, and all of its children
+	 *
+	 * @param game The game where this update happens
+	 * @param x The current x coordinate of the mouse in screen coordinates
+	 * @param y The current y coordinate of the mouse in screen coordinates
+	 * @param onChild true if the mouse is on a child of the thing, false otherwise
+	 * @return true if the mouse has been determined to be on a child, false otherwise
+	 */
+	public boolean updateMouseOn(Game game, double x, double y, boolean onChild){
+		if(!(this.isDisableChildrenWhenDragging() && this.currentlyDragging())){
+			var things = this.getThings();
+			for(int i = 0; i < things.size(); i++){
+				var t = things.get(i);
+				if(t.updateMouseOn(game, x, y, onChild)){
+					onChild = true;
+				}
+			}
+		}
+		this.setMouseOn(game, !onChild && this.getBounds().contains(x, y));
+		return onChild;
 	}
 	
 	/** Do not call directly */
@@ -1228,6 +1275,20 @@ public class MenuThing implements GameInteractable, Destroyable{
 		}
 		return shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 	}
+	
+	/**
+	 * Called when the mouse enters the active bounds of this thing. Does nothing by default, override to provide custom behavior
+	 *
+	 * @param game The game when the mouse entered
+	 */
+	public void mouseEnter(Game game){}
+	
+	/**
+	 * Called when the mouse exits the active bounds of this thing. Does nothing by default, override to provide custom behavior
+	 *
+	 * @param game The game when the mouse entered
+	 */
+	public void mouseExit(Game game){}
 	
 	/** Do not call directly, use {@link #render(Game, Renderer, ZRect)} to draw menu things and override their rendering behavior */
 	@Override

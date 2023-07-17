@@ -117,7 +117,7 @@ public class MenuButton extends MenuText{
 	 * @return true if a highlight on top of this button should render. By default, renders when the mouse is over it
 	 */
 	public boolean showHighlight(Game game){
-		return this.getBounds().contains(game.mouseSX(), game.mouseSY());
+		return this.isMouseOn();
 	}
 	
 	/** @return See {@link #highlightColor} */

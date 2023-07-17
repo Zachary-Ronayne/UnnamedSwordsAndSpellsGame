@@ -87,7 +87,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		
 		// TODO make a way of abstracting this out so that you don't have to do this when something gets resized
 		
-		// TODO make buttons not highlight on mouse hover if they are not currently clickable
+		// TODO make buttons not highlight on mouse hover if they are not currently clickable, use mouse entering and leaving
 		this.reformat(zgame);
 	}
 	
