@@ -93,6 +93,11 @@ public class MenuButton extends MenuText{
 		return input;
 	}
 	
+	@Override
+	public boolean useMouseInput(Game game){
+		return this.getBounds().contains(game.mouseSX(), game.mouseSY());
+	}
+	
 	/**
 	 * A method that is called when this button is activated, i.e. clicked on. Override this method to perform an action when the button is clicked
 	 *

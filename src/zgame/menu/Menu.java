@@ -1,5 +1,7 @@
 package zgame.menu;
 
+import zgame.core.Game;
+
 /**
  * An object which represents a single {@link Menu}. A menu is a simple object used to group together other {@link MenuThing} objects with a background.
  */
@@ -46,5 +48,10 @@ public class Menu extends MenuThing{
 	/** @param defaultDestroyRemove See {@link #defaultDestroyRemove} */
 	public void setDefaultDestroyRemove(boolean defaultDestroyRemove){
 		this.defaultDestroyRemove = defaultDestroyRemove;
+	}
+	
+	@Override
+	public boolean useMouseInput(Game game){
+		return true;
 	}
 }

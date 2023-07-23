@@ -232,14 +232,17 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	public boolean mouseMove(Game game, double x, double y){
 		Menu menu = this.getTopMenu();
 		if(menu != null){
+			// Check for the mouse entering or leaving the menu and all other menus
 			var onChild = menu.updateMouseOn(game, x, y, false);
 			for(int i = this.getStackSize() - 2; i >= 0; i--){
 				MenuNode m = this.menuStack.get(i);
 				onChild = m.getMenu().updateMouseOn(game, x, y, onChild);
 			}
 			
+			// Account for mouse movement on the top menu
 			if(menu.mouseMove(game, x, y)) return true;
 		}
+		// Account for mouse movement on every other menu
 		for(int i = this.getStackSize() - 2; i >= 0; i--){
 			MenuNode m = this.menuStack.get(i);
 			if(m.mouseMove(game, x, y)) return true;

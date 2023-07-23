@@ -102,7 +102,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	private int draggingY;
 	
-	/** If true, children all key and mouse input for parents when this thing is being dragged, does nothing if false */
+	/** If true, disable all key and mouse input for parents when this thing is being dragged, does nothing if false */
 	private boolean disableChildrenWhenDragging;
 	
 	/** true if the mouse is currently on this thing, and nothing else is on top of this thing and blocking it */
@@ -1247,7 +1247,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * @param x The current x coordinate of the mouse in screen coordinates
 	 * @param y The current y coordinate of the mouse in screen coordinates
 	 * @param onChild true if the mouse is on a child of the thing, false otherwise
-	 * @return true if the mouse has been determined to be on a child, false otherwise
+	 * @return true if the mouse is on a child, false otherwise
 	 */
 	public boolean updateMouseOn(Game game, double x, double y, boolean onChild){
 		if(!(this.isDisableChildrenWhenDragging() && this.currentlyDragging())){
@@ -1259,8 +1259,20 @@ public class MenuThing implements GameInteractable, Destroyable{
 				}
 			}
 		}
-		this.setMouseOn(game, !onChild && this.getBounds().contains(x, y));
+		var in = this.getBounds().contains(x, y);
+		this.setMouseOn(game, !onChild && in);
+		if(!this.useMouseInput(game)) return onChild;
+		if(in && !onChild) return true;
 		return onChild;
+	}
+	
+	/**
+	 * Determine if this thing should accept mouse input and stop mouse input from propagating to further things, false otherwise
+	 * @param game The game where the mouse input happened
+	 * @return true if it should use mouse input, false otherwise
+	 */
+	public boolean useMouseInput(Game game){
+		return false;
 	}
 	
 	/** Do not call directly */
