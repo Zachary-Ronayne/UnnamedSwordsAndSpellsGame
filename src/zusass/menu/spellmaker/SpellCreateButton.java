@@ -39,12 +39,18 @@ public class SpellCreateButton extends ZusassButton{
 		var zgame = (ZusassGame)game;
 		var player = zgame.getPlayer();
 		
-		// TODO determine the information for the spell from the creation menu
+		var duration = this.menu.getDoubleInput(SpellMakerMenu.DURATION);
+		var magnitude = this.menu.getDoubleInput(SpellMakerMenu.MAGNITUDE);
+		var size = this.menu.getDoubleInput(SpellMakerMenu.SIZE);
+		var range = this.menu.getDoubleInput(SpellMakerMenu.RANGE);
+		var speed = this.menu.getDoubleInput(SpellMakerMenu.SPEED);
+		var name = this.menu.getStringInput(SpellMakerMenu.NAME);
+		
 		var spell = new ProjectileSpell(
 				// TODO depending on if the effect should be negative or not, make the magnitude negative or positive
-				new SpellEffectStatusEffect(new StatEffect(this.menu.getDuration(), new StatModifier(-this.menu.getMagnitude(), ModifierType.ADD), ZusassStat.HEALTH_REGEN)),
-				this.menu.getSize(), this.menu.getRange(), this.menu.getSpeed());
-		spell.setName(this.menu.getEnteredName());
+				new SpellEffectStatusEffect(new StatEffect(duration, new StatModifier(-magnitude, ModifierType.ADD), ZusassStat.HEALTH_REGEN)),
+				size, range, speed);
+		spell.setName(name);
 		player.getSpells().addSpell(spell);
 		
 		var inventoryMenu = zgame.getPlayState().getInventoryMenu();

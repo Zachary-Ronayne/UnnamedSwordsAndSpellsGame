@@ -84,6 +84,7 @@ public class StatEffect extends StatusEffect{
 	@Override
 	public double getCost(){
 		// TODO figure out a way to make spell costs reasonable
+		// TODO cache spell costs so it does't need to be recalculated every time
 		
 		// This is a very arbitrary calculation atm
 		// Basically bigger numbers mean higher cost
