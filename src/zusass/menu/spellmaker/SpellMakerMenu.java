@@ -35,6 +35,9 @@ public class SpellMakerMenu extends ZusassMenu{
 	/** The button used to create a spell */
 	private final SpellCreateButton createButton;
 	
+	/** See {@link StatChooseButton} */
+	private final ZusassButton statChooseButton;
+	
 	/**
 	 * Create the menu
 	 *
@@ -48,7 +51,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.setDraggableColor(new ZColor(.6, 0, .85, .8));
 		this.makeDraggable(10, 30);
 		this.setMinWidth(600.0);
-		this.setMinHeight(400.0);
+		this.setMinHeight(500.0);
 		
 		this.getTitleThing().setFontSize(40);
 		this.getTitleThing().setTextY(50);
@@ -58,6 +61,16 @@ public class SpellMakerMenu extends ZusassMenu{
 		// The button for creating a new spell
 		this.createButton = new SpellCreateButton(this, zgame);
 		this.addThing(this.createButton);
+		
+		// The button for selecting the spell type
+		this.statChooseButton = new StatChooseButton(this, zgame);
+		this.addThing(this.statChooseButton);
+		
+		// TODO a button for selecting if the spell will be positive or negative
+		
+		// TODO a button for selecting the cast type, so self or projectile
+		
+		// TODO a button for selecting the effect type, like instant effect or status effect
 		
 		// The button for resetting the menu
 		var resetButton = new ZusassButton(1, 1, 160, 40, "Reset", zgame){
@@ -83,8 +96,6 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.initTextBox(SPEED, zgame, "Speed...", 280, MenuTextBox.Mode.FLOAT_POS, true);
 		this.initTextBox(SIZE, zgame, "Size...", 330, MenuTextBox.Mode.FLOAT_POS, true);
 		this.initTextBox(RANGE, zgame, "Range...", 380, MenuTextBox.Mode.FLOAT_POS, true);
-		
-		// TODO allow different effect types and spell cast types to be selected
 		
 		this.reformat(zgame);
 	}
