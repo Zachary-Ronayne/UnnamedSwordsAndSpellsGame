@@ -1,7 +1,9 @@
 package zusass.menu.spellmaker;
 
 import zgame.core.Game;
+import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.utils.ZRect;
 import zgame.menu.MenuTextBox;
 import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
@@ -9,6 +11,7 @@ import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
 import zusass.menu.comp.ZusassButton;
+import zusass.menu.comp.ZusassMenuText;
 import zusass.menu.mainmenu.comp.newgamemenu.ZusassTextBox;
 
 import java.util.HashMap;
@@ -50,6 +53,9 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.setBorder(new ZColor(.3, 0, .5, .5));
 		this.setDraggableColor(new ZColor(.6, 0, .85, .8));
 		this.makeDraggable(10, 30);
+		// TODO make this draggable again when the buffer issue is fixed
+		this.setDraggable(false);
+		this.setDraggableSides(false);
 		this.setMinWidth(600.0);
 		this.setMinHeight(500.0);
 		
@@ -86,16 +92,15 @@ public class SpellMakerMenu extends ZusassMenu{
 		
 		this.textBoxes = new HashMap<>();
 		
-		var spellNameTextBox = this.initTextBox(NAME, zgame, "Enter a name...", 120, MenuTextBox.Mode.DEFAULT, false);
+		var spellNameTextBox = this.initTextBox(NAME, zgame, "Name", 120, MenuTextBox.Mode.DEFAULT);
 		spellNameTextBox.setHeight(50);
 		spellNameTextBox.setFormatter(new PercentFormatter(.9, null, 0.5, null));
-		this.addThing(spellNameTextBox);
 		
-		this.initTextBox(DURATION, zgame, "Duration...", 180, MenuTextBox.Mode.FLOAT_POS, true);
-		this.initTextBox(MAGNITUDE, zgame, "Magnitude...", 230, MenuTextBox.Mode.FLOAT_POS, true);
-		this.initTextBox(SPEED, zgame, "Speed...", 280, MenuTextBox.Mode.FLOAT_POS, true);
-		this.initTextBox(SIZE, zgame, "Size...", 330, MenuTextBox.Mode.FLOAT_POS, true);
-		this.initTextBox(RANGE, zgame, "Range...", 380, MenuTextBox.Mode.FLOAT_POS, true);
+		this.initTextBox(DURATION, zgame, "Duration", 180, MenuTextBox.Mode.FLOAT_POS);
+		this.initTextBox(MAGNITUDE, zgame, "Magnitude", 230, MenuTextBox.Mode.FLOAT_POS);
+		this.initTextBox(SPEED, zgame, "Speed", 280, MenuTextBox.Mode.FLOAT_POS);
+		this.initTextBox(SIZE, zgame, "Size", 330, MenuTextBox.Mode.FLOAT_POS);
+		this.initTextBox(RANGE, zgame, "Range", 380, MenuTextBox.Mode.FLOAT_POS);
 		
 		this.reformat(zgame);
 	}
@@ -110,7 +115,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	 * @param mode The input mode of the box
 	 * @return The new box
 	 */
-	private ZusassTextBox initTextBox(String key, ZusassGame zgame, String hint, double y, MenuTextBox.Mode mode, boolean add){
+	private ZusassTextBox initTextBox(String key, ZusassGame zgame, String hint, double y, MenuTextBox.Mode mode){
 		var box = new ZusassTextBox(0, y, 1, 40, zgame){
 			@Override
 			public void setText(String text){
@@ -124,11 +129,22 @@ public class SpellMakerMenu extends ZusassMenu{
 				selectOneTextBox(zgame, selected, this);
 			}
 		};
-		box.setHint(hint);
+		box.setHint(hint + "...");
 		box.setMode(mode);
 		box.setFontSize(30);
 		box.setFormatter(new PercentFormatter(.5, null, 0.5, null));
-		if(add) this.addThing(box);
+		this.addThing(box);
+		box.format();
+		
+		var w = 300;
+		var h = box.getHeight();
+		var text = new ZusassMenuText(box.getRelX() - w, box.getY() - h * .5, w, h, hint + ":", zgame, true);
+		text.setFontColor(new ZColor(0));
+		text.setFontSize(30);
+		text.centerTextVertical();
+		text.alignTextXRight();
+		this.addThing(text);
+		
 		this.textBoxes.put(key, box);
 		return box;
 	}

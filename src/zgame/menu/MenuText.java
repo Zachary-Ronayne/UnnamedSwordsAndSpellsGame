@@ -218,6 +218,10 @@ public class MenuText extends MenuThing{
 		this.setTextY((this.getHeight() + height) * 0.5);
 	}
 	
+	public void alignTextXRight(){
+		this.setTextX(this.getWidth() - this.getTextBounds().width);
+	}
+	
 	public ZRect getTextBounds(){
 		return this.getFont().stringBounds(this.getText());
 	}
