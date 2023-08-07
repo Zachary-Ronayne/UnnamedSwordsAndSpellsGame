@@ -1,9 +1,7 @@
 package zusass.menu.spellmaker;
 
 import zgame.core.Game;
-import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
-import zgame.core.utils.ZRect;
 import zgame.menu.MenuTextBox;
 import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
@@ -39,7 +37,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	private final SpellCreateButton createButton;
 	
 	/** See {@link StatChooseButton} */
-	private final ZusassButton statChooseButton;
+	private final StatChooseButton statChooseButton;
 	
 	/**
 	 * Create the menu
@@ -211,15 +209,18 @@ public class SpellMakerMenu extends ZusassMenu{
 		return b.getTextAsDouble();
 	}
 	
+	/** @return The stat selected for the spell */
+	public StatSpellType getSelectedStat(){
+		return this.statChooseButton.getSelectedStat();
+	}
+	
 	/** Update the state of the create button for if it should be disabled or enabled */
 	public void updateDisabled(){
-		var disabled = false;
+		var disabled = this.getSelectedStat() == null;
 		for(var k : this.textBoxes.keySet()){
+			if(disabled) break;
 			var v = this.getStringInput(k);
-			if(v == null || v.isEmpty()){
-				disabled = true;
-				break;
-			}
+			if(v == null || v.isEmpty()) disabled = true;
 		}
 		this.createButton.setDisabled(disabled);
 	}
