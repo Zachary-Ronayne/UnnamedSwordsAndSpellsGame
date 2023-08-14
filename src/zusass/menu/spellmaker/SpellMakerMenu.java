@@ -100,6 +100,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		var spellNameTextBox = this.initTextBox(NAME, zgame, "Name", 120, MenuTextBox.Mode.DEFAULT);
 		spellNameTextBox.setHeight(50);
 		spellNameTextBox.setFormatter(new PercentFormatter(.9, null, 0.5, null));
+		spellNameTextBox.setText("");
 		
 		this.initTextBox(DURATION, zgame, "Duration", 180, MenuTextBox.Mode.FLOAT_POS);
 		this.initTextBox(MAGNITUDE, zgame, "Magnitude", 230, MenuTextBox.Mode.FLOAT_POS);
@@ -137,6 +138,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		box.setHint(hint + "...");
 		box.setMode(mode);
 		box.setFontSize(30);
+		box.setText("1");
 		box.setFormatter(new PercentFormatter(.5, null, 0.5, null));
 		this.addThing(box);
 		box.format();
@@ -221,7 +223,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		return this.statChooseButton.getSelectedStat();
 	}
 	
-	/** @return true if the selected will will be a buff, false otherwise */
+	/** @return true if the selected will be a buff, false otherwise */
 	public boolean isBuffSelected(){
 		return PositiveNegativeButton.BUFF.equals(this.positiveNegativeButton.getSelectedValue());
 	}
