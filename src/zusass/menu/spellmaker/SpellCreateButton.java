@@ -46,10 +46,12 @@ public class SpellCreateButton extends ZusassButton{
 		var speed = this.menu.getDoubleInput(SpellMakerMenu.SPEED);
 		var name = this.menu.getStringInput(SpellMakerMenu.NAME);
 		var stat = this.menu.getSelectedStat();
+		var buff = this.menu.isBuffSelected();
+		var modifier = new StatModifier(buff ? magnitude : -magnitude, ModifierType.ADD);
 		
 		var spell = new ProjectileSpell(
 				// TODO depending on if the effect should be negative or not, make the magnitude negative or positive
-				new SpellEffectStatusEffect(new StatEffect(duration, new StatModifier(-magnitude, ModifierType.ADD), stat.getStatus())),
+				new SpellEffectStatusEffect(new StatEffect(duration, modifier, stat.getStatus())),
 				size, range, speed);
 		spell.setName(name);
 		player.getSpells().addSpell(spell);

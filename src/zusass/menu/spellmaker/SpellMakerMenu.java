@@ -8,11 +8,13 @@ import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
+import zusass.menu.comp.ToggleButton;
 import zusass.menu.comp.ZusassButton;
 import zusass.menu.comp.ZusassMenuText;
 import zusass.menu.mainmenu.comp.newgamemenu.ZusassTextBox;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 /** The {@link ZusassMenu} for creating spells */
 public class SpellMakerMenu extends ZusassMenu{
@@ -38,6 +40,9 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	/** See {@link StatChooseButton} */
 	private final StatChooseButton statChooseButton;
+	
+	/** See {@link PositiveNegativeButton} */
+	private final PositiveNegativeButton positiveNegativeButton;
 	
 	/**
 	 * Create the menu
@@ -70,7 +75,9 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.statChooseButton = new StatChooseButton(this, zgame);
 		this.addThing(this.statChooseButton);
 		
-		// TODO a button for selecting if the spell will be positive or negative
+		// The button for selecting if the spell will be positive or negative
+		this.positiveNegativeButton = new PositiveNegativeButton(zgame);
+		this.addThing(this.positiveNegativeButton);
 		
 		// TODO a button for selecting the cast type, so self or projectile
 		
@@ -212,6 +219,11 @@ public class SpellMakerMenu extends ZusassMenu{
 	/** @return The stat selected for the spell */
 	public StatSpellType getSelectedStat(){
 		return this.statChooseButton.getSelectedStat();
+	}
+	
+	/** @return true if the selected will will be a buff, false otherwise */
+	public boolean isBuffSelected(){
+		return PositiveNegativeButton.BUFF.equals(this.positiveNegativeButton.getSelectedValue());
 	}
 	
 	/** Update the state of the create button for if it should be disabled or enabled */
