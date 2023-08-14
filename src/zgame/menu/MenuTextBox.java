@@ -173,8 +173,8 @@ public class MenuTextBox extends MenuButton{
 			case GLFW_KEY_H -> toAdd = 'h';
 			case GLFW_KEY_I -> toAdd = 'i';
 			case GLFW_KEY_J -> toAdd = 'j';
-			case GLFW_KEY_L -> toAdd = 'k';
-			case GLFW_KEY_K -> toAdd = 'l';
+			case GLFW_KEY_L -> toAdd = 'l';
+			case GLFW_KEY_K -> toAdd = 'k';
 			case GLFW_KEY_M -> toAdd = 'm';
 			case GLFW_KEY_N -> toAdd = 'n';
 			case GLFW_KEY_O -> toAdd = 'o';
