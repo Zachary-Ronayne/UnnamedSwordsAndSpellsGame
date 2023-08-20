@@ -8,8 +8,10 @@ import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zusass.ZusassGame;
 import zusass.game.magic.ProjectileSpell;
+import zusass.game.magic.SelfSpell;
+import zusass.game.magic.Spell;
+import zusass.game.magic.SpellCastType;
 import zusass.game.magic.effect.SpellEffectStatusEffect;
-import zusass.game.stat.ZusassStat;
 import zusass.game.status.StatEffect;
 import zusass.menu.comp.ZusassButton;
 
@@ -48,11 +50,13 @@ public class SpellCreateButton extends ZusassButton{
 		var stat = this.menu.getSelectedStat();
 		var buff = this.menu.isBuffSelected();
 		var modifier = new StatModifier(buff ? magnitude : -magnitude, ModifierType.ADD);
+		var castType = this.menu.getSelectedCastType();
 		
-		var spell = new ProjectileSpell(
-				// TODO depending on if the effect should be negative or not, make the magnitude negative or positive
-				new SpellEffectStatusEffect(new StatEffect(duration, modifier, stat.getStatus())),
-				size, range, speed);
+		var spellEffectStatusEffect = new SpellEffectStatusEffect(new StatEffect(duration, modifier, stat.getStatus()));
+		
+		Spell spell;
+		if(castType == SpellCastType.PROJECTILE) spell = new ProjectileSpell(spellEffectStatusEffect, size, range, speed);
+		else spell = new SelfSpell(spellEffectStatusEffect);
 		spell.setName(name);
 		player.getSpells().addSpell(spell);
 		

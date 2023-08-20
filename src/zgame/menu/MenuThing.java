@@ -1130,7 +1130,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * @param button The pressed button
 	 * @param press true if the button was pressed down, false for released
 	 */
-	public void checkForDraggingStart(Game game, int button, boolean press){
+	private void checkForDraggingStart(Game game, int button, boolean press){
 		if(!press){
 			if(this.anchorPoint != null){
 				this.anchorPoint = null;
