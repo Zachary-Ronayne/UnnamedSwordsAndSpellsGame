@@ -8,6 +8,7 @@ import zgame.menu.MenuThing;
 import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
+import zgame.stat.modifier.ModifierType;
 import zusass.ZusassGame;
 import zusass.game.magic.SpellCastType;
 import zusass.game.magic.effect.SpellEffectType;
@@ -65,6 +66,12 @@ public class SpellMakerMenu extends ZusassMenu{
 	/** The currently selected spell effect type */
 	private SpellEffectType selectedEffectType;
 	
+	/** The object holding the fields for the modifier type */
+	private final ModifierTypeButton modifierTypeButton;
+	
+	/** The currently selected type for a modifier */
+	private ModifierType selectedModifierType;
+	
 	/**
 	 * Create the menu
 	 *
@@ -74,6 +81,8 @@ public class SpellMakerMenu extends ZusassMenu{
 		super(zgame, "Spell Creation");
 		
 		// TODO disable key input (i.e. pressing delete) when the inventory menu is open
+		
+		// TODO hide or do something with the positive negative button when selecting the multiplier modifier type
 		
 		this.setFill(new ZColor(.4, 0, .6, .8));
 		this.setBorder(new ZColor(.3, 0, .5, .5));
@@ -101,8 +110,6 @@ public class SpellMakerMenu extends ZusassMenu{
 		// The button for selecting if the spell will be positive or negative
 		this.positiveNegativeButton = new PositiveNegativeButton(zgame);
 		this.addThing(this.positiveNegativeButton);
-		
-		// TODO a button for the modifier type
 		
 		// The button for resetting the menu
 		var resetButton = new ZusassButton(1, 1, 160, 40, "Reset", zgame){
@@ -138,6 +145,10 @@ public class SpellMakerMenu extends ZusassMenu{
 		// The button for selecting the cast type, so self or projectile
 		this.castTypeButton = new CastTypeButton(this, zgame);
 		this.addThing(this.castTypeButton);
+		
+		// The button for the modifier type
+		this.modifierTypeButton = new ModifierTypeButton(this, zgame);
+		this.addThing(this.modifierTypeButton);
 		
 		this.reformat(zgame);
 		this.reset();
@@ -229,6 +240,11 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.updateDisabled();
 	}
 	
+	/** @param modifierType The new value for {@link #selectedModifierType} */
+	public void updateModifierType(ModifierType modifierType){
+		this.selectedModifierType = modifierType;
+	}
+	
 	/**
 	 * Set it so that only the given text box is selected
 	 *
@@ -315,6 +331,11 @@ public class SpellMakerMenu extends ZusassMenu{
 	/** @return See {@link #selectedEffectType} */
 	public SpellEffectType getSelectedEffectType(){
 		return this.selectedEffectType;
+	}
+	
+	/** @return See {@link #selectedModifierType} */
+	public ModifierType getSelectedModifierType(){
+		return this.selectedModifierType;
 	}
 	
 	/** @return true if the selected will be a buff, false otherwise */

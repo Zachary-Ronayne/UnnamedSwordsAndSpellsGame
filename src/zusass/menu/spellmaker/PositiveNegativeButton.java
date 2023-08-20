@@ -18,9 +18,9 @@ public class PositiveNegativeButton extends ToggleButton{
 	 * @param zgame The {@link ZusassGame} that uses this button
 	 */
 	public PositiveNegativeButton(ZusassGame zgame){
-		super(0, 0, 200, 32, null, zgame);
+		super(0, 0, 180, 32, null, zgame);
 		this.setFontSize(20);
-		this.setFormatter(new PixelFormatter(260.0, null, null, 200.0));
+		this.setFormatter(new PixelFormatter(220.0, null, null, 200.0));
 		
 		var values = new ArrayList<String>();
 		values.add(BUFF);

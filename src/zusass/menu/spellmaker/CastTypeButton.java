@@ -27,11 +27,11 @@ public class CastTypeButton extends ToggleButton{
 	 * @param zgame The {@link ZusassGame} that uses this button
 	 */
 	public CastTypeButton(SpellMakerMenu menu, ZusassGame zgame){
-		super(0, 0, 200, 32, null, zgame);
+		super(0, 0, 180, 32, null, zgame);
 		this.menu = menu;
 		
 		this.setFontSize(20);
-		this.setFormatter(new PixelFormatter(500.0, null, null, 200.0));
+		this.setFormatter(new PixelFormatter(420.0, null, null, 200.0));
 		
 		var values = new ArrayList<String>();
 		values.add(PROJECTILE);

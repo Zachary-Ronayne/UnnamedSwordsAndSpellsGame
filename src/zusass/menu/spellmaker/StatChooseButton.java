@@ -21,7 +21,7 @@ public class StatChooseButton extends ZusassButton{
 	 * @param zgame The game this button uses
 	 */
 	public StatChooseButton(SpellMakerMenu menu, ZusassGame zgame){
-		super(0, 0, 200, 32, "", zgame);
+		super(0, 0, 180, 32, "", zgame);
 		
 		this.setSelectedStat(null);
 		

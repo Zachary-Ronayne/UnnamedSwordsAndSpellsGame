@@ -52,7 +52,12 @@ public class SpellCreateButton extends ZusassButton{
 		var name = this.menu.getStringInput(SpellMakerMenu.NAME);
 		var stat = this.menu.getSelectedStat();
 		var buff = this.menu.isBuffSelected();
-		var modifier = new StatModifier(buff ? magnitude : -magnitude, ModifierType.ADD);
+		var modifierType = this.menu.getSelectedModifierType();
+		StatModifier modifier = switch(modifierType){
+			case ADD -> new StatModifier(buff ? magnitude : -magnitude, ModifierType.ADD);
+			case MULT_MULT -> new StatModifier(magnitude, ModifierType.MULT_MULT);
+			case MULT_ADD -> new StatModifier(buff ? magnitude : -magnitude, ModifierType.MULT_ADD);
+		};
 		var castType = this.menu.getSelectedCastType();
 		var effectType = this.menu.getSelectedEffectType();
 		
