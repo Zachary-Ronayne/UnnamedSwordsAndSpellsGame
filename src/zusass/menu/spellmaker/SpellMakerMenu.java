@@ -10,6 +10,7 @@ import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
 import zusass.game.magic.SpellCastType;
+import zusass.game.magic.effect.SpellEffectType;
 import zusass.menu.ZusassMenu;
 import zusass.menu.comp.ZusassButton;
 import zusass.menu.comp.ZusassMenuText;
@@ -49,11 +50,20 @@ public class SpellMakerMenu extends ZusassMenu{
 	/** See {@link CastTypeButton} */
 	private final CastTypeButton castTypeButton;
 	
+	/** See {@link EffectTypeButton} */
+	private final EffectTypeButton effectTypeButton;
+	
 	/** The object holding the fields for the projectile spell type */
 	private final MenuHolder projectileBoxesHolder;
 	
 	/** The currently selected spell cast type */
 	private SpellCastType selectedCastType;
+	
+	/** The object holding the fields for the status effect spell type */
+	private final MenuHolder statusEffectBoxesHolder;
+	
+	/** The currently selected spell effect type */
+	private SpellEffectType selectedEffectType;
 	
 	/**
 	 * Create the menu
@@ -92,8 +102,6 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.positiveNegativeButton = new PositiveNegativeButton(zgame);
 		this.addThing(this.positiveNegativeButton);
 		
-		// TODO a button for selecting the effect type, like instant effect or status effect
-		
 		// TODO a button for the modifier type
 		
 		// The button for resetting the menu
@@ -112,17 +120,20 @@ public class SpellMakerMenu extends ZusassMenu{
 		
 		this.initTextBox(NAME, zgame, "Name", 120, MenuTextBox.Mode.DEFAULT, this);
 		
-		this.projectileBoxesHolder = new MenuHolder();
-		this.projectileBoxesHolder.invisible();
-		this.projectileBoxesHolder.setWidth(this.getWidth());
-		this.projectileBoxesHolder.setHeight(this.getHeight());
+		this.projectileBoxesHolder = makeNewMenuHolder();
+		this.statusEffectBoxesHolder = makeNewMenuHolder();
 		
-		this.initTextBox(DURATION, zgame, "Duration", 170, MenuTextBox.Mode.FLOAT_POS, this);
+		this.initTextBox(DURATION, zgame, "Duration", 170, MenuTextBox.Mode.FLOAT_POS, this.statusEffectBoxesHolder);
 		this.initTextBox(MAGNITUDE, zgame, "Magnitude", 220, MenuTextBox.Mode.FLOAT_POS, this);
 		this.initTextBox(SPEED, zgame, "Speed", 270, MenuTextBox.Mode.FLOAT_POS, this.projectileBoxesHolder);
 		this.initTextBox(SIZE, zgame, "Size", 320, MenuTextBox.Mode.FLOAT_POS, this.projectileBoxesHolder);
 		this.initTextBox(RANGE, zgame, "Range", 370, MenuTextBox.Mode.FLOAT_POS, this.projectileBoxesHolder);
+		this.addThing(this.statusEffectBoxesHolder);
 		this.addThing(this.projectileBoxesHolder);
+		
+		// The button for selecting the effect type, like instant effect or status effect
+		this.effectTypeButton = new EffectTypeButton(this, zgame);
+		this.addThing(this.effectTypeButton);
 		
 		// The button for selecting the cast type, so self or projectile
 		this.castTypeButton = new CastTypeButton(this, zgame);
@@ -130,6 +141,15 @@ public class SpellMakerMenu extends ZusassMenu{
 		
 		this.reformat(zgame);
 		this.reset();
+	}
+	
+	/** @return A new menu holder for this menu */
+	private MenuHolder makeNewMenuHolder(){
+		var m = new MenuHolder();
+		m.invisible();
+		m.setWidth(this.getWidth());
+		m.setHeight(this.getHeight());
+		return m;
 	}
 	
 	/**
@@ -179,9 +199,30 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	/**
 	 * Update which fields are displayed
-	 * @param castType The new cat type for the button
+	 * @param effectType The new effect type for the spell
+	 */
+	public void updateDisplayedFields(SpellEffectType effectType){
+		this.updateDisplayedFields(this.selectedCastType, effectType);
+	}
+	
+	/**
+	 * Update which fields are displayed
+	 * @param castType The new cast type for the button
 	 */
 	public void updateDisplayedFields(SpellCastType castType){
+		this.updateDisplayedFields(castType, this.selectedEffectType);
+	}
+	
+	/**
+	 * Update which fields are displayed
+	 * @param castType The new cast type for the spell
+	 * @param effectType The new effect type for the spell
+	 */
+	public void updateDisplayedFields(SpellCastType castType, SpellEffectType effectType){
+		if(effectType == SpellEffectType.STATUS_EFFECT) this.addThing(this.statusEffectBoxesHolder);
+		else this.removeThing(this.statusEffectBoxesHolder, false);
+		this.selectedEffectType = effectType;
+		
 		if(castType == SpellCastType.PROJECTILE) this.addThing(this.projectileBoxesHolder);
 		else this.removeThing(this.projectileBoxesHolder, false);
 		this.selectedCastType = castType;
@@ -231,6 +272,17 @@ public class SpellMakerMenu extends ZusassMenu{
 	}
 	
 	/**
+	 * Set the text of a text box
+	 * @param key The key for the text box in the map {@link #textBoxes}
+	 * @param text The text to set to
+	 */
+	public void setTextBoxText(String key, String text){
+		var box = this.textBoxes.get(key);
+		if(box == null) return;
+		box.setText(text);
+	}
+	
+	/**
 	 * @param key The key of the text value to get
 	 * @return The text the user has input for a spell value, or null if there is no value
 	 */
@@ -260,6 +312,11 @@ public class SpellMakerMenu extends ZusassMenu{
 		return this.selectedCastType;
 	}
 	
+	/** @return See {@link #selectedEffectType} */
+	public SpellEffectType getSelectedEffectType(){
+		return this.selectedEffectType;
+	}
+	
 	/** @return true if the selected will be a buff, false otherwise */
 	public boolean isBuffSelected(){
 		return PositiveNegativeButton.BUFF.equals(this.positiveNegativeButton.getSelectedValue());
@@ -271,8 +328,8 @@ public class SpellMakerMenu extends ZusassMenu{
 		
 		var requiredBoxes = new ArrayList<String>();
 		requiredBoxes.add(NAME);
-		requiredBoxes.add(DURATION);
 		requiredBoxes.add(MAGNITUDE);
+		if(this.selectedEffectType == SpellEffectType.STATUS_EFFECT) requiredBoxes.add(DURATION);
 		if(this.selectedCastType == SpellCastType.PROJECTILE){
 			requiredBoxes.add(SPEED);
 			requiredBoxes.add(SIZE);

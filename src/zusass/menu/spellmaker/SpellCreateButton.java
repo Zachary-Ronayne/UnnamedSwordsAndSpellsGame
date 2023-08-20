@@ -11,7 +11,10 @@ import zusass.game.magic.ProjectileSpell;
 import zusass.game.magic.SelfSpell;
 import zusass.game.magic.Spell;
 import zusass.game.magic.SpellCastType;
+import zusass.game.magic.effect.SpellEffect;
+import zusass.game.magic.effect.SpellEffectStatAdd;
 import zusass.game.magic.effect.SpellEffectStatusEffect;
+import zusass.game.magic.effect.SpellEffectType;
 import zusass.game.status.StatEffect;
 import zusass.menu.comp.ZusassButton;
 
@@ -51,12 +54,15 @@ public class SpellCreateButton extends ZusassButton{
 		var buff = this.menu.isBuffSelected();
 		var modifier = new StatModifier(buff ? magnitude : -magnitude, ModifierType.ADD);
 		var castType = this.menu.getSelectedCastType();
-		
-		var spellEffectStatusEffect = new SpellEffectStatusEffect(new StatEffect(duration, modifier, stat.getStatus()));
+		var effectType = this.menu.getSelectedEffectType();
 		
 		Spell spell;
-		if(castType == SpellCastType.PROJECTILE) spell = new ProjectileSpell(spellEffectStatusEffect, size, range, speed);
-		else spell = new SelfSpell(spellEffectStatusEffect);
+		SpellEffect effect;
+		if(effectType == SpellEffectType.STATUS_EFFECT) effect = new SpellEffectStatusEffect(new StatEffect(duration, modifier, stat.getStatus()));
+		else effect = new SpellEffectStatAdd(stat.getInstant(), buff ? magnitude : -magnitude);
+		
+		if(castType == SpellCastType.PROJECTILE) spell = new ProjectileSpell(effect, size, range, speed);
+		else spell = new SelfSpell(effect);
 		spell.setName(name);
 		player.getSpells().addSpell(spell);
 		
@@ -64,6 +70,6 @@ public class SpellCreateButton extends ZusassButton{
 		inventoryMenu.regenerateThings(zgame);
 		inventoryMenu.updateScrollAmount();
 		
-		this.menu.reset();
+		this.menu.setTextBoxText(SpellMakerMenu.NAME, "");
 	}
 }
