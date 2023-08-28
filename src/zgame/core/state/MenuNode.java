@@ -66,6 +66,7 @@ public class MenuNode{
 	 */
 	public MenuNode(Menu menu, boolean isTick, boolean isKeyAction, boolean isMouseAction, boolean isMouseMove, boolean isMouseWheelMove, boolean isRender){
 		this.menu = menu;
+		this.menu.setNode(this);
 		this.isTick = isTick;
 		this.isKeyAction = isKeyAction;
 		this.isMouseAction = isMouseAction;
@@ -166,7 +167,9 @@ public class MenuNode{
 	
 	/** @param menu See {@link #menu} */
 	public void setMenu(Menu menu){
+		if(this.menu != null) this.menu.setNode(null);
 		this.menu = menu;
+		this.menu.setNode(this);
 	}
 	
 	/** @return See {@link #isTick} */

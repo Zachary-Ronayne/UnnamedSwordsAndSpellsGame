@@ -54,9 +54,16 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	}
 	
 	/** @return The menu on top of all other menus, or null if there are no menus */
-	public Menu getTopMenu(){
+	public MenuNode getTopMenuNode(){
 		if(this.menuStack == null) return null;
-		return this.menuStack.isEmpty() ? null : this.menuStack.get(this.menuStack.size() - 1).getMenu();
+		return this.menuStack.isEmpty() ? null : this.menuStack.get(this.menuStack.size() - 1);
+	}
+	
+	/** @return The menu on top of all other menus, or null if there are no menus */
+	public Menu getTopMenu(){
+		var node = this.getTopMenuNode();
+		if(node == null) return null;
+		return node.getMenu();
 	}
 	
 	/** @param menu The new root menu of this {@link MenuState}, i.e. the menu on the bottom before popups */
@@ -210,18 +217,21 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	
 	@Override
 	public void tick(Game game, double dt){
-		for(int i = 0; i < this.menuStack.size() - 1; i++){
-			MenuNode m = this.menuStack.get(i);
-			m.tick(game, dt);
+		Menu menu = this.getTopMenu();
+		if(menu != null && menu.isPropagateTick()){
+			for(int i = 0; i < this.menuStack.size() - 1; i++){
+				MenuNode m = this.menuStack.get(i);
+				m.tick(game, dt);
+			}
 		}
-		Menu m = this.getTopMenu();
-		if(m != null) m.tick(game, dt);
+		if(menu != null) menu.tick(game, dt);
 	}
 	
 	@Override
 	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		Menu menu = this.getTopMenu();
 		if(menu != null) menu.keyAction(game, button, press, shift, alt, ctrl);
+		if(menu != null && !menu.isPropagateKeyAction()) return;
 		for(int i = this.getStackSize() - 2; i >= 0; i--){
 			MenuNode m = this.menuStack.get(i);
 			m.keyAction(game, button, press, shift, alt, ctrl);
@@ -232,6 +242,7 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		Menu menu = this.getTopMenu();
 		if(menu != null && menu.mouseAction(game, button, press, shift, alt, ctrl)) return true;
+		if(menu != null && !menu.isPropagateMouseAction()) return false;
 		for(int i = this.getStackSize() - 2; i >= 0; i--){
 			MenuNode m = this.menuStack.get(i);
 			if(m.mouseAction(game, button, press, shift, alt, ctrl)) return true;
@@ -245,18 +256,23 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 		if(menu != null){
 			// Check for the mouse entering or leaving the menu and all other menus
 			var onChild = menu.updateMouseOn(game, x, y, false);
-			for(int i = this.getStackSize() - 2; i >= 0; i--){
-				MenuNode m = this.menuStack.get(i);
-				onChild = m.getMenu().updateMouseOn(game, x, y, onChild);
+			
+			if(menu.isPropagateMouseMove()){
+				for(int i = this.getStackSize() - 2; i >= 0; i--){
+					MenuNode m = this.menuStack.get(i);
+					onChild = m.getMenu().updateMouseOn(game, x, y, onChild);
+				}
 			}
 			
 			// Account for mouse movement on the top menu
 			if(menu.mouseMove(game, x, y)) return true;
 		}
 		// Account for mouse movement on every other menu
-		for(int i = this.getStackSize() - 2; i >= 0; i--){
-			MenuNode m = this.menuStack.get(i);
-			if(m.mouseMove(game, x, y)) return true;
+		if(menu != null && menu.isPropagateMouseMove()){
+			for(int i = this.getStackSize() - 2; i >= 0; i--){
+				MenuNode m = this.menuStack.get(i);
+				if(m.mouseMove(game, x, y)) return true;
+			}
 		}
 		return false;
 	}
@@ -265,6 +281,7 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	public boolean mouseWheelMove(Game game, double amount){
 		Menu menu = this.getTopMenu();
 		if(menu != null && menu.mouseWheelMove(game, amount)) return true;
+		if(menu != null && !menu.isPropagateMouseWheelMove()) return false;
 		for(int i = this.getStackSize() - 2; i >= 0; i--){
 			MenuNode m = this.menuStack.get(i);
 			if(m.mouseWheelMove(game, amount)) return true;
@@ -282,8 +299,10 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	
 	@Override
 	public void renderHud(Game game, Renderer r){
-		for(int i = 0; i < this.getStackSize() - 1; i++) this.menuStack.get(i).render(game, r);
 		Menu m = this.getTopMenu();
+		if(m != null && m.isPropagateRender()){
+			for(int i = 0; i < this.getStackSize() - 1; i++) this.menuStack.get(i).render(game, r);
+		}
 		if(m != null) m.renderHud(game, r);
 	}
 	
@@ -294,5 +313,4 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	public PlayState asPlay(){
 		return null;
 	}
-	
 }

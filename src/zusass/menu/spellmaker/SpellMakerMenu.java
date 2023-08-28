@@ -96,8 +96,6 @@ public class SpellMakerMenu extends ZusassMenu{
 		super(zgame, "Spell Creation");
 		this.currentSpell = null;
 		
-		// TODO disable key input (i.e. pressing delete) when the inventory menu is open
-		
 		// TODO hide or do something with the positive negative button when selecting the multiplier modifier type
 		
 		this.setFill(new ZColor(.4, 0, .6, .8));
@@ -293,14 +291,18 @@ public class SpellMakerMenu extends ZusassMenu{
 	 * @param box The box which was selected or not selected
 	 */
 	private void selectOneTextBox(ZusassGame zgame, boolean selected, ZusassTextBox box){
+		// Unselect the rest of the text boxes
 		if(selected){
-			var boxes = this.textBoxes;
-			for(var b : boxes.values()){
+			for(var b : this.textBoxes.values()){
 				if(box != b) b.setSelected(false);
 			}
-			zgame.getPlayer().setInputDisabled(true);
 		}
-		if(!selected) zgame.getPlayer().setInputDisabled(false);
+		
+		// Disable player input while in a text box
+		zgame.getPlayer().setInputDisabled(selected);
+		
+		// Disable key input on other menus while a text box is selected
+		this.setPropagateKeyAction(!selected);
 	}
 	
 	/**
