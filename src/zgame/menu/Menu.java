@@ -168,12 +168,12 @@ public class Menu extends MenuThing{
 	 *        {@link #propagateMouseMove}, {@link #propagateMouseWheelMove}
 	 */
 	public void setPropagate(boolean propagate){
-		this.setPropagateKeyAction(false);
-		this.setPropagateMouseAction(false);
-		this.setPropagateMouseMove(false);
-		this.setPropagateMouseWheelMove(false);
-		this.setPropagateTick(false);
-		this.setPropagateRender(false);
+		this.setPropagateKeyAction(propagate);
+		this.setPropagateMouseAction(propagate);
+		this.setPropagateMouseMove(propagate);
+		this.setPropagateMouseWheelMove(propagate);
+		this.setPropagateTick(propagate);
+		this.setPropagateRender(propagate);
 	}
 	
 	/**
@@ -181,10 +181,10 @@ public class Menu extends MenuThing{
 	 *        {@link #propagateMouseMove}, {@link #propagateMouseWheelMove}
 	 */
 	public void setPropagateInput(boolean propagate){
-		this.setPropagateKeyAction(false);
-		this.setPropagateMouseAction(false);
-		this.setPropagateMouseMove(false);
-		this.setPropagateMouseWheelMove(false);
+		this.setPropagateKeyAction(propagate);
+		this.setPropagateMouseAction(propagate);
+		this.setPropagateMouseMove(propagate);
+		this.setPropagateMouseWheelMove(propagate);
 	}
 	
 }
