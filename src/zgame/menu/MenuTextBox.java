@@ -118,7 +118,10 @@ public class MenuTextBox extends MenuButton{
 		double my = game.mouseSY();
 		// Determine if the text box is selected
 		this.setSelected(this.getBounds().contains(mx, my));
-		if(this.isSelected()) return true;
+		if(this.isSelected()) {
+			this.setCursorIndex(this.getText().length() - 1);
+			return true;
+		}
 		return input;
 		
 		// Not doing further mouse input for now
