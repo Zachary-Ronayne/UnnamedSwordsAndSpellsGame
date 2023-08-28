@@ -98,7 +98,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		
 		// TODO hide or do something with the positive negative button when selecting the multiplier modifier type
 		
-		// TODO when clicking a menu, make that one on top
+		// TODO when clicking a menu, like inventory or spell maker, make that one on top
 		
 		this.setFill(new ZColor(.4, 0, .6, .8));
 		this.setBorder(new ZColor(.3, 0, .5, .5));
@@ -200,7 +200,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	 * @param hint The hint for the box
 	 * @param y The y position of the box
 	 * @param mode The input mode of the box
-	 * @param addTo The {@link MenuThing} to add the textbox to
+	 * @param addTo The {@link MenuThing} to add the text box to
 	 * @return The new box
 	 */
 	private ZusassTextBox initTextBox(String key, ZusassGame zgame, String hint, double y, MenuTextBox.Mode mode, MenuThing addTo){

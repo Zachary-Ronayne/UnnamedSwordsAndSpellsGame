@@ -162,4 +162,29 @@ public class Menu extends MenuThing{
 	public void setPropagateRender(boolean propagateRender){
 		this.propagateRender = propagateRender;
 	}
+	
+	/**
+	 * @param propagate The value for {@link #propagateRender}, {@link #propagateTick}, {@link #propagateKeyAction}, {@link #propagateMouseAction},
+	 *        {@link #propagateMouseMove}, {@link #propagateMouseWheelMove}
+	 */
+	public void setPropagate(boolean propagate){
+		this.setPropagateKeyAction(false);
+		this.setPropagateMouseAction(false);
+		this.setPropagateMouseMove(false);
+		this.setPropagateMouseWheelMove(false);
+		this.setPropagateTick(false);
+		this.setPropagateRender(false);
+	}
+	
+	/**
+	 * @param propagate The value for {@link #propagateKeyAction}, {@link #propagateMouseAction},
+	 *        {@link #propagateMouseMove}, {@link #propagateMouseWheelMove}
+	 */
+	public void setPropagateInput(boolean propagate){
+		this.setPropagateKeyAction(false);
+		this.setPropagateMouseAction(false);
+		this.setPropagateMouseMove(false);
+		this.setPropagateMouseWheelMove(false);
+	}
+	
 }

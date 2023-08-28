@@ -25,8 +25,6 @@ public class StatChooseButton extends ZusassButton{
 		
 		this.setSelectedStat(null);
 		
-		// TODO disable this button while the popup is open
-		
 		this.menu = menu;
 		this.setFontSize(20);
 		this.centerText();

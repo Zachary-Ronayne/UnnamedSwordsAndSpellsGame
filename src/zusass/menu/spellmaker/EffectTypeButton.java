@@ -2,7 +2,6 @@ package zusass.menu.spellmaker;
 
 import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
-import zusass.game.magic.SpellCastType;
 import zusass.game.magic.effect.SpellEffectType;
 import zusass.menu.comp.ToggleButton;
 

@@ -32,6 +32,7 @@ public class StatChoosePopup extends Menu{
 		this.setFill(new ZColor(.7, .7, 1, .5));
 		this.setBorder(new ZColor(0, 0, .2, .5));
 		this.setBorderWidth(border);
+		this.setPropagateInput(false);
 		
 		for(int i = 0; i < values.length; i++){
 			var s = values[i];
