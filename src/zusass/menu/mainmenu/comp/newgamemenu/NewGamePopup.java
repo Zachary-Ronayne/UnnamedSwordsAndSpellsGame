@@ -65,7 +65,7 @@ public class NewGamePopup extends Menu{
 	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(press) return;
-		if(button == GLFW_KEY_ESCAPE) game.getCurrentState().removeTopMenu();
+		if(button == GLFW_KEY_ESCAPE) game.getCurrentState().removeTopMenu(game);
 		else if(button == GLFW_KEY_ENTER) createButton.click(game);
 	}
 	

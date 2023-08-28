@@ -856,14 +856,14 @@ public class MainTest extends Game{
 			MenuButton b = new MenuButton(100, 100, 300, 100, game){
 				@Override
 				public void click(Game game){
-					state.removeTopMenu();
+					state.removeTopMenu(game);
 				}
 			};
 			b.setText("exit popup");
 			b.setTextY(90);
 			b.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
 			menu.addThing(b);
-			this.state.popupMenu(menu);
+			this.state.popupMenu(game, menu);
 		}
 	}
 }

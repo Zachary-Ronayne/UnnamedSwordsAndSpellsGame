@@ -54,4 +54,19 @@ public class Menu extends MenuThing{
 	public boolean useMouseInput(Game game){
 		return true;
 	}
+	
+	/**
+	 * Called when this menu is added to the currently displayed menus
+	 *
+	 * @param game The game when the add happened
+	 */
+	public void onAdd(Game game){}
+	
+	/**
+	 * Called when this menu is removed from the currently displayed menus
+	 *
+	 * @param game The game when the remove happened
+	 */
+	public void onRemove(Game game){}
+	
 }

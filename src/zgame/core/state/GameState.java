@@ -74,18 +74,20 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	/**
 	 * Add the given {@link Menu} on top of the existing menus on this state
 	 *
+	 * @param game The game where this call happened
 	 * @param menu The menu to add
 	 */
-	public void popupMenu(Menu menu){
-		this.popupMenu(new MenuNode(menu));
+	public void popupMenu(Game game, Menu menu){
+		this.popupMenu(game, new MenuNode(menu));
 	}
 	
 	/**
 	 * Put given {@link Menu} on top of the existing menus on this state
 	 *
+	 * @param game The game where this call happened
 	 * @param node The node to add
 	 */
-	public void popupMenu(MenuNode node){
+	public void popupMenu(Game game, MenuNode node){
 		var menu = node.getMenu();
 		var foundIndex = this.findIndex(menu);
 		
@@ -98,10 +100,12 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 		}
 		// Otherwise, just add the menu to the top
 		else this.menuStack.add(node);
+		menu.onRemove(game);
 	}
 	
 	/**
 	 * Determine if this state is displaying the given menu
+	 *
 	 * @param menu The menu to check for
 	 * @return true if it is displaying the menu, false otherwise
 	 */
@@ -114,7 +118,8 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	
 	/**
 	 * Find the index of the given menu in the menu stack
- 	 * @param menu The menu to look for
+	 *
+	 * @param menu The menu to look for
 	 * @return The index in the stack, or -1 if it is not in the stack
 	 */
 	public int findIndex(Menu menu){
@@ -127,15 +132,18 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	
 	/**
 	 * Remove the given menu from the menu stack
+	 *
+	 * @param game The game where this call happened
 	 * @param menu The menu to remove. This should be the actual object reference to remove, not based on any kind of identifier
 	 * @return The removed menu, or null if the menu is not a part of the stack. The returned menu will be destroyed if {@link Menu#isDefaultDestroyRemove()} returns true
 	 */
-	public Menu removeMenu(Menu menu){
+	public Menu removeMenu(Game game, Menu menu){
 		var i = findIndex(menu);
 		if(i == -1) return null;
 		var n = this.menuStack.remove(i);
 		if(n == null) return null;
 		var m = n.getMenu();
+		m.onRemove(game);
 		if(m.isDefaultDestroyRemove()) m.destroy();
 		return m;
 	}
@@ -143,11 +151,13 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	/**
 	 * Remove and potentially destroy the menu on the top of this menu state.
 	 *
+	 * @param game The game where this call happened
 	 * @return The removed menu, or null if only the base menu exists
 	 */
-	public Menu removeTopMenu(){
+	public Menu removeTopMenu(Game game){
 		if(this.getStackSize() <= getMinMenuStack()) return null;
 		Menu removed = this.menuStack.remove(this.menuStack.size() - 1).getMenu();
+		removed.onRemove(game);
 		if(removed.isDefaultDestroyRemove()) removed.destroy();
 		return removed;
 	}
@@ -155,12 +165,13 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	/**
 	 * Remove the menu on the top of this menu state.
 	 *
+	 * @param game The game where this call happened
 	 * @param destroy true to destroy the menu after it's removed, false otherwise If destroy is false, then does not destroy the removed menu or any of its allocated
 	 * 		resources. It is the responsibility of the caller of this method to destroy the returned menu if the menu is not destroyed by default
 	 * @return The removed menu, or null if only the base menu exists
 	 */
-	public Menu removeTopMenu(boolean destroy){
-		var removed = this.removeTopMenu();
+	public Menu removeTopMenu(Game game, boolean destroy){
+		var removed = this.removeTopMenu(game);
 		if(removed == null) return null;
 		// If we are destroying the menu by default, don't try to destroy it again
 		if(removed.isDefaultDestroyRemove()) return removed;

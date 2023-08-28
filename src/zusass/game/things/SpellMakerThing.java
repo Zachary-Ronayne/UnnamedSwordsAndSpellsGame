@@ -62,7 +62,7 @@ public class SpellMakerThing extends PositionedRectangleThing implements ZThingC
 		// Don't pop up this menu if it is already showing this menu
 		if(c.showingMenu(menu)) return false;
 		
-		c.popupMenu(MenuNode.withAll(this.menu));
+		c.popupMenu(zgame, MenuNode.withAll(this.menu));
 		return true;
 	}
 	
@@ -72,7 +72,7 @@ public class SpellMakerThing extends PositionedRectangleThing implements ZThingC
 		var p = zgame.getPlayer();
 		var play = zgame.getPlayState();
 		if(play.showingMenu(this.menu) && !p.getBounds().intersects(this.getBounds())){
-			zgame.onNextLoop(() -> play.removeMenu(this.menu));
+			zgame.onNextLoop(() -> play.removeMenu(game, this.menu));
 		}
 	}
 	

@@ -173,7 +173,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.spellCostText.setBorderWidth(2);
 		this.spellCostText.setFontColor(new ZColor(0));
 		this.spellCostText.setFontSize(24);
-		this.spellCostText.setFormatter(new PixelFormatter(8.0, null, null, 20.0));
+		this.spellCostText.setFormatter(new PixelFormatter(12.0, null, null, 20.0));
 		this.addThing(this.spellCostText);
 		
 		this.updateMenuState();
@@ -181,8 +181,6 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.reset();
 		
 		// TODO disable buttons and options for invalid spell effects or types, like you can't have an instant effect of speed
-		
-		// TODO fix bug where pressing escape while in a text box prevents player movement
 	}
 	
 	/** @return A new menu holder for this menu */
@@ -277,6 +275,14 @@ public class SpellMakerMenu extends ZusassMenu{
 	/** @param modifierType The new value for {@link #selectedModifierType} */
 	public void updateModifierType(ModifierType modifierType){
 		this.selectedModifierType = modifierType;
+	}
+	
+	@Override
+	public void onRemove(Game game){
+		super.onRemove(game);
+		var zgame = (ZusassGame)game;
+		var player = zgame.getPlayer();
+		player.setInputDisabled(false);
 	}
 	
 	/**

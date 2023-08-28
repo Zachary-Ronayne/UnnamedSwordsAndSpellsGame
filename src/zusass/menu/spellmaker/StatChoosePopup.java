@@ -40,7 +40,7 @@ public class StatChoosePopup extends Menu{
 				public void click(Game game){
 					super.click(game);
 					button.setSelectedStat(s);
-					zgame.getCurrentState().removeTopMenu();
+					zgame.getCurrentState().removeTopMenu(game);
 				}
 			};
 			b.setFontSize(20);

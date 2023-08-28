@@ -46,7 +46,7 @@ public class StatChooseButton extends ZusassButton{
 	@Override
 	public void click(Game game){
 		super.click(game);
-		game.getCurrentState().popupMenu(new MenuNode(new StatChoosePopup(this, (ZusassGame)game),
+		game.getCurrentState().popupMenu(game, new MenuNode(new StatChoosePopup(this, (ZusassGame)game),
 				false, false, false));
 	}
 	

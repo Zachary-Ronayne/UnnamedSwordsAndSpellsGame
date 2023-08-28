@@ -107,7 +107,7 @@ public class PauseMenu extends Menu{
 	public void exitMenu(ZusassGame zgame){
 		MainPlay play = zgame.getPlayState();
 		play.fullUnpause();
-		play.removeTopMenu(false);
+		play.removeTopMenu(zgame, false);
 	}
 	
 	public void save(ZusassGame zgame){

@@ -90,13 +90,13 @@ public class MainPlay extends PlayState{
 		if(button == GLFW_KEY_ESCAPE){
 			ZusassGame zgame = (ZusassGame)game;
 			var c = zgame.getCurrentState();
-			if(c.getStackSize() > 0) c.removeTopMenu();
+			if(c.getStackSize() > 0) c.removeTopMenu(game);
 				// Otherwise, open the pause menu
 			else this.openPauseMenu(zgame);
 		}
 		// On releasing tab, open inventory if it is not open, otherwise, close it
 		else if(button == GLFW_KEY_TAB){
-			if(this.getTopMenu() == this.inventoryMenu) this.closeInventory();
+			if(this.getTopMenu() == this.inventoryMenu) this.closeInventory((ZusassGame)game);
 			else this.openInventory((ZusassGame)game);
 		}
 	}
@@ -178,12 +178,16 @@ public class MainPlay extends PlayState{
 	public void openPauseMenu(ZusassGame zgame){
 		MenuNode pauseNode = MenuNode.withAll(this.pauseMenu);
 		zgame.getPlayState().fullPause();
-		this.popupMenu(pauseNode);
+		this.popupMenu(zgame, pauseNode);
 	}
 	
-	/** Close the display of the player inventory */
-	public void closeInventory(){
-		this.removeMenu(this.inventoryMenu);
+	/**
+	 * Close the display of the player inventory
+	 *
+	 * @param zgame The game with the inventory
+	 */
+	public void closeInventory(ZusassGame zgame){
+		this.removeMenu(zgame, this.inventoryMenu);
 	}
 	
 	/**
@@ -192,7 +196,7 @@ public class MainPlay extends PlayState{
 	 * @param zgame The game to show the inventory in
 	 */
 	public void openInventory(ZusassGame zgame){
-		this.popupMenu(MenuNode.withAll(this.inventoryMenu));
+		this.popupMenu(zgame, MenuNode.withAll(this.inventoryMenu));
 	}
 	
 	/** @return See {@link #pauseMenu} */
