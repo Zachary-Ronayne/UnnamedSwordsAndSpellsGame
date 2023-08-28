@@ -4,6 +4,7 @@ import zusass.game.stat.ZusassStat;
 
 /** An enum holding the additional data used for selecting a stat for a spell */
 public enum StatSpellType{
+	// TODO add all effects
 	HEALTH(ZusassStat.HEALTH, ZusassStat.HEALTH_REGEN, "Health"),
 	MOVE_SPEED(ZusassStat.MOVE_SPEED, "Move Speed"),
 	ATTACK_RANGE(ZusassStat.ATTACK_RANGE, "Attack Range"),

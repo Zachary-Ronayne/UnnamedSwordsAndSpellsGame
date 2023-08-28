@@ -100,7 +100,7 @@ public abstract class Spell implements Saveable{
 	
 	/** @return The cost of casting this spell */
 	public double getCost(){
-		var totalCost = 0;
+		double totalCost = 0;
 		for(var ef : this.getEffects()) totalCost += ef.getCost();
 		return totalCost;
 	}

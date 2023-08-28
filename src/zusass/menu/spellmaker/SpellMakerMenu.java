@@ -9,15 +9,24 @@ import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
 import zgame.stat.modifier.ModifierType;
+import zgame.stat.modifier.StatModifier;
 import zusass.ZusassGame;
+import zusass.game.magic.ProjectileSpell;
+import zusass.game.magic.SelfSpell;
+import zusass.game.magic.Spell;
 import zusass.game.magic.SpellCastType;
+import zusass.game.magic.effect.SpellEffect;
+import zusass.game.magic.effect.SpellEffectStatAdd;
+import zusass.game.magic.effect.SpellEffectStatusEffect;
 import zusass.game.magic.effect.SpellEffectType;
+import zusass.game.status.StatEffect;
 import zusass.menu.ZusassMenu;
 import zusass.menu.comp.ZusassButton;
 import zusass.menu.comp.ZusassMenuText;
 import zusass.menu.mainmenu.comp.newgamemenu.ZusassTextBox;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 /** The {@link ZusassMenu} for creating spells */
@@ -72,6 +81,12 @@ public class SpellMakerMenu extends ZusassMenu{
 	/** The currently selected type for a modifier */
 	private ModifierType selectedModifierType;
 	
+	/** The spell which is defined by this menu, or null if one cannot be created */
+	private Spell currentSpell;
+	
+	/** The text thing holding the current cost of the spell */
+	private final ZusassMenuText spellCostText;
+	
 	/**
 	 * Create the menu
 	 *
@@ -79,6 +94,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	 */
 	public SpellMakerMenu(ZusassGame zgame){
 		super(zgame, "Spell Creation");
+		this.currentSpell = null;
 		
 		// TODO disable key input (i.e. pressing delete) when the inventory menu is open
 		
@@ -150,8 +166,23 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.modifierTypeButton = new ModifierTypeButton(this, zgame);
 		this.addThing(this.modifierTypeButton);
 		
+		// Text for showing the spell cost
+		this.spellCostText = new ZusassMenuText(0, 0, 300, 32, "", zgame);
+		this.spellCostText.setFill(new ZColor(1));
+		this.spellCostText.setBorder(new ZColor(0));
+		this.spellCostText.setBorderWidth(2);
+		this.spellCostText.setFontColor(new ZColor(0));
+		this.spellCostText.setFontSize(24);
+		this.spellCostText.setFormatter(new PixelFormatter(8.0, null, null, 20.0));
+		this.addThing(this.spellCostText);
+		
+		this.updateMenuState();
 		this.reformat(zgame);
 		this.reset();
+		
+		// TODO disable buttons and options for invalid spell effects or types, like you can't have an instant effect of speed
+		
+		// TODO fix bug where pressing escape while in a text box prevents player movement
 	}
 	
 	/** @return A new menu holder for this menu */
@@ -179,7 +210,7 @@ public class SpellMakerMenu extends ZusassMenu{
 			@Override
 			public void setText(String text){
 				super.setText(text);
-				updateDisabled();
+				updateMenuState();
 			}
 			
 			@Override
@@ -201,7 +232,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		text.setFontColor(new ZColor(0));
 		text.setFontSize(30);
 		text.centerTextVertical();
-		text.alignTextXRight();
+		text.alignTextXRight(0);
 		addTo.addThing(text);
 		
 		this.textBoxes.put(key, box);
@@ -210,6 +241,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	/**
 	 * Update which fields are displayed
+	 *
 	 * @param effectType The new effect type for the spell
 	 */
 	public void updateDisplayedFields(SpellEffectType effectType){
@@ -218,6 +250,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	/**
 	 * Update which fields are displayed
+	 *
 	 * @param castType The new cast type for the button
 	 */
 	public void updateDisplayedFields(SpellCastType castType){
@@ -226,6 +259,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	/**
 	 * Update which fields are displayed
+	 *
 	 * @param castType The new cast type for the spell
 	 * @param effectType The new effect type for the spell
 	 */
@@ -237,7 +271,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		if(castType == SpellCastType.PROJECTILE) this.addThing(this.projectileBoxesHolder);
 		else this.removeThing(this.projectileBoxesHolder, false);
 		this.selectedCastType = castType;
-		this.updateDisabled();
+		this.updateMenuState();
 	}
 	
 	/** @param modifierType The new value for {@link #selectedModifierType} */
@@ -289,6 +323,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	/**
 	 * Set the text of a text box
+	 *
 	 * @param key The key for the text box in the map {@link #textBoxes}
 	 * @param text The text to set to
 	 */
@@ -343,8 +378,8 @@ public class SpellMakerMenu extends ZusassMenu{
 		return PositiveNegativeButton.BUFF.equals(this.positiveNegativeButton.getSelectedValue());
 	}
 	
-	/** Update the state of the create button for if it should be disabled or enabled */
-	public void updateDisabled(){
+	/** Update the state of the menu, the currently created spell, and if the create button should be disabled or enabled */
+	public void updateMenuState(){
 		var disabled = this.getSelectedStat() == null;
 		
 		var requiredBoxes = new ArrayList<String>();
@@ -363,12 +398,73 @@ public class SpellMakerMenu extends ZusassMenu{
 			if(v == null || v.isEmpty()) disabled = true;
 		}
 		this.createButton.setDisabled(disabled);
+		this.updateCurrentSpell();
+	}
+	
+	/** Update {@link #currentSpell} to the current values of this menu */
+	public void updateCurrentSpell(){
+		if(this.spellCostText == null) return;
+		this.currentSpell = this.createSpell();
+		var sb = new StringBuilder("Cost:");
+		if(this.currentSpell != null){
+			var cost = this.currentSpell.getCost();
+			sb.append(String.format(" %.2f", cost));
+		}
+		this.spellCostText.setText(sb.toString());
+		this.spellCostText.centerTextVertical();
+		this.spellCostText.alignTextXLeft(4);
 	}
 	
 	/** Reset the state of this menu to have nothing input */
 	public void reset(){
 		for(var b : this.textBoxes.values()) b.setText("1");
 		this.textBoxes.get(NAME).setText("");
+	}
+	
+	/** @return The current spell as defined by the current parameters of this menu, or null if no spell can be created */
+	public Spell createSpell(){
+		var duration = this.getDoubleInput(SpellMakerMenu.DURATION);
+		var magnitude = this.getDoubleInput(SpellMakerMenu.MAGNITUDE);
+		var size = this.getDoubleInput(SpellMakerMenu.SIZE);
+		var range = this.getDoubleInput(SpellMakerMenu.RANGE);
+		var speed = this.getDoubleInput(SpellMakerMenu.SPEED);
+		var stat = this.getSelectedStat();
+		var buff = this.isBuffSelected();
+		var modifierType = this.getSelectedModifierType();
+		if(modifierType == null) return null;
+		var castType = this.getSelectedCastType();
+		if(castType == null) return null;
+		var effectType = this.getSelectedEffectType();
+		if(effectType == null) return null;
+		
+		Spell spell;
+		SpellEffect effect;
+		if(effectType == SpellEffectType.STATUS_EFFECT){
+			if(Arrays.asList(duration, stat, magnitude).contains(null)) return null;
+			StatModifier modifier = switch(modifierType){
+				case ADD -> new StatModifier(buff ? magnitude : -magnitude, ModifierType.ADD);
+				case MULT_MULT -> new StatModifier(magnitude, ModifierType.MULT_MULT);
+				case MULT_ADD -> new StatModifier(buff ? magnitude : -magnitude, ModifierType.MULT_ADD);
+			};
+			
+			effect = new SpellEffectStatusEffect(new StatEffect(duration, modifier, stat.getStatus()));
+		}
+		else {
+			if(Arrays.asList(stat, buff, magnitude).contains(null)) return null;
+			effect = new SpellEffectStatAdd(stat.getInstant(), buff ? magnitude : -magnitude);
+		}
+		
+		if(castType == SpellCastType.PROJECTILE) {
+			if(Arrays.asList(effect, size, range, speed).contains(null)) return null;
+			spell = new ProjectileSpell(effect, size, range, speed);
+		}
+		else spell = new SelfSpell(effect);
+		
+		var name = this.getStringInput(SpellMakerMenu.NAME);
+		if(name == null) name = "";
+		spell.setName(name);
+		
+		return spell;
 	}
 	
 }

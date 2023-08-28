@@ -58,7 +58,7 @@ public class MenuText extends MenuThing{
 		this.setTextX(10);
 		this.setTextY(this.getHeight() * .9);
 		this.textBuffer.setForceUnlimit(false);
-
+		
 		this.setFill(this.getFill().solid());
 		
 		this.fontColor = new ZColor(0);
@@ -218,8 +218,21 @@ public class MenuText extends MenuThing{
 		this.setTextY((this.getHeight() + height) * 0.5);
 	}
 	
-	public void alignTextXRight(){
-		this.setTextX(this.getWidth() - this.getTextBounds().width);
+	/** Align the text so that the rightmost text pixel aligns to the right side of this thing
+	 *
+	 * @param offset The amount of pixels away from the right side
+	 */
+	public void alignTextXRight(int offset){
+		this.setTextX(this.getWidth() - this.getTextBounds().width - offset);
+	}
+	
+	/**
+	 * Align the text so that the leftmost text pixel aligns to the left side of this thing
+	 *
+	 * @param offset The amount of pixels away from the left side
+	 */
+	public void alignTextXLeft(int offset){
+		this.setTextX(offset);
 	}
 	
 	public ZRect getTextBounds(){
@@ -249,7 +262,7 @@ public class MenuText extends MenuThing{
 		
 		var b = this.getTextLimitBounds();
 		var limit = b != null;
-		if(limit) {
+		if(limit){
 			if(this.isLimitIntersectionBounds()) r.pushLimitedBoundsIntersection(b);
 			else r.pushLimitedBounds(b);
 		}
