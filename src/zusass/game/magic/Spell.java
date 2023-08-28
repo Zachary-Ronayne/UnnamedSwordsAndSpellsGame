@@ -33,6 +33,9 @@ public abstract class Spell implements Saveable{
 	/** The name of this spell */
 	private String name;
 	
+	/** The current cost of the spell */
+	private double cost;
+	
 	/** Create a new object using see {@link #load(JsonElement)} */
 	public Spell(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		this.load(e);
@@ -55,6 +58,7 @@ public abstract class Spell implements Saveable{
 	public Spell(NotNullList<SpellEffect> effects){
 		this.effects = effects;
 		this.name = "spell";
+		this.calculateCost();
 	}
 	
 	/** @return See {@link #name} */
@@ -100,9 +104,14 @@ public abstract class Spell implements Saveable{
 	
 	/** @return The cost of casting this spell */
 	public double getCost(){
+		return this.cost;
+	}
+	
+	/** Calculate the cost of casting this spell */
+	public void calculateCost(){
 		double totalCost = 0;
 		for(var ef : this.getEffects()) totalCost += ef.getCost();
-		return totalCost;
+		this.cost = totalCost;
 	}
 	
 	/**
@@ -114,7 +123,7 @@ public abstract class Spell implements Saveable{
 	 */
 	protected abstract void cast(ZusassGame zgame, ZusassMob caster);
 	
-	/** @return See {@link #effects} */
+	/** @return See {@link #effects}. If updating the returned value, also call {@link #calculateCost()} to update the spell cost */
 	public NotNullList<SpellEffect> getEffects(){
 		return this.effects;
 	}
@@ -142,6 +151,7 @@ public abstract class Spell implements Saveable{
 		for(var ef : arr){
 			this.effects.add(Saveable.obj(TYPE_KEY, SpellEffectType.class, EFFECT_KEY, ef, SpellEffectType.NONE));
 		}
+		this.calculateCost();
 		return true;
 	}
 	

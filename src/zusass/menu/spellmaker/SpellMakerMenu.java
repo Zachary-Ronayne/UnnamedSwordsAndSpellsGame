@@ -98,6 +98,8 @@ public class SpellMakerMenu extends ZusassMenu{
 		
 		// TODO hide or do something with the positive negative button when selecting the multiplier modifier type
 		
+		// TODO when clicking a menu, make that one on top
+		
 		this.setFill(new ZColor(.4, 0, .6, .8));
 		this.setBorder(new ZColor(.3, 0, .5, .5));
 		this.setDraggableColor(new ZColor(.6, 0, .85, .8));
