@@ -4,7 +4,6 @@ import zusass.game.stat.ZusassStat;
 
 /** An enum holding the additional data used for selecting a stat for a spell */
 public enum StatSpellType{
-	// TODO add all effects
 	HEALTH(ZusassStat.HEALTH, ZusassStat.HEALTH_REGEN, "Health"),
 	HEALTH_MAX(ZusassStat.HEALTH_MAX, "Max Health"),
 	

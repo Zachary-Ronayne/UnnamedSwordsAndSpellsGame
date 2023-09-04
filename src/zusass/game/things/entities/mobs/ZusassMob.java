@@ -178,7 +178,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		if(this.getAttackTime() <= 0) return;
 		double directionX = Math.cos(this.attackDirection);
 		double time = this.getAttackTime();
-		double speed = this.stat(ATTACK_SPEED);
+		double speed = getAttacksPerSecond();
 		double attackSize = this.stat(ATTACK_RANGE) * (1 - time / speed);
 		
 		if(directionX < 0) r.drawRectangle(this.centerX() - attackSize, this.centerY(), attackSize, 20);
@@ -218,6 +218,11 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		return this.attackTime;
 	}
 	
+	/** @return The number of attacks per second this mob can perform */
+	public final double getAttacksPerSecond(){
+		return 1.0 / this.stat(ATTACK_SPEED);
+	}
+	
 	/** @return See {@link #attackDirection} */
 	public double getAttackDirection(){
 		return this.attackDirection;
@@ -250,8 +255,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 			this.castSpell(zgame);
 		}
 		else{
-			// TODO figure out how attack speed should work when buffing or debuffing it
-			this.attackTime = this.stat(ATTACK_SPEED);
+			this.attackTime = this.getAttacksPerSecond();
 			
 			// Also drain stamina from the thing
 			this.getStat(STAMINA).addValue(-20);

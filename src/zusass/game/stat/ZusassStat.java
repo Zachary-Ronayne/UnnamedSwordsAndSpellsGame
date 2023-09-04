@@ -19,7 +19,7 @@ public enum ZusassStat implements StatType<ZusassStat>{
 	/** The mana resource of a thing */
 	MANA(1, 100), MANA_MIN(1), MANA_MAX(1), MANA_REGEN(10),
 	
-	/** The amount of time between attacks */
+	/** The number of attacks per second */
 	ATTACK_SPEED(.5),
 	/** The number of units away a thing can attack from */
 	ATTACK_RANGE(.7),
