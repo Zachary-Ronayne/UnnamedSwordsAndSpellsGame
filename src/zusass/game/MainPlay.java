@@ -8,7 +8,7 @@ import zgame.core.state.PlayState;
 import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassPlayer;
-import zusass.menu.inventory.InventoryMenu;
+import zusass.menu.inventory.SpellListMenu;
 import zusass.menu.mainmenu.MainMenuState;
 import zusass.menu.pause.PauseMenu;
 
@@ -20,10 +20,12 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class MainPlay extends PlayState{
 	
+	// TODO add a menu showing all current stats, refresh the displayed value once a second or something
+	
 	/** The {@link PauseMenu} to display */
 	private final PauseMenu pauseMenu;
-	/** The {@link InventoryMenu} to display */
-	private final InventoryMenu inventoryMenu;
+	/** The {@link SpellListMenu} to display */
+	private final SpellListMenu spellListMenu;
 	
 	/**
 	 * Initialize the main play state for the Zusass game
@@ -34,7 +36,7 @@ public class MainPlay extends PlayState{
 		this.enterHub(zgame);
 		
 		this.pauseMenu = new PauseMenu(zgame);
-		this.inventoryMenu = new InventoryMenu(zgame);
+		this.spellListMenu = new SpellListMenu(zgame);
 	}
 	
 	/**
@@ -96,7 +98,7 @@ public class MainPlay extends PlayState{
 		}
 		// On releasing tab, open inventory if it is not open, otherwise, close it
 		else if(button == GLFW_KEY_TAB){
-			if(this.getTopMenu() == this.inventoryMenu) this.closeInventory((ZusassGame)game);
+			if(this.getTopMenu() == this.spellListMenu) this.closeInventory((ZusassGame)game);
 			else this.openInventory((ZusassGame)game);
 		}
 	}
@@ -187,7 +189,7 @@ public class MainPlay extends PlayState{
 	 * @param zgame The game with the inventory
 	 */
 	public void closeInventory(ZusassGame zgame){
-		this.removeMenu(zgame, this.inventoryMenu);
+		this.removeMenu(zgame, this.spellListMenu);
 	}
 	
 	/**
@@ -196,7 +198,7 @@ public class MainPlay extends PlayState{
 	 * @param zgame The game to show the inventory in
 	 */
 	public void openInventory(ZusassGame zgame){
-		this.popupMenu(zgame, MenuNode.withAll(this.inventoryMenu));
+		this.popupMenu(zgame, MenuNode.withAll(this.spellListMenu));
 	}
 	
 	/** @return See {@link #pauseMenu} */
@@ -204,9 +206,9 @@ public class MainPlay extends PlayState{
 		return this.pauseMenu;
 	}
 	
-	/** @return See {@link #inventoryMenu} */
-	public InventoryMenu getInventoryMenu(){
-		return this.inventoryMenu;
+	/** @return See {@link #spellListMenu} */
+	public SpellListMenu getInventoryMenu(){
+		return this.spellListMenu;
 	}
 	
 }

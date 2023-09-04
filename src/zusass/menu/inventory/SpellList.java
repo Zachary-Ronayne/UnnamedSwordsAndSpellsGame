@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class SpellList extends MenuHolder{
 	
 	/** The menu holding this list */
-	private final InventoryMenu menu;
+	private final SpellListMenu menu;
 	
 	/**
 	 * Create the new basic spell list menu thing
@@ -21,7 +21,7 @@ public class SpellList extends MenuHolder{
 	 * @param menu See {@link #menu}
 	 * @param zgame The game containing this menu
 	 */
-	public SpellList(InventoryMenu menu, ZusassGame zgame){
+	public SpellList(SpellListMenu menu, ZusassGame zgame){
 		super();
 		this.getAllThings().addClass(SpellListButton.class);
 		
@@ -29,7 +29,7 @@ public class SpellList extends MenuHolder{
 		
 		this.setWidth(1);
 		this.setHeight(1);
-		this.setFormatter(new PixelFormatter(InventoryMenu.BORDER_SIZE * 1.5, InventoryMenu.BORDER_SIZE * 2.5, InventoryMenu.DRAGGABLE_HEIGHT + InventoryMenu.BORDER_SIZE * 3, null));
+		this.setFormatter(new PixelFormatter(SpellListMenu.BORDER_SIZE * 1.5, SpellListMenu.BORDER_SIZE * 2.5, SpellListMenu.DRAGGABLE_HEIGHT + SpellListMenu.BORDER_SIZE * 3, null));
 		this.invisible();
 	}
 	
@@ -60,7 +60,7 @@ public class SpellList extends MenuHolder{
 	}
 	
 	/** @return See {@link #menu} */
-	public InventoryMenu getMenu(){
+	public SpellListMenu getMenu(){
 		return this.menu;
 	}
 	
@@ -75,8 +75,8 @@ public class SpellList extends MenuHolder{
 	@Override
 	public void drawThings(Game game, Renderer r, boolean reposition){
 		var b = this.menu.getRelBounds();
-		b.y += InventoryMenu.SCROLLER_POSITION;
-		b.height -= InventoryMenu.SCROLLER_POSITION;
+		b.y += SpellListMenu.SCROLLER_POSITION;
+		b.height -= SpellListMenu.SCROLLER_POSITION;
 		r.pushLimitedBoundsIntersection(b);
 		super.drawThings(game, r, reposition);
 		r.popLimitedBounds();
