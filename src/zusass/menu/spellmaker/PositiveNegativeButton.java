@@ -37,7 +37,11 @@ public class PositiveNegativeButton extends ToggleButton{
 	
 	@Override
 	public String getText(){
-		if(this.menu != null && this.menu.getSelectedModifierType() == ModifierType.MULT_MULT) return BUFF;
+		if(this.menu != null && this.menu.getSelectedModifierType() == ModifierType.MULT_MULT) {
+			Double amount = this.menu.getDoubleInput(SpellMakerMenu.MAGNITUDE);
+			if(amount == null) amount = 1.0;
+			return amount >= 1 ? BUFF : DEBUFF;
+		}
 		return super.getText();
 	}
 	
