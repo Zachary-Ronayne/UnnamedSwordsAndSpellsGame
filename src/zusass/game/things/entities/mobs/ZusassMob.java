@@ -250,6 +250,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 			this.castSpell(zgame);
 		}
 		else{
+			// TODO figure out how attack speed should work when buffing or debuffing it
 			this.attackTime = this.stat(ATTACK_SPEED);
 			
 			// Also drain stamina from the thing

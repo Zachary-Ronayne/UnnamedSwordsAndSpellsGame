@@ -88,8 +88,10 @@ public class StatEffect extends StatusEffect{
 		// Should make positive and negative effects cancel the cost out, i.e. a speed spell that also damages strength should cost less than if it only granted speed
 		double totalCost = 0;
 		for(var m : this.getModifiers()){
-			double base = m.modifier().getType().getValue();;
-			var multiplier = switch(m.modifier().getType()){
+			var mod = m.modifier();
+			var modType = mod.getType();
+			double base = modType.getValue();
+			var modValue = switch(modType){
 				case ADD, MULT_ADD -> m.modifier().getValue();
 				case MULT_MULT -> {
 					var v = m.modifier().getValue();
@@ -97,7 +99,12 @@ public class StatEffect extends StatusEffect{
 					yield 1 - v;
 				}
 			};
-			totalCost += Math.abs(base * multiplier) * ((ZusassStat)m.type()).getValue();
+			var buff = switch(modType){
+				case ADD, MULT_ADD -> modValue > 0;
+				case MULT_MULT -> modValue > 1;
+			};
+			var stat = ((ZusassStat)m.type());
+			totalCost += Math.abs(base * modValue) * (buff ? stat.getBuffValue() : stat.getDebuffValue());
 		}
 		return totalCost * this.getDuration() * .5;
 	}

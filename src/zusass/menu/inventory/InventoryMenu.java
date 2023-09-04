@@ -15,6 +15,10 @@ import zusass.menu.ZusassMenu;
 /** The menu which displays on top of the game */
 public class InventoryMenu extends ZusassMenu{
 	
+	// TODO add a menu showing all current stats
+	
+	// TODO after deleting a spell, select a new spell
+	
 	/** The size of the border of this menu */
 	public static final double BORDER_SIZE = 10;
 	/** The height of the draggable area at the top of the menu for moving it around the screen */
