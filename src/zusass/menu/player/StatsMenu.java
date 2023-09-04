@@ -1,5 +1,6 @@
 package zusass.menu.player;
 
+import zgame.core.Game;
 import zgame.menu.MenuThing;
 import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.MultiFormatter;
@@ -9,6 +10,11 @@ import zusass.ZusassGame;
 
 /** The menu which displays on top of the game */
 public class StatsMenu extends DraggableMenu{
+	
+	// TODO add a timer to update all the stats, something like once a second
+	
+	/** The list displaying the stats */
+	private StatList statList;
 	
 	/**
 	 * Create a new {@link StatsMenu} for displaying the spells of something
@@ -23,7 +29,8 @@ public class StatsMenu extends DraggableMenu{
 	
 	@Override
 	public MenuThing getScrollableMovingThing(ZusassGame zgame){
-		return new MenuThing(0, 0, 1, 1);
+		this.statList = new StatList(this, zgame, this.getMob());
+		return this.statList;
 	}
 	
 	@Override
@@ -38,11 +45,17 @@ public class StatsMenu extends DraggableMenu{
 	
 	@Override
 	public double getFullScrollableSize(){
-		return 1000;
+		// TODO make the height in the stat list properly update so scrolling works
+		return this.statList.getHeight();
+	}
+	
+	@Override
+	public void onAdd(Game game){
+		super.onAdd(game);
 	}
 	
 	@Override
 	public void regenerateThings(ZusassGame zgame){
-	
+		this.statList.regenerateText(zgame, this.getMob());
 	}
 }

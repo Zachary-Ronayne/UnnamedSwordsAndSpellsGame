@@ -69,13 +69,13 @@ public abstract class DraggableMenu extends ZusassMenu{
 		this.menuScroller.setFormatter(new PixelFormatter(null, BORDER_SIZE, DRAGGABLE_HEIGHT * 1.4, 20.0));
 		this.menuScroller.setScrollWheelAsPercent(false);
 		this.menuScroller.setScrollWheelStrength(this.getScrollWheelStrength());
-		this.addThing(this.menuScroller);
 		
 		var movingThing = this.getScrollableMovingThing(zgame);
 		this.addThing(movingThing);
 		this.menuScroller.setMovingThing(movingThing);
 		this.mob = null;
 		
+		this.addThing(this.menuScroller);
 		this.updateScrollAmount();
 		
 		movingThing.format();

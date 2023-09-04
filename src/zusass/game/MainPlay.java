@@ -21,8 +21,6 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class MainPlay extends PlayState{
 	
-	// TODO add a menu showing all current stats, refresh the displayed value once a second or something
-	
 	/** The {@link PauseMenu} to display */
 	private final PauseMenu pauseMenu;
 	/** The {@link SpellListMenu} to display */
@@ -74,7 +72,10 @@ public class MainPlay extends PlayState{
 	public void onSet(Game game){
 		super.onSet(game);
 		var zgame = (ZusassGame)game;
-		zgame.onNextLoop(() -> this.getSpellListMenu().setMob(zgame, zgame.getPlayer()));
+		zgame.onNextLoop(() -> {
+			this.getSpellListMenu().setMob(zgame, zgame.getPlayer());
+			this.getStatsMenu().setMob(zgame, zgame.getPlayer());
+		});
 	}
 	
 	@Override
@@ -226,6 +227,7 @@ public class MainPlay extends PlayState{
 		this.playerMenusOpen = true;
 		this.popupMenu(zgame, MenuNode.withAll(this.spellListMenu));
 		this.popupMenu(zgame, MenuNode.withAll(this.statsMenu));
+		this.statsMenu.regenerateThings(zgame);
 	}
 	
 	/**

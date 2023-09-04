@@ -25,6 +25,11 @@ public abstract class Stat{
 	/** The value of this stat since it was last calculated */
 	private double calculated;
 	
+	/** true if this stat is currently buffed */
+	private boolean buffed;
+	/** true if this stat is currently debuffed */
+	private boolean debuffed;
+	
 	/**
 	 * The current modifiers applying to this {@link Stat}.
 	 * The outer array is indexed by {@link ModifierType}
@@ -125,18 +130,33 @@ public abstract class Stat{
 	/** @return See {@link #calculated} */
 	public double get(){
 		if(this.recalculate) this.recalculate();
-		
 		return this.calculated;
+	}
+	
+	/** @return See {@link #buffed} */
+	public boolean buffed(){
+		if(this.recalculate) this.recalculate();
+		return this.buffed;
+	}
+	
+	/** @return See {@link #debuffed} */
+	public boolean debuffed(){
+		if(this.recalculate) this.recalculate();
+		return this.debuffed;
 	}
 	
 	/** Recalculate the current value of this stat */
 	public void recalculate(){
 		// First calculate the value
 		this.calculated = this.calculateValue();
+		var beforeModifiers = this.calculated;
 		// Now apply modifiers
 		this.applyModifiers();
 		// Clear the recalculate flag
 		this.recalculate = false;
+		// Update if this stat is buffed or debuffed
+		this.buffed = beforeModifiers < this.calculated;
+		this.debuffed = beforeModifiers > this.calculated;
 	}
 	
 	/**

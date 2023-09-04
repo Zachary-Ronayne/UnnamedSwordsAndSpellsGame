@@ -33,11 +33,6 @@ public class SpellList extends MenuHolder{
 		this.invisible();
 	}
 	
-	@Override
-	public void onHeightChange(){
-		super.onHeightChange();
-	}
-	
 	/**
 	 * Generate the buttons used by this spell list, from the given mob and game
 	 *
