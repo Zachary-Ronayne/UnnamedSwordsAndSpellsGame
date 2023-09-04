@@ -15,9 +15,7 @@ import zusass.menu.ZusassMenu;
 /** The menu which displays on top of the game */
 public class InventoryMenu extends ZusassMenu{
 	
-	// TODO add a menu showing all current stats
-	
-	// TODO after deleting a spell, select a new spell
+	// TODO add a menu showing all current stats, refresh the displayed value once a second or something
 	
 	/** The size of the border of this menu */
 	public static final double BORDER_SIZE = 10;
@@ -139,7 +137,10 @@ public class InventoryMenu extends ZusassMenu{
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(this == game.getCurrentState().getMenu() && !press && button == GLFW.GLFW_KEY_DELETE){
 			var zgame = (ZusassGame)game;
-			this.mob.getSpells().removeSelectedSpell();
+			var spells = this.mob.getSpells();
+			spells.removeSelectedSpell();
+			var size = spells.getSpellList().size();
+			if(spells.getSelectedSpellIndex() >= size) spells.setSelectedSpellIndex(size - 1);
 			game.onNextLoop(() -> this.regenerateThings(zgame));
 		}
 	}
