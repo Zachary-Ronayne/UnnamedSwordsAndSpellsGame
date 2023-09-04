@@ -275,6 +275,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	/** @param modifierType The new value for {@link #selectedModifierType} */
 	public void updateModifierType(ModifierType modifierType){
 		this.selectedModifierType = modifierType;
+		this.updateCurrentSpell();
 	}
 	
 	@Override

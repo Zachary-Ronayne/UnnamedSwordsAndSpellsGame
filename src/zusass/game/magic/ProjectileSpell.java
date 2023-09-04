@@ -105,7 +105,7 @@ public class ProjectileSpell extends Spell{
 	public double getCost(){
 		// This is a very arbitrary calculation for now, basically, the more powerful the spell, the higher the cost
 		var range = this.getRange();
-		return super.getCost() + ((range < 0 ? 1000 : range) * 0.01) * (this.getSpeed() / 500) + this.getRadius() * 0.2;
+		return super.getCost() + ((range < 0 ? 1000 : range) * 0.02) * (this.getSpeed() * 0.1) + this.getRadius() * 0.1;
 	}
 	
 	@Override

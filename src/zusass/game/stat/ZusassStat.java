@@ -21,7 +21,7 @@ public enum ZusassStat implements StatType<ZusassStat>{
 	
 	/** The amount of time between attacks */
 	ATTACK_SPEED(.5),
-	/** The number of unites away a thing can attack from */
+	/** The number of units away a thing can attack from */
 	ATTACK_RANGE(.7),
 	/** The amount of damage dealt with a melee attack */
 	ATTACK_DAMAGE(1.3),

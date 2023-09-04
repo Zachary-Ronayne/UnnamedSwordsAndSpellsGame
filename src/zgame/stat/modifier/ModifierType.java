@@ -8,9 +8,9 @@ public enum ModifierType{
 	/** Represents adding a stat's value */
 	ADD(0, 0.5),
 	/** Represents a stat that adds itself to other modifiers to get the final multiplier */
-	MULT_ADD(1, 0.8),
+	MULT_ADD(1, 20),
 	/** Represents a stat that multiplies its value with other modifiers multiplicatively */
-	MULT_MULT(2, 1.5),
+	MULT_MULT(2, 30),
 	;
 	
 	/** The array index where this type should be stored */
