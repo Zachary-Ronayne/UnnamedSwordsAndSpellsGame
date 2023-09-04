@@ -9,6 +9,7 @@ import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassPlayer;
 import zusass.menu.inventory.SpellListMenu;
+import zusass.menu.inventory.StatsMenu;
 import zusass.menu.mainmenu.MainMenuState;
 import zusass.menu.pause.PauseMenu;
 
@@ -26,6 +27,11 @@ public class MainPlay extends PlayState{
 	private final PauseMenu pauseMenu;
 	/** The {@link SpellListMenu} to display */
 	private final SpellListMenu spellListMenu;
+	/** The {@link StatsMenu} to display */
+	private final StatsMenu statsMenu;
+	
+	/** true if the player menus, i.e. stats, spells, etc, should be open, false otherwise */
+	private boolean playerMenusOpen;
 	
 	/**
 	 * Initialize the main play state for the Zusass game
@@ -35,8 +41,10 @@ public class MainPlay extends PlayState{
 	public MainPlay(ZusassGame zgame){
 		this.enterHub(zgame);
 		
+		this.playerMenusOpen = false;
 		this.pauseMenu = new PauseMenu(zgame);
 		this.spellListMenu = new SpellListMenu(zgame);
+		this.statsMenu = new StatsMenu(zgame);
 	}
 	
 	/**
@@ -66,7 +74,7 @@ public class MainPlay extends PlayState{
 	public void onSet(Game game){
 		super.onSet(game);
 		var zgame = (ZusassGame)game;
-		zgame.onNextLoop(() -> this.getInventoryMenu().setMob(zgame, zgame.getPlayer()));
+		zgame.onNextLoop(() -> this.getSpellListMenu().setMob(zgame, zgame.getPlayer()));
 	}
 	
 	@Override
@@ -83,6 +91,11 @@ public class MainPlay extends PlayState{
 		zgame.setCurrentState(new MainMenuState(zgame));
 	}
 	
+	/** @return See {@link #playerMenusOpen} */
+	public boolean isPlayerMenusOpen(){
+		return this.playerMenusOpen;
+	}
+	
 	@Override
 	public void playKeyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.playKeyAction(game, button, press, shift, alt, ctrl);
@@ -91,14 +104,24 @@ public class MainPlay extends PlayState{
 		// On releasing escape, open the pause menu if no menus are open, or close whatever other menu is open
 		if(button == GLFW_KEY_ESCAPE){
 			ZusassGame zgame = (ZusassGame)game;
+			// If the player menus are open, prioritize closing them
+			if(this.playerMenusOpen){
+				this.closeInventory(zgame);
+				return;
+			}
+			// Otherwise close the top menu
 			var c = zgame.getCurrentState();
-			if(c.getStackSize() > 0) c.removeTopMenu(game);
-				// Otherwise, open the pause menu
-			else this.openPauseMenu(zgame);
+			if(c.getStackSize() > 0) {
+				c.removeTopMenu(game);
+			}
+			// Otherwise, open the pause menu
+			else {
+				this.openPauseMenu(zgame);
+			}
 		}
 		// On releasing tab, open inventory if it is not open, otherwise, close it
 		else if(button == GLFW_KEY_TAB){
-			if(this.getTopMenu() == this.spellListMenu) this.closeInventory((ZusassGame)game);
+			if(this.playerMenusOpen) this.closeInventory((ZusassGame)game);
 			else this.openInventory((ZusassGame)game);
 		}
 	}
@@ -189,7 +212,9 @@ public class MainPlay extends PlayState{
 	 * @param zgame The game with the inventory
 	 */
 	public void closeInventory(ZusassGame zgame){
+		this.playerMenusOpen = false;
 		this.removeMenu(zgame, this.spellListMenu);
+		this.removeMenu(zgame, this.statsMenu);
 	}
 	
 	/**
@@ -198,7 +223,9 @@ public class MainPlay extends PlayState{
 	 * @param zgame The game to show the inventory in
 	 */
 	public void openInventory(ZusassGame zgame){
+		this.playerMenusOpen = true;
 		this.popupMenu(zgame, MenuNode.withAll(this.spellListMenu));
+		this.popupMenu(zgame, MenuNode.withAll(this.statsMenu));
 	}
 	
 	/** @return See {@link #pauseMenu} */
@@ -207,8 +234,12 @@ public class MainPlay extends PlayState{
 	}
 	
 	/** @return See {@link #spellListMenu} */
-	public SpellListMenu getInventoryMenu(){
+	public SpellListMenu getSpellListMenu(){
 		return this.spellListMenu;
 	}
 	
+	/** @return See {@link #statsMenu} */
+	public StatsMenu getStatsMenu(){
+		return this.statsMenu;
+	}
 }

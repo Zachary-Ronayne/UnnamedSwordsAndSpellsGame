@@ -38,7 +38,7 @@ public class SpellCreateButton extends ZusassButton{
 		
 		player.getSpells().addSpell(spell);
 		
-		var inventoryMenu = zgame.getPlayState().getInventoryMenu();
+		var inventoryMenu = zgame.getPlayState().getSpellListMenu();
 		inventoryMenu.regenerateThings(zgame);
 		inventoryMenu.updateScrollAmount();
 		

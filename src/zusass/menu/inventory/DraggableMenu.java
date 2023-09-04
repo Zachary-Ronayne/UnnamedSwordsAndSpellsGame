@@ -67,7 +67,7 @@ public abstract class DraggableMenu extends ZusassMenu{
 		this.menuScroller.setScrollWheelInverse(true);
 		this.menuScroller.setFormatter(new PixelFormatter(null, BORDER_SIZE, DRAGGABLE_HEIGHT * 1.4, 20.0));
 		this.menuScroller.setScrollWheelAsPercent(false);
-		this.menuScroller.setScrollWheelStrength(this.getScrollableSize() * 0.5);
+		this.menuScroller.setScrollWheelStrength(this.getScrollWheelStrength());
 		this.addThing(this.menuScroller);
 		
 		var movingThing = this.getScrollableMovingThing(zgame);
@@ -89,8 +89,8 @@ public abstract class DraggableMenu extends ZusassMenu{
 	/** @return Create a new formatter for the default position and size of this menu */
 	public abstract MenuFormatter getDefaultFormatter();
 	
-	/** @return The size, i.e. height, of the displayable area that can show a portion of the scrollable area */
-	public abstract double getScrollableSize();
+	/** @return The strength of the scroll wheel */
+	public abstract double getScrollWheelStrength();
 	
 	/** @return The size, i.e. height, of the entire scrollable area */
 	public abstract double getFullScrollableSize();
