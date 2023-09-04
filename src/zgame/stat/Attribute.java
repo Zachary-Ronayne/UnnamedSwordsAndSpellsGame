@@ -47,7 +47,7 @@ public abstract class Attribute extends Stat{
 		this.base.addValue(value);
 	}
 	
-	/** The {@link RangeStat} holding the base value of this {@link Attribute} before modifiers */
+	/** The {@link RegenStat} holding the base value of this {@link Attribute} before modifiers */
 	public class Base extends RegenStat{
 		
 		/**
