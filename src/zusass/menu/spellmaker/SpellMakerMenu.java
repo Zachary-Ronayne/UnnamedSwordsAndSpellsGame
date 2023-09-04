@@ -117,14 +117,6 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.createButton = new SpellCreateButton(this, zgame);
 		this.addThing(this.createButton);
 		
-		// The button for selecting the spell type
-		this.statChooseButton = new StatChooseButton(this, zgame);
-		this.addThing(this.statChooseButton);
-		
-		// The button for selecting if the spell will be positive or negative
-		this.positiveNegativeButton = new PositiveNegativeButton(this, zgame);
-		this.addThing(this.positiveNegativeButton);
-		
 		// The button for resetting the menu
 		var resetButton = new ZusassButton(1, 1, 160, 40, "Reset", zgame){
 			@Override
@@ -152,6 +144,14 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.addThing(this.statusEffectBoxesHolder);
 		this.addThing(this.projectileBoxesHolder);
 		
+		// The button for selecting the spell type
+		this.statChooseButton = new StatChooseButton(this, zgame);
+		this.addThing(this.statChooseButton);
+		
+		// The button for selecting if the spell will be positive or negative
+		this.positiveNegativeButton = new PositiveNegativeButton(this, zgame);
+		this.addThing(this.positiveNegativeButton);
+		
 		// The button for selecting the effect type, like instant effect or status effect
 		this.effectTypeButton = new EffectTypeButton(this, zgame);
 		this.addThing(this.effectTypeButton);
@@ -177,8 +177,6 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.updateMenuState();
 		this.reformat(zgame);
 		this.reset();
-		
-		// TODO disable buttons and options for invalid spell effects or types, like you can't have an instant effect of speed
 	}
 	
 	/** @return A new menu holder for this menu */
@@ -241,7 +239,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	 * @param effectType The new effect type for the spell
 	 */
 	public void updateDisplayedFields(SpellEffectType effectType){
-		this.updateDisplayedFields(this.selectedCastType, effectType);
+		this.updateDisplayedFields(this.selectedCastType, effectType, true);
 	}
 	
 	/**
@@ -250,7 +248,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	 * @param castType The new cast type for the button
 	 */
 	public void updateDisplayedFields(SpellCastType castType){
-		this.updateDisplayedFields(castType, this.selectedEffectType);
+		this.updateDisplayedFields(castType, this.selectedEffectType, true);
 	}
 	
 	/**
@@ -258,8 +256,9 @@ public class SpellMakerMenu extends ZusassMenu{
 	 *
 	 * @param castType The new cast type for the spell
 	 * @param effectType The new effect type for the spell
+	 * @param recursive true if this call should propagate to {@link #updateMenuState()}, false otherwise
 	 */
-	public void updateDisplayedFields(SpellCastType castType, SpellEffectType effectType){
+	public void updateDisplayedFields(SpellCastType castType, SpellEffectType effectType, boolean recursive){
 		if(effectType == SpellEffectType.STATUS_EFFECT) this.addThing(this.statusEffectBoxesHolder);
 		else this.removeThing(this.statusEffectBoxesHolder, false);
 		this.selectedEffectType = effectType;
@@ -267,7 +266,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		if(castType == SpellCastType.PROJECTILE) this.addThing(this.projectileBoxesHolder);
 		else this.removeThing(this.projectileBoxesHolder, false);
 		this.selectedCastType = castType;
-		this.updateMenuState();
+		if(recursive) this.updateMenuState();
 	}
 	
 	/** @param modifierType The new value for {@link #selectedModifierType} */
@@ -365,7 +364,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	/** @return The stat selected for the spell */
 	public StatSpellType getSelectedStat(){
-		return this.statChooseButton.getSelectedStat();
+		return this.statChooseButton == null ? null : this.statChooseButton.getSelectedStat();
 	}
 	
 	/** @return See {@link #selectedCastType} */
@@ -389,9 +388,20 @@ public class SpellMakerMenu extends ZusassMenu{
 		return PositiveNegativeButton.BUFF.equals(this.positiveNegativeButton.getSelectedValue());
 	}
 	
+	/** @return true if the instant effect cast type can be selected, false otherwise */
+	public boolean canSelectInstant(){
+		return this.castTypeButton == null || !this.effectTypeButton.isDisabled();
+	}
+	
 	/** Update the state of the menu, the currently created spell, and if the create button should be disabled or enabled */
 	public void updateMenuState(){
 		var disabled = this.getSelectedStat() == null;
+		
+		var stat = this.statChooseButton == null ? null : this.statChooseButton.getSelectedStat();
+		if(stat != null){
+			this.effectTypeButton.setDisabled(!stat.canUseInstant());
+			if(!stat.canUseInstant()) this.updateDisplayedFields(this.selectedCastType, SpellEffectType.STATUS_EFFECT, false);
+		}
 		
 		var requiredBoxes = new ArrayList<String>();
 		requiredBoxes.add(NAME);
@@ -440,12 +450,13 @@ public class SpellMakerMenu extends ZusassMenu{
 		var range = this.getDoubleInput(SpellMakerMenu.RANGE);
 		var speed = this.getDoubleInput(SpellMakerMenu.SPEED);
 		var stat = this.getSelectedStat();
+		if(stat == null) return null;
 		var buff = this.isBuffSelected();
 		var modifierType = this.getSelectedModifierType();
 		if(modifierType == null) return null;
 		var castType = this.getSelectedCastType();
 		if(castType == null) return null;
-		var effectType = this.getSelectedEffectType();
+		var effectType = stat.canUseInstant() ? this.getSelectedEffectType() : SpellEffectType.STATUS_EFFECT;
 		if(effectType == null) return null;
 		
 		Spell spell;

@@ -4,13 +4,13 @@ import zusass.game.stat.ZusassStat;
 
 /** An enum holding the additional data used for selecting a stat for a spell */
 public enum StatSpellType{
-	// TODO add all effects, also account for if an effect isn't valid, like speed can't be an instant effect
+	// TODO add all effects
 	HEALTH(ZusassStat.HEALTH, ZusassStat.HEALTH_REGEN, "Health"),
 	MOVE_SPEED(ZusassStat.MOVE_SPEED, "Move Speed"),
 	ATTACK_RANGE(ZusassStat.ATTACK_RANGE, "Attack Range"),
 	;
 	
-	/** The stat to effect when the spell is instant */
+	/** The stat to effect when the spell is instant, or null if this spell type cannot be used as an instant effect */
 	private final ZusassStat instant;
 	/** The stat to effect when the spell is a status effect */
 	private final ZusassStat status;
@@ -18,13 +18,13 @@ public enum StatSpellType{
 	private final String display;
 	
 	/**
-	 * Init a stat spell type where instant and status are the same
+	 * Init a stat spell type where only {@link #status} is a valid type
 	 *
-	 * @param stat See {@link #instant} and {@link #status}
+	 * @param stat See {@link #status}
 	 * @param display See {@link #display}
 	 */
 	StatSpellType(ZusassStat stat, String display){
-		this(stat, stat, display);
+		this(null, stat, display);
 	}
 	
 	/**
@@ -53,5 +53,9 @@ public enum StatSpellType{
 	/** @return See {@link #display} */
 	public String getDisplay(){
 		return this.display;
+	}
+	
+	public boolean canUseInstant(){
+		return this.getInstant() != null;
 	}
 }
