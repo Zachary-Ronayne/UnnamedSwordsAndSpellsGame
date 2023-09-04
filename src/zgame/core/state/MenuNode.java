@@ -232,6 +232,18 @@ public class MenuNode{
 		this.isRender = isRender;
 	}
 	
+	/** Get a new {@link MenuNode} object with the same settings as this node */
+	public MenuNode copySettings(Menu menu){
+		var node = new MenuNode(menu);
+		node.setTick(this.isTick());
+		node.setKeyAction(this.isKeyAction());
+		node.setMouseAction(this.isMouseAction());
+		node.setMouseMove(this.isMouseMove());
+		node.setMouseWheelMove(this.isMouseWheelMove());
+		node.setRender(this.isRender());
+		return node;
+	}
+	
 	/** @param b The value for all of: {@link #isKeyAction}, {@link #isMouseAction}, {@link #isMouseMove}, {@link #isMouseWheelMove}, {@link #isRender} */
 	public void setAll(boolean b){
 		this.setKeyAction(b);

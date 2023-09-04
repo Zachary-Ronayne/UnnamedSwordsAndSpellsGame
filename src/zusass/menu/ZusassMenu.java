@@ -1,5 +1,6 @@
 package zusass.menu;
 
+import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.Menu;
 import zgame.menu.MenuText;
@@ -10,6 +11,9 @@ public abstract class ZusassMenu extends Menu{
 	
 	/** A thing holding the text to display the title */
 	private final MenuText titleThing;
+	
+	/** true if, when this menu is clicked, it should be moved to the top of the popup stack, false otherwise */
+	private boolean sendToTopOnClick;
 	
 	/**
 	 * Create the new menu with the given title
@@ -29,6 +33,7 @@ public abstract class ZusassMenu extends Menu{
 	 */
 	public ZusassMenu(ZusassGame zgame, String title, double x, double y){
 		super(0, 0, zgame.getScreenWidth(), zgame.getScreenHeight(), false);
+		this.sendToTopOnClick = false;
 		this.setFill(new ZColor(0.2, 0.2, 0.2));
 		
 		this.titleThing = new MenuText(0, 0, zgame.getScreenWidth(), zgame.getScreenHeight(), zgame);
@@ -39,6 +44,26 @@ public abstract class ZusassMenu extends Menu{
 		this.titleThing.invisible();
 		this.titleThing.setFontColor(new ZColor(.8));
 		this.addThing(this.titleThing);
+	}
+	
+	@Override
+	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		var result = super.mouseAction(game, button, press, shift, alt, ctrl);
+		if(!press) this.moveToTop(game);
+		return result;
+	}
+	
+	/**
+	 * Move this menu to the top of the menu stack if {@link #isSendToTopOnClick()} returns true
+	 * @param game The game to move the menu in
+	 */
+	public void moveToTop(Game game){
+		if(!this.isSendToTopOnClick()) return;
+		
+		var state = game.getCurrentState();
+		var topMenu = state.getTopMenu();
+		// If this menu is not on top, move it to the top
+		if(this.isMouseOn() && this != topMenu) state.popupMenu(game, this);
 	}
 	
 	/** @return See {@link #titleThing} */
@@ -76,4 +101,13 @@ public abstract class ZusassMenu extends Menu{
 		this.getTitleThing().setTextY(titleY);
 	}
 	
+	/** @return See {@link #sendToTopOnClick} */
+	public boolean isSendToTopOnClick(){
+		return this.sendToTopOnClick;
+	}
+	
+	/** @param sendToTopOnClick See {@link #sendToTopOnClick} */
+	public void setSendToTopOnClick(boolean sendToTopOnClick){
+		this.sendToTopOnClick = sendToTopOnClick;
+	}
 }

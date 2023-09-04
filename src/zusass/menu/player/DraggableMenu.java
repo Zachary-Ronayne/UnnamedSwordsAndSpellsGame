@@ -1,4 +1,4 @@
-package zusass.menu.inventory;
+package zusass.menu.player;
 
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
@@ -39,6 +39,7 @@ public abstract class DraggableMenu extends ZusassMenu{
 	public DraggableMenu(ZusassGame zgame){
 		super(zgame, "");
 		this.setDefaultDestroyRemove(false);
+		this.setSendToTopOnClick(true);
 		
 		// issue#28 why does making this use a buffer make the menu extra transparent?
 //		this.setBuffer(true);

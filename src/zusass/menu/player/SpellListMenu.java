@@ -1,4 +1,4 @@
-package zusass.menu.inventory;
+package zusass.menu.player;
 
 import org.lwjgl.glfw.GLFW;
 import zgame.core.Game;

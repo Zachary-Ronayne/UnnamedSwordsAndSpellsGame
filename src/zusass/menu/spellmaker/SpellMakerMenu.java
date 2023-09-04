@@ -94,9 +94,8 @@ public class SpellMakerMenu extends ZusassMenu{
 	 */
 	public SpellMakerMenu(ZusassGame zgame){
 		super(zgame, "Spell Creation");
+		this.setSendToTopOnClick(true);
 		this.currentSpell = null;
-		
-		// TODO when clicking a menu, like inventory or spell maker, make that one on top
 		
 		this.setFill(new ZColor(.4, 0, .6, .8));
 		this.setBorder(new ZColor(.3, 0, .5, .5));

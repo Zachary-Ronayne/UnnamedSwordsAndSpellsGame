@@ -1,4 +1,4 @@
-package zusass.menu.inventory;
+package zusass.menu.player;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;

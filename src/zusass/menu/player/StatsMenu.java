@@ -1,4 +1,4 @@
-package zusass.menu.inventory;
+package zusass.menu.player;
 
 import zgame.menu.MenuThing;
 import zgame.menu.format.MenuFormatter;

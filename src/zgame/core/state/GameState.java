@@ -85,7 +85,10 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	 * @param menu The menu to add
 	 */
 	public void popupMenu(Game game, Menu menu){
-		this.popupMenu(game, new MenuNode(menu));
+		var node = menu.getNode();
+		if(node == null) node = new MenuNode(menu);
+		else node = node.copySettings(menu);
+		this.popupMenu(game, node);
 	}
 	
 	/**
@@ -145,13 +148,25 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	 * @return The removed menu, or null if the menu is not a part of the stack. The returned menu will be destroyed if {@link Menu#isDefaultDestroyRemove()} returns true
 	 */
 	public Menu removeMenu(Game game, Menu menu){
+		return removeMenu(game, menu, false);
+	}
+	
+	/**
+	 * Remove the given menu from the menu stack
+	 *
+	 * @param game The game where this call happened
+	 * @param menu The menu to remove. This should be the actual object reference to remove, not based on any kind of identifier
+	 * @param preventDestroy true if {@link Menu#isDefaultDestroyRemove()} will be ignored, and the menu will not be destroyed, false otherwise
+	 * @return The removed menu, or null if the menu is not a part of the stack. The returned menu will be destroyed if {@link Menu#isDefaultDestroyRemove()} returns true
+	 */
+	public Menu removeMenu(Game game, Menu menu, boolean preventDestroy){
 		var i = findIndex(menu);
 		if(i == -1) return null;
 		var n = this.menuStack.remove(i);
 		if(n == null) return null;
 		var m = n.getMenu();
 		m.onRemove(game);
-		if(m.isDefaultDestroyRemove()) m.destroy();
+		if(m.isDefaultDestroyRemove() && !preventDestroy) m.destroy();
 		return m;
 	}
 	

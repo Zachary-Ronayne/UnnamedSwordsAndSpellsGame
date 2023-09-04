@@ -8,8 +8,8 @@ import zgame.core.state.PlayState;
 import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassPlayer;
-import zusass.menu.inventory.SpellListMenu;
-import zusass.menu.inventory.StatsMenu;
+import zusass.menu.player.SpellListMenu;
+import zusass.menu.player.StatsMenu;
 import zusass.menu.mainmenu.MainMenuState;
 import zusass.menu.pause.PauseMenu;
 
@@ -104,9 +104,9 @@ public class MainPlay extends PlayState{
 		// On releasing escape, open the pause menu if no menus are open, or close whatever other menu is open
 		if(button == GLFW_KEY_ESCAPE){
 			ZusassGame zgame = (ZusassGame)game;
-			// If the player menus are open, prioritize closing them
-			if(this.playerMenusOpen){
-				this.closeInventory(zgame);
+			// If the player menus are open, and one of them is on top, prioritize closing them
+			if(this.playerMenusOpen && this.anyPlayerMenuOnTop(zgame)){
+				this.closePlayerMenus(zgame);
 				return;
 			}
 			// Otherwise close the top menu
@@ -121,8 +121,8 @@ public class MainPlay extends PlayState{
 		}
 		// On releasing tab, open inventory if it is not open, otherwise, close it
 		else if(button == GLFW_KEY_TAB){
-			if(this.playerMenusOpen) this.closeInventory((ZusassGame)game);
-			else this.openInventory((ZusassGame)game);
+			if(this.playerMenusOpen) this.closePlayerMenus((ZusassGame)game);
+			else this.openPlayerMenus((ZusassGame)game);
 		}
 	}
 	
@@ -211,7 +211,7 @@ public class MainPlay extends PlayState{
 	 *
 	 * @param zgame The game with the inventory
 	 */
-	public void closeInventory(ZusassGame zgame){
+	public void closePlayerMenus(ZusassGame zgame){
 		this.playerMenusOpen = false;
 		this.removeMenu(zgame, this.spellListMenu);
 		this.removeMenu(zgame, this.statsMenu);
@@ -222,10 +222,20 @@ public class MainPlay extends PlayState{
 	 *
 	 * @param zgame The game to show the inventory in
 	 */
-	public void openInventory(ZusassGame zgame){
+	public void openPlayerMenus(ZusassGame zgame){
 		this.playerMenusOpen = true;
 		this.popupMenu(zgame, MenuNode.withAll(this.spellListMenu));
 		this.popupMenu(zgame, MenuNode.withAll(this.statsMenu));
+	}
+	
+	/**
+	 * @param zgame The game to check
+	 * @return true if any of the player menus are on the top, false otherwise
+	 */
+	public boolean anyPlayerMenuOnTop(ZusassGame zgame){
+		var topMenu = zgame.getCurrentState().getTopMenu();
+		return topMenu == this.getSpellListMenu() ||
+			   topMenu == this.getStatsMenu();
 	}
 	
 	/** @return See {@link #pauseMenu} */
