@@ -96,8 +96,6 @@ public class SpellMakerMenu extends ZusassMenu{
 		super(zgame, "Spell Creation");
 		this.currentSpell = null;
 		
-		// TODO hide or do something with the positive negative button when selecting the multiplier modifier type
-		
 		// TODO when clicking a menu, like inventory or spell maker, make that one on top
 		
 		this.setFill(new ZColor(.4, 0, .6, .8));
@@ -124,7 +122,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.addThing(this.statChooseButton);
 		
 		// The button for selecting if the spell will be positive or negative
-		this.positiveNegativeButton = new PositiveNegativeButton(zgame);
+		this.positiveNegativeButton = new PositiveNegativeButton(this, zgame);
 		this.addThing(this.positiveNegativeButton);
 		
 		// The button for resetting the menu
@@ -276,6 +274,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	public void updateModifierType(ModifierType modifierType){
 		this.selectedModifierType = modifierType;
 		this.updateCurrentSpell();
+		if(this.positiveNegativeButton != null) this.positiveNegativeButton.setDisabled(modifierType == ModifierType.MULT_MULT);
 	}
 	
 	@Override
@@ -386,6 +385,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	/** @return true if the selected will be a buff, false otherwise */
 	public boolean isBuffSelected(){
+		if(selectedModifierType == ModifierType.MULT_MULT) return true;
 		return PositiveNegativeButton.BUFF.equals(this.positiveNegativeButton.getSelectedValue());
 	}
 	
