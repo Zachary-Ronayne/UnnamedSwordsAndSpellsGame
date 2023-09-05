@@ -40,6 +40,7 @@ public class SpellListButton extends ZusassButton{
 		this.setFontSize(24);
 		this.updateTextPosition();
 		
+		// TODO abstract this out as a general option
 		var t = this.getTextBuffer();
 		t.regenerateBuffer(zgame.getScreenWidth(), t.getHeight());
 	}

@@ -153,8 +153,8 @@ public class MainTest extends Game{
 	public static void main(String[] args){
 		// Set up game
 		testerGame = new MainTest();
-//		testerGame.setCurrentState(new TesterGameState(testerGame));
-		testerGame.setCurrentState(new TesterMenuState(testerGame));
+		testerGame.setCurrentState(new TesterGameState(testerGame));
+//		testerGame.setCurrentState(new TesterMenuState(testerGame));
 //		testerGame.setCurrentState(new GameEngineState());
 		
 		window = testerGame.getWindow();
@@ -532,6 +532,23 @@ public class MainTest extends Game{
 			r.drawText(-400, 400, "transparent text");
 			
 			r.popAttributes();
+			
+			////////////////////////////////////////
+			
+			
+			s = """
+				ABCDEFGHIJKLMNOPQRSTUVWXYZ
+				abcdefghijklmnopqrstuvwxyz
+				 0123456789.,“”‘’"'?!@_*#$
+				n%&()+-/:;<=>[/]^`{|}~
+					   """;
+			r.pushAttributes();
+			r.setFontSize(32);
+			r.setFontLineSpace(40);
+			r.setFontCharSpace(10);
+			
+			r.setColor(new ZColor(1));
+			r.drawText(1250, -400, s);
 		}
 		
 		@Override
