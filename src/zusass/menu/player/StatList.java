@@ -35,39 +35,46 @@ public class StatList extends MenuHolder{
 		
 		// Generate the list of text things
 		// TODO make the text buffer be the whole screen width like the spell maker menu
-		// TODO add all stats
-		// TODO add dividers
 		// TODO make headers a bigger font
 		// TODO abstract these out to be more concise
-		this.addTextThing(zgame, null, "Stats:", true, 0);
+		double y = 0;
+		y = this.addTextThing(new StatListItem(null, zgame), "Resources:", y);
+		y = this.addTextThing(new ResourceListItem("Health", ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, ZusassStat.HEALTH_REGEN, zgame), null, y);
+		y = this.addTextThing(new ResourceListItem("Stamina", ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, ZusassStat.STAMINA_REGEN, zgame), null, y);
+		y = this.addTextThing(new ResourceListItem("Mana", ZusassStat.MANA, ZusassStat.MANA_MAX, ZusassStat.MANA_REGEN, zgame), null, y);
+		y = this.addTextThing(new StatListItem(null, zgame), "", y);
 		
-		this.addTextThing(zgame, null, "Health:", false, 30);
-		this.addTextThing(zgame, ZusassStat.HEALTH, "", true, 30);
+		y = this.addTextThing(new StatListItem(null, zgame), "Attributes:", y);
+		y = this.addTextThing(new AttributeListItem("Strength", ZusassStat.STRENGTH, zgame), null, y);
+		y = this.addTextThing(new AttributeListItem("Endurance", ZusassStat.ENDURANCE, zgame), null, y);
+		y = this.addTextThing(new AttributeListItem("Intelligence", ZusassStat.INTELLIGENCE, zgame), null, y);
+		y = this.addTextThing(new StatListItem(null, zgame), "", y);
 		
-		this.addTextThing(zgame, null, "Stamina:", false, 60);
-		this.addTextThing(zgame, ZusassStat.STAMINA, "", true, 60);
+		y = this.addTextThing(new StatListItem(null, zgame), "Attack:", y);
+		y = this.addTextThing(new AttributeListItem("Damage", ZusassStat.ATTACK_DAMAGE, zgame), null, y);
+		y = this.addTextThing(new AttributeListItem("Speed", ZusassStat.ATTACK_SPEED, zgame), null, y);
+		y = this.addTextThing(new AttributeListItem("Range", ZusassStat.ATTACK_RANGE, zgame), null, y);
+		y = this.addTextThing(new StatListItem(null, zgame), "", y);
 		
-		this.addTextThing(zgame, null, "Mana:", false, 90);
-		this.addTextThing(zgame, ZusassStat.MANA, "", true, 90);
-		
-		this.addTextThing(zgame, null, "Strength:", false, 120);
-		this.addTextThing(zgame, ZusassStat.STRENGTH, "", true, 120);
-		
-		this.addTextThing(zgame, null, "Endurance:", false, 150);
-		this.addTextThing(zgame, ZusassStat.ENDURANCE, "", true, 150);
-		
-		this.addTextThing(zgame, null, "Intelligence:", false, 180);
-		this.addTextThing(zgame, ZusassStat.INTELLIGENCE, "", true, 180);
+		y = this.addTextThing(new StatListItem(null, zgame), "Misc:", y);
+		this.addTextThing(new AttributeListItem("Move Speed", ZusassStat.MOVE_SPEED, zgame), null, y);
 		
 		this.regenerateText(zgame, mob);
 	}
 	
-	public void addTextThing(ZusassGame zgame, ZusassStat statType, String baseString, boolean newLine, double y){
-		var item = new StatListItem(statType, newLine, zgame);
-		item.setText(baseString);
+	/**
+	 * Add a text thing to this stat list
+	 * @param item The item to display
+	 * @param baseString The base text to use to display the thing
+	 * @param y The current y position to place a list item
+	 * @return The next y position to place an item
+	 */
+	public double addTextThing(StatListItem item, String baseString, double y){
+		if(baseString != null) item.setText(baseString);
 		item.setRelY(y);
 		this.textList.add(item);
 		this.addThing(item);
+		return y + 30;
 	}
 	
 	/**
@@ -79,11 +86,7 @@ public class StatList extends MenuHolder{
 		if(mob == null) return;
 		
 		// Loop through each text thing and update it
-		StatListItem previous = null;
-		for(var t : this.textList) {
-			t.updateText(previous, mob);
-			previous = t.isNewLine() ? null : t;
-		}
+		for(var t : this.textList) t.updateText(mob);
 	}
 	
 	/** @return See {@link #menu} */

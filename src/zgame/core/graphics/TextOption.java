@@ -23,6 +23,16 @@ public class TextOption{
 	 *
 	 * @param text See {@link #text}
 	 * @param color See {@link #color}
+	 */
+	public TextOption(String text, ZColor color){
+		this(text, color, null);
+	}
+	
+	/**
+	 * Create the new option
+	 *
+	 * @param text See {@link #text}
+	 * @param color See {@link #color}
 	 * @param alpha See {@link #alpha}
 	 */
 	public TextOption(String text, ZColor color, AlphaMode alpha){
