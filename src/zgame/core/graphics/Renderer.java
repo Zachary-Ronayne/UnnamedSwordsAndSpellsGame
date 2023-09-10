@@ -12,7 +12,6 @@ import zgame.core.graphics.buffer.IndexBuffer;
 import zgame.core.graphics.buffer.VertexArray;
 import zgame.core.graphics.buffer.VertexBuffer;
 import zgame.core.graphics.camera.GameCamera;
-import zgame.core.graphics.font.FontAsset;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.TextBuffer;
 import zgame.core.graphics.image.GameImage;
@@ -24,6 +23,7 @@ import zgame.core.window.GameWindow;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A class that handles OpenGL operations related to drawing objects.
@@ -1004,11 +1004,27 @@ public class Renderer implements Destroyable{
 	 *
 	 * @param x The x position of the text
 	 * @param y The y position of the text
+	 * @param options The options for how to draw the text
+	 * @return true if the text was drawn, false otherwise
+	 */
+	public boolean drawText(double x, double y, List<TextOption> options){
+		return drawText(x, y, this.getFont(), options);
+	}
+	
+	/**
+	 * Draw the given text to the given position
+	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
+	 * i.e. the text starts at the given coordinates and is draw left to right
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
+	 *
+	 * @param x The x position of the text
+	 * @param y The y position of the text
 	 * @param text The text to draw
 	 * @return true if the text was drawn, false otherwise
 	 */
 	public boolean drawText(double x, double y, String text){
-		return drawText(x, y, text, this.getFont(), null);
+		return drawText(x, y, this.getFont(), List.of(new TextOption(text)));
 	}
 	
 	/**
@@ -1025,7 +1041,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the text was drawn, false otherwise
 	 */
 	public boolean drawText(double x, double y, String text, AlphaMode mode){
-		return drawText(x, y, text, this.getFont(), mode);
+		return drawText(x, y, this.getFont(), List.of(new TextOption(text, null, mode)));
 	}
 	
 	/**
@@ -1042,7 +1058,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the text was drawn, false otherwise
 	 */
 	public boolean drawText(double x, double y, String text, GameFont f){
-		return this.drawText(x, y, text, f, null);
+		return this.drawText(x, y, f, List.of(new TextOption(text)));
 	}
 	
 	/**
@@ -1054,20 +1070,26 @@ public class Renderer implements Destroyable{
 	 *
 	 * @param x The x position of the text
 	 * @param y The y position of the text
-	 * @param text The text to draw
 	 * @param f The font to use for drawing
-	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
+	 * @param options How to draw the text, must not be null
 	 * @return true if the text was drawn, false otherwise
 	 */
-	public boolean drawText(double x, double y, String text, GameFont f, AlphaMode mode){
-		// Make sure a font exists, and that there is some text
-		if(f == null || text == null || text.isEmpty()) return false;
-		FontAsset fa = f.getAsset();
+	public boolean drawText(double x, double y, GameFont f, List<TextOption> options){
+		// Make sure options are given
+		if(options == null || options.isEmpty()) return false;
+		
+		// Make sure a font exists
+		if(f == null) return false;
+		
+		var fa = f.getAsset();
+		
+		var sb = new StringBuilder();
+		for(var op : options) sb.append(op.getText());
+		var fullText = sb.toString();
 		
 		// Bounds check for if the text should be drawn
-		ZRect[] rects = f.stringBounds(x, y, text, 1, true);
-		if(!this.shouldDraw(rects[text.length()])) return false;
-		updateAlphaMode(mode);
+		var rects = f.stringBounds(x, y, fullText, 1, true);
+		if(!this.shouldDraw(rects[fullText.length()])) return false;
 		
 		// Mark the drawing bounds
 		// Use the font shaders
@@ -1094,43 +1116,50 @@ public class Renderer implements Destroyable{
 		this.positionObject(x, this.getHeight() - y, posSize, posSize);
 		
 		// Draw every character of the text
-		for(int i = 0; i < text.length(); i++){
-			char c = text.charAt(i);
-			
-			// Find the vertices and texture coordinates of the character to draw
-			// Must do this regardless of if the character will render to ensure the text moves to the next location
-			f.bounds(c, this.xTextBuff, this.yTextBuff, this.textQuad);
-			
-			// Only draw the character if it will be in the bounds of the buffer
-			if(!this.shouldDraw(rects[i])) continue;
-			
-			// Buffer the new data
-			this.posBuff.updateData(new float[]{
-					//////////////////////////////////////
-					this.textQuad.x0(), this.textQuad.y0(),
-					//////////////////////////////////////
-					this.textQuad.x1(), this.textQuad.y0(),
-					//////////////////////////////////////
-					this.textQuad.x1(), this.textQuad.y1(),
-					//////////////////////////////////////
-					this.textQuad.x0(), this.textQuad.y1()});
-			
-			this.changeTexCoordBuff.updateData(new float[]{
-					//////////////////////////////////////
-					this.textQuad.s0(), this.textQuad.t0(),
-					//////////////////////////////////////
-					this.textQuad.s1(), this.textQuad.t0(),
-					//////////////////////////////////////
-					this.textQuad.s1(), this.textQuad.t1(),
-					//////////////////////////////////////
-					this.textQuad.s0(), this.textQuad.t1()});
-			
-			// Ensure the gpu has the current modelView and color
-			this.updateGpuColor();
-			this.updateGpuModelView();
-			
-			// Draw the square
-			glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
+		for(var op : options){
+			var text = op.getText();
+			if(text == null || text.isEmpty()) continue;
+			for(int i = 0; i < text.length(); i++){
+				char c = text.charAt(i);
+				
+				// Find the vertices and texture coordinates of the character to draw
+				// Must do this regardless of if the character will render to ensure the text moves to the next location
+				f.bounds(c, this.xTextBuff, this.yTextBuff, this.textQuad);
+				
+				// Only draw the character if it will be in the bounds of the buffer
+				if(!this.shouldDraw(rects[i])) continue;
+				
+				// Buffer the new data
+				this.posBuff.updateData(new float[]{
+						//////////////////////////////////////
+						this.textQuad.x0(), this.textQuad.y0(),
+						//////////////////////////////////////
+						this.textQuad.x1(), this.textQuad.y0(),
+						//////////////////////////////////////
+						this.textQuad.x1(), this.textQuad.y1(),
+						//////////////////////////////////////
+						this.textQuad.x0(), this.textQuad.y1()});
+				
+				this.changeTexCoordBuff.updateData(new float[]{
+						//////////////////////////////////////
+						this.textQuad.s0(), this.textQuad.t0(),
+						//////////////////////////////////////
+						this.textQuad.s1(), this.textQuad.t0(),
+						//////////////////////////////////////
+						this.textQuad.s1(), this.textQuad.t1(),
+						//////////////////////////////////////
+						this.textQuad.s0(), this.textQuad.t1()});
+				
+				// Ensure the gpu has the current modelView and color
+				this.updateAlphaMode(op.getAlpha());
+				var opC = op.getColor();
+				if(opC != null) this.setColor(opC);
+				this.updateGpuColor();
+				this.updateGpuModelView();
+				
+				// Draw the square
+				glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
+			}
 		}
 		this.popMatrix();
 		

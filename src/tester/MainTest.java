@@ -2,7 +2,9 @@ package tester;
 
 import com.google.gson.JsonElement;
 import zgame.core.Game;
+import zgame.core.graphics.AlphaMode;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.TextOption;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.GameFont;
@@ -31,6 +33,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import java.awt.Rectangle;
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * A simple main class used for testing the game code
@@ -535,20 +538,22 @@ public class MainTest extends Game{
 			
 			////////////////////////////////////////
 			
+			var options = new ArrayList<TextOption>();
+			options.add(new TextOption("ABCDEFGHIJKLM", new ZColor(1, 0, 0), AlphaMode.NORMAL));
+			options.add(new TextOption("NOPQRSTUVWXYZ\n", new ZColor(1, 1, 0), AlphaMode.BUFFER));
+			options.add(new TextOption("abcdefghijklm", new ZColor(0, 1, 0), null));
+			options.add(new TextOption("nopqrstuvwxyz\n", new ZColor(0, 1, 1), AlphaMode.NORMAL));
+			options.add(new TextOption(" 0123456789.,", new ZColor(0, 0, 1), null));
+			options.add(new TextOption("“”‘’\"'?!@_*#$\n", new ZColor(1, 0, 1), null));
+			options.add(new TextOption("%&()+-/:;<=>", new ZColor(1, 1, 1), AlphaMode.BUFFER));
+			options.add(new TextOption("[/]^`{|}~", new ZColor(0, 0, 0), null));
 			
-			s = """
-				ABCDEFGHIJKLMNOPQRSTUVWXYZ
-				abcdefghijklmnopqrstuvwxyz
-				 0123456789.,“”‘’"'?!@_*#$
-				n%&()+-/:;<=>[/]^`{|}~
-					   """;
 			r.pushAttributes();
 			r.setFontSize(32);
 			r.setFontLineSpace(40);
 			r.setFontCharSpace(10);
 			
-			r.setColor(new ZColor(1));
-			r.drawText(1250, -400, s);
+			r.drawText(1250, -400, options);
 		}
 		
 		@Override
