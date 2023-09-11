@@ -172,8 +172,16 @@ public class TextBuffer extends DrawableBuffer{
 	
 	/** @param options See {@link #options} */
 	public void setOptions(ArrayList<TextOption> options){
+		if(options.size() > 1){
+			this.options = options;
+			this.updateRedraw(true);
+			return;
+		}
+		
+		var oldText = this.getText();
 		this.options = options;
-		this.updateRedraw(true);
+		var newText = this.getText();
+		this.updateRedraw(!Objects.equals(oldText, newText));
 	}
 	
 	@Override

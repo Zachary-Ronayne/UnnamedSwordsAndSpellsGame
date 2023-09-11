@@ -266,19 +266,16 @@ public class MenuText extends MenuThing{
 		if(this.getFont() != null) r.setFont(this.getFont());
 		r.setFontSize(this.getFontSize());
 		
-		if(this.getText() != null && !this.getText().isEmpty()) this.drawText(r, null, bounds);
+		if(this.getText() != null && !this.getText().isEmpty()) this.drawText(r, bounds);
 	}
 	
 	/**
 	 * Draw the given text on this menu at its intended location
 	 *
 	 * @param r The Renderer to use to draw the text
-	 * @param text The text to draw, or null to use {@link #textBuffer}'s modifiers
 	 * @param bounds The bounds of this thing as it's being drawn
 	 */
-	public void drawText(Renderer r, String text, ZRect bounds){
-		if(text != null) this.textBuffer.setText(text);
-		
+	public void drawText(Renderer r, ZRect bounds){
 		var b = this.getTextLimitBounds();
 		var limit = b != null;
 		if(limit){

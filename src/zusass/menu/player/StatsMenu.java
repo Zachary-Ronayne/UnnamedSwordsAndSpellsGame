@@ -11,8 +11,6 @@ import zusass.ZusassGame;
 /** The menu which displays on top of the game */
 public class StatsMenu extends DraggableMenu{
 	
-	// TODO fix issues with text being weird with text buffers and text boxes, like the hint text becomes the actual text
-	
 	// TODO fix issues with text in full screen
 	
 	// TODO add a popup showing a description for each stat
