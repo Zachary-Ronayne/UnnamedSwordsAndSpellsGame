@@ -81,6 +81,6 @@ public class StatListItem extends ZusassMenuText{
 		if(stat.buffed()) color = new ZColor(0, .5, 0);
 		else if(stat.debuffed()) color = new ZColor(.5, 0, 0);
 		else color = new ZColor(0);
-		return new TextOption(text, color, null);
+		return new TextOption(text, color);
 	}
 }
