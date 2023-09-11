@@ -11,10 +11,16 @@ import zusass.ZusassGame;
 /** The menu which displays on top of the game */
 public class StatsMenu extends DraggableMenu{
 	
-	// TODO add a timer to update all the stats, something like once a second
+	// TODO add a popup showing a description for each stat
 	
 	/** The list displaying the stats */
 	private StatList statList;
+	
+	/** The number of seconds to wait between stat updates */
+	public static final double STAT_UPDATE_TIME = 0.5;
+	
+	/** The amount of time, in seconds, since the last time stats were updated */
+	private double lastStatUpdate;
 	
 	/**
 	 * Create a new {@link StatsMenu} for displaying the spells of something
@@ -23,6 +29,7 @@ public class StatsMenu extends DraggableMenu{
 	 */
 	public StatsMenu(ZusassGame zgame){
 		super(zgame);
+		this.lastStatUpdate = 0;
 		this.setWidth(200);
 		this.initMenuThings(zgame);
 	}
@@ -57,5 +64,16 @@ public class StatsMenu extends DraggableMenu{
 	@Override
 	public void regenerateThings(ZusassGame zgame){
 		this.statList.regenerateText(zgame, this.getMob());
+	}
+	
+	@Override
+	public void tick(Game game, double dt){
+		super.tick(game, dt);
+		// TODO fix the annoying blinking that comes from updating stats
+		if(this.lastStatUpdate >= STAT_UPDATE_TIME) {
+			this.statList.regenerateText((ZusassGame)game, this.getMob());
+			this.lastStatUpdate = 0;
+		}
+		else this.lastStatUpdate += dt;
 	}
 }
