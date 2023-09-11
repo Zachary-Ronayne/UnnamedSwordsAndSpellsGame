@@ -201,8 +201,8 @@ public class SpellMakerMenu extends ZusassMenu{
 	private ZusassTextBox initTextBox(String key, ZusassGame zgame, String hint, double y, MenuTextBox.Mode mode, MenuThing addTo){
 		var box = new ZusassTextBox(0, y, 1, 40, zgame){
 			@Override
-			public void setText(String text){
-				super.setText(text);
+			public void setCurrentText(String text){
+				super.setCurrentText(text);
 				updateMenuState();
 			}
 			
@@ -338,7 +338,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	public void setTextBoxText(String key, String text){
 		var box = this.textBoxes.get(key);
 		if(box == null) return;
-		box.setText(text);
+		box.setCurrentText(text);
 	}
 	
 	/**
@@ -437,8 +437,8 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	/** Reset the state of this menu to have nothing input */
 	public void reset(){
-		for(var b : this.textBoxes.values()) b.setText("1");
-		this.textBoxes.get(NAME).setText("");
+		for(var b : this.textBoxes.values()) b.setCurrentText("1");
+		this.textBoxes.get(NAME).setCurrentText("");
 	}
 	
 	/** @return The current spell as defined by the current parameters of this menu, or null if no spell can be created */
