@@ -329,6 +329,14 @@ public class MenuTextBox extends MenuButton{
 		return this.currentText;
 	}
 	
+	/**
+	 * Do not call directly to set the text inside this text box, use {@link #setCurrentText(String)} instead
+	 */
+	@Override
+	public void setText(String text){
+		super.setText(text);
+	}
+	
 	/** @param currentText See {@link #currentText} */
 	public void setCurrentText(String currentText){
 		this.currentText = currentText;
