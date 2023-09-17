@@ -1,7 +1,6 @@
 package zusass.menu.player;
 
 import zgame.core.graphics.TextOption;
-import zgame.core.graphics.ZColor;
 import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassMob;
@@ -29,7 +28,6 @@ public class ResourceListItem extends StatListItem{
 	 * @param zgame The game to use to create the item
 	 */
 	public ResourceListItem(String baseName, ZusassStat currentType, ZusassStat maxType, ZusassStat regenType, ZusassGame zgame){
-		// TODO make constants for the magic numbers
 		super(null, zgame);
 		this.baseName = baseName;
 		this.currentType = currentType;
@@ -40,13 +38,13 @@ public class ResourceListItem extends StatListItem{
 	@Override
 	public void updateTextOptions(ZusassMob mob){
 		var options = new ArrayList<TextOption>(7);
-		options.add(new TextOption(new StringBuilder(this.baseName).append(": ").toString(), new ZColor(0)));
+		options.add(new TextOption(new StringBuilder(this.baseName).append(": ").toString(), BASE_TEXT_COLOR));
 		options.add(StatListItem.makeTextOption(mob.getStat(this.currentType)));
-		options.add(new TextOption("/", new ZColor(0)));
+		options.add(new TextOption("/", BASE_TEXT_COLOR));
 		options.add(StatListItem.makeTextOption(mob.getStat(this.maxType)));
-		options.add(new TextOption("(", new ZColor(0)));
+		options.add(new TextOption("(", BASE_TEXT_COLOR));
 		options.add(StatListItem.makeTextOption(mob.getStat(this.regenType)));
-		options.add(new TextOption(")", new ZColor(0)));
+		options.add(new TextOption(")", BASE_TEXT_COLOR));
 		
 		this.getTextBuffer().setOptions(options);
 	}

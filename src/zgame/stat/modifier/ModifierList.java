@@ -60,6 +60,7 @@ public class ModifierList{
 	
 	/** Recalculate the current value of this modifier list */
 	public void recalculate(){
+		// TODO fix this sometimes causing a concurrent modification exception
 		this.modifiers.sort(StatModifier::compareTo);
 		// If we are multiplying, the default value should be 1, otherwise we are just adding
 		// If more complicated modifier types get created, then each enum type should probably have a method that determines default behavior and what value to return by default

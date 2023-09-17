@@ -110,6 +110,7 @@ public class MenuTextBox extends MenuButton{
 		this.setCursorIndex(-1);
 		this.setText("");
 		this.setCurrentText("");
+		this.bufferWidthToWindow(game);
 	}
 	
 	@Override

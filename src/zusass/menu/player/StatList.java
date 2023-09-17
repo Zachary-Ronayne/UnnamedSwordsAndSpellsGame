@@ -34,7 +34,6 @@ public class StatList extends MenuHolder{
 		this.invisible();
 		
 		// Generate the list of text things
-		// TODO make the text buffer be the whole screen width like the spell maker menu
 		// TODO make headers a bigger font
 		// TODO abstract these out to be more concise
 		double y = 0;

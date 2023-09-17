@@ -1,7 +1,6 @@
 package zusass.menu.player;
 
 import zgame.core.graphics.TextOption;
-import zgame.core.graphics.ZColor;
 import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassMob;
@@ -20,7 +19,6 @@ public class AttributeListItem extends StatListItem{
 	 * @param zgame The game to use to create the item
 	 */
 	public AttributeListItem(String baseName, ZusassStat statType, ZusassGame zgame){
-		// TODO make constants for the magic numbers
 		super(statType, zgame);
 		this.baseName = baseName;
 	}
@@ -28,7 +26,7 @@ public class AttributeListItem extends StatListItem{
 	@Override
 	public void updateTextOptions(ZusassMob mob){
 		var options = new ArrayList<TextOption>(2);
-		options.add(new TextOption(new StringBuilder(this.baseName).append(": ").toString(), new ZColor(0)));
+		options.add(new TextOption(new StringBuilder(this.baseName).append(": ").toString(), BASE_TEXT_COLOR));
 		options.add(StatListItem.makeTextOption(mob.getStat(this.getStatType())));
 		
 		this.getTextBuffer().setOptions(options);

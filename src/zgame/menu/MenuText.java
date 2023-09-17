@@ -100,9 +100,15 @@ public class MenuText extends MenuThing{
 		this.regenerateTextBuffer();
 	}
 	
-	/** Regenerate {@link #textBuffer} to the size of this thing, or override for custom behavior */
+	/** Regenerate {@link #textBuffer}, or override for custom behavior */
 	public void regenerateTextBuffer(){
-		this.textBuffer.regenerateBuffer((int)Math.round(this.getWidth()), (int)Math.round(this.getHeight()));
+		this.textBuffer.regenerateBuffer();
+	}
+	
+	@Override
+	protected void setBuffer(boolean use){
+		super.setBuffer(use);
+		this.regenerateTextBuffer();
 	}
 	
 	/** @return true if this text box contains no text, false otherwise */
@@ -172,6 +178,16 @@ public class MenuText extends MenuThing{
 	/** @return See {@link #textBuffer} */
 	public TextBuffer getTextBuffer(){
 		return this.textBuffer;
+	}
+	
+	/**
+	 * Set the width of {@link #textBuffer} to the width of the window of the given game.
+	 * This is useful for buffers which will be used for resizable things where it is infeasible to regenerate the buffer every time the thing is
+	 * @param game The game to get the window's width from
+	 */
+	public void bufferWidthToWindow(Game game){
+		var w = game.getScreenWidth();
+		this.textBuffer.setWidth(w);
 	}
 	
 	/** @param fontColor Set the color used to draw text, this will override anything in this thing's buffer's {@link TextBuffer#options} */

@@ -11,9 +11,9 @@ import zusass.ZusassGame;
 /** The menu which displays on top of the game */
 public class StatsMenu extends DraggableMenu{
 	
-	// TODO fix issues with text in full screen
-	
 	// TODO add a popup showing a description for each stat
+	
+	// TODO make decimal places optional
 	
 	/** The list displaying the stats */
 	private StatList statList;

@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
 
+import zgame.core.Game;
 import zgame.core.graphics.AlphaMode;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
@@ -67,6 +68,16 @@ public class GameBuffer implements Destroyable{
 	}
 	
 	/**
+	 * Recreate the OpenGL Framebuffer used by this {@link GameBuffer} based on the current {@link #width} and {@link #height}.
+	 * This is an expensive operation, should not be used frequently
+	 *
+	 * @return true if the buffer was created, false otherwise
+	 */
+	public boolean regenerateBuffer(){
+		return this.regenerateBuffer(this.getWidth(), this.getHeight());
+	}
+	
+	/**
 	 * Recreate the OpenGL Framebuffer used by this {@link GameBuffer}. This is an expensive operation, should not be used frequently
 	 *
 	 * @param width The new width of the buffer
@@ -111,6 +122,15 @@ public class GameBuffer implements Destroyable{
 		
 		this.bufferGenerated = success;
 		return success;
+	}
+	
+	/**
+	 * Set the width of this buffer to the width of the window of the given game.
+	 * This is useful for buffers which will be used for resizable things where it is infeasible to regenerate the buffer every time the thing is resized
+	 * @param game The game to get the window's width from
+	 */
+	public void widthToWindow(Game game){
+		this.setWidth(Math.round(game.getScreenWidth()));
 	}
 	
 	/** Erase all resources associated with this GameBuffer. After calling this method, this object should not be used */
@@ -193,7 +213,7 @@ public class GameBuffer implements Destroyable{
 	 *
 	 * @param width {@link #width}
 	 */
-	private void setWidth(int width){
+	public void setWidth(int width){
 		this.width = width;
 		this.inverseWidth = 1.0 / width;
 		this.inverseHalfWidth = 1.0 / (width * 0.5);
@@ -220,7 +240,7 @@ public class GameBuffer implements Destroyable{
 	 *
 	 * @param height {@link #height}
 	 */
-	private void setHeight(int height){
+	public void setHeight(int height){
 		this.height = height;
 		this.inverseHeight = 1.0 / height;
 		this.inverseHalfHeight = 1.0 / (height * 0.5);
