@@ -57,7 +57,6 @@ public class StatsMenu extends DraggableMenu{
 	
 	@Override
 	public double getFullScrollableSize(){
-		// TODO make the height in the stat list properly update so scrolling works
 		return this.statList.getHeight();
 	}
 	

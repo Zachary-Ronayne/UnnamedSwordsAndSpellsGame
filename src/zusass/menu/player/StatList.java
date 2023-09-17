@@ -38,7 +38,8 @@ public class StatList extends MenuHolder{
 		
 		// Generate the list of text things
 		// TODO make headers a bigger font
-		double y = 0;
+		double baseY = 0;
+		double y = baseY;
 		y = this.addTextThing(zgame, "Resources:", y);
 		y = this.addResourceStat(zgame,"Health", ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, ZusassStat.HEALTH_REGEN, y);
 		y = this.addResourceStat(zgame,"Stamina", ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, ZusassStat.STAMINA_REGEN, y);
@@ -59,6 +60,8 @@ public class StatList extends MenuHolder{
 		
 		y = this.addTextThing(zgame, "Misc", y);
 		y = this.addAttributeStat(zgame, "Move Speed", ZusassStat.MOVE_SPEED, y);
+		
+		this.setHeight(y - baseY);
 		
 		this.regenerateText(zgame, mob);
 	}
