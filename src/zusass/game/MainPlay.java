@@ -105,7 +105,6 @@ public class MainPlay extends PlayState{
 		// On releasing escape, open the pause menu if no menus are open, or close whatever other menu is open
 		if(button == GLFW_KEY_ESCAPE){
 			ZusassGame zgame = (ZusassGame)game;
-			// TODO fix dragging menus not working while another menu is on top
 			// If the player menus are open, and one of them is on top, prioritize closing them
 			if(this.playerMenusOpen && this.anyPlayerMenuOnTop(zgame)){
 				this.closePlayerMenus(zgame);
