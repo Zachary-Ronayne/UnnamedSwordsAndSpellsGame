@@ -11,6 +11,9 @@ import java.util.ArrayList;
 /** An object holding the list of stats to display */
 public class StatList extends MenuHolder{
 	
+	/** The space between each stat thing in the list */
+	public static double TEXT_SPACE = 30;
+	
 	/** The menu holding this list */
 	private final StatsMenu menu;
 	
@@ -35,30 +38,76 @@ public class StatList extends MenuHolder{
 		
 		// Generate the list of text things
 		// TODO make headers a bigger font
-		// TODO abstract these out to be more concise
 		double y = 0;
-		y = this.addTextThing(new StatListItem(null, zgame), "Resources:", y);
-		y = this.addTextThing(new ResourceListItem("Health", ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, ZusassStat.HEALTH_REGEN, zgame), null, y);
-		y = this.addTextThing(new ResourceListItem("Stamina", ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, ZusassStat.STAMINA_REGEN, zgame), null, y);
-		y = this.addTextThing(new ResourceListItem("Mana", ZusassStat.MANA, ZusassStat.MANA_MAX, ZusassStat.MANA_REGEN, zgame), null, y);
-		y = this.addTextThing(new StatListItem(null, zgame), "", y);
+		y = this.addTextThing(zgame, "Resources:", y);
+		y = this.addResourceStat(zgame,"Health", ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, ZusassStat.HEALTH_REGEN, y);
+		y = this.addResourceStat(zgame,"Stamina", ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, ZusassStat.STAMINA_REGEN, y);
+		y = this.addResourceStat(zgame,"Mana", ZusassStat.MANA, ZusassStat.MANA_MAX, ZusassStat.MANA_REGEN, y);
+		y = this.addTextSpaceThing(zgame, y);
 		
-		y = this.addTextThing(new StatListItem(null, zgame), "Attributes:", y);
-		y = this.addTextThing(new AttributeListItem("Strength", ZusassStat.STRENGTH, zgame), null, y);
-		y = this.addTextThing(new AttributeListItem("Endurance", ZusassStat.ENDURANCE, zgame), null, y);
-		y = this.addTextThing(new AttributeListItem("Intelligence", ZusassStat.INTELLIGENCE, zgame), null, y);
-		y = this.addTextThing(new StatListItem(null, zgame), "", y);
+		y = this.addTextThing(zgame, "Attributes:", y);
+		y = this.addAttributeStat(zgame, "Strength", ZusassStat.STRENGTH, y);
+		y = this.addAttributeStat(zgame, "Endurance", ZusassStat.ENDURANCE, y);
+		y = this.addAttributeStat(zgame, "Intelligence", ZusassStat.INTELLIGENCE, y);
+		y = this.addTextSpaceThing(zgame, y);
 		
-		y = this.addTextThing(new StatListItem(null, zgame), "Attack:", y);
-		y = this.addTextThing(new AttributeListItem("Damage", ZusassStat.ATTACK_DAMAGE, zgame), null, y);
-		y = this.addTextThing(new AttributeListItem("Speed", ZusassStat.ATTACK_SPEED, zgame), null, y);
-		y = this.addTextThing(new AttributeListItem("Range", ZusassStat.ATTACK_RANGE, zgame), null, y);
-		y = this.addTextThing(new StatListItem(null, zgame), "", y);
+		y = this.addTextThing(zgame, "Attack", y);
+		y = this.addAttributeStat(zgame, "Damage", ZusassStat.ATTACK_DAMAGE, y);
+		y = this.addAttributeStat(zgame, "Speed", ZusassStat.ATTACK_SPEED, y);
+		y = this.addAttributeStat(zgame, "Range", ZusassStat.ATTACK_RANGE, y);
+		y = this.addTextSpaceThing(zgame, y);
 		
-		y = this.addTextThing(new StatListItem(null, zgame), "Misc:", y);
-		this.addTextThing(new AttributeListItem("Move Speed", ZusassStat.MOVE_SPEED, zgame), null, y);
+		y = this.addTextThing(zgame, "Misc", y);
+		y = this.addAttributeStat(zgame, "Move Speed", ZusassStat.MOVE_SPEED, y);
 		
 		this.regenerateText(zgame, mob);
+	}
+	
+	/**
+	 * Add a text thing to this stat list
+	 * @param zgame The game using this list
+	 * @param baseName The name for the base of the attribute
+	 * @param stat The stat to display
+	 * @param y The current y position to place a list item
+	 * @return The next y position to place an item
+	 */
+	private double addAttributeStat(ZusassGame zgame, String baseName, ZusassStat stat, double y){
+		return this.addTextThing(new AttributeListItem(this, baseName, stat, zgame), null, y);
+	}
+	
+	/**
+	 * Add a text thing to this stat list
+	 * @param zgame The game using this list
+	 * @param baseName The name for the base of the resource
+	 * @param current The stat holding the current value of the stat
+	 * @param max The stat holding the max value of the stat
+	 * @param regen The stat holding the regeneration value of the stat
+	 * @param y The current y position to place a list item
+	 * @return The next y position to place an item
+	 */
+	private double addResourceStat(ZusassGame zgame, String baseName, ZusassStat current, ZusassStat max, ZusassStat regen, double y){
+		return this.addTextThing(new ResourceListItem(this, baseName, current, max, regen, zgame), null, y);
+	}
+	
+	/**
+	 * Add a text thing to this stat list
+	 * @param zgame The game using this list
+	 * @param y The current y position to place a list item
+	 * @return The next y position to place an item
+	 */
+	private double addTextSpaceThing(ZusassGame zgame, double y){
+		return this.addTextThing(zgame, "", y);
+	}
+	
+	/**
+	 * Add a text thing to this stat list
+	 * @param zgame The game using this list
+	 * @param baseString The base text to use to display the thing
+	 * @param y The current y position to place a list item
+	 * @return The next y position to place an item
+	 */
+	private double addTextThing(ZusassGame zgame, String baseString, double y){
+		return this.addTextThing(new StatListItem(this,null, zgame), baseString, y);
 	}
 	
 	/**
@@ -68,12 +117,12 @@ public class StatList extends MenuHolder{
 	 * @param y The current y position to place a list item
 	 * @return The next y position to place an item
 	 */
-	public double addTextThing(StatListItem item, String baseString, double y){
+	private double addTextThing(StatListItem item, String baseString, double y){
 		if(baseString != null) item.setText(baseString);
 		item.setRelY(y);
 		this.textList.add(item);
 		this.addThing(item);
-		return y + 30;
+		return y + TEXT_SPACE;
 	}
 	
 	/**
@@ -91,6 +140,11 @@ public class StatList extends MenuHolder{
 	/** @return See {@link #menu} */
 	public StatsMenu getMenu(){
 		return this.menu;
+	}
+	
+	/** @return See {@link StatsMenu#displayDecimals} */
+	public boolean isDisplayDecimals(){
+		return this.menu.isDisplayDecimals();
 	}
 	
 }

@@ -15,8 +15,10 @@ import java.text.DecimalFormat;
 /** An item holding text for the {@link StatList} */
 public class StatListItem extends ZusassMenuText{
 	
-	/** A formatter used to display text for these items */
-	public static final DecimalFormat NUMBER_FORMATTER = new DecimalFormat("0.00");
+	/** A formatter used to display stats with decimals places for these items */
+	public static final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("0.00");
+	/** A formatter used to display stats without decimals places for these items */
+	public static final DecimalFormat INT_FORMATTER = new DecimalFormat("0");
 	
 	/** The color for the fill of the stat backgrounds */
 	public static final ZColor FILL_COLOR = new ZColor(1);
@@ -32,14 +34,18 @@ public class StatListItem extends ZusassMenuText{
 	/** The stat which should be displayed on this text thing, or null if the text should not be updated by a stat */
 	private final ZusassStat statType;
 	
+	/** The stat list holding this item */
+	private final StatList statList;
+	
 	/**
 	 * Create a new stat item
 	 *
 	 * @param statType See {@link #statType}
 	 * @param zgame The game to use to create the item
 	 */
-	public StatListItem(ZusassStat statType, ZusassGame zgame){
+	public StatListItem(StatList statList, ZusassStat statType, ZusassGame zgame){
 		super(0, 0, 1, HEIGHT, "", zgame);
+		this.statList = statList;
 		this.statType = statType;
 		this.setFormatter(new PercentFormatter(1.0, null, 0.5, null));
 		
@@ -86,8 +92,8 @@ public class StatListItem extends ZusassMenuText{
 	 * @param stat The stat to make a text option for
 	 * @return The text option
 	 */
-	public static TextOption makeTextOption(Stat stat){
-		var text = NUMBER_FORMATTER.format(stat.get());
+	public TextOption makeTextOption(Stat stat){
+		var text = (this.statList.isDisplayDecimals() ? DECIMAL_FORMATTER : INT_FORMATTER).format(stat.get());
 		ZColor color;
 		
 		// Update color

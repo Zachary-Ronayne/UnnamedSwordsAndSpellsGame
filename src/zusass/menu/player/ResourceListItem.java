@@ -21,14 +21,15 @@ public class ResourceListItem extends StatListItem{
 
 	/**
 	 * Create a new stat item
+	 * @param statList See {@link #statList}
 	 * @param baseName See {@link #baseName}
 	 * @param currentType See {@link #currentType}
 	 * @param maxType See {@link #maxType}
 	 * @param regenType See {@link #regenType}
 	 * @param zgame The game to use to create the item
 	 */
-	public ResourceListItem(String baseName, ZusassStat currentType, ZusassStat maxType, ZusassStat regenType, ZusassGame zgame){
-		super(null, zgame);
+	public ResourceListItem(StatList statList, String baseName, ZusassStat currentType, ZusassStat maxType, ZusassStat regenType, ZusassGame zgame){
+		super(statList, null, zgame);
 		this.baseName = baseName;
 		this.currentType = currentType;
 		this.maxType = maxType;
@@ -39,11 +40,11 @@ public class ResourceListItem extends StatListItem{
 	public void updateTextOptions(ZusassMob mob){
 		var options = new ArrayList<TextOption>(7);
 		options.add(new TextOption(new StringBuilder(this.baseName).append(": ").toString(), BASE_TEXT_COLOR));
-		options.add(StatListItem.makeTextOption(mob.getStat(this.currentType)));
+		options.add(this.makeTextOption(mob.getStat(this.currentType)));
 		options.add(new TextOption("/", BASE_TEXT_COLOR));
-		options.add(StatListItem.makeTextOption(mob.getStat(this.maxType)));
+		options.add(this.makeTextOption(mob.getStat(this.maxType)));
 		options.add(new TextOption("(", BASE_TEXT_COLOR));
-		options.add(StatListItem.makeTextOption(mob.getStat(this.regenType)));
+		options.add(this.makeTextOption(mob.getStat(this.regenType)));
 		options.add(new TextOption(")", BASE_TEXT_COLOR));
 		
 		this.getTextBuffer().setOptions(options);

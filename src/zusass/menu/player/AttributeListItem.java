@@ -15,11 +15,12 @@ public class AttributeListItem extends StatListItem{
 
 	/**
 	 * Create a new stat item
+	 * @param statList See {@link #statList}
 	 * @param baseName See {@link #baseName}
 	 * @param zgame The game to use to create the item
 	 */
-	public AttributeListItem(String baseName, ZusassStat statType, ZusassGame zgame){
-		super(statType, zgame);
+	public AttributeListItem(StatList statList, String baseName, ZusassStat statType, ZusassGame zgame){
+		super(statList, statType, zgame);
 		this.baseName = baseName;
 	}
 	
@@ -27,7 +28,7 @@ public class AttributeListItem extends StatListItem{
 	public void updateTextOptions(ZusassMob mob){
 		var options = new ArrayList<TextOption>(2);
 		options.add(new TextOption(new StringBuilder(this.baseName).append(": ").toString(), BASE_TEXT_COLOR));
-		options.add(StatListItem.makeTextOption(mob.getStat(this.getStatType())));
+		options.add(this.makeTextOption(mob.getStat(this.getStatType())));
 		
 		this.getTextBuffer().setOptions(options);
 	}

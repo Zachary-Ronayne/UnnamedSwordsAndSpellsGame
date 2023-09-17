@@ -1,5 +1,6 @@
 package zusass.menu.player;
 
+import org.lwjgl.glfw.GLFW;
 import zgame.core.Game;
 import zgame.menu.MenuThing;
 import zgame.menu.format.MenuFormatter;
@@ -13,8 +14,6 @@ public class StatsMenu extends DraggableMenu{
 	
 	// TODO add a popup showing a description for each stat
 	
-	// TODO make decimal places optional
-	
 	/** The list displaying the stats */
 	private StatList statList;
 	
@@ -23,6 +22,9 @@ public class StatsMenu extends DraggableMenu{
 	
 	/** The amount of time, in seconds, since the last time stats were updated */
 	private double lastStatUpdate;
+	
+	/** true to display decimal places on stats, false otherwise */
+	private boolean displayDecimals;
 	
 	/**
 	 * Create a new {@link StatsMenu} for displaying the spells of something
@@ -34,6 +36,7 @@ public class StatsMenu extends DraggableMenu{
 		this.lastStatUpdate = 0;
 		this.setWidth(200);
 		this.initMenuThings(zgame);
+		this.displayDecimals = false;
 	}
 	
 	@Override
@@ -59,23 +62,30 @@ public class StatsMenu extends DraggableMenu{
 	}
 	
 	@Override
-	public void onAdd(Game game){
-		super.onAdd(game);
+	public void regenerateThings(ZusassGame zgame){
+		// TODO fix the annoying blinking that comes from updating stats
+		this.statList.regenerateText(zgame, this.getMob());
+		this.lastStatUpdate = 0;
 	}
 	
 	@Override
-	public void regenerateThings(ZusassGame zgame){
-		this.statList.regenerateText(zgame, this.getMob());
+	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyAction(game, button, press, shift, alt, ctrl);
+		if(button != GLFW.GLFW_KEY_LEFT_SHIFT && button != GLFW.GLFW_KEY_RIGHT_SHIFT) return;
+		
+		this.displayDecimals = press;
+		this.regenerateThings((ZusassGame)game);
 	}
 	
 	@Override
 	public void tick(Game game, double dt){
 		super.tick(game, dt);
-		// TODO fix the annoying blinking that comes from updating stats
-		if(this.lastStatUpdate >= STAT_UPDATE_TIME) {
-			this.statList.regenerateText((ZusassGame)game, this.getMob());
-			this.lastStatUpdate = 0;
-		}
+		if(this.lastStatUpdate >= STAT_UPDATE_TIME) this.regenerateThings((ZusassGame)game);
 		else this.lastStatUpdate += dt;
+	}
+	
+	/** @return See {@link #displayDecimals} */
+	public boolean isDisplayDecimals(){
+		return this.displayDecimals;
 	}
 }
