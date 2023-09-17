@@ -14,11 +14,13 @@ public class StatsMenu extends DraggableMenu{
 	
 	// TODO add a popup showing a description for each stat
 	
-	/** The list displaying the stats */
-	private StatList statList;
-	
+	/** The position, relative to this menu, for the maximum height of the scroller */
+	public static final double SCROLLER_POSITION = DraggableMenu.DRAGGABLE_HEIGHT + DraggableMenu.BORDER_SIZE * 2;
 	/** The number of seconds to wait between stat updates */
 	public static final double STAT_UPDATE_TIME = 0.5;
+	
+	/** The list displaying the stats */
+	private StatList statList;
 	
 	/** The amount of time, in seconds, since the last time stats were updated */
 	private double lastStatUpdate;

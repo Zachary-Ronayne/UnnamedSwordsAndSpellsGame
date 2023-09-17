@@ -1,5 +1,7 @@
 package zusass.menu.player;
 
+import zgame.core.Game;
+import zgame.core.graphics.Renderer;
 import zgame.menu.MenuHolder;
 import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
@@ -31,8 +33,9 @@ public class StatList extends MenuHolder{
 		super();
 		this.menu = menu;
 		this.textList = new ArrayList<>();
+		this.setWidth(1);
+		this.setHeight(1);
 		
-		// TODO abstract out this formatting
 		this.setFormatter(new PixelFormatter(StatsMenu.BORDER_SIZE * 1.5, StatsMenu.BORDER_SIZE * 2.5, StatsMenu.DRAGGABLE_HEIGHT + StatsMenu.BORDER_SIZE * 3, null));
 		this.invisible();
 		
@@ -150,4 +153,13 @@ public class StatList extends MenuHolder{
 		return this.menu.isDisplayDecimals();
 	}
 	
+	@Override
+	public void drawThings(Game game, Renderer r, boolean reposition){
+		var b = this.menu.getRelBounds();
+		b.y += StatsMenu.SCROLLER_POSITION;
+		b.height -= StatsMenu.SCROLLER_POSITION;
+		r.pushLimitedBoundsIntersection(b);
+		super.drawThings(game, r, reposition);
+		r.popLimitedBounds();
+	}
 }
