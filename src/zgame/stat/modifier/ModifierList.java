@@ -24,6 +24,11 @@ public class ModifierList{
 		this.type = type;
 	}
 	
+	/** Remove every modifier from this list */
+	public void clear(){
+		this.modifiers.clear();
+	}
+	
 	/**
 	 * @param mod The modifier to check for
 	 * @return true if the modifier is in the list, false otherwise
