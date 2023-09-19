@@ -28,6 +28,9 @@ public class StatsMenu extends DraggableMenu{
 	/** true to display decimal places on stats, false otherwise */
 	private boolean displayDecimals;
 	
+	/** true if shift was held down, false otherwise */
+	private boolean shiftDown;
+	
 	/**
 	 * Create a new {@link StatsMenu} for displaying the spells of something
 	 *
@@ -74,6 +77,8 @@ public class StatsMenu extends DraggableMenu{
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(button != GLFW.GLFW_KEY_LEFT_SHIFT && button != GLFW.GLFW_KEY_RIGHT_SHIFT) return;
 		
+		if(press == this.shiftDown) return;
+		this.shiftDown = press;
 		this.displayDecimals = press;
 		this.regenerateThings((ZusassGame)game);
 	}
