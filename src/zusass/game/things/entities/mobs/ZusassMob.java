@@ -392,6 +392,11 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.setToMaxMana();
 	}
 	
+	/** Bring every stat to its base value based on its {@link Stat#reset()} method */
+	public void resetStats(){
+		for(var m : this.stats.getArr()) m.reset();
+	}
+	
 	/** Set this thing's current health to its maximum health */
 	public void setToMaxHealth(){
 		this.setStat(HEALTH, this.stat(HEALTH_MAX));

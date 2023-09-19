@@ -9,9 +9,6 @@ import zusass.menu.comp.ZusassButton;
 /** The popup to select the stat to effect for the spell */
 public class StatChoosePopup extends Menu{
 	
-	/** The menu using this popup */
-	private final StatChooseButton button;
-	
 	/**
 	 * Create the popup for selecting a stat type
 	 * @param button The button which creates this popup
@@ -19,7 +16,6 @@ public class StatChoosePopup extends Menu{
 	 */
 	public StatChoosePopup(StatChooseButton button, ZusassGame zgame){
 		super();
-		this.button = button;
 		
 		var values = StatSpellType.values();
 		var buttonHeight = 30.0;

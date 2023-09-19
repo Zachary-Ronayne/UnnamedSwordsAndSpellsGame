@@ -82,6 +82,12 @@ public abstract class ResourceStat extends RegenStat{
 	 */
 	public abstract double calculateRegenStat();
 	
+	@Override
+	public void reset(){
+		super.reset();
+		this.setValue(this.max.get());
+	}
+	
 	/** See {@link #min} */
 	public class Min extends Stat{
 		/**

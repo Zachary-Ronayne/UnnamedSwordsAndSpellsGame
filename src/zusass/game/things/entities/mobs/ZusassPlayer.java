@@ -182,6 +182,13 @@ public class ZusassPlayer extends ZusassMob{
 	@Override
 	public void die(ZusassGame zgame){
 		super.die(zgame);
+		// Remove all non-persistent effects on death, as well as all modifiers, and restore resources and attributes
+		this.getEffects().removeAllTemporary(this);
+		var statArr = this.getStats().getArr();
+		for(var s : statArr) s.reset();
+		
+		this.setResourcesMax();
+		
 		zgame.getPlayState().enterHub(zgame);
 		zgame.getData().checkAutoSave(zgame);
 	}

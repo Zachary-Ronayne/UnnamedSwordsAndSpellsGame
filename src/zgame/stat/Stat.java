@@ -118,6 +118,7 @@ public abstract class Stat{
 	 * @param type The type of modifiers which must be recalculated
 	 */
 	public void flagModifiersRecalculate(ModifierType type, String sourceId){
+		// TODO fix this sometimes causing a concurrent modification exception
 		this.flagRecalculate();
 		var m = this.modifiers[type.getIndex()];
 		var list = m.get(sourceId);
@@ -201,6 +202,12 @@ public abstract class Stat{
 		this.flagRecalculate();
 	}
 	
+	/** Remove every modifier from this stat */
+	public void clearModifiers(){
+		for(var m : this.modifiers) m.values().clear();
+		this.flagRecalculate();
+	}
+	
 	/**
 	 * @param mod The modifier to check for
 	 * @param sourceId The id representing the source of the modifier
@@ -248,6 +255,11 @@ public abstract class Stat{
 	 */
 	public void addValue(double value){
 		this.flagRecalculate();
+	}
+	
+	/** Perform any necessary actions to reset the state of this stat. Removes modifiers by default */
+	public void reset(){
+		this.clearModifiers();
 	}
 	
 }

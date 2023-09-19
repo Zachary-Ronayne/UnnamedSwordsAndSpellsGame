@@ -21,7 +21,6 @@ public abstract class Attribute extends Stat{
 	 * @param level See {@link #level}
 	 * @param regen See {@link #regen}
 	 */
-	// TODO if strength goes below 0, the player dies forever because health is always 0, figure out how to handle this
 	public Attribute(Stats stats, ZusassStat type, ZusassStat base, ZusassStat level, ZusassStat regen){
 		super(stats, type, base);
 		this.base = new Base(stats, base, level, regen);
@@ -46,6 +45,12 @@ public abstract class Attribute extends Stat{
 	@Override
 	public void addValue(double value){
 		this.base.addValue(value);
+	}
+	
+	@Override
+	public void reset(){
+		super.reset();
+		this.setValue(this.level.get());
 	}
 	
 	/** The {@link RegenStat} holding the base value of this {@link Attribute} before modifiers */
