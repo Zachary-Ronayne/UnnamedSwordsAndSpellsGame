@@ -15,12 +15,13 @@ public class AttributeListItem extends StatListItem{
 
 	/**
 	 * Create a new stat item
+	 * @param size The size of this item
 	 * @param statList See {@link #statList}
 	 * @param baseName See {@link #baseName}
 	 * @param zgame The game to use to create the item
 	 */
-	public AttributeListItem(StatList statList, String baseName, ZusassStat statType, ZusassGame zgame){
-		super(statList, statType, zgame);
+	public AttributeListItem(double size, StatList statList, String baseName, ZusassStat statType, ZusassGame zgame){
+		super(size, statList, statType, zgame);
 		this.baseName = baseName;
 	}
 	

@@ -22,6 +22,8 @@ public class StatListItem extends ZusassMenuText{
 	
 	/** The color for the fill of the stat backgrounds */
 	public static final ZColor FILL_COLOR = new ZColor(1);
+	/** The color for the border of the stat rectangle */
+	public static final ZColor BORDER_COLOR = new ZColor(0);
 	/** The text color for stats which are not modified */
 	public static final ZColor BASE_TEXT_COLOR = new ZColor(0);
 	/** The text color for buffed stats */
@@ -40,19 +42,19 @@ public class StatListItem extends ZusassMenuText{
 	/**
 	 * Create a new stat item
 	 *
+	 * @param size The size of this item
 	 * @param statType See {@link #statType}
 	 * @param zgame The game to use to create the item
 	 */
-	public StatListItem(StatList statList, ZusassStat statType, ZusassGame zgame){
-		super(0, 0, 1, HEIGHT, "", zgame);
+	public StatListItem(double size, StatList statList, ZusassStat statType, ZusassGame zgame){
+		super(0, 0, 1, size, "", zgame);
 		this.statList = statList;
 		this.statType = statType;
 		this.setFormatter(new PercentFormatter(1.0, null, 0.5, null));
 		
 		this.setFill(FILL_COLOR);
-		this.removeBorder();
-		this.setBorderWidth(0);
-		this.setFontSize(HEIGHT * .85);
+		this.setBorderWidth(1);
+		this.setBorder(BORDER_COLOR);
 		this.bufferWidthToWindow(zgame);
 	}
 	

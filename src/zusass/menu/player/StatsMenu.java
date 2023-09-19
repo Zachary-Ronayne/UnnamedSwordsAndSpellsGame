@@ -36,7 +36,7 @@ public class StatsMenu extends DraggableMenu{
 	public StatsMenu(ZusassGame zgame){
 		super(zgame);
 		this.lastStatUpdate = 0;
-		this.setWidth(200);
+		this.setWidth(350);
 		this.initMenuThings(zgame);
 		this.displayDecimals = false;
 	}

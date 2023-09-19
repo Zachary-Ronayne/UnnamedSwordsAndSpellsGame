@@ -21,6 +21,7 @@ public class ResourceListItem extends StatListItem{
 
 	/**
 	 * Create a new stat item
+	 * @param size The size of this item
 	 * @param statList See {@link #statList}
 	 * @param baseName See {@link #baseName}
 	 * @param currentType See {@link #currentType}
@@ -28,8 +29,8 @@ public class ResourceListItem extends StatListItem{
 	 * @param regenType See {@link #regenType}
 	 * @param zgame The game to use to create the item
 	 */
-	public ResourceListItem(StatList statList, String baseName, ZusassStat currentType, ZusassStat maxType, ZusassStat regenType, ZusassGame zgame){
-		super(statList, null, zgame);
+	public ResourceListItem(double size, StatList statList, String baseName, ZusassStat currentType, ZusassStat maxType, ZusassStat regenType, ZusassGame zgame){
+		super(size, statList, null, zgame);
 		this.baseName = baseName;
 		this.currentType = currentType;
 		this.maxType = maxType;

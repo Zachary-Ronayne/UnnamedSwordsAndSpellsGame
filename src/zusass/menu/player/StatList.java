@@ -14,7 +14,9 @@ import java.util.ArrayList;
 public class StatList extends MenuHolder{
 	
 	/** The space between each stat thing in the list */
-	public static double TEXT_SPACE = 30;
+	public static double TEXT_SPACE = 33;
+	/** The space between each header of the stat things in the list */
+	public static double HEADER_SPACE = TEXT_SPACE * 1.3;
 	
 	/** The menu holding this list */
 	private final StatsMenu menu;
@@ -40,28 +42,27 @@ public class StatList extends MenuHolder{
 		this.invisible();
 		
 		// Generate the list of text things
-		// TODO make headers a bigger font
 		double baseY = 0;
 		double y = baseY;
-		y = this.addTextThing(zgame, "Resources:", y);
+		y = this.addTextThing(zgame, "Resources:", HEADER_SPACE, y);
 		y = this.addResourceStat(zgame,"Health", ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, ZusassStat.HEALTH_REGEN, y);
 		y = this.addResourceStat(zgame,"Stamina", ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, ZusassStat.STAMINA_REGEN, y);
 		y = this.addResourceStat(zgame,"Mana", ZusassStat.MANA, ZusassStat.MANA_MAX, ZusassStat.MANA_REGEN, y);
 		y = this.addTextSpaceThing(zgame, y);
 		
-		y = this.addTextThing(zgame, "Attributes:", y);
+		y = this.addTextThing(zgame, "Attributes:", HEADER_SPACE, y);
 		y = this.addAttributeStat(zgame, "Strength", ZusassStat.STRENGTH, y);
 		y = this.addAttributeStat(zgame, "Endurance", ZusassStat.ENDURANCE, y);
 		y = this.addAttributeStat(zgame, "Intelligence", ZusassStat.INTELLIGENCE, y);
 		y = this.addTextSpaceThing(zgame, y);
 		
-		y = this.addTextThing(zgame, "Attack", y);
+		y = this.addTextThing(zgame, "Attack", HEADER_SPACE, y);
 		y = this.addAttributeStat(zgame, "Damage", ZusassStat.ATTACK_DAMAGE, y);
 		y = this.addAttributeStat(zgame, "Speed", ZusassStat.ATTACK_SPEED, y);
 		y = this.addAttributeStat(zgame, "Range", ZusassStat.ATTACK_RANGE, y);
 		y = this.addTextSpaceThing(zgame, y);
 		
-		y = this.addTextThing(zgame, "Misc", y);
+		y = this.addTextThing(zgame, "Misc", HEADER_SPACE, y);
 		y = this.addAttributeStat(zgame, "Move Speed", ZusassStat.MOVE_SPEED, y);
 		
 		this.setHeight(y - baseY);
@@ -78,7 +79,8 @@ public class StatList extends MenuHolder{
 	 * @return The next y position to place an item
 	 */
 	private double addAttributeStat(ZusassGame zgame, String baseName, ZusassStat stat, double y){
-		return this.addTextThing(new AttributeListItem(this, baseName, stat, zgame), null, y);
+		var size = TEXT_SPACE;
+		return this.addTextThing(new AttributeListItem(size, this, baseName, stat, zgame), null, size, y);
 	}
 	
 	/**
@@ -92,7 +94,8 @@ public class StatList extends MenuHolder{
 	 * @return The next y position to place an item
 	 */
 	private double addResourceStat(ZusassGame zgame, String baseName, ZusassStat current, ZusassStat max, ZusassStat regen, double y){
-		return this.addTextThing(new ResourceListItem(this, baseName, current, max, regen, zgame), null, y);
+		var size = TEXT_SPACE;
+		return this.addTextThing(new ResourceListItem(size, this, baseName, current, max, regen, zgame), null, size, y);
 	}
 	
 	/**
@@ -102,33 +105,37 @@ public class StatList extends MenuHolder{
 	 * @return The next y position to place an item
 	 */
 	private double addTextSpaceThing(ZusassGame zgame, double y){
-		return this.addTextThing(zgame, "", y);
+		return this.addTextThing(zgame, "", TEXT_SPACE * 0.5, y);
 	}
 	
 	/**
 	 * Add a text thing to this stat list
 	 * @param zgame The game using this list
 	 * @param baseString The base text to use to display the thing
+	 * @param size The size of the thing
 	 * @param y The current y position to place a list item
 	 * @return The next y position to place an item
 	 */
-	private double addTextThing(ZusassGame zgame, String baseString, double y){
-		return this.addTextThing(new StatListItem(this,null, zgame), baseString, y);
+	private double addTextThing(ZusassGame zgame, String baseString, double size, double y){
+		return this.addTextThing(new StatListItem(size, this,null, zgame), baseString, size, y);
 	}
 	
 	/**
 	 * Add a text thing to this stat list
 	 * @param item The item to display
 	 * @param baseString The base text to use to display the thing
+	 * @param size The size of the thing
 	 * @param y The current y position to place a list item
 	 * @return The next y position to place an item
 	 */
-	private double addTextThing(StatListItem item, String baseString, double y){
+	private double addTextThing(StatListItem item, String baseString, double size, double y){
 		if(baseString != null) item.setText(baseString);
+		item.setFontSize(size * .8);
 		item.setRelY(y);
+		if("".equals(baseString)) item.invisible();
 		this.textList.add(item);
 		this.addThing(item);
-		return y + TEXT_SPACE;
+		return y + size;
 	}
 	
 	/**
