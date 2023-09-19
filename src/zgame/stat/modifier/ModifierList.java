@@ -65,12 +65,17 @@ public class ModifierList{
 	
 	/** Recalculate the current value of this modifier list */
 	public void recalculate(){
-		// TODO fix this sometimes causing a concurrent modification exception
+		StatModifier max = null;
+		for(int i = 0; i < this.modifiers.size(); i++){
+			var m = this.modifiers.get(i);
+			if(max == null || Math.abs(max.getValue()) < Math.abs((m.getValue()))) max = m;
+		}
+		
 		this.modifiers.sort(StatModifier::compareTo);
 		// If we are multiplying, the default value should be 1, otherwise we are just adding
 		// If more complicated modifier types get created, then each enum type should probably have a method that determines default behavior and what value to return by default
-		if(this.isEmpty()) this.value = this.type == ModifierType.MULT_MULT ? 1 : 0;
-		else this.value = this.modifiers.get(0).getValue();
+		if(max == null) this.value = this.type == ModifierType.MULT_MULT ? 1 : 0;
+		else this.value = max.getValue();
 		this.recalculate = false;
 	}
 	

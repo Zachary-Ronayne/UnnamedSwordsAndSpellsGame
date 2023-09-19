@@ -34,7 +34,7 @@ public abstract class Stat{
 	 * The current modifiers applying to this {@link Stat}.
 	 * The outer array is indexed by {@link ModifierType}
 	 * The Map is mapped by modifier sourceId
-	 * The ArrayList is sorted descending by modifier power
+	 * The list is in an arbitrary order
 	 */
 	private final Map<String, ModifierList>[] modifiers;
 	
