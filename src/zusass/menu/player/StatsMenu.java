@@ -67,7 +67,11 @@ public class StatsMenu extends DraggableMenu{
 	
 	@Override
 	public void regenerateThings(ZusassGame zgame){
-		// TODO fix the annoying blinking that comes from updating stats
+		/*
+		 TODO fix the annoying blinking that comes from updating stats
+		 	The problem is that for one frame, the text is being drawn to the wrong buffer, causing the blink
+		 	It's not the view port or buffer being not bound, that's already accounted for in the push and pop attributes methods
+		 */
 		this.statList.regenerateText(zgame, this.getMob());
 		this.lastStatUpdate = 0;
 	}

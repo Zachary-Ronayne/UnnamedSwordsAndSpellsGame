@@ -735,6 +735,7 @@ public class Renderer implements Destroyable{
 			w = c.sizeGameToScreenX(w);
 			h = c.sizeGameToScreenY(h);
 		}
+		// TODO clear this issue
 		// issue#29 figure out why enabling this scissor test makes the text not show up initially. Is it something because of text buffers?
 		glEnable(GL_SCISSOR_TEST);
 		glScissor((int)Math.round(x), (int)Math.round(this.getHeight() - y), (int)Math.round(w), (int)Math.round(h));
@@ -1449,6 +1450,8 @@ public class Renderer implements Destroyable{
 		GameBuffer b = this.getBuffer();
 		b.drawToBuffer();
 		b.setViewport();
+		// TODO updating the limited bounds after changing the buffer seems to fix the buffer issue, figure out and explain why this happens
+		this.updateLimitedBounds();
 	}
 	
 	/**

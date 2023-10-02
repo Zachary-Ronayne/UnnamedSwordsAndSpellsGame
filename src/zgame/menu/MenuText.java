@@ -271,6 +271,7 @@ public class MenuText extends MenuThing{
 		this.setTextX(offset);
 	}
 	
+	/** @return The bounds of {@link #getText()} based on {@link #getFont()} */
 	public ZRect getTextBounds(){
 		return this.getFont().stringBounds(this.getText());
 	}

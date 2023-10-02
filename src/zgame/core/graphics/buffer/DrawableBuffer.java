@@ -71,13 +71,13 @@ public class DrawableBuffer extends GameBuffer{
 	private void redraw(Renderer r){
 		this.redraw(r, (rr, d) -> {
 			var unlimited = this.isForceUnlimit();
-			if(unlimited) r.pushUnlimitedBounds();
-			else r.pushLimitedBounds(this.getBounds());
+			if(unlimited) rr.pushUnlimitedBounds();
+			else rr.pushLimitedBounds(this.getBounds());
 			
 			// Clear the contents of the buffer and draw it
 			this.clear();
-			this.draw(r);
-			r.popLimitedBounds();
+			this.draw(rr);
+			rr.popLimitedBounds();
 		}, null);
 	}
 	
@@ -121,6 +121,11 @@ public class DrawableBuffer extends GameBuffer{
 	 */
 	public void updateRedraw(boolean redraw){
 		this.needRedraw = this.needRedraw || redraw;
+	}
+	
+	/** @return See {@link #needRedraw} */
+	public boolean isNeedRedraw(){
+		return this.needRedraw;
 	}
 	
 	/** @return See {@link #forceUnlimit} */
