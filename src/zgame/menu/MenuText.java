@@ -106,7 +106,7 @@ public class MenuText extends MenuThing{
 	}
 	
 	@Override
-	protected void setBuffer(boolean use){
+	public void setBuffer(boolean use){
 		super.setBuffer(use);
 		this.regenerateTextBuffer();
 	}

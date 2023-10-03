@@ -20,7 +20,7 @@ public class MenuHolder extends MenuThing{
 	 */
 	public MenuHolder(double x, double y){
 		super(x, y, 1, 1);
-		this.setDrawThingsToBuffer(false);
+		this.setDefaultUseBuffer(false);
 	}
 	
 }

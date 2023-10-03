@@ -766,9 +766,11 @@ public class MainTest extends Game{
 			scrollX.setScrollWheelEnabled(false);
 			scrollX.setScrollWheelAsPercent(false);
 			scrollX.setScrollWheelStrength(10);
-			scrollX.setDrawThingsToBuffer(false);
+			scrollX.setDefaultUseBuffer(false);
 			scrollX.regenerateBuffer();
 			scrollX.getButton().regenerateBuffer();
+			scrollX.getButton().setHighlightColor(new ZColor(0, 0, 1, .5));
+			scrollX.getButton().setFill(new ZColor(.5, .5, .5));
 			MenuScroller scrollY = new VerticalScroller(820, 0, 20, 350, 200, game){
 				@Override
 				public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
@@ -776,6 +778,10 @@ public class MainTest extends Game{
 					setScrollWheelEnabled(!shift);
 				}
 			};
+			
+			scrollY.setDefaultUseBuffer(true);
+			scrollY.getButton().setHighlightColor(new ZColor(0, 0, 1, .5));
+			scrollY.getButton().setFill(new ZColor(.5, .5, .5));
 			
 			MenuButton t;
 			
@@ -791,8 +797,8 @@ public class MainTest extends Game{
 				}
 			};
 			t.setFill(new ZColor(0, .2, .7));
+			t.setFontColor(new ZColor(0));
 			t.setText("Back");
-			t.regenerateBuffer();
 			base.addThing(t);
 			
 			t = new MenuButton(50, 100, 200, 100, game){
@@ -815,6 +821,7 @@ public class MainTest extends Game{
 			};
 			t.setFill(new ZColor(.5, 0, 0));
 			t.setText("Exit");
+			t.setFontColor(new ZColor(0));
 			t.setFont(new GameFont(game.getFontAsset("zfont"), 50, 0, 0));
 			base.addThing(t);
 			
@@ -827,6 +834,7 @@ public class MainTest extends Game{
 			t.setText("popup");
 			t.setTextY(45);
 			t.setFont(new GameFont(game.getFontAsset("zfont"), 25, 0, 0));
+			t.setFontColor(new ZColor(0));
 			base.addThing(t);
 			
 			base.getAllThings().addClass(MenuTextBox.class);
@@ -882,6 +890,7 @@ public class MainTest extends Game{
 				}
 			};
 			b.setText("exit popup");
+			b.setFontColor(new ZColor(0));
 			b.setTextY(90);
 			b.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
 			menu.addThing(b);

@@ -38,8 +38,8 @@ public class SpellListButton extends ZusassButton{
 		
 		this.setFormatter(new PercentFormatter(1.0, null, 0.5, null));
 		this.setFontSize(24);
-		this.updateTextPosition();
 		this.bufferWidthToWindow(zgame);
+		this.updateTextPosition();
 	}
 	
 	@Override

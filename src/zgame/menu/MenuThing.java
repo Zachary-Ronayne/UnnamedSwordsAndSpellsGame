@@ -40,12 +40,6 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** The width, in pixels, of the border of this {@link MenuThing} */
 	private double borderWidth;
 	
-	/**
-	 * true to draw the contents of {@link #things} to {@link #buffer}, if it is being used, false to draw them directly. true by default. This value is ignored when
-	 * {@link #usesBuffer()} returns false.
-	 */
-	private boolean drawThingsToBuffer;
-	
 	/** true if, when mouse input is given to this {@link MenuThing}'s bounds, it will not be given to any parent elements, false otherwise, true by default */
 	private boolean stopParentInput;
 	
@@ -61,8 +55,11 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	private DrawableGameBuffer buffer;
 	
-	/** true if this thing should use a buffer when it is added to a thing, false to not use a buffer */
+	/** true if this thing should generate a buffer when it is added to a thing, false to not use a buffer */
 	private boolean defaultUseBuffer;
+	
+	/** true if this thing should only draw inside its {@link #getBounds()}, even if it is not using a buffer */
+	private boolean limitToBounds;
 	
 	/**
 	 * If the mouse is clicked and dragged while within the area of the given thing relative to this {@link MenuThing}, it will be dragged around.
@@ -194,7 +191,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		this.parent = null;
 		
 		this.defaultUseBuffer = useBuffer;
-		this.drawThingsToBuffer = true;
+		this.limitToBounds = false;
 		
 		this.stopParentInput = false;
 		
@@ -287,10 +284,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 		formatter.onHeightChange(this, height);
 	}
 	
-	// issue#11 add option to make things only render in the bounds regardless of a buffer, fix render checking first
-	
 	/** @param use true to enable using the buffer, false otherwise. If setting to true, probably should follow this up with {@link #regenerateBuffer()} */
-	protected void setBuffer(boolean use){
+	public void setBuffer(boolean use){
 		if(use && this.buffer == null) this.initBuffer();
 		else if(!use){
 			this.destroyBuffer();
@@ -342,14 +337,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 		return this.buffer;
 	}
 	
-	/** @return See {@link #drawThingsToBuffer} */
+	/** @return true if this thing is drawing its contents to a buffer, false otherwise */
 	public boolean isDrawThingsToBuffer(){
-		return this.drawThingsToBuffer;
-	}
-	
-	/** @param drawThingsToBuffer See {@link #drawThingsToBuffer} */
-	public void setDrawThingsToBuffer(boolean drawThingsToBuffer){
-		this.drawThingsToBuffer = drawThingsToBuffer;
+		return this.buffer != null;
 	}
 	
 	/** @return See {@link #defaultUseBuffer} */
@@ -359,9 +349,17 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** @param defaultUseBuffer See {@link #defaultUseBuffer} */
 	public void setDefaultUseBuffer(boolean defaultUseBuffer){
-		if(this.defaultUseBuffer == defaultUseBuffer) return;
 		this.defaultUseBuffer = defaultUseBuffer;
-		this.setBuffer(this.defaultUseBuffer);
+	}
+	
+	/** @return See {@link #limitToBounds} */
+	public boolean isLimitToBounds(){
+		return this.limitToBounds;
+	}
+	
+	/** @param limitToBounds See {@link #limitToBounds} */
+	public void setLimitToBounds(boolean limitToBounds){
+		this.limitToBounds = limitToBounds;
 	}
 	
 	@Override
@@ -929,7 +927,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	public boolean addThing(MenuThing thing){
 		if(this == thing || this.hasThing(thing) || thing.getParent() != null) return false;
-		if((this.getBuffer() == null) != this.defaultUseBuffer) thing.setBuffer(this.defaultUseBuffer);
+		if(thing.defaultUseBuffer) thing.setBuffer(true);
 		thing.setParent(this);
 		thing.format();
 		return this.things.add(thing);
@@ -1318,15 +1316,19 @@ public class MenuThing implements GameInteractable, Destroyable{
 		// If using a buffer, draw the contents of the buffer to the relative position
 		if(this.usesBuffer()){
 			this.buffer.drawToRenderer(this.getRelX(), this.getRelY(), r, game);
-			// If not drawing the things to the buffer, draw them directly
+			
+			if(this.isLimitToBounds()) r.pushLimitedBounds(new ZRect(0, 0, this.getWidth(), this.getHeight()));
 			if(!this.isDrawThingsToBuffer()) this.drawThings(game, r, true);
 		}
 		// Otherwise, draw the object directly with the renderer
 		else{
 			// Draw relative to the parent
-			this.render(game, r, this.getRelBounds());
+			var b = this.getRelBounds();
+			if(this.isLimitToBounds()) r.pushLimitedBounds(b);
+			this.render(game, r, b);
 			this.drawThings(game, r, true);
 		}
+		if(this.isLimitToBounds()) r.popLimitedBounds();
 	}
 	
 	/**

@@ -24,7 +24,7 @@ import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZFilePaths;
 import zgame.core.utils.ZStringUtils;
 
-/** An object that represents a font file to be used for rendering, but not things like font size, */
+/** An object that represents a font file to be used for rendering, but not things like font size */
 public class FontAsset extends Asset{
 	
 	/** The number of int buffers available in {@link #intBuffers} */

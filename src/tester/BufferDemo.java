@@ -12,6 +12,7 @@ import zgame.core.state.MenuState;
 import zgame.core.utils.ZRect;
 import zgame.menu.Menu;
 import zgame.menu.MenuText;
+import zgame.menu.MenuThing;
 
 /** A demo tester class for debugging buffers, mainly trying to fix buffers being blank for 1 frame after redrawing */
 public class BufferDemo extends Game{
@@ -25,8 +26,8 @@ public class BufferDemo extends Game{
 		game = new Game();
 		game.setPrintFps(false);
 		game.setPrintTps(false);
-		game.setMaxFps(4);
-		game.setTps(4);
+		game.setMaxFps(100);
+		game.setTps(100);
 		game.getWindow().setUseVsync(false);
 		game.getWindow().center();
 		buffer = new BufferTester(500, 300);
@@ -64,6 +65,50 @@ public class BufferDemo extends Game{
 		thing.setFill(new ZColor(.8, .8, 1));
 		thing.centerText();
 		menu.addThing(thing);
+		
+		MenuThing t = new MenuThing(){
+			@Override
+			public void render(Game game, Renderer r, ZRect bounds){
+				super.render(game, r, bounds);
+				r.setColor(0, 1, 0, .5);
+				r.drawRectangle(bounds.x - 20, bounds.y - 20, bounds.width + 80, bounds.height + 80);
+			}
+		};
+		t.setRelX(700);
+		t.setRelY(50);
+		t.setWidth(100);
+		t.setHeight(300);
+		menu.addThing(t);
+		
+		t = new MenuThing(){
+			@Override
+			public void render(Game game, Renderer r, ZRect bounds){
+				super.render(game, r, bounds);
+				r.setColor(0, 1, 1, .5);
+				r.fill();
+			}
+		};
+		t.setRelX(850);
+		t.setRelY(50);
+		t.setWidth(100);
+		t.setHeight(300);
+		t.setDefaultUseBuffer(true);
+		menu.addThing(t);
+		
+		t = new MenuThing(){
+			@Override
+			public void render(Game game, Renderer r, ZRect bounds){
+				super.render(game, r, bounds);
+				r.setColor(1, 0, 1, .5);
+				r.fill();
+			}
+		};
+		t.setRelX(1000);
+		t.setRelY(50);
+		t.setWidth(100);
+		t.setHeight(300);
+		t.setLimitToBounds(true);
+		menu.addThing(t);
 
 		game.setCurrentState(state);
 		game.start();
