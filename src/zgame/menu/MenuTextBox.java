@@ -345,6 +345,7 @@ public class MenuTextBox extends MenuButton{
 		this.letterBounds = f.characterBounds(this.getRelX() + this.getTextX(), this.getRelY() + this.getTextY(), this.getCurrentText(), 1);
 		this.textWidth = this.letterBounds[this.getCurrentText().length()].getWidth();
 		if(this.cursorIndex > currentText.length() - 1) this.setCursorIndex(currentText.length() - 1);
+		this.getTextBuffer().setText(this.getCurrentText());
 	}
 	
 	/** @return See {@link #textColor} */

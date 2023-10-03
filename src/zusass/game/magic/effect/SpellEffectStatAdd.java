@@ -46,7 +46,7 @@ public class SpellEffectStatAdd implements SpellEffect{
 	@Override
 	public double getCost(){
 		var a = this.getAmount();
-		return a < 0 ? this.stat.getDebuffValue() : this.stat.getBuffValue() * Math.abs(a) * 0.5;
+		return (a < 0 ? this.stat.getDebuffValue() : this.stat.getBuffValue()) * Math.abs(a) * 0.5;
 	}
 	
 	@Override
