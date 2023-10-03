@@ -20,8 +20,7 @@ public abstract class ZusassButton extends MenuButton{
 		super(x, y, w, h, text, zgame);
 		
 		// issue#30 why does using a buffer here make some buttons not display?
-//		this.setBuffer(true);
-//		this.regenerateBuffer();
+//		this.setDefaultUseBuffer(true);
 		
 		ZusassStyle.applyStyleText(zgame, this);
 		this.setFontSize(40);

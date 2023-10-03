@@ -41,7 +41,7 @@ public abstract class DraggableMenu extends ZusassMenu{
 		this.setDefaultDestroyRemove(false);
 		this.setSendToTopOnClick(true);
 		
-		// issue#28 why does making this use a buffer make the menu extra transparent?
+		// issue#28 why does making this use a buffer make the menu extra transparent and mess up all the button rendering?
 //		this.setBuffer(true);
 //		this.getBuffer().setAlphaMode(AlphaMode.BUFFER);
 		

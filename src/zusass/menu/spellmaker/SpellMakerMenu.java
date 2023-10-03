@@ -101,6 +101,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.setBorder(new ZColor(.3, 0, .5, .5));
 		this.setDraggableColor(new ZColor(.6, 0, .85, .8));
 		this.makeDraggable(10, 30);
+		// TODO fix the spell cost buffer not reliably updating
 		// issue#30 make this draggable again when the buffer issue is fixed
 		this.setDraggable(false);
 		this.setDraggableSides(false);
