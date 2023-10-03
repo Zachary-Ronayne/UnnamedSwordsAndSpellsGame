@@ -41,15 +41,10 @@ public class EffectTypeButton extends ToggleButton{
 	}
 	
 	@Override
-	public String getText(){
-		if(this.menu != null && !this.menu.canSelectInstant()) return STATUS;
-		return super.getText();
-	}
-	
-	
-	@Override
 	public void setText(String text){
+		text = this.menu.canSelectInstant() ? text : STATUS;
 		super.setText(text);
+		
 		menu.updateDisplayedFields(EFFECT_TYPE_MAP.get(text));
 		this.centerText();
 	}

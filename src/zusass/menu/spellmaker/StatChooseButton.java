@@ -57,7 +57,10 @@ public class StatChooseButton extends ZusassButton{
 	public void setSelectedStat(StatSpellType selectedStat){
 		this.selectedStat = selectedStat;
 		this.updateText();
-		if(this.menu != null) this.menu.updateMenuState();
+		if(this.menu != null) {
+			this.menu.updateMenuState();
+			this.menu.updateEffectTypeButton();
+		}
 	}
 	
 }

@@ -232,6 +232,25 @@ public class SpellMakerMenu extends ZusassMenu{
 		return box;
 	}
 	
+	/** Update the current text of {@link #effectTypeButton}, basically just to make sure it has the correct text if anything that this button depends on, changes */
+	public void updateEffectTypeButton(){
+		if(this.effectTypeButton == null) return;
+		this.effectTypeButton.setText(this.effectTypeButton.getText());
+	}
+	
+	/** Update the current text of {@link #positiveNegativeButton}, basically just to make sure it has the correct text if anything that this button depends on, changes */
+	public void updatePositiveNegativeButton(){
+		if(this.positiveNegativeButton == null) return;
+		this.positiveNegativeButton.setText(this.positiveNegativeButton.getText());
+	}
+	
+	/**
+	 * Update which fields are displayed
+	 */
+	public void updateDisplayedFields(){
+		this.updateDisplayedFields(this.selectedCastType, this.selectedEffectType, true);
+	}
+	
 	/**
 	 * Update which fields are displayed
 	 *
@@ -390,7 +409,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	/** @return true if the instant effect cast type can be selected, false otherwise */
 	public boolean canSelectInstant(){
-		return this.castTypeButton == null || !this.effectTypeButton.isDisabled();
+		return this.effectTypeButton == null || !this.effectTypeButton.isDisabled();
 	}
 	
 	/** Update the state of the menu, the currently created spell, and if the create button should be disabled or enabled */
@@ -402,6 +421,9 @@ public class SpellMakerMenu extends ZusassMenu{
 			this.effectTypeButton.setDisabled(!stat.canUseInstant());
 			if(!stat.canUseInstant()) this.updateDisplayedFields(this.selectedCastType, SpellEffectType.STATUS_EFFECT, false);
 		}
+		
+		// If the multiply modifier type is selected, also ensure the text for the positive negative button has the correct text
+		if(selectedModifierType == ModifierType.MULT_MULT) this.updatePositiveNegativeButton();
 		
 		var requiredBoxes = new ArrayList<String>();
 		requiredBoxes.add(NAME);

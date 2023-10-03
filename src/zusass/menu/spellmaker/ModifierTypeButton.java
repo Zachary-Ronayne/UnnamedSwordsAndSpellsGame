@@ -1,5 +1,6 @@
 package zusass.menu.spellmaker;
 
+import zgame.core.Game;
 import zgame.menu.format.PixelFormatter;
 import zgame.stat.modifier.ModifierType;
 import zusass.ZusassGame;
@@ -46,7 +47,13 @@ public class ModifierTypeButton extends ToggleButton{
 	@Override
 	public void setText(String text){
 		super.setText(text);
-		menu.updateModifierType(MODIFIER_TYPE_MAP.get(text));
+		this.menu.updateModifierType(MODIFIER_TYPE_MAP.get(text));
 		this.centerText();
+	}
+	
+	@Override
+	public void click(Game game){
+		super.click(game);
+		this.menu.updatePositiveNegativeButton();
 	}
 }
