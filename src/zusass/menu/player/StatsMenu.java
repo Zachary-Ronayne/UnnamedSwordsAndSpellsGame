@@ -2,6 +2,9 @@ package zusass.menu.player;
 
 import org.lwjgl.glfw.GLFW;
 import zgame.core.Game;
+import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
+import zgame.core.utils.ZRect;
 import zgame.menu.MenuThing;
 import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.MultiFormatter;
@@ -11,8 +14,6 @@ import zusass.ZusassGame;
 
 /** The menu which displays on top of the game */
 public class StatsMenu extends DraggableMenu{
-	
-	// TODO add a popup showing a description for each stat
 	
 	/** The position, relative to this menu, for the maximum height of the scroller */
 	public static final double SCROLLER_POSITION = DraggableMenu.DRAGGABLE_HEIGHT + DraggableMenu.BORDER_SIZE * 2;
@@ -87,6 +88,27 @@ public class StatsMenu extends DraggableMenu{
 		super.tick(game, dt);
 		if(this.lastStatUpdate >= STAT_UPDATE_TIME) this.regenerateThings((ZusassGame)game);
 		else this.lastStatUpdate += dt;
+	}
+	
+	@Override
+	public void render(Game game, Renderer r, ZRect bounds){
+		super.render(game, r, bounds);
+		
+		// TODO make this use a text buffer
+		// TODO display it on multiple lines when necessary
+		// TODO make this not look ugly
+		var selected = this.statList.getSelectedStat();
+		if(selected == null) return;
+		var text = selected.getDescription();
+		if(text == null || text.isEmpty()) return;
+		
+		var x = bounds.x + 4;
+		var y = bounds.y + 4;
+		r.setColor(new ZColor(1));
+		r.drawRectangle(x, y, 1000, 30);
+		r.setColor(new ZColor(0));
+		r.setFontSize(24);
+		r.drawText(x + 4, y + 20, text);
 	}
 	
 	/** @return See {@link #displayDecimals} */

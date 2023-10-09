@@ -1,5 +1,6 @@
 package zusass.menu.player;
 
+import zgame.core.Game;
 import zgame.core.graphics.TextOption;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZArrayUtils;
@@ -39,6 +40,9 @@ public class StatListItem extends ZusassMenuText{
 	/** The stat list holding this item */
 	private final StatList statList;
 	
+	/** A short bit of text explaining what this stat does, or null if none exists */
+	private String description;
+	
 	/**
 	 * Create a new stat item
 	 *
@@ -48,7 +52,6 @@ public class StatListItem extends ZusassMenuText{
 	 */
 	public StatListItem(double size, StatList statList, ZusassStat statType, ZusassGame zgame){
 		super(0, 0, 1, size, "", zgame);
-//		this.setDefaultUseBuffer(true);
 		this.statList = statList;
 		this.statType = statType;
 		this.setFormatter(new PercentFormatter(1.0, null, 0.5, null));
@@ -104,5 +107,29 @@ public class StatListItem extends ZusassMenuText{
 		else if(stat.debuffed()) color = DEBUFF_TEXT_COLOR;
 		else color = BASE_TEXT_COLOR;
 		return new TextOption(text, color);
+	}
+	
+	/** @return See {@link #description} */
+	public String getDescription(){
+		return this.description;
+	}
+	
+	/** @param description See {@link #description} */
+	public void setDescription(String description){
+		this.description = description;
+	}
+	
+	@Override
+	public void mouseEnter(Game game){
+		super.mouseEnter(game);
+		// When the mouse moves to this item, select this stat
+		this.statList.setSelectedStat(this);
+	}
+	
+	@Override
+	public void mouseExit(Game game){
+		super.mouseExit(game);
+		// If the mouse moves away from this item and this item is currently selected, deselect it
+		if(this.statList.getSelectedStat() == this) this.statList.setSelectedStat(null);
 	}
 }
