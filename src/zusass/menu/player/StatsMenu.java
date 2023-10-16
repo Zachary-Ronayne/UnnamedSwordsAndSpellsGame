@@ -97,7 +97,6 @@ public class StatsMenu extends DraggableMenu{
 	public void renderOnTop(Game game, Renderer r, ZRect bounds){
 		super.renderOnTop(game, r, bounds);
 		
-		// TODO make the selected stat have a highlight when the mouse is over it
 		var selected = this.statList.getSelectedStat();
 		if(selected == null) return;
 		var text = selected.getDescription();

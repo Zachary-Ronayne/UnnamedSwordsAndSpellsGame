@@ -9,12 +9,12 @@ import zgame.stat.Stat;
 import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassMob;
-import zusass.menu.comp.ZusassMenuText;
+import zusass.menu.comp.ZusassButton;
 
 import java.text.DecimalFormat;
 
 /** An item holding text for the {@link StatList} */
-public class StatListItem extends ZusassMenuText{
+public class StatListItem extends ZusassButton{
 	
 	/** A formatter used to display stats with decimals places for these items */
 	public static final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("0.00");
