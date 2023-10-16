@@ -91,10 +91,9 @@ public class StatsMenu extends DraggableMenu{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect bounds){
-		super.render(game, r, bounds);
+	public void renderOnTop(Game game, Renderer r, ZRect bounds){
+		super.renderOnTop(game, r, bounds);
 		
-		// TODO make this use a text buffer
 		// TODO display it on multiple lines when necessary
 		// TODO make this not look ugly
 		var selected = this.statList.getSelectedStat();
@@ -102,13 +101,21 @@ public class StatsMenu extends DraggableMenu{
 		var text = selected.getDescription();
 		if(text == null || text.isEmpty()) return;
 		
-		var x = bounds.x + 4;
-		var y = bounds.y + 4;
-		r.setColor(new ZColor(1));
-		r.drawRectangle(x, y, 1000, 30);
+		var w = 1000;
+		var h = 34;
+		var x = game.mouseSX();
+		var y = game.mouseSY() - h;
+		if(!bounds.contains(x, y)) return;
+		
+		r.setColor(new ZColor(0));
+		r.drawRectangle(x, y, w, h);
+		
+		r.setColor(new ZColor(.8));
+		r.drawRectangle(new ZRect(x, y, w, h, -2));
+		
 		r.setColor(new ZColor(0));
 		r.setFontSize(24);
-		r.drawText(x + 4, y + 20, text);
+		r.drawText(x + 6, y + 24, text);
 	}
 	
 	/** @return See {@link #displayDecimals} */

@@ -1327,6 +1327,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 			if(this.isLimitToBounds()) r.pushLimitedBounds(b);
 			this.render(game, r, b);
 			this.drawThings(game, r, true);
+			this.renderOnTop(game, r, b);
 		}
 		if(this.isLimitToBounds()) r.popLimitedBounds();
 	}
@@ -1368,6 +1369,15 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/**
+	 * The same thing as {@link #render(Game, Renderer, ZRect)}, but this happens after the main render and things are rendered
+	 *
+	 * @param game The game associated with this thing
+	 * @param r The renderer to use
+	 * @param bounds The bounds which this thing will be rendered relative to
+	 */
+	public void renderOnTop(Game game, Renderer r, ZRect bounds){}
+	
+	/**
 	 * Render this {@link MenuThing} to the given renderer using the given game, relative to the internal buffer
 	 *
 	 * @param game The game
@@ -1375,9 +1385,11 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	private void renderToBuffer(Game game, Renderer r){
 		// Draw relative to the origin
-		this.render(game, r, new ZRect(0, 0, this.getWidth(), this.getHeight()));
+		var b = new ZRect(0, 0, this.getWidth(), this.getHeight());
+		this.render(game, r, b);
 		// If drawing things directly to the buffer, draw them
 		if(this.isDrawThingsToBuffer()) this.drawThings(game, r, false);
+		this.render(game, r, b);
 	}
 	
 	/**
