@@ -4,6 +4,7 @@ import org.lwjgl.glfw.GLFW;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.graphics.buffer.DrawableBuffer;
 import zgame.core.utils.ZRect;
 import zgame.menu.MenuThing;
 import zgame.menu.format.MenuFormatter;
@@ -32,6 +33,12 @@ public class StatsMenu extends DraggableMenu{
 	/** true if shift was held down, false otherwise */
 	private boolean shiftDown;
 	
+	/** The buffer used to draw the popup showing a stat description */
+	private StatPopup statPopup;
+	
+	/** The last stat list item which was popped up, or null if one wasn't popped up */
+	private StatListItem lastPopupItem;
+	
 	/**
 	 * Create a new {@link StatsMenu} for displaying the spells of something
 	 *
@@ -43,6 +50,14 @@ public class StatsMenu extends DraggableMenu{
 		this.setWidth(350);
 		this.initMenuThings(zgame);
 		this.displayDecimals = false;
+		this.statPopup = null;
+		this.lastPopupItem = null;
+	}
+	
+	@Override
+	public void destroy(){
+		super.destroy();
+		if(this.statPopup != null) this.statPopup.destroy();
 	}
 	
 	@Override
@@ -94,41 +109,79 @@ public class StatsMenu extends DraggableMenu{
 	public void renderOnTop(Game game, Renderer r, ZRect bounds){
 		super.renderOnTop(game, r, bounds);
 		
-		var selected = this.statList.getSelectedStat();
-		if(selected == null) return;
-		var text = selected.getDescription();
-		if(text == null || text.isEmpty()) return;
+		var currentSelected = this.statList.getSelectedStat();
+		// If the last drawn popup is not the currently selected one, regenerate the buffer
+		if(this.lastPopupItem != currentSelected){
+			// Only make a new popup if there is a selected item
+			if(currentSelected != null) {
+				if(this.statPopup != null) this.statPopup.destroy();
+				this.statPopup = new StatPopup(currentSelected.getDescription(), r);
+			}
+			this.lastPopupItem = currentSelected;
+		}
+		// If the popup hasn't been made yet, or there's no popup
+		if(this.statPopup == null || this.lastPopupItem == null) return;
 		
 		double mx = game.mouseSX();
 		double my = game.mouseSY();
 		if(!bounds.contains(mx, my)) return;
 		
 		// TODO adjust the position of the popup to always be on screen
-		// TODO make this generate a buffer, like as a separate text buffer, not a menu thing
-		// TODO abstract this out into another class
-		r.setFontSize(24);
-		var textBounds = r.createTextBounds(text, 600);
-		double extraSize = 12;
-		
-		// Width will be based on the maximum of the line widths
-		double w = extraSize + textBounds.width();
-		// Height is based on the line height and the total number of lines
-		double h = extraSize + textBounds.height();
-		double x = mx;
-		double y = my - h;
-		
-		r.setColor(new ZColor(0));
-		r.drawRectangle(x, y, w, h);
-		
-		r.setColor(new ZColor(.8));
-		r.drawRectangle(new ZRect(x, y, w, h, -2));
-		
-		r.setColor(new ZColor(0));
-		r.drawText(x + 6, y + 25, textBounds.text());
+		this.statPopup.drawToRenderer(mx, my - this.statPopup.getHeight(), r);
 	}
 	
 	/** @return See {@link #displayDecimals} */
 	public boolean isDisplayDecimals(){
 		return this.displayDecimals;
 	}
+	
+	/** A buffer used to draw the popup */
+	public static class StatPopup extends DrawableBuffer{
+		
+		/** The text to draw on the buffer */
+		private final String text;
+		
+		/**
+		 * @param description The text to split up into a block of text for the popup
+		 * @param r The renderer to use for initially determining the size of the popup
+		 */
+		public StatPopup(String description, Renderer r){
+			super(1, 1);
+			
+			if(description == null || description.isEmpty()) {
+				this.text = null;
+				return;
+			}
+			
+			r.setFontSize(24);
+			var textBounds = r.createTextBounds(description, 600);
+			double extraSize = 12;
+			
+			// Width will be based on the maximum of the line widths
+			double w = extraSize + textBounds.width();
+			// Height is based on the line height and the total number of lines
+			double h = extraSize + textBounds.height();
+			this.regenerateBuffer((int)Math.round(w), (int)Math.round(h));
+			this.text = textBounds.text();
+		}
+		
+		@Override
+		public void draw(Renderer r){
+			super.draw(r);
+			if(this.text == null) return;
+			
+			double w = this.getWidth();
+			double h = this.getHeight();
+			
+			r.setColor(new ZColor(0));
+			r.drawRectangle(0, 0, w, h);
+			
+			r.setColor(new ZColor(.8));
+			r.drawRectangle(new ZRect(0, 0, w, h, -2));
+			
+			r.setColor(new ZColor(0));
+			r.drawText(6, 25, this.text);
+		}
+	}
+	
 }
