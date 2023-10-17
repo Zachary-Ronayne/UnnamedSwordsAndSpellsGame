@@ -126,8 +126,17 @@ public class StatsMenu extends DraggableMenu{
 		double my = game.mouseSY();
 		if(!bounds.contains(mx, my)) return;
 		
-		// TODO adjust the position of the popup to always be on screen
-		this.statPopup.drawToRenderer(mx, my - this.statPopup.getHeight(), r);
+		double w = this.statPopup.getWidth();
+		double sw = game.getScreenWidth();
+		double sh = game.getScreenHeight();
+		double h = this.statPopup.getHeight();
+		
+		double x = Math.max(0, mx - w * 0.5);
+		if(x + w > sw) x = sw - w;
+		double y = Math.max(0, my - h);
+		if(y + h > sh) y = sh - h;
+		
+		this.statPopup.drawToRenderer(x, y, r);
 	}
 	
 	/** @return See {@link #displayDecimals} */
