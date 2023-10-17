@@ -57,7 +57,7 @@ public class CollisionResponse{
 		this.right = right;
 		this.ceiling = ceiling;
 		this.floor = floor;
-		// Set the ma
+		// Set the material to no material if none is given
 		this.material = (material == null) ? Materials.NONE : material;
 	}
 	
@@ -109,6 +109,41 @@ public class CollisionResponse{
 	/** @return See {@link #material} */
 	public Material material(){
 		return this.material;
+	}
+	
+	/**
+	 * Get an identical copy of this {@link CollisionResponse}, but with the x and y values scaled by the given value
+	 *
+	 * @param s The scaling value
+	 * @return The scaled response
+	 */
+	public CollisionResponse scale(double s){
+		if(s < 0){
+			var oppositeSide = !this.left() && !this.right();
+			var oppositeTop = !this.ceiling() && !this.floor();
+			return new CollisionResponse(this.x() * s, this.y() * s,
+					this.left() == oppositeSide, this.right() == oppositeSide,
+					this.ceiling() == oppositeTop, this.floor() == oppositeTop,
+					this.material()
+			);
+		}
+		return new CollisionResponse(s * this.x(), s * this.y(), this.left(), this.right(), this.ceiling(), this.floor(), this.material());
+	}
+	
+	/**
+	 * Get an identical copy of this {@link CollisionResponse}, but with the left and right sides and the ceiling and floor values swapped
+	 * if one is true and the other is false
+	 *
+	 * @return The modified response
+	 */
+	public CollisionResponse invertDirections(){
+		var oppositeSide = !this.left() && !this.right();
+		var oppositeTop = !this.ceiling() && !this.floor();
+		return new CollisionResponse(this.x(), this.y(),
+				this.left() == oppositeSide, this.right() == oppositeSide,
+				this.ceiling() == oppositeTop, this.floor() == oppositeTop,
+				this.material()
+		);
 	}
 	
 	@Override

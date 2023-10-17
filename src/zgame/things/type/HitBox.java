@@ -1,11 +1,31 @@
 package zgame.things.type;
 
-import zgame.core.utils.ZRect;
+import zgame.core.utils.Uuidable;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
+import zgame.things.entity.projectile.Projectile;
 
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
-public interface HitBox extends Bounds, Materialable{
+public interface HitBox extends Bounds, Materialable, Uuidable{
+	
+	/** @return The type of this hitbox, for determining how it will collide with other hitboxes */
+	HitboxType getType();
+	
+	/** @param x The new x coordinate for this object */
+	void setX(double x);
+	
+	/** @param y The new y coordinate for this object */
+	void setY(double y);
+	
+	@Override
+	default double maxX(){
+		return this.getX() + this.getWidth();
+	}
+	
+	@Override
+	default double maxY(){
+		return this.getY() + this.getHeight();
+	}
 	
 	/**
 	 * Apply the given {@link CollisionResponse} to this object
@@ -15,7 +35,8 @@ public interface HitBox extends Bounds, Materialable{
 	void collide(CollisionResponse r);
 	
 	/**
-	 * Determine a {@link CollisionResponse} from colliding this object with the given rectangular bounds. Essentially, move this object so that it no longer intersecting with the
+	 * Determine a {@link CollisionResponse} from colliding this object with the given rectangular bounds. Essentially, move this object so that it no longer intersecting with
+	 * the
 	 * given bounds. This method should not change the state of this object, it should only return an object representing how the collision should happen.
 	 *
 	 * @param x The x coordinate of the upper left hand corner of the bounds
@@ -28,63 +49,104 @@ public interface HitBox extends Bounds, Materialable{
 	CollisionResponse calculateRectCollision(double x, double y, double w, double h, Material m);
 	
 	/**
+	 * Determine a {@link CollisionResponse} from colliding this object with the given circular bounds. Essentially, move this object so that it no longer intersecting with
+	 * the given bounds. This method should not change the state of this object, it should only return an object representing how the collision should happen.
+	 *
+	 * @param x The x coordinate of the upper left hand corner of the bounds
+	 * @param y The y coordinate of the upper left hand corner of the bounds
+	 * @param r The radius of the circle
+	 * @param m The material which was collided with
+	 * @return The information about the collision
+	 */
+	CollisionResponse calculateCircleCollision(double x, double y, double r, Material m);
+	
+	/**
 	 * Calculate a {@link CollisionResponse} from colliding with the given {@link HitBox}
 	 *
 	 * @param h The hitbox to collide with
 	 * @return The response
 	 */
-	CollisionResponse calculateCollision(HitBox h);
-	
-	/**
-	 * @param x The upper left hand x coordinate
-	 * @param y The upper left hand y coordinate
-	 * @param w The width of the bounds
-	 * @param h The height of the bounds
-	 * @return true if this object intersects the given rectangular bounds, false otherwise
-	 */
-	default boolean intersects(double x, double y, double w, double h){
-		return this.getBounds().intersects(x, y, w, h);
+	default CollisionResponse calculateCollision(HitBox h){
+		switch(this.getType()){
+			case CIRCLE -> {
+				return this.calculateCircleCollision(h.getX(), h.getY(), h.getWidth() * 0.5, h.getMaterial());
+			}
+			case RECT -> {
+				return this.calculateRectCollision(h.getX(), h.getY(), h.getWidth(), h.getHeight(), h.getMaterial());
+			}
+		}
+		return new CollisionResponse();
 	}
 	
 	/**
-	 * @param r The bounds
+	 * @param x The upper left hand x rectangle
+	 * @param y The upper left hand y rectangle
+	 * @param w The width of the rectangle
+	 * @param h The height of the rectangle
 	 * @return true if this object intersects the given rectangular bounds, false otherwise
 	 */
-	default boolean intersects(ZRect r){
-		return this.intersects(r.getX(), r.getY(), r.getWidth(), r.getHeight());
-	}
+	boolean intersectsRect(double x, double y, double w, double h);
 	
 	/**
-	 * true if the given {@link HitBox} intersects this {@link HitBox}
-	 *
+	 * @param x The center x coordinate of the circle
+	 * @param y The center y coordinate of the circle
+	 * @param r The radius of the circle
+	 * @return true if this object intersects the given circle bounds, false otherwise
+	 */
+	boolean intersectsCircle(double x, double y, double r);
+	
+	/**
 	 * @param h The hitbox to check
-	 * @return true if this object intersects the given {@link HitBox}, false otherwise
+	 * @return true if this hitbox intersects the given hitbox, false otherwise
 	 */
 	default boolean intersects(HitBox h){
-		// This assumes the given hitbox is purely a rectangle
-		// issue#20 need to eventually have a way of allowing any type of hitbox to collide with any other type of hitbox
-		return this.intersects(h.getBounds());
+		switch(h.getType()){
+			case CIRCLE -> {
+				return this.intersectsCircle(h.centerX(), h.centerY(), h.getWidth() * 0.5);
+			}
+			case RECT -> {
+				return this.intersectsRect(h.getX(), h.getY(), h.getWidth(), h.getHeight());
+			}
+		}
+		return false;
 	}
+	
+	/**
+	 * Called when this {@link HitBox} is hit by a projectile. Does nothing by default, implement to provide custom behavior
+	 *
+	 * @param p The projectile which hit this {@link HitBox}
+	 */
+	default void hitBy(Projectile p){}
 	
 	/**
 	 * Reposition this object so that it is to the left of the given x coordinate.
 	 * If the object is already to the left of the coordinate, this method should do nothing.
-	 * If the object will be moved, it should be positioned such that it is as close to its original position as possible, while still being to the left of the given coordinate
+	 * If the object will be moved, it should be positioned such that it is as close to its original position as possible, while still being to the left of the given
+	 * coordinate
 	 *
 	 * @param x The coordinate
 	 * @return true if the object was moved, false otherwise
 	 */
-	boolean keepLeft(double x);
+	default boolean keepLeft(double x){
+		if(this.getX() + this.getWidth() <= x) return false;
+		this.setX(x - this.getWidth());
+		return true;
+	}
 	
 	/**
 	 * Reposition this object so that it is to the right of the given x coordinate.
 	 * If the object is already to the right of the coordinate, this method should do nothing.
-	 * If the object will be moved, it should be positioned such that it is as close to its original position as possible, while still being to the right of the given coordinate
+	 * If the object will be moved, it should be positioned such that it is as close to its original position as possible, while still being to the right of the given
+	 * coordinate
 	 *
 	 * @param x The coordinate
 	 * @return true if the object was moved, false otherwise
 	 */
-	boolean keepRight(double x);
+	default boolean keepRight(double x){
+		if(this.getX() >= x) return false;
+		this.setX(x);
+		return true;
+	}
 	
 	/**
 	 * Reposition this object so that it is above the given y coordinate.
@@ -94,7 +156,11 @@ public interface HitBox extends Bounds, Materialable{
 	 * @param y The coordinate
 	 * @return true if the object was moved, false otherwise
 	 */
-	boolean keepAbove(double y);
+	default boolean keepAbove(double y){
+		if(this.getY() + this.getHeight() <= y) return false;
+		this.setY(y - this.getHeight());
+		return true;
+	}
 	
 	/**
 	 * Reposition this object so that it is below the given y coordinate.
@@ -104,7 +170,11 @@ public interface HitBox extends Bounds, Materialable{
 	 * @param y The coordinate
 	 * @return true if the object was moved, false otherwise
 	 */
-	boolean keepBelow(double y);
+	default boolean keepBelow(double y){
+		if(this.getY() >= y) return false;
+		this.setY(y);
+		return true;
+	}
 	
 	/**
 	 * A method that defines what this object does when it touches a floor

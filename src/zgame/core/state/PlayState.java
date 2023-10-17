@@ -113,39 +113,43 @@ public class PlayState extends GameState{
 	}
 	
 	@Override
-	public final void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.mouseAction(game, button, press, shift, alt, ctrl);
-		if(this.isInputPaused()) return;
+	public final boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		boolean input = super.mouseAction(game, button, press, shift, alt, ctrl);
+		if(this.isInputPaused()) return input;
+		if(input) return true;
 		
-		this.playMouseAction(game, button, press, shift, alt, ctrl);
+		return this.playMouseAction(game, button, press, shift, alt, ctrl);
 	}
 	
 	/** See {@link #mouseAction(Game, int, boolean, boolean, boolean, boolean)} Override this method instead to perform actions when the mouse buttons are pressed */
-	public void playMouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public boolean playMouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		return false;
 	}
 	
 	@Override
-	public final void mouseMove(Game game, double x, double y){
-		super.mouseMove(game, x, y);
-		if(this.isInputPaused()) return;
+	public final boolean mouseMove(Game game, double x, double y){
+		boolean input = super.mouseMove(game, x, y);
+		if(this.isInputPaused()) return input;
 		
-		this.playMouseMove(game, x, y);
+		return this.playMouseMove(game, x, y);
 	}
 	
 	/** See {@link #mouseMove(Game, double, double)} Override this method instead to perform actions when the mouse moves */
-	public void playMouseMove(Game game, double x, double y){
+	public boolean playMouseMove(Game game, double x, double y){
+		return false;
 	}
 	
 	@Override
-	public final void mouseWheelMove(Game game, double amount){
-		super.mouseWheelMove(game, amount);
-		if(this.isInputPaused()) return;
+	public final boolean mouseWheelMove(Game game, double amount){
+		boolean input = super.mouseWheelMove(game, amount);
+		if(this.isInputPaused()) return input;
 		
-		this.playMouseWheelMove(game, amount);
+		return this.playMouseWheelMove(game, amount);
 	}
 	
 	/** See {@link #mouseWheelMove(Game, double)} Override this method instead to perform actions when a mouse wheel moves */
-	public void playMouseWheelMove(Game game, double amount){
+	public boolean playMouseWheelMove(Game game, double amount){
+		return false;
 	}
 	
 	@Override

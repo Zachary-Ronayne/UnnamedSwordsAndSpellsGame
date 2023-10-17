@@ -1,17 +1,24 @@
 package zusass.game.things.entities.mobs;
 
+import com.google.gson.JsonElement;
 import zgame.core.Game;
+import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
 import zgame.physics.material.Material;
 import zgame.stat.Stat;
-import zgame.stat.StatType;
 import zgame.stat.ValueStat;
+import zgame.stat.modifier.ModifierType;
+import zgame.stat.modifier.StatModTracker;
 import zgame.stat.modifier.StatModifier;
+import zgame.stat.status.StatusEffect;
+import zgame.stat.status.StatusEffects;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.Walk;
+import zgame.things.entity.projectile.Projectile;
 import zgame.things.type.RectangleHitBox;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
+import zusass.game.magic.*;
 import zusass.game.stat.*;
 import zusass.game.stat.attributes.Endurance;
 import zusass.game.stat.attributes.Intelligence;
@@ -19,6 +26,7 @@ import zusass.game.stat.attributes.Strength;
 import zusass.game.stat.resources.Health;
 import zusass.game.stat.resources.Mana;
 import zusass.game.stat.resources.Stamina;
+import zusass.game.status.StatEffect;
 import zusass.game.things.MobWalk;
 
 import static zusass.game.stat.ZusassStat.*;
@@ -27,6 +35,9 @@ import java.util.List;
 
 /** A generic mob in the Zusass game */
 public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
+	
+	/** The json key used to store the spellbook which this mob has */
+	public final static String SPELLBOOK_KEY = "spellbook";
 	
 	/** The width of this mob */
 	private double width;
@@ -44,18 +55,27 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	/** true if this {@link ZusassMob} is in spell casting mode, false for weapon mode */
 	private boolean casting;
 	
+	/** The spells known to this mob */
+	private Spellbook spells;
+	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/** The stats used by this mob */
 	private final Stats stats;
+	
+	/** The status effects applied to this mob */
+	private final StatusEffects effects;
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/** The {@link MobWalk} which this mob uses for movement */
 	private final MobWalk walk;
 	
-	/** A modifier used to drain this thing's stamina while it walks */
-	private final StatModifier staminaWalkDrain;
+	/** A modifier used to drain stamina while running */
+	private final StatModTracker staminaRunDrain;
+	
+	/** The sourceId of the modifier which drains stamina */
+	private static final String ID_STAMINA_DRAIN = "staminaDrain";
 	
 	/**
 	 * Create a new mob with the given bounds
@@ -79,6 +99,9 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		// Create stats
 		this.stats = new Stats();
 		
+		// Create status effects
+		this.effects = new StatusEffects();
+		
 		// Add attributes
 		this.stats.add(new Strength(this.stats));
 		this.stats.add(new Endurance(this.stats));
@@ -94,38 +117,51 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.stats.add(new ValueStat(.5, this.stats, ATTACK_SPEED));
 		this.stats.add(new AttackDamage(this.stats));
 		
-		this.stats.add(new MoveSpeed(Walk.DEFAULT_WALK_SPEED_MAX, this.stats, this));
+		this.stats.add(new MoveSpeed(this.stats));
+		
+		// Add other modifiers
+		this.staminaRunDrain = new StatModTracker(0, ModifierType.ADD, this.getStat(STAMINA_REGEN), ID_STAMINA_DRAIN);
 		
 		// Ensure this thing stats at full resources
 		this.setResourcesMax();
 		
-		// Set initial stat values
+		// Set initial attribute values
 		this.setStat(STRENGTH, 1);
 		this.setStat(ENDURANCE, 5);
 		this.setStat(INTELLIGENCE, 5);
 		
-		// Generate modifiers
-		this.staminaWalkDrain = new StatModifier(0, StatModifier.ADD);
-		this.getStat(STAMINA_REGEN).addModifier(this.staminaWalkDrain);
+		// Init the spellbook to empty
+		this.spells = new Spellbook();
 	}
 	
 	@Override
 	public void tick(Game game, double dt){
 		var zgame = (ZusassGame)game;
 		
+		// Update the state of the status effects
+		this.effects.tick(zgame, dt, this);
+		
 		// Update the state of the stats
 		this.updateStats(zgame, dt);
 		
 		// Update the attack timer
-		if(this.attackTime > 0){
+		if(this.attackTime >= 0){
 			this.attackTime -= dt;
-			if(this.attackTime <= 0) this.attackNearest(zgame);
+			if(this.attackTime < 0) this.attackNearest(zgame);
 		}
 		
 		var walk = this.getWalk();
+		// Update the values for speed
+		var v = this.stat(MOVE_SPEED);
+		walk.setWalkSpeedMax(v);
+		walk.setWalkAcceleration(v * 7);
+		walk.setWalkStopFriction(v / 30);
 		
 		walk.updatePosition(game, dt);
 		walk.tick(game, dt);
+		
+		// If running and moving, need to drain stamina
+		this.staminaRunDrain.setValue(!this.getWalk().isWalking() && this.getWalk().isTryingToMove() ? -35 : 0);
 		
 		// Do the normal game update
 		super.tick(game, dt);
@@ -142,8 +178,8 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		if(this.getAttackTime() <= 0) return;
 		double directionX = Math.cos(this.attackDirection);
 		double time = this.getAttackTime();
-		double speed = this.stat(ATTACK_SPEED);
-		double attackSize = this.stat(ATTACK_RANGE) * (1 - time / speed);
+		double speed = getAttacksPerSecond();
+		double attackSize = this.stat(ATTACK_RANGE) * (1 - time * speed);
 		
 		if(directionX < 0) r.drawRectangle(this.centerX() - attackSize, this.centerY(), attackSize, 20);
 		else r.drawRectangle(this.centerX(), this.centerY(), attackSize, 20);
@@ -160,10 +196,6 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		
 		// If this thing has 0 or less health, kill it
 		if(this.getCurrentHealth() <= 0) this.die(zgame);
-		
-		// If walking, need to reduce stamina
-		if(!this.getWalk().isWalking() && this.getWalk().isTryingToMove()) this.staminaWalkDrain.setValue(-35);
-		else this.staminaWalkDrain.setValue(0);
 	}
 	
 	/**
@@ -176,9 +208,24 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		zgame.getCurrentRoom().removeThing(this);
 	}
 	
+	@Override
+	public void hitBy(Projectile p){
+		p.hit(ZusassMob.class, this);
+	}
+	
 	/** @return See {@link #attackTime} */
 	public double getAttackTime(){
 		return this.attackTime;
+	}
+	
+	/** @return The number of attacks per second this mob can perform */
+	public final double getAttacksPerSecond(){
+		return this.stat(ATTACK_SPEED);
+	}
+	
+	/** @return See {@link #attackDirection} */
+	public double getAttackDirection(){
+		return this.attackDirection;
 	}
 	
 	/** @return See {@link #casting} */
@@ -199,15 +246,16 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	/**
 	 * Cause this mob to begin performing an attack or casting a spell depending on which mode is selected
 	 *
+	 * @param zgame The game where the attack or spell took place
 	 * @param direction The direction to attack or cast in
 	 */
-	public void beginAttackOrSpell(double direction){
+	public void beginAttackOrSpell(ZusassGame zgame, double direction){
+		this.attackDirection = direction;
 		if(casting){
-			this.castSpell();
+			this.castSpell(zgame);
 		}
 		else{
-			this.attackDirection = direction;
-			this.attackTime = this.stat(ATTACK_SPEED);
+			this.attackTime = 1.0 / this.getAttacksPerSecond();
 			
 			// Also drain stamina from the thing
 			this.getStat(STAMINA).addValue(-20);
@@ -252,13 +300,52 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.stats.get(HEALTH).addValue(-amount);
 	}
 	
+	/** @return See {@link Spellbook#selectedSpell} */
+	public Spell getSelectedSpell(){
+		return this.spells.getSelectedSpell();
+	}
+	
+	/** @return See {@link #spells} */
+	public Spellbook getSpells(){
+		return this.spells;
+	}
+	
 	/**
-	 * Attempt to cast the currently selected spell. Just a dummy to test using mana for now
+	 * Attempt to cast the currently selected spell
+	 *
+	 * @param zgame The {@link ZusassGame} where the spell was cast
+	 * @return true if the spell could be cast, false otherwise i.e. the caster doesn't have enough mana
 	 */
-	public void castSpell(){
-		var cost = 10;
-		if(this.stat(MANA) < cost) return;
-		this.getStat(MANA).addValue(-cost);
+	public boolean castSpell(ZusassGame zgame){
+		return this.getSelectedSpell().castAttempt(zgame, this);
+	}
+	
+	/** @return See {@link #effects} */
+	public StatusEffects getEffects(){
+		return this.effects;
+	}
+	
+	/**
+	 * Add and apply a status effect to this mob
+	 *
+	 * @param effect The effect to add
+	 * @param sourceId The id representing whatever originally applied the effect
+	 */
+	public void addEffect(String sourceId, StatusEffect effect){
+		this.effects.addEffect(effect, sourceId, this);
+	}
+	
+	/**
+	 * Add and apply a {@link StatEffect} to this mob
+	 *
+	 * @param sourceId The id of whatever caused the effect to be applied to this mob
+	 * @param duration The duration of the effect
+	 * @param value The power of the effect
+	 * @param modifierType The way the modifier applies its value
+	 * @param statType The {@link Stat} to effect
+	 */
+	public void addStatEffect(String sourceId, double duration, double value, ModifierType modifierType, ZusassStat statType){
+		this.addEffect(sourceId, new StatEffect(duration, new StatModifier(value, modifierType), statType));
 	}
 	
 	/** @return See {@link #stats} */
@@ -272,12 +359,12 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * @param type The type of stat to get
 	 * @return The stat
 	 */
-	public Stat getStat(StatType type){
+	public Stat getStat(ZusassStat type){
 		return this.stats.get(type);
 	}
 	
 	/** @return The value of the given stat */
-	public double stat(StatType type){
+	public double stat(ZusassStat type){
 		var stat = this.stats.get(type);
 		if(stat == null) return 0;
 		return stat.get();
@@ -289,7 +376,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * @param type The type of stat to set
 	 * @param value The new value
 	 */
-	public void setStat(StatType type, double value){
+	public void setStat(ZusassStat type, double value){
 		this.stats.get(type).setValue(value);
 	}
 	
@@ -303,6 +390,11 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.setToMaxHealth();
 		this.setToMaxStamina();
 		this.setToMaxMana();
+	}
+	
+	/** Bring every stat to its base value based on its {@link Stat#reset()} method */
+	public void resetStats(){
+		for(var m : this.stats.getArr()) m.reset();
 	}
 	
 	/** Set this thing's current health to its maximum health */
@@ -394,5 +486,17 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	public void touchFloor(Material touched){
 		super.touchFloor(touched);
 		this.getWalk().touchFloor(touched);
+	}
+	
+	@Override
+	public boolean save(JsonElement e){
+		this.spells.save(Saveable.newObj(SPELLBOOK_KEY, e));
+		return true;
+	}
+	
+	@Override
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		this.spells = Saveable.obj(SPELLBOOK_KEY, e, Spellbook.class);
+		return true;
 	}
 }

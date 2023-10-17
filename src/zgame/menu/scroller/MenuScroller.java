@@ -26,12 +26,17 @@ public abstract class MenuScroller extends MenuThing{
 	
 	/** The degree to which the scroll wheel will scroll. Also see {@link #scrollWheelAsPercent} */
 	private double scrollWheelStrength;
-	/** true if {@link #scrollWheelStrength} is the percentage of the scroll bat that should move per mouse wheel, false if it should be a distance */
+	/** true if {@link #scrollWheelStrength} is the percentage of the scroll that should move per mouse wheel, false if it should be a distance */
 	private boolean scrollWheelAsPercent;
+	/** true if {@link #scrollWheelAsPercent} and {@link #scrollWheelStrength} should be based on the size of the scroll bar, false if it should be based on {@link #amount} */
+	private boolean scrollByBar;
 	/** true if the scroll wheel's direction should be inverted, false otherwise */
 	private boolean scrollWheelInverse;
 	/** true if this scroll wheel should interact, false otherwise */
 	private boolean scrollWheelEnabled;
+	
+	/** true if the direction the scroller moves should be inverted, false otherwise */
+	private boolean inverseMove;
 	
 	/**
 	 * Create a new {@link MenuScroller} at the specified location and min and max
@@ -47,6 +52,7 @@ public abstract class MenuScroller extends MenuThing{
 		super(x, y);
 		this.scrollWheelStrength = 0.1;
 		this.scrollWheelAsPercent = true;
+		this.scrollByBar = false;
 		this.scrollWheelInverse = true;
 		this.scrollWheelEnabled = true;
 		this.setWidth(w);
@@ -56,6 +62,8 @@ public abstract class MenuScroller extends MenuThing{
 		this.button = this.generateButton(game);
 		super.addThing(button);
 		this.movingThing = null;
+		
+		this.inverseMove = false;
 	}
 	
 	@Override
@@ -72,14 +80,18 @@ public abstract class MenuScroller extends MenuThing{
 	}
 	
 	@Override
-	public void mouseWheelMove(Game game, double amount){
-		super.mouseWheelMove(game, amount);
+	public boolean mouseWheelMove(Game game, double amount){
+		boolean input = super.mouseWheelMove(game, amount);
 		
-		if(!this.isScrollWheelEnabled()) return;
+		if(!this.isScrollWheelEnabled()) return input;
 		amount *= this.getScrollWheelStrength();
 		if(this.isScrollWheelInverse()) amount = -amount;
-		if(!this.isScrollWheelAsPercent()) amount = this.button.scrollToPercent(amount);
+		if(!this.isScrollWheelAsPercent()) {
+			if(this.isScrollByBar()) amount = this.button.scrollToPercent(amount);
+			else amount = amount / this.getAmount();
+		}
 		this.scroll(amount);
+		return true;
 	}
 	
 	/** @param thing See {@link #movingThing} */
@@ -122,7 +134,7 @@ public abstract class MenuScroller extends MenuThing{
 	
 	/** @return The amount of distance the child of this {@link MenuScroller} currently has scrolled */
 	public double getScrolledAmount(){
-		return this.getPercent() * this.getAmount();
+		return (this.isInverseMove() ? -1 : 1) * this.getPercent() * this.getAmount();
 	}
 	
 	/** @return The percentage of the way down this {@link MenuScroller} has moved, in the range [0, 1] */
@@ -155,6 +167,16 @@ public abstract class MenuScroller extends MenuThing{
 		this.scrollWheelAsPercent = scrollWheelAsPercent;
 	}
 	
+	/** @return See {@link #scrollByBar} */
+	public boolean isScrollByBar(){
+		return this.scrollByBar;
+	}
+	
+	/** @param scrollByBar See {@link #scrollByBar} */
+	public void setScrollByBar(boolean scrollByBar){
+		this.scrollByBar = scrollByBar;
+	}
+	
 	/** @return See {@link #scrollWheelInverse} */
 	public boolean isScrollWheelInverse(){
 		return this.scrollWheelInverse;
@@ -175,4 +197,13 @@ public abstract class MenuScroller extends MenuThing{
 		this.scrollWheelEnabled = enabled;
 	}
 	
+	/** @return See {@link #inverseMove} */
+	public boolean isInverseMove(){
+		return this.inverseMove;
+	}
+	
+	/** @param inverseMove See {@link #inverseMove} */
+	public void setInverseMove(boolean inverseMove){
+		this.inverseMove = inverseMove;
+	}
 }

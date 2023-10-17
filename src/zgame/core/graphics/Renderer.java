@@ -12,17 +12,19 @@ import zgame.core.graphics.buffer.IndexBuffer;
 import zgame.core.graphics.buffer.VertexArray;
 import zgame.core.graphics.buffer.VertexBuffer;
 import zgame.core.graphics.camera.GameCamera;
-import zgame.core.graphics.font.FontAsset;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.TextBuffer;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.shader.ShaderProgram;
 import zgame.core.utils.LimitedStack;
+import zgame.core.utils.ZMath;
 import zgame.core.utils.ZRect;
+import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A class that handles OpenGL operations related to drawing objects.
@@ -51,6 +53,9 @@ public class Renderer implements Destroyable{
 	public static final Boolean DEFAULT_RENDER_ONLY_INSIDE = true;
 	/** Default value for {@link #limitedBoundsStack}. null means no limit */
 	public static final ZRect DEFAULT_LIMITED_BOUNDS = null;
+	
+	/** true if the bounds should never be limited, false otherwise. Should always be false, unless debugging graphics */
+	public static final boolean DISABLE_LIMITING_BOUNDS = false;
 	
 	/** The vertex buffer index for positional coordinates */
 	public static final int VERTEX_POS_INDEX = 0;
@@ -82,6 +87,15 @@ public class Renderer implements Destroyable{
 	/** The index buffer that tracks the indexes for drawing a rectangle */
 	private IndexBuffer rectIndexBuff;
 	
+	/** The number of points used to draw an ellipse */
+	public static final int NUM_ELLIPSE_POINTS = 36;
+	/** The {@link VertexArray} for drawing plain ellipses */
+	private VertexArray ellipseVertArr;
+	/** The {@link VertexBuffer} which represents positional values that generate an ellipse */
+	private VertexBuffer ellipsePosBuff;
+	/** The index buffer that tracks the indexes for drawing an ellipse */
+	private IndexBuffer ellipseIndexBuff;
+	
 	/** A {@link VertexArray} for drawing text */
 	private VertexArray textVertArr;
 	/** A {@link VertexBuffer} which represents positional values for a texture whose positional values will regularly change */
@@ -110,6 +124,9 @@ public class Renderer implements Destroyable{
 	private boolean sendModelView;
 	/** true if {@link #getColor()} has changed since last being sent to the current shader */
 	private boolean sendColor;
+	
+	/** The last used mode for rendering alpha values */
+	private AlphaMode alphaMode;
 	
 	/** The stack keeping track of the current color used by this {@link Renderer} */
 	private final LimitedStack<ZColor> colorStack;
@@ -156,6 +173,8 @@ public class Renderer implements Destroyable{
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public Renderer(int width, int height){
+		this.alphaMode = AlphaMode.NORMAL;
+		
 		// Initialize stack list
 		this.stacks = new ArrayList<>();
 		this.attributeStacks = new ArrayList<>();
@@ -272,6 +291,32 @@ public class Renderer implements Destroyable{
 		// Generate a vertex buffer for texture coordinates that regularly change
 		this.changeTexCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_DYNAMIC_DRAW, 4);
 		this.changeTexCoordBuff.applyToVertexArray();
+		
+		// Generate a vertex array for rendering ellipses
+		// Make indexes for the number of triangles minus 1
+		var ellipseIndexes = new byte[(NUM_ELLIPSE_POINTS - 1) * 3];
+		// Make one point for each of the points on the circle
+		var ellipsePoints = new float[NUM_ELLIPSE_POINTS * 2];
+		// Go through each point
+		for(int i = 0; i < NUM_ELLIPSE_POINTS; i++){
+			// Find the current angle based on the index
+			var a = ZMath.TAU * ((float)i / NUM_ELLIPSE_POINTS);
+			var x = Math.cos(a);
+			var y = Math.sin(a);
+			// Apply the angle
+			ellipsePoints[i * 2] = (float)x;
+			ellipsePoints[i * 2 + 1] = (float)y;
+			// Don't add the last index, that would cause the last triangle to overlap
+			if(i >= NUM_ELLIPSE_POINTS - 1) continue;
+			ellipseIndexes[i * 3] = (byte)(0);
+			ellipseIndexes[i * 3 + 1] = (byte)(i);
+			ellipseIndexes[i * 3 + 2] = (byte)(i + 1);
+		}
+		this.ellipseVertArr = new VertexArray();
+		this.ellipseVertArr.bind();
+		this.ellipseIndexBuff = new IndexBuffer(ellipseIndexes);
+		this.ellipsePosBuff = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_STATIC_DRAW, ellipsePoints);
+		this.ellipsePosBuff.applyToVertexArray();
 	}
 	
 	/** Free all resources used by the vertex arrays and vertex buffers */
@@ -550,6 +595,7 @@ public class Renderer implements Destroyable{
 	public void drawToWindow(GameWindow window){
 		// Set the current shader for drawing a frame buffer
 		this.renderModeBuffer();
+		AlphaMode.NORMAL.apply();
 		this.pushColor(this.getColor().solid());
 		this.pushMatrix();
 		this.identityMatrix();
@@ -614,8 +660,65 @@ public class Renderer implements Destroyable{
 		this.limitBounds(null);
 	}
 	
+	/**
+	 * Push the current value of {@link #getLimitedBounds()} onto the stack, and limit the bounds to the given bounds
+	 *
+	 * @param bounds The bounds to limit to, in game coordinates
+	 */
+	public void pushLimitedBounds(ZRect bounds){
+		this.limitedBoundsStack.push();
+		this.limitBounds(bounds);
+	}
+	
+	/**
+	 * Push the current value of {@link #getLimitedBounds()} onto the stack, and limit the bounds to the union of the given bounds and the current limited bounds.
+	 * If the bounds are not currently limited, this call is equivalent to {@link #pushLimitedBounds(ZRect)}
+	 *
+	 * @param bounds The bounds to limit to, in game coordinates
+	 */
+	public void pushLimitedBoundsUnion(ZRect bounds){
+		var newBounds = this.getLimitedBounds();
+		if(newBounds == null) newBounds = bounds;
+		else newBounds = new ZRect(newBounds.createUnion(bounds));
+		
+		this.pushLimitedBounds(newBounds);
+	}
+	
+	/**
+	 * Push the current value of {@link #getLimitedBounds()} onto the stack, and limit the bounds to the intersection of the given bounds and the current limited bounds.
+	 * If the bounds are not currently limited, this call is equivalent to {@link #pushLimitedBounds(ZRect)}
+	 *
+	 * @param bounds The bounds to limit to, in game coordinates
+	 */
+	public void pushLimitedBoundsIntersection(ZRect bounds){
+		var newBounds = this.getLimitedBounds();
+		if(newBounds == null) newBounds = bounds;
+		else newBounds = new ZRect(newBounds.createIntersection(bounds));
+		if(newBounds.getWidth() <= 0 || newBounds.getHeight() <= 0) newBounds = new ZRect();
+		
+		this.pushLimitedBounds(newBounds);
+	}
+	
+	/**
+	 * Push the current value of {@link #getLimitedBounds()} onto the stack, and unlimit the bounds
+	 */
+	public void pushUnlimitedBounds(){
+		this.pushLimitedBounds(null);
+	}
+	
+	/** Remove the current limited bounds and revert it to the previous limited bounds */
+	public void popLimitedBounds(){
+		this.limitedBoundsStack.pop();
+		this.updateLimitedBounds();
+	}
+	
 	/** Update the current state of the limited bounds via calls to glScissor */
 	private void updateLimitedBounds(){
+		if(DISABLE_LIMITING_BOUNDS){
+			glDisable(GL_SCISSOR_TEST);
+			return;
+		}
+		
 		ZRect b = this.getLimitedBounds();
 		if(b == null){
 			glDisable(GL_SCISSOR_TEST);
@@ -635,11 +738,6 @@ public class Renderer implements Destroyable{
 		}
 		glEnable(GL_SCISSOR_TEST);
 		glScissor((int)Math.round(x), (int)Math.round(this.getHeight() - y), (int)Math.round(w), (int)Math.round(h));
-	}
-	
-	/** @return See {@link #limitedBoundsStack} */
-	public LimitedStack<ZRect> getLimitedBoundsStack(){
-		return this.limitedBoundsStack;
 	}
 	
 	/**
@@ -733,16 +831,79 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
+	 * Draw an ellipse, of the current color of this Renderer, at the specified location. All values are in game coordinates
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 *
+	 * @param r The bounds
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawEllipse(ZRect r){
+		return this.drawEllipse(r.getX(), r.getY(), r.getWidth(), r.getHeight());
+	}
+	
+	/**
+	 * Draw a circle, of the current color of this Renderer, at the specified location. All values are in game coordinates
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 *
+	 * @param x The x coordinate of the center of the circle
+	 * @param y The y coordinate of the center of the circle
+	 * @param r The radius of the circle
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawCircle(double x, double y, double r){
+		return this.drawEllipse(x - r, y - r, r * 2, r * 2);
+	}
+	
+	/**
+	 * Draw an ellipse, of the current color of this Renderer, at the specified location. All values are in game coordinates
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 *
+	 * @param x The x coordinate of the upper left hand corner of the ellipse
+	 * @param y The y coordinate of the upper left hand corner of the ellipse
+	 * @param w The width of the ellipse
+	 * @param h The height of the ellipse
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawEllipse(double x, double y, double w, double h){
+		if(!this.shouldDraw(x, y, w, h)) return false;
+		
+		// Use the shape shader and the rectangle vertex array
+		this.renderModeShapes();
+		this.ellipseVertArr.bind();
+		
+		this.pushMatrix();
+		this.positionObject(x, y, w, h);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
+		glDrawElements(GL_TRIANGLE_FAN, this.ellipseIndexBuff.getBuff());
+		this.popMatrix();
+		
+		return true;
+	}
+	
+	/** @param mode The new mode to use */
+	private void updateAlphaMode(AlphaMode mode){
+		if(mode == null) mode = AlphaMode.NORMAL;
+		if(mode == this.alphaMode) return;
+		this.alphaMode = mode;
+		this.alphaMode.apply();
+	}
+	
+	/**
 	 * Draw a rectangular buffer at the specified location.
 	 * If the given dimensions have a different aspect ratio that those of the given buffer, then the image will stretch to fit the given dimensions
 	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 *
 	 * @param r The bounds
 	 * @param b The {@link GameBuffer} to draw
+	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawBuffer(ZRect r, GameBuffer b){
-		return this.drawBuffer(r.getX(), r.getY(), r.getWidth(), r.getHeight(), b);
+	public boolean drawBuffer(ZRect r, GameBuffer b, AlphaMode mode){
+		return this.drawBuffer(r.getX(), r.getY(), r.getWidth(), r.getHeight(), b, mode);
 	}
 	
 	/**
@@ -755,12 +916,13 @@ public class Renderer implements Destroyable{
 	 * @param w The width of the image
 	 * @param h The height of the image
 	 * @param b The {@link GameBuffer} to draw
+	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawBuffer(double x, double y, double w, double h, GameBuffer b){
+	public boolean drawBuffer(double x, double y, double w, double h, GameBuffer b, AlphaMode mode){
 		if(!this.shouldDraw(x, y, w, h)) return false;
 		this.renderModeBuffer();
-		return this.drawTexture(x, y, w, h, b.getTextureID());
+		return this.drawTexture(x, y, w, h, b.getTextureID(), mode);
 	}
 	
 	/**
@@ -771,10 +933,11 @@ public class Renderer implements Destroyable{
 	 *
 	 * @param r The bounds of the image
 	 * @param img The OpenGL id of the image to draw
+	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawImage(ZRect r, GameImage img){
-		return this.drawImage(r.getX(), r.getY(), r.getWidth(), r.getHeight(), img);
+	public boolean drawImage(ZRect r, GameImage img, AlphaMode mode){
+		return this.drawImage(r.getX(), r.getY(), r.getWidth(), r.getHeight(), img, mode);
 	}
 	
 	/**
@@ -787,12 +950,13 @@ public class Renderer implements Destroyable{
 	 * @param w The width of the image
 	 * @param h The height of the image
 	 * @param img The {@link GameImage} to draw
+	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawImage(double x, double y, double w, double h, GameImage img){
+	public boolean drawImage(double x, double y, double w, double h, GameImage img, AlphaMode mode){
 		if(!this.shouldDraw(x, y, w, h)) return false;
 		this.renderModeImage();
-		return this.drawTexture(x, y, w, h, img.getId());
+		return this.drawTexture(x, y, w, h, img.getId(), mode);
 	}
 	
 	/**
@@ -807,15 +971,18 @@ public class Renderer implements Destroyable{
 	 * @param w The width of the texture
 	 * @param h The height of the texture
 	 * @param img The OpenGL id of the texture to draw
+	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	private boolean drawTexture(double x, double y, double w, double h, int img){
+	private boolean drawTexture(double x, double y, double w, double h, int img, AlphaMode mode){
 		this.imgVertArr.bind();
 		glBindTexture(GL_TEXTURE_2D, img);
+		updateAlphaMode(mode);
 		
 		// Perform the drawing operation
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
+		
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuColor();
@@ -837,11 +1004,44 @@ public class Renderer implements Destroyable{
 	 *
 	 * @param x The x position of the text
 	 * @param y The y position of the text
+	 * @param options The options for how to draw the text
+	 * @return true if the text was drawn, false otherwise
+	 */
+	public boolean drawText(double x, double y, List<TextOption> options){
+		return drawText(x, y, this.getFont(), options);
+	}
+	
+	/**
+	 * Draw the given text to the given position
+	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
+	 * i.e. the text starts at the given coordinates and is draw left to right
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
+	 *
+	 * @param x The x position of the text
+	 * @param y The y position of the text
 	 * @param text The text to draw
 	 * @return true if the text was drawn, false otherwise
 	 */
 	public boolean drawText(double x, double y, String text){
-		return drawText(x, y, text, this.getFont());
+		return drawText(x, y, this.getFont(), List.of(new TextOption(text)));
+	}
+	
+	/**
+	 * Draw the given text to the given position
+	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
+	 * i.e. the text starts at the given coordinates and is draw left to right
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
+	 *
+	 * @param x The x position of the text
+	 * @param y The y position of the text
+	 * @param text The text to draw
+	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
+	 * @return true if the text was drawn, false otherwise
+	 */
+	public boolean drawText(double x, double y, String text, AlphaMode mode){
+		return drawText(x, y, this.getFont(), List.of(new TextOption(text, null, mode)));
 	}
 	
 	/**
@@ -858,13 +1058,107 @@ public class Renderer implements Destroyable{
 	 * @return true if the text was drawn, false otherwise
 	 */
 	public boolean drawText(double x, double y, String text, GameFont f){
-		// Make sure a font exists, and that there is some text
-		if(f == null || text == null || text.isEmpty()) return false;
-		FontAsset fa = f.getAsset();
+		return this.drawText(x, y, f, List.of(new TextOption(text)));
+	}
+	
+	/**
+	 * @param text The text to turn into a text block
+	 * @param maxWidth Max width the text can take up
+	 * @return The text with newlines, the width, and height the text takes up
+	 */
+	public TextBoundsResult createTextBounds(String text, double maxWidth){
+		var font = this.getFont();
+		if(font == null) return new TextBoundsResult("", 0, 0.0);
+		
+		// Largest width of a word
+		double largestWidth = 0;
+		
+		// Find the width of each word
+		var words = text.split("\\s+");
+		var sizes = new double[words.length];
+		for(int i = 0; i < words.length; i++){
+			var word = words[i];
+			var strW = font.stringWidth(word);
+			if(strW > maxWidth) maxWidth = strW;
+			if(strW > largestWidth) largestWidth = strW;
+			sizes[i] = strW;
+		}
+		var lines = new ArrayList<String>();
+		
+		// Find how many lines to use based on the max width
+		var currentWidth = 0;
+		var sb = new StringBuilder();
+		var spaceWidth = font.charWidth(' ');
+		var largestLine = 0;
+		
+		// Go through each word
+		var first = true;
+		for(int i = 0; i < words.length; i++){
+			var word = words[i];
+			var wordWidth = sizes[i];
+			// If adding the next word would exceed the current line width, add it to a new line
+			var newLine = currentWidth + wordWidth >= maxWidth;
+			if(newLine){
+				lines.add(sb.toString());
+				if(currentWidth > largestLine) largestLine = currentWidth;
+				currentWidth = 0;
+				sb = new StringBuilder();
+			}
+			// Otherwise, if this is not the first line, add a space after the word
+			else{
+				if(!first){
+					sb.append(" ");
+					currentWidth += spaceWidth;
+				}
+				else first = false;
+			}
+			// Add the word to the current line
+			sb.append(word);
+			currentWidth += wordWidth;
+		}
+		// If anything is left in the string builder, add another line
+		var remaining = sb.toString();
+		if(!remaining.isEmpty()){
+			lines.add(remaining);
+			if(currentWidth > largestLine) largestLine = currentWidth;
+		}
+		
+		double lineCount = lines.size();
+		
+		// Width will be based on the maximum of the line widths
+		// Height is based on the line height and the total number of lines
+		return new TextBoundsResult(ZStringUtils.concatSep("\n", lines.toArray()), largestLine, lineCount * font.getMaxHeight() + this.getFontCharSpace() * (lineCount - 1));
+	}
+	
+	/**
+	 * Draw the given text to the given position
+	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
+	 * i.e. the text starts at the given coordinates and is draw left to right
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
+	 *
+	 * @param x The x position of the text
+	 * @param y The y position of the text
+	 * @param f The font to use for drawing
+	 * @param options How to draw the text, must not be null
+	 * @return true if the text was drawn, false otherwise
+	 */
+	public boolean drawText(double x, double y, GameFont f, List<TextOption> options){
+		// Make sure options are given
+		if(options == null || options.isEmpty()) return false;
+		
+		// Make sure a font exists
+		if(f == null) return false;
+		
+		var fa = f.getAsset();
+		
+		var sb = new StringBuilder();
+		for(var op : options) sb.append(op.getText());
+		var fullText = sb.toString();
 		
 		// Bounds check for if the text should be drawn
-		ZRect[] rects = f.stringBounds(x, y, text, 1, true);
-		if(!this.shouldDraw(rects[text.length()])) return false;
+		var rects = f.stringBounds(x, y, fullText, 1, true);
+		if(!this.shouldDraw(rects[fullText.length()])) return false;
 		
 		// Mark the drawing bounds
 		// Use the font shaders
@@ -891,43 +1185,50 @@ public class Renderer implements Destroyable{
 		this.positionObject(x, this.getHeight() - y, posSize, posSize);
 		
 		// Draw every character of the text
-		for(int i = 0; i < text.length(); i++){
-			char c = text.charAt(i);
-			
-			// Find the vertices and texture coordinates of the character to draw
-			// Must do this regardless of if the character will render to ensure the text moves to the next location
-			f.bounds(c, this.xTextBuff, this.yTextBuff, this.textQuad);
-			
-			// Only draw the character if it will be in the bounds of the buffer
-			if(!this.shouldDraw(rects[i])) continue;
-			
-			// Buffer the new data
-			this.posBuff.updateData(new float[]{
-					//////////////////////////////////////
-					this.textQuad.x0(), this.textQuad.y0(),
-					//////////////////////////////////////
-					this.textQuad.x1(), this.textQuad.y0(),
-					//////////////////////////////////////
-					this.textQuad.x1(), this.textQuad.y1(),
-					//////////////////////////////////////
-					this.textQuad.x0(), this.textQuad.y1()});
-			
-			this.changeTexCoordBuff.updateData(new float[]{
-					//////////////////////////////////////
-					this.textQuad.s0(), this.textQuad.t0(),
-					//////////////////////////////////////
-					this.textQuad.s1(), this.textQuad.t0(),
-					//////////////////////////////////////
-					this.textQuad.s1(), this.textQuad.t1(),
-					//////////////////////////////////////
-					this.textQuad.s0(), this.textQuad.t1()});
-			
-			// Ensure the gpu has the current modelView and color
-			this.updateGpuColor();
-			this.updateGpuModelView();
-			
-			// Draw the square
-			glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
+		for(var op : options){
+			var text = op.getText();
+			if(text == null || text.isEmpty()) continue;
+			for(int i = 0; i < text.length(); i++){
+				char c = text.charAt(i);
+				
+				// Find the vertices and texture coordinates of the character to draw
+				// Must do this regardless of if the character will render to ensure the text moves to the next location
+				f.bounds(c, this.xTextBuff, this.yTextBuff, this.textQuad);
+				
+				// Only draw the character if it will be in the bounds of the buffer
+				if(!this.shouldDraw(rects[i])) continue;
+				
+				// Buffer the new data
+				this.posBuff.updateData(new float[]{
+						//////////////////////////////////////
+						this.textQuad.x0(), this.textQuad.y0(),
+						//////////////////////////////////////
+						this.textQuad.x1(), this.textQuad.y0(),
+						//////////////////////////////////////
+						this.textQuad.x1(), this.textQuad.y1(),
+						//////////////////////////////////////
+						this.textQuad.x0(), this.textQuad.y1()});
+				
+				this.changeTexCoordBuff.updateData(new float[]{
+						//////////////////////////////////////
+						this.textQuad.s0(), this.textQuad.t0(),
+						//////////////////////////////////////
+						this.textQuad.s1(), this.textQuad.t0(),
+						//////////////////////////////////////
+						this.textQuad.s1(), this.textQuad.t1(),
+						//////////////////////////////////////
+						this.textQuad.s0(), this.textQuad.t1()});
+				
+				// Ensure the gpu has the current modelView and color
+				this.updateAlphaMode(op.getAlpha());
+				var opC = op.getColor();
+				if(opC != null) this.setColor(opC);
+				this.updateGpuColor();
+				this.updateGpuModelView();
+				
+				// Draw the square
+				glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
+			}
 		}
 		this.popMatrix();
 		
@@ -957,7 +1258,6 @@ public class Renderer implements Destroyable{
 	 * @param drawBounds The bounds
 	 * @return true if the bounds should be drawn, false otherwise
 	 */
-	@SuppressWarnings("unused")
 	public boolean shouldDraw(ZRect drawBounds){
 		// If rendering only inside is not enabled, immediately return true
 		
@@ -1136,9 +1436,19 @@ public class Renderer implements Destroyable{
 		return this.getBuffer().getWidth();
 	}
 	
+	/** @return The base width of the window used by this buffer, regardless of what is on top of the stack */
+	public int getBaseWidth(){
+		return this.bufferStack.getDefaultItem().getWidth();
+	}
+	
 	/** @return The height, in pixels, of the underlying buffer of this Renderer */
 	public int getHeight(){
 		return this.getBuffer().getHeight();
+	}
+	
+	/** @return The base height of the window used by this buffer, regardless of what is on top of the stack */
+	public int getBaseHeight(){
+		return this.bufferStack.getDefaultItem().getHeight();
 	}
 	
 	/** @return A rectangle of the bounds of this {@link Renderer}, i.e. the position will be (0, 0), width will be {@link #getWidth()} and height will be {@link #getHeight()} */
@@ -1208,6 +1518,8 @@ public class Renderer implements Destroyable{
 		GameBuffer b = this.getBuffer();
 		b.drawToBuffer();
 		b.setViewport();
+		// Changing the buffer and or viewport does something weird with OpenGL, so update the limited bounds after changing the buffer
+		this.updateLimitedBounds();
 	}
 	
 	/**

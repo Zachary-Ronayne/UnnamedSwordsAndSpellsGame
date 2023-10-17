@@ -66,6 +66,7 @@ public class MenuNode{
 	 */
 	public MenuNode(Menu menu, boolean isTick, boolean isKeyAction, boolean isMouseAction, boolean isMouseMove, boolean isMouseWheelMove, boolean isRender){
 		this.menu = menu;
+		this.menu.setNode(this);
 		this.isTick = isTick;
 		this.isKeyAction = isKeyAction;
 		this.isMouseAction = isMouseAction;
@@ -115,9 +116,11 @@ public class MenuNode{
 	 * @param shift true if shift is pressed, false otherwise
 	 * @param alt true if alt is pressed, false otherwise
 	 * @param ctrl true if ctrl is pressed, false otherwise
+	 * @return true if sub objects of this object should be blocked from further input, false otherwise
 	 */
-	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		if(this.isMouseAction()) this.getMenu().mouseAction(game, button, press, shift, alt, ctrl);
+	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		if(this.isMouseAction()) return this.getMenu().mouseAction(game, button, press, shift, alt, ctrl);
+		return false;
 	}
 	
 	/**
@@ -126,9 +129,11 @@ public class MenuNode{
 	 * @param game The {@link Game} which called this method
 	 * @param x The x coordinate in screen coordinates
 	 * @param y The y coordinate in screen coordinates
+	 * @return true if sub objects of this object should be blocked from further input, false otherwise
 	 */
-	public void mouseMove(Game game, double x, double y){
-		if(this.isMouseMove()) this.getMenu().mouseMove(game, x, y);
+	public boolean mouseMove(Game game, double x, double y){
+		if(this.isMouseMove()) return this.getMenu().mouseMove(game, x, y);
+		return false;
 	}
 	
 	/**
@@ -136,9 +141,11 @@ public class MenuNode{
 	 *
 	 * @param game The {@link Game} which called this method
 	 * @param amount The amount the scroll wheel was moved
+	 * @return true if sub objects of this object should be blocked from further input, false otherwise
 	 */
-	public void mouseWheelMove(Game game, double amount){
-		if(this.isMouseWheelMove()) this.getMenu().mouseWheelMove(game, amount);
+	public boolean mouseWheelMove(Game game, double amount){
+		if(this.isMouseWheelMove()) return this.getMenu().mouseWheelMove(game, amount);
+		return false;
 	}
 	
 	/**
@@ -160,7 +167,9 @@ public class MenuNode{
 	
 	/** @param menu See {@link #menu} */
 	public void setMenu(Menu menu){
+		if(this.menu != null) this.menu.setNode(null);
 		this.menu = menu;
+		this.menu.setNode(this);
 	}
 	
 	/** @return See {@link #isTick} */
@@ -221,6 +230,27 @@ public class MenuNode{
 	/** @param isRender See {@link #isRender} */
 	public void setRender(boolean isRender){
 		this.isRender = isRender;
+	}
+	
+	/** Get a new {@link MenuNode} object with the same settings as this node */
+	public MenuNode copySettings(Menu menu){
+		var node = new MenuNode(menu);
+		node.setTick(this.isTick());
+		node.setKeyAction(this.isKeyAction());
+		node.setMouseAction(this.isMouseAction());
+		node.setMouseMove(this.isMouseMove());
+		node.setMouseWheelMove(this.isMouseWheelMove());
+		node.setRender(this.isRender());
+		return node;
+	}
+	
+	/** @param b The value for all of: {@link #isKeyAction}, {@link #isMouseAction}, {@link #isMouseMove}, {@link #isMouseWheelMove}, {@link #isRender} */
+	public void setAll(boolean b){
+		this.setKeyAction(b);
+		this.setMouseAction(b);
+		this.setMouseMove(b);
+		this.setMouseWheelMove(b);
+		this.setRender(b);
 	}
 	
 }

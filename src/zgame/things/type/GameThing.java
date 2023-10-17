@@ -75,6 +75,14 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	}
 	
 	/**
+	 * Remove this thing from the given game
+	 * @param game The game to remove it from
+	 */
+	public void removeFrom(Game game){
+		game.getCurrentRoom().removeThing(this);
+	}
+	
+	/**
 	 * @return This object, as an {@link EntityThing}, or null if it cannot be an {@link EntityThing}
 	 * 		The return value of this method should equal this object, not another version or reference, i.e. (this == this.asEntity()) should evaluate to true
 	 */
@@ -99,7 +107,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	}
 	
 	/**
-	 * Determine if this {@link GameThing} has the given tag
+	 * Determine if this object has the given tag
 	 * @param tag The tag to check for
 	 * @return true if it has the tag, false otherwise
 	 */

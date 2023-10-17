@@ -1,18 +1,23 @@
 package zusass;
 
+import com.google.gson.JsonElement;
 import zgame.core.Game;
+import zgame.core.file.Saveable;
+import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GameWindow;
+import zgame.stat.Stats;
 import zusass.game.MainPlay;
 import zusass.game.ZusassRoom;
 import zusass.game.stat.ZusassStat;
+import zusass.game.things.entities.mobs.ZusassMob;
+import zusass.game.things.entities.mobs.ZusassPlayer;
 import zusass.menu.mainmenu.MainMenuState;
+import zusass.utils.ZusassConfig;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 import java.io.File;
-
-import com.google.gson.JsonObject;
 
 /**
  * The main class for the Zusass Game.
@@ -26,8 +31,27 @@ import com.google.gson.JsonObject;
  */
 public class ZusassGame extends Game{
 	
+	/** The json key used to store the main chunk of data about the game */
+	public final static String DATA_KEY = "data";
+	/** The json key used to store the player data */
+	public final static String PLAYER_KEY = "player";
+	
 	/** A class holding all the data used by this {@link ZusassGame} */
 	private ZusassData data;
+	
+	/** The main player which is in this game */
+	private ZusassPlayer player;
+	
+	/** @return See {@link #player} */
+	public ZusassPlayer getPlayer(){
+		return player;
+	}
+	
+	/** @param player See player. Note that this will not account for adding the player or removing the player from a room */
+	public void setPlayer(ZusassPlayer player){
+		this.player = player;
+	}
+	
 	
 	/*
 	 * issue#16 make the infinite levels have the same seed for each level based on the save's seed. You can input a seed when you make the save, or randomly generate one
@@ -36,15 +60,12 @@ public class ZusassGame extends Game{
 	 * Get rid of the stupid type parameter for game and just rely on casting for game specific components
 	 */
 	
-	/** The json key used to store the main chunk of data about the game */
-	public final static String DATA_KEY = "data";
-	
 	/** Create the only instance of ZusassGame from this class. This constructor will place the game in the main menu */
 	private ZusassGame(){
 		super();
 		// Window and performance settings
 		this.setTps(100);
-		this.setMaxFps(0);
+		this.setMaxFps(100);
 		this.setCurrentState(new MainMenuState(this));
 		GameWindow w = this.getWindow();
 		w.setUseVsync(true);
@@ -65,16 +86,37 @@ public class ZusassGame extends Game{
 		zgame.start();
 	}
 	
+	/**
+	 * Make a new save file for a game
+	 *
+	 * @param name The name of the save file
+	 */
+	public void createNewGame(String name){
+		ZusassPlayer player = new ZusassPlayer();
+		this.setPlayer(player);
+		
+		ZusassData data = new ZusassData();
+		data.setLoadedFile(ZusassConfig.createSaveFilePath(name));
+		zgame.setData(data);
+		
+		MainPlay play = new MainPlay(zgame);
+		zgame.setCurrentState(play);
+		data.checkAutoSave(zgame);
+	}
+	
+	
 	@Override
-	public JsonObject save(JsonObject obj){
-		obj.add(DATA_KEY, this.getData().save());
-		return obj;
+	public boolean save(JsonElement e){
+		Saveable.save(DATA_KEY, e, this.getData());
+		Saveable.save(PLAYER_KEY, e, this.getPlayer());
+		return true;
 	}
 	
 	@Override
-	public JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException, NullPointerException{
-		this.getData().load(DATA_KEY, obj);
-		return obj;
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		this.data = Saveable.obj(DATA_KEY, e, ZusassData.class, ZusassData::new);
+		this.player = Saveable.obj(PLAYER_KEY, e, ZusassPlayer.class, ZusassPlayer::new);
+		return true;
 	}
 	
 	@Override
@@ -127,6 +169,17 @@ public class ZusassGame extends Game{
 	/** Initialize the object {@link #zgame} */
 	public static void init(){
 		ZusassStat.init();
+		Stats.init();
+		
+		/*
+		 Init all the static stat dependencies by making a new mob, because the stats are all added when the mob is created.
+		 This is kind of stupid, but whatever, it ensures they are initialized on startup
+		 */
+		new ZusassMob(0, 0, 0, 0){
+			@Override
+			protected void render(Game game, Renderer r){}
+		};
+		
 		if(zgame != null) return;
 		zgame = new ZusassGame();
 	}

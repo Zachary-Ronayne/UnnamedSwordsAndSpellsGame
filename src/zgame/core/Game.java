@@ -27,8 +27,11 @@ import zgame.core.state.PlayState;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
-import zgame.stat.Stats;
+import zgame.stat.DefaultStatType;
 import zgame.world.Room;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The central class used to create a game. Create an extension of this class to begin making a game
@@ -105,6 +108,9 @@ public class Game implements Saveable, Destroyable{
 	/** Used to track if the state of the paused sounds have been updated since the window lost or gained focused, or was minimized or unminimized */
 	private boolean updateSoundState;
 	
+	/** A list of things to do the next time this game has its open gl loop called. Once the loop happens, this list will be emptied */
+	private final List<Runnable> nextLoopFuncs;
+	
 	/** A simple helper class used by {@link #tickLooper} to run its loop on a separate thread */
 	private class TickLoopTask implements Runnable{
 		@Override
@@ -172,6 +178,8 @@ public class Game implements Saveable, Destroyable{
 	 * @param printTps true to, every second, print the number of ticks that occurred in that last second, false otherwise
 	 */
 	public Game(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
+		this.nextLoopFuncs = new ArrayList<>();
+		
 		// Init misc values
 		this.gameSpeed = 1;
 		this.totalTickTime = 0;
@@ -188,6 +196,9 @@ public class Game implements Saveable, Destroyable{
 		this.nextCurrentState = null;
 		this.playState = null;
 		this.destroyState = null;
+		
+		// Init stat enum
+		DefaultStatType.init();
 		
 		// Init sound
 		this.sounds = new SoundManager();
@@ -224,9 +235,6 @@ public class Game implements Saveable, Destroyable{
 		
 		// Go to fullscreen if applicable
 		this.window.setInFullScreenNow(enterFullScreen);
-		
-		// Init stats
-		Stats.init();
 	}
 	
 	/**
@@ -289,6 +297,14 @@ public class Game implements Saveable, Destroyable{
 	}
 	
 	/**
+	 * Run a function on the next OpenGL loop
+	 * @param r The function to run
+	 */
+	public void onNextLoop(Runnable r){
+		this.nextLoopFuncs.add(r);
+	}
+	
+	/**
 	 * Called when the window receives a key press. Can overwrite this method to perform actions directly when keys are pressed. Can also provide this {@link Game} with a
 	 * {@link GameState} via {@link #setCurrentState(GameState)} to perform that state's actions.
 	 *
@@ -342,57 +358,66 @@ public class Game implements Saveable, Destroyable{
 	 * the main loop
 	 */
 	private void loopFunction(){
-		// Update the state of the game
-		this.updateCurrentState();
-		
-		boolean focused = this.getWindow().isFocused();
-		boolean minimized = this.getWindow().isMinimized();
-		
-		// Update the window
-		this.getWindow().checkEvents();
-		
-		// Only perform rendering operations if the window should be rendered, based on the state of the window's focus and minimize
-		if(!(this.isFocusedRender() && !focused) && !(this.isMinimizedRender() && minimized)){
-			// Clear the main framebuffer
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		try{
+			// Update the state of the game
+			this.updateCurrentState();
 			
-			// Clear the internal renderer and set it up to use the renderer's frame buffer to draw to
-			Renderer r = this.getWindow().getRenderer();
-			r.clear();
+			// Run any functions that need to be run on the next OpenGL loop
+			if(!this.nextLoopFuncs.isEmpty()){
+				for(var f : this.nextLoopFuncs) f.run();
+				this.nextLoopFuncs.clear();
+			}
 			
-			// Render objects using the renderer's frame buffer
-			r.initToDraw();
+			// Update the window
+			boolean focused = this.getWindow().isFocused();
+			boolean minimized = this.getWindow().isMinimized();
+			this.getWindow().checkEvents();
 			
-			// Draw the background
-			r.setCamera(null);
-			r.identityMatrix();
-			this.renderBackground(r);
+			// Only perform rendering operations if the window should be rendered, based on the state of the window's focus and minimize
+			if(!(this.isFocusedRender() && !focused) && !(this.isMinimizedRender() && minimized)){
+				// Clear the main framebuffer
+				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				
+				// Clear the internal renderer and set it up to use the renderer's frame buffer to draw to
+				Renderer r = this.getWindow().getRenderer();
+				r.clear();
+				
+				// Render objects using the renderer's frame buffer
+				r.initToDraw();
+				
+				// Draw the background
+				r.setCamera(null);
+				r.identityMatrix();
+				this.renderBackground(r);
+				
+				// Draw the foreground, i.e. main objects
+				// Set the camera
+				boolean useCam = this.getCurrentState().isUseCamera();
+				if(useCam) r.setCamera(this.getCamera());
+				else r.setCamera(null);
+				// Move based on the camera, if applicable, and draw the objects
+				r.identityMatrix();
+				if(useCam) this.getCamera().transform(this.getWindow());
+				this.render(r);
+				
+				// Draw the hud
+				r.setCamera(null);
+				r.identityMatrix();
+				this.renderHud(r);
+				
+				// Draw the renderer's frame buffer to the window
+				r.drawToWindow(this.getWindow());
+			}
+			// Update the window
+			this.getWindow().swapBuffers();
 			
-			// Draw the foreground, i.e. main objects
-			// Set the camera
-			boolean useCam = this.getCurrentState().isUseCamera();
-			if(useCam) r.setCamera(this.getCamera());
-			else r.setCamera(null);
-			// Move based on the camera, if applicable, and draw the objects
-			r.identityMatrix();
-			if(useCam) this.getCamera().transform(this.getWindow());
-			this.render(r);
-			
-			// Draw the hud
-			r.setCamera(null);
-			r.identityMatrix();
-			this.renderHud(r);
-			
-			// Draw the renderer's frame buffer to the window
-			r.drawToWindow(this.getWindow());
+			// Check if a state needs to be destroyed
+			if(this.destroyState != null) this.destroyState.destroy();
+		}catch(Exception e){
+			ZConfig.exception(e);
 		}
-		// Update the window
-		this.getWindow().swapBuffers();
-		
-		// Check if a state needs to be destroyed
-		if(this.destroyState != null) this.destroyState.destroy();
 	}
 	
 	/**
@@ -457,11 +482,16 @@ public class Game implements Saveable, Destroyable{
 	 * The function run by the tick GameLooper as its main loop
 	 */
 	private void tickLoopFunction(){
-		boolean focused = this.getWindow().isFocused();
-		boolean minimized = this.getWindow().isMinimized();
-		// If the game should pause when unfocused or minimized, then do nothing
-		if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized) return;
-		this.tick(this.getTickLooper().getRateTime() * this.getGameSpeed());
+		try{
+			boolean focused = this.getWindow().isFocused();
+			boolean minimized = this.getWindow().isMinimized();
+			// If the game should pause when unfocused or minimized, then do nothing
+			if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized) return;
+			this.tick(this.getTickLooper().getRateTime() * this.getGameSpeed());
+			
+		}catch(Exception e){
+			ZConfig.exception(e);
+		}
 	}
 	
 	/**
@@ -503,29 +533,33 @@ public class Game implements Saveable, Destroyable{
 	
 	/** Update the sound state, what sounds are playing, if sounds should be muted, etc */
 	private void updateSounds(){
-		SoundManager sm = this.getSounds();
-		EffectsPlayer ep = sm.getEffectsPlayer();
-		MusicPlayer mp = sm.getMusicPlayer();
-		sm.update();
-		boolean focused = this.getWindow().isFocused();
-		boolean minimized = this.getWindow().isMinimized();
-		if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized){
-			// If the sound has not yet been paused since needing to pause, then save the pause state of the sound players, and then pause them both
-			if(!this.updateSoundState){
-				this.effectsPaused = ep.isPaused();
-				this.musicPaused = ep.isPaused();
-				ep.pause();
-				mp.pause();
-				this.updateSoundState = true;
+		try{
+			SoundManager sm = this.getSounds();
+			EffectsPlayer ep = sm.getEffectsPlayer();
+			MusicPlayer mp = sm.getMusicPlayer();
+			sm.update();
+			boolean focused = this.getWindow().isFocused();
+			boolean minimized = this.getWindow().isMinimized();
+			if(this.isFocusedUpdate() && !focused || this.isMinimizedUpdate() && minimized){
+				// If the sound has not yet been paused since needing to pause, then save the pause state of the sound players, and then pause them both
+				if(!this.updateSoundState){
+					this.effectsPaused = ep.isPaused();
+					this.musicPaused = ep.isPaused();
+					ep.pause();
+					mp.pause();
+					this.updateSoundState = true;
+				}
 			}
-		}
-		else{
-			// If the sound has not been unpaused since no longer needing to be paused, set the pause state to what it was before the pause
-			if(this.updateSoundState){
-				ep.setPaused(this.effectsPaused);
-				mp.setPaused(this.musicPaused);
-				this.updateSoundState = false;
+			else{
+				// If the sound has not been unpaused since no longer needing to be paused, set the pause state to what it was before the pause
+				if(this.updateSoundState){
+					ep.setPaused(this.effectsPaused);
+					mp.setPaused(this.musicPaused);
+					this.updateSoundState = false;
+				}
 			}
+		}catch(Exception e){
+			ZConfig.exception(e);
 		}
 	}
 	
@@ -613,7 +647,7 @@ public class Game implements Saveable, Destroyable{
 		JsonObject data = file.load();
 		if(data == null) return false;
 		try{
-			return this.load(data) != null;
+			return this.load(data);
 		}catch(ClassCastException | IllegalStateException | NullPointerException e){
 			ZConfig.error(e, "Failed to load a json object because it had invalid formatting. Object data:\n", data);
 		}
@@ -628,11 +662,16 @@ public class Game implements Saveable, Destroyable{
 	 */
 	public boolean saveGame(String path){
 		if(path == null) return false;
-		ZJsonFile file = new ZJsonFile(path);
-		JsonObject data = file.getData();
-		this.save(data);
-		file.setData(data);
-		return file.save();
+		try{
+			ZJsonFile file = new ZJsonFile(path);
+			JsonObject data = file.getData();
+			this.save(data);
+			file.setData(data);
+			return file.save();
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	/** @return See {@link #sounds} */

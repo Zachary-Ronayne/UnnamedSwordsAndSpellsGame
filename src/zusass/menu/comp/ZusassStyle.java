@@ -9,7 +9,7 @@ import zusass.ZusassGame;
 public final class ZusassStyle{
 	
 	public static void applyStyleThing(ZusassGame zgame, MenuThing thing){
-		thing.setBorderWidth(2);
+		thing.setBorderWidth(4);
 		thing.setBorder(new ZColor(.6));
 	}
 	

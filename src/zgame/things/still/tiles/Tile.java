@@ -4,13 +4,10 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
-import zgame.things.type.GameThing;
-import zgame.things.type.HitBox;
-import zgame.things.type.Materialable;
-import zgame.things.type.PositionedRectangleThing;
+import zgame.things.type.*;
 
 /** A {@link GameThing} with a rectangular hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
-public class Tile extends PositionedRectangleThing implements Materialable{
+public class Tile extends PositionedRectangleThing implements RectangleHitBox{
 	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 64;
@@ -23,8 +20,11 @@ public class Tile extends PositionedRectangleThing implements Materialable{
 	/** The index of this tile on the y axis */
 	private final int yIndex;
 	
-	/** The type of this tile */
-	private final TileType type;
+	/** The type of this tile used for rendering the background of this tile. This is only used for rendering */
+	private TileType backType;
+	
+	/** The type of this tile used for rendering the front, foreground, of this tile */
+	private TileType frontType;
 	
 	/**
 	 * Make a new tile at the given index of the default color
@@ -37,17 +37,29 @@ public class Tile extends PositionedRectangleThing implements Materialable{
 	}
 	
 	/**
+	 * Make a new tile at the given index of the default color
+	 *
+	 * @param x See {@link #xIndex}
+	 * @param y See {@link #yIndex}
+	 * @param type See {@link #frontType}
+	 */
+	public Tile(int x, int y, TileType type){
+		this(x, y, BaseTiles.AIR, type);
+	}
+	
+	/**
 	 * Make a new tile at the given index and of the given color
 	 *
 	 * @param x See {@link #xIndex}
 	 * @param y See {@link #yIndex}
-	 * @param type See {@link #type}
+	 * @param frontType See {@link #frontType}
 	 */
-	public Tile(int x, int y, TileType type){
+	public Tile(int x, int y, TileType backType, TileType frontType){
 		super(x * size(), y * size(), size(), size());
 		this.xIndex = x;
 		this.yIndex = y;
-		this.type = type;
+		this.backType = backType;
+		this.frontType = frontType;
 	}
 	
 	/** @return See {@link #xIndex} */
@@ -60,23 +72,45 @@ public class Tile extends PositionedRectangleThing implements Materialable{
 		return this.yIndex;
 	}
 	
-	/** @return See {@link TileType} */
-	public TileType getType(){
-		return type;
+	/** @return See {@link #backType} */
+	public TileType getBackType(){
+		return this.backType;
+	}
+	
+	/** @param backType See {@link #backType} */
+	public void setBackType(TileType backType){
+		this.backType = backType;
+	}
+	
+	/** @return See {@link #frontType} */
+	public TileType getFrontType(){
+		return this.frontType;
+	}
+	
+	/** @param frontType See {@link #frontType} */
+	public void setFrontType(TileType frontType){
+		this.frontType = frontType;
 	}
 	
 	@Override
 	public Material getMaterial(){
-		return this.getType().getMaterial();
+		return this.getFrontType().getMaterial();
 	}
 	
+	/** See {@link TileHitbox#collide(Tile, HitBox)} */
 	public CollisionResponse collide(HitBox obj){
-		return this.getType().getHitbox().collide(this, obj);
+		return this.getFrontType().getHitbox().collide(this, obj);
+	}
+	
+	/** See {@link TileHitbox#intersectsTile(Tile, HitBox)} */
+	public boolean intersects(HitBox obj){
+		return this.getFrontType().getHitbox().intersectsTile(this, obj);
 	}
 	
 	@Override
 	public void render(Game game, Renderer r){
-		this.getType().render(this, game, r);
+		this.getBackType().render(this, game, r);
+		this.getFrontType().render(this, game, r);
 	}
 	
 	/** @return The unit size of a tile */
@@ -89,4 +123,56 @@ public class Tile extends PositionedRectangleThing implements Materialable{
 		return TILE_SIZE_INVERSE;
 	}
 	
+	// Tiles do not move or collide
+	@Override
+	public void collide(CollisionResponse r){}
+	
+	@Override
+	public void touchFloor(Material touched){}
+	
+	@Override
+	public void leaveFloor(){}
+	
+	@Override
+	public void touchCeiling(Material touched){}
+	
+	@Override
+	public void leaveCeiling(){}
+	
+	@Override
+	public void touchWall(Material touched){}
+	
+	@Override
+	public void leaveWall(){}
+	
+	@Override
+	public boolean isOnGround(){
+		return false;
+	}
+	
+	@Override
+	public boolean isOnCeiling(){
+		return false;
+	}
+	
+	@Override
+	public boolean isOnWall(){
+		return false;
+	}
+	
+	@Override
+	public double getPX(){
+		return this.getX();
+	}
+	
+	@Override
+	public double getPY(){
+		return this.getY();
+	}
+	
+	/** @return Always an empty string, tiles do not use uuids */
+	@Override
+	public String getUuid(){
+		return "";
+	}
 }

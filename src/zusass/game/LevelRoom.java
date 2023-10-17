@@ -4,7 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZMath;
-import zgame.stat.modifier.StatModifier;
+import zgame.stat.modifier.ModifierType;
 import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zusass.game.things.LevelDoor;
@@ -65,13 +65,13 @@ public class LevelRoom extends ZusassRoom{
 		// Add the door
 		this.addThing(new LevelDoor(this.getLevel() + 1, this));
 		
-		// issue#25 if this is changed to add hundreds of enemies, the TPS talks while not using all the computer's resources. Probably need to make tick looper account for time spent rendering
+		// issue#25 if this is changed to add hundreds of enemies, the TPS tanks while not using all the computer's resources. Probably need to make tick looper account for time spent rendering
 		// Add enemies
 		Npc enemy = new Npc(400, 400, 60, 80);
-		enemy.setStat(MOVE_SPEED, 100 + 200 * (1 - (10 / (this.level + 10.0))));
+		enemy.setStat(ENDURANCE, 2 + 6 * (1 - (10 / (this.level + 10.0))));
 		enemy.setStat(STRENGTH, 10);
-		enemy.getStat(STRENGTH).addModifier(this.level, StatModifier.ADD);
-		enemy.setToMaxHealth();
+		enemy.getStat(STRENGTH).addModifier(enemy.getUuid(), this.level, ModifierType.ADD);
+		enemy.setResourcesMax();
 		this.addThing(enemy);
 	}
 	
@@ -110,7 +110,7 @@ public class LevelRoom extends ZusassRoom{
 	@Override
 	public boolean canLeave(GameThing thing){
 		// Players cannot leave the room if it is not cleared
-		return !thing.hasTag(ZusassTags.IS_PLAYER) || this.isRoomCleared();
+		return !thing.hasTag(ZusassTags.MUST_CLEAR_LEVEL_ROOM) || this.isRoomCleared();
 	}
 	
 	@Override

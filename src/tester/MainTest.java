@@ -1,7 +1,10 @@
 package tester;
 
+import com.google.gson.JsonElement;
 import zgame.core.Game;
+import zgame.core.graphics.AlphaMode;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.TextOption;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.GameFont;
@@ -18,10 +21,7 @@ import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect;
 import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
-import zgame.menu.Menu;
-import zgame.menu.MenuButton;
-import zgame.menu.MenuHolder;
-import zgame.menu.MenuTextBox;
+import zgame.menu.*;
 import zgame.menu.scroller.HorizontalScroller;
 import zgame.menu.scroller.MenuScroller;
 import zgame.menu.scroller.VerticalScroller;
@@ -32,8 +32,8 @@ import zgame.world.Room;
 import static org.lwjgl.glfw.GLFW.*;
 
 import java.awt.Rectangle;
-
-import com.google.gson.JsonObject;
+import java.io.File;
+import java.util.ArrayList;
 
 /**
  * A simple main class used for testing the game code
@@ -120,6 +120,8 @@ public class MainTest extends Game{
 	public static Game testerGame;
 	public static GameWindow window;
 	
+	public static final boolean CIRCLE_PLAYER = true;
+	
 	public static double camSpeed = 400;
 	public static boolean zoomOnlyX = false;
 	public static boolean zoomOnlyY = false;
@@ -154,9 +156,9 @@ public class MainTest extends Game{
 	public static void main(String[] args){
 		// Set up game
 		testerGame = new MainTest();
-//		testerGame.setCurrentState(new TesterGameState(testerGame));
-		// testerGame.setCurrentState(new TesterMenuState(testerGame));
-		 testerGame.setCurrentState(new GameEngineState());
+		testerGame.setCurrentState(new TesterGameState(testerGame));
+//		testerGame.setCurrentState(new TesterMenuState(testerGame));
+//		testerGame.setCurrentState(new GameEngineState());
 		
 		window = testerGame.getWindow();
 		window.center();
@@ -194,17 +196,19 @@ public class MainTest extends Game{
 	}
 	
 	@Override
-	public JsonObject save(JsonObject obj){
+	public boolean save(JsonElement e){
+		var obj = e.getAsJsonObject();
 		obj.addProperty("playerX", playerX);
 		obj.addProperty("playerY", playerY);
-		return obj;
+		return true;
 	}
 	
 	@Override
-	public JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException{
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException{
+		var obj = e.getAsJsonObject();
 		playerX = obj.get("playerX").getAsDouble();
 		playerY = obj.get("playerY").getAsDouble();
-		return obj;
+		return true;
 	}
 	
 	public static class GameEngineState extends PlayState{
@@ -219,7 +223,9 @@ public class MainTest extends Game{
 			for(int i = 0; i < 2; i++) secondRoom.setTile(i, 4, BaseTiles.HIGH_FRICTION);
 			this.setCurrentRoom(firstRoom);
 			
-			this.player = new PlayerTester(100, 400, 60, 100);
+			if(CIRCLE_PLAYER) this.player = new PlayerTesterCircle(130, 430, 60);
+			else this.player = new PlayerTesterRect(100, 400, 60, 100);
+			
 			this.player.setMass(100);
 			this.player.setLockCamera(true);
 			this.player.getWalk().setCanWallJump(true);
@@ -253,6 +259,10 @@ public class MainTest extends Game{
 			for(int i = 0; i < 4; i++) r.setTile(4 + i, 6, BaseTiles.WALL_DARK);
 			r.setTile(7, 5, BaseTiles.WALL_DARK);
 			r.setTile(11, 3, BaseTiles.WALL_LIGHT);
+			
+			r.setFrontTile(7, 4, BaseTiles.WALL_CIRCLE);
+			
+			r.setFrontTile(11, 2, BaseTiles.WALL_BOTTOM_SLAB);
 			
 			return r;
 		}
@@ -296,9 +306,13 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public void playMouseWheelMove(Game game, double amount){
-			super.playMouseWheelMove(game, amount);
-			if(game.getKeyInput().shift()) game.getCamera().zoom(amount);
+		public boolean playMouseWheelMove(Game game, double amount){
+			boolean input = super.playMouseWheelMove(game, amount);
+			if(game.getKeyInput().shift()) {
+				game.getCamera().zoom(amount);
+				return true;
+			}
+			return input;
 		}
 	}
 	
@@ -307,6 +321,9 @@ public class MainTest extends Game{
 		private final TextBuffer textBuffer;
 		
 		private static final ZRect bufferBounds = new ZRect(0, 500, 500, 150);
+		
+		private static final String SAVES_PATH = "./saves";
+		private static final String FILE_PATH = SAVES_PATH + "/testGame.json";
 		
 		public TesterGameState(Game game){
 			this.textBuffer = new TextBuffer((int)bufferBounds.width, (int)bufferBounds.height, game.getFont("zfont"));
@@ -367,38 +384,58 @@ public class MainTest extends Game{
 					if(shift) game.setCurrentState(new GameEngineState());
 					else game.setCurrentState(new TesterMenuState(game));
 				}
-				else if(key == GLFW_KEY_C && keys.ctrl()) game.saveGame("./saves/testGame");
-				else if(key == GLFW_KEY_V && keys.ctrl()) game.loadGame("./saves/testGame");
+				else if(key == GLFW_KEY_C && keys.ctrl()){
+					makeSaveDir();
+					game.saveGame(FILE_PATH);
+				}
+				else if(key == GLFW_KEY_V && keys.ctrl()){
+					makeSaveDir();
+					game.loadGame(FILE_PATH);
+				}
 			}
 		}
 		
+		private void makeSaveDir(){
+			File file = new File(SAVES_PATH);
+			if(!file.exists() && !file.mkdir()) ZStringUtils.print("Failed to make saves dir");
+		}
+		
 		@Override
-		public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+			boolean input = super.mouseAction(game, button, press, shift, alt, ctrl);
 			if(shift && alt && ctrl && !press){
 				changeR = Math.random();
 				changeG = Math.random();
 				changeB = Math.random();
+				return true;
 			}
+			return input;
 		}
 		
 		@Override
-		public void mouseMove(Game game, double x, double y){
+		public boolean mouseMove(Game game, double x, double y){
+			boolean input = super.mouseMove(game, x, y);
 			ZKeyInput keys = game.getKeyInput();
 			ZMouseInput mouse = game.getMouseInput();
 			if(keys.shift() && mouse.middleDown()){
 				changeRect.x += x - mouse.lastX();
 				changeRect.y += y - mouse.lastY();
+				input = true;
 			}
+			return input;
 		}
 		
 		@Override
-		public void mouseWheelMove(Game game, double amount){
+		public boolean mouseWheelMove(Game game, double amount){
+			boolean input = super.mouseWheelMove(game, amount);
 			ZKeyInput keys = game.getKeyInput();
 			if(keys.shift()){
 				double size = changeRect.width * Math.pow(1.1, amount);
 				changeRect.width = (int)size;
 				changeRect.height = (int)size;
+				input = true;
 			}
+			return input;
 		}
 		
 		@Override
@@ -428,9 +465,9 @@ public class MainTest extends Game{
 			this.textBuffer.drawToRenderer(bufferBounds.x, bufferBounds.y, r);
 			
 			r.makeOpaque();
-			r.drawImage(playerX, playerY, 150, 150, game.getImage("player"));
+			r.drawImage(playerX, playerY, 150, 150, game.getImage("player"), null);
 			r.setAlpha(.5);
-			r.drawImage(550, 100, 50, 50, game.getImage("goal"));
+			r.drawImage(550, 100, 50, 50, game.getImage("goal"), null);
 			
 			r.setColor(0, 0, 1, 0.5);
 			r.drawRectangle(140, 70, 90, 400);
@@ -462,7 +499,7 @@ public class MainTest extends Game{
 			
 			ZRect[] bs = r.getFont().stringBounds(600, -400, s, 0, true);
 			r.setColor(.25, .25, .25, .2);
-			r.drawRectangle(new ZRect(bs[s.length()], 5));
+			r.drawRectangle(new ZRect(bs[s.length()], 10));
 			r.setColor(.25, .25, .25, .4);
 			r.drawRectangle(bs[s.length()]);
 			r.setColor(.7, .7, .7, .1);
@@ -484,7 +521,7 @@ public class MainTest extends Game{
 			r.setColor(new ZColor(1, 0, 1));
 			r.drawText(1100, 0, s);
 			r.setColor(.25, .25, .25, .2);
-			r.drawRectangle(new ZRect(bs[s.length()], 5));
+			r.drawRectangle(new ZRect(bs[s.length()], 10));
 			r.setColor(.25, .25, .25, .4);
 			r.drawRectangle(bs[s.length()]);
 			r.setColor(.7, .7, .7, .1);
@@ -498,6 +535,25 @@ public class MainTest extends Game{
 			r.drawText(-400, 400, "transparent text");
 			
 			r.popAttributes();
+			
+			////////////////////////////////////////
+			
+			var options = new ArrayList<TextOption>();
+			options.add(new TextOption("ABCDEFGHIJKLM", new ZColor(1, 0, 0), AlphaMode.NORMAL));
+			options.add(new TextOption("NOPQRSTUVWXYZ\n", new ZColor(1, 1, 0), AlphaMode.BUFFER));
+			options.add(new TextOption("abcdefghijklm", new ZColor(0, 1, 0), null));
+			options.add(new TextOption("nopqrstuvwxyz\n", new ZColor(0, 1, 1), AlphaMode.NORMAL));
+			options.add(new TextOption(" 0123456789.,", new ZColor(0, 0, 1), null));
+			options.add(new TextOption("“”‘’\"'?!@_*#$\n", new ZColor(1, 0, 1), null));
+			options.add(new TextOption("%&()+-/:;<=>", new ZColor(1, 1, 1), AlphaMode.BUFFER));
+			options.add(new TextOption("[/]^`{|}~", new ZColor(0, 0, 0), null));
+			
+			r.pushAttributes();
+			r.setFontSize(32);
+			r.setFontLineSpace(40);
+			r.setFontCharSpace(10);
+			
+			r.drawText(1250, -400, options);
 		}
 		
 		@Override
@@ -680,7 +736,6 @@ public class MainTest extends Game{
 			r.fill();
 			super.renderBackground(game, r);
 			
-			
 			r.setFont(game.getFont("zfont"));
 			r.setColor(0, 0, 1);
 			r.setFontSize(30);
@@ -695,9 +750,10 @@ public class MainTest extends Game{
 		
 		public TesterMenu(Game game){
 			super(100, 250, 830, 380, true);
+			
 			this.setWidth(830);
 			this.setHeight(380);
-			this.updateBuffer();
+			this.regenerateBuffer();
 			this.setFill(new ZColor(.1, .1, .2, 1));
 			
 			MenuScroller scrollX = new HorizontalScroller(0, 370, 800, 20, 200, game){
@@ -710,10 +766,11 @@ public class MainTest extends Game{
 			scrollX.setScrollWheelEnabled(false);
 			scrollX.setScrollWheelAsPercent(false);
 			scrollX.setScrollWheelStrength(10);
-			scrollX.setDrawThingsToBuffer(false);
-			scrollX.updateBuffer();
-			scrollX.getButton().updateBuffer();
-			this.addThing(scrollX);
+			scrollX.setDefaultUseBuffer(false);
+			scrollX.regenerateBuffer();
+			scrollX.getButton().regenerateBuffer();
+			scrollX.getButton().setHighlightColor(new ZColor(0, 0, 1, .5));
+			scrollX.getButton().setFill(new ZColor(.5, .5, .5));
 			MenuScroller scrollY = new VerticalScroller(820, 0, 20, 350, 200, game){
 				@Override
 				public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
@@ -721,7 +778,10 @@ public class MainTest extends Game{
 					setScrollWheelEnabled(!shift);
 				}
 			};
-			this.addThing(scrollY);
+			
+			scrollY.setDefaultUseBuffer(true);
+			scrollY.getButton().setHighlightColor(new ZColor(0, 0, 1, .5));
+			scrollY.getButton().setFill(new ZColor(.5, .5, .5));
 			
 			MenuButton t;
 			
@@ -737,8 +797,8 @@ public class MainTest extends Game{
 				}
 			};
 			t.setFill(new ZColor(0, .2, .7));
+			t.setFontColor(new ZColor(0));
 			t.setText("Back");
-			t.updateBuffer();
 			base.addThing(t);
 			
 			t = new MenuButton(50, 100, 200, 100, game){
@@ -761,6 +821,7 @@ public class MainTest extends Game{
 			};
 			t.setFill(new ZColor(.5, 0, 0));
 			t.setText("Exit");
+			t.setFontColor(new ZColor(0));
 			t.setFont(new GameFont(game.getFontAsset("zfont"), 50, 0, 0));
 			base.addThing(t);
 			
@@ -773,15 +834,43 @@ public class MainTest extends Game{
 			t.setText("popup");
 			t.setTextY(45);
 			t.setFont(new GameFont(game.getFontAsset("zfont"), 25, 0, 0));
+			t.setFontColor(new ZColor(0));
 			base.addThing(t);
 			
-			MenuTextBox textBox = new MenuTextBox(300, 100, 300, 50, game){
+			base.getAllThings().addClass(MenuTextBox.class);
+			makeTextBox(base, game, 100, MenuTextBox.Mode.DEFAULT);
+			makeTextBox(base, game, 160, MenuTextBox.Mode.INT);
+			makeTextBox(base, game, 220, MenuTextBox.Mode.INT_POS);
+			makeTextBox(base, game, 280, MenuTextBox.Mode.FLOAT);
+			makeTextBox(base, game, 340, MenuTextBox.Mode.FLOAT_POS);
+			
+			this.addThing(scrollX);
+			this.addThing(scrollY);
+		}
+		
+		private void makeTextBox(MenuThing base, Game game, double y, MenuTextBox.Mode mode){
+			var textBox = new MenuTextBox(300, y, 300, 50, game){
 				@Override
 				public void click(Game game){
-					ZStringUtils.prints(this.getText());
+					if(mode == Mode.INT || mode == Mode.INT_POS) ZStringUtils.prints(getTextAsInt());
+					else if(mode == Mode.FLOAT || mode == Mode.FLOAT_POS) ZStringUtils.prints(getTextAsDouble());
+					else ZStringUtils.prints(getText());
+				}
+				
+				@Override
+				public void setSelected(boolean selected){
+					super.setSelected(selected);
+					if(selected){
+						var boxes = base.getAllThings().get(MenuTextBox.class);
+						for(var b : boxes) {
+							if(b != this) b.setSelected(false);
+						}
+					}
 				}
 			};
-			textBox.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
+			textBox.setHint("Type " + mode.name().toLowerCase());
+			textBox.setFontSize(32);
+			textBox.setMode(mode);
 			base.addThing(textBox);
 		}
 		
@@ -797,14 +886,15 @@ public class MainTest extends Game{
 			MenuButton b = new MenuButton(100, 100, 300, 100, game){
 				@Override
 				public void click(Game game){
-					state.removeTopMenu();
+					state.removeTopMenu(game);
 				}
 			};
 			b.setText("exit popup");
+			b.setFontColor(new ZColor(0));
 			b.setTextY(90);
 			b.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
 			menu.addThing(b);
-			this.state.popupMenu(menu);
+			this.state.popupMenu(game, menu);
 		}
 	}
 }

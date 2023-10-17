@@ -2,8 +2,10 @@ package zgame.menu;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.TextOption;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.font.GameFont;
+import zgame.core.utils.ZArrayUtils;
 import zgame.core.utils.ZRect;
 import zgame.core.utils.ZStringUtils;
 
@@ -22,6 +24,12 @@ public class MenuTextBox extends MenuButton{
 	
 	/** The current width of the text of this text box */
 	private double textWidth;
+	
+	/** The text which currently is entered in this text box */
+	private String currentText;
+	
+	/** The color to use for displaying {@link #currentText} */
+	private ZColor textColor;
 	
 	/** The text to show as a hint of what should be typed in the text box */
 	private String hint;
@@ -53,6 +61,23 @@ public class MenuTextBox extends MenuButton{
 	/** The bounds of each letter rendered, from the beginning of the text to that letter */
 	private ZRect[] letterBounds;
 	
+	/** The current mode of this text box */
+	private Mode mode;
+	
+	/** An enum describing what can be entered in this text box */
+	public enum Mode{
+		/** The default behavior, all values allowed */
+		DEFAULT,
+		/** Only allow valid integers to be typed in */
+		INT,
+		/** Only allow positive integers */
+		INT_POS,
+		/** Only allow valid floating point values */
+		FLOAT,
+		/** Only allow positive floating point values */
+		FLOAT_POS,
+	}
+	
 	/**
 	 * Create a new {@link MenuTextBox} with the given values
 	 *
@@ -64,6 +89,7 @@ public class MenuTextBox extends MenuButton{
 	 */
 	public MenuTextBox(double x, double y, double w, double h, Game game){
 		super(x, y, w, h, game);
+		this.mode = Mode.DEFAULT;
 		this.selected = false;
 		this.setTextX(5);
 		this.setTextY(this.getHeight() - 5);
@@ -71,6 +97,8 @@ public class MenuTextBox extends MenuButton{
 		this.textOffset = 0;
 		this.textWidth = 0;
 		
+		this.currentText = "";
+		this.textColor = new ZColor(0);
 		this.hint = "";
 		this.hintColor = new ZColor(.5);
 		
@@ -81,6 +109,8 @@ public class MenuTextBox extends MenuButton{
 		this.blinkCursor = false;
 		this.setCursorIndex(-1);
 		this.setText("");
+		this.setCurrentText("");
+		this.bufferWidthToWindow(game);
 	}
 	
 	@Override
@@ -94,12 +124,17 @@ public class MenuTextBox extends MenuButton{
 	}
 	
 	@Override
-	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.mouseAction(game, button, press, shift, alt, ctrl);
+	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		boolean input = super.mouseAction(game, button, press, shift, alt, ctrl);
 		double mx = game.mouseSX();
 		double my = game.mouseSY();
 		// Determine if the text box is selected
 		this.setSelected(this.getBounds().contains(mx, my));
+		if(this.isSelected()) {
+			this.setCursorIndex(this.getCurrentText().length() - 1);
+			return true;
+		}
+		return input;
 		
 		// Not doing further mouse input for now
 		// // Only check for clicking on the string to select the index if the box is selected
@@ -116,7 +151,7 @@ public class MenuTextBox extends MenuButton{
 		// // issue#7 fix issue where it selects the beginning of the string if clicking above the text, probably because it's not finding the string hitbox
 		// // issue#8 does this work correctly, using centerX?
 		// if(mx < this.centerX()) this.setCursorIndex(-1);
-		// else this.setCursorIndex(this.getText().length() - 1);
+		// else this.setCursorIndex(this.getCurrentText().length() - 1);
 	}
 	
 	@Override
@@ -126,16 +161,18 @@ public class MenuTextBox extends MenuButton{
 		if(!press) return;
 		
 		if(button == GLFW_KEY_BACKSPACE){
-			String t = this.getText();
+			String t = this.getCurrentText();
 			if(this.getCursorIndex() < t.length() && this.cursorIndex >= 0){
-				this.setText(ZStringUtils.removeChar(t, this.getCursorIndex()));
-				this.cursorLeft();
+				var atEnd = this.getCursorIndex() == t.length() - 1;
+				this.setCurrentText(ZStringUtils.removeChar(t, this.getCursorIndex()));
+				if(atEnd) this.cursorRight();
+				else this.cursorLeft();
 			}
 			return;
 		}
 		else if(button == GLFW_KEY_DELETE){
-			String t = this.getText();
-			if(this.getCursorIndex() + 1 < t.length()) this.setText(ZStringUtils.removeChar(t, this.getCursorIndex() + 1));
+			String t = this.getCurrentText();
+			if(this.getCursorIndex() + 1 < t.length()) this.setCurrentText(ZStringUtils.removeChar(t, this.getCursorIndex() + 1));
 			return;
 		}
 		// I'm aware GLFW key integers generally match ASCII, but doing it this way gives me more explicit control over what keys type what
@@ -151,8 +188,8 @@ public class MenuTextBox extends MenuButton{
 			case GLFW_KEY_H -> toAdd = 'h';
 			case GLFW_KEY_I -> toAdd = 'i';
 			case GLFW_KEY_J -> toAdd = 'j';
-			case GLFW_KEY_L -> toAdd = 'k';
-			case GLFW_KEY_K -> toAdd = 'l';
+			case GLFW_KEY_L -> toAdd = 'l';
+			case GLFW_KEY_K -> toAdd = 'k';
 			case GLFW_KEY_M -> toAdd = 'm';
 			case GLFW_KEY_N -> toAdd = 'n';
 			case GLFW_KEY_O -> toAdd = 'o';
@@ -192,13 +229,58 @@ public class MenuTextBox extends MenuButton{
 			case GLFW_KEY_LEFT -> this.cursorLeft();
 			case GLFW_KEY_RIGHT -> this.cursorRight();
 			case GLFW_KEY_HOME -> this.setCursorIndex(-1);
-			case GLFW_KEY_END -> this.setCursorIndex(this.getText().length());
+			case GLFW_KEY_END -> this.setCursorIndex(this.getCurrentText().length());
 		}
 		if(toAdd != null){
 			if(shift && 'a' <= toAdd && toAdd <= 'z') toAdd = Character.toUpperCase(toAdd);
-			this.setText(ZStringUtils.insertString(this.getText(), Math.max(0, this.getCursorIndex() + 1), toAdd));
-			this.cursorRight();
+			this.applyCharacter(toAdd);
 		}
+	}
+	
+	/**
+	 * Apply the given character to this text box.
+	 * @param c The character to add
+	 */
+	public void applyCharacter(Character c){
+		var m = this.getMode();
+		switch(m){
+			case DEFAULT -> insertCharacter(c);
+			case INT, INT_POS -> {
+				if('0' <= c && c <= '9') insertCharacter(c);
+			}
+			case FLOAT, FLOAT_POS -> {
+				if('0' <= c && c <= '9') insertCharacter(c);
+				else if(c == '.'){
+					var s = this.getCurrentText();
+					var dotIndex = s.indexOf('.');
+					var initialCursor = this.getCursorIndex();
+					if(initialCursor > -1 || s.indexOf('-') == -1){
+						if(dotIndex != -1) {
+							this.setCurrentText(ZStringUtils.removeChar(this.getCurrentText(), dotIndex));
+							if(initialCursor >= this.getCurrentText().length()) this.cursorRight();
+							else if(dotIndex < initialCursor) this.cursorLeft();
+						}
+						insertCharacter('.');
+					}
+				}
+			}
+		}
+		if((m == Mode.INT || m == Mode.FLOAT) && c == '-'){
+			var s = this.getCurrentText();
+			if(s != null && s.length() > 0){
+				if(s.charAt(0) == '-') this.setCurrentText(s.substring(1));
+				else this.setCurrentText('-' + s);
+			}
+		}
+	}
+	
+	/**
+	 * Insert the given character to the current value at {@link #cursorIndex}
+	 * @param c The character to insert
+	 */
+	public void insertCharacter(Character c){
+		this.setCurrentText(ZStringUtils.insertString(this.getCurrentText(), Math.max(0, this.getCursorIndex() + 1), c));
+		this.cursorRight();
 	}
 	
 	/** @return See {@link #selected} */
@@ -213,13 +295,14 @@ public class MenuTextBox extends MenuButton{
 	
 	@Override
 	public void render(Game game, Renderer r, ZRect bounds){
+		TextOption op;
+		if(this.getCurrentText().isEmpty()) op = new TextOption(this.getHint(), this.getHintColor());
+		else op = new TextOption(this.getCurrentText(), this.getTextColor());
+		this.getTextBuffer().setOptions(ZArrayUtils.singleList(op));
+		
 		super.render(game, r, bounds);
 		
-		if(this.getText().isEmpty()){
-			r.setColor(this.getHintColor());
-			this.drawText(r, this.getHint(), bounds);
-		}
-		if(this.isSelected() && this.isBlinkCursor()){
+		if(!this.isDisabled() && this.isSelected() && this.isBlinkCursor()){
 			r.setColor(this.getCursorColor());
 			double fontSize = this.getFontSize();
 			r.drawRectangle(bounds.getX() + this.getCursorX(), bounds.getY() + this.getTextY() - fontSize, this.getCursorWidth(), fontSize);
@@ -242,12 +325,37 @@ public class MenuTextBox extends MenuButton{
 		return Math.max(w - 10, w * 0.9) - this.getCursorWidth();
 	}
 	
+	/** @return See {@link #currentText} */
+	public String getCurrentText(){
+		return this.currentText;
+	}
+	
+	/**
+	 * Do not call directly to set the text inside this text box, use {@link #setCurrentText(String)} instead
+	 */
 	@Override
 	public void setText(String text){
 		super.setText(text);
+	}
+	
+	/** @param currentText See {@link #currentText} */
+	public void setCurrentText(String currentText){
+		this.currentText = currentText;
 		GameFont f = this.getFont();
-		this.letterBounds = f.characterBounds(this.getRelX() + this.getTextX(), this.getRelY() + this.getTextY(), this.getText(), 1);
-		this.textWidth = this.letterBounds[this.getText().length()].getWidth();
+		this.letterBounds = f.characterBounds(this.getRelX() + this.getTextX(), this.getRelY() + this.getTextY(), this.getCurrentText(), 1);
+		this.textWidth = this.letterBounds[this.getCurrentText().length()].getWidth();
+		if(this.cursorIndex > currentText.length() - 1) this.setCursorIndex(currentText.length() - 1);
+		this.getTextBuffer().setText(this.getCurrentText());
+	}
+	
+	/** @return See {@link #textColor} */
+	public ZColor getTextColor(){
+		return this.textColor;
+	}
+	
+	/** @param textColor See {@link #textColor} */
+	public void setTextColor(ZColor textColor){
+		this.textColor = textColor;
 	}
 	
 	/** @return See {@link #textWidth} */
@@ -325,11 +433,12 @@ public class MenuTextBox extends MenuButton{
 		return this.cursorIndex;
 	}
 	
-	/** @param cursorIndex See {@link #cursorIndex}. If the index is out of bounds of {@link #getText()}, it goes on the end of the string it's closest to */
+	/** @param cursorIndex See {@link #cursorIndex}. If the index is out of bounds of {@link #getCurrentText()}, it goes on the end of the string it's closest to */
 	public void setCursorIndex(int cursorIndex){
 		// Keep the cursor index in bounds
 		if(cursorIndex < -1) cursorIndex = -1;
-		if(cursorIndex >= this.getText().length()) cursorIndex = this.getText().length() - 1;
+		var text = this.getCurrentText();
+		if(cursorIndex >= text.length()) cursorIndex = text.length() - 1;
 		
 		// Reset the blinking time
 		if(cursorIndex != this.cursorIndex){
@@ -340,7 +449,7 @@ public class MenuTextBox extends MenuButton{
 		this.cursorIndex = cursorIndex;
 		
 		// issue#9 replace this stringWidth call with a reference from this.letterBounds
-		double newCursorLoc = this.getFont().stringWidth(this.getText().substring(0, this.getCursorIndex() + 1));
+		double newCursorLoc = this.getFont().stringWidth(text.substring(0, this.getCursorIndex() + 1));
 		
 		// If the text takes up less space than the text box, position it so that the beginning of the text aligns with the beginning of the box
 		if(this.getTextWidth() < this.getTextLimit()){
@@ -371,6 +480,16 @@ public class MenuTextBox extends MenuButton{
 	/** @return See {@link #cursorLocation} */
 	public double getCursorLocation(){
 		return this.cursorLocation;
+	}
+	
+	/** @return See {@link #mode} */
+	public Mode getMode(){
+		return this.mode;
+	}
+	
+	/** @param mode See {@link #mode} */
+	public void setMode(Mode mode){
+		this.mode = mode;
 	}
 	
 }

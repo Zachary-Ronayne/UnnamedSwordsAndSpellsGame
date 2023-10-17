@@ -89,7 +89,7 @@ public class Walk{
 	 */
 	private double walkStopFriction;
 	
-	/** true if {@link #thing} is currently running, false for walking */
+	/** true if {@link #thing} is currently walking, false for running */
 	private boolean walking;
 	
 	/** The percentage speed {@link #thing} should move at while walking instead of running. i.e. 0.5 = 50% */

@@ -17,12 +17,13 @@ import zgame.things.still.Door;
 import zgame.things.still.tiles.BaseTiles;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType;
+import zgame.things.type.Bounds;
 import zgame.things.type.GameThing;
 import zgame.things.type.HitBox;
-import zgame.things.type.RectangleBounds;
+import zgame.things.type.PositionedThing;
 
 /** An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc. */
-public class Room extends GameThing implements RectangleBounds{
+public class Room extends GameThing implements Bounds{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -39,13 +40,13 @@ public class Room extends GameThing implements RectangleBounds{
 	/** All of the {@link GameThing} objects which will be removed on the next game tick */
 	private final List<GameThing> thingsToRemove;
 	
-	// The 2D grid of {@link Tile} objects defining this {@link Room}
+	/** The 2D grid of {@link Tile} objects defining this {@link Room} */
 	private ArrayList<ArrayList<Tile>> tiles;
 	
-	// The number of tiles wide this room is, i.e. the number of tiles on the x axis
+	/** The number of tiles wide this room is, i.e. the number of tiles on the x axis */
 	private int xTiles;
 	
-	// The number of tiles high this room is, i.e. the number of tiles on the y axis
+	/** The number of tiles high this room is, i.e. the number of tiles on the y axis */
 	private int yTiles;
 	
 	/** The width of the room. */
@@ -58,6 +59,9 @@ public class Room extends GameThing implements RectangleBounds{
 	 * Use {@link #WALL_LEFT}, {@link #WALL_RIGHT}, {@value #WALL_CEILING}, and {@value #WALL_FLOOR} for specifying walls
 	 */
 	private final boolean[] wallSolid;
+	
+	/** A list of things to do the next time this room is ticked. Once the tick happens, this list will be emptied */
+	private final List<Runnable> nextTickFuncs;
 	
 	/** Create a new empty {@link Room} */
 	public Room(){
@@ -82,6 +86,8 @@ public class Room extends GameThing implements RectangleBounds{
 		this.initTiles(xTiles, yTiles);
 		
 		this.wallSolid = new boolean[]{true, true, true, true};
+		
+		this.nextTickFuncs = new ArrayList<>();
 	}
 	
 	@Override
@@ -117,7 +123,7 @@ public class Room extends GameThing implements RectangleBounds{
 			ArrayList<Tile> col = new ArrayList<>(yTiles);
 			this.tiles.add(col);
 			for(int j = 0; j < yTiles; j++){
-				col.add(new Tile(i, j, t));
+				col.add(new Tile(i, j, t, t));
 			}
 		}
 	}
@@ -250,6 +256,14 @@ public class Room extends GameThing implements RectangleBounds{
 	}
 	
 	/**
+	 * Make something happen to this {@link PositionedThing} the next time it is ticked
+	 * @param r The function to run
+	 */
+	public void onNextTick(Runnable r){
+		this.nextTickFuncs.add(r);
+	}
+	
+	/**
 	 * Update this {@link Room}
 	 *
 	 * @param game The {@link Game} which this {@link Room} should update relative to
@@ -273,6 +287,10 @@ public class Room extends GameThing implements RectangleBounds{
 		// Remove all things that need to be removed
 		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(thing);
 		this.thingsToRemove.clear();
+		
+		// Run any functions which need to happen
+		for(int i = 0; i < this.nextTickFuncs.size(); i++) this.nextTickFuncs.get(i).run();
+		this.nextTickFuncs.clear();
 	}
 	
 	/**
@@ -446,6 +464,19 @@ public class Room extends GameThing implements RectangleBounds{
 	 */
 	public Tile getTile(int x, int y){
 		if(!ZMath.in(0, x, this.tiles.size() - 1) || !ZMath.in(0, y, this.tiles.get(x).size() - 1)) return null;
+		return this.getTileUnchecked(x, y);
+	}
+	
+	/**
+	 * Get the tile at the specified index
+	 * Will cause an {@link IndexOutOfBoundsException} if the indexes are outside the range of the grid.
+	 * Only call this method if the bounds are being checked separately. Use {@link #getTile(int, int)} instead to return null if the indexes go out of bounds
+	 *
+	 * @param x The tile index on the x axis
+	 * @param y The tile on the y axis
+	 * @return The tile
+	 */
+	public Tile getTileUnchecked(int x, int y){
 		return this.tiles.get(x).get(y);
 	}
 	
@@ -455,11 +486,54 @@ public class Room extends GameThing implements RectangleBounds{
 	 * @param x The x index
 	 * @param y The y index
 	 * @param t The type of tile to set
-	 * @return true if the tile was set, false if it was not i.e. the indexes were outside the grid
+	 * @return true if the tile was set, false if it was not i.e. the index was outside the grid
 	 */
 	public boolean setTile(int x, int y, TileType t){
 		if(!this.inTiles(x, y)) return false;
 		this.tiles.get(x).set(y, new Tile(x, y, t));
+		return true;
+	}
+	
+	/**
+	 * Set the back tile type for the tile at the specified index
+	 *
+	 * @param x The x index
+	 * @param y The y index
+	 * @param t The type of tile to use as the back type
+	 * @return true if the tile was set, false if it was not i.e. the index was outside the grid
+	 */
+	public boolean setBackTile(int x, int y, TileType t){
+		if(!this.inTiles(x, y)) return false;
+		this.tiles.get(x).get(y).setBackType(t);
+		return true;
+	}
+	
+	/**
+	 * Set the front tile type for the tile at the specified index
+	 *
+	 * @param x The x index
+	 * @param y The y index
+	 * @param t The type of tile to use as the front type
+	 * @return true if the tile was set, false if it was not i.e. the index was outside the grid
+	 */
+	public boolean setFrontTile(int x, int y, TileType t){
+		if(!this.inTiles(x, y)) return false;
+		this.tiles.get(x).get(y).setFrontType(t);
+		return true;
+	}
+	
+	/**
+	 * Set the front and back tile types at the specified index
+	 *
+	 * @param x The x index
+	 * @param y The y index
+	 * @param back The type of tile for the back
+	 * @param front The type of tile for the front
+	 * @return true if the tile was set, false if it was not i.e. the index was outside the grid
+	 */
+	public boolean setTile(int x, int y, TileType back, TileType front){
+		if(!this.inTiles(x, y)) return false;
+		this.tiles.get(x).set(y, new Tile(x, y, back, front));
 		return true;
 	}
 	

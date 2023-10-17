@@ -35,8 +35,10 @@ public class ZusassMenuText extends MenuText{
 	public ZusassMenuText(double x, double y, double w, double h, String text, ZusassGame zgame, boolean textOnly){
 		super(x, y, w, h, text, zgame);
 		ZusassStyle.applyStyleText(zgame, this);
-		this.setBorder(new ZColor(0, 0, 0, 0));
-		this.setFill(new ZColor(0, 0, 0, 0));
+		if(textOnly){
+			this.setBorder(new ZColor(0, 0, 0, 0));
+			this.setFill(new ZColor(0, 0, 0, 0));
+		}
 	}
 	
 }

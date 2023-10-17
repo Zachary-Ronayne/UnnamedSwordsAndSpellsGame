@@ -19,6 +19,7 @@ public class VerticalScroller extends MenuScroller{
 	 */
 	public VerticalScroller(double x, double y, double w, double h, double amount, Game game){
 		super(x, y, w, h, amount, game);
+		this.setInverseMove(true);
 	}
 	
 	@Override

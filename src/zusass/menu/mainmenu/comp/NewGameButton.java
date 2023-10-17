@@ -22,7 +22,7 @@ public class NewGameButton extends MainMenuButton{
 	@Override
 	public void click(Game game){
 		ZusassGame zgame = (ZusassGame)game;
-		game.getCurrentState().popupMenu(new NewGamePopup(this, zgame));
+		game.getCurrentState().popupMenu(game, new NewGamePopup(this, zgame));
 	}
 	
 }

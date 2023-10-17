@@ -1,8 +1,8 @@
 package zusass.game.stat.resources;
 
 import zgame.stat.ResourceStat;
-import zgame.stat.StatType;
 import zgame.stat.Stats;
+import zusass.game.stat.ZusassStat;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -17,13 +17,13 @@ public class Health extends ResourceStat{
 	public Health(Stats stats){
 		super(stats,
 				/////////////////////////////////////////
-				HEALTH, new StatType[]{},
+				HEALTH, new ZusassStat[]{},
 				/////////////////////////////////////////
-				HEALTH_MIN, new StatType[]{},
+				HEALTH_MIN, new ZusassStat[]{},
 				/////////////////////////////////////////
-				HEALTH_MAX, new StatType[]{STRENGTH},
+				HEALTH_MAX, new ZusassStat[]{STRENGTH},
 				/////////////////////////////////////////
-				HEALTH_REGEN, new StatType[]{});
+				HEALTH_REGEN, new ZusassStat[]{});
 	}
 	
 	@Override

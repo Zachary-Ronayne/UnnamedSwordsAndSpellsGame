@@ -1,5 +1,7 @@
 package zgame.stat;
 
+import zusass.game.stat.ZusassStat;
+
 /** A {@link Stat} with a minimum and maximum value */
 public abstract class RangeStat extends ValueStat{
 	
@@ -21,7 +23,7 @@ public abstract class RangeStat extends ValueStat{
 	 * @param type See {@link #type}
 	 * @param dependents See {@link #dependents}
 	 */
-	public RangeStat(double value, Stats stats, StatType type, StatType... dependents){
+	public RangeStat(double value, Stats stats, ZusassStat type, ZusassStat... dependents){
 		super(value, stats, type, dependents);
 		this.recalculateMin = true;
 		this.recalculateMax = true;

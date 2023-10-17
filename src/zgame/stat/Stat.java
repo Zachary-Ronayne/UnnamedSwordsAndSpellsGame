@@ -1,23 +1,22 @@
 package zgame.stat;
 
+import zgame.stat.modifier.ModifierList;
+import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/** An object keeping track of a single stat used an object */
+/** An object keeping track of a single stat used by an object */
 public abstract class Stat{
 	
 	/** The stats object which is used by this {@link Stat} */
 	private final Stats stats;
 	
 	/** The {@link StatType} identifying this {@link Stats} */
-	private final StatType type;
+	private final StatType<?> type;
 	
-	/** true if this {@link Stat} should be recalculated as soon as something about its state changes, false otherwise, defaults to false */
-	private boolean instantRecalculate;
-	
-	/** The ordinals, in no particular order, of stats that this {@link Stat} uses in calculating itself */
+	/** The ids, in no particular order, of stats that this {@link Stat} uses in calculating itself */
 	private final int[] dependents;
 	
 	/** true if this stat needs to be recalculated before it is used again */
@@ -26,8 +25,18 @@ public abstract class Stat{
 	/** The value of this stat since it was last calculated */
 	private double calculated;
 	
-	/** The current modifiers applying to this {@link Stat} */
-	private final Map<String, StatModifier>[] modifiers;
+	/** true if this stat is currently buffed */
+	private boolean buffed;
+	/** true if this stat is currently debuffed */
+	private boolean debuffed;
+	
+	/**
+	 * The current modifiers applying to this {@link Stat}.
+	 * The outer array is indexed by {@link ModifierType}
+	 * The Map is mapped by modifier sourceId
+	 * The list is in an arbitrary order
+	 */
+	private final Map<String, ModifierList>[] modifiers;
 	
 	/**
 	 * Create a new stat
@@ -37,21 +46,20 @@ public abstract class Stat{
 	 * @param dependents See {@link #dependents}
 	 */
 	@SuppressWarnings("unchecked")
-	public Stat(Stats stats, StatType type, StatType... dependents){
-		this.instantRecalculate = false;
+	public Stat(Stats stats, StatType<?> type, StatType<?>... dependents){
 		this.recalculate = true;
 		this.stats = stats;
 		this.type = type;
 		
-		// Save the ordinals of the dependent stats
+		// Save the ids of the dependent stats
 		this.dependents = new int[dependents.length];
 		for(int i = 0; i < this.dependents.length; i++){
-			this.dependents[i] = dependents[i].getOrdinal();
+			this.dependents[i] = dependents[i].getId();
 		}
-		this.modifiers = (HashMap<String, StatModifier>[]) new HashMap[3];
-		this.modifiers[StatModifier.ADD] = new HashMap<>();
-		this.modifiers[StatModifier.MULT_ADD] = new HashMap<>();
-		this.modifiers[StatModifier.MULT_MULT] = new HashMap<>();
+		this.modifiers = (HashMap<String, ModifierList>[])new HashMap[ModifierType.values().length];
+		this.modifiers[ModifierType.ADD.getIndex()] = new HashMap<>();
+		this.modifiers[ModifierType.MULT_ADD.getIndex()] = new HashMap<>();
+		this.modifiers[ModifierType.MULT_MULT.getIndex()] = new HashMap<>();
 	}
 	
 	/** @return See {@link #stats} */
@@ -78,34 +86,42 @@ public abstract class Stat{
 	 * @param type The type of stat to get
 	 * @return The value, or 0 if the given stat doesn't exist
 	 */
-	public final double getOther(StatType type){
+	public final double getOther(StatType<?> type){
 		var stat = this.stats.get(type);
 		if(stat == null) return 0;
 		return stat.get();
 	}
 	
 	/** @return See {@link #type} */
-	public StatType getType(){
+	public StatType<?> getType(){
 		return this.type;
 	}
 	
 	/** Tell this {@link Stat} that it needs to be recalculated before {@link #calculated} can be used again */
 	public void flagRecalculate(){
-		// If instantly recalculating, do it now and stop
-		if(this.instantRecalculate){
-			this.recalculate();
-			return;
-		}
-
 		// First, flag this stat as needing to be recalculated
 		this.recalculate = true;
-
+		
 		// Now, find any stats that use this stat
-		var toFlag = this.stats.getDependents()[this.getType().getOrdinal()];
+		var toFlag = this.stats.getDependents()[this.getType().getId()];
 		// Flag each stat as needing to be recalculated
 		for(int i = 0; i < toFlag.length; i++){
-			this.stats.get(toFlag[i]).flagRecalculate();
+			var s = this.stats.get(toFlag[i]);
+			if(s != null) s.flagRecalculate();
 		}
+	}
+	
+	/**
+	 * Tell {@link #modifiers} that there has been a change to the modifier list, and that list needs to be recalculated.
+	 * Also tells the stat itself to be recalculated
+	 *
+	 * @param type The type of modifiers which must be recalculated
+	 */
+	public void flagModifiersRecalculate(ModifierType type, String sourceId){
+		this.flagRecalculate();
+		var m = this.modifiers[type.getIndex()];
+		var list = m.get(sourceId);
+		list.flagRecalculate();
 	}
 	
 	/** @return What {@link #calculated} should be based on the current state of {@link #stats} */
@@ -114,57 +130,95 @@ public abstract class Stat{
 	/** @return See {@link #calculated} */
 	public double get(){
 		if(this.recalculate) this.recalculate();
-		
 		return this.calculated;
+	}
+	
+	/** @return See {@link #buffed} */
+	public boolean buffed(){
+		if(this.recalculate) this.recalculate();
+		return this.buffed;
+	}
+	
+	/** @return See {@link #debuffed} */
+	public boolean debuffed(){
+		if(this.recalculate) this.recalculate();
+		return this.debuffed;
 	}
 	
 	/** Recalculate the current value of this stat */
 	public void recalculate(){
 		// First calculate the value
 		this.calculated = this.calculateValue();
+		var beforeModifiers = this.calculated;
 		// Now apply modifiers
 		this.applyModifiers();
 		// Clear the recalculate flag
 		this.recalculate = false;
+		// Update if this stat is buffed or debuffed
+		this.buffed = beforeModifiers < this.calculated;
+		this.debuffed = beforeModifiers > this.calculated;
 	}
 	
 	/**
 	 * Add a modifier to this {@link Stat}
 	 *
+	 * @param sourceId The id representing the source of the modifier
 	 * @param value The value of the modifier
 	 * @param type The way the value is applied to the stat
 	 * @return The modifier created
 	 */
-	public StatModifier addModifier(double value, int type){
+	public StatModifier addModifier(String sourceId, double value, ModifierType type){
 		var m = new StatModifier(value, type);
-		this.addModifier(m);
+		this.addModifier(sourceId, m);
 		return m;
 	}
 	
 	/**
 	 * Apply the given modifier to this stat. Does nothing if this stat already has the given modifier.
 	 *
-	 * @param mod The modifier to add.
+	 * @param mod The modifier to add
+	 * @param sourceId The id representing the source of the modifier
 	 */
-	public void addModifier(StatModifier mod){
-		if(this.hasModifier(mod)) return;
-		
-		this.modifiers[mod.getType()].put(mod.getUuid(), mod);
-		mod.setStat(this);
+	public void addModifier(String sourceId, StatModifier mod){
+		var map = this.modifiers[mod.getType().getIndex()];
+		if(!map.containsKey(sourceId)) map.put(sourceId, new ModifierList(mod.getType()));
+		var list = map.get(sourceId);
+		if(list.contains(mod)) return;
+		list.add(mod);
+		this.flagRecalculate();
 	}
 	
-	/** @param mod The modifier to remove, should be the same object, with the same uuid */
-	public void removeModifier(StatModifier mod){
-		this.modifiers[mod.getType()].remove(mod.getUuid());
+	/**
+	 * @param mod The modifier to remove, should be the exact modifier object to remove
+	 * @param sourceId The id representing the source of the modifier
+	 */
+	public void removeModifier(String sourceId, StatModifier mod){
+		var map = this.modifiers[mod.getType().getIndex()];
+		if(!map.containsKey(sourceId)) return;
+		
+		var list = map.get(sourceId);
+		list.remove(mod);
+		this.flagRecalculate();
+	}
+	
+	/** Remove every modifier from this stat */
+	public void clearModifiers(){
+		for(var m : this.modifiers) {
+			for(var v : m.values()) v.clear();
+		}
 		this.flagRecalculate();
 	}
 	
 	/**
 	 * @param mod The modifier to check for
+	 * @param sourceId The id representing the source of the modifier
 	 * @return true if this stat is being modified by the given modifier, false otherwise
 	 */
-	public boolean hasModifier(StatModifier mod){
-		return this.modifiers[mod.getType()].containsKey(mod.getUuid());
+	public boolean hasModifier(String sourceId, StatModifier mod){
+		var map = this.modifiers[mod.getType().getIndex()];
+		if(!map.containsKey(sourceId)) return false;
+		var list = map.get(sourceId);
+		return list.contains(mod);
 	}
 	
 	/** Put the current value of {@link #calculated} through all its modifiers */
@@ -172,17 +226,17 @@ public abstract class Stat{
 		var newCalculated = this.calculated;
 		
 		// Apply add modifiers first
-		var mods = this.modifiers[StatModifier.ADD].values();
-		for(var m : mods) newCalculated += m.getValue();
+		var mods = this.modifiers[ModifierType.ADD.getIndex()].values();
+		for(var m : mods) newCalculated += m.currentValue();
 		
 		// Combine all additive multipliers
-		mods = this.modifiers[StatModifier.MULT_ADD].values();
+		mods = this.modifiers[ModifierType.MULT_ADD.getIndex()].values();
 		double multiplyTotal = 1;
-		for(var m : mods) multiplyTotal += m.getValue();
+		for(var m : mods) multiplyTotal += m.currentValue();
 		
 		// Apply all multiplicitive multipliers
-		mods = this.modifiers[StatModifier.MULT_MULT].values();
-		for(var m : mods) multiplyTotal *= m.getValue();
+		mods = this.modifiers[ModifierType.MULT_MULT.getIndex()].values();
+		for(var m : mods) multiplyTotal *= m.currentValue();
 		
 		// Apply the final value
 		this.calculated = newCalculated * multiplyTotal;
@@ -204,15 +258,9 @@ public abstract class Stat{
 		this.flagRecalculate();
 	}
 	
-	/** @return See {@link #instantRecalculate} */
-	public boolean isInstantRecalculate(){
-		return instantRecalculate;
-	}
-	
-	/** @param instantRecalculate See {@link #instantRecalculate}. If setting to true, also recalculates the value */
-	public void setInstantRecalculate(boolean instantRecalculate){
-		this.instantRecalculate = instantRecalculate;
-		this.recalculate();
+	/** Perform any necessary actions to reset the state of this stat. Removes modifiers by default */
+	public void reset(){
+		this.clearModifiers();
 	}
 	
 }

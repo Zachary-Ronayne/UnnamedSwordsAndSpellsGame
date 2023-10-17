@@ -19,8 +19,8 @@ public class MenuHolder extends MenuThing{
 	 * @param y The y coordinate
 	 */
 	public MenuHolder(double x, double y){
-		super(x, y);
-		this.setDrawThingsToBuffer(false);
+		super(x, y, 1, 1);
+		this.setDefaultUseBuffer(false);
 	}
 	
 }

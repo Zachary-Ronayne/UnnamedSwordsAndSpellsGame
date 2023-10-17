@@ -5,7 +5,6 @@ import static org.lwjgl.glfw.GLFW.*;
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.Menu;
-import zgame.menu.MenuHolder;
 import zusass.ZusassGame;
 import zusass.menu.comp.ZusassButton;
 import zusass.menu.comp.ZusassMenuText;
@@ -14,8 +13,6 @@ import zusass.menu.mainmenu.comp.NewGameButton;
 /** A {@link Menu} used to create a new game */
 public class NewGamePopup extends Menu{
 	
-	/** Holds the create button if it should be visible */
-	private final MenuHolder createHolder;
 	/** The button used to create a new game */
 	private final ZusassButton createButton;
 
@@ -36,11 +33,11 @@ public class NewGamePopup extends Menu{
 		this.addThing(textBox);
 		textBox.centerHorizontal();
 		
-		this.createHolder = new MenuHolder();
-		this.addThing(this.createHolder);
 		this.createButton = new CreateGameButton(textBox, zgame);
 		this.createButton.centerHorizontal();
 		this.createButton.moveX(-(this.createButton.getWidth() * .5) + 20);
+		this.createButton.disable();
+		this.addThing(this.createButton);
 		
 		ZusassButton cancel = new CancelGameButton(zgame);
 		this.addThing(cancel);
@@ -61,15 +58,15 @@ public class NewGamePopup extends Menu{
 	 * @param text The current text of create button
 	 */
 	public void updateCreateVisible(String text){
-		if(text == null || text.isBlank()) this.createHolder.removeThing(this.createButton, false);
-		else this.createHolder.addThing(this.createButton);
+		this.createButton.setDisabled(text == null || text.isBlank());
 	}
 	
 	@Override
 	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(press) return;
-		if(button == GLFW_KEY_ESCAPE) game.getCurrentState().removeTopMenu();
+		if(button == GLFW_KEY_ESCAPE) game.getCurrentState().removeTopMenu(game);
+		else if(button == GLFW_KEY_ENTER) createButton.click(game);
 	}
 	
 }

@@ -1,16 +1,21 @@
 package zgame.core.graphics.font;
 
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.TextOption;
 import zgame.core.graphics.buffer.DrawableBuffer;
 import zgame.core.graphics.buffer.GameBuffer;
+import zgame.core.utils.ZArrayUtils;
+
+import java.util.ArrayList;
+import java.util.Objects;
 
 /** An object that holds a {@link Renderer} to keep track of a {@link GameBuffer} for easily rendering text without having to redraw it repeatedly */
 public class TextBuffer extends DrawableBuffer{
 	
-	/** The text to be drawn to this buffer */
-	private String text;
+	/** The way to draw the text to display for this buffer */
+	private ArrayList<TextOption> options;
 	
-	/** The font to use to draw {@link #text} */
+	/** The font to use to draw the text of {@link #options} */
 	private GameFont font;
 	
 	/** The x coordinate, in screen coordinates, in the buffer to draw the text */
@@ -41,11 +46,25 @@ public class TextBuffer extends DrawableBuffer{
 	 * @param font See {@link #font}
 	 */
 	public TextBuffer(int width, int height, GameFont font){
+		this(width, height, new ArrayList<>(), font);
+	}
+	
+	/**
+	 * Create a {@link TextBuffer} of the given size.
+	 * Will likely want to call {@link #setTextPosition(double, double)}. The default position is 0 for x, and half the height for y, which may cause some text to get clipped
+	 * off
+	 *
+	 * @param width See {@link #getWidth()}
+	 * @param height See {@link #getHeight()}
+	 * @param options See {@link #options}
+	 * @param font See {@link #font}
+	 */
+	public TextBuffer(int width, int height, ArrayList<TextOption> options, GameFont font){
 		super(width, height);
 		this.font = font;
 		this.textX = 0;
 		this.textY = this.getHeight() * 0.5;
-		this.text = "";
+		this.options = options;
 	}
 	
 	@Override
@@ -57,10 +76,10 @@ public class TextBuffer extends DrawableBuffer{
 	
 	@Override
 	public void draw(Renderer r){
-		GameFont f = this.getFont();
+		var f = this.getFont();
 		if(f == null) return;
 		r.setFont(f);
-		r.drawText(this.getTextX(), this.getTextY(), this.getText(), this.getFont());
+		r.drawText(this.getTextX(), this.getTextY(), f, this.options);
 	}
 	
 	@Override
@@ -69,20 +88,24 @@ public class TextBuffer extends DrawableBuffer{
 		return this.getText().isEmpty();
 	}
 	
-	/** @return See {@link #text} */
+	/** @return The raw string value displayed by this thing, ignoring all other values in {@link TextBuffer#options} */
 	public String getText(){
-		return this.text;
+		if(this.options == null) return "";
+		var sb = new StringBuilder();
+		for(var op : this.options) sb.append(op.getText());
+		return sb.toString();
 	}
 	
-	/**
-	 * Update the value of {@link #text}, but do not redraw anything
-	 *
-	 * @param text See {@link #text}
-	 */
+	/** @param text Set the full text used by this buffer, this will override anything in {@link #options} */
 	public void setText(String text){
-		if(text == null) text = "";
-		this.updateRedraw(!this.getText().equals(text));
-		this.text = text;
+		if(this.options.size() == 1){
+			var t = this.getText();
+			if(Objects.equals(text, t)) return;
+		}
+		var op = this.options.isEmpty() ? new TextOption(text) : this.options.get(0);
+		
+		this.options = ZArrayUtils.singleList(new TextOption(text, op.getColor(), op.getAlpha()));
+		this.updateRedraw(true);
 	}
 	
 	/** @return See {@link #font} */
@@ -142,4 +165,29 @@ public class TextBuffer extends DrawableBuffer{
 		this.textY = textY;
 	}
 	
+	/** @return See {@link #options} */
+	public ArrayList<TextOption> getOptions(){
+		return this.options;
+	}
+	
+	/** @param options See {@link #options} */
+	public void setOptions(ArrayList<TextOption> options){
+		if(options.size() > 1){
+			this.options = options;
+			this.updateRedraw(true);
+			return;
+		}
+		
+		var oldText = this.getText();
+		this.options = options;
+		var newText = this.getText();
+		this.updateRedraw(!Objects.equals(oldText, newText));
+	}
+	
+	@Override
+	public boolean regenerateBuffer(int width, int height){
+		var t = this.getText();
+		if(this.getWidth() == width && this.getHeight() == height && (t == null || t.isBlank())) return false;
+		return super.regenerateBuffer(width, height);
+	}
 }

@@ -18,7 +18,7 @@ public class CancelGameButton extends ZusassButton{
 	
 	@Override
 	public void click(Game game){
-		game.getCurrentState().removeTopMenu();
+		game.getCurrentState().removeTopMenu(game);
 	}
 	
 }

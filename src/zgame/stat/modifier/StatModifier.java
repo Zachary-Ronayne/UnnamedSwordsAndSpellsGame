@@ -1,50 +1,37 @@
 package zgame.stat.modifier;
 
-import zgame.core.utils.Uuidable;
+import com.google.gson.JsonElement;
+import zgame.core.file.Saveable;
 import zgame.stat.Stat;
 
-import java.util.UUID;
-
 /** An amount that effects a stat */
-public class StatModifier implements Uuidable{
+public class StatModifier implements Comparable<StatModifier>, Saveable{
 	
-	/** The total number of modifier types */
-	public static final int TOTAL = 3;
-	
-	/** Represents adding a stat's value */
-	public static final int ADD = 0;
-	/** Represents a stat that adds itself to other modifiers to get the final multiplier */
-	public static final int MULT_ADD = 1;
-	/** Represents a stat that multiplies its value with other modifiers multiplicatively */
-	public static final int MULT_MULT = 2;
-	
-	/** The uuid of this {@link StatModifier} */
-	private final String uuid;
-	
-	/** The {@link Stat} which uses this modifier */
-	private Stat stat;
+	/** The json key storing {@link #value} */
+	public static final String VALUE_KEY = "value";
+	/** The json key storing {@link #type} */
+	public static final String TYPE_KEY = "type";
 	
 	/** The amount of this modifier */
 	private double value;
 	
 	/** The type of this modifier */
-	private int type;
+	private ModifierType type;
+	
+	/** Create a new object using see {@link #load(JsonElement)} */
+	public StatModifier(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		this.load(e);
+	}
 	
 	/**
 	 * Create a new modifier
 	 *
 	 * @param value See {@link #value}
-	 * @param type See {@link #type}. Should use constants from this class
+	 * @param type See {@link #type}
 	 */
-	public StatModifier(double value, int type){
-		this.uuid = UUID.randomUUID().toString();
+	public StatModifier(double value, ModifierType type){
 		this.value = value;
 		this.type = type;
-	}
-	
-	@Override
-	public String getUuid(){
-		return uuid;
 	}
 	
 	/** @return See {@link #value} */
@@ -52,33 +39,40 @@ public class StatModifier implements Uuidable{
 		return this.value;
 	}
 	
-	/** @param value See {@link #value} */
-	public void setValue(double value){
+	/**
+	 * @param value See {@link #value}
+	 * @param stat The stat object which uses this modifier
+	 * @param sourceId The source which is providing the modifier
+	 */
+	public void setValue(double value, Stat stat, String sourceId){
 		if(this.value == value) return;
 		this.value = value;
-		this.stat.flagRecalculate();
+		stat.flagModifiersRecalculate(this.getType(), sourceId);
 	}
 	
-	/** @return See {@link #type}. Should use constants from this class */
-	public int getType(){
+	/** @return See {@link #type} */
+	public ModifierType getType(){
 		return this.type;
 	}
 	
-	/** @param type See {@link #type} and the constants from this class */
-	public void setType(int type){
-		if(this.type == type) return;
-		this.type = type;
-		this.stat.flagRecalculate();
+	@Override
+	public int compareTo(StatModifier o){
+		// Sort descending
+		return (int)(o.getValue() - this.getValue());
 	}
 	
-	/** @return See {@link #stat} */
-	public Stat getStat(){
-		return stat;
+	@Override
+	public boolean save(JsonElement e){
+		var obj = e.getAsJsonObject();
+		obj.addProperty(VALUE_KEY, this.value);
+		obj.addProperty(TYPE_KEY, this.type.name());
+		return true;
 	}
 	
-	/** @param stat See {@link #stat} */
-	public void setStat(Stat stat){
-		this.stat = stat;
-		this.stat.flagRecalculate();
+	@Override
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		this.type = Saveable.e(TYPE_KEY, e, ModifierType.class, ModifierType.ADD);
+		this.value = Saveable.d(VALUE_KEY, e, this.type == ModifierType.MULT_MULT ? 1 : 0);
+		return true;
 	}
 }

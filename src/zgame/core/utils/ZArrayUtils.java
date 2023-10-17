@@ -156,6 +156,18 @@ public class ZArrayUtils{
 		return success;
 	}
 	
+	/**
+	 * Create a new arraylist containing just the given object
+	 * @param object The only object in the list
+	 * @return The list
+	 * @param <T> the type of elements in the list
+	 */
+	public static <T> ArrayList<T> singleList(T object){
+		var list = new ArrayList<T>();
+		list.add(object);
+		return list;
+	}
+	
 	/** Cannot instantiate {@link ZArrayUtils} */
 	private ZArrayUtils(){
 	}

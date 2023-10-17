@@ -1,6 +1,6 @@
 package zusass;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 
 import zgame.core.file.Saveable;
 
@@ -22,6 +22,14 @@ public class ZusassData implements Saveable{
 	/** true to save the game on actions like getting to a new level, exiting the game, and so on, false to turn off */
 	private boolean autosave;
 	
+	/**
+	 * Create a new object from the given json
+	 * @param e The json element
+	 */
+	public ZusassData(JsonElement e){
+		this.load(e);
+	}
+	
 	/** Initialize this {@link ZusassData} to its default state */
 	public ZusassData(){
 		this.highestRoomLevel = 0;
@@ -30,18 +38,17 @@ public class ZusassData implements Saveable{
 	}
 	
 	@Override
-	public JsonObject save(JsonObject obj){
-		JsonObject generalData = new JsonObject();
+	public boolean save(JsonElement e){
+		var generalData = Saveable.newObj(GENERAL_DATA_KEY, e);
 		generalData.addProperty(HIGHEST_ROOM_LEVEL_KEY, highestRoomLevel);
-		obj.add(GENERAL_DATA_KEY, generalData);
-		return obj;
+		return true;
 	}
 	
 	@Override
-	public JsonObject load(JsonObject obj) throws ClassCastException, IllegalStateException, NullPointerException{
-		JsonObject generalData = obj.getAsJsonObject(GENERAL_DATA_KEY);
-		this.highestRoomLevel = generalData.get(HIGHEST_ROOM_LEVEL_KEY).getAsInt();
-		return obj;
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		var generalData = Saveable.obj(GENERAL_DATA_KEY, e);
+		this.highestRoomLevel = Saveable.i(HIGHEST_ROOM_LEVEL_KEY, generalData, 1);
+		return true;
 	}
 	
 	/** @return See {@link #highestRoomLevel} */

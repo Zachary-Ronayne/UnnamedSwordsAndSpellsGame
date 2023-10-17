@@ -21,6 +21,12 @@ public class MenuButton extends MenuText{
 	/** The amount of time, in milliseconds that can pass between clicks for it to count as a double click */
 	private long doubleClickThreshold;
 	
+	/** true if this button is currently disabled and clicking will do nothing, false otherwise */
+	private boolean disabled;
+	
+	/** A color that will be displayed on top of this button's bounds when it is disabled */
+	private ZColor disableOverlay;
+	
 	/**
 	 * Create a blank {@link MenuButton} at the given position and size
 	 *
@@ -50,11 +56,19 @@ public class MenuButton extends MenuText{
 		
 		this.lastClick = -1;
 		this.doubleClickThreshold = DEFAULT_DOUBLE_CLICK_THRESHOLD;
+		
+		this.enable();
+		this.setDisableOverlay(new ZColor(.3, .6));
 	}
 	
 	@Override
 	public void render(Game game, Renderer r, ZRect bounds){
 		super.render(game, r, bounds);
+		if(this.isDisabled()){
+			r.setColor(this.getDisableOverlay());
+			r.drawRectangle(bounds);
+			return;
+		}
 		if(this.showHighlight(game)){
 			r.setColor(this.getHighlightColor());
 			r.drawRectangle(bounds);
@@ -65,14 +79,23 @@ public class MenuButton extends MenuText{
 	 * Call {@link #click(Game)} if the mouse was released while on top of this button
 	 */
 	@Override
-	public void mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.mouseAction(game, button, press, shift, alt, ctrl);
+	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		boolean input = super.mouseAction(game, button, press, shift, alt, ctrl);
+		if(this.isDisabled()) return input;
+		
 		ZMouseInput mi = game.getMouseInput();
 		if(!press && this.getBounds().contains(mi.x(), mi.y())){
 			if(System.currentTimeMillis() - this.getLastClick() <= this.getDoubleClickThreshold()) this.doubleClick(game);
 			this.click(game);
 			this.lastClick = System.currentTimeMillis();
+			return true;
 		}
+		return input;
+	}
+	
+	@Override
+	public boolean useMouseInput(Game game){
+		return this.getBounds().contains(game.mouseSX(), game.mouseSY());
 	}
 	
 	/**
@@ -99,7 +122,7 @@ public class MenuButton extends MenuText{
 	 * @return true if a highlight on top of this button should render. By default, renders when the mouse is over it
 	 */
 	public boolean showHighlight(Game game){
-		return this.getBounds().contains(game.mouseSX(), game.mouseSY());
+		return this.isMouseOn();
 	}
 	
 	/** @return See {@link #highlightColor} */
@@ -127,4 +150,33 @@ public class MenuButton extends MenuText{
 		this.doubleClickThreshold = doubleClickThreshold;
 	}
 	
+	/** @return See {@link #disabled} */
+	public boolean isDisabled(){
+		return this.disabled;
+	}
+	
+	/** @param disabled See {@link #disabled} */
+	public void setDisabled(boolean disabled){
+		this.disabled = disabled;
+	}
+	
+	/** Set {@link #disabled} to true */
+	public void disable(){
+		this.setDisabled(true);
+	}
+	
+	/** Set {@link #disabled} to false */
+	public void enable(){
+		this.setDisabled(false);
+	}
+	
+	/** @return See {@link #disableOverlay} */
+	public ZColor getDisableOverlay(){
+		return this.disableOverlay;
+	}
+	
+	/** @param disableOverlay See {@link #disableOverlay} */
+	public void setDisableOverlay(ZColor disableOverlay){
+		this.disableOverlay = disableOverlay;
+	}
 }

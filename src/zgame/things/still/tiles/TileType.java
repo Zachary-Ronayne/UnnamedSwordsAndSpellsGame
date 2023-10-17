@@ -46,7 +46,7 @@ public abstract class TileType implements Materialable{
 		return String.join(".", this.getOrigin(), this.getId());
 	}
 	
-	/** @return See {@link zgame.things.type.HitBox} */
+	/** @return See {@link TileHitbox} */
 	public TileHitbox getHitbox(){
 		return this.hitbox;
 	}

@@ -25,8 +25,8 @@ public abstract class PositionedThing extends GameThing implements Position{
 	 */
 	public PositionedThing(double x, double y){
 		super();
-		this.x = x;
-		this.y = y;
+		this.setX(x);
+		this.setY(y);
 	}
 	
 	/** @return See {@link #x} */

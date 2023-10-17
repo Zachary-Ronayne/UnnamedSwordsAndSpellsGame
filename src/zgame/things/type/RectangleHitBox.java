@@ -1,44 +1,16 @@
 package zgame.things.type;
 
+import zgame.core.utils.ZMath;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
 
 /** An interface which describe a simple hitbox with a width and height, representing a non rotating rectangle */
-public interface RectangleHitBox extends HitBox, RectangleBounds{
-	
-	/** @param x The new x coordinate for this object */
-	void setX(double x);
-	
-	/** @param y The new y coordinate for this object */
-	void setY(double y);
+public interface RectangleHitBox extends HitBox{
 	
 	@Override
-	default boolean keepLeft(double x){
-		if(this.getX() + this.getWidth() <= x) return false;
-		this.setX(x - this.getWidth());
-		return true;
-	}
-	
-	@Override
-	default boolean keepRight(double x){
-		if(this.getX() >= x) return false;
-		this.setX(x);
-		return true;
-	}
-	
-	@Override
-	default boolean keepAbove(double y){
-		if(this.getY() + this.getHeight() <= y) return false;
-		this.setY(y - this.getHeight());
-		return true;
-	}
-	
-	@Override
-	default boolean keepBelow(double y){
-		if(this.getY() >= y) return false;
-		this.setY(y);
-		return true;
+	default HitboxType getType(){
+		return HitboxType.RECT;
 	}
 	
 	@Override
@@ -47,19 +19,17 @@ public interface RectangleHitBox extends HitBox, RectangleBounds{
 	}
 	
 	@Override
-	default CollisionResponse calculateCollision(HitBox h){
-		// This assumes the given hitbox is purely a rectangle
-		// issue#20 need to eventually have a way of allowing any type of hitbox to collide with any other type of hitbox
-		return this.calculateRectCollision(h.getX(), h.getY(), h.getWidth(), h.getHeight(), h.getMaterial());
+	default CollisionResponse calculateCircleCollision(double x, double y, double r, Material m){
+		return ZCollision.rectToCircleBasic(this.getX(), this.getY(), this.getWidth(), this.getHeight(), x, y, r, m).scale(-1);
 	}
 	
 	@Override
-	default double maxX(){
-		return this.getX() + this.getWidth();
+	default boolean intersectsRect(double x, double y, double w, double h){
+		return this.getBounds().intersects(x, y, w, h);
 	}
 	
 	@Override
-	default double maxY(){
-		return this.getY() + this.getHeight();
+	default boolean intersectsCircle(double x, double y, double r){
+		return ZMath.circleIntersectsRect(x, y, r, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 }

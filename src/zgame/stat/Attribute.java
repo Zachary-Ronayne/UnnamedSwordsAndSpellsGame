@@ -1,5 +1,7 @@
 package zgame.stat;
 
+import zusass.game.stat.ZusassStat;
+
 /** A base value stat for a thing, like strength. Attributes do not depend on any other stats */
 public abstract class Attribute extends Stat{
 	
@@ -19,7 +21,7 @@ public abstract class Attribute extends Stat{
 	 * @param level See {@link #level}
 	 * @param regen See {@link #regen}
 	 */
-	public Attribute(Stats stats, StatType type, StatType base, StatType level, StatType regen){
+	public Attribute(Stats stats, ZusassStat type, ZusassStat base, ZusassStat level, ZusassStat regen){
 		super(stats, type, base);
 		this.base = new Base(stats, base, level, regen);
 		this.level = new ValueStat(1, stats, level);
@@ -27,7 +29,6 @@ public abstract class Attribute extends Stat{
 		this.getStats().add(this.base);
 		this.getStats().add(this.level);
 		this.getStats().add(this.regen);
-		this.setToMax();
 	}
 	
 	@Override
@@ -46,12 +47,13 @@ public abstract class Attribute extends Stat{
 		this.base.addValue(value);
 	}
 	
-	/** Set the current base value of this attribute to its maximum value */
-	public void setToMax(){
-		this.setValue(this.level.getValue());
+	@Override
+	public void reset(){
+		super.reset();
+		this.setValue(this.level.get());
 	}
 	
-	/** The {@link RangeStat} holding the base value of this {@link Attribute} before modifiers */
+	/** The {@link RegenStat} holding the base value of this {@link Attribute} before modifiers */
 	public class Base extends RegenStat{
 		
 		/**
@@ -61,7 +63,7 @@ public abstract class Attribute extends Stat{
 		 * @param base  See {@link #base}
 		 * @param level See {@link #level}
 		 */
-		public Base(Stats stats, StatType base, StatType level, StatType regen){
+		public Base(Stats stats, ZusassStat base, ZusassStat level, ZusassStat regen){
 			super(0, stats, base, level, regen);
 		}
 		

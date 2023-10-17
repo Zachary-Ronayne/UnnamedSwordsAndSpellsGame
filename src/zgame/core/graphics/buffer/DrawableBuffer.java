@@ -3,12 +3,19 @@ package zgame.core.graphics.buffer;
 import java.util.function.BiConsumer;
 
 import zgame.core.graphics.Renderer;
+import zgame.core.utils.ZRect;
 
 /** A {@link GameBuffer} that can easily be extended to draw on */
 public class DrawableBuffer extends GameBuffer{
 	
 	/** true if this {@link DrawableBuffer} has had a value changed, and needs to be redrawn before the next time it's displayed */
 	private boolean needRedraw;
+	
+	/**
+	 * true if, before redrawing the contents of this buffer, if any bounds of the renderer are set through {@link Renderer#limitBounds(ZRect)},
+	 * the bounds will be unlimited, false otherwise. true by default
+	 */
+	private boolean forceUnlimit;
 	
 	/**
 	 * Create a {@link DrawableBuffer} of the given size.
@@ -19,6 +26,7 @@ public class DrawableBuffer extends GameBuffer{
 	public DrawableBuffer(int width, int height){
 		super(width, height, false);
 		this.needRedraw = true;
+		this.forceUnlimit = true;
 	}
 	
 	/**
@@ -32,11 +40,11 @@ public class DrawableBuffer extends GameBuffer{
 		if(this.needRedraw) this.redraw(r);
 		// Make sure the color is reset to opaque
 		r.pushColor();
+		r.makeOpaque();
 		
 		// Draw the actual buffer
 		super.drawToRenderer(x, y, r);
 		
-		r.makeOpaque();
 		// Put the color back
 		r.popColor();
 	}
@@ -61,7 +69,16 @@ public class DrawableBuffer extends GameBuffer{
 	 * @param r The {@link Renderer} to use for drawing the buffer
 	 */
 	private void redraw(Renderer r){
-		this.redraw(r, (rr, d) -> draw(r), null);
+		this.redraw(r, (rr, d) -> {
+			var unlimited = this.isForceUnlimit();
+			if(unlimited) rr.pushUnlimitedBounds();
+			else rr.pushLimitedBounds(this.getBounds());
+			
+			// Clear the contents of the buffer and draw it
+			this.clear();
+			this.draw(rr);
+			rr.popLimitedBounds();
+		}, null);
 	}
 	
 	/**
@@ -72,10 +89,10 @@ public class DrawableBuffer extends GameBuffer{
 	 * @param func The function to call to perform the actual drawing
 	 * @param data The data to use for rendering
 	 */
-	protected <D> void redraw(Renderer r, BiConsumer<Renderer, D> func, D data){
+	protected final <D> void redraw(Renderer r, BiConsumer<Renderer, D> func, D data){
 		if(!this.isBufferGenerated()) this.regenerateBuffer(this.getWidth(), this.getHeight());
 		
-		if(skipRedraw()) return;
+		if(this.skipRedraw()) return;
 		
 		// Store the renderer's state
 		r.pushAll();
@@ -85,9 +102,6 @@ public class DrawableBuffer extends GameBuffer{
 		
 		// Use this object's buffer
 		r.setBuffer(this);
-		
-		// Clear this buffer
-		this.clear();
 		
 		// Perform the actual drawing
 		r.identityMatrix();
@@ -109,4 +123,19 @@ public class DrawableBuffer extends GameBuffer{
 		this.needRedraw = this.needRedraw || redraw;
 	}
 	
+	/** @return See {@link #needRedraw} */
+	public boolean isNeedRedraw(){
+		return this.needRedraw;
+	}
+	
+	/** @return See {@link #forceUnlimit} */
+	public boolean isForceUnlimit(){
+		return this.forceUnlimit;
+	}
+	
+	/** @param forceUnlimit See {@link #forceUnlimit} */
+	public void setForceUnlimit(boolean forceUnlimit){
+		if(this.forceUnlimit != forceUnlimit) this.updateRedraw(true);
+		this.forceUnlimit = forceUnlimit;
+	}
 }

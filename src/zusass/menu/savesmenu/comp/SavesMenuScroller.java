@@ -22,12 +22,12 @@ public class SavesMenuScroller extends VerticalScroller{
 		super(X, Y, 25, 680, 0, zgame);
 		this.setFill(new ZColor(.8));
 		this.setBorder(new ZColor(0.8));
-		this.setBorderWidth(1);
+		this.setBorderWidth(2);
 		
 		MenuScrollerButton button = this.getButton();
 		button.setFill(new ZColor(.3));
 		button.setBorder(new ZColor(0.8));
-		button.setBorderWidth(2);
+		button.setBorderWidth(4);
 	}
 	
 }

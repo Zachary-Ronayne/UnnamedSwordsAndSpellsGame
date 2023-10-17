@@ -32,7 +32,7 @@ public class SavesMenuButton extends ZusassButton{
 		this.setTextY(35);
 		this.setFill(new ZColor(.6));
 		this.setBorder(new ZColor(0.8));
-		this.setBorderWidth(1);
+		this.setBorderWidth(2);
 	}
 	
 	/** @return See {@link #menu} */

@@ -17,6 +17,7 @@ import zusass.menu.pause.comp.PauseQuitButton;
 import zusass.menu.pause.comp.PauseReturnButton;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_TAB;
 
 /** The {@link Menu} which displays when the game is paused */
 public class PauseMenu extends Menu{
@@ -39,14 +40,19 @@ public class PauseMenu extends Menu{
 	 */
 	public PauseMenu(ZusassGame zgame){
 		super(0, 0, 350, 500, false);
+		this.setDefaultDestroyRemove(false);
+		
 		this.center(zgame.getWindow());
-		this.setBorder(new ZColor(0, 0, 0, 0));
+		this.setBorder(new ZColor(.2, 0, 0, .5));
+		this.setBorderWidth(8);
 		this.setFill(new ZColor(.5, 0, 0, .5));
 		
 		ZusassMenuText title = new ZusassMenuText(0, 20, 330, 120, "Pause", zgame, true);
 		title.setFontSize(100);
 		title.setFontColor(new ZColor(0));
 		title.setFill(new ZColor(.5, .2, .2));
+		title.setBorder(new ZColor(.2, 0, 0));
+		title.setBorderWidth(2);
 		title.centerText();
 		
 		this.addThing(title);
@@ -80,14 +86,14 @@ public class PauseMenu extends Menu{
 		super.keyAction(game, button, press, shift, alt, ctrl);
 		if(press) return;
 		
-		// On releasing escape, exit the pause menu
-		if(button == GLFW_KEY_ESCAPE) this.exitMenu((ZusassGame)game);
+		// On releasing escape or tab, exit the pause menu
+		if(button == GLFW_KEY_ESCAPE || button == GLFW_KEY_TAB) this.exitMenu((ZusassGame)game);
 	}
 	
 	@Override
 	public void render(Game game, Renderer r, ZRect bounds){
 		// Fade the background
-		r.setColor(.1, .1, .1, .3);
+		r.setColor(.1, .1, .1, .5);
 		r.fill();
 		// Then draw the menu
 		super.render(game, r, bounds);
@@ -101,7 +107,7 @@ public class PauseMenu extends Menu{
 	public void exitMenu(ZusassGame zgame){
 		MainPlay play = zgame.getPlayState();
 		play.fullUnpause();
-		play.removeTopMenu();
+		play.removeTopMenu(zgame, false);
 	}
 	
 	public void save(ZusassGame zgame){
