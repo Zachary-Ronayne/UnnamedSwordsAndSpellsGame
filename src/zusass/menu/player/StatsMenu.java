@@ -5,15 +5,12 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZRect;
-import zgame.core.utils.ZStringUtils;
 import zgame.menu.MenuThing;
 import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
-
-import java.util.ArrayList;
 
 /** The menu which displays on top of the game */
 public class StatsMenu extends DraggableMenu{
@@ -102,77 +99,23 @@ public class StatsMenu extends DraggableMenu{
 		var text = selected.getDescription();
 		if(text == null || text.isEmpty()) return;
 		
+		double mx = game.mouseSX();
+		double my = game.mouseSY();
+		if(!bounds.contains(mx, my)) return;
+		
+		// TODO adjust the position of the popup to always be on screen
 		// TODO make this generate a buffer, like as a separate text buffer, not a menu thing
 		// TODO abstract this out into another class
 		r.setFontSize(24);
-		var font = r.getFont();
-		if(font == null) return;
-		
-		// Max width of the popup
-		double maxWidth = 600;
-		// Largest width of a word
-		double largestWidth = 0;
-		
-		// Find the width of each word
-		var words = text.split("\\s+");
-		var sizes = new double[words.length];
-		for(int i = 0; i < words.length; i++){
-			var word = words[i];
-			var strW = font.stringWidth(word);
-			if(strW > maxWidth) maxWidth = strW;
-			if(strW > largestWidth) largestWidth = strW;
-			sizes[i] = strW;
-		}
-		var lines = new ArrayList<String>();
-		
-		// Find how many lines to use based on the max width
-		var currentWidth = 0;
-		var sb = new StringBuilder();
-		var spaceWidth = font.charWidth(' ');
-		var largestLine = 0;
-		
-		// Go through each word
-		var first = true;
-		for(int i = 0; i < words.length; i++){
-			var word = words[i];
-			var wordWidth = sizes[i];
-			// If adding the next word would exceed the current line width, add it to a new line
-			var newLine = currentWidth + wordWidth >= maxWidth;
-			if(newLine){
-				lines.add(sb.toString());
-				if(currentWidth > largestLine) largestLine = currentWidth;
-				currentWidth = 0;
-				sb = new StringBuilder();
-			}
-			// Otherwise, if this is not the first line, add a space after the word
-			else{
-				if(!first){
-					sb.append(" ");
-					currentWidth += spaceWidth;
-				}
-				else first = false;
-			}
-			// Add the word to the current line
-			sb.append(word);
-			currentWidth += wordWidth;
-		}
-		// If anything is left in the string builder, add another line
-		var remaining = sb.toString();
-		if(!remaining.isEmpty()){
-			lines.add(remaining);
-			if(currentWidth > largestLine) largestLine = currentWidth;
-		}
-		
+		var textBounds = r.createTextBounds(text, 600);
 		double extraSize = 12;
-		double lineCount = lines.size();
 		
 		// Width will be based on the maximum of the line widths
-		double w = extraSize + largestLine;
+		double w = extraSize + textBounds.width();
 		// Height is based on the line height and the total number of lines
-		double h = extraSize + lineCount * font.getMaxHeight() + r.getFontCharSpace() * (lineCount - 1);
-		double x = game.mouseSX();
-		double y = game.mouseSY() - h;
-		if(!bounds.contains(x, y)) return;
+		double h = extraSize + textBounds.height();
+		double x = mx;
+		double y = my - h;
 		
 		r.setColor(new ZColor(0));
 		r.drawRectangle(x, y, w, h);
@@ -181,7 +124,7 @@ public class StatsMenu extends DraggableMenu{
 		r.drawRectangle(new ZRect(x, y, w, h, -2));
 		
 		r.setColor(new ZColor(0));
-		r.drawText(x + 6, y + 25, ZStringUtils.concatSep("\n", lines.toArray()));
+		r.drawText(x + 6, y + 25, textBounds.text());
 	}
 	
 	/** @return See {@link #displayDecimals} */

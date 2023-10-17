@@ -19,6 +19,7 @@ import zgame.core.graphics.shader.ShaderProgram;
 import zgame.core.utils.LimitedStack;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZRect;
+import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
 
 import java.nio.FloatBuffer;
@@ -1058,6 +1059,75 @@ public class Renderer implements Destroyable{
 	 */
 	public boolean drawText(double x, double y, String text, GameFont f){
 		return this.drawText(x, y, f, List.of(new TextOption(text)));
+	}
+	
+	/**
+	 * @param text The text to turn into a text block
+	 * @param maxWidth Max width the text can take up
+	 * @return The text with newlines, the width, and height the text takes up
+	 */
+	public TextBoundsResult createTextBounds(String text, double maxWidth){
+		var font = this.getFont();
+		if(font == null) return new TextBoundsResult("", 0, 0.0);
+		
+		// Largest width of a word
+		double largestWidth = 0;
+		
+		// Find the width of each word
+		var words = text.split("\\s+");
+		var sizes = new double[words.length];
+		for(int i = 0; i < words.length; i++){
+			var word = words[i];
+			var strW = font.stringWidth(word);
+			if(strW > maxWidth) maxWidth = strW;
+			if(strW > largestWidth) largestWidth = strW;
+			sizes[i] = strW;
+		}
+		var lines = new ArrayList<String>();
+		
+		// Find how many lines to use based on the max width
+		var currentWidth = 0;
+		var sb = new StringBuilder();
+		var spaceWidth = font.charWidth(' ');
+		var largestLine = 0;
+		
+		// Go through each word
+		var first = true;
+		for(int i = 0; i < words.length; i++){
+			var word = words[i];
+			var wordWidth = sizes[i];
+			// If adding the next word would exceed the current line width, add it to a new line
+			var newLine = currentWidth + wordWidth >= maxWidth;
+			if(newLine){
+				lines.add(sb.toString());
+				if(currentWidth > largestLine) largestLine = currentWidth;
+				currentWidth = 0;
+				sb = new StringBuilder();
+			}
+			// Otherwise, if this is not the first line, add a space after the word
+			else{
+				if(!first){
+					sb.append(" ");
+					currentWidth += spaceWidth;
+				}
+				else first = false;
+			}
+			// Add the word to the current line
+			sb.append(word);
+			currentWidth += wordWidth;
+		}
+		// If anything is left in the string builder, add another line
+		var remaining = sb.toString();
+		if(!remaining.isEmpty()){
+			lines.add(remaining);
+			if(currentWidth > largestLine) largestLine = currentWidth;
+		}
+		
+		double lineCount = lines.size();
+		
+		// Width will be based on the maximum of the line widths
+		// Height is based on the line height and the total number of lines
+		return new TextBoundsResult(ZStringUtils.concatSep("\n", lines.toArray()), largestLine, lineCount * font.getMaxHeight() + this.getFontCharSpace() * (lineCount - 1));
 	}
 	
 	/**
