@@ -1,6 +1,7 @@
 package zgame.stat;
 
-public class StatId{
+/** A class to generate ids to use for identifying stats in an array */
+public final class StatId{
 	/** The current id used for {@link StatType} */
 	private static int currentId = 0;
 	
@@ -15,4 +16,7 @@ public class StatId{
 	public static int numIds(){
 		return currentId;
 	}
+	
+	/** Cannot instantiate {@link StatId} */
+	private StatId(){}
 }

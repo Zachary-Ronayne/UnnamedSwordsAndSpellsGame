@@ -27,6 +27,8 @@ import zgame.core.state.PlayState;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
+import zgame.settings.SettingType;
+import zgame.settings.Settings;
 import zgame.stat.DefaultStatType;
 import zgame.world.Room;
 
@@ -110,6 +112,9 @@ public class Game implements Saveable, Destroyable{
 	
 	/** A list of things to do the next time this game has its open gl loop called. Once the loop happens, this list will be emptied */
 	private final List<Runnable> nextLoopFuncs;
+	
+	/** The settings used by this game */
+	private Settings settings;
 	
 	/** A simple helper class used by {@link #tickLooper} to run its loop on a separate thread */
 	private class TickLoopTask implements Runnable{
@@ -199,6 +204,10 @@ public class Game implements Saveable, Destroyable{
 		
 		// Init stat enum
 		DefaultStatType.init();
+		
+		// Init settings enum and this game's instance of settings
+		SettingType.initCore();
+		this.settings = new Settings(this);
 		
 		// Init sound
 		this.sounds = new SoundManager();
@@ -962,4 +971,11 @@ public class Game implements Saveable, Destroyable{
 	public double mouseGY(){
 		return this.getCamera().screenToGameY(this.mouseSY());
 	}
+	
+	/** @return See {@link #settings} */
+	public Settings getSettings(){
+		return this.settings;
+	}
+	
+	// TODO add convenience methods to directly get different types of settings, i.e. int, double, etc
 }
