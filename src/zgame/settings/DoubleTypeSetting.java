@@ -6,56 +6,36 @@ import zgame.core.utils.ZStringUtils;
 import java.util.function.BiConsumer;
 
 /** A {@link Setting} holding an integer */
-public enum DoubleTypeSetting implements SettingType<DoubleTypeSetting, Double>{
+public class DoubleTypeSetting extends SettingType<Double>{
 	
-	// TODO find a way to abstract out most of this that's shared with the int version
+	// TODO find a way to do this without defining it in 2 places?
+	public static final DoubleTypeSetting TEST_D = new DoubleTypeSetting("TEST_D", 1.2, (game, n) -> ZStringUtils.prints("New value", n, game));
 	
-	TEST_D(1.2, (game, n) -> ZStringUtils.prints("New value", n, game));
+	/** An array holding all core double settings */
+	public static final DoubleTypeSetting[] VALUES = new DoubleTypeSetting[]{
+			TEST_D
+	};
 	
-	/** The id representing this setting */
-	private final int id;
-	/** The default value of the setting if it hasn't been overridden */
-	private final double defaultVal;
-	/** See {@link #getOnChange()} */
-	private final BiConsumer<Game, Double> onChange;
-	
-	DoubleTypeSetting(double defaultVal){
-		this(defaultVal, null);
+	/**
+	 * Initialize a new double setting.
+	 * @param name See {@link #name}
+	 * @param defaultVal See {@link #defaultVal}
+	 */
+	protected DoubleTypeSetting(String name, double defaultVal){
+		super(name, defaultVal);
 	}
-	
-	DoubleTypeSetting(double defaultVal, BiConsumer<Game, Double> onChange){
-		this.id = SettingId.next();
-		this.defaultVal = defaultVal;
-		this.onChange = onChange;
-	}
-	
-	@Override
-	public int getId(){
-		return this.id;
-	}
-	
-	@Override
-	public Double getDefault(){
-		return this.defaultVal;
+	/**
+	 * Initialize a new double setting.
+	 * @param name See {@link #name}
+	 * @param defaultVal See {@link #defaultVal}
+	 * @param onChange See {@link #onChange}
+	 */
+	protected DoubleTypeSetting(String name, double defaultVal, BiConsumer<Game, Double> onChange){
+		super(name, defaultVal, onChange);
 	}
 	
 	@Override
-	public BiConsumer<Game, Double> getOnChange(){
-		return this.onChange;
+	public SettingType<Double>[] getValues(){
+		return VALUES;
 	}
-	
-	@Override
-	public SettingType<DoubleTypeSetting, Double> getFromId(int id){
-		for(var v : values()){
-			if(id == v.id) return v;
-		}
-		return null;
-	}
-	
-	/** Must call this before the game is initialized to ensure settings work */
-	public static void init(){
-		for(var v : values()) v.getId();
-		SettingType.add(DoubleTypeSetting.values());
-	}
-	
 }

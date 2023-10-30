@@ -5,56 +5,38 @@ import zgame.core.Game;
 import java.util.function.BiConsumer;
 
 /** A {@link Setting} holding an integer */
-public enum IntTypeSetting implements SettingType<IntTypeSetting, Integer>{
+public class IntTypeSetting extends SettingType<Integer>{
 	
-	// TODO should this be defined as another interface, and then a default int settings enum for core settings?
+	// TODO find a way to do this without defining it in 2 places?
+	public static final IntTypeSetting TEST = new IntTypeSetting("TEST", 0);
 	
-	TEST(0);
+	// TODO should this be an array list?
+	/** An array holding all core int settings */
+	public static final IntTypeSetting[] VALUES = new IntTypeSetting[]{
+			TEST
+	};
 	
-	/** The id representing this setting */
-	private final int id;
-	/** The default value of the setting if it hasn't been overridden */
-	private final int defaultVal;
-	/** See {@link #getOnChange()} */
-	private final BiConsumer<Game, Integer> onChange;
-	
-	IntTypeSetting(int defaultVal){
-		this(defaultVal, null);
+	/**
+	 * Initialize a new int setting.
+	 * @param name See {@link #name}
+	 * @param defaultVal See {@link #defaultVal}
+	 */
+	protected IntTypeSetting(String name, int defaultVal){
+		super(name, defaultVal);
 	}
 	
-	IntTypeSetting(int defaultVal, BiConsumer<Game, Integer> onChange){
-		this.id = SettingId.next();
-		this.defaultVal = defaultVal;
-		this.onChange = onChange;
-	}
-	
-	@Override
-	public int getId(){
-		return this.id;
-	}
-	
-	@Override
-	public Integer getDefault(){
-		return this.defaultVal;
+	/**
+	 * Initialize a new int setting.
+	 * @param name See {@link #name}
+	 * @param defaultVal See {@link #defaultVal}
+	 * @param onChange See {@link #onChange}
+	 */
+	protected IntTypeSetting(String name, int defaultVal, BiConsumer<Game, Integer> onChange){
+		super(name, defaultVal, onChange);
 	}
 	
 	@Override
-	public BiConsumer<Game, Integer> getOnChange(){
-		return this.onChange;
+	public SettingType<Integer>[] getValues(){
+		return VALUES;
 	}
-	
-	@Override
-	public SettingType<IntTypeSetting, Integer> getFromId(int id){
-		for(var v : values()){
-			if(id == v.id) return v;
-		}
-		return null;
-	}
-	
-	/** Must call this before the game is initialized to ensure settings work */
-	public static void init(){
-		for(var v : values()) v.getId();
-		SettingType.add(IntTypeSetting.values());
-	}
-	
 }

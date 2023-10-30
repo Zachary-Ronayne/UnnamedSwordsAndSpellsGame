@@ -1,6 +1,8 @@
 package zgame.settings;
 
-/** A single setting holding one object */
+/**
+ * A single setting holding one object
+ */
 public class Setting{
 	
 	/** The current value of this setting */
@@ -8,9 +10,10 @@ public class Setting{
 	
 	/**
 	 * Create a new setting from the given type
+	 *
 	 * @param type The type holding the default value for this setting
 	 */
-	public Setting(SettingType<?, ?> type){
+	public Setting(SettingType<?> type){
 		this.value = type.getDefault();
 	}
 	

@@ -207,8 +207,10 @@ public class Game implements Saveable, Destroyable{
 		// Init stat enum
 		DefaultStatType.init();
 		
-		// Init settings enum and this game's instance of settings
-		SettingType.initCore();
+		// Init this game's instance of settings
+		// TODO make a better way of initing this
+		for(var v : IntTypeSetting.VALUES);
+		for(var v : DoubleTypeSetting.VALUES);
 		this.settings = new Settings(this);
 		
 		// Init sound

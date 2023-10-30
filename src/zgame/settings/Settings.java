@@ -36,8 +36,8 @@ public class Settings{
 	 * @param setting The value of the setting to get
 	 * @return The value
 	 */
-	private <T> Object getValue(SettingType<?, T> setting){
-		return this.values[setting.getId()].get();
+	private <T> Object getValue(SettingType<T> setting){
+		return this.values[setting.id()].get();
 	}
 	
 	/**
@@ -45,8 +45,8 @@ public class Settings{
 	 * @param setting The value of the setting to set
 	 * @param value The new value
 	 */
-	private <T> void setValue(SettingType<?, T> setting, T value){
-		this.values[setting.getId()].set(value);
+	private <T> void setValue(SettingType<T> setting, T value){
+		this.values[setting.id()].set(value);
 		var onChange = setting.getOnChange();
 		if(onChange != null) onChange.accept(this.getGame(), value);
 	}
