@@ -27,6 +27,8 @@ import zgame.core.state.PlayState;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
+import zgame.settings.DoubleTypeSetting;
+import zgame.settings.IntTypeSetting;
 import zgame.settings.SettingType;
 import zgame.settings.Settings;
 import zgame.stat.DefaultStatType;
@@ -977,5 +979,21 @@ public class Game implements Saveable, Destroyable{
 		return this.settings;
 	}
 	
-	// TODO add convenience methods to directly get different types of settings, i.e. int, double, etc
+	/**
+	 * Get an integer value of a setting from {@link #settings}
+	 * @param setting The name of the setting to get the value of
+	 * @return The setting's value
+	 */
+	public Integer get(IntTypeSetting setting){
+		return this.getSettings().get(setting);
+	}
+	
+	/**
+	 * Get a double value of a setting from {@link #settings}
+	 * @param setting The name of the setting to get the value of
+	 * @return The setting's value
+	 */
+	public Double get(DoubleTypeSetting setting){
+		return this.getSettings().get(setting);
+	}
 }
