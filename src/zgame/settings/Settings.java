@@ -19,6 +19,11 @@ public class Settings{
 		this.game = game;
 		
 		this.values = new Setting[SettingId.numIds()];
+		for(var e : SettingType.intMap.entrySet()){
+			var index = e.getKey();
+			var type = e.getValue();
+			this.values[index] = new Setting(type);
+		}
 		/*
 		 TODO figure out how to populate settings, make each enum have to implement a static method that adds its types to a central list or something,
 		 	 then that list of enums is how this list of values is populated
@@ -37,6 +42,15 @@ public class Settings{
 	 */
 	public Integer get(IntTypeSetting setting){
 		return (Integer)this.values[setting.getId()].get();
+	}
+	
+	/**
+	 * Get a double value of a setting
+	 * @param setting The name of the setting to get the value of
+	 * @return The setting's value
+	 */
+	public Double get(DoubleTypeSetting setting){
+		return (Double)this.values[setting.getId()].get();
 	}
 	
 }

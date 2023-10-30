@@ -57,6 +57,7 @@ public interface SettingType<E extends Enum<E>, T> extends Saveable{
 	/** Initialize all settings core to the main engine */
 	static void initCore(){
 		IntTypeSetting.init();
+		DoubleTypeSetting.init();
 	}
 	
 }
