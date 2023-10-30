@@ -1,9 +1,11 @@
 package zgame.settings;
 
+import zgame.core.Game;
 import zgame.core.file.Saveable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * An interface to be used for generating settings, should be implemented by an enum
@@ -16,6 +18,9 @@ public interface SettingType<E extends Enum<E>, T> extends Saveable{
 	
 	/** @return The default value used by this setting */
 	T getDefault();
+	
+	/** @return A function that runs each time the setting changes, or null to do nothing on change. The game is the game where the setting changed, the T is the new value */
+	BiConsumer<Game, T> getOnChange();
 	
 	/**
 	 * Get the type from the id. Primarily should be used for debugging, or when performance doesn't matter

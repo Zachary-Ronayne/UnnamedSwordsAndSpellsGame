@@ -989,11 +989,29 @@ public class Game implements Saveable, Destroyable{
 	}
 	
 	/**
+	 * Set an integer value of a setting in {@link #settings}
+	 * @param setting The name of the setting to set
+	 * @param value The new setting's value
+	 */
+	public void set(IntTypeSetting setting, int value){
+		this.getSettings().set(setting, value);
+	}
+	
+	/**
 	 * Get a double value of a setting from {@link #settings}
 	 * @param setting The name of the setting to get the value of
 	 * @return The setting's value
 	 */
 	public Double get(DoubleTypeSetting setting){
 		return this.getSettings().get(setting);
+	}
+	
+	/**
+	 * Set a double value of a setting in {@link #settings}
+	 * @param setting The name of the setting to set
+	 * @param value The new setting's value
+	 */
+	public void set(DoubleTypeSetting setting, double value){
+		this.getSettings().set(setting, value);
 	}
 }

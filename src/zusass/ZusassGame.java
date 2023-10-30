@@ -185,6 +185,10 @@ public class ZusassGame extends Game{
 		
 		if(zgame != null) return;
 		zgame = new ZusassGame();
+		ZStringUtils.prints("Setting", zgame.get(IntTypeSetting.TEST)); // TODO Remove
+		ZStringUtils.prints("Setting", zgame.get(DoubleTypeSetting.TEST_D)); // TODO Remove
+		zgame.set(DoubleTypeSetting.TEST_D, 1.5);
+		ZStringUtils.prints("Setting", zgame.get(DoubleTypeSetting.TEST_D)); // TODO Remove
 	}
 	
 	/** @return See {@link #data} */

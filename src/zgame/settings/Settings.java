@@ -24,10 +24,6 @@ public class Settings{
 			var type = e.getValue();
 			this.values[index] = new Setting(type);
 		}
-		/*
-		 TODO figure out how to populate settings, make each enum have to implement a static method that adds its types to a central list or something,
-		 	 then that list of enums is how this list of values is populated
-		 */
 	}
 	
 	/** @return See {@link #game} */
@@ -36,12 +32,41 @@ public class Settings{
 	}
 	
 	/**
+	 * Gets a setting without checking its type
+	 * @param setting The value of the setting to get
+	 * @return The value
+	 */
+	private <T> Object getValue(SettingType<?, T> setting){
+		return this.values[setting.getId()].get();
+	}
+	
+	/**
+	 * Sets a value without checking that the types are the same
+	 * @param setting The value of the setting to set
+	 * @param value The new value
+	 */
+	private <T> void setValue(SettingType<?, T> setting, T value){
+		this.values[setting.getId()].set(value);
+		var onChange = setting.getOnChange();
+		if(onChange != null) onChange.accept(this.getGame(), value);
+	}
+	
+	/**
 	 * Get an integer value of a setting
 	 * @param setting The name of the setting to get the value of
 	 * @return The setting's value
 	 */
 	public Integer get(IntTypeSetting setting){
-		return (Integer)this.values[setting.getId()].get();
+		return (Integer)this.getValue(setting);
+	}
+	
+	/**
+	 * Set the value of an integer setting
+	 * @param setting The name of the setting to set the value of
+	 * @param value The new value
+	 */
+	public void set(IntTypeSetting setting, int value){
+		this.setValue(setting, value);
 	}
 	
 	/**
@@ -50,7 +75,16 @@ public class Settings{
 	 * @return The setting's value
 	 */
 	public Double get(DoubleTypeSetting setting){
-		return (Double)this.values[setting.getId()].get();
+		return (Double)this.getValue(setting);
+	}
+	
+	/**
+	 * Set the value of a double setting
+	 * @param setting The name of the setting to set the value of
+	 * @param value The new value
+	 */
+	public void set(DoubleTypeSetting setting, double value){
+		this.setValue(setting, value);
 	}
 	
 }
