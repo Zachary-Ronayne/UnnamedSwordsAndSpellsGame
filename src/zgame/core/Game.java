@@ -116,7 +116,7 @@ public class Game implements Saveable, Destroyable{
 	private final List<Runnable> nextLoopFuncs;
 	
 	/** The settings used by this game */
-	private Settings settings;
+	private final Settings settings;
 	
 	/** A simple helper class used by {@link #tickLooper} to run its loop on a separate thread */
 	private class TickLoopTask implements Runnable{
@@ -208,9 +208,7 @@ public class Game implements Saveable, Destroyable{
 		DefaultStatType.init();
 		
 		// Init this game's instance of settings
-		// TODO make a better way of initing this
-		for(var v : IntTypeSetting.VALUES);
-		for(var v : DoubleTypeSetting.VALUES);
+		SettingType.init();
 		this.settings = new Settings(this);
 		
 		// Init sound

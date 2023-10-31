@@ -4,17 +4,10 @@ import zgame.core.Game;
 
 import java.util.function.BiConsumer;
 
-/** A {@link Setting} holding an integer */
+/** A {@link Setting} holding an integer See {@link SettingType} */
 public class IntTypeSetting extends SettingType<Integer>{
 	
-	// TODO find a way to do this without defining it in 2 places?
 	public static final IntTypeSetting TEST = new IntTypeSetting("TEST", 0);
-	
-	// TODO should this be an array list?
-	/** An array holding all core int settings */
-	public static final IntTypeSetting[] VALUES = new IntTypeSetting[]{
-			TEST
-	};
 	
 	/**
 	 * Initialize a new int setting.
@@ -35,8 +28,7 @@ public class IntTypeSetting extends SettingType<Integer>{
 		super(name, defaultVal, onChange);
 	}
 	
-	@Override
-	public SettingType<Integer>[] getValues(){
-		return VALUES;
+	/** A dummy method to allow this class to be called on start up, so that its static members are initialized */
+	public static void init(){
 	}
 }

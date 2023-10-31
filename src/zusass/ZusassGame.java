@@ -5,10 +5,7 @@ import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZConfig;
-import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
-import zgame.settings.DoubleTypeSetting;
-import zgame.settings.IntTypeSetting;
 import zgame.stat.Stats;
 import zusass.game.MainPlay;
 import zusass.game.ZusassRoom;
@@ -16,6 +13,7 @@ import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassMob;
 import zusass.game.things.entities.mobs.ZusassPlayer;
 import zusass.menu.mainmenu.MainMenuState;
+import zusass.setting.ZusassSetting;
 import zusass.utils.ZusassConfig;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -171,9 +169,10 @@ public class ZusassGame extends Game{
 	
 	/** Initialize the object {@link #zgame} */
 	public static void init(){
+		ZusassSetting.init();
+		
 		ZusassStat.init();
 		Stats.init();
-		
 		/*
 		 Init all the static stat dependencies by making a new mob, because the stats are all added when the mob is created.
 		 This is kind of stupid, but whatever, it ensures they are initialized on startup

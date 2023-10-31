@@ -19,7 +19,7 @@ public class Settings{
 		this.game = game;
 		
 		this.values = new Setting[SettingId.numIds()];
-		for(var e : SettingType.intMap.entrySet()){
+		for(var e : SettingType.idMap.entrySet()){
 			var index = e.getKey();
 			var type = e.getValue();
 			this.values[index] = new Setting(type);
