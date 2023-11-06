@@ -1,12 +1,15 @@
 package zgame.settings;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import zgame.core.Game;
-import zgame.core.file.Saveable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
+// TODO implement other types, i.e. boolean, string, etc
 /**
  * An interface to be used for generating settings, should be implemented by an enum.
  * All subclasses of this class must be used before an instance of {@link Settings} or {@link Game} is created,
@@ -14,7 +17,7 @@ import java.util.function.BiConsumer;
  * The easiest way to do this is to create an empty static init method on each implementation, and call that init method on start up
  * @param <T> The type of data used by the setting
  */
-public abstract class SettingType<T> implements Saveable{
+public abstract class SettingType<T>{
 	
 	/** Mapping a setting type string to the setting */
 	public static final Map<String, SettingType<?>> nameMap = new HashMap<>();
@@ -23,7 +26,12 @@ public abstract class SettingType<T> implements Saveable{
 	
 	/** The name representing this setting, should be unique from every other setting */
 	private final String name;
-	/** The id representing this setting, auto generated */
+	/**
+	 * The id representing this setting, auto generated.
+	 * This id is only for the specific runtime when the program is executed, and is used for efficiently indexing an array.
+	 * There is no guarantee that the same id will refer to the same setting on different instances of running the program,
+	 * especially when those instances have different amounts of settings
+	 */
 	private final int id;
 	/** The default value of the setting if it hasn't been overridden */
 	private final T defaultVal;
@@ -31,7 +39,16 @@ public abstract class SettingType<T> implements Saveable{
 	private final BiConsumer<Game, T> onChange;
 	
 	/** A setting used to obtain as a generic instance of a setting, mostly used for initialization, and to ensure at least one setting exists */
-	public static final SettingType<?> ROOT = new SettingType<>("ROOT", null){};
+	public static final SettingType<?> ROOT = new SettingType<>("ROOT", null){
+		@Override
+		public JsonElement toJson(Setting<Object> setting){
+			return new JsonPrimitive("");
+		}
+		@Override
+		public Object fromJson(JsonElement e){
+			return "";
+		}
+	};
 	
 	/**
 	 * Initialize a new setting.
@@ -90,6 +107,16 @@ public abstract class SettingType<T> implements Saveable{
 	}
 	
 	/**
+	 * Get the setting of the given name
+	 * @param name The name of the type to load
+	 * @return The setting type, or null if none exists
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> SettingType<T> get(String name){
+		return (SettingType<T>)nameMap.get(name);
+	}
+	
+	/**
 	 * Add the given types to the static mapping of all settings.
 	 *
 	 * @param t The type to add
@@ -99,16 +126,28 @@ public abstract class SettingType<T> implements Saveable{
 		idMap.put(t.id(), t);
 	}
 	
-	// TODO use this to allow settings to be saved
 	/**
-	 * Get the setting of the given name
-	 * @param name The name of the type to load
-	 * @return The setting type, or null if none exists
+	 * Determine if the given object is the default setting
+	 * @param obj The object to check
+	 * @return true if it is the default, false otherwise
 	 */
-	@SuppressWarnings("unchecked")
-	public SettingType<T> get(String name){
-		return (SettingType<T>)nameMap.get(name);
+	public boolean isDefault(Object obj){
+		return Objects.equals(obj, this.getDefault());
 	}
+	
+	/**
+	 * Save the value of the given setting of this type to a jason element used for saving
+	 * @param setting The setting to convert
+	 * @return The json element to save
+	 */
+	public abstract JsonElement toJson(Setting<T> setting);
+	
+	/**
+	 * Load the value of this setting from the given json element
+	 * @param e The element to load from
+	 * @return The value of the setting
+	 */
+	public abstract T fromJson(JsonElement e);
 	
 	/** Calls all core settings classes to ensure they are initialized */
 	public static void init(){

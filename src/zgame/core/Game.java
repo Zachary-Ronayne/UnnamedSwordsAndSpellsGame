@@ -658,6 +658,8 @@ public class Game implements Saveable, Destroyable{
 		JsonObject data = file.load();
 		if(data == null) return false;
 		try{
+			// TODO account for global vs local settings when loading and saving settings, global should be in a separate file
+			this.settings.load(data);
 			return this.load(data);
 		}catch(ClassCastException | IllegalStateException | NullPointerException e){
 			ZConfig.error(e, "Failed to load a json object because it had invalid formatting. Object data:\n", data);
@@ -676,6 +678,7 @@ public class Game implements Saveable, Destroyable{
 		try{
 			ZJsonFile file = new ZJsonFile(path);
 			JsonObject data = file.getData();
+			this.settings.save(data);
 			this.save(data);
 			file.setData(data);
 			return file.save();

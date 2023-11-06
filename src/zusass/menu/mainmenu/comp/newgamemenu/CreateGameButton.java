@@ -10,6 +10,8 @@ public class CreateGameButton extends ZusassButton{
 	/** The {@link NewGameTextBox} associated with this {@link CreateGameButton} */
 	private final NewGameTextBox textBox;
 	
+	// TODO Fix this button being disabled when there is text in the text box
+	
 	/**
 	 * Initialize the {@link CreateGameButton}
 	 * 

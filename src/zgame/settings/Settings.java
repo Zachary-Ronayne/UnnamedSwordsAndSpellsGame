@@ -1,15 +1,21 @@
 package zgame.settings;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import zgame.core.Game;
+import zgame.core.file.Saveable;
 
 /** An object keeping tracking of values used by the game */
-public class Settings{
+public class Settings implements Saveable{
+	
+	/** The json key used to store the settings used by this object */
+	public static final String SETTINGS_ARR_KEY = "settings";
 	
 	/** The {@link Game} using this {@link Settings} */
 	private final Game game;
 	
 	/** The settings used by this object */
-	private final Setting[] values;
+	private Setting<?>[] values;
 	
 	/**
 	 * Create a new settings object for the given game
@@ -17,12 +23,16 @@ public class Settings{
 	 */
 	public Settings(Game game){
 		this.game = game;
-		
+		this.initValues();
+	}
+	
+	/** Set up the array of settings to have one index per setting, and for all of them to have the default values */
+	private void initValues(){
 		this.values = new Setting[SettingId.numIds()];
 		for(var e : SettingType.idMap.entrySet()){
 			var index = e.getKey();
 			var type = e.getValue();
-			this.values[index] = new Setting(type);
+			this.values[index] = new Setting<>(type);
 		}
 	}
 	
@@ -36,7 +46,7 @@ public class Settings{
 	 * @param setting The value of the setting to get
 	 * @return The value
 	 */
-	private <T> Object getValue(SettingType<T> setting){
+	public <T> Object getValue(SettingType<T> setting){
 		return this.values[setting.id()].get();
 	}
 	
@@ -46,7 +56,7 @@ public class Settings{
 	 * @param value The new value
 	 */
 	private <T> void setValue(SettingType<T> setting, T value){
-		this.values[setting.id()].set(value);
+		this.values[setting.id()].setRaw(value);
 		var onChange = setting.getOnChange();
 		if(onChange != null) onChange.accept(this.getGame(), value);
 	}
@@ -87,4 +97,32 @@ public class Settings{
 		this.setValue(setting, value);
 	}
 	
+	@Override
+	public boolean save(JsonElement e){
+		var obj = e.getAsJsonObject();
+		var settingsMap = new JsonObject();
+		for(var v : this.values){
+			// Save only settings which are not equal to their defaults
+			if(!v.getType().isDefault(v.get())) v.save(settingsMap);
+		}
+		
+		obj.add(SETTINGS_ARR_KEY, settingsMap);
+		return true;
+	}
+	
+	@Override
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		this.initValues();
+		var settingsMap = e.getAsJsonObject().get(SETTINGS_ARR_KEY).getAsJsonObject();
+		for(var entry : settingsMap.entrySet()){
+			var name = entry.getKey();
+			var value = entry.getValue();
+			
+			var index = SettingType.get(name).id();
+			var setting = this.values[index];
+			setting.setRaw(setting.getType().fromJson(value));
+		}
+		
+		return true;
+	}
 }
