@@ -113,7 +113,9 @@ public class Settings implements Saveable{
 	@Override
 	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		this.initValues();
-		var settingsMap = e.getAsJsonObject().get(SETTINGS_ARR_KEY).getAsJsonObject();
+		var settingsMapElement = e.getAsJsonObject().get(SETTINGS_ARR_KEY);
+		if(settingsMapElement == null) return true;
+		var settingsMap = settingsMapElement.getAsJsonObject();
 		for(var entry : settingsMap.entrySet()){
 			var name = entry.getKey();
 			var value = entry.getValue();
