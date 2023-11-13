@@ -19,9 +19,17 @@ public final class ZusassConfig{
 	/** The location of all saves associated with the Zusass game */
 	private static final String SAVES = DATA + "saves/";
 	
+	/** The file location of the global settings for all games */
+	private static final String GLOBAL_SETTINGS_PATH = DATA + "globalSettings";
+	
 	/** @return The location where save files should be stored */
 	public static String getSavesLocation(){
 		return SAVES;
+	}
+	
+	/** @return See {@link #GLOBAL_SETTINGS_PATH} */
+	public static String getGlobalSettingsPath(){
+		return GLOBAL_SETTINGS_PATH;
 	}
 	
 	/**

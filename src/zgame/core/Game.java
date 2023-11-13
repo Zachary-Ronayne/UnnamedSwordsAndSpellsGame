@@ -2,8 +2,6 @@ package zgame.core;
 
 import static org.lwjgl.opengl.GL30.*;
 
-import com.google.gson.JsonObject;
-
 import zgame.core.file.Saveable;
 import zgame.core.file.ZJsonFile;
 import zgame.core.graphics.Destroyable;
@@ -115,7 +113,7 @@ public class Game implements Saveable, Destroyable{
 	/** A list of things to do the next time this game has its open gl loop called. Once the loop happens, this list will be emptied */
 	private final List<Runnable> nextLoopFuncs;
 	
-	/** The settings used by this game */
+	/** The current settings used by this game. This will be modified as needed when save files load */
 	private final Settings settings;
 	
 	/** A simple helper class used by {@link #tickLooper} to run its loop on a separate thread */
@@ -210,6 +208,8 @@ public class Game implements Saveable, Destroyable{
 		// Init this game's instance of settings
 		SettingType.init();
 		this.settings = new Settings(this);
+		// On initialization, load the global settings
+		this.loadGlobalSettings();
 		
 		// Init sound
 		this.sounds = new SoundManager();
@@ -309,6 +309,7 @@ public class Game implements Saveable, Destroyable{
 	
 	/**
 	 * Run a function on the next OpenGL loop
+	 *
 	 * @param r The function to run
 	 */
 	public void onNextLoop(Runnable r){
@@ -653,18 +654,19 @@ public class Game implements Saveable, Destroyable{
 	 * @return true if the load was successful, false otherwise
 	 */
 	public boolean loadGame(String path){
-		if(path == null) return false;
-		ZJsonFile file = new ZJsonFile(path);
-		JsonObject data = file.load();
-		if(data == null) return false;
-		try{
-			// TODO account for global vs local settings when loading and saving settings, global should be in a separate file
-			this.settings.load(data);
-			return this.load(data);
-		}catch(ClassCastException | IllegalStateException | NullPointerException e){
-			ZConfig.error(e, "Failed to load a json object because it had invalid formatting. Object data:\n", data);
-		}
-		return false;
+		return ZJsonFile.loadJsonFile(path, data -> {
+			// First load the global settings
+			this.loadGlobalSettings();
+			
+			// TODO Keep track of a separate local settings variable, so that when the game is saved, those local settings can be saved without global setting overrides
+			// After loading the local settings, set the current settings to any settings from the local settings which are not the default
+			var localSettings = new Settings(this);
+			var success = localSettings.load(data);
+			this.settings.setNonDefault(localSettings);
+			
+			success &= this.load(data);
+			return success;
+		});
 	}
 	
 	/**
@@ -674,18 +676,39 @@ public class Game implements Saveable, Destroyable{
 	 * @return true if the save was successful, false otherwise
 	 */
 	public boolean saveGame(String path){
-		if(path == null) return false;
-		try{
-			ZJsonFile file = new ZJsonFile(path);
-			JsonObject data = file.getData();
-			this.settings.save(data);
-			this.save(data);
-			file.setData(data);
-			return file.save();
-		}catch(Exception e){
-			e.printStackTrace();
-			return false;
+		return ZJsonFile.saveJsonFile(path, data -> {
+			// TODO save only the local settings, not all settings
+			var success = this.settings.save(data);
+			success &= this.save(data);
+			return success;
+		});
+	}
+	
+	// TODO when a game is unloaded, i.e. going to the main menu, unload the current settings to just the global settings
+	
+	/**
+	 * Load {@link #settings} from the given path
+	 *
+	 * @return true if the load was successful, false otherwise
+	 */
+	public boolean loadGlobalSettings(){
+		var path = this.getGlobalSettingsFilePath();
+		var success = ZJsonFile.loadJsonFile(path, this.settings::load);
+		// If the fail to load, save the default settings
+		if(!success) {
+			ZConfig.error("Failed to load global settings at path ", path, " saving defaults");
+			this.saveGlobalSettings();
 		}
+		return success;
+	}
+	
+	/**
+	 * Save {@link #settings} to the given path
+	 *
+	 * @return true if the save was successful, false otherwise
+	 */
+	public boolean saveGlobalSettings(){
+		return ZJsonFile.saveJsonFile(this.getGlobalSettingsFilePath(), this.settings::save);
 	}
 	
 	/** @return See {@link #sounds} */
@@ -983,7 +1006,19 @@ public class Game implements Saveable, Destroyable{
 	}
 	
 	/**
+	 * Get a settings value of a setting from {@link #settings}
+	 *
+	 * @param setting The name of the setting to get the value of
+	 * @return The setting's value
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getAny(SettingType<T> setting){
+		return (T)this.getSettings().getValue(setting);
+	}
+	
+	/**
 	 * Get an integer value of a setting from {@link #settings}
+	 *
 	 * @param setting The name of the setting to get the value of
 	 * @return The setting's value
 	 */
@@ -993,6 +1028,7 @@ public class Game implements Saveable, Destroyable{
 	
 	/**
 	 * Set an integer value of a setting in {@link #settings}
+	 *
 	 * @param setting The name of the setting to set
 	 * @param value The new setting's value
 	 */
@@ -1002,6 +1038,7 @@ public class Game implements Saveable, Destroyable{
 	
 	/**
 	 * Get a double value of a setting from {@link #settings}
+	 *
 	 * @param setting The name of the setting to get the value of
 	 * @return The setting's value
 	 */
@@ -1011,10 +1048,30 @@ public class Game implements Saveable, Destroyable{
 	
 	/**
 	 * Set a double value of a setting in {@link #settings}
+	 *
 	 * @param setting The name of the setting to set
 	 * @param value The new setting's value
 	 */
 	public void set(DoubleTypeSetting setting, double value){
 		this.getSettings().set(setting, value);
 	}
+	
+	/**
+	 * @return The location of the global settings.
+	 * 		This should only be a file name, not a file extension
+	 * 		Override to put in a custom place.
+	 */
+	public String getGlobalSettingsLocation(){
+		return "./globalSettings";
+	}
+	
+	/**
+	 * @return The location of the global settings.
+	 * 		This should only be a file name, not a file extension
+	 * 		Override to put in a custom place.
+	 */
+	private String getGlobalSettingsFilePath(){
+		return this.getGlobalSettingsLocation() + ".json";
+	}
+	
 }

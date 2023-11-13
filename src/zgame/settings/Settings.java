@@ -55,10 +55,11 @@ public class Settings implements Saveable{
 	 * @param setting The value of the setting to set
 	 * @param value The new value
 	 */
-	private <T> void setValue(SettingType<T> setting, T value){
+	@SuppressWarnings("unchecked")
+	private <T> void setValue(SettingType<T> setting, Object value){
 		this.values[setting.id()].setRaw(value);
 		var onChange = setting.getOnChange();
-		if(onChange != null) onChange.accept(this.getGame(), value);
+		if(onChange != null) onChange.accept(this.getGame(), (T)value);
 	}
 	
 	/**
@@ -97,6 +98,17 @@ public class Settings implements Saveable{
 		this.setValue(setting, value);
 	}
 	
+	/**
+	 * Set this object's settings values to the ones in the given settings object which are not the default settings
+	 * @param settings The settings to place into this settings
+	 */
+	public void setNonDefault(Settings settings){
+		for(var s : settings.values){
+			if(s.getType().isDefault(s.get())) continue;
+			this.setValue(s.getType(), s.get());
+		}
+	}
+	
 	@Override
 	public boolean save(JsonElement e){
 		var obj = e.getAsJsonObject();
@@ -127,4 +139,5 @@ public class Settings implements Saveable{
 		
 		return true;
 	}
+	
 }

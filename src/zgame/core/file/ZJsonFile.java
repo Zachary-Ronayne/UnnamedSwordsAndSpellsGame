@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Scanner;
+import java.util.function.Function;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -91,6 +92,46 @@ public class ZJsonFile{
 	/** @param data See {@link #data} */
 	public void setData(JsonObject data){
 		this.data = data;
+	}
+	
+	
+	/**
+	 * Save a data to a json file
+	 * @param path The path to save the file to
+	 * @param fun A function that accepts the data for a save file, and then saves it, and returns true on success, false otherwise
+	 * @return true if the save was successful, false otherwise
+	 */
+	public static boolean saveJsonFile(String path, Function<JsonObject, Boolean> fun){
+		if(path == null) return false;
+		try{
+			var file = new ZJsonFile(path);
+			var data = file.getData();
+			var success = fun.apply(data);
+			file.setData(data);
+			return success && file.save();
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	/**
+	 * Load data from a json file
+	 * @param path The path to load the file from
+	 * @param fun A function that accepts the data to  file, and then saves it, and returns true on success, false otherwise
+	 * @return true if the save was successful, false otherwise
+	 */
+	public static boolean loadJsonFile(String path, Function<JsonObject, Boolean> fun){
+		if(path == null) return false;
+		ZJsonFile file = new ZJsonFile(path);
+		JsonObject data = file.load();
+		if(data == null) return false;
+		try{
+			return fun.apply(data);
+		}catch(ClassCastException | IllegalStateException | NullPointerException e){
+			ZConfig.error(e, "Failed to load a json object because it had invalid formatting. Object data:\n", data);
+		}
+		return false;
 	}
 	
 }
