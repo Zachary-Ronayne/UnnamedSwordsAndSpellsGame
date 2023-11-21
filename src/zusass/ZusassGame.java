@@ -175,9 +175,10 @@ public class ZusassGame extends Game{
 		else if(button == GLFW_KEY_F1) {
 			for(var e : SettingType.nameMap.entrySet()) ZStringUtils.prints(e.getKey(), this.getAny(e.getValue())); // TODO Remove
 		}
-		else if(button == GLFW_KEY_F2) this.set(IntTypeSetting.TEST, this.get(IntTypeSetting.TEST) + 1);
-		else if(button == GLFW_KEY_F3) this.set(DoubleTypeSetting.TEST_D, this.get(DoubleTypeSetting.TEST_D) + .1);
-		else if(button == GLFW_KEY_F4) this.set(ZusassSettingI.Z_TEST, this.get(ZusassSettingI.Z_TEST) + 2);
+		else if(button == GLFW_KEY_F2) this.set(IntTypeSetting.TEST, this.get(IntTypeSetting.TEST) + 1, zgame.isSaveLoaded());
+		else if(button == GLFW_KEY_F3) this.set(DoubleTypeSetting.TEST_D, this.get(DoubleTypeSetting.TEST_D) + .1, zgame.isSaveLoaded());
+		else if(button == GLFW_KEY_F4) this.set(ZusassSettingI.Z_TEST, this.get(ZusassSettingI.Z_TEST) + 2, zgame.isSaveLoaded());
+		else if(button == GLFW_KEY_F8) this.saveGlobalSettings();
 	}
 	
 	/** Initialize the object {@link #zgame} */

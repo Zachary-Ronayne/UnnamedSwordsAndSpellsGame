@@ -36,6 +36,11 @@ public class Settings implements Saveable{
 		}
 	}
 	
+	/** Load the default value for every setting */
+	public void setDefaults(){
+		for(var v : values) v.setRaw(v.getType().getDefault());
+	}
+	
 	/** @return See {@link #game} */
 	public Game getGame(){
 		return this.game;
@@ -51,12 +56,12 @@ public class Settings implements Saveable{
 	}
 	
 	/**
-	 * Sets a value without checking that the types are the same
+	 * Sets a value without checking that the types are the same. Generally should avoid using when not needed
 	 * @param setting The value of the setting to set
 	 * @param value The new value
 	 */
 	@SuppressWarnings("unchecked")
-	private <T> void setValue(SettingType<T> setting, Object value){
+	public <T> void setValue(SettingType<T> setting, Object value){
 		this.values[setting.id()].setRaw(value);
 		var onChange = setting.getOnChange();
 		if(onChange != null) onChange.accept(this.getGame(), (T)value);

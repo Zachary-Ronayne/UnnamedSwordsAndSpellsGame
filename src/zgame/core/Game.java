@@ -116,6 +116,15 @@ public class Game implements Saveable, Destroyable{
 	/** The current settings used by this game. This will be modified as needed when save files load */
 	private final Settings settings;
 	
+	/** The settings that apply to the game, regardless of which save file is loaded */
+	private final Settings globalSettings;
+	
+	/** The settings loaded from a specific save file */
+	private final Settings localSettings;
+	
+	/** true if a save file is currently loaded, false otherwise */
+	private boolean saveLoaded;
+	
 	/** A simple helper class used by {@link #tickLooper} to run its loop on a separate thread */
 	private class TickLoopTask implements Runnable{
 		@Override
@@ -207,7 +216,10 @@ public class Game implements Saveable, Destroyable{
 		
 		// Init this game's instance of settings
 		SettingType.init();
+		this.saveLoaded = false;
 		this.settings = new Settings(this);
+		this.globalSettings = new Settings(this);
+		this.localSettings = new Settings(this);
 		// On initialization, load the global settings
 		this.loadGlobalSettings();
 		
@@ -658,13 +670,15 @@ public class Game implements Saveable, Destroyable{
 			// First load the global settings
 			this.loadGlobalSettings();
 			
-			// TODO Keep track of a separate local settings variable, so that when the game is saved, those local settings can be saved without global setting overrides
 			// After loading the local settings, set the current settings to any settings from the local settings which are not the default
-			var localSettings = new Settings(this);
-			var success = localSettings.load(data);
-			this.settings.setNonDefault(localSettings);
+			this.localSettings.setDefaults();
+			var success = this.localSettings.load(data);
+			this.settings.setDefaults();
+			this.settings.setNonDefault(this.globalSettings);
+			this.settings.setNonDefault(this.localSettings);
 			
 			success &= this.load(data);
+			if(success) this.saveLoaded = true;
 			return success;
 		});
 	}
@@ -677,14 +691,18 @@ public class Game implements Saveable, Destroyable{
 	 */
 	public boolean saveGame(String path){
 		return ZJsonFile.saveJsonFile(path, data -> {
-			// TODO save only the local settings, not all settings
-			var success = this.settings.save(data);
+			var success = this.localSettings.save(data);
 			success &= this.save(data);
 			return success;
 		});
 	}
 	
-	// TODO when a game is unloaded, i.e. going to the main menu, unload the current settings to just the global settings
+	/** Call this method to unload the current save file */
+	public void unloadGame(){
+		this.settings.setDefaults();
+		this.settings.setNonDefault(this.globalSettings);
+		this.saveLoaded = false;
+	}
 	
 	/**
 	 * Load {@link #settings} from the given path
@@ -692,9 +710,11 @@ public class Game implements Saveable, Destroyable{
 	 * @return true if the load was successful, false otherwise
 	 */
 	public boolean loadGlobalSettings(){
+		this.globalSettings.setDefaults();
+		
 		var path = this.getGlobalSettingsFilePath();
-		var success = ZJsonFile.loadJsonFile(path, this.settings::load);
-		// If the fail to load, save the default settings
+		var success = ZJsonFile.loadJsonFile(path, this.globalSettings::load);
+		// If the settings fail to load, save the default settings
 		if(!success) {
 			ZConfig.error("Failed to load global settings at path ", path, " saving defaults");
 			this.saveGlobalSettings();
@@ -708,7 +728,7 @@ public class Game implements Saveable, Destroyable{
 	 * @return true if the save was successful, false otherwise
 	 */
 	public boolean saveGlobalSettings(){
-		return ZJsonFile.saveJsonFile(this.getGlobalSettingsFilePath(), this.settings::save);
+		return ZJsonFile.saveJsonFile(this.getGlobalSettingsFilePath(), this.globalSettings::save);
 	}
 	
 	/** @return See {@link #sounds} */
@@ -1005,6 +1025,16 @@ public class Game implements Saveable, Destroyable{
 		return this.settings;
 	}
 	
+	/** @return See {@link #globalSettings} */
+	public Settings getGlobalSettings(){
+		return this.globalSettings;
+	}
+	
+	/** @return See {@link #localSettings} */
+	public Settings getLocalSettings(){
+		return this.localSettings;
+	}
+	
 	/**
 	 * Get a settings value of a setting from {@link #settings}
 	 *
@@ -1015,6 +1045,20 @@ public class Game implements Saveable, Destroyable{
 	public <T> T getAny(SettingType<T> setting){
 		return (T)this.getSettings().getValue(setting);
 	}
+	
+	/**
+	 * Set a value of a setting in {@link #settings}
+	 *
+	 * @param setting The name of the setting to set
+	 * @param value The new setting's value
+	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
+	 */
+	private <T> void setAny(SettingType<T> setting, T value, boolean local){
+		this.getSettings().setValue(setting, value);
+		if(local) this.getLocalSettings().setValue(setting, value);
+		else this.getGlobalSettings().setValue(setting, value);
+	}
+	
 	
 	/**
 	 * Get an integer value of a setting from {@link #settings}
@@ -1031,9 +1075,10 @@ public class Game implements Saveable, Destroyable{
 	 *
 	 * @param setting The name of the setting to set
 	 * @param value The new setting's value
+	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
 	 */
-	public void set(IntTypeSetting setting, int value){
-		this.getSettings().set(setting, value);
+	public void set(IntTypeSetting setting, int value, boolean local){
+		this.setAny(setting, value, local);
 	}
 	
 	/**
@@ -1051,9 +1096,10 @@ public class Game implements Saveable, Destroyable{
 	 *
 	 * @param setting The name of the setting to set
 	 * @param value The new setting's value
+	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
 	 */
-	public void set(DoubleTypeSetting setting, double value){
-		this.getSettings().set(setting, value);
+	public void set(DoubleTypeSetting setting, double value, boolean local){
+		this.setAny(setting, value, local);
 	}
 	
 	/**
@@ -1074,4 +1120,8 @@ public class Game implements Saveable, Destroyable{
 		return this.getGlobalSettingsLocation() + ".json";
 	}
 	
+	/** @return See {@link #saveLoaded} */
+	public boolean isSaveLoaded(){
+		return this.saveLoaded;
+	}
 }
