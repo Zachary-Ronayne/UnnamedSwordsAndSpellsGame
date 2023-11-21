@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import zgame.core.Game;
 import zgame.core.file.Saveable;
+import zgame.core.utils.ZConfig;
 
 /** An object keeping tracking of values used by the game */
 public class Settings implements Saveable{
@@ -59,12 +60,34 @@ public class Settings implements Saveable{
 	 * Sets a value without checking that the types are the same. Generally should avoid using when not needed
 	 * @param setting The value of the setting to set
 	 * @param value The new value
+	 * @param shouldChange true if updating this setting should call the {@link SettingType#onChange} method
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> void setValue(SettingType<T> setting, Object value){
+	public <T> void setValue(SettingType<T> setting, Object value, boolean shouldChange){
 		this.values[setting.id()].setRaw(value);
+		if(!shouldChange) return;
+		
 		var onChange = setting.getOnChange();
 		if(onChange != null) onChange.accept(this.getGame(), (T)value);
+	}
+	
+	/**
+	 * Get a boolean value of a setting
+	 * @param setting The name of the setting to get the value of
+	 * @return The setting's value
+	 */
+	public Boolean get(BooleanTypeSetting setting){
+		return (Boolean)this.getValue(setting);
+	}
+	
+	/**
+	 * Set the value of a boolean setting
+	 * @param setting The name of the setting to set the value of
+	 * @param value The new value
+	 * @param shouldChange true if updating this setting should call the {@link SettingType#onChange} method
+	 */
+	public void set(BooleanTypeSetting setting, boolean value, boolean shouldChange){
+		this.setValue(setting, value, shouldChange);
 	}
 	
 	/**
@@ -80,9 +103,10 @@ public class Settings implements Saveable{
 	 * Set the value of an integer setting
 	 * @param setting The name of the setting to set the value of
 	 * @param value The new value
+	 * @param shouldChange true if updating this setting should call the {@link SettingType#onChange} method
 	 */
-	public void set(IntTypeSetting setting, int value){
-		this.setValue(setting, value);
+	public void set(IntTypeSetting setting, int value, boolean shouldChange){
+		this.setValue(setting, value, shouldChange);
 	}
 	
 	/**
@@ -98,19 +122,21 @@ public class Settings implements Saveable{
 	 * Set the value of a double setting
 	 * @param setting The name of the setting to set the value of
 	 * @param value The new value
+	 * @param shouldChange true if updating this setting should call the {@link SettingType#onChange} method
 	 */
-	public void set(DoubleTypeSetting setting, double value){
-		this.setValue(setting, value);
+	public void set(DoubleTypeSetting setting, double value, boolean shouldChange){
+		this.setValue(setting, value, shouldChange);
 	}
 	
 	/**
 	 * Set this object's settings values to the ones in the given settings object which are not the default settings
 	 * @param settings The settings to place into this settings
+	 * @param shouldChange true if updating this setting should call the {@link SettingType#onChange} method
 	 */
-	public void setNonDefault(Settings settings){
+	public void setNonDefault(Settings settings, boolean shouldChange){
 		for(var s : settings.values){
 			if(s.getType().isDefault(s.get())) continue;
-			this.setValue(s.getType(), s.get());
+			this.setValue(s.getType(), s.get(), shouldChange);
 		}
 	}
 	
@@ -137,7 +163,14 @@ public class Settings implements Saveable{
 			var name = entry.getKey();
 			var value = entry.getValue();
 			
-			var index = SettingType.get(name).id();
+			// If the setting is unknown, skip it
+			var s = SettingType.get(name);
+			if(s == null) {
+				ZConfig.error("When loading settings, could not modify setting with name: ", name);
+				continue;
+			}
+			
+			var index = s.id();
 			var setting = this.values[index];
 			setting.setRaw(setting.getType().fromJson(value));
 		}

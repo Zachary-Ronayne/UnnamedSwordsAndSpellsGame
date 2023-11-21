@@ -2,7 +2,6 @@ package zusass.setting;
 
 import zgame.settings.IntTypeSetting;
 
-// TODO populate with actual Zusass settings
 public class ZusassSettingI extends IntTypeSetting{
 	
 	public static final ZusassSettingI Z_TEST = new ZusassSettingI("Z_TEST", 88);

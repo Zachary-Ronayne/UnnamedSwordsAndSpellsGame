@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
-// TODO implement other types, i.e. boolean, string, etc
 /**
  * An interface to be used for generating settings, should be implemented by an enum.
  * All subclasses of this class must be used before an instance of {@link Settings} or {@link Game} is created,
@@ -151,6 +150,7 @@ public abstract class SettingType<T>{
 	
 	/** Calls all core settings classes to ensure they are initialized */
 	public static void init(){
+		BooleanTypeSetting.init();
 		IntTypeSetting.init();
 		DoubleTypeSetting.init();
 	}

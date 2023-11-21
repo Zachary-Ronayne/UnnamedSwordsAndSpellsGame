@@ -6,11 +6,10 @@ import zgame.core.Game;
 
 import java.util.function.BiConsumer;
 
-// TODO populate with actual settings
 /** A {@link Setting} holding an integer See {@link SettingType} */
 public class IntTypeSetting extends SettingType<Integer>{
 	
-	public static final IntTypeSetting TEST = new IntTypeSetting("TEST", 0);
+	public static final IntTypeSetting FPS_LIMIT = new IntTypeSetting("FPS_LIMIT", 100, Game::setMaxFps);
 	
 	/**
 	 * Initialize a new int setting.

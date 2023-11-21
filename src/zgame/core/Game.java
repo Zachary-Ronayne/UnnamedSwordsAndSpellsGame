@@ -25,10 +25,7 @@ import zgame.core.state.PlayState;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
-import zgame.settings.DoubleTypeSetting;
-import zgame.settings.IntTypeSetting;
-import zgame.settings.SettingType;
-import zgame.settings.Settings;
+import zgame.settings.*;
 import zgame.stat.DefaultStatType;
 import zgame.world.Room;
 
@@ -674,8 +671,8 @@ public class Game implements Saveable, Destroyable{
 			this.localSettings.setDefaults();
 			var success = this.localSettings.load(data);
 			this.settings.setDefaults();
-			this.settings.setNonDefault(this.globalSettings);
-			this.settings.setNonDefault(this.localSettings);
+			this.settings.setNonDefault(this.globalSettings, true);
+			this.settings.setNonDefault(this.localSettings, true);
 			
 			success &= this.load(data);
 			if(success) this.saveLoaded = true;
@@ -700,7 +697,7 @@ public class Game implements Saveable, Destroyable{
 	/** Call this method to unload the current save file */
 	public void unloadGame(){
 		this.settings.setDefaults();
-		this.settings.setNonDefault(this.globalSettings);
+		this.settings.setNonDefault(this.globalSettings, true);
 		this.saveLoaded = false;
 	}
 	
@@ -1054,11 +1051,32 @@ public class Game implements Saveable, Destroyable{
 	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
 	 */
 	private <T> void setAny(SettingType<T> setting, T value, boolean local){
-		this.getSettings().setValue(setting, value);
-		if(local) this.getLocalSettings().setValue(setting, value);
-		else this.getGlobalSettings().setValue(setting, value);
+		this.getSettings().setValue(setting, value, true);
+		if(local) this.getLocalSettings().setValue(setting, value, false);
+		else this.getGlobalSettings().setValue(setting, value, false);
 	}
 	
+	
+	/**
+	 * Get a boolean value of a setting from {@link #settings}
+	 *
+	 * @param setting The name of the setting to get the value of
+	 * @return The setting's value
+	 */
+	public boolean get(BooleanTypeSetting setting){
+		return this.getSettings().get(setting);
+	}
+	
+	/**
+	 * Set a boolean value of a setting in {@link #settings}
+	 *
+	 * @param setting The name of the setting to set
+	 * @param value The new setting's value
+	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
+	 */
+	public void set(BooleanTypeSetting setting, boolean value, boolean local){
+		this.setAny(setting, value, local);
+	}
 	
 	/**
 	 * Get an integer value of a setting from {@link #settings}
@@ -1066,7 +1084,7 @@ public class Game implements Saveable, Destroyable{
 	 * @param setting The name of the setting to get the value of
 	 * @return The setting's value
 	 */
-	public Integer get(IntTypeSetting setting){
+	public int get(IntTypeSetting setting){
 		return this.getSettings().get(setting);
 	}
 	
@@ -1087,7 +1105,7 @@ public class Game implements Saveable, Destroyable{
 	 * @param setting The name of the setting to get the value of
 	 * @return The setting's value
 	 */
-	public Double get(DoubleTypeSetting setting){
+	public double get(DoubleTypeSetting setting){
 		return this.getSettings().get(setting);
 	}
 	
