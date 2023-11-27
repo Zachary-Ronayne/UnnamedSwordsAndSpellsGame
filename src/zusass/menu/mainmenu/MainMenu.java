@@ -5,10 +5,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import zgame.core.Game;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
-import zusass.menu.mainmenu.comp.ContinueGameButton;
-import zusass.menu.mainmenu.comp.ExitButton;
-import zusass.menu.mainmenu.comp.LoadGameButton;
-import zusass.menu.mainmenu.comp.NewGameButton;
+import zusass.menu.mainmenu.comp.*;
 import zusass.utils.ZusassConfig;
 
 /** The {@link ZusassMenu} for the main menu of the game */
@@ -38,6 +35,7 @@ public class MainMenu extends ZusassMenu{
 		}
 		this.addThing(new NewGameButton(zgame));
 		this.addThing(new ExitButton(zgame));
+		this.addThing(new MainSettingsButton(zgame));
 	}
 	
 	@Override

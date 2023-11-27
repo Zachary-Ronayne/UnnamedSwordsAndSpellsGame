@@ -66,7 +66,7 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 		return node.getMenu();
 	}
 	
-	/** @param menu The new root menu of this {@link MenuState}, i.e. the menu on the bottom before popups */
+	/** @param menu The new root menu of this {@link GameState}, i.e. the menu on the bottom before popups */
 	public void setMenu(Menu menu){
 		if(this.menuStack == null || !this.menuStack.isEmpty()) this.menuStack = new ArrayList<>();
 		var node = new MenuNode(menu);
