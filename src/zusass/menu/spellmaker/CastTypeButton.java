@@ -40,6 +40,7 @@ public class CastTypeButton extends ToggleButton{
 		this.setSelectedIndex(0);
 	}
 	
+	// TODO do this in a better way, so not updating things based on a string map?
 	@Override
 	public void setText(String text){
 		super.setText(text);
