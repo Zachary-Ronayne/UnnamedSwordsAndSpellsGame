@@ -48,6 +48,8 @@ public class VideoSettingsMenu extends ZusassMenu{
 		var vsyncValues = new ArrayList<String>();
 		vsyncValues.add(VSYNC_ENABLED_TEXT);
 		vsyncValues.add(VSYNC_DISABLED_TEXT);
+		// TODO remove this hack way of making sure vsync is set correctly
+		var vsyncOn = zgame.get(BooleanTypeSetting.V_SYNC);
 		var vsyncButton = new ToggleButton(10, 50, 350, 100, vsyncValues, zgame){
 			@Override
 			public void setText(String text){
@@ -56,9 +58,10 @@ public class VideoSettingsMenu extends ZusassMenu{
 			}
 		};
 		// TODO make this in a better way instead of based on indexes
-		vsyncButton.setSelectedIndex(zgame.get(BooleanTypeSetting.V_SYNC) ? 0 : 1);
+		vsyncButton.setSelectedIndex(vsyncOn ? 0 : 1);
 		vsyncButton.centerText();
 		this.addThing(vsyncButton);
+		zgame.set(BooleanTypeSetting.V_SYNC, vsyncOn, false);
 	}
 	
 	@Override
@@ -71,6 +74,9 @@ public class VideoSettingsMenu extends ZusassMenu{
 	
 	/** Tell this menu to go back to its previous state */
 	public void handleGoBack(ZusassGame zgame){
+		// TODO make a better way of saving settings that makes more sense, also account for if it should be global or local settings
+		zgame.saveGlobalSettings();
+		
 		zgame.getCurrentState().setMenu(new SettingsMenu(zgame, this.settingsMenu.getGoBack()));
 	}
 }

@@ -54,6 +54,9 @@ public class SettingsMenu extends ZusassMenu{
 	
 	/** Tell this menu to go back to its previous state */
 	public void handleGoBack(ZusassGame zgame){
+		// TODO make a better way of saving settings that makes more sense, also account for if it should be global or local settings
+		zgame.saveGlobalSettings();
+		
 		this.goBack.accept(zgame);
 	}
 	
