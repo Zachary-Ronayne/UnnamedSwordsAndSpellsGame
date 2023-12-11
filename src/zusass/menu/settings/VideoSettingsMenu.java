@@ -1,23 +1,16 @@
 package zusass.menu.settings;
 
 import zgame.core.Game;
+import zgame.menu.togglebutton.BoolToggleButtonValue;
 import zgame.settings.BooleanTypeSetting;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
-import zusass.menu.comp.ToggleButton;
-
-import java.util.ArrayList;
+import zusass.menu.comp.ZusassBoolToggleButton;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
 /** The menu used for displaying specific settings related to video options */
 public class VideoSettingsMenu extends ZusassMenu{
-	
-	// TODO do this in a better way, not doing string comparisons
-	/** The text to display for vsync being enabled */
-	public static final String VSYNC_ENABLED_TEXT = "Vsync Enabled";
-	/** The text to display for vsync being disabled */
-	public static final String VSYNC_DISABLED_TEXT = "Vsync Disabled";
 	
 	// TODO abstract out this kind of thing so that a new menu and button isn't needed for every new sub menu type?
 	
@@ -44,24 +37,16 @@ public class VideoSettingsMenu extends ZusassMenu{
 		};
 		this.addThing(backButton);
 		
-		// TODO make some kind of abstract way of making these buttons based on a setting
-		var vsyncValues = new ArrayList<String>();
-		vsyncValues.add(VSYNC_ENABLED_TEXT);
-		vsyncValues.add(VSYNC_DISABLED_TEXT);
-		// TODO remove this hack way of making sure vsync is set correctly
-		var vsyncOn = zgame.get(BooleanTypeSetting.V_SYNC);
-		var vsyncButton = new ToggleButton(10, 50, 350, 100, vsyncValues, zgame){
+		var vsyncButton = new ZusassBoolToggleButton(10, 50, 350, 100, zgame.get(BooleanTypeSetting.V_SYNC), "Vsync Enabled", "Vsync Disabled", zgame){
 			@Override
-			public void setText(String text){
-				super.setText(text);
-				zgame.set(BooleanTypeSetting.V_SYNC, text.equals(VSYNC_ENABLED_TEXT), false);
+			public void onValueChange(BoolToggleButtonValue value){
+				super.onValueChange(value);
+				zgame.set(BooleanTypeSetting.V_SYNC, value.isTrue(), false);
+				centerText();
 			}
 		};
-		// TODO make this in a better way instead of based on indexes
-		vsyncButton.setSelectedIndex(vsyncOn ? 0 : 1);
 		vsyncButton.centerText();
 		this.addThing(vsyncButton);
-		zgame.set(BooleanTypeSetting.V_SYNC, vsyncOn, false);
 	}
 	
 	@Override

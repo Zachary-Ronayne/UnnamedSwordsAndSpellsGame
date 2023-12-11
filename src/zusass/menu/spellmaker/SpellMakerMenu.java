@@ -291,7 +291,10 @@ public class SpellMakerMenu extends ZusassMenu{
 	/** @param modifierType The new value for {@link #selectedModifierType} */
 	public void updateModifierType(ModifierType modifierType){
 		this.selectedModifierType = modifierType;
-		if(this.positiveNegativeButton != null) this.positiveNegativeButton.setDisabled(modifierType == ModifierType.MULT_MULT);
+		if(this.positiveNegativeButton != null) {
+			this.positiveNegativeButton.setDisabled(modifierType == ModifierType.MULT_MULT);
+			this.positiveNegativeButton.updateForMultMult();
+		}
 		this.updateCurrentSpell();
 	}
 	
@@ -404,7 +407,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	/** @return true if the selected will be a buff, false otherwise */
 	public boolean isBuffSelected(){
 		if(selectedModifierType == ModifierType.MULT_MULT) return true;
-		return PositiveNegativeButton.BUFF.equals(this.positiveNegativeButton.getSelectedValue());
+		return this.positiveNegativeButton.getSelectedValue().isTrue();
 	}
 	
 	/** @return true if the instant effect cast type can be selected, false otherwise */
@@ -440,6 +443,7 @@ public class SpellMakerMenu extends ZusassMenu{
 			var v = this.getStringInput(k);
 			if(v == null || v.isEmpty()) disabled = true;
 		}
+		if(this.positiveNegativeButton != null) this.positiveNegativeButton.updateForMultMult();
 		this.createButton.setDisabled(disabled);
 		this.updateCurrentSpell();
 	}
