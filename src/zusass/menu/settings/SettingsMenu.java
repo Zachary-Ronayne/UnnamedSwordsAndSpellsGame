@@ -2,15 +2,12 @@ package zusass.menu.settings;
 
 import zgame.core.Game;
 import zusass.ZusassGame;
-import zusass.menu.ZusassMenu;
 import zusass.menu.comp.ZusassButton;
 
 import java.util.function.Consumer;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-
 /** The root menu for displaying settings */
-public class SettingsMenu extends ZusassMenu{
+public class SettingsMenu extends BaseSettingsMenu{
 	
 	/** A function to run when exiting this menu */
 	private final Consumer<ZusassGame> goBack;
@@ -21,7 +18,7 @@ public class SettingsMenu extends ZusassMenu{
 	 * @param goBack See {@link #goBack}
 	 */
 	public SettingsMenu(ZusassGame zgame, Consumer<ZusassGame> goBack){
-		super(zgame, "Settings");
+		super("Settings", zgame, null);
 		this.goBack = goBack;
 		
 		var videoSettingsButton = new ZusassButton(10, 50, 500, 100, "Video Settings", zgame){
@@ -32,16 +29,11 @@ public class SettingsMenu extends ZusassMenu{
 			}
 		};
 		this.addThing(videoSettingsButton);
-		
-		// TODO Abstract this out to be in all settings menus
-		var backButton = new SettingsBackButton(zgame){
-			@Override
-			public void click(Game game){
-				super.click(game);
-				handleGoBack((ZusassGame)game);
-			}
-		};
-		this.addThing(backButton);
+	}
+	
+	@Override
+	public SettingsMenu getSettingsMenu(){
+		return this;
 	}
 	
 	/**
@@ -52,23 +44,13 @@ public class SettingsMenu extends ZusassMenu{
 		zgame.getCurrentState().setMenu(new VideoSettingsMenu(zgame, this));
 	}
 	
-	/** Tell this menu to go back to its previous state */
-	public void handleGoBack(ZusassGame zgame){
-		// TODO make a better way of saving settings that makes more sense, also account for if it should be global or local settings
-		zgame.saveGlobalSettings();
-		
-		this.goBack.accept(zgame);
-	}
-	
-	@Override
-	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyAction(game, button, press, shift, alt, ctrl);
-		if(press) return;
-		if(button == GLFW_KEY_ESCAPE) this.handleGoBack((ZusassGame)game);
-	}
-	
 	/** @return See {@link #goBack} */
 	public Consumer<ZusassGame> getGoBack(){
 		return this.goBack;
+	}
+	
+	@Override
+	public void goBack(ZusassGame zgame){
+		this.getGoBack().accept(zgame);
 	}
 }

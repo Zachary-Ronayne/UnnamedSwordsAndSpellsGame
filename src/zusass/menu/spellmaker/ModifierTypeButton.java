@@ -8,7 +8,6 @@ import zusass.menu.comp.ZusassEnumToggleButton;
 /** A button for selecting the stat effect type for a spell in the spell maker */
 public class ModifierTypeButton extends ZusassEnumToggleButton<MakerModifierType>{
 	
-	// TODO maybe abstract out this menu thing and some of the initialization stuff?
 	/** The menu using this button */
 	private final SpellMakerMenu menu;
 	
