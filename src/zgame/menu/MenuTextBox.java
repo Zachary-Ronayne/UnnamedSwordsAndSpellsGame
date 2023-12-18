@@ -297,7 +297,7 @@ public class MenuTextBox extends MenuButton{
 	public void render(Game game, Renderer r, ZRect bounds){
 		TextOption op;
 		if(this.getCurrentText().isEmpty()) op = new TextOption(this.getHint(), this.getHintColor());
-		else op = new TextOption(this.getCurrentText(), this.getTextColor());
+		else op = new TextOption(this.getDisplayText(), this.getTextColor());
 		this.getTextBuffer().setOptions(ZArrayUtils.singleList(op));
 		
 		super.render(game, r, bounds);
@@ -307,6 +307,11 @@ public class MenuTextBox extends MenuButton{
 			double fontSize = this.getFontSize();
 			r.drawRectangle(bounds.getX() + this.getCursorX(), bounds.getY() + this.getTextY() - fontSize, this.getCursorWidth(), fontSize);
 		}
+	}
+	
+	/** @return The text to render when not showing the hint */
+	public String getDisplayText(){
+		return this.getCurrentText();
 	}
 	
 	@Override
