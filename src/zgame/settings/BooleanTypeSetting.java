@@ -10,6 +10,7 @@ import java.util.function.BiConsumer;
 public class BooleanTypeSetting extends SettingType<Boolean>{
 	
 	public static final BooleanTypeSetting V_SYNC = new BooleanTypeSetting("V_SYNC", true, (game, n) -> game.getWindow().setUseVsync(n));
+	public static final BooleanTypeSetting FULLSCREEN = new BooleanTypeSetting("FULLSCREEN", false, (game, n) -> game.getWindow().setFullscreen(n));
 	
 	/**
 	 * Initialize a new boolean setting.
