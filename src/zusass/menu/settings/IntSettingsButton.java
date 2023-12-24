@@ -1,10 +1,9 @@
 package zusass.menu.settings;
 
-import org.lwjgl.glfw.GLFW;
-import zgame.core.graphics.ZColor;
-import zgame.menu.MenuThing;
-import zgame.menu.format.PercentFormatter;
-import zgame.menu.scroller.HorizontalScroller;
+import zgame.core.Game;
+import zgame.core.graphics.Renderer;
+import zgame.core.utils.ZRect;
+import zgame.menu.scroller.HorizontalSelectionScroller;
 import zgame.settings.IntTypeSetting;
 import zusass.ZusassGame;
 import zusass.menu.mainmenu.comp.newgamemenu.ZusassTextBox;
@@ -42,36 +41,16 @@ public class IntSettingsButton extends ZusassTextBox{
 		this.setMode(Mode.INT_POS);
 		this.setCurrentText(String.valueOf(this.zgame.get(this.setting)));
 		
+		// TODO make sure only one of these settings buttons can be selected at a time, maybe add a gain and lose focus system to all clickable things?
 		// TODO maybe update the scroller position when the typed value changes, and when the thing loads?
-		var scroller = new HorizontalScroller(0, 0, 1, 1, this.getWidth(), zgame){
+		var scroller = new HorizontalSelectionScroller(min, max, this, zgame){
 			@Override
-			public void scroll(double amount){
-				super.scroll(amount);
-				setCurrentText(String.valueOf((int)(min + (max - min) * getPercent())));
+			public void onScrollValueChange(double perc){
+				super.onScrollValueChange(perc);
+				setCurrentText(String.valueOf((int)perc));
 			}
 		};
-		scroller.setFormatter(new PercentFormatter(1.0, 1.0, 0.5, 0.5));
-		
-		// TODO make sure only one of these settings buttons can be selected at a time, maybe add a gain and lose focus system to all clickable things?
-		
-		// TODO Maybe make another scroller implementation for this purpose?
-		scroller.removeBorder();
-		scroller.invisible();
-		scroller.getButton().setFill(new ZColor(.5, .5, .5, .3));
-		scroller.getButton().setFormatter(new PercentFormatter(0.2, 1.0, null, null));
-		
-		scroller.setAmount(1);
-		scroller.setScrollWheelAsPercent(false);
-		scroller.setDraggableButton(GLFW.GLFW_MOUSE_BUTTON_LEFT);
-		
-		var moveThing = new MenuThing();
-		moveThing.invisible();
-		moveThing.setWidth(this.getWidth());
-		moveThing.setHeight(scroller.getHeight());
-		scroller.setMovingThing(moveThing);
 		this.addThing(scroller);
-		scroller.format();
-		
 		// TODO add some kind of validation for this, like don't let the setting be confirmed if none is entered
 	}
 	
