@@ -124,8 +124,8 @@ public class MenuTextBox extends MenuButton{
 	}
 	
 	@Override
-	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		boolean input = super.mouseAction(game, button, press, shift, alt, ctrl);
+	public boolean mouseActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		boolean input = super.mouseActionFocused(game, button, press, shift, alt, ctrl);
 		double mx = game.mouseSX();
 		double my = game.mouseSY();
 		// Determine if the text box is selected
@@ -155,8 +155,8 @@ public class MenuTextBox extends MenuButton{
 	}
 	
 	@Override
-	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyAction(game, button, press, shift, alt, ctrl);
+	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyActionFocused(game, button, press, shift, alt, ctrl);
 		if(!this.isSelected()) return;
 		if(!press) return;
 		

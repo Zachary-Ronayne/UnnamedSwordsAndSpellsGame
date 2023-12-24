@@ -122,6 +122,9 @@ public class Game implements Saveable, Destroyable{
 	/** true if a save file is currently loaded, false otherwise */
 	private boolean saveLoaded;
 	
+	/** The hash code of the currently focused menu element, or null if none is set */
+	private Integer focusedMenuThing;
+	
 	/** A simple helper class used by {@link #tickLooper} to run its loop on a separate thread */
 	private class TickLoopTask implements Runnable{
 		@Override
@@ -225,6 +228,7 @@ public class Game implements Saveable, Destroyable{
 		
 		// Init window
 		this.window = new GlfwWindow(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
+		this.focusedMenuThing = null;
 		
 		// Init images
 		this.images = new ImageManager();
@@ -1141,5 +1145,15 @@ public class Game implements Saveable, Destroyable{
 	/** @return See {@link #saveLoaded} */
 	public boolean isSaveLoaded(){
 		return this.saveLoaded;
+	}
+	
+	/** @return See {@link #focusedMenuThing} */
+	public Integer getFocusedMenuThing(){
+		return this.focusedMenuThing;
+	}
+	
+	/** @param focusedMenuThing See {@link #focusedMenuThing} */
+	public void setFocusedMenuThing(Integer focusedMenuThing){
+		this.focusedMenuThing = focusedMenuThing;
 	}
 }

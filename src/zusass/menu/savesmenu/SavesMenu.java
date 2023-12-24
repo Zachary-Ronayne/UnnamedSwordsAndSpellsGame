@@ -86,9 +86,9 @@ public class SavesMenu extends ZusassMenu{
 	}
 	
 	@Override
-	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		ZusassGame zgame = (ZusassGame)game;
-		super.keyAction(game, button, press, shift, alt, ctrl);
+		super.keyActionFocused(game, button, press, shift, alt, ctrl);
 		if(!press && button == GLFW_KEY_F5) this.getLoadButtons().populate(zgame);
 	}
 	

@@ -47,8 +47,8 @@ public abstract class ZusassMenu extends Menu{
 	}
 	
 	@Override
-	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		var result = super.mouseAction(game, button, press, shift, alt, ctrl);
+	public boolean mouseActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		var result = super.mouseActionFocused(game, button, press, shift, alt, ctrl);
 		if(press) this.moveToTop(game);
 		return result;
 	}

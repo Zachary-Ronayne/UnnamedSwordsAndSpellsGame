@@ -14,6 +14,7 @@ import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.PixelFormatter;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
@@ -137,6 +138,9 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/** The formatter to use for {@link #childBounds} */
 	private MenuFormatter childBoundsFormatter;
 	
+	/** true if this thing can be focused, and key and mouse input should only apply to this thing when it is considered focused, false otherwise */
+	private boolean focusable;
+	
 	/**
 	 * Create a {@link MenuThing} with no size or position
 	 */
@@ -178,6 +182,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 	public MenuThing(double x, double y, double width, double height, boolean useBuffer){
 		this.things = new ClassMappedList();
 		this.things.addClass(MenuThing.class);
+		
+		this.focusable = false;
 		
 		this.relX = x;
 		this.relY = y;
@@ -1057,16 +1063,33 @@ public class MenuThing implements GameInteractable, Destroyable{
 		}
 	}
 	
+	/**
+	 * @return true if this thing is allowed to accept input, false otherwise
+	 * @param game The game using this thing
+	 */
+	public boolean canInput(Game game){
+		return !this.isFocusable() || this.isFocused(game);
+	}
+	
 	/** Do not call directly */
 	@Override
-	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public final void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		if(this.isDisableChildrenWhenDragging() && this.currentlyDragging()) return;
+		
+		if(this.canInput(game)) this.keyActionFocused(game, button, press, shift, alt, ctrl);
+		
 		var things = this.getThings();
 		for(int i = 0; i < things.size(); i++){
 			MenuThing t = things.get(i);
 			t.keyAction(game, button, press, shift, alt, ctrl);
 		}
 	}
+	
+	/**
+	 * The same thing as {@link #keyAction(Game, int, boolean, boolean, boolean, boolean)}
+	 * but only happens when {@link #canInput(Game)} returns true
+	 */
+	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){}
 	
 	/**
 	 * @param x The current x coordinate of the mouse
@@ -1103,7 +1126,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** Do not call directly */
 	@Override
-	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public final boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		if(!(this.isDisableChildrenWhenDragging() && this.currentlyDragging())){
 			var things = this.getThings();
 			for(int i = 0; i < things.size(); i++){
@@ -1112,8 +1135,16 @@ public class MenuThing implements GameInteractable, Destroyable{
 			}
 		}
 		
+		if(this.isFocusable()) this.setFocused(game);
+		
+		if(this.canInput(game)) return mouseActionFocused(game, button, press, shift, alt, ctrl);
+		return this.shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
+	}
+	
+	/** Same as {@link #mouseAction(Game, int, boolean, boolean, boolean, boolean)}, but only happens when {@link #canInput(Game)} returns true */
+	public boolean mouseActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		this.checkForDraggingStart(game, button, press);
-		return shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
+		return this.shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 	}
 	
 	/** @return true if the sides of this menu thing are currently being dragged, false otherwise. Does not account for if the anchor point is set */
@@ -1192,7 +1223,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** Do not call directly */
 	@Override
-	public boolean mouseMove(Game game, double x, double y){
+	public final boolean mouseMove(Game game, double x, double y){
 		if(!(this.isDisableChildrenWhenDragging() && this.currentlyDragging())){
 			var things = this.getThings();
 			for(int i = 0; i < things.size(); i++){
@@ -1200,8 +1231,14 @@ public class MenuThing implements GameInteractable, Destroyable{
 				if(t.mouseMove(game, x, y)) return true;
 			}
 		}
+		if(this.canInput(game)) return this.mouseMoveFocused(game, x, y);
+		return this.shouldDisableMouseInput(x, y);
+	}
+	
+	/** Same as {@link #mouseMove(Game, double, double)}, but only happens when {@link #canInput(Game)} returns true */
+	public boolean mouseMoveFocused(Game game, double x, double y){
 		var a = this.anchorPoint;
-		if(a == null) return shouldDisableMouseInput(x, y);
+		if(a == null) return this.shouldDisableMouseInput(x, y);
 		boolean fullDrag = this.draggingX == 0 && this.draggingY == 0 && this.isDraggable();
 		if(fullDrag){
 			// To get the new relative coordinates, take the mouse position, subtract the anchor offset, and subtract the parent offset
@@ -1234,7 +1271,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 				this.setHeight(y - a.getY() - this.getParentY() - this.getRelY());
 			}
 		}
-		return shouldDisableMouseInput(x, y);
+		return this.shouldDisableMouseInput(x, y);
 	}
 	
 	/**
@@ -1264,8 +1301,38 @@ public class MenuThing implements GameInteractable, Destroyable{
 		return onChild;
 	}
 	
+	/** @return See {@link #focusable} */
+	public boolean isFocusable(){
+		return this.focusable;
+	}
+	
+	/** @param focusable See {@link #focusable} */
+	public void setFocusable(boolean focusable){
+		this.focusable = focusable;
+	}
+	
+	/**
+	 * @param game The game which uses this thing
+	 * @return true if this thing can accept input, false otherwise. The result of this method is not used if {@link #focusable} is false
+	 */
+	public boolean isFocused(Game game){
+		if(game == null) return false;
+		return Objects.equals(game.getFocusedMenuThing(), this.hashCode());
+	}
+	
+	/**
+	 * Cause this thing to be focused and all other things to be unfocused
+	 *
+	 * @param game The game which uses this thing
+	 */
+	public void setFocused(Game game){
+		if(game == null) return;
+		game.setFocusedMenuThing(this.hashCode());
+	}
+	
 	/**
 	 * Determine if this thing should accept mouse input and stop mouse input from propagating to further things, false otherwise
+	 *
 	 * @param game The game where the mouse input happened
 	 * @return true if it should use mouse input, false otherwise
 	 */
@@ -1275,7 +1342,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** Do not call directly */
 	@Override
-	public boolean mouseWheelMove(Game game, double amount){
+	public final boolean mouseWheelMove(Game game, double amount){
 		if(!(this.isDisableChildrenWhenDragging() && this.currentlyDragging())){
 			var things = this.getThings();
 			for(int i = 0; i < things.size(); i++){
@@ -1283,7 +1350,13 @@ public class MenuThing implements GameInteractable, Destroyable{
 				if(t.mouseWheelMove(game, amount)) return true;
 			}
 		}
-		return shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
+		if(this.canInput(game)) this.mouseWheelMoveFocused(game, amount);
+		return this.shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
+	}
+	
+	/** Same as {@link #mouseWheelMove(Game, double)}, but only happens when {@link #canInput(Game)} returns true */
+	public boolean mouseWheelMoveFocused(Game game, double amount){
+		return this.shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 	}
 	
 	/**

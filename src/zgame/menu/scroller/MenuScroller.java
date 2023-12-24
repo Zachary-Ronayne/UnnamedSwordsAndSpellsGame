@@ -80,8 +80,8 @@ public abstract class MenuScroller extends MenuThing{
 	}
 	
 	@Override
-	public boolean mouseWheelMove(Game game, double amount){
-		boolean input = super.mouseWheelMove(game, amount);
+	public boolean mouseWheelMoveFocused(Game game, double amount){
+		boolean input = super.mouseWheelMoveFocused(game, amount);
 		
 		if(!this.isScrollWheelEnabled()) return input;
 		amount *= this.getScrollWheelStrength();

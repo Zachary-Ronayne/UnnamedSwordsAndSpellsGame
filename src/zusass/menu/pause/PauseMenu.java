@@ -83,8 +83,8 @@ public class PauseMenu extends Menu{
 	}
 	
 	@Override
-	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyAction(game, button, press, shift, alt, ctrl);
+	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyActionFocused(game, button, press, shift, alt, ctrl);
 		if(press) return;
 		
 		// On releasing escape or tab, exit the pause menu

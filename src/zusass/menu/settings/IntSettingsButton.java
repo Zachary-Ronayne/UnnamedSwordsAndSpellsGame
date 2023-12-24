@@ -38,11 +38,10 @@ public class IntSettingsButton extends ZusassTextBox{
 		this.name = name;
 		this.setHint(name + "...");
 		this.setHintColor(this.getTextColor());
-		this.setMode(Mode.INT_POS);
+		this.setMode(min < 0 || max < 0 ? Mode.INT : Mode.INT_POS);
 		var currentValue = this.zgame.get(this.setting);
 		this.setCurrentText(String.valueOf(currentValue));
 		
-		// TODO make sure only one of these settings buttons can be selected at a time, maybe add a gain and lose focus system to all clickable things?
 		this.scroller = new HorizontalSelectionScroller(min, max, this, zgame){
 			@Override
 			public void onScrollValueChange(double perc){
@@ -52,7 +51,6 @@ public class IntSettingsButton extends ZusassTextBox{
 		};
 		this.addThing(this.scroller);
 		this.scroller.setScrolledValue(currentValue);
-		// TODO add some kind of validation for this, like don't let the setting be confirmed if none is entered
 	}
 	
 	@Override

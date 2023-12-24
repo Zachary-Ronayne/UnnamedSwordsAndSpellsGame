@@ -88,8 +88,8 @@ public class StatsMenu extends DraggableMenu{
 	}
 	
 	@Override
-	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyAction(game, button, press, shift, alt, ctrl);
+	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyActionFocused(game, button, press, shift, alt, ctrl);
 		if(button != GLFW.GLFW_KEY_LEFT_SHIFT && button != GLFW.GLFW_KEY_RIGHT_SHIFT) return;
 		
 		if(press == this.shiftDown) return;

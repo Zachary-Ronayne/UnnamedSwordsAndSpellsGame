@@ -59,8 +59,8 @@ public class SpellListMenu extends DraggableMenu{
 	}
 	
 	@Override
-	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyAction(game, button, press, shift, alt, ctrl);
+	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyActionFocused(game, button, press, shift, alt, ctrl);
 		if(this == game.getCurrentState().getMenu() && !press && button == GLFW.GLFW_KEY_DELETE){
 			var zgame = (ZusassGame)game;
 			var mob = this.getMob();

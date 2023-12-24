@@ -52,6 +52,8 @@ public class MenuButton extends MenuText{
 	 */
 	public MenuButton(double x, double y, double w, double h, String text, Game game){
 		super(x, y, w, h, text, game);
+		this.setFocusable(true);
+		
 		this.highlightColor = new ZColor(0, .2);
 		
 		this.lastClick = -1;
@@ -79,8 +81,8 @@ public class MenuButton extends MenuText{
 	 * Call {@link #click(Game)} if the mouse was released while on top of this button
 	 */
 	@Override
-	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		boolean input = super.mouseAction(game, button, press, shift, alt, ctrl);
+	public boolean mouseActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		boolean input = super.mouseActionFocused(game, button, press, shift, alt, ctrl);
 		if(this.isDisabled()) return input;
 		
 		ZMouseInput mi = game.getMouseInput();
