@@ -3,6 +3,7 @@ package zgame.menu.scroller;
 import org.lwjgl.glfw.GLFW;
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
+import zgame.core.utils.ZMath;
 import zgame.menu.MenuThing;
 import zgame.menu.format.PercentFormatter;
 
@@ -47,6 +48,12 @@ public class HorizontalSelectionScroller extends HorizontalScroller{
 		baseThing.addThing(this);
 		this.format();
 		this.getButton().format();
+	}
+	
+	/** @param value Set the numerical value which this should be scrolled to */
+	public void setScrolledValue(double value){
+		// Set the scroller amount to the amount of the way through the total range the given value is, divided by the total range
+		this.getButton().getScroller().setPercent((value - this.getMin()) / Math.abs(this.getMax() - this.getMin()));
 	}
 	
 	/** @param perc The percentage of the total width of the thing holding this scroller which this scroller should take up */

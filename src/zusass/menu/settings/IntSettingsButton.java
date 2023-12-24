@@ -1,8 +1,5 @@
 package zusass.menu.settings;
 
-import zgame.core.Game;
-import zgame.core.graphics.Renderer;
-import zgame.core.utils.ZRect;
 import zgame.menu.scroller.HorizontalSelectionScroller;
 import zgame.settings.IntTypeSetting;
 import zusass.ZusassGame;
@@ -19,6 +16,9 @@ public class IntSettingsButton extends ZusassTextBox{
 	
 	/** The display text of the setting */
 	private final String name;
+	
+	/** The scroller used to change this setting */
+	private final HorizontalSelectionScroller scroller;
 	
 	/**
 	 * Create a new {@link ZusassTextBox} with the given values
@@ -39,25 +39,31 @@ public class IntSettingsButton extends ZusassTextBox{
 		this.setHint(name + "...");
 		this.setHintColor(this.getTextColor());
 		this.setMode(Mode.INT_POS);
-		this.setCurrentText(String.valueOf(this.zgame.get(this.setting)));
+		var currentValue = this.zgame.get(this.setting);
+		this.setCurrentText(String.valueOf(currentValue));
 		
 		// TODO make sure only one of these settings buttons can be selected at a time, maybe add a gain and lose focus system to all clickable things?
-		// TODO maybe update the scroller position when the typed value changes, and when the thing loads?
-		var scroller = new HorizontalSelectionScroller(min, max, this, zgame){
+		this.scroller = new HorizontalSelectionScroller(min, max, this, zgame){
 			@Override
 			public void onScrollValueChange(double perc){
 				super.onScrollValueChange(perc);
 				setCurrentText(String.valueOf((int)perc));
 			}
 		};
-		this.addThing(scroller);
+		this.addThing(this.scroller);
+		this.scroller.setScrolledValue(currentValue);
 		// TODO add some kind of validation for this, like don't let the setting be confirmed if none is entered
 	}
 	
 	@Override
 	public void setCurrentText(String currentText){
 		super.setCurrentText(currentText);
-		this.updateSetting(this.getTextAsInt());
+		if(scroller == null) return;
+		
+		var newValue = this.getTextAsInt();
+		if(newValue == null) newValue = (int)this.scroller.getMin();
+		this.updateSetting(newValue);
+		this.scroller.setScrolledValue(newValue);
 	}
 	
 	/**

@@ -10,7 +10,7 @@ import zgame.menu.MenuThing;
 public abstract class MenuScroller extends MenuThing{
 	
 	/** The amount scrolled */
-	private final ScrollAxis scroller;
+	private final ScrollAxis axis;
 	
 	/** The amount this scroller can move on its axis {@link MenuThing}s to */
 	private double amount;
@@ -58,7 +58,7 @@ public abstract class MenuScroller extends MenuThing{
 		this.setWidth(w);
 		this.setHeight(h);
 		this.amount = amount;
-		this.scroller = new ScrollAxis();
+		this.axis = new ScrollAxis();
 		this.button = this.generateButton(game);
 		super.addThing(button);
 		this.movingThing = null;
@@ -114,7 +114,7 @@ public abstract class MenuScroller extends MenuThing{
 	
 	/** @param amount The amount to scroll this menu scroller by, as a percentage */
 	public void scroll(double amount){
-		this.scroller.scroll(amount);
+		this.axis.scroll(amount);
 	}
 	
 	/** @return See {@link #amount} */
@@ -139,7 +139,12 @@ public abstract class MenuScroller extends MenuThing{
 	
 	/** @return The percentage of the way down this {@link MenuScroller} has moved, in the range [0, 1] */
 	public double getPercent(){
-		return this.scroller.getAmount();
+		return this.axis.getAmount();
+	}
+	
+	/** @param perc The percentage of the way this scroller should be scrolled */
+	public void setPercent(double perc){
+		this.axis.setAmount(perc);
 	}
 	
 	/** @return See {@link #basePosition} */
