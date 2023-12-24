@@ -18,7 +18,6 @@ public class NewGameTextBox extends ZusassTextBox{
 	public NewGameTextBox(ZusassGame zgame, NewGamePopup popup){
 		super(500, 400, 470, 50, zgame);
 		this.popup = popup;
-		this.setSelected(true);
 		this.setHint("Save name...");
 	}
 

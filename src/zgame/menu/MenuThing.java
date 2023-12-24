@@ -1064,8 +1064,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/**
-	 * @return true if this thing is allowed to accept input, false otherwise
 	 * @param game The game using this thing
+	 * @return true if this thing is allowed to accept input, false otherwise
 	 */
 	public boolean canInput(Game game){
 		return !this.isFocusable() || this.isFocused(game);
@@ -1135,14 +1135,31 @@ public class MenuThing implements GameInteractable, Destroyable{
 			}
 		}
 		
-		if(this.isFocusable()) this.setFocused(game);
+		if(this.isFocusable()){
+			double mx = game.mouseSX();
+			double my = game.mouseSY();
+			if(this.getBounds().contains(mx, my)) this.setFocused(game);
+			else{
+				this.mouseActionUnFocused(game, button, press, shift, alt, ctrl);
+				return this.shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
+			}
+		}
 		
-		if(this.canInput(game)) return mouseActionFocused(game, button, press, shift, alt, ctrl);
+		if(this.canInput(game)) return this.mouseActionFocused(game, button, press, shift, alt, ctrl);
 		return this.shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 	}
 	
 	/** Same as {@link #mouseAction(Game, int, boolean, boolean, boolean, boolean)}, but only happens when {@link #canInput(Game)} returns true */
 	public boolean mouseActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		this.checkForDraggingStart(game, button, press);
+		return this.shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
+	}
+	
+	/**
+	 * Same as {@link #mouseAction(Game, int, boolean, boolean, boolean, boolean)}, but only happens when {@link #isFocusable()} returns true, and this thing could not be
+	 * focused during this mouse action
+	 */
+	public boolean mouseActionUnFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		this.checkForDraggingStart(game, button, press);
 		return this.shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 	}

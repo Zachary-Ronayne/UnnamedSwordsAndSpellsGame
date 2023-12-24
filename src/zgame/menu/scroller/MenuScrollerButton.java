@@ -52,6 +52,13 @@ public abstract class MenuScrollerButton extends MenuButton{
 	}
 	
 	@Override
+	public boolean mouseActionUnFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		var input = super.mouseActionUnFocused(game, button, press, shift, alt, ctrl);
+		if(!press) anchored = false;
+		return input;
+	}
+	
+	@Override
 	public boolean mouseMoveFocused(Game game, double x, double y){
 		boolean input = super.mouseMoveFocused(game, x, y);
 		if(this.anchored) {

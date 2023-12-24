@@ -16,9 +16,6 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class MenuTextBox extends MenuButton{
 	
-	/** true if this {@link MenuTextBox} is selected and will accept text input, false otherwise */
-	private boolean selected;
-	
 	/** The amount of distance the text of this {@link MenuTextBox} will render to modify what part of the string is visible */
 	private double textOffset;
 	
@@ -90,7 +87,6 @@ public class MenuTextBox extends MenuButton{
 	public MenuTextBox(double x, double y, double w, double h, Game game){
 		super(x, y, w, h, game);
 		this.mode = Mode.DEFAULT;
-		this.selected = false;
 		this.setTextX(5);
 		this.setTextY(this.getHeight() - 5);
 		this.setFont(new GameFont(this.getFont().getAsset(), 20, 0, 0));
@@ -126,11 +122,8 @@ public class MenuTextBox extends MenuButton{
 	@Override
 	public boolean mouseActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		boolean input = super.mouseActionFocused(game, button, press, shift, alt, ctrl);
-		double mx = game.mouseSX();
-		double my = game.mouseSY();
 		// Determine if the text box is selected
-		this.setSelected(this.getBounds().contains(mx, my));
-		if(this.isSelected()) {
+		if(this.isFocused(game)) {
 			this.setCursorIndex(this.getCurrentText().length() - 1);
 			return true;
 		}
@@ -157,7 +150,6 @@ public class MenuTextBox extends MenuButton{
 	@Override
 	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyActionFocused(game, button, press, shift, alt, ctrl);
-		if(!this.isSelected()) return;
 		if(!press) return;
 		
 		if(button == GLFW_KEY_BACKSPACE){
@@ -283,16 +275,6 @@ public class MenuTextBox extends MenuButton{
 		this.cursorRight();
 	}
 	
-	/** @return See {@link #selected} */
-	public boolean isSelected(){
-		return this.selected;
-	}
-	
-	/** @param selected See {@link #selected} */
-	public void setSelected(boolean selected){
-		this.selected = selected;
-	}
-	
 	@Override
 	public void render(Game game, Renderer r, ZRect bounds){
 		TextOption op;
@@ -302,7 +284,7 @@ public class MenuTextBox extends MenuButton{
 		
 		super.render(game, r, bounds);
 		
-		if(!this.isDisabled() && this.isSelected() && this.isBlinkCursor()){
+		if(!this.isDisabled() && this.isFocused(game) && this.isBlinkCursor()){
 			r.setColor(this.getCursorColor());
 			double fontSize = this.getFontSize();
 			r.drawRectangle(bounds.getX() + this.getCursorX(), bounds.getY() + this.getTextY() - fontSize, this.getCursorWidth(), fontSize);

@@ -857,17 +857,6 @@ public class MainTest extends Game{
 					else if(mode == Mode.FLOAT || mode == Mode.FLOAT_POS) ZStringUtils.prints(getTextAsDouble());
 					else ZStringUtils.prints(getText());
 				}
-				
-				@Override
-				public void setSelected(boolean selected){
-					super.setSelected(selected);
-					if(selected){
-						var boxes = base.getAllThings().get(MenuTextBox.class);
-						for(var b : boxes) {
-							if(b != this) b.setSelected(false);
-						}
-					}
-				}
 			};
 			textBox.setHint("Type " + mode.name().toLowerCase());
 			textBox.setFontSize(32);

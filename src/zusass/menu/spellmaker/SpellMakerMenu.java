@@ -207,9 +207,9 @@ public class SpellMakerMenu extends ZusassMenu{
 			}
 			
 			@Override
-			public void setSelected(boolean selected){
-				super.setSelected(selected);
-				selectOneTextBox(zgame, selected, this);
+			public void setFocused(Game game){
+				super.setFocused(game);
+				if(isFocused(game)) selectTextBox(zgame, this);
 			}
 		};
 		box.setHint(hint + "...");
@@ -310,22 +310,14 @@ public class SpellMakerMenu extends ZusassMenu{
 	 * Set it so that only the given text box is selected
 	 *
 	 * @param zgame The game using this menu
-	 * @param selected true if the box was set to selected, false otherwise
 	 * @param box The box which was selected or not selected
 	 */
-	private void selectOneTextBox(ZusassGame zgame, boolean selected, ZusassTextBox box){
-		// Unselect the rest of the text boxes
-		if(selected){
-			for(var b : this.textBoxes.values()){
-				if(box != b) b.setSelected(false);
-			}
-		}
-		
+	private void selectTextBox(ZusassGame zgame, ZusassTextBox box){
 		// Disable player input while in a text box
-		zgame.getPlayer().setInputDisabled(selected);
+		zgame.getPlayer().setInputDisabled(true);
 		
 		// Disable key input on other menus while a text box is selected
-		this.setPropagateKeyAction(!selected);
+		this.setPropagateKeyAction(false);
 	}
 	
 	/**
