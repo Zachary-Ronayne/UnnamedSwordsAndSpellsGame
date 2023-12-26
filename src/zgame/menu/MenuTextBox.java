@@ -28,8 +28,17 @@ public class MenuTextBox extends MenuButton{
 	/** The color to use for displaying {@link #currentText} */
 	private ZColor textColor;
 	
+	/** A text label to show before the main text */
+	private String label;
+	
+	/** The width that the {@link #label} string takes up */
+	private double labelWidth;
+	
 	/** The text to show as a hint of what should be typed in the text box */
 	private String hint;
+	
+	/** The width that the {@link #hint} string takes up */
+	private double hintWidth;
 	
 	/** The color to use for {@link #hint} */
 	private ZColor hintColor;
@@ -86,6 +95,9 @@ public class MenuTextBox extends MenuButton{
 	 */
 	public MenuTextBox(double x, double y, double w, double h, Game game){
 		super(x, y, w, h, game);
+		this.hint = "";
+		this.label = "";
+		
 		this.mode = Mode.DEFAULT;
 		this.setTextX(5);
 		this.setTextY(this.getHeight() - 5);
@@ -95,7 +107,8 @@ public class MenuTextBox extends MenuButton{
 		
 		this.currentText = "";
 		this.textColor = new ZColor(0);
-		this.hint = "";
+		this.hintWidth = 0;
+		this.labelWidth = 0;
 		this.hintColor = new ZColor(.5);
 		
 		this.cursorWidth = 5;
@@ -293,7 +306,7 @@ public class MenuTextBox extends MenuButton{
 	
 	/** @return The text to render when not showing the hint */
 	public String getDisplayText(){
-		return this.getCurrentText();
+		return new StringBuilder(this.getLabel()).append(this.getCurrentText()).toString();
 	}
 	
 	@Override
@@ -303,7 +316,7 @@ public class MenuTextBox extends MenuButton{
 	
 	/** @return The relative x coordinate of the cursor */
 	public double getCursorX(){
-		return this.getTextX() + this.getCursorLocation();
+		return this.getTextX() + this.getCursorLocation() + (this.getCurrentText().isEmpty() ? this.hintWidth : this.labelWidth);
 	}
 	
 	/** @return The space between the end of this text box and where the string will start to shift over to the left to keep the end of the string visible */
@@ -328,12 +341,17 @@ public class MenuTextBox extends MenuButton{
 	/** @param currentText See {@link #currentText} */
 	public void setCurrentText(String currentText){
 		this.currentText = currentText;
-		GameFont f = this.getFont();
-		this.letterBounds = f.characterBounds(this.getRelX() + this.getTextX(), this.getRelY() + this.getTextY(), this.getCurrentText(), 1);
+		this.updateLetterBounds();
 		this.textWidth = this.letterBounds[this.getCurrentText().length()].getWidth();
 		if(this.cursorIndex > currentText.length() - 1) this.setCursorIndex(currentText.length() - 1);
 		this.getTextBuffer().setText(this.getCurrentText());
 		this.setText(this.getCurrentText());
+	}
+	
+	/** Update the current state of {@link #letterBounds} based on the values in this object */
+	private void updateLetterBounds(){
+		GameFont f = this.getFont();
+		this.letterBounds = f.characterBounds(this.getRelX() + this.getTextX(), this.getRelY() + this.getTextY(), this.getDisplayText(), 1);
 	}
 	
 	/** @return See {@link #textColor} */
@@ -364,6 +382,36 @@ public class MenuTextBox extends MenuButton{
 	/** @param hint See {@link #hint} */
 	public void setHint(String hint){
 		this.hint = hint;
+		this.updateHintWidth();
+	}
+	
+	/** Recalculate the value of {@link #hintWidth} */
+	private void updateHintWidth(){
+		this.hintWidth = this.getFont().stringWidth(this.getHint());
+	}
+	
+	/** @return See {@link #label} */
+	public String getLabel(){
+		return this.label;
+	}
+	
+	/** @param label See {@link #label} */
+	public void setLabel(String label){
+		this.label = label;
+		this.updateLabelWidth();
+	}
+	
+	/** Recalculate the value of {@link #labelWidth} */
+	private void updateLabelWidth(){
+		this.labelWidth = this.getFont().stringWidth(this.getLabel());
+		this.updateLetterBounds();
+	}
+	
+	@Override
+	public void setFont(GameFont font){
+		super.setFont(font);
+		this.updateLabelWidth();
+		this.updateHintWidth();
 	}
 	
 	/** @return See {@link #hintColor} */

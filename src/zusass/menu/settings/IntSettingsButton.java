@@ -14,9 +14,6 @@ public class IntSettingsButton extends ZusassTextBox{
 	/** The game using this button */
 	private final ZusassGame zgame;
 	
-	/** The display text of the setting */
-	private final String name;
-	
 	/** The scroller used to change this setting */
 	private final HorizontalSelectionScroller scroller;
 	
@@ -26,7 +23,7 @@ public class IntSettingsButton extends ZusassTextBox{
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param setting See {@link #setting}
-	 * @param name See {@link #name}
+	 * @param name The display text of the setting
 	 * @param min The minimum value this setting can be scrolled to
 	 * @param max The maximum value this setting can be scrolled to
 	 * @param zgame The game using this button
@@ -35,9 +32,8 @@ public class IntSettingsButton extends ZusassTextBox{
 		super(x, y, 300, 45, zgame);
 		this.setting = setting;
 		this.zgame = zgame;
-		this.name = name;
 		this.setHint(name + "...");
-		this.setHintColor(this.getTextColor());
+		this.setLabel(name + ": ");
 		this.setMode(min < 0 || max < 0 ? Mode.INT : Mode.INT_POS);
 		var currentValue = this.zgame.get(this.setting);
 		this.setCurrentText(String.valueOf(currentValue));
@@ -71,16 +67,5 @@ public class IntSettingsButton extends ZusassTextBox{
 		if(this.zgame != null){
 			if(newVal != null) this.zgame.set(this.setting, newVal, false);
 		}
-	}
-	
-	@Override
-	public String getDisplayText(){
-		return this.name + ": " + super.getDisplayText();
-	}
-	
-	@Override
-	public double getCursorX(){
-		// TODO make the base text box thing account for the offset that this text could have, instead of stupid magic numbers
-		return super.getCursorX() + 145;
 	}
 }
