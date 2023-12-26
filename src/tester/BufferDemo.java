@@ -43,8 +43,8 @@ public class BufferDemo extends Game{
 		state = new MenuState(menu){};
 		var thing = new MenuText(100, 100, 500, 300, game){
 			@Override
-			public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-				super.keyAction(game, button, press, shift, alt, ctrl);
+			public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+				super.keyActionFocused(game, button, press, shift, alt, ctrl);
 				if(!press && button == GLFW.GLFW_KEY_SPACE){
 					this.getTextBuffer().updateRedraw(true);
 				}

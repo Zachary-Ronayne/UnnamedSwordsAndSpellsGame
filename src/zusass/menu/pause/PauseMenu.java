@@ -10,11 +10,7 @@ import zusass.ZusassData;
 import zusass.ZusassGame;
 import zusass.game.MainPlay;
 import zusass.menu.comp.ZusassMenuText;
-import zusass.menu.pause.comp.PauseHubButton;
-import zusass.menu.pause.comp.PauseMainMenuButton;
-import zusass.menu.pause.comp.PauseSaveButton;
-import zusass.menu.pause.comp.PauseQuitButton;
-import zusass.menu.pause.comp.PauseReturnButton;
+import zusass.menu.pause.comp.*;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_TAB;
@@ -22,16 +18,18 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_TAB;
 /** The {@link Menu} which displays when the game is paused */
 public class PauseMenu extends Menu{
 	
-	/** See object docs */
+	/** See {@link PauseReturnButton} */
 	private final PauseReturnButton returnButton;
-	/** See object docs */
+	/** See {@link PauseMainMenuButton} */
 	private final PauseMainMenuButton mainMenuButton;
-	/** See object docs */
+	/** See {@link PauseQuitButton} */
 	private final PauseQuitButton quitButton;
-	/** See object docs */
+	/** See {@link PauseSaveButton} */
 	private final PauseSaveButton saveButton;
-	/** See object docs */
+	/** See {@link PauseHubButton} */
 	private final PauseHubButton hubButton;
+	/** See {@link PauseSettingsButton} */
+	private final PauseSettingsButton settingsButton;
 	
 	/**
 	 * Make a new pause menu
@@ -39,7 +37,7 @@ public class PauseMenu extends Menu{
 	 * @param zgame The game which will use this pause menu
 	 */
 	public PauseMenu(ZusassGame zgame){
-		super(0, 0, 350, 500, false);
+		super(0, 0, 350, 520, false);
 		this.setDefaultDestroyRemove(false);
 		
 		this.center(zgame.getWindow());
@@ -71,6 +69,9 @@ public class PauseMenu extends Menu{
 		
 		this.hubButton = new PauseHubButton(this, zgame);
 		this.addThing(this.hubButton);
+		
+		this.settingsButton = new PauseSettingsButton(this, zgame);
+		this.addThing(this.settingsButton);
 	}
 	
 	@Override
@@ -82,8 +83,8 @@ public class PauseMenu extends Menu{
 	}
 	
 	@Override
-	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyAction(game, button, press, shift, alt, ctrl);
+	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyActionFocused(game, button, press, shift, alt, ctrl);
 		if(press) return;
 		
 		// On releasing escape or tab, exit the pause menu

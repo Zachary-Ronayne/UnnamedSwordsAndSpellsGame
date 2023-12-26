@@ -16,9 +16,6 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class MenuTextBox extends MenuButton{
 	
-	/** true if this {@link MenuTextBox} is selected and will accept text input, false otherwise */
-	private boolean selected;
-	
 	/** The amount of distance the text of this {@link MenuTextBox} will render to modify what part of the string is visible */
 	private double textOffset;
 	
@@ -31,8 +28,17 @@ public class MenuTextBox extends MenuButton{
 	/** The color to use for displaying {@link #currentText} */
 	private ZColor textColor;
 	
+	/** A text label to show before the main text */
+	private String label;
+	
+	/** The width that the {@link #label} string takes up */
+	private double labelWidth;
+	
 	/** The text to show as a hint of what should be typed in the text box */
 	private String hint;
+	
+	/** The width that the {@link #hint} string takes up */
+	private double hintWidth;
 	
 	/** The color to use for {@link #hint} */
 	private ZColor hintColor;
@@ -89,8 +95,10 @@ public class MenuTextBox extends MenuButton{
 	 */
 	public MenuTextBox(double x, double y, double w, double h, Game game){
 		super(x, y, w, h, game);
+		this.hint = "";
+		this.label = "";
+		
 		this.mode = Mode.DEFAULT;
-		this.selected = false;
 		this.setTextX(5);
 		this.setTextY(this.getHeight() - 5);
 		this.setFont(new GameFont(this.getFont().getAsset(), 20, 0, 0));
@@ -99,7 +107,8 @@ public class MenuTextBox extends MenuButton{
 		
 		this.currentText = "";
 		this.textColor = new ZColor(0);
-		this.hint = "";
+		this.hintWidth = 0;
+		this.labelWidth = 0;
 		this.hintColor = new ZColor(.5);
 		
 		this.cursorWidth = 5;
@@ -124,13 +133,10 @@ public class MenuTextBox extends MenuButton{
 	}
 	
 	@Override
-	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		boolean input = super.mouseAction(game, button, press, shift, alt, ctrl);
-		double mx = game.mouseSX();
-		double my = game.mouseSY();
+	public boolean mouseActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		boolean input = super.mouseActionFocused(game, button, press, shift, alt, ctrl);
 		// Determine if the text box is selected
-		this.setSelected(this.getBounds().contains(mx, my));
-		if(this.isSelected()) {
+		if(this.isFocused(game)) {
 			this.setCursorIndex(this.getCurrentText().length() - 1);
 			return true;
 		}
@@ -155,9 +161,8 @@ public class MenuTextBox extends MenuButton{
 	}
 	
 	@Override
-	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyAction(game, button, press, shift, alt, ctrl);
-		if(!this.isSelected()) return;
+	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyActionFocused(game, button, press, shift, alt, ctrl);
 		if(!press) return;
 		
 		if(button == GLFW_KEY_BACKSPACE){
@@ -283,30 +288,25 @@ public class MenuTextBox extends MenuButton{
 		this.cursorRight();
 	}
 	
-	/** @return See {@link #selected} */
-	public boolean isSelected(){
-		return this.selected;
-	}
-	
-	/** @param selected See {@link #selected} */
-	public void setSelected(boolean selected){
-		this.selected = selected;
-	}
-	
 	@Override
 	public void render(Game game, Renderer r, ZRect bounds){
 		TextOption op;
 		if(this.getCurrentText().isEmpty()) op = new TextOption(this.getHint(), this.getHintColor());
-		else op = new TextOption(this.getCurrentText(), this.getTextColor());
+		else op = new TextOption(this.getDisplayText(), this.getTextColor());
 		this.getTextBuffer().setOptions(ZArrayUtils.singleList(op));
 		
 		super.render(game, r, bounds);
 		
-		if(!this.isDisabled() && this.isSelected() && this.isBlinkCursor()){
+		if(!this.isDisabled() && this.isFocused(game) && this.isBlinkCursor()){
 			r.setColor(this.getCursorColor());
 			double fontSize = this.getFontSize();
 			r.drawRectangle(bounds.getX() + this.getCursorX(), bounds.getY() + this.getTextY() - fontSize, this.getCursorWidth(), fontSize);
 		}
+	}
+	
+	/** @return The text to render when not showing the hint */
+	public String getDisplayText(){
+		return new StringBuilder(this.getLabel()).append(this.getCurrentText()).toString();
 	}
 	
 	@Override
@@ -316,7 +316,7 @@ public class MenuTextBox extends MenuButton{
 	
 	/** @return The relative x coordinate of the cursor */
 	public double getCursorX(){
-		return this.getTextX() + this.getCursorLocation();
+		return this.getTextX() + this.getCursorLocation() + (this.getCurrentText().isEmpty() ? this.hintWidth : this.labelWidth);
 	}
 	
 	/** @return The space between the end of this text box and where the string will start to shift over to the left to keep the end of the string visible */
@@ -341,11 +341,17 @@ public class MenuTextBox extends MenuButton{
 	/** @param currentText See {@link #currentText} */
 	public void setCurrentText(String currentText){
 		this.currentText = currentText;
-		GameFont f = this.getFont();
-		this.letterBounds = f.characterBounds(this.getRelX() + this.getTextX(), this.getRelY() + this.getTextY(), this.getCurrentText(), 1);
+		this.updateLetterBounds();
 		this.textWidth = this.letterBounds[this.getCurrentText().length()].getWidth();
 		if(this.cursorIndex > currentText.length() - 1) this.setCursorIndex(currentText.length() - 1);
 		this.getTextBuffer().setText(this.getCurrentText());
+		this.setText(this.getCurrentText());
+	}
+	
+	/** Update the current state of {@link #letterBounds} based on the values in this object */
+	private void updateLetterBounds(){
+		GameFont f = this.getFont();
+		this.letterBounds = f.characterBounds(this.getRelX() + this.getTextX(), this.getRelY() + this.getTextY(), this.getDisplayText(), 1);
 	}
 	
 	/** @return See {@link #textColor} */
@@ -376,6 +382,36 @@ public class MenuTextBox extends MenuButton{
 	/** @param hint See {@link #hint} */
 	public void setHint(String hint){
 		this.hint = hint;
+		this.updateHintWidth();
+	}
+	
+	/** Recalculate the value of {@link #hintWidth} */
+	private void updateHintWidth(){
+		this.hintWidth = this.getFont().stringWidth(this.getHint());
+	}
+	
+	/** @return See {@link #label} */
+	public String getLabel(){
+		return this.label;
+	}
+	
+	/** @param label See {@link #label} */
+	public void setLabel(String label){
+		this.label = label;
+		this.updateLabelWidth();
+	}
+	
+	/** Recalculate the value of {@link #labelWidth} */
+	private void updateLabelWidth(){
+		this.labelWidth = this.getFont().stringWidth(this.getLabel());
+		this.updateLetterBounds();
+	}
+	
+	@Override
+	public void setFont(GameFont font){
+		super.setFont(font);
+		this.updateLabelWidth();
+		this.updateHintWidth();
 	}
 	
 	/** @return See {@link #hintColor} */
@@ -492,4 +528,23 @@ public class MenuTextBox extends MenuButton{
 		this.mode = mode;
 	}
 	
+	/** @return The value of {@link #getText()} assuming it's an integer. If it cannot be parsed as an integer, returns null */
+	@Override
+	public Integer getTextAsInt(){
+		try{
+			return Integer.parseInt(this.getCurrentText());
+		}catch(NumberFormatException e){
+			return null;
+		}
+	}
+	
+	/** @return The value of {@link #getText()} assuming it's a double. If it cannot be parsed as a double, returns null */
+	@Override
+	public Double getTextAsDouble(){
+		try{
+			return Double.parseDouble(this.getCurrentText());
+		}catch(NumberFormatException e){
+			return null;
+		}
+	}
 }

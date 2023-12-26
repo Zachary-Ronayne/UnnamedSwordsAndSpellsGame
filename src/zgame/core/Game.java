@@ -2,8 +2,6 @@ package zgame.core;
 
 import static org.lwjgl.opengl.GL30.*;
 
-import com.google.gson.JsonObject;
-
 import zgame.core.file.Saveable;
 import zgame.core.file.ZJsonFile;
 import zgame.core.graphics.Destroyable;
@@ -27,6 +25,7 @@ import zgame.core.state.PlayState;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
+import zgame.settings.*;
 import zgame.stat.DefaultStatType;
 import zgame.world.Room;
 
@@ -110,6 +109,21 @@ public class Game implements Saveable, Destroyable{
 	
 	/** A list of things to do the next time this game has its open gl loop called. Once the loop happens, this list will be emptied */
 	private final List<Runnable> nextLoopFuncs;
+	
+	/** The current settings used by this game. This will be modified as needed when save files load */
+	private final Settings settings;
+	
+	/** The settings that apply to the game, regardless of which save file is loaded */
+	private final Settings globalSettings;
+	
+	/** The settings loaded from a specific save file */
+	private final Settings localSettings;
+	
+	/** true if a save file is currently loaded, false otherwise */
+	private boolean saveLoaded;
+	
+	/** The hash code of the currently focused menu element, or null if none is set */
+	private Integer focusedMenuThing;
 	
 	/** A simple helper class used by {@link #tickLooper} to run its loop on a separate thread */
 	private class TickLoopTask implements Runnable{
@@ -200,11 +214,21 @@ public class Game implements Saveable, Destroyable{
 		// Init stat enum
 		DefaultStatType.init();
 		
+		// Init this game's instance of settings
+		SettingType.init();
+		this.saveLoaded = false;
+		this.settings = new Settings(this);
+		this.globalSettings = new Settings(this);
+		this.localSettings = new Settings(this);
+		// On initialization, load the global settings
+		this.loadGlobalSettings();
+		
 		// Init sound
 		this.sounds = new SoundManager();
 		
 		// Init window
 		this.window = new GlfwWindow(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
+		this.focusedMenuThing = null;
 		
 		// Init images
 		this.images = new ImageManager();
@@ -298,6 +322,7 @@ public class Game implements Saveable, Destroyable{
 	
 	/**
 	 * Run a function on the next OpenGL loop
+	 *
 	 * @param r The function to run
 	 */
 	public void onNextLoop(Runnable r){
@@ -642,16 +667,21 @@ public class Game implements Saveable, Destroyable{
 	 * @return true if the load was successful, false otherwise
 	 */
 	public boolean loadGame(String path){
-		if(path == null) return false;
-		ZJsonFile file = new ZJsonFile(path);
-		JsonObject data = file.load();
-		if(data == null) return false;
-		try{
-			return this.load(data);
-		}catch(ClassCastException | IllegalStateException | NullPointerException e){
-			ZConfig.error(e, "Failed to load a json object because it had invalid formatting. Object data:\n", data);
-		}
-		return false;
+		return ZJsonFile.loadJsonFile(path, data -> {
+			// First load the global settings
+			this.loadGlobalSettings();
+			
+			// After loading the local settings, set the current settings to any settings from the local settings which are not the default
+			this.localSettings.setDefaults();
+			var success = this.localSettings.load(data);
+			this.settings.setDefaults();
+			this.settings.setNonDefault(this.globalSettings, true);
+			this.settings.setNonDefault(this.localSettings, true);
+			
+			success &= this.load(data);
+			if(success) this.saveLoaded = true;
+			return success;
+		});
 	}
 	
 	/**
@@ -661,17 +691,45 @@ public class Game implements Saveable, Destroyable{
 	 * @return true if the save was successful, false otherwise
 	 */
 	public boolean saveGame(String path){
-		if(path == null) return false;
-		try{
-			ZJsonFile file = new ZJsonFile(path);
-			JsonObject data = file.getData();
-			this.save(data);
-			file.setData(data);
-			return file.save();
-		}catch(Exception e){
-			e.printStackTrace();
-			return false;
+		return ZJsonFile.saveJsonFile(path, data -> {
+			var success = this.localSettings.save(data);
+			success &= this.save(data);
+			return success;
+		});
+	}
+	
+	/** Call this method to unload the current save file */
+	public void unloadGame(){
+		this.settings.setDefaults();
+		this.settings.setNonDefault(this.globalSettings, true);
+		this.saveLoaded = false;
+	}
+	
+	/**
+	 * Load {@link #settings} from the given path
+	 *
+	 * @return true if the load was successful, false otherwise
+	 */
+	public boolean loadGlobalSettings(){
+		this.globalSettings.setDefaults();
+		
+		var path = this.getGlobalSettingsFilePath();
+		var success = ZJsonFile.loadJsonFile(path, this.globalSettings::load);
+		// If the settings fail to load, save the default settings
+		if(!success) {
+			ZConfig.error("Failed to load global settings at path ", path, " saving defaults");
+			this.saveGlobalSettings();
 		}
+		return success;
+	}
+	
+	/**
+	 * Save {@link #settings} to the given path
+	 *
+	 * @return true if the save was successful, false otherwise
+	 */
+	public boolean saveGlobalSettings(){
+		return ZJsonFile.saveJsonFile(this.getGlobalSettingsFilePath(), this.globalSettings::save);
 	}
 	
 	/** @return See {@link #sounds} */
@@ -961,5 +1019,162 @@ public class Game implements Saveable, Destroyable{
 	/** @return The current y coordinate of the mouse in game coordinates. Should use for things that move with the camera */
 	public double mouseGY(){
 		return this.getCamera().screenToGameY(this.mouseSY());
+	}
+	
+	/** @return See {@link #settings} */
+	public Settings getSettings(){
+		return this.settings;
+	}
+	
+	/** @return See {@link #globalSettings} */
+	public Settings getGlobalSettings(){
+		return this.globalSettings;
+	}
+	
+	/** @return See {@link #localSettings} */
+	public Settings getLocalSettings(){
+		return this.localSettings;
+	}
+	
+	/**
+	 * Get a settings value of a setting from {@link #settings}
+	 *
+	 * @param setting The name of the setting to get the value of
+	 * @return The setting's value
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getAny(SettingType<T> setting){
+		return (T)this.getSettings().getValue(setting);
+	}
+	
+	/**
+	 * Set a value of a setting in {@link #settings}
+	 *
+	 * @param setting The name of the setting to set
+	 * @param value The new setting's value
+	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
+	 */
+	public <T> void setAny(SettingType<T> setting, T value, boolean local){
+		this.getSettings().setValue(setting, value, true);
+		if(local) this.getLocalSettings().setValue(setting, value, false);
+		else this.getGlobalSettings().setValue(setting, value, false);
+	}
+	
+	
+	/**
+	 * Get a boolean value of a setting from {@link #settings}
+	 *
+	 * @param setting The name of the setting to get the value of
+	 * @return The setting's value
+	 */
+	public boolean get(BooleanTypeSetting setting){
+		return this.getSettings().get(setting);
+	}
+	
+	/**
+	 * Set a boolean value of a setting in {@link #settings}
+	 *
+	 * @param setting The name of the setting to set
+	 * @param value The new setting's value
+	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
+	 */
+	public void set(BooleanTypeSetting setting, boolean value, boolean local){
+		this.setAny(setting, value, local);
+	}
+	
+	/**
+	 * Get an integer value of a setting from {@link #settings}
+	 *
+	 * @param setting The name of the setting to get the value of
+	 * @return The setting's value
+	 */
+	public int get(IntTypeSetting setting){
+		return this.getSettings().get(setting);
+	}
+	
+	/**
+	 * Set an integer value of a setting in {@link #settings}
+	 *
+	 * @param setting The name of the setting to set
+	 * @param value The new setting's value
+	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
+	 */
+	public void set(IntTypeSetting setting, int value, boolean local){
+		this.setAny(setting, value, local);
+	}
+	
+	/**
+	 * Get a double value of a setting from {@link #settings}
+	 *
+	 * @param setting The name of the setting to get the value of
+	 * @return The setting's value
+	 */
+	public double get(DoubleTypeSetting setting){
+		return this.getSettings().get(setting);
+	}
+	
+	/**
+	 * Set a double value of a setting in {@link #settings}
+	 *
+	 * @param setting The name of the setting to set
+	 * @param value The new setting's value
+	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
+	 */
+	public void set(DoubleTypeSetting setting, double value, boolean local){
+		this.setAny(setting, value, local);
+	}
+	
+	/**
+	 * Get a string value of a setting from {@link #settings}
+	 *
+	 * @param setting The name of the setting to get the value of
+	 * @return The setting's value
+	 */
+	public String get(StringTypeSetting setting){
+		return this.getSettings().get(setting);
+	}
+	
+	/**
+	 * Set a string value of a setting in {@link #settings}
+	 *
+	 * @param setting The name of the setting to set
+	 * @param value The new setting's value
+	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
+	 */
+	public void set(StringTypeSetting setting, String value, boolean local){
+		this.setAny(setting, value, local);
+	}
+	
+	/**
+	 * @return The location of the global settings.
+	 * 		This should only be a file name, not a file extension
+	 * 		Override to put in a custom place.
+	 */
+	public String getGlobalSettingsLocation(){
+		return "./globalSettings";
+	}
+	
+	/**
+	 * @return The location of the global settings.
+	 * 		This should only be a file name, not a file extension
+	 * 		Override to put in a custom place.
+	 */
+	private String getGlobalSettingsFilePath(){
+		return this.getGlobalSettingsLocation() + ".json";
+	}
+	
+	/** @return See {@link #saveLoaded} */
+	public boolean isSaveLoaded(){
+		return this.saveLoaded;
+	}
+	
+	/** @return See {@link #focusedMenuThing} */
+	public Integer getFocusedMenuThing(){
+		return this.focusedMenuThing;
+	}
+	
+	/** @param focusedMenuThing See {@link #focusedMenuThing} */
+	public void setFocusedMenuThing(Integer focusedMenuThing){
+		this.focusedMenuThing = focusedMenuThing;
 	}
 }

@@ -758,8 +758,8 @@ public class MainTest extends Game{
 			
 			MenuScroller scrollX = new HorizontalScroller(0, 370, 800, 20, 200, game){
 				@Override
-				public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-					super.keyAction(game, button, press, shift, alt, ctrl);
+				public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+					super.keyActionFocused(game, button, press, shift, alt, ctrl);
 					setScrollWheelEnabled(shift);
 				}
 			};
@@ -773,8 +773,8 @@ public class MainTest extends Game{
 			scrollX.getButton().setFill(new ZColor(.5, .5, .5));
 			MenuScroller scrollY = new VerticalScroller(820, 0, 20, 350, 200, game){
 				@Override
-				public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-					super.keyAction(game, button, press, shift, alt, ctrl);
+				public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+					super.keyActionFocused(game, button, press, shift, alt, ctrl);
 					setScrollWheelEnabled(!shift);
 				}
 			};
@@ -810,7 +810,8 @@ public class MainTest extends Game{
 				}
 				
 				@Override
-				public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+				public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+					super.keyActionFocused(game, button, press, shift, alt, ctrl);
 					if(button == GLFW_KEY_1 && !press){
 						MenuButton b = new MenuButton(pos, this.getHeight(), 15, 10, game);
 						b.setFill(new ZColor(0, 0, (pos / 100) % 1));
@@ -855,17 +856,6 @@ public class MainTest extends Game{
 					if(mode == Mode.INT || mode == Mode.INT_POS) ZStringUtils.prints(getTextAsInt());
 					else if(mode == Mode.FLOAT || mode == Mode.FLOAT_POS) ZStringUtils.prints(getTextAsDouble());
 					else ZStringUtils.prints(getText());
-				}
-				
-				@Override
-				public void setSelected(boolean selected){
-					super.setSelected(selected);
-					if(selected){
-						var boxes = base.getAllThings().get(MenuTextBox.class);
-						for(var b : boxes) {
-							if(b != this) b.setSelected(false);
-						}
-					}
 				}
 			};
 			textBox.setHint("Type " + mode.name().toLowerCase());
