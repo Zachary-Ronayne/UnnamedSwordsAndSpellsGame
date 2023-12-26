@@ -1125,6 +1125,27 @@ public class Game implements Saveable, Destroyable{
 	}
 	
 	/**
+	 * Get a string value of a setting from {@link #settings}
+	 *
+	 * @param setting The name of the setting to get the value of
+	 * @return The setting's value
+	 */
+	public String get(StringTypeSetting setting){
+		return this.getSettings().get(setting);
+	}
+	
+	/**
+	 * Set a string value of a setting in {@link #settings}
+	 *
+	 * @param setting The name of the setting to set
+	 * @param value The new setting's value
+	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
+	 */
+	public void set(StringTypeSetting setting, String value, boolean local){
+		this.setAny(setting, value, local);
+	}
+	
+	/**
 	 * @return The location of the global settings.
 	 * 		This should only be a file name, not a file extension
 	 * 		Override to put in a custom place.

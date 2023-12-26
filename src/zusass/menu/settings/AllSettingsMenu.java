@@ -1,9 +1,6 @@
 package zusass.menu.settings;
 
-import zgame.settings.BooleanTypeSetting;
-import zgame.settings.DoubleTypeSetting;
-import zgame.settings.IntTypeSetting;
-import zgame.settings.SettingType;
+import zgame.settings.*;
 import zusass.ZusassGame;
 
 /** A menu for changing any setting */
@@ -28,6 +25,9 @@ public class AllSettingsMenu extends BaseSettingsMenu{
 			}
 			else if(setting.getDefault() instanceof Boolean){
 				this.addThing(new BoolSettingsButton(10, y, (BooleanTypeSetting)setting, setting.name() + ": true", setting.name() + ": false", this, zgame));
+			}
+			else if(setting.getDefault() instanceof String){
+				this.addThing(new StringSettingsButton(10, y, (StringTypeSetting)setting, setting.name(), this, zgame));
 			}
 			else continue;
 			

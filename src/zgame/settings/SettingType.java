@@ -153,6 +153,7 @@ public abstract class SettingType<T>{
 		BooleanTypeSetting.init();
 		IntTypeSetting.init();
 		DoubleTypeSetting.init();
+		StringTypeSetting.init();
 	}
 	
 }

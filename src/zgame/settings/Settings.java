@@ -129,6 +129,25 @@ public class Settings implements Saveable{
 	}
 	
 	/**
+	 * Get a string value of a setting
+	 * @param setting The name of the setting to get the value of
+	 * @return The setting's value
+	 */
+	public String get(StringTypeSetting setting){
+		return (String)this.getValue(setting);
+	}
+	
+	/**
+	 * Set the value of a string setting
+	 * @param setting The name of the setting to set the value of
+	 * @param value The new value
+	 * @param shouldChange true if updating this setting should call the {@link SettingType#onChange} method
+	 */
+	public void set(StringTypeSetting setting, double value, boolean shouldChange){
+		this.setValue(setting, value, shouldChange);
+	}
+	
+	/**
 	 * Set this object's settings values to the ones in the given settings object which are not the default settings
 	 * @param settings The settings to place into this settings
 	 * @param shouldChange true if updating this setting should call the {@link SettingType#onChange} method
