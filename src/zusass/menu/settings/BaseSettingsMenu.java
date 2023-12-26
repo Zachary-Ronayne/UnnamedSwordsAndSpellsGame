@@ -12,7 +12,10 @@ public class BaseSettingsMenu extends ZusassMenu{
 	/** The menu using this sub settings menu */
 	private final SettingsMenu settingsMenu;
 	
-	public BaseSettingsMenu(String title, ZusassGame zgame, SettingsMenu settingsMenu){
+	/** The button used by this menu to confirm settings, can be null if not used */
+	private final SettingsConfirmButton confirmButton;
+	
+	public BaseSettingsMenu(String title, ZusassGame zgame, SettingsMenu settingsMenu, boolean addConfirmButton){
 		super(zgame, title);
 		this.settingsMenu = settingsMenu;
 		
@@ -24,6 +27,12 @@ public class BaseSettingsMenu extends ZusassMenu{
 			}
 		};
 		this.addThing(backButton);
+		
+		if(addConfirmButton){
+			this.confirmButton = new SettingsConfirmButton(zgame);
+			this.addThing(confirmButton);
+		}
+		else confirmButton = null;
 	}
 	
 	/** @return See {@link #settingsMenu} */
@@ -40,8 +49,7 @@ public class BaseSettingsMenu extends ZusassMenu{
 	
 	/** Tell this menu to go back to its previous state */
 	private void handleGoBackInput(ZusassGame zgame){
-		// TODO make a better way of saving settings that makes more sense, also account for if it should be global or local settings
-		zgame.saveGlobalSettings();
+		// For now just go back, probably should add a warning here if there are unsaved changes to settings
 		
 		this.goBack(zgame);
 	}
@@ -52,5 +60,10 @@ public class BaseSettingsMenu extends ZusassMenu{
 	 */
 	public void goBack(ZusassGame zgame){
 		zgame.getCurrentState().setMenu(new SettingsMenu(zgame, this.getSettingsMenu().getGoBack()));
+	}
+	
+	/** @return See {@link #confirmButton} */
+	public SettingsConfirmButton getConfirmButton(){
+		return this.confirmButton;
 	}
 }

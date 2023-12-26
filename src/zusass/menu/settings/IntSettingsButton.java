@@ -1,12 +1,16 @@
 package zusass.menu.settings;
 
+import zgame.core.Game;
 import zgame.menu.scroller.HorizontalSelectionScroller;
 import zgame.settings.IntTypeSetting;
 import zusass.ZusassGame;
 import zusass.menu.mainmenu.comp.newgamemenu.ZusassTextBox;
 
 /** A button for selecting an integer setting */
-public class IntSettingsButton extends ZusassTextBox{
+public class IntSettingsButton extends ZusassTextBox implements ValueSettingsButton{
+	
+	/** The menu holding this button */
+	private final BaseSettingsMenu menu;
 	
 	/** The setting which this button uses */
 	private final IntTypeSetting setting;
@@ -28,14 +32,15 @@ public class IntSettingsButton extends ZusassTextBox{
 	 * @param max The maximum value this setting can be scrolled to
 	 * @param zgame The game using this button
 	 */
-	public IntSettingsButton(double x, double y, IntTypeSetting setting, String name, int min, int max, ZusassGame zgame){
+	public IntSettingsButton(double x, double y, IntTypeSetting setting, String name, int min, int max, BaseSettingsMenu menu, ZusassGame zgame){
 		super(x, y, 300, 45, zgame);
+		this.menu = menu;
 		this.setting = setting;
 		this.zgame = zgame;
 		this.setHint(name + "...");
 		this.setLabel(name + ": ");
 		this.setMode(min < 0 || max < 0 ? Mode.INT : Mode.INT_POS);
-		var currentValue = this.zgame.get(this.setting);
+		var currentValue = zgame.get(this.setting);
 		this.setCurrentText(String.valueOf(currentValue));
 		
 		this.scroller = new HorizontalSelectionScroller(min, max, this, zgame){
@@ -54,18 +59,26 @@ public class IntSettingsButton extends ZusassTextBox{
 		super.setCurrentText(currentText);
 		if(scroller == null) return;
 		
-		var newValue = this.getTextAsInt();
+		var newValue = this.getSettingInputValue();
 		if(newValue == null) newValue = (int)this.scroller.getMin();
-		this.updateSetting(newValue);
 		this.scroller.setScrolledValue(newValue);
+		this.changeDisplayedSetting(this.zgame, this.menu);
 	}
 	
-	/**
-	 * @param newVal The new value for the setting, does nothing if the value is null
-	 */
-	private void updateSetting(Integer newVal){
-		if(this.zgame != null){
-			if(newVal != null) this.zgame.set(this.setting, newVal, false);
-		}
+	/** @return See {@link #setting} */
+	@Override
+	public IntTypeSetting getSetting(){
+		return this.setting;
+	}
+	
+	@Override
+	public Integer getSettingInputValue(){
+		return this.getTextAsInt();
+	}
+	
+	@Override
+	public void updateSetting(Game game){
+		var newValue = this.getSettingInputValue();
+		if(newValue != null) game.set(this.setting, newValue, false);
 	}
 }

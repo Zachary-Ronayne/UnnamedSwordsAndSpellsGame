@@ -528,4 +528,23 @@ public class MenuTextBox extends MenuButton{
 		this.mode = mode;
 	}
 	
+	/** @return The value of {@link #getText()} assuming it's an integer. If it cannot be parsed as an integer, returns null */
+	@Override
+	public Integer getTextAsInt(){
+		try{
+			return Integer.parseInt(this.getCurrentText());
+		}catch(NumberFormatException e){
+			return null;
+		}
+	}
+	
+	/** @return The value of {@link #getText()} assuming it's a double. If it cannot be parsed as a double, returns null */
+	@Override
+	public Double getTextAsDouble(){
+		try{
+			return Double.parseDouble(this.getCurrentText());
+		}catch(NumberFormatException e){
+			return null;
+		}
+	}
 }

@@ -18,7 +18,7 @@ public class SettingsMenu extends BaseSettingsMenu{
 	 * @param goBack See {@link #goBack}
 	 */
 	public SettingsMenu(ZusassGame zgame, Consumer<ZusassGame> goBack){
-		super("Settings", zgame, null);
+		super("Settings", zgame, null, false);
 		this.goBack = goBack;
 		
 		var videoSettingsButton = new ZusassButton(10, 50, 500, 100, "Video Settings", zgame){
