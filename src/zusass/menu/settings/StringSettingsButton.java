@@ -1,11 +1,8 @@
 package zusass.menu.settings;
 
 import zgame.core.Game;
-import zgame.menu.togglebutton.BoolToggleButtonValue;
-import zgame.settings.BooleanTypeSetting;
 import zgame.settings.StringTypeSetting;
 import zusass.ZusassGame;
-import zusass.menu.comp.ZusassBoolToggleButton;
 import zusass.menu.mainmenu.comp.newgamemenu.ZusassTextBox;
 
 /** A toggle button used for modifying boolean settings */

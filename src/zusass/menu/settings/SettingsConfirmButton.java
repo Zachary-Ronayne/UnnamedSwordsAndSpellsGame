@@ -55,6 +55,7 @@ public class SettingsConfirmButton extends ZusassButton {
 		super.click(game);
 		
 		for(var button : this.buttons.values()) button.updateSetting(game);
+		// issue#33
 		game.saveGlobalSettings();
 		
 		this.buttons.clear();

@@ -33,7 +33,7 @@ public class ToggleButton<T extends ToggleButtonValue> extends MenuButton{
 		this.setSelectedIndex(defaultIndex == null ? 0 : defaultIndex);
 	}
 	
-	/** @return The currently selected valye of this button */
+	/** @return The currently selected value of this button */
 	public T getSelectedValue(){
 		if(values == null) return null;
 		return this.values.get(this.selectedIndex);

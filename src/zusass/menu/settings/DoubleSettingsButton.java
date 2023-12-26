@@ -1,7 +1,6 @@
 package zusass.menu.settings;
 
 import zgame.settings.DoubleTypeSetting;
-import zgame.settings.IntTypeSetting;
 import zusass.ZusassGame;
 import zusass.menu.mainmenu.comp.newgamemenu.ZusassTextBox;
 

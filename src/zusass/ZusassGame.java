@@ -5,12 +5,7 @@ import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZConfig;
-import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
-import zgame.settings.BooleanTypeSetting;
-import zgame.settings.DoubleTypeSetting;
-import zgame.settings.IntTypeSetting;
-import zgame.settings.SettingType;
 import zgame.stat.Stats;
 import zusass.game.MainPlay;
 import zusass.game.ZusassRoom;
@@ -19,7 +14,6 @@ import zusass.game.things.entities.mobs.ZusassMob;
 import zusass.game.things.entities.mobs.ZusassPlayer;
 import zusass.menu.mainmenu.MainMenuState;
 import zusass.setting.ZusassSetting;
-import zusass.setting.ZusassSettingI;
 import zusass.utils.ZusassConfig;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -170,16 +164,6 @@ public class ZusassGame extends Game{
 			this.setPrintTps(!this.isPrintTps());
 		}
 		else if(button == GLFW_KEY_F11) w.toggleFullscreen();
-		else if(button == GLFW_KEY_F12) zgame.set(BooleanTypeSetting.V_SYNC, !zgame.get(BooleanTypeSetting.V_SYNC), false);
-		
-		// TODO remove placeholder for modifying settings, implement some kind of ui
-		else if(button == GLFW_KEY_F1) {
-			for(var e : SettingType.nameMap.entrySet()) ZStringUtils.prints(e.getKey(), this.getAny(e.getValue())); // TODO Remove
-		}
-		else if(button == GLFW_KEY_F3) this.set(DoubleTypeSetting.TEST_D, this.get(DoubleTypeSetting.TEST_D) + .1, zgame.isSaveLoaded());
-		else if(button == GLFW_KEY_F4) this.set(ZusassSettingI.Z_TEST, this.get(ZusassSettingI.Z_TEST) + 2, zgame.isSaveLoaded());
-		else if(button == GLFW_KEY_F5) this.set(IntTypeSetting.FPS_LIMIT, this.get(ZusassSettingI.FPS_LIMIT) + (shift ? -10 : 10), false);
-		else if(button == GLFW_KEY_F8) this.saveGlobalSettings();
 	}
 	
 	/** Initialize the object {@link #zgame} */

@@ -2,10 +2,7 @@ package zusass.menu.comp;
 
 import zgame.menu.togglebutton.BoolToggleButton;
 import zgame.menu.togglebutton.ToggleButton;
-import zgame.menu.togglebutton.ToggleButtonValue;
 import zusass.ZusassGame;
-
-import java.util.List;
 
 /** A {@link ToggleButton} in the Zusass style */
 public class ZusassBoolToggleButton extends BoolToggleButton{
