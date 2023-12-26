@@ -29,6 +29,15 @@ public class SettingsMenu extends BaseSettingsMenu{
 			}
 		};
 		this.addThing(videoSettingsButton);
+		
+		var allSettingsButton = new ZusassButton(10, 160, 500, 100, "All Settings", zgame){
+			@Override
+			public void click(Game game){
+				super.click(game);
+				handleAllSettingsClick((ZusassGame)game);
+			}
+		};
+		this.addThing(allSettingsButton);
 	}
 	
 	@Override
@@ -42,6 +51,14 @@ public class SettingsMenu extends BaseSettingsMenu{
 	 */
 	public void handleVideoSettingsClick(ZusassGame zgame){
 		zgame.getCurrentState().setMenu(new VideoSettingsMenu(zgame, this));
+	}
+	
+	/**
+	 * Called when the button for going to all settings is clicked
+	 * @param zgame The game using the button
+	 */
+	public void handleAllSettingsClick(ZusassGame zgame){
+		zgame.getCurrentState().setMenu(new AllSettingsMenu(zgame, this));
 	}
 	
 	/** @return See {@link #goBack} */

@@ -11,6 +11,7 @@ public class VideoSettingsMenu extends BaseSettingsMenu{
 	/**
 	 * Init the new menu
 	 * @param zgame The game using the menu
+	 * @param settingsMenu The main menu using this menu
 	 */
 	public VideoSettingsMenu(ZusassGame zgame, SettingsMenu settingsMenu){
 		super("Video Settings", zgame, settingsMenu, true);

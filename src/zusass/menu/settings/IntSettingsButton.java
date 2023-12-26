@@ -32,36 +32,40 @@ public class IntSettingsButton extends ZusassTextBox implements ValueSettingsBut
 	 * @param max The maximum value this setting can be scrolled to
 	 * @param zgame The game using this button
 	 */
-	public IntSettingsButton(double x, double y, IntTypeSetting setting, String name, int min, int max, BaseSettingsMenu menu, ZusassGame zgame){
+	public IntSettingsButton(double x, double y, IntTypeSetting setting, String name, Integer min, Integer max, BaseSettingsMenu menu, ZusassGame zgame){
 		super(x, y, 300, 45, zgame);
 		this.menu = menu;
 		this.setting = setting;
 		this.zgame = zgame;
 		this.setHint(name + "...");
 		this.setLabel(name + ": ");
-		this.setMode(min < 0 || max < 0 ? Mode.INT : Mode.INT_POS);
+		if(min != null && max != null) this.setMode(min < 0 || max < 0 ? Mode.INT : Mode.INT_POS);
 		var currentValue = zgame.get(this.setting);
 		this.setCurrentText(String.valueOf(currentValue));
 		
-		this.scroller = new HorizontalSelectionScroller(min, max, this, zgame){
-			@Override
-			public void onScrollValueChange(double perc){
-				super.onScrollValueChange(perc);
-				setCurrentText(String.valueOf((int)perc));
-			}
-		};
-		this.addThing(this.scroller);
-		this.scroller.setScrolledValue(currentValue);
+		if(min != null && max != null){
+			this.scroller = new HorizontalSelectionScroller(min, max, this, zgame){
+				@Override
+				public void onScrollValueChange(double perc){
+					super.onScrollValueChange(perc);
+					setCurrentText(String.valueOf((int)perc));
+				}
+			};
+			this.addThing(this.scroller);
+			this.scroller.setScrolledValue(currentValue);
+		}
+		else this.scroller = null;
 	}
 	
 	@Override
 	public void setCurrentText(String currentText){
 		super.setCurrentText(currentText);
-		if(scroller == null) return;
 		
 		var newValue = this.getSettingInputValue();
-		if(newValue == null) newValue = (int)this.scroller.getMin();
-		this.scroller.setScrolledValue(newValue);
+		if(scroller != null){
+			if(newValue == null) newValue = (int)this.scroller.getMin();
+			this.scroller.setScrolledValue(newValue);
+		}
 		this.changeDisplayedSetting(this.zgame, this.menu);
 	}
 	
