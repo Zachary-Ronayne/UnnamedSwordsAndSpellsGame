@@ -3,7 +3,6 @@ package zgame.menu.scroller;
 import org.lwjgl.glfw.GLFW;
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
-import zgame.core.utils.ZMath;
 import zgame.menu.MenuThing;
 import zgame.menu.format.PercentFormatter;
 

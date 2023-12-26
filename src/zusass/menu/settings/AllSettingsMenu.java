@@ -1,6 +1,7 @@
 package zusass.menu.settings;
 
 import zgame.settings.BooleanTypeSetting;
+import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
 import zgame.settings.SettingType;
 import zusass.ZusassGame;
@@ -21,6 +22,9 @@ public class AllSettingsMenu extends BaseSettingsMenu{
 			// I don't like this use of instance of, but it's good enough for now
 			if(setting.getDefault() instanceof Integer){
 				this.addThing(new IntSettingsButton(10, y, (IntTypeSetting)setting, setting.name(), null, null, this, zgame));
+			}
+			else if(setting.getDefault() instanceof Double){
+				this.addThing(new DoubleSettingsButton(10, y, (DoubleTypeSetting)setting, setting.name(), null, null, this, zgame));
 			}
 			else if(setting.getDefault() instanceof Boolean){
 				this.addThing(new BoolSettingsButton(10, y, (BooleanTypeSetting)setting, setting.name() + ": true", setting.name() + ": false", this, zgame));

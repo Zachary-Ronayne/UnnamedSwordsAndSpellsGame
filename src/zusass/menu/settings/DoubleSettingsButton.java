@@ -1,11 +1,12 @@
 package zusass.menu.settings;
 
+import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
 import zusass.ZusassGame;
 import zusass.menu.mainmenu.comp.newgamemenu.ZusassTextBox;
 
-/** A button for selecting an integer setting */
-public class IntSettingsButton extends NumberSettingsButton<Integer>{
+/** A button for selecting a double setting */
+public class DoubleSettingsButton extends NumberSettingsButton<Double>{
 	
 	/**
 	 * Create a new {@link ZusassTextBox} with the given values
@@ -18,12 +19,12 @@ public class IntSettingsButton extends NumberSettingsButton<Integer>{
 	 * @param max The maximum value this setting can be scrolled to
 	 * @param zgame The game using this button
 	 */
-	public IntSettingsButton(double x, double y, IntTypeSetting setting, String name, Integer min, Integer max, BaseSettingsMenu menu, ZusassGame zgame){
-		super(x, y, setting, name, min, max, false, menu, zgame);
+	public DoubleSettingsButton(double x, double y, DoubleTypeSetting setting, String name, Integer min, Integer max, BaseSettingsMenu menu, ZusassGame zgame){
+		super(x, y, setting, name, min, max, true, menu, zgame);
 	}
 	
 	@Override
-	public Integer getSettingInputValue(){
-		return this.getTextAsInt();
+	public Double getSettingInputValue(){
+		return this.getTextAsDouble();
 	}
 }

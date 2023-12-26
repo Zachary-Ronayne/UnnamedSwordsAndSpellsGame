@@ -1054,7 +1054,7 @@ public class Game implements Saveable, Destroyable{
 	 * @param value The new setting's value
 	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
 	 */
-	private <T> void setAny(SettingType<T> setting, T value, boolean local){
+	public <T> void setAny(SettingType<T> setting, T value, boolean local){
 		this.getSettings().setValue(setting, value, true);
 		if(local) this.getLocalSettings().setValue(setting, value, false);
 		else this.getGlobalSettings().setValue(setting, value, false);
