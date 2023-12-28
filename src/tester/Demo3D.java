@@ -32,89 +32,39 @@ public class Demo3D{
 	
 	private static ShaderProgram shader;
 	
-	private static final byte[] cubeIndices = new byte[]{
-			// Face 0
-			0, 1, 2, 3,
-			// Face 1
-			4, 5, 6, 7,
-			// Face 2
-			8, 9, 10, 11,
-			// Face 3
-			12, 13, 14, 15,
-			// Face 4
-			16, 17, 18, 19,
-			// Face 5
-			20, 21, 22, 23
+	private static final float[][] cubeCorners = new float[][]{
+			{-0.5f, -0.5f, -0.5f},
+			{0.5f, -0.5f, -0.5f},
+			{0.5f, 0.5f, -0.5f},
+			{-0.5f, 0.5f, -0.5f},
+			{-0.5f, -0.5f, 0.5f},
+			{0.5f, -0.5f, 0.5f},
+			{0.5f, 0.5f, 0.5f},
+			{-0.5f, 0.5f, 0.5f},
 	};
 	
-	private static final float[] cubePositions = new float[]{
-			// Face 0
-			-0.5f, -0.5f, -0.5f,
-			0.5f, -0.5f, -0.5f,
-			0.5f, 0.5f, -0.5f,
-			-0.5f, 0.5f, -0.5f,
-			
-			// Face 1
-			-0.5f, -0.5f, -0.5f,
-			0.5f, -0.5f, 0.5f,
-			0.5f, 0.5f, 0.5f,
-			0.5f, 0.5f, -0.5f,
-			
-			// Face 2
-			-0.5f, -0.5f, 0.5f,
-			0.5f, -0.5f, 0.5f,
-			0.5f, 0.5f, 0.5f,
-			-0.5f, 0.5f, 0.5f,
-			
-			// Face 3
-			-0.5f, -0.5f, -0.5f,
-			-0.5f, -0.5f, 0.5f,
-			-0.5f, 0.5f, 0.5f,
-			-0.5f, 0.5f, -0.5f,
-			
-			// Face 4
-			-0.5f, 0.5f, -0.5f,
-			0.5f, 0.5f, -0.5f,
-			0.5f, 0.5f, 0.5f,
-			-0.5f, 0.5f, 0.5f,
-			
-			// Face 5
-			-0.5f, -0.5f, -0.5f,
-			0.5f, -0.5f, -0.5f,
-			0.5f, -0.5f, 0.5f,
-			-0.5f, -0.5f, 0.5f,
+	private static final byte[][] cubeCorderIndices = new byte[][]{
+			{0, 1, 2, 3},
+			{1, 5, 6, 2},
+			{4, 5, 6, 7},
+			{0, 4, 7, 3},
+			{3, 2, 6, 7},
+			{0, 1, 5, 4},
 	};
 	
-	private static float[] cubeColors = new float[]{
-			1.0f, 0.0f, 0.0f, 1.0f,
-			1.0f, 0.0f, 0.0f, 1.0f,
-			1.0f, 0.0f, 0.0f, 1.0f,
-			1.0f, 0.0f, 0.0f, 1.0f,
-			
-			1.0f, 1.0f, 0.0f, 1.0f,
-			1.0f, 1.0f, 0.0f, 1.0f,
-			1.0f, 1.0f, 0.0f, 1.0f,
-			1.0f, 1.0f, 0.0f, 1.0f,
-			
-			0.0f, 1.0f, 0.0f, 1.0f,
-			0.0f, 1.0f, 0.0f, 1.0f,
-			0.0f, 1.0f, 0.0f, 1.0f,
-			0.0f, 1.0f, 0.0f, 1.0f,
-			
-			0.0f, 1.0f, 1.0f, 1.0f,
-			0.0f, 1.0f, 1.0f, 1.0f,
-			0.0f, 1.0f, 1.0f, 1.0f,
-			0.0f, 1.0f, 1.0f, 1.0f,
-			
-			0.0f, 0.0f, 1.0f, 1.0f,
-			0.0f, 0.0f, 1.0f, 1.0f,
-			0.0f, 0.0f, 1.0f, 1.0f,
-			0.0f, 0.0f, 1.0f, 1.0f,
-			
-			1.0f, 0.0f, 1.0f, 1.0f,
-			1.0f, 0.0f, 1.0f, 1.0f,
-			1.0f, 0.0f, 1.0f, 1.0f,
-			1.0f, 0.0f, 1.0f, 1.0f,
+	private static final float[][] cubeColors = new float[][]{
+			// Face 0
+			{1.0f, 0.0f, 0.0f, 1.0f,},
+			// Face 1
+			{1.0f, 1.0f, 0.0f, 1.0f,},
+			// Face 2,
+			{0.0f, 1.0f, 0.0f, 1.0f,},
+			// Face 3,
+			{0.0f, 1.0f, 1.0f, 1.0f,},
+			// Face 4,
+			{0.0f, 0.0f, 1.0f, 1.0f,},
+			// Face 5,
+			{1.0f, 0.0f, 1.0f, 1.0f,},
 	};
 	
 	private static IndexBuffer cubeIndexBuffer;
@@ -204,16 +154,40 @@ public class Demo3D{
 	}
 	
 	private static void initCube(){
+		var cubeIndices = new byte[24];
+		for(var i = 0; i < cubeIndices.length; i++) cubeIndices[i] = (byte)i;
 		cubeIndexBuffer = new IndexBuffer(cubeIndices);
 		cubeIndexBuffer.bind();
 		
 		cubeVertexArray = new VertexArray();
 		cubeVertexArray.bind();
 		
+		// 6 faces, 4 verticies per face, 3 coordinates per position
+		var cubePositions = new float[6 * 4 * 3];
+		var i = 0;
+		for(int f = 0; f < 6; f++){
+			for(int v = 0; v < 4; v++){
+				for(int p = 0; p < 3; p++){
+					cubePositions[i++] = cubeCorners[cubeCorderIndices[f][v]][p];
+				}
+			}
+		}
+		
 		cubeVertexBuffer = new VertexBuffer(VERTEX_POS_INDEX, 3, cubePositions);
 		cubeVertexBuffer.applyToVertexArray();
 		
-		cubeColorVertexBuffer = new VertexBuffer(VERTEX_COLOR_INDEX, 4, cubeColors);
+		// 6 faces, 4 verticies per face, 4 color channels per color
+		var colorVerticies = new float[6 * 4 * 4];
+		i = 0;
+		for(int f = 0; f < 6; f++){
+			for(int v = 0; v < 4; v++){
+				for(int c = 0; c < 4; c++){
+					colorVerticies[i++] = cubeColors[f][c];
+				}
+			}
+		}
+		
+		cubeColorVertexBuffer = new VertexBuffer(VERTEX_COLOR_INDEX, 4, colorVerticies);
 		cubeColorVertexBuffer.applyToVertexArray();
 		
 		glBindVertexArray(0);
