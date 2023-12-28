@@ -9,7 +9,6 @@ import zgame.core.graphics.buffer.IndexBuffer;
 import zgame.core.graphics.buffer.VertexArray;
 import zgame.core.graphics.buffer.VertexBuffer;
 import zgame.core.graphics.shader.ShaderProgram;
-import zgame.core.utils.ZStringUtils;
 
 import java.nio.FloatBuffer;
 
@@ -79,12 +78,12 @@ public class Demo3D{
 	
 	private static float rotateX = 0;
 	private static float rotateY = 0;
-	private static float rotateZ = 0;
 	
 	private static void render(){
 		modelView.identity();
-		modelView.rotate((float)(Math.PI * 0.25), rotateX, rotateY, rotateZ);
 		modelView.scale(.5f, .5f, .5f);
+		modelView.rotate((float)(Math.PI * rotateX), 1.0f, 0, 0);
+		modelView.rotate((float)(Math.PI * rotateY), 0, 1.0f, 0);
 		
 		updateModelView();
 		updateColor();
@@ -125,11 +124,10 @@ public class Demo3D{
 		
 		var diffX = lastX - x;
 		var diffY = lastY - y;
-//		ZStringUtils.print("Mouse diff (", diffX, ", ", diffY, ")");
 		
 		if(!mouseNormal){
-			rotateX += diffX * 0.01;
-			rotateY += diffY * 0.01;
+			rotateX += diffX * 0.001;
+			rotateY += diffY * 0.001;
 		}
 		
 		lastX = x;
@@ -137,7 +135,6 @@ public class Demo3D{
 	}
 	
 	private static void setMouseNormal(boolean normal){
-		ZStringUtils.prints("Setting mouse to", normal ? "normal" : "held");
 		if(normal) glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		else glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		mouseNormal = normal;
@@ -212,7 +209,13 @@ public class Demo3D{
 		glfwDestroyWindow(window);
 		
 		glfwTerminate();
-		glfwSetErrorCallback(null).free();
+		var callback = glfwSetErrorCallback(null);
+		if(callback == null) throw new IllegalStateException("Failed to free the callback");
+		callback.free();
+		
+		cubeVertexBuffer.destroy();
+		cubeVertexArray.destroy();
+		cubeColorVertexBuffer.destroy();
 	}
 	
 	private static void init() {
@@ -236,8 +239,8 @@ public class Demo3D{
 			glfwGetWindowSize(window, pWidth, pHeight);
 			
 			var vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-			glfwSetWindowPos(window, (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2
-			);
+			if (vidmode == null) throw new RuntimeException("Failed to create the video mode");
+			glfwSetWindowPos(window, (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
 		}
 		
 		glfwMakeContextCurrent(window);
@@ -245,7 +248,7 @@ public class Demo3D{
 		glfwShowWindow(window);
 		
 		GL.createCapabilities();
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 	
 	private static void loop() {
