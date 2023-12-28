@@ -9,6 +9,7 @@ import zgame.core.graphics.buffer.IndexBuffer;
 import zgame.core.graphics.buffer.VertexArray;
 import zgame.core.graphics.buffer.VertexBuffer;
 import zgame.core.graphics.shader.ShaderProgram;
+import zgame.core.input.GLFWModUtils;
 
 import java.nio.FloatBuffer;
 
@@ -76,20 +77,37 @@ public class Demo3D{
 	private static FloatBuffer modelViewBuff;
 	private static ZColor color;
 	
-	private static float rotateX = 0;
+	private static final float mouseSpeed = 0.001f;
+	
+	private static float rotateX = (float)(Math.toRadians(180));
 	private static float rotateY = 0;
 	
+	private static float cubeRotateX = 0;
+	private static float cubeRotateY = 0;
+	
+	private static final float[] cameraPos = new float[]{0.0f, 0.0f, 3.0f};
+	private static final float cubeSpeed = 0.05f;
+	
+	private static boolean shiftDown = false;
+	
 	private static void render(){
-		modelView.identity();
+		modelView.identity().perspective((float)Math.toRadians(45.0), 1.0f, 0.1f, 100f);
 		modelView.scale(.5f, .5f, .5f);
-		modelView.rotate((float)(Math.PI * rotateX), 1.0f, 0, 0);
-		modelView.rotate((float)(Math.PI * rotateY), 0, 1.0f, 0);
+		modelView.rotate(rotateX, 0, 1.0f, 0);
+		modelView.rotate(rotateY, 1.0f, 0, 0);
+		modelView.translate(cameraPos[0], cameraPos[1], cameraPos[2]);
 		
 		updateModelView();
 		updateColor();
 		
 		glFrustum(-5.0, 1.0, -5.0, 1.0, 1.0, 100.0);
 		glViewport(0, 0, 800, 800);
+		
+		modelView.translate(cameraPos[0], cameraPos[1], cameraPos[2]);
+		modelView.rotate(cubeRotateX, 0, 1.0f, 0);
+		modelView.rotate(cubeRotateY, 1.0f, 0, 0);
+		modelView.translate(-cameraPos[0], -cameraPos[1], -cameraPos[2]);
+		updateModelView();
 		drawCube();
 	}
 	
@@ -112,22 +130,48 @@ public class Demo3D{
 	}
 	
 	private static void keyPress(long window, int key, int scancode, int action, int mods){
-		if(action != GLFW_RELEASE) return;
+		shiftDown = GLFWModUtils.isShift(mods);
 		
-		if(key == GLFW_KEY_ESCAPE) running = false;
-		else if(key == GLFW_KEY_SPACE) setMouseNormal(!mouseNormal);
+		if(action != GLFW_RELEASE) {
+			if(key == GLFW_KEY_ESCAPE) running = false;
+			else if(key == GLFW_KEY_SPACE) setMouseNormal(!mouseNormal);
+		}
+		
+		if(key == GLFW_KEY_A) cameraPos[0] -= cubeSpeed;
+		else if(key == GLFW_KEY_D) cameraPos[0] += cubeSpeed;
+		else if(key == GLFW_KEY_Z) cameraPos[1] -= cubeSpeed;
+		else if(key == GLFW_KEY_Q) cameraPos[1] += cubeSpeed;
+		else if(key == GLFW_KEY_S) cameraPos[2] -= cubeSpeed;
+		else if(key == GLFW_KEY_W) cameraPos[2] += cubeSpeed;
+		else if(key == GLFW_KEY_R) {
+			cameraPos[0] = 0.0f;
+			cameraPos[1] = 0.0f;
+			cameraPos[2] = 3.0f;
+			
+			rotateX = (float)(Math.toRadians(180));
+			rotateY = 0;
+			
+			cubeRotateX = 0;
+			cubeRotateY = 0;
+		}
 	}
 	
 	private static void mouseMove(long window, double x, double y){
 		if(lastX == null) lastX = x;
 		if(lastY == null) lastY = y;
 		
-		var diffX = lastX - x;
-		var diffY = lastY - y;
+		var diffX = x - lastX;
+		var diffY = y - lastY;
 		
 		if(!mouseNormal){
-			rotateX += diffX * 0.001;
-			rotateY += diffY * 0.001;
+			if(shiftDown){
+				cubeRotateX += diffX * mouseSpeed;
+				cubeRotateY += diffY * mouseSpeed;
+			}
+			else {
+				rotateX += diffX * mouseSpeed;
+				rotateY += diffY * mouseSpeed;
+			}
 		}
 		
 		lastX = x;
