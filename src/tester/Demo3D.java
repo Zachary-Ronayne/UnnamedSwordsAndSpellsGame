@@ -28,7 +28,7 @@ public class Demo3D{
 	private static Double lastX = null;
 	private static Double lastY = null;
 	public static final int VERTEX_POS_INDEX = 0;
-	public static final int COLOR_POS_INDEX = 1;
+	public static final int VERTEX_COLOR_INDEX = 1;
 	
 	private static ShaderProgram shader;
 	
@@ -36,53 +36,85 @@ public class Demo3D{
 			// Face 0
 			0, 1, 2, 3,
 			// Face 1
-			1, 5, 6, 2,
-			// Face 2
 			4, 5, 6, 7,
+			// Face 2
+			8, 9, 10, 11,
 			// Face 3
-			0, 4, 7, 3,
+			12, 13, 14, 15,
 			// Face 4
-			3, 2, 6, 7,
+			16, 17, 18, 19,
 			// Face 5
-			0, 1, 5, 4
+			20, 21, 22, 23
 	};
 	
-	private static final float[] cubeVertices = new float[]{
-			// Corner 0
+	private static final float[] cubePositions = new float[]{
+			// Face 0
 			-0.5f, -0.5f, -0.5f,
-			// Corner 1
 			0.5f, -0.5f, -0.5f,
-			// Corner 2
 			0.5f, 0.5f, -0.5f,
-			// Corner 3
 			-0.5f, 0.5f, -0.5f,
-			// Corner 4
-			-0.5f, -0.5f, 0.5f,
-			// Corner 5
+			
+			// Face 1
+			-0.5f, -0.5f, -0.5f,
 			0.5f, -0.5f, 0.5f,
-			// Corner 6
 			0.5f, 0.5f, 0.5f,
-			// Corner 7
-			-0.5f, 0.5f, 0.5f
+			0.5f, 0.5f, -0.5f,
+			
+			// Face 2
+			-0.5f, -0.5f, 0.5f,
+			0.5f, -0.5f, 0.5f,
+			0.5f, 0.5f, 0.5f,
+			-0.5f, 0.5f, 0.5f,
+			
+			// Face 3
+			-0.5f, -0.5f, -0.5f,
+			-0.5f, -0.5f, 0.5f,
+			-0.5f, 0.5f, 0.5f,
+			-0.5f, 0.5f, -0.5f,
+			
+			// Face 4
+			-0.5f, 0.5f, -0.5f,
+			0.5f, 0.5f, -0.5f,
+			0.5f, 0.5f, 0.5f,
+			-0.5f, 0.5f, 0.5f,
+			
+			// Face 5
+			-0.5f, -0.5f, -0.5f,
+			0.5f, -0.5f, -0.5f,
+			0.5f, -0.5f, 0.5f,
+			-0.5f, -0.5f, 0.5f,
 	};
 	
-	private static final float[] cubeColors = new float[]{
-			// Corner 0
+	private static float[] cubeColors = new float[]{
 			1.0f, 0.0f, 0.0f, 1.0f,
-			// Corner 1
+			1.0f, 0.0f, 0.0f, 1.0f,
+			1.0f, 0.0f, 0.0f, 1.0f,
+			1.0f, 0.0f, 0.0f, 1.0f,
+			
 			1.0f, 1.0f, 0.0f, 1.0f,
-			// Corner 2
+			1.0f, 1.0f, 0.0f, 1.0f,
+			1.0f, 1.0f, 0.0f, 1.0f,
+			1.0f, 1.0f, 0.0f, 1.0f,
+			
 			0.0f, 1.0f, 0.0f, 1.0f,
-			// Corner 3
+			0.0f, 1.0f, 0.0f, 1.0f,
+			0.0f, 1.0f, 0.0f, 1.0f,
+			0.0f, 1.0f, 0.0f, 1.0f,
+			
 			0.0f, 1.0f, 1.0f, 1.0f,
-			// Corner 4
+			0.0f, 1.0f, 1.0f, 1.0f,
+			0.0f, 1.0f, 1.0f, 1.0f,
+			0.0f, 1.0f, 1.0f, 1.0f,
+			
 			0.0f, 0.0f, 1.0f, 1.0f,
-			// Corner 5
+			0.0f, 0.0f, 1.0f, 1.0f,
+			0.0f, 0.0f, 1.0f, 1.0f,
+			0.0f, 0.0f, 1.0f, 1.0f,
+			
 			1.0f, 0.0f, 1.0f, 1.0f,
-			// Corner 6
-			1.0f, 0.0f, 0.5f, 1.0f,
-			// Corner 7
-			1.0f, 0.5f, 0.0f, 1.0f,
+			1.0f, 0.0f, 1.0f, 1.0f,
+			1.0f, 0.0f, 1.0f, 1.0f,
+			1.0f, 0.0f, 1.0f, 1.0f,
 	};
 	
 	private static IndexBuffer cubeIndexBuffer;
@@ -178,17 +210,17 @@ public class Demo3D{
 		cubeVertexArray = new VertexArray();
 		cubeVertexArray.bind();
 		
-		cubeVertexBuffer = new VertexBuffer(VERTEX_POS_INDEX, 3, cubeVertices);
+		cubeVertexBuffer = new VertexBuffer(VERTEX_POS_INDEX, 3, cubePositions);
 		cubeVertexBuffer.applyToVertexArray();
 		
-		cubeColorVertexBuffer = new VertexBuffer(COLOR_POS_INDEX, 4, cubeColors);
+		cubeColorVertexBuffer = new VertexBuffer(VERTEX_COLOR_INDEX, 4, cubeColors);
 		cubeColorVertexBuffer.applyToVertexArray();
 		
 		glBindVertexArray(0);
 	}
 	
 	
-	// Basically everything before this line is just the boilerplate given from the lwjgl website
+	// Basically everything after this line is just the boilerplate given from the lwjgl website
 	public static void main(String[] args){
 		init();
 		customInit();
