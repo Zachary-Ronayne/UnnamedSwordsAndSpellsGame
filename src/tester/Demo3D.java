@@ -89,6 +89,8 @@ public class Demo3D{
 		updateModelView();
 		updateColor();
 		
+		glFrustum(-5.0, 1.0, -5.0, 1.0, 1.0, 100.0);
+		glViewport(0, 0, 800, 800);
 		drawCube();
 	}
 	
@@ -151,6 +153,8 @@ public class Demo3D{
 		color = new ZColor(1, 0, 0);
 		
 		initCube();
+		
+		initDepthTest();
 	}
 	
 	private static void initCube(){
@@ -191,6 +195,10 @@ public class Demo3D{
 		cubeColorVertexBuffer.applyToVertexArray();
 		
 		glBindVertexArray(0);
+	}
+	
+	private static void initDepthTest(){
+		glEnable(GL_DEPTH_TEST);
 	}
 	
 	
@@ -243,6 +251,7 @@ public class Demo3D{
 	private static void loop() {
 		while(running && !glfwWindowShouldClose(window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClearDepth(1);
 			render();
 			glfwSwapBuffers(window);
 			
