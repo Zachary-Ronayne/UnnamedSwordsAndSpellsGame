@@ -29,6 +29,8 @@ import zgame.settings.*;
 import zgame.stat.DefaultStatType;
 import zgame.world.Room;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -713,11 +715,25 @@ public class Game implements Saveable, Destroyable{
 	public boolean loadGlobalSettings(){
 		this.globalSettings.setDefaults();
 		
-		var path = this.getGlobalSettingsFilePath();
-		var success = ZJsonFile.loadJsonFile(path, this.globalSettings::load);
+		var pathFile = this.getGlobalSettingsFilePath();
+		
+		// If the file path doesn't exist, create it first
+		var file = new File(pathFile);
+		var pathName = file.getParent();
+		var path = new File(pathName);
+		if(!path.exists()) {
+			path.mkdirs();
+			try{
+				file.createNewFile();
+			}catch(IOException e){
+				e.printStackTrace();
+			}
+		}
+		
+		var success = ZJsonFile.loadJsonFile(pathFile, this.globalSettings::load);
 		// If the settings fail to load, save the default settings
 		if(!success) {
-			ZConfig.error("Failed to load global settings at path ", path, " saving defaults");
+			ZConfig.error("Failed to load global settings at path ", pathFile, " saving defaults");
 			this.saveGlobalSettings();
 		}
 		return success;
