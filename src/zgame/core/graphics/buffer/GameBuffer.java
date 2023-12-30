@@ -111,6 +111,12 @@ public class GameBuffer implements Destroyable{
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this.textureID, 0);
 		
+		// TODO make this an option, i.e. not for all buffers
+		var depthBuffer = glGenRenderbuffers();
+		glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this.getWidth(), this.getHeight());
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+		
 		// Error check
 		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		boolean success = status == GL_FRAMEBUFFER_COMPLETE;

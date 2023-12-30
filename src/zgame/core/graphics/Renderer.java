@@ -179,6 +179,9 @@ public class Renderer implements Destroyable{
 	/** The stack keeping track of the current bounds which rendering is limited to, in game coordinates, or null if no bounds is limited */
 	private final LimitedStack<ZRect> limitedBoundsStack;
 	
+	/** true if the OpenGL depth test is enabled, false otherwise */
+	private boolean depthTestEnabled;
+	
 	/**
 	 * Create a new empty renderer
 	 *
@@ -254,6 +257,11 @@ public class Renderer implements Destroyable{
 		
 		// Vertex arrays and vertex buffers
 		this.initVertexes();
+		
+		// Init depth test, setting it to false, matching the OpenGL default
+		this.depthTestEnabled = false;
+		glDisable(GL_DEPTH_TEST);
+		this.setDepthTestEnabled(false);
 	}
 	
 	/** Initialize all resources used by the vertex arrays and vertex buffers */
@@ -394,10 +402,12 @@ public class Renderer implements Destroyable{
 		this.texCoordBuff.destroy();
 		this.posBuff.destroy();
 		this.changeTexCoordBuff.destroy();
+		this.rect3DColorBuff.destroy();
 		
 		this.rectVertArr.destroy();
 		this.imgVertArr.destroy();
 		this.textVertArr.destroy();
+		this.rect3DVertArr.destroy();
 	}
 	
 	/** Delete any resources used by this Renderer */
@@ -452,6 +462,7 @@ public class Renderer implements Destroyable{
 	public void clear(){
 		glBindFramebuffer(GL_FRAMEBUFFER, this.getBuffer().getFrameID());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		if(this.isDepthTestEnabled()) glClearDepth(1);
 	}
 	
 	/** @return The {@link Matrix4f} of the model view, i.e. the current transformation status of the renderer */
@@ -847,6 +858,19 @@ public class Renderer implements Destroyable{
 		}
 		glEnable(GL_SCISSOR_TEST);
 		glScissor((int)Math.round(x), (int)Math.round(this.getHeight() - y), (int)Math.round(w), (int)Math.round(h));
+	}
+	
+	/** @param depthTestEnabled See {@link #depthTestEnabled} */
+	public void setDepthTestEnabled(boolean depthTestEnabled){
+		if(this.depthTestEnabled == depthTestEnabled) return;
+		this.depthTestEnabled = depthTestEnabled;
+		if(depthTestEnabled) glEnable(GL_DEPTH_TEST);
+		else glDisable(GL_DEPTH_TEST);
+	}
+	
+	/** @return See {@link #depthTestEnabled} */
+	public boolean isDepthTestEnabled(){
+		return this.depthTestEnabled;
 	}
 	
 	/**
@@ -1452,9 +1476,13 @@ public class Renderer implements Destroyable{
 	public boolean drawRect3D(double x, double y, double z, double w, double h, double l, double xRot, double yRot, double zRot,
 						   ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
 		// Use the 3D color shader and the 3D rect vertex array
-		// TODO enable depth test
 		this.renderModeRect3D();
 		this.rect3DVertArr.bind();
+		
+		// Enable the depth test
+		// TODO make depth test a stack?
+		var oldDepthTest = this.isDepthTestEnabled();
+		this.setDepthTestEnabled(true);
 		
 		// Position the 3D rect
 		this.pushMatrix();
@@ -1464,6 +1492,7 @@ public class Renderer implements Destroyable{
 		// 6 faces, 4 verticies per face, 4 color channels per color
 		var colorVerticies = new float[6 * 4 * 4];
 		// TODO formally define which indexes are for which faces
+		// TODO allow for transparent colors?
 		var cubeColors = new ZColor[]{front, back, left, right, top, bot};
 		var i = 0;
 		for(int f = 0; f < 6; f++){
@@ -1483,7 +1512,15 @@ public class Renderer implements Destroyable{
 		glDrawElements(GL_QUADS, rect3DIndexBuff.getBuff());
 		this.popMatrix();
 		
+		// Put the depth test back to whatever it was
+		this.setDepthTestEnabled(oldDepthTest);
+		
 		return true;
+	}
+	
+	// TODO add docs and params
+	public void updateFrustum(){
+		glFrustum(-5.0, 1.0, -5.0, 1.0, 1.0, 100.0);
 	}
 	
 	/** @return The top of {@link #colorStack} */

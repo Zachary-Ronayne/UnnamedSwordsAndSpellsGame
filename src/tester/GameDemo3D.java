@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.settings.BooleanTypeSetting;
+import zgame.settings.IntTypeSetting;
 
 public class GameDemo3D extends Game{
 	
@@ -17,7 +18,9 @@ public class GameDemo3D extends Game{
 	
 	public static void main(String[] args){
 		var game = new GameDemo3D();
-		game.set(BooleanTypeSetting.V_SYNC, true, false);
+		game.set(BooleanTypeSetting.V_SYNC, false, false);
+		game.set(IntTypeSetting.FPS_LIMIT, 0, false);
+		game.setPrintTps(false);
 		
 		var window = game.getWindow();
 		window.center();
@@ -34,7 +37,10 @@ public class GameDemo3D extends Game{
 	@Override
 	protected void render(Renderer r){
 		super.render(r);
-		r.identityMatrix();
+		
+		// TODO figure out the proper place to put this
+		r.updateFrustum();
+		
 		r.drawRect3D(
 				0, 0, 0,
 				.3, .3, .3,
