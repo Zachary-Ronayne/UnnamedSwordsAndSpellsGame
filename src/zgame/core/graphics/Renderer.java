@@ -1460,9 +1460,23 @@ public class Renderer implements Destroyable{
 		this.pushMatrix();
 		this.positionObject(x, y, z, w, h, l, xRot, yRot, zRot);
 		
-		// Ensure the gpu has the current modelView and color
-		// TODO update the color on the cube
-		this.updateGpuColor();
+		// Update the color on the cube
+		// 6 faces, 4 verticies per face, 4 color channels per color
+		var colorVerticies = new float[6 * 4 * 4];
+		// TODO formally define which indexes are for which faces
+		var cubeColors = new ZColor[]{front, back, left, right, top, bot};
+		var i = 0;
+		for(int f = 0; f < 6; f++){
+			for(int v = 0; v < 4; v++){
+				colorVerticies[i++] = (float)cubeColors[f].red();
+				colorVerticies[i++] = (float)cubeColors[f].green();
+				colorVerticies[i++] = (float)cubeColors[f].blue();
+				colorVerticies[i++] = (float)cubeColors[f].alpha();
+			}
+		}
+		rect3DColorBuff.updateData(colorVerticies);
+		
+		// Ensure the gpu has the current modelView
 		this.updateGpuModelView();
 		
 		// Draw the rect
