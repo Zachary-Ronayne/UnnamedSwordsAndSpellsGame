@@ -28,7 +28,7 @@ public class Demo3D{
 	private static Double lastX = null;
 	private static Double lastY = null;
 	public static final int VERTEX_POS_INDEX = 0;
-	public static final int VERTEX_COLOR_INDEX = 1;
+	public static final int VERTEX_COLOR_INDEX = 2;
 	
 	private static ShaderProgram shader;
 	

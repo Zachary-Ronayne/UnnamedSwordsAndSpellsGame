@@ -61,6 +61,8 @@ public class Renderer implements Destroyable{
 	public static final int VERTEX_POS_INDEX = 0;
 	/** The vertex buffer index for texture coordinates */
 	public static final int VERTEX_TEX_INDEX = 1;
+	/** The vertex buffer index for color coordinates */
+	public static final int VERTEX_COLOR_INDEX = 2;
 	
 	/** The buffer for the x coordinate when rendering text */
 	private final FloatBuffer xTextBuff;
@@ -77,6 +79,8 @@ public class Renderer implements Destroyable{
 	private final ShaderProgram fontShader;
 	/** The shader used to draw the frame buffer to the screen, as a texture */
 	private final ShaderProgram framebufferShader;
+	/** The shader used to draw 3D rectangles with colors */
+	private final ShaderProgram rect3DShader;
 	/** The shader which is currently used */
 	private ShaderProgram shader;
 	
@@ -107,6 +111,15 @@ public class Renderer implements Destroyable{
 	private VertexArray imgVertArr;
 	/** The {@link VertexBuffer} used to track the texture coordinates for drawing the entirety of a texture, i.e. from (0, 0) to (1, 1) */
 	private VertexBuffer texCoordBuff;
+	
+	/** The {@link IndexBuffer} that tracks indexes for drawing a 3D rectangular pirsm */
+	private IndexBuffer rect3DIndexBuff;
+	/** The {@link VertexBuffer} that tracks the coordinates for drawing a 3D rectangular pirsm */
+	private VertexBuffer rect3DCoordBuff;
+	/** The {@link VertexBuffer} that tracks the colors for drawing a 3D rectangular pirsm */
+	private VertexBuffer rect3DColorBuff;
+	/** The {@link VertexArray} for drawing a 3D rectangular pirsm */
+	private VertexArray rect3DVertArr;
 	
 	/** The list of all the stacks of this {@link Renderer} keeping track of the state of this {@link Renderer} */
 	private final ArrayList<LimitedStack<?>> stacks;
@@ -236,6 +249,7 @@ public class Renderer implements Destroyable{
 		this.textureShader = new ShaderProgram("texture");
 		this.fontShader = new ShaderProgram("font");
 		this.framebufferShader = new ShaderProgram("framebuffer");
+		this.rect3DShader = new ShaderProgram("default3D");
 		this.renderModeImage();
 		
 		// Vertex arrays and vertex buffers
@@ -317,6 +331,61 @@ public class Renderer implements Destroyable{
 		this.ellipseIndexBuff = new IndexBuffer(ellipseIndexes);
 		this.ellipsePosBuff = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_STATIC_DRAW, ellipsePoints);
 		this.ellipsePosBuff.applyToVertexArray();
+		
+		// Generate the indexes for the 3D rect
+		var cubeIndices = new byte[24];
+		for(var i = 0; i < cubeIndices.length; i++) cubeIndices[i] = (byte)i;
+		rect3DIndexBuff = new IndexBuffer(cubeIndices);
+		rect3DIndexBuff.bind();
+		
+		// Create and bind the vertex array for the 3D rect
+		rect3DVertArr = new VertexArray();
+		rect3DVertArr.bind();
+		
+		// Values for defining the cube
+		// 6 faces, 4 verticies per face, 3 coordinates per position
+		var cubeCorners = new float[][]{
+				{-1.0f, -1.0f, -1.0f},
+				{1.0f, -1.0f, -1.0f},
+				{1.0f, 1.0f, -1.0f},
+				{-1.0f, 1.0f, -1.0f},
+				{-1.0f, -1.0f, 1.0f},
+				{1.0f, -1.0f, 1.0f},
+				{1.0f, 1.0f, 1.0f},
+				{-1.0f, 1.0f, 1.0f},
+		};
+		var cubeCorderIndices = new byte[][]{
+				{0, 1, 2, 3},
+				{1, 5, 6, 2},
+				{4, 5, 6, 7},
+				{0, 4, 7, 3},
+				{3, 2, 6, 7},
+				{0, 1, 5, 4},
+		};
+		
+		// Create the vertex buffer for the coordinates
+		var cubePositions = new float[6 * 4 * 3];
+		var i = 0;
+		for(int f = 0; f < 6; f++){
+			for(int v = 0; v < 4; v++){
+				for(int p = 0; p < 3; p++){
+					cubePositions[i++] = cubeCorners[cubeCorderIndices[f][v]][p];
+				}
+			}
+		}
+		
+		rect3DCoordBuff = new VertexBuffer(VERTEX_POS_INDEX, 3, cubePositions);
+		rect3DCoordBuff.applyToVertexArray();
+		
+		// Create the vertex buffer for the colors, default to all white
+		// 6 faces, 4 verticies per face, 4 color channels per color
+		var colorVerticies = new float[6 * 4 * 4];
+		for(i = 0; i < colorVerticies.length; i++){
+			colorVerticies[i] = 1;
+		}
+		
+		rect3DColorBuff = new VertexBuffer(VERTEX_COLOR_INDEX, 4, GL_DYNAMIC_DRAW, colorVerticies);
+		rect3DColorBuff.applyToVertexArray();
 	}
 	
 	/** Free all resources used by the vertex arrays and vertex buffers */
@@ -509,7 +578,18 @@ public class Renderer implements Destroyable{
 	 * @param y The amount on the y axis
 	 */
 	public void translate(double x, double y){
-		this.modelView().translate((float)x, (float)y, 0);
+		this.translate(x, y, 0);
+	}
+	
+	/**
+	 * Translate the transformation matrix by the given amount. The coordinates are based on OpenGL positions
+	 *
+	 * @param x The amount on the x axis
+	 * @param y The amount on the y axis
+	 * @param z The amount on the z axis
+	 */
+	public void translate(double x, double y, double z){
+		this.modelView().translate((float)x, (float)y, (float)z);
 		this.markModelViewChanged();
 	}
 	
@@ -520,7 +600,31 @@ public class Renderer implements Destroyable{
 	 * @param y The amount on the y axis
 	 */
 	public void scale(double x, double y){
-		this.modelView().scale((float)x, (float)y, 1);
+		this.scale(x, y, 1);
+	}
+	
+	/**
+	 * Scale the transformation matrix by the given amount
+	 *
+	 * @param x The amount on the x axis
+	 * @param y The amount on the y axis
+	 * @param z The amount on the z axis
+	 */
+	public void scale(double x, double y, double z){
+		this.modelView().scale((float)x, (float)y, (float)z);
+		this.markModelViewChanged();
+	}
+	
+	/**
+	 * Rotare the transformation matrix by the given amount
+	 *
+	 * @param ang The angle to rotate by, in radians
+	 * @param x The amount on the x axis, usually 1 or 0
+	 * @param y The amount on the x axis, usually 1 or 0
+	 * @param z The amount on the x axis, usually 1 or 0
+	 */
+	public void rotate(double ang, double x, double y, double z){
+		this.modelView().rotate((float)ang, (float)x, (float)y, (float)z);
 		this.markModelViewChanged();
 	}
 	
@@ -557,6 +661,11 @@ public class Renderer implements Destroyable{
 	/** Call this method before rendering a frame buffer in place of a texture */
 	public void renderModeBuffer(){
 		this.setShader(this.framebufferShader);
+	}
+	
+	/** Call this method before rendering a rect 3D object */
+	public void renderModeRect3D(){
+		this.setShader(this.rect3DShader);
 	}
 	
 	/**
@@ -787,6 +896,31 @@ public class Renderer implements Destroyable{
 		// First scale by the ratio of objectSize / bufferSize, i.e. the percentage of the buffer that object takes up
 		// After this scaling, the object will be in the center of the buffer, and will be the correct size relative to the buffer
 		this.scale(w * rw, h * rh);
+	}
+	
+	/**
+	 * Call OpenGL operations that transform to draw to a location in game coordinates.
+	 * This method does not push or pop the matrix stack
+	 *
+	 * @param x The upper, front, left hand x coordinate of the rect
+	 * @param y The upper, front, left hand y coordinate of the rect
+	 * @param z The upper, front, left hand z coordinate of the rect
+	 * @param w The width, x axis, of the rect
+	 * @param h The height, y axis, of the rect
+	 * @param l The length, z axis, of the rect
+	 * @param xRot The rotation on the x axis
+	 * @param yRot The rotation on the y axis
+	 * @param zRot The rotation on the z axis
+	 */
+	public void positionObject(double x, double y, double z, double w, double h, double l, double xRot, double yRot, double zRot){
+		// TODO account for perspective/frustum
+		// TODO account for the buffer being weird sizes
+		// TODO add docs
+		this.translate(x, y, z);
+		this.rotate(xRot, 1.0f, 0.0f, 0.0f);
+		this.rotate(yRot, 0.0f, 1.0f, 0.0f);
+		this.rotate(zRot, 0.0f, 0.0f, 1.0f);
+		this.scale(w, h, l);
 	}
 	
 	/**
@@ -1292,6 +1426,50 @@ public class Renderer implements Destroyable{
 		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		this.popMatrix();
+	}
+	
+	/**
+	 * Draw a rectangular prism based on the given values
+	 * @param x The upper, front, left hand x coordinate of the rect
+	 * @param y The upper, front, left hand y coordinate of the rect
+	 * @param z The upper, front, left hand z coordinate of the rect
+	 * @param w The width, x axis, of the rect
+	 * @param h The height, y axis, of the rect
+	 * @param l The length, z axis, of the rect
+	 * @param xRot The rotation on the x axis
+	 * @param yRot The rotation on the y axis
+	 * @param zRot The rotation on the z axis
+	 * @param front The color of the front of the rect
+	 * @param back The color of the back of the rect
+	 * @param left The color of the left of the rect
+	 * @param right The color of the right of the rect
+	 * @param top The color of the top of the rect
+	 * @param bot The color of the bottom of the rect
+	 * @return true if the object was drawn, false otherwise
+	 *
+	 */
+	// TODO make a better way of passing all these params
+	public boolean drawRect3D(double x, double y, double z, double w, double h, double l, double xRot, double yRot, double zRot,
+						   ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
+		// Use the 3D color shader and the 3D rect vertex array
+		// TODO enable depth test
+		this.renderModeRect3D();
+		this.rect3DVertArr.bind();
+		
+		// Position the 3D rect
+		this.pushMatrix();
+		this.positionObject(x, y, z, w, h, l, xRot, yRot, zRot);
+		
+		// Ensure the gpu has the current modelView and color
+		// TODO update the color on the cube
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
+		// Draw the rect
+		glDrawElements(GL_QUADS, rect3DIndexBuff.getBuff());
+		this.popMatrix();
+		
+		return true;
 	}
 	
 	/** @return The top of {@link #colorStack} */
