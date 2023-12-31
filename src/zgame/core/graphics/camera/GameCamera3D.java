@@ -19,6 +19,9 @@ public class GameCamera3D{
 	/** The rotation of the camera on the z axis in radians */
 	private double rotZ;
 	
+	/** true to limit the camera to only looking at most straight up and straight down, false for no limit */
+	private boolean enableLookLimit;
+	
 	/*
 	 TODO should this also account for a camera distance from where it rotates around?
 	  Like imagine the (x, y, z) point is where the camera's swivel point is,
@@ -33,6 +36,8 @@ public class GameCamera3D{
 		this.setRotX(0);
 		this.setRotY(0);
 		this.setRotZ(0);
+		
+		this.setEnableLookLimit(true);
 	}
 	
 	/** @return See {@link #x} */
@@ -85,10 +90,9 @@ public class GameCamera3D{
 		return this.rotX;
 	}
 	
-	// TODO add an option for the x rotation limit?
 	/** @param rotX See {@link #rotX} */
 	public void setRotX(double rotX){
-		this.rotX = ZMath.minMax(rotX, Math.PI, -Math.PI);
+		this.rotX = this.isEnableLookLimit() ? ZMath.minMax(-Math.PI, Math.PI, rotX) : rotX;
 	}
 	
 	/** @param rotX The amount to add to {@link #rotX} */
@@ -124,5 +128,15 @@ public class GameCamera3D{
 	/** @param rotZ The amount to add to {@link #rotZ} */
 	public void addRotZ(double rotZ){
 		this.setRotZ(this.rotZ + rotZ);
+	}
+	
+	/** @return See {@link #enableLookLimit} */
+	public boolean isEnableLookLimit(){
+		return this.enableLookLimit;
+	}
+	
+	/** @param enableLookLimit See {@link #enableLookLimit} */
+	public void setEnableLookLimit(boolean enableLookLimit){
+		this.enableLookLimit = enableLookLimit;
 	}
 }
