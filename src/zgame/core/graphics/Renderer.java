@@ -11,6 +11,7 @@ import zgame.core.graphics.buffer.GameBuffer;
 import zgame.core.graphics.buffer.IndexBuffer;
 import zgame.core.graphics.buffer.VertexArray;
 import zgame.core.graphics.buffer.VertexBuffer;
+import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.TextBuffer;
@@ -160,7 +161,7 @@ public class Renderer implements Destroyable{
 	 * The stack keeping track of the {@link GameCamera} which determines the relative location and scale of objects drawn in this renderer.
 	 * If the top of the stack is null, no transformations will be applied
 	 */
-	private LimitedStack<GameCamera> cameraStack;
+	private final LimitedStack<GameCamera> cameraStack;
 	
 	/**
 	 * A stack keeping track of the attribute of if positioning should be used.
@@ -182,6 +183,9 @@ public class Renderer implements Destroyable{
 	/** true if the OpenGL depth test is enabled, false otherwise */
 	private boolean depthTestEnabled;
 	
+	/** The camera used for 3D graphics */
+	private final GameCamera3D camera3D;
+	
 	/**
 	 * Create a new empty renderer
 	 *
@@ -194,6 +198,9 @@ public class Renderer implements Destroyable{
 		// Initialize stack list
 		this.stacks = new ArrayList<>();
 		this.attributeStacks = new ArrayList<>();
+		
+		// 3D camera
+		this.camera3D = new GameCamera3D();
 		
 		// Buffer stack
 		this.bufferStack = new LimitedStack<>(new GameBuffer(width, height, true), false);
@@ -222,10 +229,6 @@ public class Renderer implements Destroyable{
 		this.stacks.add(this.colorStack);
 		this.attributeStacks.add(this.colorStack);
 		this.sendColor = true;
-		
-		// Camera stack
-		this.cameraStack = new LimitedStack<>(null);
-		this.stacks.add(cameraStack);
 		
 		// Positioning enabled stack
 		this.positioningEnabledStack = new LimitedStack<>(DEFAULT_POSITIONING_ENABLED);
@@ -650,6 +653,41 @@ public class Renderer implements Destroyable{
 	public void rotate(double ang, double x, double y, double z){
 		this.modelView().rotate((float)ang, (float)x, (float)y, (float)z);
 		this.markModelViewChanged();
+	}
+	
+	/**
+	 * Set the valyes in the camera and the current projection matrix to be the perspective of the camera
+	 * @param x The new x coordinate
+	 * @param y The new y coordinate
+	 * @param z The new z coordinate
+	 * @param rotX The new rotation on the x axis, in radians
+	 * @param rotY The new rotation on the y axis, in radians
+	 * @param rotZ The new rotation on the z axis, in radians
+	 */
+	public void setCamera3D(double x, double y, double z, double rotX, double rotY, double rotZ){
+		this.camera3D.setX(x);
+		this.camera3D.setY(y);
+		this.camera3D.setZ(z);
+		this.camera3D.setRotX(rotX);
+		this.camera3D.setRotY(rotY);
+		this.camera3D.setRotZ(rotZ);
+		
+		this.camera3DPerspective();
+	}
+	
+	/** Set the model view to be the base matrix for a perspective projection using the current {@link #camera3D} perspective */
+	public void camera3DPerspective(){
+		// TODO make FOV (the 45) a setting
+		this.setMatrix(new Matrix4f().perspective((float)Math.toRadians(45.0), 1.0f, 0.1f, 100f));
+		this.rotate(this.camera3D.getRotX(), 1, 0, 0);
+		this.rotate(this.camera3D.getRotY(), 0, 1, 0);
+		this.rotate(this.camera3D.getRotZ(), 0, 0, 1);
+		this.translate(-this.camera3D.getX(), -this.camera3D.getY(), -this.camera3D.getZ());
+	}
+	
+	/** @return See {@link #camera3D} */
+	public GameCamera3D getCamera3D(){
+		return this.camera3D;
 	}
 	
 	/** @return The top of {@link #positioningEnabledStack} */
@@ -1465,6 +1503,7 @@ public class Renderer implements Destroyable{
 		this.popMatrix();
 	}
 	
+	// TODO update the docs and decide formally what the coordinates represent, maybe the bottom center?
 	/**
 	 * Draw a rectangular prism based on the given values
 	 * @param x The upper, front, left hand x coordinate of the rect

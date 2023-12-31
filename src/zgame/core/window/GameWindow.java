@@ -86,6 +86,9 @@ public abstract class GameWindow implements Destroyable{
 	/** The inverse of {@link #viewportH} */
 	private double viewportHInverse;
 	
+	/** true if the mouse moves normally, false otherwise */
+	private boolean mouseNormally;
+	
 	/** An interface for a lambda method which is called each time a key or mouse button is pressed or released */
 	public interface ButtonAction{
 		/**
@@ -180,6 +183,10 @@ public abstract class GameWindow implements Destroyable{
 		
 		// Set up texture settings for drawing with an alpha channel
 		initTextureSettings();
+		
+		// Init mouse movement, use normal movement by default
+		this.mouseNormally = true;
+		this.updateMouseNormally(true);
 	}
 	
 	/** Called during object initialization. Must establish window context with OpenGL before further initialization can occur */
@@ -526,6 +533,24 @@ public abstract class GameWindow implements Destroyable{
 	
 	/** @return The {@link ZMouseInput} object which controls mouse input for the window */
 	public abstract ZMouseInput getMouseInput();
+	
+	/** @return See {@link #mouseNormally} */
+	public boolean isMouseNormally(){
+		return this.mouseNormally;
+	}
+	
+	/** @param normal See {@link #mouseNormally} */
+	public final void setMouseNormally(boolean normal){
+		if(this.mouseNormally == normal) return;
+		this.mouseNormally = normal;
+		updateMouseNormally(this.mouseNormally);
+	}
+	
+	/**
+	 * Set the mouse to act normally or to be invisible and stuck to the center of the window
+	 * @param normal true for normal, false otherwise
+	 */
+	protected abstract void updateMouseNormally(boolean normal);
 	
 	/** @return The {@link ZKeyInput} object which controls keyboard input for the window */
 	public abstract ZKeyInput getKeyInput();

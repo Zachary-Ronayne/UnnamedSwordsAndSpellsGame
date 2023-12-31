@@ -13,8 +13,7 @@ public class Type3D extends GameType{
 	public void setupRender(Game game, Renderer r){
 		r.updateFrustum();
 		r.setDepthTestEnabled(true);
-		
-		// TODO update the camera here
+		r.camera3DPerspective();
 	}
 	
 	@Override

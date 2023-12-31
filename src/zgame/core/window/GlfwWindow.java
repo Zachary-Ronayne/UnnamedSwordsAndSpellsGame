@@ -458,4 +458,10 @@ public class GlfwWindow extends GameWindow{
 	public GLFWKeyInput getKeyInput(){
 		return this.keyInput;
 	}
+	
+	@Override
+	public void updateMouseNormally(boolean normal){
+		if(normal) glfwSetInputMode(this.getWindowID(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		else glfwSetInputMode(this.getWindowID(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
 }

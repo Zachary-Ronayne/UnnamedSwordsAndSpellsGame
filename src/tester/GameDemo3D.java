@@ -12,21 +12,28 @@ public class GameDemo3D extends Game{
 	
 	private static GameDemo3D game;
 	
-	private static double xRot = Math.PI * 0.25;
-	private static double yRot = Math.PI * 0.25;
-	private static double zRot = Math.PI * 0.25;
+	private static double xRot = 0;
+	private static double yRot = 0;
+	private static double zRot = 0;
 	
 	private static double xRotSpeed = 0;//1;
 	private static double yRotSpeed = 0;//.5;
 	private static double zRotSpeed = 0;//.25;
 	
-	public GameDemo3D(){
-		super();
+	private static final double moveSpeed = 0.7;
+	private static final double mouseSpeed = 0.0007;
+	private static final double gravity = 0.1;
+	private static final double jumpVel = 2;
+	private static double yVel = 0;
+	
+	public GameDemo3D(int width, int height){
+			super("Cube Game Demo", width, height, 0, false, false, true, false);
 		this.make3D();
 	}
 	
 	public static void main(String[] args){
-		game = new GameDemo3D();
+		// TODO make an option for properly setting the screen width and height after creating the object
+		game = new GameDemo3D(800, 800);
 		
 		game.set(BooleanTypeSetting.V_SYNC, false, false);
 		game.set(IntTypeSetting.FPS_LIMIT, 0, false);
@@ -34,7 +41,6 @@ public class GameDemo3D extends Game{
 		
 		var window = game.getWindow();
 		window.center();
-		window.setSize(800, 800);
 		
 		game.start();
 	}
@@ -43,8 +49,11 @@ public class GameDemo3D extends Game{
 	protected void render(Renderer r){
 		super.render(r);
 		
+		// TODO fix weird flickering issues with the cube
+		
+		// TODO why is the whole cube flipped around when using perspective?
 		r.drawRect3D(
-				0, 0, 0,
+				-0.25, 0, 0,
 				.3, .3, .3,
 				xRot, yRot, zRot,
 				new ZColor(1, 0, 0),
@@ -61,16 +70,64 @@ public class GameDemo3D extends Game{
 		super.tick(dt);
 		var ki = game.getKeyInput();
 		
-		if(ki.pressed(GLFW_KEY_W)) xRotSpeed = -1;
-		else if(ki.pressed(GLFW_KEY_S)) xRotSpeed = 1;
+		var camera = game.getWindow().getRenderer().getCamera3D();
+		
+		// TODO abstract out a bunch of this to be built into the engine
+		double xSpeed = 0;
+		double zSpeed = 0;
+		
+		var ang = camera.getRotY();
+		var left = ki.buttonDown(GLFW_KEY_A);
+		var right = ki.buttonDown(GLFW_KEY_D);
+		var forward = ki.buttonDown(GLFW_KEY_W);
+		var backward = ki.buttonDown(GLFW_KEY_S);
+		if(left && forward || right && backward) ang -= Math.PI * 0.25;
+		if(right && forward || left && backward) ang += Math.PI * 0.25;
+		
+		if(forward) {
+			xSpeed = Math.sin(ang);
+			zSpeed = -Math.cos(ang);
+		}
+		else if(backward) {
+			xSpeed = -Math.sin(ang);
+			zSpeed = Math.cos(ang);
+		}
+		else{
+			if(left){
+				ang = camera.getRotY() - Math.PI * 0.5;
+				xSpeed = Math.sin(ang);
+				zSpeed = -Math.cos(ang);
+			}
+			else if(right){
+				ang = camera.getRotY() + Math.PI * 0.5;
+				xSpeed = Math.sin(ang);
+				zSpeed = -Math.cos(ang);
+			}
+		}
+		
+		camera.addX(dt * moveSpeed * xSpeed);
+		camera.addZ(dt * moveSpeed * zSpeed);
+		
+		if(camera.getY() < 0) {
+			camera.setY(0);
+			yVel = 0;
+		}
+		camera.addY(yVel);
+		if(ki.pressed(GLFW_KEY_Q) && yVel == 0) yVel = jumpVel * dt;
+		yVel -= gravity * dt;
+		
+		// TODO controls for rotating on the z axis that auto go back to zero
+		
+		if(ki.pressed(GLFW_KEY_I)) xRotSpeed = -1;
+		else if(ki.pressed(GLFW_KEY_K)) xRotSpeed = 1;
 		else xRotSpeed = 0;
 		
-		if(ki.pressed(GLFW_KEY_A)) yRotSpeed = -1;
-		else if(ki.pressed(GLFW_KEY_D)) yRotSpeed = 1;
+		if(ki.pressed(GLFW_KEY_J)) yRotSpeed = -1;
+		else if(ki.pressed(GLFW_KEY_L)) yRotSpeed = 1;
 		else yRotSpeed = 0;
 		
-		if(ki.pressed(GLFW_KEY_Q)) zRotSpeed = -1;
-		else if(ki.pressed(GLFW_KEY_Z)) zRotSpeed = 1;
+		if(ki.pressed(GLFW_KEY_U)) zRotSpeed = -1;
+		else if(ki.pressed(GLFW_KEY_O)) zRotSpeed = 1;
 		else zRotSpeed = 0;
 		
 		if(ki.pressed(GLFW_KEY_R)) {
@@ -82,5 +139,37 @@ public class GameDemo3D extends Game{
 		xRot += xRotSpeed * dt;
 		yRot += yRotSpeed * dt;
 		zRot += zRotSpeed * dt;
+	}
+	
+	@Override
+	protected void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyAction(button, press, shift, alt, ctrl);
+		
+		if(press) return;
+		
+		// TODO make this happen automatically depending on the game state and if menus are open, also make it an option to enable or disable it
+		if(button == GLFW_KEY_SPACE) {
+			var window = game.getWindow();
+			window.setMouseNormally(!window.isMouseNormally());
+		}
+	}
+	
+	@Override
+	protected void mouseMove(double x, double y){
+		super.mouseMove(x, y);
+		
+		var window = game.getWindow();
+		if(window.isMouseNormally()) return;
+		
+		// TODO add this as some kind of built in thing
+		
+		// TODO fix sudden camera jolts when switching between normal and not normal mouse modes
+		// Axes swapped because of the way that it feels like it should be
+		var diffX = y - game.getMouseInput().lastY();
+		var diffY = x - game.getMouseInput().lastX();
+		
+		var camera = window.getRenderer().getCamera3D();
+		camera.addRotX(diffX * mouseSpeed);
+		camera.addRotY(diffY * mouseSpeed);
 	}
 }
