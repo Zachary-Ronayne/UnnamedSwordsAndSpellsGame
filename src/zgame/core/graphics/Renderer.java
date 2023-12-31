@@ -992,9 +992,9 @@ public class Renderer implements Destroyable{
 		// TODO account for the buffer being weird sizes
 		// TODO add docs
 		this.translate(x, y, z);
-//		this.rotate(xRot, 1.0f, 0.0f, 0.0f);
-//		this.rotate(yRot, 0.0f, 1.0f, 0.0f);
-//		this.rotate(zRot, 0.0f, 0.0f, 1.0f);
+		this.rotate(xRot, 1.0f, 0.0f, 0.0f);
+		this.rotate(yRot, 0.0f, 1.0f, 0.0f);
+		this.rotate(zRot, 0.0f, 0.0f, 1.0f);
 		this.scale(w, h, l);
 	}
 	
