@@ -50,6 +50,9 @@ public class GameBuffer implements Destroyable{
 	/** The way this buffer should be rendered for the alpha channel */
 	private AlphaMode alphaMode;
 	
+	/** true if this buffer should use a depth buffer for the depth test when it is generated, false otherwise */
+	private boolean depthBufferEnabled;
+	
 	/**
 	 * Create a GameBuffer of the given size
 	 *
@@ -60,6 +63,7 @@ public class GameBuffer implements Destroyable{
 	public GameBuffer(int width, int height, boolean generate){
 		this.alphaMode = AlphaMode.NORMAL;
 		this.bufferGenerated = false;
+		this.depthBufferEnabled = false;
 		if(generate) this.regenerateBuffer(width, height);
 		else{
 			this.width = width;
@@ -111,11 +115,14 @@ public class GameBuffer implements Destroyable{
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this.textureID, 0);
 		
-		// TODO make this an option, i.e. not for all buffers
-		var depthBuffer = glGenRenderbuffers();
-		glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this.getWidth(), this.getHeight());
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+		if(this.depthBufferEnabled){
+			var depthBuffer = glGenRenderbuffers();
+			glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this.getWidth(), this.getHeight());
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+		}
+		
+		// TODO figure out this error when rendering a sphere: GL_OUT_OF_MEMORY error generated. Failed to map memory for buffer.
 		
 		// Error check
 		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -187,6 +194,16 @@ public class GameBuffer implements Destroyable{
 	/** @param alphaMode See {@link #alphaMode} */
 	public void setAlphaMode(AlphaMode alphaMode){
 		this.alphaMode = alphaMode;
+	}
+	
+	/** @return See {@link #depthBufferEnabled} */
+	public boolean isDepthBufferEnabled(){
+		return this.depthBufferEnabled;
+	}
+	
+	/** @param depthBufferEnabled See {@link #depthBufferEnabled} */
+	public void setDepthBufferEnabled(boolean depthBufferEnabled){
+		this.depthBufferEnabled = depthBufferEnabled;
 	}
 	
 	/** @return See {@link #textureID} */

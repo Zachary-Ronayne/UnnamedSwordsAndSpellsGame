@@ -26,12 +26,12 @@ public class GameDemo3D extends Game{
 		window.center();
 		window.setSize(800, 800);
 		
+		// TODO figure out the correct place for this, make a game type field that is 2D or 3D
+		var buff = window.getRenderer().getBuffer();
+		buff.setDepthBufferEnabled(true);
+		buff.regenerateBuffer();
+		
 		game.start();
-	}
-	
-	@Override
-	public String getGlobalSettingsLocation(){
-		return "./testGame/settings";
 	}
 	
 	@Override
