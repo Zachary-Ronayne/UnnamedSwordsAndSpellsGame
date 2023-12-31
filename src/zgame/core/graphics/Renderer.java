@@ -678,7 +678,7 @@ public class Renderer implements Destroyable{
 	/** Set the model view to be the base matrix for a perspective projection using the current {@link #camera3D} perspective */
 	public void camera3DPerspective(){
 		// TODO make FOV a setting
-		this.setMatrix(new Matrix4f().perspective(1, 1.0f, 0.1f, 100f));
+		this.setMatrix(new Matrix4f().perspective(1, (float)this.getBuffer().getRatioWH(), 0.1f, 100f));
 		this.rotate(this.camera3D.getRotX(), 1, 0, 0);
 		this.rotate(this.camera3D.getRotY(), 0, 1, 0);
 		this.rotate(this.camera3D.getRotZ(), 0, 0, 1);
@@ -988,13 +988,16 @@ public class Renderer implements Destroyable{
 	 * @param zRot The rotation on the z axis
 	 */
 	public void positionObject(double x, double y, double z, double w, double h, double l, double xRot, double yRot, double zRot){
-		// TODO account for perspective/frustum
 		// TODO account for the buffer being weird sizes
-		// TODO add docs
+		// Transformations happen in reverse order
+		
+		// Move the object to its final position
 		this.translate(x, y, z);
+		// Rotate around the center for each axis
 		this.rotate(xRot, 1.0f, 0.0f, 0.0f);
 		this.rotate(yRot, 0.0f, 1.0f, 0.0f);
 		this.rotate(zRot, 0.0f, 0.0f, 1.0f);
+		// Start by scaling appropriately
 		this.scale(w, h, l);
 	}
 	

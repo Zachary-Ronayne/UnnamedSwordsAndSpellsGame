@@ -42,7 +42,6 @@ public class GameDemo3D extends Game{
 		var window = game.getWindow();
 		window.setWindowTitle("Cube Demo");
 		window.setSizeUniform(800, 800);
-		window.setResizeScreenOnResizeWindow(true);
 		window.center();
 		
 		game.start();

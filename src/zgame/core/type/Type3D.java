@@ -21,5 +21,7 @@ public class Type3D extends GameType{
 		var buff = game.getWindow().getRenderer().getBuffer();
 		buff.setDepthBufferEnabled(true);
 		buff.regenerateBuffer();
+		
+		game.getWindow().setResizeScreenOnResizeWindow(true);
 	}
 }
