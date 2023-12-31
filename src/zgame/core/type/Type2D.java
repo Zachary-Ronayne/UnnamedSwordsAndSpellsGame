@@ -4,7 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 
 /** The type representing a 2D game */
-public class Type2D extends GameType{
+public class Type2D implements GameType{
 	
 	/** Init a new 2D game type */
 	public Type2D(){}

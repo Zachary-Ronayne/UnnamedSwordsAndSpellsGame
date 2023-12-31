@@ -1001,7 +1001,6 @@ public class Renderer implements Destroyable{
 	 * @param zRot The rotation on the z axis
 	 */
 	public void positionObject(double x, double y, double z, double w, double h, double l, double xRot, double yRot, double zRot){
-		// TODO account for the buffer being weird sizes
 		// Transformations happen in reverse order
 		
 		// Move the object to its final position
@@ -1577,9 +1576,17 @@ public class Renderer implements Destroyable{
 		return true;
 	}
 	
-	// TODO add docs and params
-	public void updateFrustum(){
-		glFrustum(-5.0, 1.0, -5.0, 1.0, 1.0, 100.0);
+	/**
+	 * Update the OpenGL frustum
+	 * @param leftClip The left vertical clipping plane
+	 * @param rightClip The right vertical clipping plane
+	 * @param bottomClip The bottom horizontal clipping plane
+	 * @param topClip The top horizontal clipping plane
+	 * @param nearClip The distance from the camera to the near clipping plane
+	 * @param farClip The distance from the camera to the far clipping plane
+	 */
+	public void updateFrustum(double leftClip, double rightClip, double bottomClip, double topClip, double nearClip, double farClip){
+		glFrustum(leftClip, rightClip, bottomClip, topClip, nearClip, farClip);
 	}
 	
 	/** @return The top of {@link #colorStack} */
