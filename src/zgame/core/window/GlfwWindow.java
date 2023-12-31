@@ -461,7 +461,7 @@ public class GlfwWindow extends GameWindow{
 	
 	@Override
 	public void updateMouseNormally(boolean normal){
-		if(normal) glfwSetInputMode(this.getWindowID(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		else glfwSetInputMode(this.getWindowID(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		if(normal) glfwSetInputMode(this.getCurrentWindowID(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		else glfwSetInputMode(this.getCurrentWindowID(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 }

@@ -24,6 +24,9 @@ import java.nio.IntBuffer;
  */
 public abstract class GameWindow implements Destroyable{
 	
+	/** The game associated with this window, or null if no association exists */
+	private Game game;
+	
 	/** The title displayed on the window */
 	private String windowTitle;
 	
@@ -375,6 +378,9 @@ public abstract class GameWindow implements Destroyable{
 			// Store the old position of the window
 			this.oldPosition = this.getWindowPos();
 			this.enterFullScreen();
+			
+			// Apply any needed states from the game's type
+			if(this.game != null) game.getType().onTypeSet(this.game);
 		}
 		else{
 			this.exitFullScreen();
@@ -470,6 +476,16 @@ public abstract class GameWindow implements Destroyable{
 	 * @return The monitor id which the window was centered to
 	 */
 	public abstract long center();
+	
+	/** @param game See {@link #game} */
+	public void setGame(Game game){
+		this.game = game;
+	}
+	
+	/** @return See {@link #game} */
+	public Game getGame(){
+		return this.game;
+	}
 	
 	/**
 	 * Call to change the fullscreen state on the next OpenGL loop. If the window is already in the desired state, nothing happens
@@ -569,7 +585,7 @@ public abstract class GameWindow implements Destroyable{
 	 * Set the mouse to act normally or to be invisible and stuck to the center of the window
 	 * @param normal true for normal, false otherwise
 	 */
-	protected abstract void updateMouseNormally(boolean normal);
+	public abstract void updateMouseNormally(boolean normal);
 	
 	/** @return The {@link ZKeyInput} object which controls keyboard input for the window */
 	public abstract ZKeyInput getKeyInput();

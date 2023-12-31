@@ -236,6 +236,7 @@ public class Game implements Saveable, Destroyable{
 		
 		// Init window
 		this.window = new GlfwWindow(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
+		this.window.setGame(this);
 		this.focusedMenuThing = null;
 		
 		// Init images

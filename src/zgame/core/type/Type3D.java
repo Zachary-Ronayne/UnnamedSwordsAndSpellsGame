@@ -19,10 +19,21 @@ public class Type3D implements GameType{
 	
 	@Override
 	public void onTypeSet(Game game){
-		var buff = game.getWindow().getRenderer().getBuffer();
+		var window = game.getWindow();
+		
+		// Turn on the depth buffer
+		var buff = window.getRenderer().getBuffer();
 		buff.setDepthBufferEnabled(true);
 		buff.regenerateBuffer();
 		
-		game.getWindow().setResizeScreenOnResizeWindow(true);
+		// Auto resize the window
+		window.setResizeScreenOnResizeWindow(true);
+		
+		// Update the mouse mode
+		window.updateMouseNormally(window.isMouseNormally());
+		
+		// TODO fix the resolution not auto updating when going to full screen
+		
+		// TODO fix the depth buffer not updating
 	}
 }
