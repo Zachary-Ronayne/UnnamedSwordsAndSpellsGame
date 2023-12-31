@@ -183,6 +183,9 @@ public class Renderer implements Destroyable{
 	/** true if the OpenGL depth test is enabled, false otherwise */
 	private boolean depthTestEnabled;
 	
+	/** The current fov to use for 3D graphics */
+	private double fov;
+	
 	/** The camera used for 3D graphics */
 	private final GameCamera3D camera3D;
 	
@@ -201,6 +204,7 @@ public class Renderer implements Destroyable{
 		
 		// 3D camera
 		this.camera3D = new GameCamera3D();
+		this.fov = 1;
 		
 		// Buffer stack
 		this.bufferStack = new LimitedStack<>(new GameBuffer(width, height, true), false);
@@ -677,8 +681,7 @@ public class Renderer implements Destroyable{
 	
 	/** Set the model view to be the base matrix for a perspective projection using the current {@link #camera3D} perspective */
 	public void camera3DPerspective(){
-		// TODO make FOV a setting
-		this.setMatrix(new Matrix4f().perspective(1, (float)this.getBuffer().getRatioWH(), 0.1f, 100f));
+		this.setMatrix(new Matrix4f().perspective((float)this.getFov(), (float)this.getBuffer().getRatioWH(), 0.1f, 100f));
 		this.rotate(this.camera3D.getRotX(), 1, 0, 0);
 		this.rotate(this.camera3D.getRotY(), 0, 1, 0);
 		this.rotate(this.camera3D.getRotZ(), 0, 0, 1);
@@ -688,6 +691,16 @@ public class Renderer implements Destroyable{
 	/** @return See {@link #camera3D} */
 	public GameCamera3D getCamera3D(){
 		return this.camera3D;
+	}
+	
+	/** @return See {@link #fov} */
+	public double getFov(){
+		return this.fov;
+	}
+	
+	/** @param fov See {@link #fov} */
+	public void setFov(double fov){
+		this.fov = fov;
 	}
 	
 	/** @return The top of {@link #positioningEnabledStack} */

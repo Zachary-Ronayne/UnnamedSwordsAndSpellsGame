@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.settings.BooleanTypeSetting;
+import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -173,6 +174,10 @@ public class GameDemo3D extends Game{
 			var window = game.getWindow();
 			window.setMouseNormally(!window.isMouseNormally());
 		}
+		
+		// Modify FOV
+		if(button == GLFW_KEY_LEFT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) - .1, false);
+		else if(button == GLFW_KEY_RIGHT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) + .1, false);
 	}
 	
 	@Override
