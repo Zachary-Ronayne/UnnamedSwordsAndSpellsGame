@@ -122,8 +122,6 @@ public class GameBuffer implements Destroyable{
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
 		}
 		
-		// TODO figure out this error when rendering a sphere: GL_OUT_OF_MEMORY error generated. Failed to map memory for buffer.
-		
 		// Error check
 		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		boolean success = status == GL_FRAMEBUFFER_COMPLETE;

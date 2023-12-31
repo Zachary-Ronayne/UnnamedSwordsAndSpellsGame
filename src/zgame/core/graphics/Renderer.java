@@ -344,7 +344,6 @@ public class Renderer implements Destroyable{
 		var cubeIndices = new byte[24];
 		for(var i = 0; i < cubeIndices.length; i++) cubeIndices[i] = (byte)i;
 		rect3DIndexBuff = new IndexBuffer(cubeIndices);
-		rect3DIndexBuff.bind();
 		
 		// Create and bind the vertex array for the 3D rect
 		rect3DVertArr = new VertexArray();
