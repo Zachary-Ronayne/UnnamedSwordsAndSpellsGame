@@ -27,20 +27,22 @@ public class GameDemo3D extends Game{
 	private static final double jumpVel = 2;
 	private static double yVel = 0;
 	
-	public GameDemo3D(int width, int height){
-			super("Cube Game Demo", width, height, 0, false, false, true, false);
+	public GameDemo3D(){
+		super();
 		this.make3D();
 	}
 	
 	public static void main(String[] args){
-		// TODO make an option for properly setting the screen width and height after creating the object
-		game = new GameDemo3D(800, 800);
+		game = new GameDemo3D();
 		
-		game.set(BooleanTypeSetting.V_SYNC, false, false);
+		game.set(BooleanTypeSetting.V_SYNC, true, false);
 		game.set(IntTypeSetting.FPS_LIMIT, 0, false);
 		game.setPrintTps(false);
 		
 		var window = game.getWindow();
+		window.setWindowTitle("Cube Demo");
+		window.setSizeUniform(800, 800);
+		window.setResizeScreenOnResizeWindow(true);
 		window.center();
 		
 		game.start();
@@ -52,7 +54,6 @@ public class GameDemo3D extends Game{
 		
 		// TODO fix weird flickering issues with the cube
 		
-		// TODO why is the whole cube flipped around when using perspective?
 		r.drawRect3D(
 				0, 0, -2,
 				.3, .3, .3,

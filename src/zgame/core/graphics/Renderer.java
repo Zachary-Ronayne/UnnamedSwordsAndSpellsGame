@@ -677,8 +677,8 @@ public class Renderer implements Destroyable{
 	
 	/** Set the model view to be the base matrix for a perspective projection using the current {@link #camera3D} perspective */
 	public void camera3DPerspective(){
-		// TODO make FOV (the 45) a setting
-		this.setMatrix(new Matrix4f().perspective((float)Math.toRadians(45.0), 1.0f, 0.1f, 100f));
+		// TODO make FOV a setting
+		this.setMatrix(new Matrix4f().perspective(1, 1.0f, 0.1f, 100f));
 		this.rotate(this.camera3D.getRotX(), 1, 0, 0);
 		this.rotate(this.camera3D.getRotY(), 0, 1, 0);
 		this.rotate(this.camera3D.getRotZ(), 0, 0, 1);

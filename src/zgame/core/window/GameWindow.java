@@ -89,6 +89,9 @@ public abstract class GameWindow implements Destroyable{
 	/** true if the mouse moves normally, false otherwise */
 	private boolean mouseNormally;
 	
+	/** true if the internal buffer should be resized any time the window changes size, to match the window, false otherwise */
+	private boolean resizeScreenOnResizeWindow;
+	
 	/** An interface for a lambda method which is called each time a key or mouse button is pressed or released */
 	public interface ButtonAction{
 		/**
@@ -150,6 +153,7 @@ public abstract class GameWindow implements Destroyable{
 		this.mouseActionMethod = null;
 		this.mouseMoveMethod = null;
 		this.mouseWheelMoveMethod = null;
+		this.resizeScreenOnResizeWindow = false;
 		
 		// Ensure window context is set up
 		this.createContext();
@@ -286,6 +290,8 @@ public abstract class GameWindow implements Destroyable{
 	protected void windowSizeChanged(int w, int h){
 		this.setWidth(w);
 		this.setHeight(h);
+		if(this.isResizeScreenOnResizeWindow()) this.resizeScreen(w, h);
+		
 		this.updateWindowSize();
 	}
 	
@@ -316,9 +322,22 @@ public abstract class GameWindow implements Destroyable{
 	 */
 	public void setSize(int w, int h){
 		if(this.isInFullScreen()) return;
+		if(this.isResizeScreenOnResizeWindow()) this.resizeScreen(w, h);
 		
 		this.setWidth(w);
 		this.setHeight(h);
+	}
+	
+	/**
+	 * Set the size of this window and the internal buffer used to render to the screen and perform needed updates to recalculate any necessary values.
+	 * This is an expensive operation and should only be used during initialization or with things like changing a setting
+	 * @param w The new width
+	 * @param h The new height
+	 */
+	public void setSizeUniform(int w, int h){
+		this.setSize(w, h);
+		this.resizeScreen(w, h);
+		this.updateWindowSize();
 	}
 	
 	/**
@@ -701,6 +720,16 @@ public abstract class GameWindow implements Destroyable{
 		}
 		this.viewportWInverse = 1.0 / this.viewportW;
 		this.viewportHInverse = 1.0 / this.viewportH;
+	}
+	
+	/** @return See {@link #resizeScreenOnResizeWindow} */
+	public boolean isResizeScreenOnResizeWindow(){
+		return this.resizeScreenOnResizeWindow;
+	}
+	
+	/** @param resizeScreenOnResizeWindow See {@link #resizeScreenOnResizeWindow} */
+	public void setResizeScreenOnResizeWindow(boolean resizeScreenOnResizeWindow){
+		this.resizeScreenOnResizeWindow = resizeScreenOnResizeWindow;
 	}
 	
 	/**
