@@ -6,18 +6,23 @@ import zgame.core.graphics.ZColor;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.IntTypeSetting;
 
+import static org.lwjgl.glfw.GLFW.*;
+
 public class GameDemo3D extends Game{
+	
+	private static GameDemo3D game;
 	
 	private static double xRot = Math.PI * 0.25;
 	private static double yRot = Math.PI * 0.25;
 	private static double zRot = Math.PI * 0.25;
 	
-	private static double xRotSpeed = 1;
-	private static double yRotSpeed = .5;
-	private static double zRotSpeed = .25;
+	private static double xRotSpeed = 0;//1;
+	private static double yRotSpeed = 0;//.5;
+	private static double zRotSpeed = 0;//.25;
+	
 	
 	public static void main(String[] args){
-		var game = new GameDemo3D();
+		game = new GameDemo3D();
 		game.set(BooleanTypeSetting.V_SYNC, false, false);
 		game.set(IntTypeSetting.FPS_LIMIT, 0, false);
 		game.setPrintTps(false);
@@ -57,6 +62,26 @@ public class GameDemo3D extends Game{
 	@Override
 	protected void tick(double dt){
 		super.tick(dt);
+		var ki = game.getKeyInput();
+		
+		if(ki.pressed(GLFW_KEY_W)) xRotSpeed = -1;
+		else if(ki.pressed(GLFW_KEY_S)) xRotSpeed = 1;
+		else xRotSpeed = 0;
+		
+		if(ki.pressed(GLFW_KEY_A)) yRotSpeed = -1;
+		else if(ki.pressed(GLFW_KEY_D)) yRotSpeed = 1;
+		else yRotSpeed = 0;
+		
+		if(ki.pressed(GLFW_KEY_Q)) zRotSpeed = -1;
+		else if(ki.pressed(GLFW_KEY_Z)) zRotSpeed = 1;
+		else zRotSpeed = 0;
+		
+		if(ki.pressed(GLFW_KEY_R)) {
+			xRot = 0;
+			yRot = 0;
+			zRot = 0;
+		}
+		
 		xRot += xRotSpeed * dt;
 		yRot += yRotSpeed * dt;
 		zRot += zRotSpeed * dt;

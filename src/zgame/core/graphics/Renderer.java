@@ -352,21 +352,35 @@ public class Renderer implements Destroyable{
 		// Values for defining the cube
 		// 6 faces, 4 verticies per face, 3 coordinates per position
 		var cubeCorners = new float[][]{
+				// left, bottom, front
 				{-1.0f, -1.0f, -1.0f},
+				// right, bottom, front
 				{1.0f, -1.0f, -1.0f},
+				// right, top, front
 				{1.0f, 1.0f, -1.0f},
+				// left, top, front
 				{-1.0f, 1.0f, -1.0f},
+				// left, bottom, back
 				{-1.0f, -1.0f, 1.0f},
+				// right, bottom, back
 				{1.0f, -1.0f, 1.0f},
+				// right, top, back
 				{1.0f, 1.0f, 1.0f},
+				// left, top, back
 				{-1.0f, 1.0f, 1.0f},
 		};
 		var cubeCorderIndices = new byte[][]{
+				// Front
 				{0, 1, 2, 3},
-				{1, 5, 6, 2},
+				// Back
 				{4, 5, 6, 7},
+				// Left
 				{0, 4, 7, 3},
+				// Right
+				{1, 5, 6, 2},
+				// Top
 				{3, 2, 6, 7},
+				// Bottom
 				{0, 1, 5, 4},
 		};
 		
@@ -1490,7 +1504,6 @@ public class Renderer implements Destroyable{
 		// Update the color on the cube
 		// 6 faces, 4 verticies per face, 4 color channels per color
 		var colorVerticies = new float[6 * 4 * 4];
-		// TODO formally define which indexes are for which faces
 		// TODO allow for transparent colors?
 		var cubeColors = new ZColor[]{front, back, left, right, top, bot};
 		var i = 0;
