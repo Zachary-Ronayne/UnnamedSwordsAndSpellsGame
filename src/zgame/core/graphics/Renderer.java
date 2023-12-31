@@ -113,13 +113,13 @@ public class Renderer implements Destroyable{
 	/** The {@link VertexBuffer} used to track the texture coordinates for drawing the entirety of a texture, i.e. from (0, 0) to (1, 1) */
 	private VertexBuffer texCoordBuff;
 	
-	/** The {@link IndexBuffer} that tracks indexes for drawing a 3D rectangular pirsm */
+	/** The {@link IndexBuffer} that tracks indexes for drawing a 3D rectangular prism */
 	private IndexBuffer rect3DIndexBuff;
-	/** The {@link VertexBuffer} that tracks the coordinates for drawing a 3D rectangular pirsm */
+	/** The {@link VertexBuffer} that tracks the coordinates for drawing a 3D rectangular prism */
 	private VertexBuffer rect3DCoordBuff;
-	/** The {@link VertexBuffer} that tracks the colors for drawing a 3D rectangular pirsm */
+	/** The {@link VertexBuffer} that tracks the colors for drawing a 3D rectangular prism */
 	private VertexBuffer rect3DColorBuff;
-	/** The {@link VertexArray} for drawing a 3D rectangular pirsm */
+	/** The {@link VertexArray} for drawing a 3D rectangular prism */
 	private VertexArray rect3DVertArr;
 	
 	/** The list of all the stacks of this {@link Renderer} keeping track of the state of this {@link Renderer} */
@@ -357,7 +357,7 @@ public class Renderer implements Destroyable{
 		rect3DVertArr.bind();
 		
 		// Values for defining the cube
-		// 6 faces, 4 verticies per face, 3 coordinates per position
+		// 6 faces, 4 vertices per face, 3 coordinates per position
 		var cubeCorners = new float[][]{
 				// left, bottom, back
 				{-1.0f, -1.0f, -1.0f},
@@ -376,7 +376,7 @@ public class Renderer implements Destroyable{
 				// left, top, front
 				{-1.0f, 1.0f, 1.0f},
 		};
-		var cubeCorderIndices = new byte[][]{
+		var cubeCornerIndices = new byte[][]{
 				// Front
 				{4, 5, 6, 7},
 				// Back
@@ -397,7 +397,7 @@ public class Renderer implements Destroyable{
 		for(int f = 0; f < 6; f++){
 			for(int v = 0; v < 4; v++){
 				for(int p = 0; p < 3; p++){
-					cubePositions[i++] = cubeCorners[cubeCorderIndices[f][v]][p];
+					cubePositions[i++] = cubeCorners[cubeCornerIndices[f][v]][p];
 				}
 			}
 		}
@@ -406,13 +406,13 @@ public class Renderer implements Destroyable{
 		rect3DCoordBuff.applyToVertexArray();
 		
 		// Create the vertex buffer for the colors, default to all white
-		// 6 faces, 4 verticies per face, 4 color channels per color
-		var colorVerticies = new float[6 * 4 * 4];
-		for(i = 0; i < colorVerticies.length; i++){
-			colorVerticies[i] = 1;
+		// 6 faces, 4 vertices per face, 4 color channels per color
+		var colorVertices = new float[6 * 4 * 4];
+		for(i = 0; i < colorVertices.length; i++){
+			colorVertices[i] = 1;
 		}
 		
-		rect3DColorBuff = new VertexBuffer(VERTEX_COLOR_INDEX, 4, GL_DYNAMIC_DRAW, colorVerticies);
+		rect3DColorBuff = new VertexBuffer(VERTEX_COLOR_INDEX, 4, GL_DYNAMIC_DRAW, colorVertices);
 		rect3DColorBuff.applyToVertexArray();
 	}
 	
@@ -647,7 +647,7 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
-	 * Rotare the transformation matrix by the given amount
+	 * Rotate the transformation matrix by the given amount
 	 *
 	 * @param ang The angle to rotate by, in radians
 	 * @param x The amount on the x axis, usually 1 or 0
@@ -660,7 +660,7 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
-	 * Set the valyes in the camera and the current projection matrix to be the perspective of the camera
+	 * Set the values in the camera and the current projection matrix to be the perspective of the camera
 	 * @param x The new x coordinate
 	 * @param y The new y coordinate
 	 * @param z The new z coordinate
@@ -1551,20 +1551,20 @@ public class Renderer implements Destroyable{
 		this.positionObject(x, y, z, w, h, l, xRot, yRot, zRot);
 		
 		// Update the color on the cube
-		// 6 faces, 4 verticies per face, 4 color channels per color
-		var colorVerticies = new float[6 * 4 * 4];
+		// 6 faces, 4 vertices per face, 4 color channels per color
+		var colorVertices = new float[6 * 4 * 4];
 		// TODO allow for transparent colors?
 		var cubeColors = new ZColor[]{front, back, left, right, top, bot};
 		var i = 0;
 		for(int f = 0; f < 6; f++){
 			for(int v = 0; v < 4; v++){
-				colorVerticies[i++] = (float)cubeColors[f].red();
-				colorVerticies[i++] = (float)cubeColors[f].green();
-				colorVerticies[i++] = (float)cubeColors[f].blue();
-				colorVerticies[i++] = (float)cubeColors[f].alpha();
+				colorVertices[i++] = (float)cubeColors[f].red();
+				colorVertices[i++] = (float)cubeColors[f].green();
+				colorVertices[i++] = (float)cubeColors[f].blue();
+				colorVertices[i++] = (float)cubeColors[f].alpha();
 			}
 		}
-		rect3DColorBuff.updateData(colorVerticies);
+		rect3DColorBuff.updateData(colorVertices);
 		
 		// Ensure the gpu has the current modelView
 		this.updateGpuModelView();

@@ -1,7 +1,5 @@
 package zgame.core;
 
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_DISABLED;
 import static org.lwjgl.opengl.GL30.*;
 
 import zgame.core.file.Saveable;

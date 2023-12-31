@@ -15,7 +15,6 @@ import java.nio.FloatBuffer;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 import static org.lwjgl.opengl.GL30.*;
@@ -43,7 +42,7 @@ public class Demo3D{
 			{-0.5f, 0.5f, 0.5f},
 	};
 	
-	private static final byte[][] cubeCorderIndices = new byte[][]{
+	private static final byte[][] cubeCornerIndices = new byte[][]{
 			{0, 1, 2, 3},
 			{1, 5, 6, 2},
 			{4, 5, 6, 7},
@@ -207,13 +206,13 @@ public class Demo3D{
 		cubeVertexArray = new VertexArray();
 		cubeVertexArray.bind();
 		
-		// 6 faces, 4 verticies per face, 3 coordinates per position
+		// 6 faces, 4 vertices per face, 3 coordinates per position
 		var cubePositions = new float[6 * 4 * 3];
 		var i = 0;
 		for(int f = 0; f < 6; f++){
 			for(int v = 0; v < 4; v++){
 				for(int p = 0; p < 3; p++){
-					cubePositions[i++] = cubeCorners[cubeCorderIndices[f][v]][p];
+					cubePositions[i++] = cubeCorners[cubeCornerIndices[f][v]][p];
 				}
 			}
 		}
@@ -221,18 +220,18 @@ public class Demo3D{
 		cubeVertexBuffer = new VertexBuffer(VERTEX_POS_INDEX, 3, cubePositions);
 		cubeVertexBuffer.applyToVertexArray();
 		
-		// 6 faces, 4 verticies per face, 4 color channels per color
-		var colorVerticies = new float[6 * 4 * 4];
+		// 6 faces, 4 vertices per face, 4 color channels per color
+		var colorVertices = new float[6 * 4 * 4];
 		i = 0;
 		for(int f = 0; f < 6; f++){
 			for(int v = 0; v < 4; v++){
 				for(int c = 0; c < 4; c++){
-					colorVerticies[i++] = cubeColors[f][c];
+					colorVertices[i++] = cubeColors[f][c];
 				}
 			}
 		}
 		
-		cubeColorVertexBuffer = new VertexBuffer(VERTEX_COLOR_INDEX, 4, colorVerticies);
+		cubeColorVertexBuffer = new VertexBuffer(VERTEX_COLOR_INDEX, 4, colorVertices);
 		cubeColorVertexBuffer.applyToVertexArray();
 		
 		glBindVertexArray(0);
@@ -282,9 +281,9 @@ public class Demo3D{
 			var pHeight = stack.mallocInt(1); // int*
 			glfwGetWindowSize(window, pWidth, pHeight);
 			
-			var vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-			if (vidmode == null) throw new RuntimeException("Failed to create the video mode");
-			glfwSetWindowPos(window, (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
+			var vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+			if (vidMode == null) throw new RuntimeException("Failed to create the video mode");
+			glfwSetWindowPos(window, (vidMode.width() - pWidth.get(0)) / 2, (vidMode.height() - pHeight.get(0)) / 2);
 		}
 		
 		glfwMakeContextCurrent(window);
