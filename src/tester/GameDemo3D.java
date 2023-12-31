@@ -130,8 +130,8 @@ public class GameDemo3D extends Game{
 			camera.setY(minCamY);
 			yVel = 0;
 		}
+		camera.addY(yVel);
 		if(camera.getY() > minCamY) {
-			camera.addY(yVel);
 			yVel -= gravity * dt;
 		}
 		
