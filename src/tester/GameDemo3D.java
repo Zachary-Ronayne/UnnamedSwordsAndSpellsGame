@@ -54,7 +54,7 @@ public class GameDemo3D extends Game{
 		
 		// TODO why is the whole cube flipped around when using perspective?
 		r.drawRect3D(
-				-0.25, 0, 0,
+				0, 0, -2,
 				.3, .3, .3,
 				xRot, yRot, zRot,
 				new ZColor(1, 0, 0),

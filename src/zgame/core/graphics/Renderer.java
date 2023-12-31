@@ -355,28 +355,28 @@ public class Renderer implements Destroyable{
 		// Values for defining the cube
 		// 6 faces, 4 verticies per face, 3 coordinates per position
 		var cubeCorners = new float[][]{
-				// left, bottom, front
-				{-1.0f, -1.0f, -1.0f},
-				// right, bottom, front
-				{1.0f, -1.0f, -1.0f},
-				// right, top, front
-				{1.0f, 1.0f, -1.0f},
-				// left, top, front
-				{-1.0f, 1.0f, -1.0f},
 				// left, bottom, back
-				{-1.0f, -1.0f, 1.0f},
+				{-1.0f, -1.0f, -1.0f},
 				// right, bottom, back
-				{1.0f, -1.0f, 1.0f},
+				{1.0f, -1.0f, -1.0f},
 				// right, top, back
-				{1.0f, 1.0f, 1.0f},
+				{1.0f, 1.0f, -1.0f},
 				// left, top, back
+				{-1.0f, 1.0f, -1.0f},
+				// left, bottom, front
+				{-1.0f, -1.0f, 1.0f},
+				// right, bottom, front
+				{1.0f, -1.0f, 1.0f},
+				// right, top, front
+				{1.0f, 1.0f, 1.0f},
+				// left, top, front
 				{-1.0f, 1.0f, 1.0f},
 		};
 		var cubeCorderIndices = new byte[][]{
 				// Front
-				{0, 1, 2, 3},
-				// Back
 				{4, 5, 6, 7},
+				// Back
+				{0, 1, 2, 3},
 				// Left
 				{0, 4, 7, 3},
 				// Right
