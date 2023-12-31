@@ -92,7 +92,7 @@ public class GameCamera3D{
 	
 	/** @param rotX See {@link #rotX} */
 	public void setRotX(double rotX){
-		this.rotX = this.isEnableLookLimit() ? ZMath.minMax(-Math.PI, Math.PI, rotX) : rotX;
+		this.rotX = this.isEnableLookLimit() ? ZMath.minMax(-Math.PI * 0.5, Math.PI * 0.5, rotX) : rotX;
 	}
 	
 	/** @param rotX The amount to add to {@link #rotX} */

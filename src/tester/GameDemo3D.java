@@ -17,16 +17,20 @@ public class GameDemo3D extends Game{
 	private static double yRot = 0;
 	private static double zRot = 0;
 	
-	private static double xRotSpeed = 0;//1;
-	private static double yRotSpeed = 0;//.5;
-	private static double zRotSpeed = 0;//.25;
+	private static boolean autoRotate = false;
+	private static double xRotSpeed = 0;
+	private static double yRotSpeed = 0;
+	private static double zRotSpeed = 0;
 	
-	private static final double moveSpeed = 0.7;
+	private static final double walkSpeed = 0.7;
+	private static final double runSpeed = 2.5;
+	private static double moveSpeed = walkSpeed;
 	private static final double mouseSpeed = 0.0007;
 	private static final double tiltSpeed = 3;
 	private static final double gravity = 0.08;
 	private static final double jumpVel = 2;
 	private static double yVel = 0;
+	private static final double minCamY = .3;
 	
 	public GameDemo3D(){
 		super();
@@ -42,8 +46,10 @@ public class GameDemo3D extends Game{
 		
 		var window = game.getWindow();
 		window.setWindowTitle("Cube Demo");
-		window.setSizeUniform(800, 800);
+		window.setSizeUniform(1500, 900);
 		window.center();
+		game.getWindow().getRenderer().getCamera3D().setZ(2);
+		game.getWindow().getRenderer().getCamera3D().setY(minCamY);
 		
 		game.start();
 	}
@@ -54,8 +60,9 @@ public class GameDemo3D extends Game{
 		
 		// TODO fix weird flickering issues with the cube
 		
+		// Draw the cube
 		r.drawRect3D(
-				0, 0, -2,
+				0, .5, 0,
 				.3, .3, .3,
 				xRot, yRot, zRot,
 				new ZColor(1, 0, 0),
@@ -66,7 +73,14 @@ public class GameDemo3D extends Game{
 				new ZColor(1, 0, 1)
 		);
 		
-		// TODO add a floor as a single finite plane, not a cube
+		// Draw a checkerboard floor
+		for(int x = 0; x < 32; x++){
+			for(int z = 0; z < 32; z++){
+				r.setColor(new ZColor(((x % 2 == 0) != (z % 2 == 0)) ? .2 : .6));
+				r.drawPlane3D(x * .25 - 3.875, z * .25 - 3.875, .25, .25);
+			}
+		}
+		
 	}
 	
 	@Override
@@ -114,8 +128,8 @@ public class GameDemo3D extends Game{
 		camera.addZ(dt * moveSpeed * zSpeed);
 		
 		// Jumping
-		if(camera.getY() < 0) {
-			camera.setY(0);
+		if(camera.getY() < minCamY) {
+			camera.setY(minCamY);
 			yVel = 0;
 		}
 		camera.addY(yVel);
@@ -140,17 +154,24 @@ public class GameDemo3D extends Game{
 		}
 		
 		// Rotating the cube
-		if(ki.pressed(GLFW_KEY_I)) xRotSpeed = -1;
-		else if(ki.pressed(GLFW_KEY_K)) xRotSpeed = 1;
-		else xRotSpeed = 0;
-		
-		if(ki.pressed(GLFW_KEY_J)) yRotSpeed = -1;
-		else if(ki.pressed(GLFW_KEY_L)) yRotSpeed = 1;
-		else yRotSpeed = 0;
-		
-		if(ki.pressed(GLFW_KEY_U)) zRotSpeed = -1;
-		else if(ki.pressed(GLFW_KEY_O)) zRotSpeed = 1;
-		else zRotSpeed = 0;
+		if(autoRotate){
+			xRotSpeed = 1;
+			yRotSpeed = .5;
+			zRotSpeed = .25;
+		}
+		else{
+			if(ki.pressed(GLFW_KEY_I)) xRotSpeed = -1;
+			else if(ki.pressed(GLFW_KEY_K)) xRotSpeed = 1;
+			else xRotSpeed = 0;
+			
+			if(ki.pressed(GLFW_KEY_J)) yRotSpeed = -1;
+			else if(ki.pressed(GLFW_KEY_L)) yRotSpeed = 1;
+			else yRotSpeed = 0;
+			
+			if(ki.pressed(GLFW_KEY_U)) zRotSpeed = -1;
+			else if(ki.pressed(GLFW_KEY_O)) zRotSpeed = 1;
+			else zRotSpeed = 0;
+		}
 		
 		if(ki.pressed(GLFW_KEY_R)) {
 			xRot = 0;
@@ -161,11 +182,20 @@ public class GameDemo3D extends Game{
 		xRot += xRotSpeed * dt;
 		yRot += yRotSpeed * dt;
 		zRot += zRotSpeed * dt;
+		
+		// Force the camera to stay in certain bounds
+		if(camera.getX() < -4) camera.setX(-4);
+		else if(camera.getX() > 4) camera.setX(4);
+		if(camera.getZ() < -4) camera.setZ(-4);
+		else if(camera.getZ() > 4) camera.setZ(4);
 	}
 	
 	@Override
 	protected void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(button, press, shift, alt, ctrl);
+		
+		if(shift) moveSpeed = runSpeed;
+		else moveSpeed = walkSpeed;
 		
 		if(press) return;
 		
@@ -178,6 +208,12 @@ public class GameDemo3D extends Game{
 		// Modify FOV
 		if(button == GLFW_KEY_LEFT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) - .1, false);
 		else if(button == GLFW_KEY_RIGHT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) + .1, false);
+		
+		// Toggling the cube rotating on its own
+		if(button == GLFW_KEY_1) autoRotate = !autoRotate;
+		
+		// Toggling full screen
+		if(button == GLFW_KEY_2) game.getWindow().toggleFullscreen();
 	}
 	
 	@Override

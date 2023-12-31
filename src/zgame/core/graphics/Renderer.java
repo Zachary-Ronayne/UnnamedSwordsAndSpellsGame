@@ -122,6 +122,13 @@ public class Renderer implements Destroyable{
 	/** The {@link VertexArray} for drawing a 3D rectangular prism */
 	private VertexArray rect3DVertArr;
 	
+	/** The {@link IndexBuffer} that tracks indexes for drawing a finite plane from a quad */
+	private IndexBuffer planeIndexBuff;
+	/** The {@link VertexBuffer} that tracks the coordinates for drawing a finite plane from a quad */
+	private VertexBuffer planeCoordBuff;
+	/** The {@link VertexArray} for drawing a finite plane from a quad */
+	private VertexArray planeVertArr;
+	
 	/** The list of all the stacks of this {@link Renderer} keeping track of the state of this {@link Renderer} */
 	private final ArrayList<LimitedStack<?>> stacks;
 	
@@ -414,6 +421,24 @@ public class Renderer implements Destroyable{
 		
 		rect3DColorBuff = new VertexBuffer(VERTEX_COLOR_INDEX, 4, GL_DYNAMIC_DRAW, colorVertices);
 		rect3DColorBuff.applyToVertexArray();
+		
+		// Generate the indexes for the finite 3D plane
+		planeIndexBuff = new IndexBuffer(new byte[]{
+				0, 1, 2, 3
+		});
+		
+		// Create and bind the vertex array for the finite 3D plane
+		planeVertArr = new VertexArray();
+		planeVertArr.bind();
+		
+		// Create the vertex buffer for the coordinates
+		planeCoordBuff = new VertexBuffer(VERTEX_POS_INDEX, 3, new float[]{
+				0.5f, 0.0f, -0.5f,
+				0.5f, 0.0f, 0.5f,
+				-0.5f, 0.0f, 0.5f,
+				-0.5f, 0.0f, -0.5f
+		});
+		planeCoordBuff.applyToVertexArray();
 	}
 	
 	/** Free all resources used by the vertex arrays and vertex buffers */
@@ -1566,11 +1591,37 @@ public class Renderer implements Destroyable{
 		}
 		rect3DColorBuff.updateData(colorVertices);
 		
-		// Ensure the gpu has the current modelView
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
 		this.updateGpuModelView();
 		
 		// Draw the rect
 		glDrawElements(GL_QUADS, rect3DIndexBuff.getBuff());
+		this.popMatrix();
+		
+		return true;
+	}
+	
+	// TODO make docs
+	public boolean drawPlane3D(double x, double z, double w, double l){
+		// Use the 3D color shader and the 3D rect vertex array
+		this.renderModeShapes();
+		this.planeVertArr.bind();
+		
+		// Position the plane
+		this.pushMatrix();
+		// TODO allow this to easily be rotated for angles and for walls and positioned in any way
+		this.translate(x, 0, z);
+		this.scale(w, 1, l);
+		
+		// TODO what happens with transparent colors?
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
+		// Draw the rect
+		glDrawElements(GL_QUADS, planeIndexBuff.getBuff());
 		this.popMatrix();
 		
 		return true;
