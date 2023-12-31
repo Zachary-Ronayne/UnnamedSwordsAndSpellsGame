@@ -20,9 +20,14 @@ public class GameDemo3D extends Game{
 	private static double yRotSpeed = 0;//.5;
 	private static double zRotSpeed = 0;//.25;
 	
+	public GameDemo3D(){
+		super();
+		this.make3D();
+	}
 	
 	public static void main(String[] args){
 		game = new GameDemo3D();
+		
 		game.set(BooleanTypeSetting.V_SYNC, false, false);
 		game.set(IntTypeSetting.FPS_LIMIT, 0, false);
 		game.setPrintTps(false);
@@ -31,20 +36,12 @@ public class GameDemo3D extends Game{
 		window.center();
 		window.setSize(800, 800);
 		
-		// TODO figure out the correct place for this, make a game type field that is 2D or 3D
-		var buff = window.getRenderer().getBuffer();
-		buff.setDepthBufferEnabled(true);
-		buff.regenerateBuffer();
-		
 		game.start();
 	}
 	
 	@Override
 	protected void render(Renderer r){
 		super.render(r);
-		
-		// TODO figure out the proper place to put this
-		r.updateFrustum();
 		
 		r.drawRect3D(
 				0, 0, 0,

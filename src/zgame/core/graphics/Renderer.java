@@ -1492,11 +1492,6 @@ public class Renderer implements Destroyable{
 		this.renderModeRect3D();
 		this.rect3DVertArr.bind();
 		
-		// Enable the depth test
-		// TODO make depth test a stack?
-		var oldDepthTest = this.isDepthTestEnabled();
-		this.setDepthTestEnabled(true);
-		
 		// Position the 3D rect
 		this.pushMatrix();
 		this.positionObject(x, y, z, w, h, l, xRot, yRot, zRot);
@@ -1523,9 +1518,6 @@ public class Renderer implements Destroyable{
 		// Draw the rect
 		glDrawElements(GL_QUADS, rect3DIndexBuff.getBuff());
 		this.popMatrix();
-		
-		// Put the depth test back to whatever it was
-		this.setDepthTestEnabled(oldDepthTest);
 		
 		return true;
 	}

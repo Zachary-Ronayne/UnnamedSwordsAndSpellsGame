@@ -22,6 +22,9 @@ import zgame.core.sound.SoundSource;
 import zgame.core.state.DefaultState;
 import zgame.core.state.GameState;
 import zgame.core.state.PlayState;
+import zgame.core.type.GameType;
+import zgame.core.type.Type2D;
+import zgame.core.type.Type3D;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
@@ -48,6 +51,9 @@ public class Game implements Saveable, Destroyable{
 	
 	/** The {@link GlfwWindow} used by this {@link Game} as the core interaction */
 	private final GameWindow window;
+	
+	/** The type of game, defaults to 2D */
+	private GameType type;
 	
 	/** The {@link SoundManager} used by this {@link Game} to create sounds */
 	private final SoundManager sounds;
@@ -261,6 +267,9 @@ public class Game implements Saveable, Destroyable{
 		
 		// Go to fullscreen if applicable
 		this.window.setInFullScreenNow(enterFullScreen);
+		
+		// Init the type
+		this.make2D();
 	}
 	
 	/**
@@ -420,13 +429,8 @@ public class Game implements Saveable, Destroyable{
 				this.renderBackground(r);
 				
 				// Draw the foreground, i.e. main objects
-				// Set the camera
-				boolean useCam = this.getCurrentState().isUseCamera();
-				if(useCam) r.setCamera(this.getCamera());
-				else r.setCamera(null);
-				// Move based on the camera, if applicable, and draw the objects
-				r.identityMatrix();
-				if(useCam) this.getCamera().transform(this.getWindow());
+				// Perform any needed operations based on the type
+				this.getType().setupRender(this, r);
 				this.render(r);
 				
 				// Draw the hud
@@ -1193,4 +1197,26 @@ public class Game implements Saveable, Destroyable{
 	public void setFocusedMenuThing(Integer focusedMenuThing){
 		this.focusedMenuThing = focusedMenuThing;
 	}
+	
+	/** @return See {@link #type} */
+	public GameType getType(){
+		return this.type;
+	}
+	
+	/** @param type See {@link #type} */
+	public void setType(GameType type){
+		this.type = type;
+		this.type.onTypeSet(this);
+	}
+	
+	/** Assign this game as a 2D game */
+	public void make2D(){
+		this.setType(new Type2D());
+	}
+	
+	/** Assign this game as a 3D game */
+	public void make3D(){
+		this.setType(new Type3D());
+	}
+	
 }
