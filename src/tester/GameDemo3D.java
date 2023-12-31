@@ -22,7 +22,8 @@ public class GameDemo3D extends Game{
 	
 	private static final double moveSpeed = 0.7;
 	private static final double mouseSpeed = 0.0007;
-	private static final double gravity = 0.1;
+	private static final double tiltSpeed = 3;
+	private static final double gravity = 0.08;
 	private static final double jumpVel = 2;
 	private static double yVel = 0;
 	
@@ -63,6 +64,8 @@ public class GameDemo3D extends Game{
 				new ZColor(0, 0, 1),
 				new ZColor(1, 0, 1)
 		);
+		
+		// TODO add a floor as a single finite plane, not a cube
 	}
 	
 	@Override
@@ -76,6 +79,7 @@ public class GameDemo3D extends Game{
 		double xSpeed = 0;
 		double zSpeed = 0;
 		
+		// Determining movement direction
 		var ang = camera.getRotY();
 		var left = ki.buttonDown(GLFW_KEY_A);
 		var right = ki.buttonDown(GLFW_KEY_D);
@@ -108,6 +112,7 @@ public class GameDemo3D extends Game{
 		camera.addX(dt * moveSpeed * xSpeed);
 		camera.addZ(dt * moveSpeed * zSpeed);
 		
+		// Jumping
 		if(camera.getY() < 0) {
 			camera.setY(0);
 			yVel = 0;
@@ -116,8 +121,24 @@ public class GameDemo3D extends Game{
 		if(ki.pressed(GLFW_KEY_Q) && yVel == 0) yVel = jumpVel * dt;
 		yVel -= gravity * dt;
 		
-		// TODO controls for rotating on the z axis that auto go back to zero
+		// Tilting the camera to the side
+		var rotZ = camera.getRotZ();
+		var tiltLeft = ki.pressed(GLFW_KEY_Z);
+		var tiltRight = ki.pressed(GLFW_KEY_X);
+		var tilt = tiltSpeed * dt;
+		if(rotZ != 0 && !tiltLeft && !tiltRight){
+			if(Math.abs(rotZ) < tilt) camera.setRotZ(0);
+			else if(rotZ < 0) camera.addRotZ(tilt);
+			else camera.addRotZ(-tilt);
+		}
+		if(tiltLeft) {
+			if(camera.getRotZ() > -Math.PI * 0.5) camera.addRotZ(-tilt);
+		}
+		if(tiltRight) {
+			if(camera.getRotZ() < Math.PI * 0.5) camera.addRotZ(tilt);
+		}
 		
+		// Rotating the cube
 		if(ki.pressed(GLFW_KEY_I)) xRotSpeed = -1;
 		else if(ki.pressed(GLFW_KEY_K)) xRotSpeed = 1;
 		else xRotSpeed = 0;
