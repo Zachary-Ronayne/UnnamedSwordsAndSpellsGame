@@ -58,8 +58,6 @@ public class GameDemo3D extends Game{
 	protected void render(Renderer r){
 		super.render(r);
 		
-		// TODO fix weird flickering issues with the cube
-		
 		// Draw the cube
 		r.drawRect3D(
 				0, .5, 0,
@@ -132,9 +130,12 @@ public class GameDemo3D extends Game{
 			camera.setY(minCamY);
 			yVel = 0;
 		}
-		camera.addY(yVel);
+		if(camera.getY() > minCamY) {
+			camera.addY(yVel);
+			yVel -= gravity * dt;
+		}
+		
 		if(ki.pressed(GLFW_KEY_Q) && yVel == 0) yVel = jumpVel * dt;
-		yVel -= gravity * dt;
 		
 		// Tilting the camera to the side
 		var rotZ = camera.getRotZ();
@@ -214,6 +215,8 @@ public class GameDemo3D extends Game{
 		
 		// Toggling full screen
 		if(button == GLFW_KEY_2) game.getWindow().toggleFullscreen();
+		
+		// TODO allow for a third person perspective and build it into the engine
 	}
 	
 	@Override
