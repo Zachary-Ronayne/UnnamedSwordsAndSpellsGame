@@ -609,7 +609,7 @@ public class MainTest extends Game{
 			if(keys.released(GLFW_KEY_1)){
 				if(down[ONE]){
 					down[ONE] = false;
-					window.toggleFullscreen();
+					game.toggleFullscreen();
 				}
 			}
 			else down[ONE] = true;

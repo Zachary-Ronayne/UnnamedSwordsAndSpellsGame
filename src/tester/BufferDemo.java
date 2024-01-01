@@ -49,7 +49,7 @@ public class BufferDemo extends Game{
 					this.getTextBuffer().updateRedraw(true);
 				}
 
-				if(!press && button == GLFW.GLFW_KEY_F11) game.getWindow().toggleFullscreen();
+				if(!press && button == GLFW.GLFW_KEY_F11) game.toggleFullscreen();
 			}
 
 			@Override

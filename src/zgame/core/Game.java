@@ -668,6 +668,13 @@ public class Game implements Saveable, Destroyable{
 	}
 	
 	/**
+	 * Toggle full screen by changing the setting
+	 */
+	public void toggleFullscreen(){
+		this.set(BooleanTypeSetting.FULLSCREEN, !this.get(BooleanTypeSetting.FULLSCREEN), false);
+	}
+	
+	/**
 	 * Load the necessary contents of this {@link Game} from a json file at the given path
 	 *
 	 * @param path The path to load from, including file extension

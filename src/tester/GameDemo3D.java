@@ -11,6 +11,8 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class GameDemo3D extends Game{
 	
+	// TODO generally investigate issues with buffers, particularly when going to full screen
+	
 	private static GameDemo3D game;
 	
 	private static double xRot = 0;
@@ -228,7 +230,7 @@ public class GameDemo3D extends Game{
 		if(button == GLFW_KEY_1) autoRotate = !autoRotate;
 		
 		// Toggling full screen
-		if(button == GLFW_KEY_2) game.getWindow().toggleFullscreen();
+		if(button == GLFW_KEY_2) game.toggleFullscreen();
 		/*
 		   TODO fix OpenGL warning when exiting full screen
 			[LWJGL] OpenGL debug message

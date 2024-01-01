@@ -490,18 +490,12 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Call to change the fullscreen state on the next OpenGL loop. If the window is already in the desired state, nothing happens
+	 * When using this window with a {@link Game}, the setting {@link zgame.settings.BooleanTypeSetting#FULLSCREEN} should be set instead of calling this method
 	 *
 	 * @param fullscreen true to enter fullscreen, false to exist.
 	 */
 	public void setFullscreen(boolean fullscreen){
 		this.updateFullscreen = OnOffState.state(fullscreen);
-	}
-	
-	/**
-	 * Call to change the fullscreen state on the next OpenGL loop to the opposite of its current state
-	 */
-	public void toggleFullscreen(){
-		this.setFullscreen(!this.inFullScreen);
 	}
 	
 	/** @return See {@link #useVsync} */

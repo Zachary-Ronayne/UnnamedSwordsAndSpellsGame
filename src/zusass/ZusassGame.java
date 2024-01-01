@@ -156,14 +156,13 @@ public class ZusassGame extends Game{
 	@Override
 	protected void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(button, press, shift, alt, ctrl);
-		GameWindow w = zgame.getWindow();
 		if(press) return;
 		
 		if(button == GLFW_KEY_F9) {
 			this.setPrintFps(!this.isPrintFps());
 			this.setPrintTps(!this.isPrintTps());
 		}
-		else if(button == GLFW_KEY_F11) w.toggleFullscreen();
+		else if(button == GLFW_KEY_F11) zgame.toggleFullscreen();
 	}
 	
 	/** Initialize the object {@link #zgame} */
