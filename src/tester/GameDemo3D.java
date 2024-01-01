@@ -126,13 +126,13 @@ public class GameDemo3D extends Game{
 		camera.addZ(dt * moveSpeed * zSpeed);
 		
 		// Jumping
-		if(camera.getY() < minCamY) {
-			camera.setY(minCamY);
-			yVel = 0;
-		}
 		camera.addY(yVel);
 		if(camera.getY() > minCamY) {
 			yVel -= gravity * dt;
+		}
+		if(camera.getY() < minCamY) {
+			camera.setY(minCamY);
+			yVel = 0;
 		}
 		
 		if(ki.pressed(GLFW_KEY_Q) && yVel == 0) yVel = jumpVel * dt;
