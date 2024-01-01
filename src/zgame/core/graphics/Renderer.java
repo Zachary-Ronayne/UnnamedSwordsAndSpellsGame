@@ -1627,6 +1627,8 @@ public class Renderer implements Destroyable{
 		return true;
 	}
 	
+	// TODO implement interpolation
+	
 	/**
 	 * Update the OpenGL frustum
 	 * @param leftClip The left vertical clipping plane

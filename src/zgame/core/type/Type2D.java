@@ -18,6 +18,8 @@ public class Type2D implements GameType{
 		// Move based on the camera, if applicable, and draw the objects
 		r.identityMatrix();
 		if(useCam) game.getCamera().transform(game.getWindow());
+		
+		r.setDepthTestEnabled(false);
 	}
 	
 	@Override

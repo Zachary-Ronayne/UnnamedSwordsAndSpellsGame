@@ -23,8 +23,6 @@ import zgame.core.state.DefaultState;
 import zgame.core.state.GameState;
 import zgame.core.state.PlayState;
 import zgame.core.type.GameType;
-import zgame.core.type.Type2D;
-import zgame.core.type.Type3D;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
@@ -425,6 +423,7 @@ public class Game implements Saveable, Destroyable{
 				r.initToDraw();
 				
 				// Draw the background
+				GameType.TYPE_2D.setupRender(this, r);
 				r.setCamera(null);
 				r.identityMatrix();
 				this.renderBackground(r);
@@ -435,6 +434,7 @@ public class Game implements Saveable, Destroyable{
 				this.render(r);
 				
 				// Draw the hud
+				GameType.TYPE_2D.setupRender(this, r);
 				r.setCamera(null);
 				r.identityMatrix();
 				this.renderHud(r);
@@ -1212,12 +1212,12 @@ public class Game implements Saveable, Destroyable{
 	
 	/** Assign this game as a 2D game */
 	public void make2D(){
-		this.setType(new Type2D());
+		this.setType(GameType.TYPE_2D);
 	}
 	
 	/** Assign this game as a 3D game */
 	public void make3D(){
-		this.setType(new Type3D());
+		this.setType(GameType.TYPE_3D);
 	}
 	
 }

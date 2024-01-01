@@ -401,10 +401,11 @@ public abstract class GameWindow implements Destroyable{
 		
 		// Update screen width and height
 		this.updateWindowSize();
-		this.resizeScreen(this.getScreenWidth(), this.getScreenHeight());
+		if(this.isResizeScreenOnResizeWindow()) this.resizeScreen(this.getWidth(), this.getHeight());
+		else this.resizeScreen(this.getScreenWidth(), this.getScreenHeight());
 		
 		// Ensure the window has appropriate texture settings
-		initTextureSettings();
+		this.initTextureSettings();
 		
 		// Make sure no buttons are pressed
 		this.getMouseInput().clear();
@@ -586,6 +587,13 @@ public abstract class GameWindow implements Destroyable{
 	 * @param normal true for normal, false otherwise
 	 */
 	public abstract void updateMouseNormally(boolean normal);
+	
+	/**
+	 * Update the mouse to act normally or to be invisible and stuck to the center of the window depending on the current value of {@link #isMouseNormally()}
+	 */
+	public void updateMouseNormally(){
+		this.updateMouseNormally(this.isMouseNormally());
+	}
 	
 	/** @return The {@link ZKeyInput} object which controls keyboard input for the window */
 	public abstract ZKeyInput getKeyInput();

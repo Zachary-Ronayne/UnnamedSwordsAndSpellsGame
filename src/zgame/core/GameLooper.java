@@ -22,6 +22,8 @@ public class GameLooper{
 	private long rateTimeNano;
 	/** The timestamp, in nanoseconds, of the last time the loop activated */
 	private long lastFunCall;
+	/** The number of function calls in the last second */
+	private int lastFuncCalls;
 	
 	/** The number of times the loop has been activated since the last time it printed the calculated rate. It prints once time each second */
 	private int funcCalls;
@@ -77,6 +79,7 @@ public class GameLooper{
 	 */
 	public GameLooper(int rate, EmptyFunc runFunc, BooleanFunc shouldRunFunc, BooleanFunc keepRunningFunc, BooleanFunc waitBetweenLoops, String name, boolean printRate){
 		this.setRate(rate);
+		this.lastFuncCalls = rate;
 		this.lastFunCall = 0;
 		this.funcCalls = 0;
 		this.setPrintRate(printRate);
@@ -141,6 +144,7 @@ public class GameLooper{
 					else ZStringUtils.print(this.getName(), ": ", this.getFuncCalls());
 					this.timeProcessing = 0;
 				}
+				this.lastFuncCalls = this.funcCalls;
 				this.funcCalls = 0;
 				lastTime = System.nanoTime();
 			}
@@ -197,6 +201,11 @@ public class GameLooper{
 	/** @return See {@link #funcCalls} */
 	public int getFuncCalls(){
 		return this.funcCalls;
+	}
+	
+	/** @return See {@link #lastFuncCalls} */
+	public int getLastFuncCalls(){
+		return this.lastFuncCalls;
 	}
 	
 	/** @return See {@link #nsPerLoop} */

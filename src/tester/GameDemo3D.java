@@ -43,6 +43,7 @@ public class GameDemo3D extends Game{
 		game.set(BooleanTypeSetting.V_SYNC, true, false);
 		game.set(IntTypeSetting.FPS_LIMIT, 0, false);
 		game.setPrintTps(false);
+		game.setPrintFps(false);
 		
 		var window = game.getWindow();
 		window.setWindowTitle("Cube Demo");
@@ -79,6 +80,19 @@ public class GameDemo3D extends Game{
 			}
 		}
 		
+	}
+	
+	@Override
+	protected void renderHud(Renderer r){
+		super.renderHud(r);
+		r.setFontSize(30);
+		var s = "FPS: " + game.getRenderLooper().getLastFuncCalls();
+		
+		r.setColor(new ZColor(0));
+		r.drawRectangle(20, 6, 10 + r.getFont().stringWidth(s), 40);
+		
+		r.setColor(new ZColor(1));
+		r.drawText(24, 34, s);
 	}
 	
 	@Override
@@ -215,6 +229,18 @@ public class GameDemo3D extends Game{
 		
 		// Toggling full screen
 		if(button == GLFW_KEY_2) game.getWindow().toggleFullscreen();
+		/*
+		   TODO fix OpenGL warning when exiting full screen
+			[LWJGL] OpenGL debug message
+			ID: 0x20092
+			Source: API
+			Type: PERFORMANCE
+			Severity: MEDIUM
+			Message: Program/shader state performance warning: Vertex shader in program 12 is being recompiled based on GL state.
+		 */
+		
+		// Toggle vsync
+		if(button == GLFW_KEY_V) game.set(BooleanTypeSetting.V_SYNC, !game.get(BooleanTypeSetting.V_SYNC), false);
 		
 		// TODO allow for a third person perspective and build it into the engine
 	}
