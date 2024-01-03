@@ -365,23 +365,24 @@ public class Renderer implements Destroyable{
 		
 		// Values for defining the cube
 		// 6 faces, 4 vertices per face, 3 coordinates per position
+		// TODO consider using 0 and 1 for the y axis to avoid extra transformations in positionObject
 		var cubeCorners = new float[][]{
 				// left, bottom, back
-				{-1.0f, -1.0f, -1.0f},
+				{-0.5f, -0.5f, -0.5f},
 				// right, bottom, back
-				{1.0f, -1.0f, -1.0f},
+				{0.5f, -0.5f, -0.5f},
 				// right, top, back
-				{1.0f, 1.0f, -1.0f},
+				{0.5f, 0.5f, -0.5f},
 				// left, top, back
-				{-1.0f, 1.0f, -1.0f},
+				{-0.5f, 0.5f, -0.5f},
 				// left, bottom, front
-				{-1.0f, -1.0f, 1.0f},
+				{-0.5f, -0.5f, 0.5f},
 				// right, bottom, front
-				{1.0f, -1.0f, 1.0f},
+				{0.5f, -0.5f, 0.5f},
 				// right, top, front
-				{1.0f, 1.0f, 1.0f},
+				{0.5f, 0.5f, 0.5f},
 				// left, top, front
-				{-1.0f, 1.0f, 1.0f},
+				{-0.5f, 0.5f, 0.5f},
 		};
 		var cubeCornerIndices = new byte[][]{
 				// Front
@@ -1024,16 +1025,27 @@ public class Renderer implements Destroyable{
 	 * @param xRot The rotation on the x axis
 	 * @param yRot The rotation on the y axis
 	 * @param zRot The rotation on the z axis
+	 * @param xA The point, relative to the point to position this object, to rotate on the x axis
+	 * @param yA The point, relative to the point to position this object, to rotate on the y axis
+	 * @param zA The point, relative to the point to position this object, to rotate on the z axis
 	 */
-	public void positionObject(double x, double y, double z, double w, double h, double l, double xRot, double yRot, double zRot){
+	public void positionObject(double x, double y, double z,
+							   double w, double h, double l,
+							   double xRot, double yRot, double zRot,
+							   double xA, double yA, double zA){
 		// Transformations happen in reverse order
 		
 		// Move the object to its final position
-		this.translate(x, y, z);
+		this.translate(x - xA, y - yA, z - zA);
+		
 		// Rotate around the center for each axis
-		this.rotate(xRot, 1.0f, 0.0f, 0.0f);
-		this.rotate(yRot, 0.0f, 1.0f, 0.0f);
-		this.rotate(zRot, 0.0f, 0.0f, 1.0f);
+		if(xRot != 0) this.rotate(xRot, 1.0f, 0.0f, 0.0f);
+		if(yRot != 0) this.rotate(yRot, 0.0f, 1.0f, 0.0f);
+		if(zRot != 0) this.rotate(zRot, 0.0f, 0.0f, 1.0f);
+		
+		// Translate to the axis of rotation
+		this.translate(xA, yA + h * 0.5, zA);
+		
 		// Start by scaling appropriately
 		this.scale(w, h, l);
 	}
@@ -1543,18 +1555,44 @@ public class Renderer implements Destroyable{
 		this.popMatrix();
 	}
 	
-	// TODO update the docs and decide formally what the coordinates represent, maybe the bottom center?
 	/**
 	 * Draw a rectangular prism based on the given values
-	 * @param x The upper, front, left hand x coordinate of the rect
-	 * @param y The upper, front, left hand y coordinate of the rect
-	 * @param z The upper, front, left hand z coordinate of the rect
+	 * @param x The bottom middle x coordinate of the rect
+	 * @param y The bottom middle y coordinate of the rect
+	 * @param z The bottom middle z coordinate of the rect
+	 * @param w The width, x axis, of the rect
+	 * @param h The height, y axis, of the rect
+	 * @param l The length, z axis, of the rect
+	 * @param angle The angle, in radians, to rotate on the y axis
+	 * @param front The color of the front of the rect
+	 * @param back The color of the back of the rect
+	 * @param left The color of the left of the rect
+	 * @param right The color of the right of the rect
+	 * @param top The color of the top of the rect
+	 * @param bot The color of the bottom of the rect
+	 * @return true if the object was drawn, false otherwise
+	 *
+	 */
+	public boolean drawRect3D(double x, double y, double z,
+							  double w, double h, double l,
+							  double angle,
+							  ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
+		return this.drawRect3D(x, y, z, w, h, l, 0, angle, 0, 0, 0, 0, front, back, left, right, top, bot);
+	}
+	/**
+	 * Draw a rectangular prism based on the given values
+	 * @param x The bottom middle x coordinate of the rect
+	 * @param y The bottom middle y coordinate of the rect
+	 * @param z The bottom middle z coordinate of the rect
 	 * @param w The width, x axis, of the rect
 	 * @param h The height, y axis, of the rect
 	 * @param l The length, z axis, of the rect
 	 * @param xRot The rotation on the x axis
 	 * @param yRot The rotation on the y axis
 	 * @param zRot The rotation on the z axis
+	 * @param xA The point, relative to the point to draw this object, to rotate on the x axis
+	 * @param yA The point, relative to the point to draw this object, to rotate on the y axis
+	 * @param zA The point, relative to the point to draw this object, to rotate on the z axis
 	 * @param front The color of the front of the rect
 	 * @param back The color of the back of the rect
 	 * @param left The color of the left of the rect
@@ -1565,15 +1603,18 @@ public class Renderer implements Destroyable{
 	 *
 	 */
 	// TODO make a better way of passing all these params
-	public boolean drawRect3D(double x, double y, double z, double w, double h, double l, double xRot, double yRot, double zRot,
-						   ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
+	public boolean drawRect3D(double x, double y, double z,
+							  double w, double h, double l,
+							  double xRot, double yRot, double zRot,
+							  double xA, double yA, double zA,
+							  ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
 		// Use the 3D color shader and the 3D rect vertex array
 		this.renderModeRect3D();
 		this.rect3DVertArr.bind();
 		
 		// Position the 3D rect
 		this.pushMatrix();
-		this.positionObject(x, y, z, w, h, l, xRot, yRot, zRot);
+		this.positionObject(x, y, z, w, h, l, xRot, yRot, zRot, xA, yA, zA);
 		
 		// Update the color on the cube
 		// 6 faces, 4 vertices per face, 4 color channels per color
@@ -1592,7 +1633,6 @@ public class Renderer implements Destroyable{
 		rect3DColorBuff.updateData(colorVertices);
 		
 		// Ensure the gpu has the current modelView and color
-		this.updateGpuColor();
 		this.updateGpuModelView();
 		
 		// Draw the rect

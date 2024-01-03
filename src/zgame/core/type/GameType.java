@@ -5,6 +5,7 @@ import zgame.core.graphics.Renderer;
 
 /** An object representing what kind of game this is, usually 2D or 3D */
 public interface GameType{
+	// TODO maybe call this class RenderType RenderStyle or something
 	
 	Type2D TYPE_2D = new Type2D();
 	Type3D TYPE_3D = new Type3D();

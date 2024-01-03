@@ -24,6 +24,8 @@ public class GameDemo3D extends Game{
 	private static double yRotSpeed = 0;
 	private static double zRotSpeed = 0;
 	
+	private static double pillarAngle = 0;
+	
 	private static final double walkSpeed = 0.7;
 	private static final double runSpeed = 2.5;
 	private static double moveSpeed = walkSpeed;
@@ -63,9 +65,10 @@ public class GameDemo3D extends Game{
 		
 		// Draw the cube
 		r.drawRect3D(
-				0, .5, 0,
-				.3, .3, .3,
+				0, .2, 0,
+				.6, .6, .6,
 				xRot, yRot, zRot,
+				0, -.3, 0,
 				new ZColor(1, 0, 0),
 				new ZColor(1, 1, 0),
 				new ZColor(0, 1, 0),
@@ -82,6 +85,18 @@ public class GameDemo3D extends Game{
 			}
 		}
 		
+		// Draw a rectangular prism that rotates only on the y axis
+		r.drawRect3D(
+				2, 0, 3,
+				.1, .8, .1,
+				pillarAngle,
+				new ZColor(.5, .5, .8),
+				new ZColor(.5, .5, .4),
+				new ZColor(.5, .5, .6),
+				new ZColor(.5, .5, .2),
+				new ZColor(.5, .5, 1),
+				new ZColor(0, 0)
+		);
 	}
 	
 	@Override
@@ -205,6 +220,9 @@ public class GameDemo3D extends Game{
 		else if(camera.getX() > 4) camera.setX(4);
 		if(camera.getZ() < -4) camera.setZ(-4);
 		else if(camera.getZ() > 4) camera.setZ(4);
+		
+		// Rotate the pillar
+		pillarAngle += 2 * dt;
 	}
 	
 	@Override
