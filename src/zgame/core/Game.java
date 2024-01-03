@@ -22,7 +22,7 @@ import zgame.core.sound.SoundSource;
 import zgame.core.state.DefaultState;
 import zgame.core.state.GameState;
 import zgame.core.state.PlayState;
-import zgame.core.type.GameType;
+import zgame.core.type.RenderStyle;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
@@ -50,8 +50,8 @@ public class Game implements Saveable, Destroyable{
 	/** The {@link GlfwWindow} used by this {@link Game} as the core interaction */
 	private final GameWindow window;
 	
-	/** The type of game, defaults to 2D */
-	private GameType type;
+	/** The way the core game is rendered, defaults to 2D */
+	private RenderStyle renderStyle;
 	
 	/** The {@link SoundManager} used by this {@link Game} to create sounds */
 	private final SoundManager sounds;
@@ -423,18 +423,18 @@ public class Game implements Saveable, Destroyable{
 				r.initToDraw();
 				
 				// Draw the background
-				GameType.TYPE_2D.setupRender(this, r);
+				RenderStyle.S_2D.setupFrame(this, r);
 				r.setCamera(null);
 				r.identityMatrix();
 				this.renderBackground(r);
 				
 				// Draw the foreground, i.e. main objects
 				// Perform any needed operations based on the type
-				this.getType().setupRender(this, r);
+				this.getRenderStyle().setupFrame(this, r);
 				this.render(r);
 				
 				// Draw the hud
-				GameType.TYPE_2D.setupRender(this, r);
+				RenderStyle.S_2D.setupFrame(this, r);
 				r.setCamera(null);
 				r.identityMatrix();
 				this.renderHud(r);
@@ -1206,25 +1206,25 @@ public class Game implements Saveable, Destroyable{
 		this.focusedMenuThing = focusedMenuThing;
 	}
 	
-	/** @return See {@link #type} */
-	public GameType getType(){
-		return this.type;
+	/** @return See {@link #renderStyle} */
+	public RenderStyle getRenderStyle(){
+		return this.renderStyle;
 	}
 	
-	/** @param type See {@link #type} */
-	public void setType(GameType type){
-		this.type = type;
-		this.type.onTypeSet(this);
+	/** @param renderStyle See {@link #renderStyle} */
+	public void setRenderStyle(RenderStyle renderStyle){
+		this.renderStyle = renderStyle;
+		this.renderStyle.setupCore(this, this.getWindow().getRenderer());
 	}
 	
 	/** Assign this game as a 2D game */
 	public void make2D(){
-		this.setType(GameType.TYPE_2D);
+		this.setRenderStyle(RenderStyle.S_2D);
 	}
 	
 	/** Assign this game as a 3D game */
 	public void make3D(){
-		this.setType(GameType.TYPE_3D);
+		this.setRenderStyle(RenderStyle.S_3D);
 	}
 	
 }

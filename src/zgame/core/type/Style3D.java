@@ -4,13 +4,13 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 
 /** The type representing a 3D game */
-public class Type3D implements GameType{
+public class Style3D implements RenderStyle{
 	
 	/** Init a new 3D game type */
-	public Type3D(){}
+	public Style3D(){}
 	
 	@Override
-	public void setupRender(Game game, Renderer r){
+	public void setupFrame(Game game, Renderer r){
 		r.updateFrustum(-1.0, 1.0, -1.0, 1.0, 0.01, 1000.0);
 		
 		r.setDepthTestEnabled(true);
@@ -18,11 +18,11 @@ public class Type3D implements GameType{
 	}
 	
 	@Override
-	public void onTypeSet(Game game){
+	public void setupCore(Game game, Renderer r){
 		var window = game.getWindow();
 		
 		// Turn on the depth buffer
-		var buff = window.getRenderer().getBuffer();
+		var buff = r.getBuffer();
 		buff.setDepthBufferEnabled(true);
 		buff.regenerateBuffer();
 		

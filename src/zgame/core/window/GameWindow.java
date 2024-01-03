@@ -380,7 +380,7 @@ public abstract class GameWindow implements Destroyable{
 			this.enterFullScreen();
 			
 			// Apply any needed states from the game's type
-			if(this.game != null) game.getType().onTypeSet(this.game);
+			if(this.game != null) game.getRenderStyle().setupCore(this.game, this.getRenderer());
 		}
 		else{
 			this.exitFullScreen();

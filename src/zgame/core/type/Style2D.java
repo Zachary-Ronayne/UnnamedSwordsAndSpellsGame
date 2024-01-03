@@ -4,13 +4,13 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 
 /** The type representing a 2D game */
-public class Type2D implements GameType{
+public class Style2D implements RenderStyle{
 	
 	/** Init a new 2D game type */
-	public Type2D(){}
+	public Style2D(){}
 	
 	@Override
-	public void setupRender(Game game, Renderer r){
+	public void setupFrame(Game game, Renderer r){
 		// Set the camera
 		boolean useCam = game.getCurrentState().isUseCamera();
 		if(useCam) r.setCamera(game.getCamera());
@@ -23,5 +23,5 @@ public class Type2D implements GameType{
 	}
 	
 	@Override
-	public void onTypeSet(Game game){}
+	public void setupCore(Game game, Renderer r){}
 }
