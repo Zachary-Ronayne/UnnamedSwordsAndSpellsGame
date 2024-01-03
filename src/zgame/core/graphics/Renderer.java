@@ -1015,9 +1015,9 @@ public class Renderer implements Destroyable{
 	 * Call OpenGL operations that transform to draw to a location in game coordinates.
 	 * This method does not push or pop the matrix stack
 	 *
-	 * @param x The upper, front, left hand x coordinate of the rect
-	 * @param y The upper, front, left hand y coordinate of the rect
-	 * @param z The upper, front, left hand z coordinate of the rect
+	 * @param x The bottom middle x coordinate of the rect
+	 * @param y The bottom middle y coordinate of the rect
+	 * @param z The bottom middle z coordinate of the rect
 	 * @param w The width, x axis, of the rect
 	 * @param h The height, y axis, of the rect
 	 * @param l The length, z axis, of the rect
