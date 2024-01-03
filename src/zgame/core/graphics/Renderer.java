@@ -1619,7 +1619,7 @@ public class Renderer implements Destroyable{
 		// Update the color on the cube
 		// 6 faces, 4 vertices per face, 4 color channels per color
 		var colorVertices = new float[6 * 4 * 4];
-		// TODO allow for transparent colors?
+		// TODO Make transparent colors work with multiple transparent faces happening at once
 		var cubeColors = new ZColor[]{front, back, left, right, top, bot};
 		var i = 0;
 		for(int f = 0; f < 6; f++){
@@ -1643,7 +1643,7 @@ public class Renderer implements Destroyable{
 	}
 	
 	// TODO make docs
-	public boolean drawPlane3D(double x, double z, double w, double l){
+	public boolean drawPlane3D(double x, double y, double z, double w, double l){
 		// Use the 3D color shader and the 3D rect vertex array
 		this.renderModeShapes();
 		this.planeVertArr.bind();
@@ -1651,10 +1651,8 @@ public class Renderer implements Destroyable{
 		// Position the plane
 		this.pushMatrix();
 		// TODO allow this to easily be rotated for angles and for walls and positioned in any way
-		this.translate(x, 0, z);
+		this.translate(x, y, z);
 		this.scale(w, 1, l);
-		
-		// TODO what happens with transparent colors?
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuColor();

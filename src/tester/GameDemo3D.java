@@ -81,7 +81,7 @@ public class GameDemo3D extends Game{
 		for(int x = 0; x < 32; x++){
 			for(int z = 0; z < 32; z++){
 				r.setColor(new ZColor(((x % 2 == 0) != (z % 2 == 0)) ? .2 : .6));
-				r.drawPlane3D(x * .25 - 3.875, z * .25 - 3.875, .25, .25);
+				r.drawPlane3D(x * .25 - 3.875, 0, z * .25 - 3.875, .25, .25);
 			}
 		}
 		
@@ -97,6 +97,35 @@ public class GameDemo3D extends Game{
 				new ZColor(.5, .5, 1),
 				new ZColor(0, 0)
 		);
+		r.drawRect3D(
+				2.5, 0, 3,
+				.1, .8, .1,
+				pillarAngle,
+				new ZColor(.5, .5, .8),
+				new ZColor(.5, .5, .4),
+				new ZColor(.5, .5, .6),
+				new ZColor(.5, .5, .2, 0),
+				new ZColor(.5, .5, 1),
+				new ZColor(0, 0)
+		);
+		
+		// Draw some transparent cubes
+		for(int i = 0; i < 3; i++){
+			r.drawRect3D(
+					-2 + i * .2, .45 - i * .05, -3 + i * .2,
+					.1, .1, .1,
+					Math.PI * .25 * i,
+					new ZColor(1, 0, 0, .5),
+					new ZColor(1, 1, 0, .5),
+					new ZColor(0, 1, 0, .5),
+					new ZColor(0, 1, 1, .5),
+					new ZColor(0, 0, 1, .5),
+					new ZColor(1, 0, 1, .5)
+			);
+		}
+		// Draw a transparent plane
+		r.setColor(new ZColor(1, 0, 0, .5));
+		r.drawPlane3D(-2, .6, -3, .25, .25);
 	}
 	
 	@Override
