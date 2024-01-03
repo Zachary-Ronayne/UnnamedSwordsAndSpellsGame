@@ -6,7 +6,9 @@ import zgame.core.graphics.Renderer;
 /** An object representing what kind of game this is, usually 2D or 3D */
 public interface RenderStyle{
 	
+	/** A common instance for use in basic 2D graphics */
 	Style2D S_2D = new Style2D();
+	/** A common instance for use in basic 3D graphics */
 	Style3D S_3D = new Style3D();
 	
 	/**
