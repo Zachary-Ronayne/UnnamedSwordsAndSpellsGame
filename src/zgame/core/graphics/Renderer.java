@@ -365,24 +365,23 @@ public class Renderer implements Destroyable{
 		
 		// Values for defining the cube
 		// 6 faces, 4 vertices per face, 3 coordinates per position
-		// TODO consider using 0 and 1 for the y axis to avoid extra transformations in positionObject
 		var cubeCorners = new float[][]{
 				// left, bottom, back
-				{-0.5f, -0.5f, -0.5f},
+				{-0.5f, 0.0f, -0.5f},
 				// right, bottom, back
-				{0.5f, -0.5f, -0.5f},
+				{0.5f, 0.0f, -0.5f},
 				// right, top, back
-				{0.5f, 0.5f, -0.5f},
+				{0.5f, 1.0f, -0.5f},
 				// left, top, back
-				{-0.5f, 0.5f, -0.5f},
+				{-0.5f, 1.0f, -0.5f},
 				// left, bottom, front
-				{-0.5f, -0.5f, 0.5f},
+				{-0.5f, 0.0f, 0.5f},
 				// right, bottom, front
-				{0.5f, -0.5f, 0.5f},
+				{0.5f, 0.0f, 0.5f},
 				// right, top, front
-				{0.5f, 0.5f, 0.5f},
+				{0.5f, 1.0f, 0.5f},
 				// left, top, front
-				{-0.5f, 0.5f, 0.5f},
+				{-0.5f, 1.0f, 0.5f},
 		};
 		var cubeCornerIndices = new byte[][]{
 				// Front
@@ -1044,7 +1043,7 @@ public class Renderer implements Destroyable{
 		if(zRot != 0) this.rotate(zRot, 0.0f, 0.0f, 1.0f);
 		
 		// Translate to the axis of rotation
-		this.translate(xA, yA + h * 0.5, zA);
+		this.translate(xA, yA, zA);
 		
 		// Start by scaling appropriately
 		this.scale(w, h, l);
