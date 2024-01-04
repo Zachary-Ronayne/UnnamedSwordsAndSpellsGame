@@ -81,7 +81,7 @@ public class GameDemo3D extends Game{
 		for(int x = 0; x < 32; x++){
 			for(int z = 0; z < 32; z++){
 				r.setColor(new ZColor(((x % 2 == 0) != (z % 2 == 0)) ? .2 : .6));
-				r.drawPlane3D(x * .25 - 3.875, 0, z * .25 - 3.875, .25, .25);
+				r.drawFlatPlane3D(x * .25 - 3.875, 0, z * .25 - 3.875, .25, .25);
 			}
 		}
 		
@@ -125,7 +125,29 @@ public class GameDemo3D extends Game{
 		}
 		// Draw a transparent plane
 		r.setColor(new ZColor(1, 0, 0, .5));
-		r.drawPlane3D(-2, .6, -3, .25, .25);
+		r.drawFlatPlane3D(-2, .6, -3, .25, .25);
+		
+		// Draw some planes of each type
+		r.setColor(new ZColor(1, 0, 0));
+		r.drawFlatPlane3D(2, .1, -3, .25, .25);
+		r.setColor(new ZColor(0, 1, 0));
+		r.drawPlaneX3D(2.3, .1, -3, .25, .25);
+		r.setColor(new ZColor(0, 0, 1));
+		r.drawPlaneZ3D(1.7, .1, -3, .25, .25);
+		
+		// Draw some checkerboard walls
+		for(int x = 0; x < 32; x++){
+			for(int y = 0; y < 4; y++){
+				r.setColor(new ZColor(((x % 2 == 0) != (y % 2 == 0)) ? .2 : .6, 0, .5));
+				r.drawPlaneX3D(x * .25 - 3.875, y * .25, 4, .25, .25);
+			}
+		}
+		for(int z = 0; z < 32; z++){
+			for(int y = 0; y < 4; y++){
+				r.setColor(new ZColor(.5, 0, ((z % 2 == 0) != (y % 2 == 0)) ? .2 : .6));
+				r.drawPlaneZ3D(4, y * .25, z * .25 - 3.875, .25, .25);
+			}
+		}
 	}
 	
 	@Override

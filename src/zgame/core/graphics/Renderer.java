@@ -1631,7 +1631,7 @@ public class Renderer implements Destroyable{
 		}
 		rect3DColorBuff.updateData(colorVertices);
 		
-		// Ensure the gpu has the current modelView and color
+		// Ensure the gpu has the current modelView
 		this.updateGpuModelView();
 		
 		// Draw the rect
@@ -1641,17 +1641,42 @@ public class Renderer implements Destroyable{
 		return true;
 	}
 	
-	// TODO make docs
-	public boolean drawPlane3D(double x, double y, double z, double w, double l){
+	// TODO for each of these versions, make a separate version that also allows angles?
+	// TODO make docs and a better name
+	public boolean drawFlatPlane3D(double x, double y, double z, double w, double l){
+		return this.drawPlane3D(x, y, z, w, l, 0, 0, 0);
+	}
+	
+	// TODO make docs and a better name
+	public boolean drawPlaneX3D(double x, double y, double z, double w, double l){
+		return this.drawPlane3D(x, y + w * 0.5, z, w, l, Math.PI * 0.5, 0, 0);
+	}
+	
+	// TODO make docs and a better name
+	public boolean drawPlaneZ3D(double x, double y, double z, double w, double l){
+		return this.drawPlane3D(x, y + l * 0.5, z, w, l, 0, 0, Math.PI * 0.5);
+	}
+	
+	/**
+	 * Draw a plane based on the given values
+	 * @param x The x coordinate center of the initially horizontal plane
+	 * @param y The y coordinate of the initially horizontal plane
+	 * @param z The z coordinate center of the initially horizontal plane
+	 * @param w The width of the plane
+	 * @param l The length of the plane
+	 * @param xRot The rotation on the x axis
+	 * @param yRot The rotation on the y axis
+	 * @param zRot The rotation on the z axis
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawPlane3D(double x, double y, double z, double w, double l, double xRot, double yRot, double zRot){
 		// Use the 3D color shader and the 3D rect vertex array
 		this.renderModeShapes();
 		this.planeVertArr.bind();
 		
 		// Position the plane
 		this.pushMatrix();
-		// TODO allow this to easily be rotated for angles and for walls and positioned in any way
-		this.translate(x, y, z);
-		this.scale(w, 1, l);
+		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, 0, 0, 0);
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuColor();
