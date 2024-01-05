@@ -29,12 +29,15 @@ public class GameDemo3D extends Game{
 	private static final double walkSpeed = 0.7;
 	private static final double runSpeed = 2.5;
 	private static double moveSpeed = walkSpeed;
+	// TODO make flying based on the mouse angle possible, add that to the engine
+	private static boolean flying = false;
 	private static final double mouseSpeed = 0.0007;
 	private static final double tiltSpeed = 3;
 	private static final double gravity = 0.08;
 	private static final double jumpVel = 2;
 	private static double yVel = 0;
 	private static final double minCamY = .3;
+	private static final double minCamDist = 3.85;
 	
 	public GameDemo3D(){
 		super();
@@ -179,6 +182,7 @@ public class GameDemo3D extends Game{
 		
 		// TODO abstract out a bunch of this to be built into the engine
 		double xSpeed = 0;
+		double ySpeed = 0;
 		double zSpeed = 0;
 		
 		// Determining movement direction
@@ -187,6 +191,8 @@ public class GameDemo3D extends Game{
 		var right = ki.buttonDown(GLFW_KEY_D);
 		var forward = ki.buttonDown(GLFW_KEY_W);
 		var backward = ki.buttonDown(GLFW_KEY_S);
+		var up = ki.buttonDown(GLFW_KEY_Q);
+		var down = ki.buttonDown(GLFW_KEY_Z);
 		if(left && forward || right && backward) ang -= Math.PI * 0.25;
 		if(right && forward || left && backward) ang += Math.PI * 0.25;
 		
@@ -210,26 +216,32 @@ public class GameDemo3D extends Game{
 				zSpeed = -Math.cos(ang);
 			}
 		}
+		if(flying){
+			if(up && !down) ySpeed = 0.5;
+			else if(down) ySpeed = -.5;
+		}
 		
 		camera.addX(dt * moveSpeed * xSpeed);
+		camera.addY(dt * moveSpeed * ySpeed);
 		camera.addZ(dt * moveSpeed * zSpeed);
 		
-		// Jumping
-		camera.addY(yVel);
-		if(camera.getY() > minCamY) {
-			yVel -= gravity * dt;
+		if(!flying){
+			// Jumping
+			camera.addY(yVel);
+			if(camera.getY() > minCamY){
+				yVel -= gravity * dt;
+			}
+			if(camera.getY() < minCamY){
+				camera.setY(minCamY);
+				yVel = 0;
+			}
+			if(ki.pressed(GLFW_KEY_Q) && yVel == 0) yVel = jumpVel * dt;
 		}
-		if(camera.getY() < minCamY) {
-			camera.setY(minCamY);
-			yVel = 0;
-		}
-		
-		if(ki.pressed(GLFW_KEY_Q) && yVel == 0) yVel = jumpVel * dt;
 		
 		// Tilting the camera to the side
 		var rotZ = camera.getRotZ();
-		var tiltLeft = ki.pressed(GLFW_KEY_Z);
-		var tiltRight = ki.pressed(GLFW_KEY_X);
+		var tiltLeft = ki.pressed(GLFW_KEY_COMMA);
+		var tiltRight = ki.pressed(GLFW_KEY_PERIOD);
 		var tilt = tiltSpeed * dt;
 		if(rotZ != 0 && !tiltLeft && !tiltRight){
 			if(Math.abs(rotZ) < tilt) camera.setRotZ(0);
@@ -274,10 +286,10 @@ public class GameDemo3D extends Game{
 		zRot += zRotSpeed * dt;
 		
 		// Force the camera to stay in certain bounds
-		if(camera.getX() < -4) camera.setX(-4);
-		else if(camera.getX() > 4) camera.setX(4);
-		if(camera.getZ() < -4) camera.setZ(-4);
-		else if(camera.getZ() > 4) camera.setZ(4);
+		if(camera.getX() < -minCamDist) camera.setX(-minCamDist);
+		else if(camera.getX() > minCamDist) camera.setX(minCamDist);
+		if(camera.getZ() < -minCamDist) camera.setZ(-minCamDist);
+		else if(camera.getZ() > minCamDist) camera.setZ(minCamDist);
 		
 		// Rotate the pillar
 		pillarAngle += 2 * dt;
@@ -316,6 +328,9 @@ public class GameDemo3D extends Game{
 			Severity: MEDIUM
 			Message: Program/shader state performance warning: Vertex shader in program 12 is being recompiled based on GL state.
 		 */
+		
+		// Toggle fly
+		if(button == GLFW_KEY_F) flying = !flying;
 		
 		// Toggle vsync
 		if(button == GLFW_KEY_V) game.set(BooleanTypeSetting.V_SYNC, !game.get(BooleanTypeSetting.V_SYNC), false);
