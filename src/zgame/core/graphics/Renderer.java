@@ -1572,11 +1572,11 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 *
 	 */
-	public boolean drawRect3D(double x, double y, double z,
-							  double w, double h, double l,
-							  double angle,
-							  ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
-		return this.drawRect3D(x, y, z, w, h, l, 0, angle, 0, 0, 0, 0, front, back, left, right, top, bot);
+	public boolean drawRectPrism(double x, double y, double z,
+								 double w, double h, double l,
+								 double angle,
+								 ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
+		return this.drawRectPrism(x, y, z, w, h, l, 0, angle, 0, 0, 0, 0, front, back, left, right, top, bot);
 	}
 	/**
 	 * Draw a rectangular prism based on the given values
@@ -1602,11 +1602,11 @@ public class Renderer implements Destroyable{
 	 *
 	 */
 	// TODO make a better way of passing all these params
-	public boolean drawRect3D(double x, double y, double z,
-							  double w, double h, double l,
-							  double xRot, double yRot, double zRot,
-							  double xA, double yA, double zA,
-							  ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
+	public boolean drawRectPrism(double x, double y, double z,
+								 double w, double h, double l,
+								 double xRot, double yRot, double zRot,
+								 double xA, double yA, double zA,
+								 ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
 		// Use the 3D color shader and the 3D rect vertex array
 		this.renderModeRect3D();
 		this.rect3DVertArr.bind();
@@ -1641,20 +1641,102 @@ public class Renderer implements Destroyable{
 		return true;
 	}
 	
-	// TODO for each of these versions, make a separate version that also allows angles?
-	// TODO make docs and a better name
-	public boolean drawFlatPlane3D(double x, double y, double z, double w, double l){
-		return this.drawPlane3D(x, y, z, w, l, 0, 0, 0);
+	/**
+	 * Draw a plane aligned to the y axis, i.e. a flat plane like the ground
+	 * @param x The x coordinate of the center bottom of the plane
+	 * @param y The y coordinate of the center bottom of the plane
+	 * @param z The z coordinate of the center bottom of the plane
+	 * @param w The width of the plane on the x axis
+	 * @param l The length of the plane on the z axis
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawFlatPlane(double x, double y, double z, double w, double l){
+		return this.drawPlane(x, y, z, w, l, 0, 0, 0, 0, 0, 0);
 	}
 	
-	// TODO make docs and a better name
-	public boolean drawPlaneX3D(double x, double y, double z, double w, double l){
-		return this.drawPlane3D(x, y + w * 0.5, z, w, l, Math.PI * 0.5, 0, 0);
+	/**
+	 * Draw a plane aligned to the y axis, i.e. a flat plane like the ground
+	 * @param x The x coordinate of the center bottom of the plane
+	 * @param y The y coordinate of the center bottom of the plane
+	 * @param z The z coordinate of the center bottom of the plane
+	 * @param w The width of the plane on the x axis
+	 * @param l The length of the plane on the z axis
+	 * @param angle The rotation on the y axis
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawFlatPlane(double x, double y, double z, double w, double l, double angle){
+		return this.drawPlane(x, y, z, w, l, 0, angle, 0, 0, 0, 0);
 	}
 	
-	// TODO make docs and a better name
-	public boolean drawPlaneZ3D(double x, double y, double z, double w, double l){
-		return this.drawPlane3D(x, y + l * 0.5, z, w, l, 0, 0, Math.PI * 0.5);
+	/**
+	 * Draw a plane aligned to the x axis, i.e. the side of something like a wall
+	 * @param x The x coordinate of the center bottom of the plane
+	 * @param y The y coordinate of the center bottom of the plane
+	 * @param z The z coordinate of the center bottom of the plane
+	 * @param s The size of the plane side to side
+	 * @param h The height of the plane
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawSidePlaneX(double x, double y, double z, double s, double h){
+		return this.drawSidePlaneX(x, y, z, s, h, 0);
+	}
+	
+	/**
+	 * Draw a plane aligned to the x axis, i.e. the side of something like a wall
+	 * @param x The x coordinate of the center bottom of the plane
+	 * @param y The y coordinate of the center bottom of the plane
+	 * @param z The z coordinate of the center bottom of the plane
+	 * @param s The size of the plane side to side
+	 * @param h The height of the plane
+	 * @param angle The rotation on the y axis
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawSidePlaneX(double x, double y, double z, double s, double h, double angle){
+		return this.drawSidePlane(x, y, z, h, s, h, Math.PI * 0.5, 0, angle);
+	}
+	
+	/**
+	 * Draw a plane aligned to the z axis, i.e. the side of something like a wall
+	 * @param x The x coordinate of the center bottom of the plane
+	 * @param y The y coordinate of the center bottom of the plane
+	 * @param z The z coordinate of the center bottom of the plane
+	 * @param s The size of the plane side to side
+	 * @param h The height of the plane
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawSidePlaneZ(double x, double y, double z, double s, double h){
+		return this.drawSidePlaneZ(x, y, z, h, s, 0);
+	}
+	
+	/**
+	 * Draw a plane aligned to the z axis, i.e. the side of something like a wall
+	 * @param x The x coordinate of the center bottom of the plane
+	 * @param y The y coordinate of the center bottom of the plane
+	 * @param z The z coordinate of the center bottom of the plane
+	 * @param s The size of the plane side to side
+	 * @param h The height of the plane
+	 * @param angle The rotation on the y axis
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawSidePlaneZ(double x, double y, double z, double s, double h, double angle){
+		return this.drawSidePlane(x, y, z, h, s, s, 0, angle, Math.PI * 0.5);
+	}
+	
+	/**
+	 * Draw a plane, default aligned to the x axis, i.e. the side of something like a wall
+	 * @param x The x coordinate of the center bottom of the plane
+	 * @param y The y coordinate of the center bottom of the plane
+	 * @param z The z coordinate of the center bottom of the plane
+	 * @param s The size of the plane side to side
+	 * @param h The height of the plane
+	 * @param hh The height to use for adjusting the plane so that the y coordinate is the bottom
+	 * @param xRot The rotation on the x axis
+	 * @param yRot The rotation on the y axis
+	 * @param zRot The rotation on the z axis
+	 * @return true if the object was drawn, false otherwise
+	 */
+	private boolean drawSidePlane(double x, double y, double z, double s, double h, double hh, double xRot, double yRot, double zRot){
+		return this.drawPlane(x, y + hh * 0.5, z, h, s, xRot, yRot, zRot, 0, 0, 0);
 	}
 	
 	/**
@@ -1667,16 +1749,19 @@ public class Renderer implements Destroyable{
 	 * @param xRot The rotation on the x axis
 	 * @param yRot The rotation on the y axis
 	 * @param zRot The rotation on the z axis
+	 * @param xA The point, relative to the point to position this object, to rotate on the x axis
+	 * @param yA The point, relative to the point to position this object, to rotate on the y axis
+	 * @param zA The point, relative to the point to position this object, to rotate on the z axis
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawPlane3D(double x, double y, double z, double w, double l, double xRot, double yRot, double zRot){
+	public boolean drawPlane(double x, double y, double z, double w, double l, double xRot, double yRot, double zRot, double xA, double yA, double zA){
 		// Use the 3D color shader and the 3D rect vertex array
 		this.renderModeShapes();
 		this.planeVertArr.bind();
 		
 		// Position the plane
 		this.pushMatrix();
-		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, 0, 0, 0);
+		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, xA, yA, zA);
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuColor();
