@@ -32,4 +32,18 @@ public class Style3D implements RenderStyle{
 		// Update the mouse mode
 		window.updateMouseNormally();
 	}
+	
+	@Override
+	public void onMenuOpened(Game game){
+		RenderStyle.super.onMenuOpened(game);
+		
+		game.getWindow().setMouseNormally(true);
+	}
+	
+	@Override
+	public void onAllMenusClosed(Game game){
+		RenderStyle.super.onAllMenusClosed(game);
+		
+		game.getWindow().setMouseNormally(false);
+	}
 }

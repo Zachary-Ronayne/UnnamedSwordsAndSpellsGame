@@ -3,9 +3,13 @@ package tester;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.state.PlayState;
+import zgame.core.utils.ZRect;
+import zgame.menu.Menu;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
+import zgame.world.Room;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -59,301 +63,339 @@ public class GameDemo3D extends Game{
 		game.getWindow().getRenderer().getCamera3D().setZ(2);
 		game.getWindow().getRenderer().getCamera3D().setY(minCamY);
 		
+		var state = new DemoGameState();
+		state.setCurrentRoom(new DummyRoom());
+		game.setCurrentState(state);
+		
+		updatePaused(true);
 		game.start();
 	}
 	
-	@Override
-	protected void render(Renderer r){
-		super.render(r);
+	private static class DemoGameState extends PlayState{
 		
-		// Draw the cube
-		r.drawRectPrism(
-				0, .2, 0,
-				.6, .6, .6,
-				xRot, yRot, zRot,
-				0, -.3, 0,
-				new ZColor(1, 0, 0),
-				new ZColor(1, 1, 0),
-				new ZColor(0, 1, 0),
-				new ZColor(0, 1, 1),
-				new ZColor(0, 0, 1),
-				new ZColor(1, 0, 1)
-		);
-		
-		// Draw a checkerboard floor
-		for(int x = 0; x < 32; x++){
-			for(int z = 0; z < 32; z++){
-				r.setColor(new ZColor(((x % 2 == 0) != (z % 2 == 0)) ? .2 : .6));
-				r.drawFlatPlane(x * .25 - 3.875, 0, z * .25 - 3.875, .25, .25);
-			}
-		}
-		
-		// Draw a rectangular prism that rotates only on the y axis
-		r.drawRectPrism(
-				2, 0, 3,
-				.1, .8, .1,
-				pillarAngle,
-				new ZColor(.5, .5, .8),
-				new ZColor(.5, .5, .4),
-				new ZColor(.5, .5, .6),
-				new ZColor(.5, .5, .2),
-				new ZColor(.5, .5, 1),
-				new ZColor(0, 0)
-		);
-		r.drawRectPrism(
-				2.5, 0, 3,
-				.1, .8, .1,
-				pillarAngle,
-				new ZColor(.5, .5, .8),
-				new ZColor(.5, .5, .4),
-				new ZColor(.5, .5, .6),
-				new ZColor(.5, .5, .2, 0),
-				new ZColor(.5, .5, 1),
-				new ZColor(0, 0)
-		);
-		
-		// Draw some transparent cubes
-		for(int i = 0; i < 3; i++){
+		@Override
+		public void render(Game game, Renderer r){
+			super.render(game, r);
+			
+			// Draw the cube
 			r.drawRectPrism(
-					-2 + i * .2, .45 - i * .05, -3 + i * .2,
-					.1, .1, .1,
-					Math.PI * .25 * i,
-					new ZColor(1, 0, 0, .5),
-					new ZColor(1, 1, 0, .5),
-					new ZColor(0, 1, 0, .5),
-					new ZColor(0, 1, 1, .5),
-					new ZColor(0, 0, 1, .5),
-					new ZColor(1, 0, 1, .5)
+					0, .2, 0,
+					.6, .6, .6,
+					xRot, yRot, zRot,
+					0, -.3, 0,
+					new ZColor(1, 0, 0),
+					new ZColor(1, 1, 0),
+					new ZColor(0, 1, 0),
+					new ZColor(0, 1, 1),
+					new ZColor(0, 0, 1),
+					new ZColor(1, 0, 1)
 			);
-		}
-		// Draw a transparent plane
-		r.setColor(new ZColor(1, 0, 0, .5));
-		r.drawFlatPlane(-2, .6, -3, .25, .25);
-		
-		// Draw some planes of each type
-		r.setColor(new ZColor(1, 0, 0));
-		r.drawFlatPlane(2, .1, -3, .25, .4);
-		r.setColor(new ZColor(0, 1, 0));
-		r.drawSidePlaneX(2.3, .1, -3, .25, .4);
-		r.setColor(new ZColor(0, 0, 1));
-		r.drawSidePlaneZ(1.7, .1, -3, .4, .25);
-		
-		r.setColor(new ZColor(1, 1, 0));
-		r.drawFlatPlane(2, 1, -3, .25, .4, pillarAngle);
-		r.setColor(new ZColor(0, 1, 1));
-		r.drawSidePlaneX(2.3, 1, -3, .25, .4, pillarAngle);
-		r.setColor(new ZColor(1, 0, 1));
-		r.drawSidePlaneZ(1.7, 1, -3, .4, .25, pillarAngle);
-		
-		// Draw some checkerboard walls
-		for(int x = 0; x < 32; x++){
-			for(int y = 0; y < 4; y++){
-				r.setColor(new ZColor(((x % 2 == 0) != (y % 2 == 0)) ? .2 : .6, 0, .5));
-				r.drawSidePlaneX(x * .25 - 3.875, y * .25, 4, .25, .25);
-			}
-		}
-		for(int z = 0; z < 32; z++){
-			for(int y = 0; y < 4; y++){
-				r.setColor(new ZColor(.5, 0, ((z % 2 == 0) != (y % 2 == 0)) ? .2 : .6));
-				r.drawSidePlaneZ(4, y * .25, z * .25 - 3.875, .25, .25);
-			}
-		}
-	}
-	
-	@Override
-	protected void renderHud(Renderer r){
-		super.renderHud(r);
-		r.setFontSize(30);
-		var s = "FPS: " + game.getRenderLooper().getLastFuncCalls();
-		
-		r.setColor(new ZColor(0));
-		r.drawRectangle(20, 6, 10 + r.getFont().stringWidth(s), 40);
-		
-		r.setColor(new ZColor(1));
-		r.drawText(24, 34, s);
-	}
-	
-	@Override
-	protected void tick(double dt){
-		super.tick(dt);
-		var ki = game.getKeyInput();
-		
-		var camera = game.getWindow().getRenderer().getCamera3D();
-		
-		// TODO abstract out a bunch of this to be built into the engine
-		double xSpeed = 0;
-		double ySpeed = 0;
-		double zSpeed = 0;
-		
-		// Determining movement direction
-		var ang = camera.getRotY();
-		var left = ki.buttonDown(GLFW_KEY_A);
-		var right = ki.buttonDown(GLFW_KEY_D);
-		var forward = ki.buttonDown(GLFW_KEY_W);
-		var backward = ki.buttonDown(GLFW_KEY_S);
-		var up = ki.buttonDown(GLFW_KEY_Q);
-		var down = ki.buttonDown(GLFW_KEY_Z);
-		if(left && forward || right && backward) ang -= Math.PI * 0.25;
-		if(right && forward || left && backward) ang += Math.PI * 0.25;
-		
-		if(forward) {
-			xSpeed = Math.sin(ang);
-			zSpeed = -Math.cos(ang);
-		}
-		else if(backward) {
-			xSpeed = -Math.sin(ang);
-			zSpeed = Math.cos(ang);
-		}
-		else{
-			if(left){
-				ang = camera.getRotY() - Math.PI * 0.5;
-				xSpeed = Math.sin(ang);
-				zSpeed = -Math.cos(ang);
-			}
-			else if(right){
-				ang = camera.getRotY() + Math.PI * 0.5;
-				xSpeed = Math.sin(ang);
-				zSpeed = -Math.cos(ang);
-			}
-		}
-		if(flying){
-			if(up && !down) ySpeed = 0.5;
-			else if(down) ySpeed = -.5;
-		}
-		
-		camera.addX(dt * moveSpeed * xSpeed);
-		camera.addY(dt * moveSpeed * ySpeed);
-		camera.addZ(dt * moveSpeed * zSpeed);
-		
-		if(!flying){
-			// Jumping
-			camera.addY(yVel);
-			if(camera.getY() > minCamY){
-				yVel -= gravity * dt;
-			}
-			if(camera.getY() < minCamY){
-				camera.setY(minCamY);
-				yVel = 0;
-			}
-			if(ki.pressed(GLFW_KEY_Q) && yVel == 0) yVel = jumpVel * dt;
-		}
-		
-		// Tilting the camera to the side
-		var rotZ = camera.getRotZ();
-		var tiltLeft = ki.pressed(GLFW_KEY_COMMA);
-		var tiltRight = ki.pressed(GLFW_KEY_PERIOD);
-		var tilt = tiltSpeed * dt;
-		if(rotZ != 0 && !tiltLeft && !tiltRight){
-			if(Math.abs(rotZ) < tilt) camera.setRotZ(0);
-			else if(rotZ < 0) camera.addRotZ(tilt);
-			else camera.addRotZ(-tilt);
-		}
-		if(tiltLeft) {
-			if(camera.getRotZ() > -Math.PI * 0.5) camera.addRotZ(-tilt);
-		}
-		if(tiltRight) {
-			if(camera.getRotZ() < Math.PI * 0.5) camera.addRotZ(tilt);
-		}
-		
-		// Rotating the cube
-		if(autoRotate){
-			xRotSpeed = 1;
-			yRotSpeed = .5;
-			zRotSpeed = .25;
-		}
-		else{
-			if(ki.pressed(GLFW_KEY_I)) xRotSpeed = -1;
-			else if(ki.pressed(GLFW_KEY_K)) xRotSpeed = 1;
-			else xRotSpeed = 0;
 			
-			if(ki.pressed(GLFW_KEY_J)) yRotSpeed = -1;
-			else if(ki.pressed(GLFW_KEY_L)) yRotSpeed = 1;
-			else yRotSpeed = 0;
+			// Draw a checkerboard floor
+			for(int x = 0; x < 32; x++){
+				for(int z = 0; z < 32; z++){
+					r.setColor(new ZColor(((x % 2 == 0) != (z % 2 == 0)) ? .2 : .6));
+					r.drawFlatPlane(x * .25 - 3.875, 0, z * .25 - 3.875, .25, .25);
+				}
+			}
 			
-			if(ki.pressed(GLFW_KEY_U)) zRotSpeed = -1;
-			else if(ki.pressed(GLFW_KEY_O)) zRotSpeed = 1;
-			else zRotSpeed = 0;
+			// Draw a rectangular prism that rotates only on the y axis
+			r.drawRectPrism(
+					2, 0, 3,
+					.1, .8, .1,
+					pillarAngle,
+					new ZColor(.5, .5, .8),
+					new ZColor(.5, .5, .4),
+					new ZColor(.5, .5, .6),
+					new ZColor(.5, .5, .2),
+					new ZColor(.5, .5, 1),
+					new ZColor(0, 0)
+			);
+			r.drawRectPrism(
+					2.5, 0, 3,
+					.1, .8, .1,
+					pillarAngle,
+					new ZColor(.5, .5, .8),
+					new ZColor(.5, .5, .4),
+					new ZColor(.5, .5, .6),
+					new ZColor(.5, .5, .2, 0),
+					new ZColor(.5, .5, 1),
+					new ZColor(0, 0)
+			);
+			
+			// Draw some transparent cubes
+			for(int i = 0; i < 3; i++){
+				r.drawRectPrism(
+						-2 + i * .2, .45 - i * .05, -3 + i * .2,
+						.1, .1, .1,
+						Math.PI * .25 * i,
+						new ZColor(1, 0, 0, .5),
+						new ZColor(1, 1, 0, .5),
+						new ZColor(0, 1, 0, .5),
+						new ZColor(0, 1, 1, .5),
+						new ZColor(0, 0, 1, .5),
+						new ZColor(1, 0, 1, .5)
+				);
+			}
+			// Draw a transparent plane
+			r.setColor(new ZColor(1, 0, 0, .5));
+			r.drawFlatPlane(-2, .6, -3, .25, .25);
+			
+			// Draw some planes of each type
+			r.setColor(new ZColor(1, 0, 0));
+			r.drawFlatPlane(2, .1, -3, .25, .4);
+			r.setColor(new ZColor(0, 1, 0));
+			r.drawSidePlaneX(2.3, .1, -3, .25, .4);
+			r.setColor(new ZColor(0, 0, 1));
+			r.drawSidePlaneZ(1.7, .1, -3, .4, .25);
+			
+			r.setColor(new ZColor(1, 1, 0));
+			r.drawFlatPlane(2, 1, -3, .25, .4, pillarAngle);
+			r.setColor(new ZColor(0, 1, 1));
+			r.drawSidePlaneX(2.3, 1, -3, .25, .4, pillarAngle);
+			r.setColor(new ZColor(1, 0, 1));
+			r.drawSidePlaneZ(1.7, 1, -3, .4, .25, pillarAngle);
+			
+			// Draw some checkerboard walls
+			for(int x = 0; x < 32; x++){
+				for(int y = 0; y < 4; y++){
+					r.setColor(new ZColor(((x % 2 == 0) != (y % 2 == 0)) ? .2 : .6, 0, .5));
+					r.drawSidePlaneX(x * .25 - 3.875, y * .25, 4, .25, .25);
+				}
+			}
+			for(int z = 0; z < 32; z++){
+				for(int y = 0; y < 4; y++){
+					r.setColor(new ZColor(.5, 0, ((z % 2 == 0) != (y % 2 == 0)) ? .2 : .6));
+					r.drawSidePlaneZ(4, y * .25, z * .25 - 3.875, .25, .25);
+				}
+			}
 		}
 		
-		if(ki.pressed(GLFW_KEY_R)) {
-			xRot = 0;
-			yRot = 0;
-			zRot = 0;
+		@Override
+		public void renderHud(Game game, Renderer r){
+			super.renderHud(game, r);
+			r.setFontSize(30);
+			var s = "FPS: " + game.getRenderLooper().getLastFuncCalls();
+			
+			r.setColor(new ZColor(0));
+			r.drawRectangle(20, 6, 10 + r.getFont().stringWidth(s), 40);
+			
+			r.setColor(new ZColor(1));
+			r.drawText(24, 34, s);
 		}
 		
-		xRot += xRotSpeed * dt;
-		yRot += yRotSpeed * dt;
-		zRot += zRotSpeed * dt;
+		@Override
+		public void playKeyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+			super.playKeyAction(game, button, press, shift, alt, ctrl);
+			
+			if(shift) moveSpeed = runSpeed;
+			else moveSpeed = walkSpeed;
+			
+			if(press) return;
+			
+			// TODO make an option to disable the auto mouse changing
+			// Toggle paused
+			if(button == GLFW_KEY_ESCAPE) updatePaused(!game.getPlayState().isPaused());
+			
+			// Modify FOV
+			if(button == GLFW_KEY_LEFT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) - .1, false);
+			else if(button == GLFW_KEY_RIGHT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) + .1, false);
+			
+			// Toggling the cube rotating on its own
+			if(button == GLFW_KEY_1) autoRotate = !autoRotate;
+			
+			// Toggling full screen
+			if(button == GLFW_KEY_2) game.toggleFullscreen();
+			/*
+			   TODO fix OpenGL warning when exiting full screen
+				[LWJGL] OpenGL debug message
+				ID: 0x20092
+				Source: API
+				Type: PERFORMANCE
+				Severity: MEDIUM
+				Message: Program/shader state performance warning: Vertex shader in program 12 is being recompiled based on GL state.
+			 */
+			
+			// Toggle fly
+			if(button == GLFW_KEY_F) flying = !flying;
+			
+			// Toggle vsync
+			if(button == GLFW_KEY_V) game.set(BooleanTypeSetting.V_SYNC, !game.get(BooleanTypeSetting.V_SYNC), false);
+			
+			// TODO allow for a third person perspective and build it into the engine
+		}
 		
-		// Force the camera to stay in certain bounds
-		if(camera.getX() < -minCamDist) camera.setX(-minCamDist);
-		else if(camera.getX() > minCamDist) camera.setX(minCamDist);
-		if(camera.getZ() < -minCamDist) camera.setZ(-minCamDist);
-		else if(camera.getZ() > minCamDist) camera.setZ(minCamDist);
-		
-		// Rotate the pillar
-		pillarAngle += 2 * dt;
-	}
-	
-	@Override
-	protected void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyAction(button, press, shift, alt, ctrl);
-		
-		if(shift) moveSpeed = runSpeed;
-		else moveSpeed = walkSpeed;
-		
-		if(press) return;
-		
-		// TODO make this happen automatically depending on the game state and if menus are open, also make it an option to enable or disable it
-		if(button == GLFW_KEY_SPACE) {
+		@Override
+		public boolean playMouseMove(Game game, double x, double y){
+			var result = super.playMouseMove(game, x, y);
+			
 			var window = game.getWindow();
-			window.setMouseNormally(!window.isMouseNormally());
+			if(window.isMouseNormally()) return result;
+			
+			// TODO add this as some kind of built in thing
+			
+			// TODO fix sudden camera jolts when switching between normal and not normal mouse modes
+			// Axes swapped because of the way that it feels like it should be
+			var diffX = y - game.getMouseInput().lastY();
+			var diffY = x - game.getMouseInput().lastX();
+			
+			var camera = window.getRenderer().getCamera3D();
+			camera.addRotX(diffX * mouseSpeed);
+			camera.addRotY(diffY * mouseSpeed);
+			
+			return result;
 		}
 		
-		// Modify FOV
-		if(button == GLFW_KEY_LEFT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) - .1, false);
-		else if(button == GLFW_KEY_RIGHT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) + .1, false);
-		
-		// Toggling the cube rotating on its own
-		if(button == GLFW_KEY_1) autoRotate = !autoRotate;
-		
-		// Toggling full screen
-		if(button == GLFW_KEY_2) game.toggleFullscreen();
-		/*
-		   TODO fix OpenGL warning when exiting full screen
-			[LWJGL] OpenGL debug message
-			ID: 0x20092
-			Source: API
-			Type: PERFORMANCE
-			Severity: MEDIUM
-			Message: Program/shader state performance warning: Vertex shader in program 12 is being recompiled based on GL state.
-		 */
-		
-		// Toggle fly
-		if(button == GLFW_KEY_F) flying = !flying;
-		
-		// Toggle vsync
-		if(button == GLFW_KEY_V) game.set(BooleanTypeSetting.V_SYNC, !game.get(BooleanTypeSetting.V_SYNC), false);
-		
-		// TODO allow for a third person perspective and build it into the engine
 	}
 	
-	@Override
-	protected void mouseMove(double x, double y){
-		super.mouseMove(x, y);
+	private static class DummyRoom extends Room{
+		@Override
+		public void tick(Game game, double dt){
+			super.tick(game, dt);
+			var ki = game.getKeyInput();
+			
+			var camera = game.getWindow().getRenderer().getCamera3D();
+			
+			// TODO abstract out a bunch of this to be built into the engine
+			double xSpeed = 0;
+			double ySpeed = 0;
+			double zSpeed = 0;
+			
+			// Determining movement direction
+			var ang = camera.getRotY();
+			var left = ki.buttonDown(GLFW_KEY_A);
+			var right = ki.buttonDown(GLFW_KEY_D);
+			var forward = ki.buttonDown(GLFW_KEY_W);
+			var backward = ki.buttonDown(GLFW_KEY_S);
+			var up = ki.buttonDown(GLFW_KEY_Q);
+			var down = ki.buttonDown(GLFW_KEY_Z);
+			if(left && forward || right && backward) ang -= Math.PI * 0.25;
+			if(right && forward || left && backward) ang += Math.PI * 0.25;
+			
+			if(forward) {
+				xSpeed = Math.sin(ang);
+				zSpeed = -Math.cos(ang);
+			}
+			else if(backward) {
+				xSpeed = -Math.sin(ang);
+				zSpeed = Math.cos(ang);
+			}
+			else{
+				if(left){
+					ang = camera.getRotY() - Math.PI * 0.5;
+					xSpeed = Math.sin(ang);
+					zSpeed = -Math.cos(ang);
+				}
+				else if(right){
+					ang = camera.getRotY() + Math.PI * 0.5;
+					xSpeed = Math.sin(ang);
+					zSpeed = -Math.cos(ang);
+				}
+			}
+			if(flying){
+				if(up && !down) ySpeed = 0.5;
+				else if(down) ySpeed = -.5;
+			}
+			
+			camera.addX(dt * moveSpeed * xSpeed);
+			camera.addY(dt * moveSpeed * ySpeed);
+			camera.addZ(dt * moveSpeed * zSpeed);
+			
+			if(!flying){
+				// Jumping
+				camera.addY(yVel);
+				if(camera.getY() > minCamY){
+					yVel -= gravity * dt;
+				}
+				if(camera.getY() < minCamY){
+					camera.setY(minCamY);
+					yVel = 0;
+				}
+				if(ki.pressed(GLFW_KEY_Q) && yVel == 0) yVel = jumpVel * dt;
+			}
+			
+			// Tilting the camera to the side
+			var rotZ = camera.getRotZ();
+			var tiltLeft = ki.pressed(GLFW_KEY_COMMA);
+			var tiltRight = ki.pressed(GLFW_KEY_PERIOD);
+			var tilt = tiltSpeed * dt;
+			if(rotZ != 0 && !tiltLeft && !tiltRight){
+				if(Math.abs(rotZ) < tilt) camera.setRotZ(0);
+				else if(rotZ < 0) camera.addRotZ(tilt);
+				else camera.addRotZ(-tilt);
+			}
+			if(tiltLeft) {
+				if(camera.getRotZ() > -Math.PI * 0.5) camera.addRotZ(-tilt);
+			}
+			if(tiltRight) {
+				if(camera.getRotZ() < Math.PI * 0.5) camera.addRotZ(tilt);
+			}
+			
+			// Rotating the cube
+			if(autoRotate){
+				xRotSpeed = 1;
+				yRotSpeed = .5;
+				zRotSpeed = .25;
+			}
+			else{
+				if(ki.pressed(GLFW_KEY_I)) xRotSpeed = -1;
+				else if(ki.pressed(GLFW_KEY_K)) xRotSpeed = 1;
+				else xRotSpeed = 0;
+				
+				if(ki.pressed(GLFW_KEY_J)) yRotSpeed = -1;
+				else if(ki.pressed(GLFW_KEY_L)) yRotSpeed = 1;
+				else yRotSpeed = 0;
+				
+				if(ki.pressed(GLFW_KEY_U)) zRotSpeed = -1;
+				else if(ki.pressed(GLFW_KEY_O)) zRotSpeed = 1;
+				else zRotSpeed = 0;
+			}
+			
+			if(ki.pressed(GLFW_KEY_R)) {
+				xRot = 0;
+				yRot = 0;
+				zRot = 0;
+			}
+			
+			xRot += xRotSpeed * dt;
+			yRot += yRotSpeed * dt;
+			zRot += zRotSpeed * dt;
+			
+			// Force the camera to stay in certain bounds
+			if(camera.getX() < -minCamDist) camera.setX(-minCamDist);
+			else if(camera.getX() > minCamDist) camera.setX(minCamDist);
+			if(camera.getZ() < -minCamDist) camera.setZ(-minCamDist);
+			else if(camera.getZ() > minCamDist) camera.setZ(minCamDist);
+			
+			// Rotate the pillar
+			pillarAngle += 2 * dt;
+		}
 		
-		var window = game.getWindow();
-		if(window.isMouseNormally()) return;
-		
-		// TODO add this as some kind of built in thing
-		
-		// TODO fix sudden camera jolts when switching between normal and not normal mouse modes
-		// Axes swapped because of the way that it feels like it should be
-		var diffX = y - game.getMouseInput().lastY();
-		var diffY = x - game.getMouseInput().lastX();
-		
-		var camera = window.getRenderer().getCamera3D();
-		camera.addRotX(diffX * mouseSpeed);
-		camera.addRotY(diffY * mouseSpeed);
+		@Override
+		public void render(Game game, Renderer r){
+		}
 	}
+	
+	private static void updatePaused(boolean paused){
+		var p = game.getPlayState();
+		if(p == null) return;
+		p.setPaused(paused);
+		if(paused){
+			game.getCurrentState().popupMenu(game, new Menu(600, 300, 500, 100, false){
+				@Override
+				public void render(Game game, Renderer r, ZRect bounds){
+					super.render(game, r, bounds);
+					// TODO fix proper transparency not working here, probably something with buffers
+					r.setColor(new ZColor(0, .5));
+					r.drawRectangle(bounds);
+					
+					r.setColor(new ZColor(1));
+					r.setFontSize(40);
+					r.drawText(bounds.getX() + 30, bounds.getY() + 50, "PAUSED");
+				}
+			});
+		}
+		else game.getCurrentState().removeTopMenu(game);
+	}
+	
 }

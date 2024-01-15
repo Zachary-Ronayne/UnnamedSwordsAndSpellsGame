@@ -12,20 +12,22 @@ public abstract class MenuState extends GameState{
 	/**
 	 * Create a new {@link MenuState} with the given {@link Menu}
 	 *
+	 * @param game The game using this state
 	 * @param menu The menu to use
 	 */
-	public MenuState(Menu menu){
-		this(new MenuNode(menu));
+	public MenuState(Game game, Menu menu){
+		this(game, new MenuNode(menu));
 	}
 	
 	/**
 	 * Create a new {@link MenuState} with the given {@link MenuNode}
 	 *
+	 * @param game The game using this state
 	 * @param menu The node to use
 	 */
-	public MenuState(MenuNode menu){
+	public MenuState(Game game, MenuNode menu){
 		super(false);
-		this.setMenu(menu.getMenu());
+		this.setMenu(game, menu.getMenu());
 		this.setMinMenuStack(1);
 	}
 	

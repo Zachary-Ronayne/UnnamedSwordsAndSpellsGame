@@ -50,13 +50,13 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	/** @return The root menu of this {@link MenuState}, i.e. the menu on the bottom before popups, or null if there are no menus */
 	public Menu getMenu(){
 		if(this.menuStack == null) return null;
-		return this.menuStack.isEmpty() ? null : this.menuStack.get(0).getMenu();
+		return this.hasMenu() ? this.menuStack.get(0).getMenu() : null;
 	}
 	
 	/** @return The menu on top of all other menus, or null if there are no menus */
 	public MenuNode getTopMenuNode(){
 		if(this.menuStack == null) return null;
-		return this.menuStack.isEmpty() ? null : this.menuStack.get(this.menuStack.size() - 1);
+		return this.hasMenu() ? this.menuStack.get(this.menuStack.size() - 1) : null;
 	}
 	
 	/** @return The menu on top of all other menus, or null if there are no menus */
@@ -66,11 +66,15 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 		return node.getMenu();
 	}
 	
-	/** @param menu The new root menu of this {@link GameState}, i.e. the menu on the bottom before popups */
-	public void setMenu(Menu menu){
-		if(this.menuStack == null || !this.menuStack.isEmpty()) this.menuStack = new ArrayList<>();
+	/**
+	 * @param game The game using this game state
+	 * @param menu The new root menu of this {@link GameState}, i.e. the menu on the bottom before popups
+	 */
+	public void setMenu(Game game, Menu menu){
+		if(this.menuStack == null || this.hasMenu()) this.menuStack = new ArrayList<>();
 		var node = new MenuNode(menu);
 		this.menuStack.add(0, node);
+		this.onMenuChange(game, true);
 	}
 	
 	/** @return The number of menus currently displayed on this {@link GameState} */
@@ -111,6 +115,7 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 		// Otherwise, just add the menu to the top
 		else this.menuStack.add(node);
 		menu.onRemove(game);
+		this.onMenuChange(game, true);
 	}
 	
 	/**
@@ -167,6 +172,7 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 		var m = n.getMenu();
 		m.onRemove(game);
 		if(m.isDefaultDestroyRemove() && !preventDestroy) m.destroy();
+		this.onMenuChange(game, false);
 		return m;
 	}
 	
@@ -181,6 +187,7 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 		Menu removed = this.menuStack.remove(this.menuStack.size() - 1).getMenu();
 		removed.onRemove(game);
 		if(removed.isDefaultDestroyRemove()) removed.destroy();
+		this.onMenuChange(game, false);
 		return removed;
 	}
 	
@@ -201,6 +208,19 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 		if(destroy) removed.destroy();
 		return removed;
 	}
+	
+	/** @return true if any menus are open, false otherwise */
+	public boolean hasMenu(){
+		return !this.menuStack.isEmpty();
+	}
+	
+	/**
+	 * Called when a menu is added or removed from this state. Does nothing by default, override to provide custom behavior
+	 *
+	 * @param game The game where the change happened
+	 * @param added true if a menu was added, false if it was removed
+	 */
+	public void onMenuChange(Game game, boolean added){}
 	
 	/** @return See {@link #minMenuStack} */
 	public int getMinMenuStack(){

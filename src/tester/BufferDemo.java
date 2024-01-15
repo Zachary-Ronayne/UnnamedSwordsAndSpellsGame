@@ -40,7 +40,7 @@ public class BufferDemo extends Game{
 				super.render(game, r, bounds);
 			}
 		};
-		state = new MenuState(menu){};
+		state = new MenuState(game, menu){};
 		var thing = new MenuText(100, 100, 500, 300, game){
 			@Override
 			public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){

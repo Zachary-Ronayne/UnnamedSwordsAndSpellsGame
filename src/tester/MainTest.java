@@ -720,7 +720,7 @@ public class MainTest extends Game{
 	public static class TesterMenuState extends MenuState{
 		
 		public TesterMenuState(Game game){
-			super(new TesterMenu(game));
+			super(game, new TesterMenu(game));
 			((TesterMenu)this.getMenu()).state = this;
 		}
 		

@@ -92,6 +92,20 @@ public class PlayState extends GameState{
 	}
 	
 	@Override
+	public void onSet(Game game){
+		super.onSet(game);
+		// When going into the play state, consider all menus as closed
+		game.getRenderStyle().onAllMenusClosed(game);
+	}
+	
+	@Override
+	public void onMenuChange(Game game, boolean added){
+		super.onMenuChange(game, added);
+		if(added) game.getRenderStyle().onMenuOpened(game);
+		else if(!this.hasMenu()) game.getRenderStyle().onAllMenusClosed(game);
+	}
+	
+	@Override
 	public final void tick(Game game, double dt){
 		super.tick(game, dt);
 		if(this.isPaused()) return;

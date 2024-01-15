@@ -1618,7 +1618,7 @@ public class Renderer implements Destroyable{
 		// Update the color on the cube
 		// 6 faces, 4 vertices per face, 4 color channels per color
 		var colorVertices = new float[6 * 4 * 4];
-		// TODO Make transparent colors work with multiple transparent faces happening at once
+		// issue#35 Make transparent colors work with multiple transparent faces happening at once, all transparent shapes must be added to a list that gets sorted by distance to the camera, and those are rendered last
 		var cubeColors = new ZColor[]{front, back, left, right, top, bot};
 		var i = 0;
 		for(int f = 0; f < 6; f++){

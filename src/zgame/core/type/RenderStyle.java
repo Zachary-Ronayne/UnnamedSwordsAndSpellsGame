@@ -25,4 +25,16 @@ public interface RenderStyle{
 	 */
 	void setupCore(Game game, Renderer r);
 	
+	/**
+	 * Called when the play state of a game is active, and a menu is opened with no menus previously opened
+	 * @param game The game where this chane happened
+	 */
+	default void onMenuOpened(Game game){}
+	
+	/**
+	 * Called when the play state of a game is active, a menu was open, and all menus have been closed
+	 * @param game The game where this chane happened
+	 */
+	default void onAllMenusClosed(Game game){}
+	
 }
