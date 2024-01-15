@@ -35,7 +35,6 @@ public class GameDemo3D extends Game{
 	private static double moveSpeed = walkSpeed;
 	// TODO make flying based on the mouse angle possible, add that to the engine
 	private static boolean flying = false;
-	private static final double mouseSpeed = 0.0007;
 	private static final double tiltSpeed = 3;
 	private static final double gravity = 0.08;
 	private static final double jumpVel = 2;
@@ -53,6 +52,7 @@ public class GameDemo3D extends Game{
 		
 		game.set(BooleanTypeSetting.V_SYNC, true, false);
 		game.set(IntTypeSetting.FPS_LIMIT, 0, false);
+		
 		game.setPrintTps(false);
 		game.setPrintFps(false);
 		
@@ -193,7 +193,6 @@ public class GameDemo3D extends Game{
 			
 			if(press) return;
 			
-			// TODO make an option to disable the auto mouse changing
 			// Toggle paused
 			if(button == GLFW_KEY_ESCAPE) updatePaused(!game.getPlayState().isPaused());
 			
@@ -230,18 +229,10 @@ public class GameDemo3D extends Game{
 			var result = super.playMouseMove(game, x, y);
 			
 			var window = game.getWindow();
+			
+			// TODO abstract this out as a built in option in the engine
 			if(window.isMouseNormally()) return result;
-			
-			// TODO add this as some kind of built in thing
-			
-			// TODO fix sudden camera jolts when switching between normal and not normal mouse modes
-			// Axes swapped because of the way that it feels like it should be
-			var diffX = y - game.getMouseInput().lastY();
-			var diffY = x - game.getMouseInput().lastX();
-			
-			var camera = window.getRenderer().getCamera3D();
-			camera.addRotX(diffX * mouseSpeed);
-			camera.addRotY(diffY * mouseSpeed);
+			window.getRenderer().getCamera3D().look(game, x, y);
 			
 			return result;
 		}
