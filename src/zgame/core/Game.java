@@ -671,7 +671,7 @@ public class Game implements Saveable, Destroyable{
 	 * Toggle full screen by changing the setting
 	 */
 	public void toggleFullscreen(){
-		this.set(BooleanTypeSetting.FULLSCREEN, !this.get(BooleanTypeSetting.FULLSCREEN), false);
+		this.toggle(BooleanTypeSetting.FULLSCREEN, false);
 	}
 	
 	/**
@@ -1108,6 +1108,16 @@ public class Game implements Saveable, Destroyable{
 	 */
 	public void set(BooleanTypeSetting setting, boolean value, boolean local){
 		this.setAny(setting, value, local);
+	}
+	
+	/**
+	 * Toggle the current value of a boolean setting in {@link #settings}
+	 *
+	 * @param setting The name of the setting to toggle
+	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
+	 */
+	public void toggle(BooleanTypeSetting setting, boolean local){
+		this.set(setting, !this.get(setting), local);
 	}
 	
 	/**
