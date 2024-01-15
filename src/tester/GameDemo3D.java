@@ -223,20 +223,6 @@ public class GameDemo3D extends Game{
 			
 			// TODO allow for a third person perspective and build it into the engine
 		}
-		
-		@Override
-		public boolean playMouseMove(Game game, double x, double y){
-			var result = super.playMouseMove(game, x, y);
-			
-			var window = game.getWindow();
-			
-			// TODO abstract this out as a built in option in the engine
-			if(window.isMouseNormally()) return result;
-			window.getRenderer().getCamera3D().look(game, x, y);
-			
-			return result;
-		}
-		
 	}
 	
 	private static class DummyRoom extends Room{

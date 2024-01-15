@@ -145,6 +145,8 @@ public class PlayState extends GameState{
 		boolean input = super.mouseMove(game, x, y);
 		if(this.isInputPaused()) return input;
 		
+		game.getRenderStyle().mouseMove(game, x, y);
+		
 		return this.playMouseMove(game, x, y);
 	}
 	

@@ -46,4 +46,12 @@ public class Style3D implements RenderStyle{
 		
 		game.getWindow().setMouseNormally(false);
 	}
+	
+	@Override
+	public void mouseMove(Game game, double x, double y){
+		RenderStyle.super.mouseMove(game, x, y);
+		
+		var window = game.getWindow();
+		if(!window.isMouseNormally()) window.getRenderer().getCamera3D().look(game, x, y);
+	}
 }
