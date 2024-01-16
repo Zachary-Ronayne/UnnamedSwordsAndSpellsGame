@@ -65,6 +65,8 @@ public class Game implements Saveable, Destroyable{
 	/** The looper to run the main OpenGL loop */
 	private final GameLooper renderLooper;
 	
+	// TODO move the 3D camera to here?
+	
 	/** The Camera which determines the relative location and scale of objects drawn in the game */
 	private final GameCamera camera;
 	

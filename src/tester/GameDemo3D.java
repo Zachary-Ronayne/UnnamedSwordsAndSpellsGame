@@ -3,12 +3,14 @@ package tester;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect;
 import zgame.menu.Menu;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
+import zgame.things.entity.Movement3D;
 import zgame.world.Room;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -42,6 +44,8 @@ public class GameDemo3D extends Game{
 	private static final double minCamY = .3;
 	private static final double minCamDist = 3.85;
 	
+	private static Player3D player;
+	
 	public GameDemo3D(){
 		super();
 		this.make3D();
@@ -68,6 +72,9 @@ public class GameDemo3D extends Game{
 		game.setCurrentState(state);
 		
 		updatePaused(true);
+		
+		player = new Player3D(game);
+		
 		game.start();
 	}
 	
@@ -231,53 +238,15 @@ public class GameDemo3D extends Game{
 			super.tick(game, dt);
 			var ki = game.getKeyInput();
 			
+			player.move(dt,
+					ki.buttonDown(GLFW_KEY_A), ki.buttonDown(GLFW_KEY_D),
+					ki.buttonDown(GLFW_KEY_W), ki.buttonDown(GLFW_KEY_S),
+					ki.buttonDown(GLFW_KEY_Q), ki.buttonDown(GLFW_KEY_Z),
+					flying
+			);
 			var camera = game.getWindow().getRenderer().getCamera3D();
 			
-			// TODO abstract out a bunch of this to be built into the engine
-			double xSpeed = 0;
-			double ySpeed = 0;
-			double zSpeed = 0;
-			
-			// Determining movement direction
-			var ang = camera.getRotY();
-			var left = ki.buttonDown(GLFW_KEY_A);
-			var right = ki.buttonDown(GLFW_KEY_D);
-			var forward = ki.buttonDown(GLFW_KEY_W);
-			var backward = ki.buttonDown(GLFW_KEY_S);
-			var up = ki.buttonDown(GLFW_KEY_Q);
-			var down = ki.buttonDown(GLFW_KEY_Z);
-			if(left && forward || right && backward) ang -= Math.PI * 0.25;
-			if(right && forward || left && backward) ang += Math.PI * 0.25;
-			
-			if(forward) {
-				xSpeed = Math.sin(ang);
-				zSpeed = -Math.cos(ang);
-			}
-			else if(backward) {
-				xSpeed = -Math.sin(ang);
-				zSpeed = Math.cos(ang);
-			}
-			else{
-				if(left){
-					ang = camera.getRotY() - Math.PI * 0.5;
-					xSpeed = Math.sin(ang);
-					zSpeed = -Math.cos(ang);
-				}
-				else if(right){
-					ang = camera.getRotY() + Math.PI * 0.5;
-					xSpeed = Math.sin(ang);
-					zSpeed = -Math.cos(ang);
-				}
-			}
-			if(flying){
-				if(up && !down) ySpeed = 0.5;
-				else if(down) ySpeed = -.5;
-			}
-			
-			camera.addX(dt * moveSpeed * xSpeed);
-			camera.addY(dt * moveSpeed * ySpeed);
-			camera.addZ(dt * moveSpeed * zSpeed);
-			
+			// TODO move jumping to Movement3D
 			if(!flying){
 				// Jumping
 				camera.addY(yVel);
@@ -291,6 +260,7 @@ public class GameDemo3D extends Game{
 				if(ki.pressed(GLFW_KEY_Q) && yVel == 0) yVel = jumpVel * dt;
 			}
 			
+			// TODO add tiling to Movement3D
 			// Tilting the camera to the side
 			var rotZ = camera.getRotZ();
 			var tiltLeft = ki.pressed(GLFW_KEY_COMMA);
@@ -307,6 +277,8 @@ public class GameDemo3D extends Game{
 			if(tiltRight) {
 				if(camera.getRotZ() < Math.PI * 0.5) camera.addRotZ(tilt);
 			}
+			
+			// Misc logic for random objects
 			
 			// Rotating the cube
 			if(autoRotate){
@@ -373,6 +345,53 @@ public class GameDemo3D extends Game{
 			});
 		}
 		else game.getCurrentState().removeTopMenu(game);
+	}
+	
+	private static class Player3D implements Movement3D{
+		private final Game game;
+		
+		public Player3D(Game game){
+			this.game = game;
+		}
+		
+		private GameCamera3D getCamera(){
+			return this.game.getWindow().getRenderer().getCamera3D();
+		}
+		
+		@Override
+		public double getRotX(){
+			return this.getCamera().getRotX();
+		}
+		
+		@Override
+		public double getRotY(){
+			return this.getCamera().getRotY();
+		}
+		
+		@Override
+		public double getRotZ(){
+			return this.getCamera().getRotZ();
+		}
+		
+		@Override
+		public void addX(double x){
+			this.getCamera().addX(x);
+		}
+		
+		@Override
+		public void addY(double y){
+			this.getCamera().addY(y);
+		}
+		
+		@Override
+		public void addZ(double z){
+			this.getCamera().addZ(z);
+		}
+		
+		@Override
+		public double getMoveSpeed(){
+			return moveSpeed;
+		}
 	}
 	
 }

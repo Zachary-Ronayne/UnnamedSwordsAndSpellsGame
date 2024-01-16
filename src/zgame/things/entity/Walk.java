@@ -7,6 +7,8 @@ import zgame.physics.material.Material;
 /** A class that handles an {@link EntityThing} moving by walking and jumping */
 public class Walk{
 	
+	// TODO maybe rework this to function as an interface?
+	
 	/** The string used to identify the force used to make {@link #thing} walk */
 	public static final String FORCE_NAME_WALKING = "walking";
 	/** The string used to identify the force used to make {@link #thing} jump */
