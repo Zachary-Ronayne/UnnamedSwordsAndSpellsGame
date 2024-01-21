@@ -114,13 +114,14 @@ import java.util.ArrayList;
  * minus = decrease jump height
  * shift + scroll wheel = zoom in or out
  * L = toggle lock camera to player
+ * m = toggle walking/running
  */
 public class MainTest extends Game{
 	
 	public static Game testerGame;
 	public static GameWindow window;
 	
-	public static final boolean CIRCLE_PLAYER = true;
+	public static final boolean CIRCLE_PLAYER = false;
 	
 	public static double camSpeed = 400;
 	public static boolean zoomOnlyX = false;
@@ -156,9 +157,9 @@ public class MainTest extends Game{
 	public static void main(String[] args){
 		// Set up game
 		testerGame = new MainTest();
-		testerGame.setCurrentState(new TesterGameState(testerGame));
+//		testerGame.setCurrentState(new TesterGameState(testerGame));
 //		testerGame.setCurrentState(new TesterMenuState(testerGame));
-//		testerGame.setCurrentState(new GameEngineState());
+		testerGame.setCurrentState(new GameEngineState());
 		
 		window = testerGame.getWindow();
 		window.center();
@@ -228,7 +229,7 @@ public class MainTest extends Game{
 			
 			this.player.setMass(100);
 			this.player.setLockCamera(true);
-			this.player.getWalk().setCanWallJump(true);
+			this.player.setCanWallJump(true);
 			firstRoom.addThing(this.player);
 			
 			Door d = new Door(700, 400);
@@ -288,14 +289,13 @@ public class MainTest extends Game{
 			
 			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState(game));
 			
-			var walk = player.getWalk();
 			Room r = getCurrentRoom();
 			if(button == GLFW_KEY_W) r.makeWallState(Room.WALL_CEILING, !r.isSolid(Room.WALL_CEILING));
 			else if(button == GLFW_KEY_A) r.makeWallState(Room.WALL_LEFT, !r.isSolid(Room.WALL_LEFT));
 			else if(button == GLFW_KEY_S) r.makeWallState(Room.WALL_FLOOR, !r.isSolid(Room.WALL_FLOOR));
 			else if(button == GLFW_KEY_D) r.makeWallState(Room.WALL_RIGHT, !r.isSolid(Room.WALL_RIGHT));
-			else if(button == GLFW_KEY_MINUS) walk.setJumpPower(walk.getJumpPower() - 10);
-			else if(button == GLFW_KEY_EQUAL) walk.setJumpPower(walk.getJumpPower() + 10);
+			else if(button == GLFW_KEY_MINUS) player.setJumpPower(player.getJumpPower() - 10);
+			else if(button == GLFW_KEY_EQUAL) player.setJumpPower(player.getJumpPower() + 10);
 			else if(shift && button == GLFW_KEY_L) player.setLockCamera(!player.isLockCamera());
 			else if(button == GLFW_KEY_9) game.getCamera().zoom(-.5);
 			else if(button == GLFW_KEY_0) game.getCamera().zoom(.5);
@@ -303,6 +303,8 @@ public class MainTest extends Game{
 			else if(button == GLFW_KEY_L) game.getCamera().getX().shift(50);
 			else if(button == GLFW_KEY_I) game.getCamera().getY().shift(-50);
 			else if(button == GLFW_KEY_K) game.getCamera().getY().shift(50);
+			
+			else if(button == GLFW_KEY_M) player.toggleWalking();
 		}
 		
 		@Override

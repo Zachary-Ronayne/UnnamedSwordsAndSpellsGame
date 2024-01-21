@@ -39,7 +39,6 @@ public class Npc extends ZusassMob{
 		super.tick(game, dt);
 		
 		ZusassGame zgame = (ZusassGame)game;
-		var walk = this.getWalk();
 		
 		// Simplistic ai to move to the player
 		ZusassPlayer player = zgame.getPlayer();
@@ -47,10 +46,10 @@ public class Npc extends ZusassMob{
 		double thisX = this.centerX();
 		double playerDist = Math.abs(playerX - thisX);
 		if(playerDist > this.getWidth() * 0.5){
-			if(playerX > this.centerX()) walk.walkRight();
-			else walk.walkLeft();
+			if(playerX > this.centerX()) this.walkRight();
+			else this.walkLeft();
 		}
-		else walk.stopWalking();
+		else this.stopWalking();
 		
 		// If the AI has an attack available, and stamina is at least about a third, begin attacking
 		var staminaPerc = this.currentStaminaPerc();
@@ -62,12 +61,10 @@ public class Npc extends ZusassMob{
 		this.castSpell(zgame);
 		
 		// If running and stamina is below half, stop running
-		var walking = walk.isWalking();
-		if(staminaPerc < .5 && !walking){
-			walk.setWalking(true);
-		}
+		var walking = this.isWalking();
+		if(staminaPerc < .5 && !walking) this.setWalking(true);
 		// If stamina is above 75% and walking, start running
-		else if(staminaPerc > .75 && walking) walk.setWalking(false);
+		else if(staminaPerc > .75 && walking) this.setWalking(false);
 	}
 	
 	@Override

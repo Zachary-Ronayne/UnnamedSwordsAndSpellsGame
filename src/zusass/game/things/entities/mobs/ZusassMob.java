@@ -13,6 +13,7 @@ import zgame.stat.modifier.StatModifier;
 import zgame.stat.status.StatusEffect;
 import zgame.stat.status.StatusEffects;
 import zgame.things.entity.EntityThing;
+import zgame.things.entity.Movement2D;
 import zgame.things.entity.Walk;
 import zgame.things.entity.projectile.Projectile;
 import zgame.things.type.RectangleHitBox;
@@ -27,17 +28,43 @@ import zusass.game.stat.resources.Health;
 import zusass.game.stat.resources.Mana;
 import zusass.game.stat.resources.Stamina;
 import zusass.game.status.StatEffect;
-import zusass.game.things.MobWalk;
 
 import static zusass.game.stat.ZusassStat.*;
 
 import java.util.List;
 
 /** A generic mob in the Zusass game */
-public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
+public abstract class ZusassMob extends EntityThing implements RectangleHitBox, Movement2D{
 	
 	/** The json key used to store the spellbook which this mob has */
 	public final static String SPELLBOOK_KEY = "spellbook";
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/** The default value of {@link #jumpPower} */
+	public static final double DEFAULT_JUMP_POWER = 60000;
+	/** The default value of {@link #jumpStopPower} */
+	public static final double DEFAULT_JUMP_STOP_POWER = 3000;
+	/** The default value of {@link #canStopJump} */
+	public static final boolean DEFAULT_CAN_STOP_JUMP = true;
+	/** The default value of {@link #jumpBuildTime} */
+	public static final double DEFAULT_JUMP_BUILD_TIME = 0;
+	/** The default value of {@link #jumpAfterBuildUp} */
+	public static final boolean DEFAULT_JUMP_AFTER_BUILD_UP = true;
+	/** The default value of {@link #walkAirControl} */
+	public static final double DEFAULT_WALK_AIR_CONTROL = 0.5;
+	/** The default value of {@link #walkFriction} */
+	public static final double DEFAULT_WALK_FRICTION = 1;
+	/** The default value of {@link #walkingRatio} */
+	public static final double DEFAULT_WALKING_RATIO = 0.5;
+	/** The default value of {@link #canWallJump} */
+	public static final boolean DEFAULT_CAN_WALL_JUMP = false;
+	/** The default value of {@link #normalJumpTime} */
+	public static final double DEFAULT_NORMAL_JUMP_TIME = .1;
+	/** The default value of {@link #wallJumpTime} */
+	public static final double DEFAULT_WALL_JUMP_TIME = .25;
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/** The width of this mob */
 	private double width;
@@ -68,14 +95,52 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	/** The {@link MobWalk} which this mob uses for movement */
-	private final MobWalk walk;
-	
 	/** A modifier used to drain stamina while running */
 	private final StatModTracker staminaRunDrain;
 	
 	/** The sourceId of the modifier which drains stamina */
 	private static final String ID_STAMINA_DRAIN = "staminaDrain";
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/** The {@link Walk} object used by this object's implementation of {@link Movement2D} */
+	private final Walk walk;
+	
+	/** See {@link Movement2D#getJumpPower()} */
+	private double jumpPower;
+	
+	/** See {@link Movement2D#getJumpStopPower()} */
+	private double jumpStopPower;
+	
+	/** See {@link Movement2D#isCanStopJump()} */
+	private boolean canStopJump;
+	
+	/** See {@link Movement2D#getJumpBuildTime()} */
+	private double jumpBuildTime;
+	
+	/** See {@link Movement2D#isJumpAfterBuildUp()} */
+	private boolean jumpAfterBuildUp;
+	
+	/** See {@link Movement2D#getWalkAirControl()} */
+	private double walkAirControl;
+	
+	/** See {@link Movement2D#getWalkFriction()} */
+	private double walkFriction;
+	
+	/** See {@link Movement2D#getWalkingRatio()} */
+	private double walkingRatio;
+	
+	/** See {@link Movement2D#isCanWallJump()} */
+	private boolean canWallJump;
+	
+	/** See {@link Movement2D#getNormalJumpTime()} */
+	private double normalJumpTime;
+	
+	/** See {@link Movement2D#getWallJumpTime()} */
+	private double wallJumpTime;
+	
+	/** See {@link Movement2D#isWalking()} */
+	private boolean walking;
 	
 	/**
 	 * Create a new mob with the given bounds
@@ -87,7 +152,22 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 */
 	public ZusassMob(double x, double y, double width, double height){
 		super(x, y);
-		this.walk = new MobWalk(this);
+		
+		this.jumpPower = DEFAULT_JUMP_POWER;
+		this.jumpStopPower = DEFAULT_JUMP_STOP_POWER;
+		this.canStopJump = DEFAULT_CAN_STOP_JUMP;
+		this.jumpBuildTime = DEFAULT_JUMP_BUILD_TIME;
+		this.jumpAfterBuildUp = DEFAULT_JUMP_AFTER_BUILD_UP;
+		this.walkAirControl = DEFAULT_WALK_AIR_CONTROL;
+		this.walkFriction = DEFAULT_WALK_FRICTION;
+		this.walkingRatio = DEFAULT_WALKING_RATIO;
+		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
+		this.normalJumpTime = DEFAULT_NORMAL_JUMP_TIME;
+		this.wallJumpTime = DEFAULT_WALL_JUMP_TIME;
+		this.walking = false;
+		this.walk = new Walk(this);
+		
+		this.stopWalking();
 		
 		this.width = width;
 		this.height = height;
@@ -150,18 +230,11 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 			if(this.attackTime < 0) this.attackNearest(zgame);
 		}
 		
-		var walk = this.getWalk();
-		// Update the values for speed
-		var v = this.stat(MOVE_SPEED);
-		walk.setWalkSpeedMax(v);
-		walk.setWalkAcceleration(v * 7);
-		walk.setWalkStopFriction(v / 30);
-		
-		walk.updatePosition(game, dt);
-		walk.tick(game, dt);
+		this.updateMovementPosVel(game, dt);
+		this.movementTick(game, dt);
 		
 		// If running and moving, need to drain stamina
-		this.staminaRunDrain.setValue(!this.getWalk().isWalking() && this.getWalk().isTryingToMove() ? -35 : 0);
+		this.staminaRunDrain.setValue(!this.isWalking() && this.isTryingToMove() ? -35 : 0);
 		
 		// Do the normal game update
 		super.tick(game, dt);
@@ -460,32 +533,196 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		return null;
 	}
 	
-	/** @return See {@link #walk} */
+	@Override
+	public boolean jump(double dt){
+		var jumped = Movement2D.super.jump(dt);
+		if(jumped) this.getStat(STAMINA).addValue(-6);
+		return jumped;
+	}
+	
+	@Override
 	public Walk getWalk(){
 		return this.walk;
 	}
 	
 	@Override
+	public double getWalkSpeedMax(){
+		// For now just making this a hard coded number based on the move speed stat
+		return this.stat(MOVE_SPEED);
+	}
+	
+	@Override
+	public double getWalkAcceleration(){
+		// For now just making this a hard coded number based on the move speed stat
+		return this.stat(MOVE_SPEED) * 7;
+	}
+	
+	@Override
+	public double getWalkStopFriction(){
+		// For now just making this a hard coded number based on the move speed stat
+		return this.stat(MOVE_SPEED) / 30;
+	}
+
+	@Override
 	public double getFrictionConstant(){
-		return this.getWalk().getFrictionConstant();
+			return this.getWalkFrictionConstant();
 	}
 	
 	@Override
 	public void leaveFloor(){
 		super.leaveFloor();
-		this.getWalk().leaveFloor();
+		this.movementLeaveFloor();
 	}
-	
+
 	@Override
 	public void leaveWall(){
 		super.leaveWall();
-		this.getWalk().leaveWall();
+		this.movementLeaveWall();
 	}
-	
+
 	@Override
 	public void touchFloor(Material touched){
 		super.touchFloor(touched);
-		this.getWalk().touchFloor(touched);
+		this.movementTouchFloor(touched);
+	}
+	
+	// TODO maybe abstract out these values to another class?
+	// TODO maybe make most of these values based on stats
+	
+	/** @return See {@link #jumpPower} */
+	@Override
+	public double getJumpPower(){
+		return this.jumpPower;
+	}
+	
+	/** @param jumpPower See {@link #jumpPower} */
+	public void setJumpPower(double jumpPower){
+		this.jumpPower = jumpPower;
+	}
+	
+	/** @return See {@link #jumpStopPower} */
+	@Override
+	public double getJumpStopPower(){
+		return this.jumpStopPower;
+	}
+	
+	/** @param jumpStopPower See {@link #jumpStopPower} */
+	public void setJumpStopPower(double jumpStopPower){
+		this.jumpStopPower = jumpStopPower;
+	}
+	
+	/** @return See {@link #canStopJump} */
+	@Override
+	public boolean isCanStopJump(){
+		return this.canStopJump;
+	}
+	
+	/** @param canStopJump See {@link #canStopJump} */
+	public void setCanStopJump(boolean canStopJump){
+		this.canStopJump = canStopJump;
+	}
+	
+	/** @return See {@link #jumpBuildTime} */
+	@Override
+	public double getJumpBuildTime(){
+		return this.jumpBuildTime;
+	}
+	
+	/** @param jumpBuildTime See {@link #jumpBuildTime} */
+	public void setJumpBuildTime(double jumpBuildTime){
+		this.jumpBuildTime = jumpBuildTime;
+	}
+	
+	/** @return See {@link #jumpAfterBuildUp} */
+	@Override
+	public boolean isJumpAfterBuildUp(){
+		return this.jumpAfterBuildUp;
+	}
+	
+	/** @param jumpAfterBuildUp See {@link #jumpAfterBuildUp} */
+	public void setJumpAfterBuildUp(boolean jumpAfterBuildUp){
+		this.jumpAfterBuildUp = jumpAfterBuildUp;
+	}
+	
+	/** @return See {@link #walkAirControl} */
+	@Override
+	public double getWalkAirControl(){
+		return this.walkAirControl;
+	}
+	
+	/** @param walkAirControl See {@link #walkAirControl} */
+	public void setWalkAirControl(double walkAirControl){
+		this.walkAirControl = walkAirControl;
+	}
+	
+	/** @return See {@link #walkFriction} */
+	@Override
+	public double getWalkFriction(){
+		return this.walkFriction;
+	}
+	
+	/** @param walkFriction See {@link #walkFriction} */
+	public void setWalkFriction(double walkFriction){
+		this.walkFriction = walkFriction;
+	}
+	
+	/** @return See {@link #walkingRatio} */
+	@Override
+	public double getWalkingRatio(){
+		return this.walkingRatio;
+	}
+	
+	/** @param walkingRatio See {@link #walkingRatio} */
+	public void setWalkingRatio(double walkingRatio){
+		this.walkingRatio = walkingRatio;
+	}
+	
+	/** @return See {@link #canWallJump} */
+	@Override
+	public boolean isCanWallJump(){
+		return this.canWallJump;
+	}
+	
+	/** @param canWallJump See {@link #canWallJump} */
+	public void setCanWallJump(boolean canWallJump){
+		this.canWallJump = canWallJump;
+	}
+	
+	/** @return See {@link #normalJumpTime} */
+	@Override
+	public double getNormalJumpTime(){
+		return this.normalJumpTime;
+	}
+	
+	/** @param normalJumpTime See {@link #normalJumpTime} */
+	public void setNormalJumpTime(double normalJumpTime){
+		this.normalJumpTime = normalJumpTime;
+	}
+	
+	/** @return See {@link #wallJumpTime} */
+	@Override
+	public double getWallJumpTime(){
+		return this.wallJumpTime;
+	}
+	
+	/** @param wallJumpTime See {@link #wallJumpTime} */
+	public void setWallJumpTime(double wallJumpTime){
+		this.wallJumpTime = wallJumpTime;
+	}
+	
+	@Override
+	public boolean isWalking(){
+		return this.walking;
+	}
+	
+	/** @param walking See {@link #walking} */
+	public void setWalking(boolean walking){
+		this.walking = walking;
+	}
+	
+	/** toggle the state of {@link #walking} */
+	public void toggleWalking(){
+		this.setWalking(!this.isWalking());
 	}
 	
 	@Override

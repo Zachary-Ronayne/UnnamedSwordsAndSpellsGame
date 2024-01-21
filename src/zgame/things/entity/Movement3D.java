@@ -1,7 +1,7 @@
 package zgame.things.entity;
 
 /** An interface used to control movement in 3D */
-public interface Movement3D{
+public interface Movement3D extends Movement{
 	
 	/**
 	 * Move this object based on the given parameters simulating walking

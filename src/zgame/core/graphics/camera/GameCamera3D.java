@@ -152,6 +152,8 @@ public class GameCamera3D{
 	 * @param y The new y coordinate of the mouse, obtained from {@link Game#mouseMove(double, double)}
 	 */
 	public void look(Game game, double x, double y){
+		// TODO should this be in Movement3D? Should this be split up to not need game as a parameter or to rely on mouse input here?
+		
 		// TODO fix sudden camera jolts when switching between normal and not normal mouse modes
 		
 		// Axes swapped because of the way that it feels like it should be when moving a mouse around

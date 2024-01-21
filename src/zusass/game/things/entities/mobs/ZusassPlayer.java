@@ -106,12 +106,13 @@ public class ZusassPlayer extends ZusassMob{
 	 */
 	private void checkInput(Game game, double dt){
 		var ki = game.getKeyInput();
-		this.getWalk().handleMovementControls(ki.pressed(GLFW_KEY_A), ki.pressed(GLFW_KEY_D), ki.pressed(GLFW_KEY_W), dt);
+		this.handleMovementControls(ki.pressed(GLFW_KEY_A), ki.pressed(GLFW_KEY_D), ki.pressed(GLFW_KEY_W), dt);
 		
+		// Toggle camera locked
 		if(this.inputHandlers.tick(game, GLFW_KEY_F10)) this.setLockCamera(!this.isLockCamera());
 		
 		// Toggle walking
-		if(this.inputHandlers.tick(game, GLFW_KEY_SPACE)) this.getWalk().toggleWalking();
+		if(this.inputHandlers.tick(game, GLFW_KEY_SPACE)) this.toggleWalking();
 		
 		// Toggle casting or attacking
 		if(this.inputHandlers.tick(game, GLFW_KEY_Q)) this.toggleCasting();

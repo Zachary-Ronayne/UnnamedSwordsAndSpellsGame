@@ -35,9 +35,9 @@ public class GameDemo3D extends Game{
 	private static final double walkSpeed = 0.7;
 	private static final double runSpeed = 2.5;
 	private static double moveSpeed = walkSpeed;
-	// TODO make flying based on the mouse angle possible, add that to the engine
 	private static boolean flying = false;
 	private static final double tiltSpeed = 3;
+	private static double currentTilt = 0;
 	private static final double gravity = 0.08;
 	private static final double jumpVel = 2;
 	private static double yVel = 0;
@@ -260,22 +260,42 @@ public class GameDemo3D extends Game{
 				if(ki.pressed(GLFW_KEY_Q) && yVel == 0) yVel = jumpVel * dt;
 			}
 			
-			// TODO add tiling to Movement3D
+			// TODO add tiling to Movement3D and make it relative to the position looked at
 			// Tilting the camera to the side
-			var rotZ = camera.getRotZ();
 			var tiltLeft = ki.pressed(GLFW_KEY_COMMA);
 			var tiltRight = ki.pressed(GLFW_KEY_PERIOD);
-			var tilt = tiltSpeed * dt;
+			var tiltAmount = tiltSpeed * dt;
+			
+			double changedTilt = 0;
+			// Move back to zero while not tilting
+			var rotZ = camera.getRotZ();
 			if(rotZ != 0 && !tiltLeft && !tiltRight){
-				if(Math.abs(rotZ) < tilt) camera.setRotZ(0);
-				else if(rotZ < 0) camera.addRotZ(tilt);
-				else camera.addRotZ(-tilt);
+				// TODO make untilting also move the x rotation axis
+				if(Math.abs(rotZ) < tiltAmount) {
+					camera.setRotZ(0);
+					currentTilt = 0;
+				}
+				else if(rotZ < 0) {
+					camera.addRotZ(tiltAmount);
+					currentTilt += tiltAmount;
+				}
+				else {
+					camera.addRotZ(-tiltAmount);
+					currentTilt -= tiltAmount;
+				}
 			}
-			if(tiltLeft) {
-				if(camera.getRotZ() > -Math.PI * 0.5) camera.addRotZ(-tilt);
-			}
-			if(tiltRight) {
-				if(camera.getRotZ() < Math.PI * 0.5) camera.addRotZ(tilt);
+			else{
+				// TODO to do this properly, need to offset angles by 90 degrees?
+				// Tilt left or right
+				if(tiltLeft){
+					if(currentTilt > -Math.PI * 0.5) changedTilt -= tiltAmount;
+				}
+				if(tiltRight){
+					if(currentTilt < Math.PI * 0.5) changedTilt += tiltAmount;
+				}
+				currentTilt += changedTilt;
+				camera.addRotX(changedTilt * -Math.sin(camera.getRotY()));
+				camera.addRotZ(changedTilt * Math.cos(camera.getRotY()));
 			}
 			
 			// Misc logic for random objects
