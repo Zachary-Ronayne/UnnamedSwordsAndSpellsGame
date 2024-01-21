@@ -51,7 +51,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 	/** The default value of {@link #walkFriction} */
 	public static final double DEFAULT_WALK_FRICTION = 1;
 	/** The default value of {@link #canWallJump} */
-	public static final boolean DEFAULT_CAN_WALL_JUMP = false;
+	public static final boolean DEFAULT_CAN_WALL_JUMP = true;
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	

@@ -11,6 +11,7 @@ import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
 import zgame.things.entity.Movement3D;
+import zgame.things.entity.Walk;
 import zgame.world.Room;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -411,6 +412,102 @@ public class GameDemo3D extends Game{
 		@Override
 		public double getMoveSpeed(){
 			return moveSpeed;
+		}
+		
+		// TODO implement this stuff in 3D
+		@Override
+		public Walk getWalk(){
+			return null;
+		}
+		
+		@Override
+		public boolean isTryingToMove(){
+			return false;
+		}
+		
+		@Override
+		public void stopWalking(){
+		
+		}
+		
+		@Override
+		public void updateWalkForce(double dt){
+		
+		}
+		
+		@Override
+		public double getJumpPower(){
+			return 0;
+		}
+		
+		@Override
+		public double getJumpStopPower(){
+			return 0;
+		}
+		
+		@Override
+		public boolean isCanStopJump(){
+			return false;
+		}
+		
+		@Override
+		public double getJumpBuildTime(){
+			return 0;
+		}
+		
+		@Override
+		public boolean isJumpAfterBuildUp(){
+			return false;
+		}
+		
+		@Override
+		public double getWalkAcceleration(){
+			return 0;
+		}
+		
+		@Override
+		public double getWalkSpeedMax(){
+			return 0;
+		}
+		
+		@Override
+		public double getWalkAirControl(){
+			return 0;
+		}
+		
+		@Override
+		public double getWalkFriction(){
+			return 0;
+		}
+		
+		@Override
+		public double getWalkStopFriction(){
+			return 0;
+		}
+		
+		@Override
+		public double getWalkingRatio(){
+			return 0;
+		}
+		
+		@Override
+		public boolean isCanWallJump(){
+			return false;
+		}
+		
+		@Override
+		public double getNormalJumpTime(){
+			return 0;
+		}
+		
+		@Override
+		public double getWallJumpTime(){
+			return 0;
+		}
+		
+		@Override
+		public boolean isWalking(){
+			return false;
 		}
 	}
 	
