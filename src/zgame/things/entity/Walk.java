@@ -148,9 +148,9 @@ public class Walk{
 		return this.jumpingForce;
 	}
 	
-	/** @param jumpingForce See {@link #jumpingForce} */
-	public void setJumpingForce(ZVector jumpingForce){
-		this.jumpingForce = jumpingForce;
+	/** @param jumpForce The amount of force applied to the y axis while this mob is jumping */
+	public void setJumpingForce(double jumpForce){
+		this.jumpingForce = this.getThing().setForce(FORCE_NAME_WALKING, 0, jumpForce);
 	}
 	
 	/** @return See {@link #walkingForce} */
@@ -158,7 +158,6 @@ public class Walk{
 		return this.walkingForce;
 	}
 	
-	// TODO move this to Movement2D or move the ones in that interface to here
 	/** @param movement The amount of force applied to the x axis when this mob is walking */
 	public void setWalkingForce(double movement){
 		this.walkingForce = this.getThing().setForce(FORCE_NAME_WALKING, movement, 0);

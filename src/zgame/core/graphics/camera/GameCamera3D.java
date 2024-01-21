@@ -26,9 +26,10 @@ public class GameCamera3D{
 	private boolean enableLookLimit;
 	
 	/*
-	 TODO should this also account for a camera distance from where it rotates around?
+	 TODO this also account for a camera distance from where it rotates around?
 	  Like imagine the (x, y, z) point is where the camera's swivel point is,
-	  but the actual point where the camera shows stuff is determined by this distance
+	  but the actual point where the camera shows stuff is determined by this distance.
+	  Also this probably is where third person should be handled
 	 */
 	
 	/** Create a base camera at (0, 0, 0), with no rotation on any axis */
@@ -152,7 +153,7 @@ public class GameCamera3D{
 	 * @param y The new y coordinate of the mouse, obtained from {@link Game#mouseMove(double, double)}
 	 */
 	public void look(Game game, double x, double y){
-		// TODO should this be in Movement3D? Should this be split up to not need game as a parameter or to rely on mouse input here?
+		// TODO this should be in Movement3D, split this up to not need game as a parameter or to rely on mouse input here
 		
 		// TODO fix sudden camera jolts when switching between normal and not normal mouse modes
 		

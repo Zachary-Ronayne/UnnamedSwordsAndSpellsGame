@@ -186,12 +186,12 @@ public interface Movement2D{
 				// then the jump stop force should be such that the y velocity will be 0 on the next tick
 				if(vy + newStopJumpVel > 0) newStopJumpForce = -vy * mass / dt;
 				
-				walk.setJumpingForce(entity.setForce(Walk.FORCE_NAME_JUMPING_STOP, 0, newStopJumpForce));
+				walk.setJumpingForce(newStopJumpForce);
 			}
 			// Otherwise it is no longer stopping its jump, so remove the stopping force amount
 			else{
 				walk.setStoppingJump(false);
-				walk.setJumpingForce(entity.setForce(Walk.FORCE_NAME_JUMPING_STOP, 0, 0));
+				walk.setJumpingForce(0);
 			}
 		}
 	}
@@ -240,7 +240,7 @@ public interface Movement2D{
 		double vy = entity.getVY();
 		if(vy > 0) jumpAmount -= vy / dt * entity.getMass();
 		
-		walk.setJumpingForce(entity.setForce(Walk.FORCE_NAME_JUMPING, 0, jumpAmount));
+		walk.setJumpingForce(jumpAmount);
 		walk.setJumpTimeBuilt(0);
 		walk.setBuildingJump(false);
 	}
@@ -252,7 +252,7 @@ public interface Movement2D{
 		var walk = this.getWalk();
 		
 		if(!walk.isJumping()) return;
-		walk.setJumpingForce(this.getThing().setForce(Walk.FORCE_NAME_JUMPING, 0, 0));
+		walk.setJumpingForce(0);
 		walk.setJumping(false);
 		walk.setStoppingJump(true);
 	}
@@ -332,13 +332,13 @@ public interface Movement2D{
 	 */
 	default void updateMovementPosVel(Game game, double dt){
 		// After doing the normal tick and update with this entity's position and velocity and adding the jump velocity, reset the jump force to 0
-		this.getWalk().setJumpingForce(this.getThing().setForce(Walk.FORCE_NAME_JUMPING, 0, 0));
+		this.getWalk().setJumpingForce(0);
 	}
 	
 	/** This method should be called when the associated entity touches a floor */
 	default void movementTouchFloor(Material m){
 		var walk = this.getWalk();
-		walk.setJumpingForce(this.getThing().setForce(Walk.FORCE_NAME_JUMPING, 0, 0));
+		walk.setJumpingForce(0);
 		walk.setJumping(false);
 		walk.setWallJumpAvailable(true);
 	}
