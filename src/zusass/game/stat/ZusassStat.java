@@ -11,6 +11,8 @@ public enum ZusassStat implements StatType<ZusassStat>{
 	ENDURANCE(1), ENDURANCE_BASE(1), ENDURANCE_LEVEL(1), ENDURANCE_REGEN(1),
 	/** For now, governs max mana and mana regen */
 	INTELLIGENCE(1.5), INTELLIGENCE_BASE(1.5), INTELLIGENCE_LEVEL(1.5), INTELLIGENCE_REGEN(1.5),
+	/** For now, governs jump height */
+	AGILITY(1), AGILITY_BASE(1), AGILITY_LEVEL(1), AGILITY_REGEN(1),
 	
 	/** The health resource of a thing before it dies */
 	HEALTH(2), HEALTH_MIN(2), HEALTH_MAX(2), HEALTH_REGEN(2),

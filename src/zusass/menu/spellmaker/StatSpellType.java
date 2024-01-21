@@ -22,6 +22,9 @@ public enum StatSpellType{
 	INTELLIGENCE(ZusassStat.ENDURANCE, "Modify Intelligence"),
 	RESTORE_INTELLIGENCE(ZusassStat.INTELLIGENCE, ZusassStat.INTELLIGENCE_REGEN, "Regen Intelligence"),
 	
+	AGILITY(ZusassStat.AGILITY, "Modify agility"),
+	RESTORE_AGILITY(ZusassStat.AGILITY, ZusassStat.AGILITY_REGEN, "Regen agility"),
+	
 	MOVE_SPEED(ZusassStat.MOVE_SPEED, "Move Speed"),
 	ATTACK_SPEED(ZusassStat.ATTACK_SPEED, "Attack Speed"),
 	ATTACK_DAMAGE(ZusassStat.ATTACK_DAMAGE, "Attack Damage"),

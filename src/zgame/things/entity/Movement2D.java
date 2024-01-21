@@ -35,17 +35,17 @@ public interface Movement2D{
 		return this.getWalk().getWalkingDirection() != 0;
 	}
 	
-	/** Tell this mob to start walking to the left */
+	/** Tell this entity to start walking to the left */
 	default void walkLeft(){
 		this.getWalk().setWalkingDirection(-1);
 	}
 	
-	/** Tell this mob to start walking to the right */
+	/** Tell this entity to start walking to the right */
 	default void walkRight(){
 		this.getWalk().setWalkingDirection(1);
 	}
 	
-	/** Tell this mob to stop walking */
+	/** Tell this entity to stop walking */
 	default void stopWalking(){
 		this.getWalk().setWalkingDirection(0);
 	}
@@ -59,12 +59,9 @@ public interface Movement2D{
 		var walk = this.getWalk();
 		
 		var entity = this.getThing();
-		// First handle mob movement
+		// First handle entity movement
 		double mass = entity.getMass();
 		double acceleration = this.getWalkAcceleration();
-		if(walk.getWalkingDirection() != 0){
-			int a = 0;
-		}
 		double walkForce = acceleration * mass * walk.getWalkingDirection();
 		double maxSpeed = this.getWalkSpeedMax();
 		// If the thing is walking, its max speed should be reduced by the ratio
@@ -78,7 +75,7 @@ public interface Movement2D{
 		
 		boolean walking = walkForce != 0;
 		
-		// If the mob is not on the ground, it's movement force is modified by the air control
+		// If the entity is not on the ground, it's movement force is modified by the air control
 		if(!entity.isOnGround()) walkForce *= this.getWalkAirControl();
 		
 		// Only check the walking speed if there is any walking force
@@ -103,7 +100,7 @@ public interface Movement2D{
 			}
 		}
 		
-		// Set the amount the mob is walking
+		// Set the amount the entity is walking
 		walk.setWalkingForce(walkForce);
 	}
 	
@@ -136,7 +133,7 @@ public interface Movement2D{
 		else this.stopWalking();
 		
 		// Jump if holding the jump button
-		if(jump) {
+		if(jump){
 			this.jump(dt);
 		}
 		// For not holding the button
@@ -159,29 +156,27 @@ public interface Movement2D{
 	}
 	
 	/**
-	 * Update the value of {@link Walk#jumpingForce} and {@link Walk#jumpingStopForce} based on the current state of {@link #getThing()}
+	 * Update the value of {@link Walk#jumpingForce} based on the current state of {@link #getThing()}
 	 *
 	 * @param dt The amount of time, in seconds, that will pass in the next tick when {@link #getThing()} stops jumping
 	 */
 	default void updateJumpState(double dt){
-		// TODO why is it infinite jumping?
-		// TODO why is walking not using the correct friction?
 		var walk = this.getWalk();
 		
-		// The mob can jump if it's on the ground, or if it can wall jump and is on a wall
+		// This entity can jump if it's on the ground, or if it can wall jump and is on a wall
 		walk.setCanJump(this.hasTimeToFloorJump() || this.isCanWallJump() && this.hasTimeToWallJump() && walk.isWallJumpAvailable());
 		
 		// If building a jump, and able to jump, then add the time
 		if(walk.isBuildingJump() && walk.isCanJump()){
 			walk.addJumpTimeBuilt(dt);
-			// If the jump time threshold has been met, and this mob is set to jump right away, then perform the jump now
+			// If the jump time threshold has been met, and this entity is set to jump right away, then perform the jump now
 			if(walk.getJumpTimeBuilt() >= this.getJumpBuildTime() && this.isJumpAfterBuildUp()) this.jumpFromBuiltUp(dt);
 		}
 		if(walk.isStoppingJump()){
 			// Can only stop jumping if it's allowed
 			if(!this.isCanStopJump()) return;
 			var entity = this.getThing();
-			// Only need to stop jumping if the mob is moving up
+			// Only need to stop jumping if this entity is moving up
 			double vy = entity.getVY();
 			if(vy < 0){
 				double mass = entity.getMass();
@@ -202,10 +197,10 @@ public interface Movement2D{
 	}
 	
 	/**
-	 * Cause this mob to start jumping or instantly jump if {@link #getJumpBuildTime} is 0, or to build up a jump if it is greater than zero.
-	 * Only runs if the mob is in a position to jump, has not begun to build up jump time, and is not already jumping
+	 * Cause this entity to start jumping or instantly jump if {@link #getJumpBuildTime} is 0, or to build up a jump if it is greater than zero.
+	 * Only runs if the entity is in a position to jump, has not begun to build up jump time, and is not already jumping
 	 *
-	 * @param dt The amount of time, in seconds, that will pass in one tick after the mob jumps off the ground
+	 * @param dt The amount of time, in seconds, that will pass in one tick after the entity jumps off the ground
 	 * @return true if the jump occurred or started building up, false otherwise
 	 */
 	default boolean jump(double dt){
@@ -213,16 +208,18 @@ public interface Movement2D{
 		if(!walk.isCanJump() || walk.getJumpTimeBuilt() > 0 || walk.isJumping()) return false;
 		
 		// If it takes no time to jump, jump right away
-		if(this.jumpsAreInstant()) this.jumpFromBuiltUp(dt);
+		if(this.jumpsAreInstant()){
+			this.jumpFromBuiltUp(dt);
+		}
 		// Otherwise, start building up a jump
 		else walk.setBuildingJump(true);
 		return true;
 	}
 	
 	/**
-	 * Cause this mob to instantly jump with the currently built power, only if it is allowed to jump
+	 * Cause this entity to instantly jump with the currently built power, only if it is allowed to jump
 	 *
-	 * @param dt The amount of time, in seconds, that will pass in one tick after the mob jumps off the ground
+	 * @param dt The amount of time, in seconds, that will pass in one tick after the entity jumps off the ground
 	 */
 	default void jumpFromBuiltUp(double dt){
 		var walk = this.getWalk();
@@ -232,7 +229,7 @@ public interface Movement2D{
 		
 		walk.setJumping(true);
 		
-		// If this mob is on a wall and not on the ground, this counts a wall jump
+		// If this entity is on a wall and not on the ground, this counts a wall jump
 		if(!this.hasTimeToFloorJump() && this.hasTimeToWallJump()) walk.setWallJumpAvailable(false);
 		
 		// The jump power is either itself if jumping is instant, or multiplied by the ratio of jump time built and the total time to build a jump, keeping it at most 1
@@ -248,7 +245,9 @@ public interface Movement2D{
 		walk.setBuildingJump(false);
 	}
 	
-	/** Cause this {@link #getThing()} to stop jumping. Does nothing if the mob is not currently jumping */
+	// TODO fix being able to jump a second time while in the air because of normalJumpTime
+	
+	/** Cause this {@link #getThing()} to stop jumping. Does nothing if this entity is not currently jumping */
 	default void stopJump(){
 		var walk = this.getWalk();
 		
@@ -264,23 +263,24 @@ public interface Movement2D{
 	}
 	
 	/**
-	 * @return See  The magnitude of how much a mob can jump in units of momentum, i.e. mass * velocity,
+	 * @return The magnitude of how much this entity can jump in units of momentum, i.e. mass * velocity,
 	 * 		i.e, higher mass makes for lower jumps, lower mass makes for higher jumps
 	 */
 	double getJumpPower();
 	
-	/** @return In the same units as {@link #getJumpPower}, the power at which this is able to stop jumping while in the air */
+	/**
+	 * @return In the same units as {@link #getJumpPower}, the power at which this is able to stop jumping while in the air
+	 * 		Physics wise doesn't make any sense, but it's to give an option to control jump height by holding down or letting go of a jump button
+	 */
 	double getJumpStopPower();
 	
-	// TODO In docs for this file, replace mob thing or this or thing with entity thing or something more accurate
-	
-	/** @return true if this mob has the ability to stop jumping while it's in the air, false otherwise */
+	/** @return true if this entity has the ability to stop jumping while it's in the air, false otherwise */
 	boolean isCanStopJump();
 	
-	/** @return The amount of time, in seconds, it takes the mob to build up to a full jump, use 0 to make jumping instant */
+	/** @return The amount of time, in seconds, it takes this entity to build up to a full jump, use 0 to make jumping instant */
 	double getJumpBuildTime();
 	
-	/** @return true if after building up a jump to max power, the mob should immediately jump, false to make it that it has to wait to jump */
+	/** @return true if after building up a jump to max power, this entity should immediately jump, false to make it that it has to wait to jump */
 	boolean isJumpAfterBuildUp();
 	
 	/** @return The acceleration of this while walking, i.e., how fast it gets to {@link #getWalkSpeedMax()} */
@@ -305,20 +305,20 @@ public interface Movement2D{
 	 * 		This value represents the amount of the surface's friction which is applied.
 	 * 		Zero means no friction is applied while not walking. One means apply the same amount of friction as normal, higher than 1 means apply extra friction.
 	 * 		Use a high value to make stopping walking happen quickly, use a low value to make stopping walking slow, and use zero to make it impossible to stop.
-	 * 		This friction only applies while on the ground. A value of 1 is used while in the air, regardless of if this MobThing is walking or not.
+	 * 		This friction only applies while on the ground. A value of 1 is used while in the air, regardless of if this entity is walking or not.
 	 */
 	double getWalkStopFriction();
 	
 	/** @return The percentage speed this should move at while walking instead of running. i.e. 0.5 = 50% */
 	double getWalkingRatio();
 	
-	/** @return true if this can jump off walls while touching one, otherwise, false  */
+	/** @return true if this can jump off walls while touching one, otherwise, false */
 	boolean isCanWallJump();
 	
-	/** @return The amount of time, in seconds, after touching the ground that this mob has to jump. -1 to make jumping only allowed while touching the ground  */
+	/** @return The amount of time, in seconds, after touching the ground that this entity has to jump. -1 to make jumping only allowed while touching the ground */
 	double getNormalJumpTime();
 	
-	/** @return The amount of time, in seconds, after touching a wall that this mob has to jump. -1 to make jumping only allowed while touching a wall */
+	/** @return The amount of time, in seconds, after touching a wall that this entity has to jump. -1 to make jumping only allowed while touching a wall */
 	double getWallJumpTime();
 	
 	/** @return true if this is currently walking, false for running */
@@ -331,7 +331,7 @@ public interface Movement2D{
 	 * @param dt The amount of time, in seconds, which passed in the tick where this update took place
 	 */
 	default void updateMovementPosVel(Game game, double dt){
-		// After doing the normal tick and update with the mob's position and velocity and adding the jump velocity, reset the jump force to 0
+		// After doing the normal tick and update with this entity's position and velocity and adding the jump velocity, reset the jump force to 0
 		this.getWalk().setJumpingForce(this.getThing().setForce(Walk.FORCE_NAME_JUMPING, 0, 0));
 	}
 	

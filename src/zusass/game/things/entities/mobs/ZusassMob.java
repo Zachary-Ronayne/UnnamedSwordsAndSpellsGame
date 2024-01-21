@@ -21,6 +21,7 @@ import zusass.ZusassGame;
 import zgame.stat.Stats;
 import zusass.game.magic.*;
 import zusass.game.stat.*;
+import zusass.game.stat.attributes.Agility;
 import zusass.game.stat.attributes.Endurance;
 import zusass.game.stat.attributes.Intelligence;
 import zusass.game.stat.attributes.Strength;
@@ -41,28 +42,16 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	/** The default value of {@link #jumpPower} */
-	public static final double DEFAULT_JUMP_POWER = 60000;
-	/** The default value of {@link #jumpStopPower} */
-	public static final double DEFAULT_JUMP_STOP_POWER = 3000;
 	/** The default value of {@link #canStopJump} */
 	public static final boolean DEFAULT_CAN_STOP_JUMP = true;
 	/** The default value of {@link #jumpBuildTime} */
 	public static final double DEFAULT_JUMP_BUILD_TIME = 0;
 	/** The default value of {@link #jumpAfterBuildUp} */
 	public static final boolean DEFAULT_JUMP_AFTER_BUILD_UP = true;
-	/** The default value of {@link #walkAirControl} */
-	public static final double DEFAULT_WALK_AIR_CONTROL = 0.5;
 	/** The default value of {@link #walkFriction} */
 	public static final double DEFAULT_WALK_FRICTION = 1;
-	/** The default value of {@link #walkingRatio} */
-	public static final double DEFAULT_WALKING_RATIO = 0.5;
 	/** The default value of {@link #canWallJump} */
 	public static final boolean DEFAULT_CAN_WALL_JUMP = false;
-	/** The default value of {@link #normalJumpTime} */
-	public static final double DEFAULT_NORMAL_JUMP_TIME = .1;
-	/** The default value of {@link #wallJumpTime} */
-	public static final double DEFAULT_WALL_JUMP_TIME = .25;
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -106,12 +95,6 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 	/** The {@link Walk} object used by this object's implementation of {@link Movement2D} */
 	private final Walk walk;
 	
-	/** See {@link Movement2D#getJumpPower()} */
-	private double jumpPower;
-	
-	/** See {@link Movement2D#getJumpStopPower()} */
-	private double jumpStopPower;
-	
 	/** See {@link Movement2D#isCanStopJump()} */
 	private boolean canStopJump;
 	
@@ -121,23 +104,11 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 	/** See {@link Movement2D#isJumpAfterBuildUp()} */
 	private boolean jumpAfterBuildUp;
 	
-	/** See {@link Movement2D#getWalkAirControl()} */
-	private double walkAirControl;
-	
 	/** See {@link Movement2D#getWalkFriction()} */
 	private double walkFriction;
 	
-	/** See {@link Movement2D#getWalkingRatio()} */
-	private double walkingRatio;
-	
 	/** See {@link Movement2D#isCanWallJump()} */
 	private boolean canWallJump;
-	
-	/** See {@link Movement2D#getNormalJumpTime()} */
-	private double normalJumpTime;
-	
-	/** See {@link Movement2D#getWallJumpTime()} */
-	private double wallJumpTime;
 	
 	/** See {@link Movement2D#isWalking()} */
 	private boolean walking;
@@ -153,17 +124,11 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 	public ZusassMob(double x, double y, double width, double height){
 		super(x, y);
 		
-		this.jumpPower = DEFAULT_JUMP_POWER;
-		this.jumpStopPower = DEFAULT_JUMP_STOP_POWER;
 		this.canStopJump = DEFAULT_CAN_STOP_JUMP;
 		this.jumpBuildTime = DEFAULT_JUMP_BUILD_TIME;
 		this.jumpAfterBuildUp = DEFAULT_JUMP_AFTER_BUILD_UP;
-		this.walkAirControl = DEFAULT_WALK_AIR_CONTROL;
 		this.walkFriction = DEFAULT_WALK_FRICTION;
-		this.walkingRatio = DEFAULT_WALKING_RATIO;
 		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
-		this.normalJumpTime = DEFAULT_NORMAL_JUMP_TIME;
-		this.wallJumpTime = DEFAULT_WALL_JUMP_TIME;
 		this.walking = false;
 		this.walk = new Walk(this);
 		
@@ -186,6 +151,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 		this.stats.add(new Strength(this.stats));
 		this.stats.add(new Endurance(this.stats));
 		this.stats.add(new Intelligence(this.stats));
+		this.stats.add(new Agility(this.stats));
 		
 		// Add resources
 		this.stats.add(new Health(this.stats));
@@ -209,6 +175,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 		this.setStat(STRENGTH, 1);
 		this.setStat(ENDURANCE, 5);
 		this.setStat(INTELLIGENCE, 5);
+		this.setStat(AGILITY, 5);
 		
 		// Init the spellbook to empty
 		this.spells = new Spellbook();
@@ -586,29 +553,14 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 		this.movementTouchFloor(touched);
 	}
 	
-	// TODO maybe abstract out these values to another class?
-	// TODO maybe make most of these values based on stats
-	
-	/** @return See {@link #jumpPower} */
 	@Override
 	public double getJumpPower(){
-		return this.jumpPower;
+		return Math.pow(this.stat(AGILITY), 0.3) * 35000;
 	}
 	
-	/** @param jumpPower See {@link #jumpPower} */
-	public void setJumpPower(double jumpPower){
-		this.jumpPower = jumpPower;
-	}
-	
-	/** @return See {@link #jumpStopPower} */
 	@Override
 	public double getJumpStopPower(){
-		return this.jumpStopPower;
-	}
-	
-	/** @param jumpStopPower See {@link #jumpStopPower} */
-	public void setJumpStopPower(double jumpStopPower){
-		this.jumpStopPower = jumpStopPower;
+		return Math.pow(this.stat(AGILITY), 0.3) * 3000;
 	}
 	
 	/** @return See {@link #canStopJump} */
@@ -644,15 +596,9 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 		this.jumpAfterBuildUp = jumpAfterBuildUp;
 	}
 	
-	/** @return See {@link #walkAirControl} */
 	@Override
 	public double getWalkAirControl(){
-		return this.walkAirControl;
-	}
-	
-	/** @param walkAirControl See {@link #walkAirControl} */
-	public void setWalkAirControl(double walkAirControl){
-		this.walkAirControl = walkAirControl;
+		return 1.0 - 10.0 / (this.stat(AGILITY) + 10);
 	}
 	
 	/** @return See {@link #walkFriction} */
@@ -666,15 +612,9 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 		this.walkFriction = walkFriction;
 	}
 	
-	/** @return See {@link #walkingRatio} */
 	@Override
 	public double getWalkingRatio(){
-		return this.walkingRatio;
-	}
-	
-	/** @param walkingRatio See {@link #walkingRatio} */
-	public void setWalkingRatio(double walkingRatio){
-		this.walkingRatio = walkingRatio;
+		return 1 - 9.0 / (this.stat(AGILITY) + 10);
 	}
 	
 	/** @return See {@link #canWallJump} */
@@ -688,26 +628,14 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 		this.canWallJump = canWallJump;
 	}
 	
-	/** @return See {@link #normalJumpTime} */
 	@Override
 	public double getNormalJumpTime(){
-		return this.normalJumpTime;
+		return 0.1 + .75 * (1.0 - (50.0 / (this.stat(AGILITY) + 50)));
 	}
 	
-	/** @param normalJumpTime See {@link #normalJumpTime} */
-	public void setNormalJumpTime(double normalJumpTime){
-		this.normalJumpTime = normalJumpTime;
-	}
-	
-	/** @return See {@link #wallJumpTime} */
 	@Override
 	public double getWallJumpTime(){
-		return this.wallJumpTime;
-	}
-	
-	/** @param wallJumpTime See {@link #wallJumpTime} */
-	public void setWallJumpTime(double wallJumpTime){
-		this.wallJumpTime = wallJumpTime;
+		return 0.15 + .75 * (1.0 - (50.0 / (this.stat(AGILITY) + 50)));
 	}
 	
 	@Override

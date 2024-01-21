@@ -121,7 +121,7 @@ public class MainTest extends Game{
 	public static Game testerGame;
 	public static GameWindow window;
 	
-	public static final boolean CIRCLE_PLAYER = false;
+	public static final boolean CIRCLE_PLAYER = true;
 	
 	public static double camSpeed = 400;
 	public static boolean zoomOnlyX = false;

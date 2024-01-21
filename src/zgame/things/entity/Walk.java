@@ -35,13 +35,6 @@ public class Walk{
 	/** true if this is currently stopping its jump, false otherwise */
 	private boolean stoppingJump;
 	
-	// TODO allow this to be modified
-	/**
-	 * The force used to make you stop jumping. Physics wise doesn't make any sense, but it's to give an option to control jump height by holding down or letting go of a jump
-	 * button
-	 */
-	private ZVector jumpingStopForce;
-	
 	/** The vector keeping track of the force of this walking */
 	private ZVector walkingForce;
 	
@@ -68,7 +61,6 @@ public class Walk{
 		
 		this.walkingForce = thing.setForce(FORCE_NAME_WALKING, new ZVector());
 		this.jumpingForce = thing.setForce(FORCE_NAME_JUMPING, new ZVector());
-		this.jumpingStopForce = thing.setForce(FORCE_NAME_JUMPING_STOP, new ZVector());
 	}
 	
 	/** @return See {@link #thing} */
@@ -158,10 +150,6 @@ public class Walk{
 	
 	/** @param jumpingForce See {@link #jumpingForce} */
 	public void setJumpingForce(ZVector jumpingForce){
-		if(jumpingForce.getY() != 0){
-			int a = 0;
-		}
-		
 		this.jumpingForce = jumpingForce;
 	}
 	
