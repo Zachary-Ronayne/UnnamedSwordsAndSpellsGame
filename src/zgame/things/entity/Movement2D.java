@@ -3,6 +3,7 @@ package zgame.things.entity;
 /** A class that handles an {@link EntityThing} moving by walking and jumping */
 public interface Movement2D extends Movement{
 	
+	// TODO somehow abstract this to 3D
 	@Override
 	default boolean isTryingToMove(){
 		return this.getWalk().getWalkingDirection() != 0;
@@ -25,6 +26,8 @@ public interface Movement2D extends Movement{
 	
 	@Override
 	default void updateWalkForce(double dt){
+		// TODO somehow abstract some of this stuff to the generic Movement interface, and use it for 3D
+		
 		var walk = this.getWalk();
 		
 		var entity = this.getThing();
@@ -74,7 +77,7 @@ public interface Movement2D extends Movement{
 	}
 
 	/**
-	 * A utility method that handles a simple implementation of moving using keyboard controls
+	 * A utility method that handles a simple implementation of moving
 	 *
 	 * @param moveLeft true if movement should be to the left, false otherwise
 	 * @param moveRight true if movement should be to the right, false otherwise
@@ -92,15 +95,7 @@ public interface Movement2D extends Movement{
 			this.jump(dt);
 		}
 		// For not holding the button
-		else{
-			// if jumps should be instant, or no jump time is being built up, then stop the jump
-			if(this.jumpsAreInstant() || this.getWalk().getJumpTimeBuilt() == 0){
-				this.stopJump();
-			}
-			// Otherwise, perform the built up jump
-			else this.jumpFromBuiltUp(dt);
-			
-		}
+		else this.checkPerformOrStopJump(dt);
 	}
 	
 }

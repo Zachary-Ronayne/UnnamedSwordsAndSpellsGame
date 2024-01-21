@@ -139,6 +139,7 @@ public class Walk{
 		return this.walkingDirection;
 	}
 	
+	// TODO somehow abstract this to 3D
 	/** @param direction The new value for {@link #getWalkingDirection()} */
 	public void setWalkingDirection(int direction){
 		this.walkingDirection = direction;

@@ -164,6 +164,19 @@ public interface Movement{
 		walk.setStoppingJump(true);
 	}
 	
+	/**
+	 * Attempt to jump or stop the jump, essentially, a "release the jump button" method
+	 * @param dt The amount of time passing in the game tick where the button was pressed
+	 */
+	default void checkPerformOrStopJump(double dt){
+		// if jumps should be instant, or no jump time is being built up, then stop the jump
+		if(this.jumpsAreInstant() || this.getWalk().getJumpTimeBuilt() == 0){
+			this.stopJump();
+		}
+		// Otherwise, perform the built up jump
+		else this.jumpFromBuiltUp(dt);
+	}
+	
 	/** @return true if {@link #getThing()} jumps instantly, false if it has to build up a jump */
 	default boolean jumpsAreInstant(){
 		return this.getJumpBuildTime() == 0;
