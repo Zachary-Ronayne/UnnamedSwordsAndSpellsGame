@@ -13,6 +13,7 @@ import zgame.settings.IntTypeSetting;
 import zgame.things.entity.Movement3D;
 import zgame.things.entity.Walk;
 import zgame.world.Room;
+import zgame.world.Room3D;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -68,8 +69,7 @@ public class GameDemo3D extends Game{
 		game.getWindow().getRenderer().getCamera3D().setZ(2);
 		game.getWindow().getRenderer().getCamera3D().setY(minCamY);
 		
-		var state = new DemoGameState();
-		state.setCurrentRoom(new DummyRoom());
+		var state = new DemoGameState(new DummyRoom());
 		game.setCurrentState(state);
 		
 		updatePaused(true);
@@ -80,6 +80,15 @@ public class GameDemo3D extends Game{
 	}
 	
 	private static class DemoGameState extends PlayState{
+		
+		/**
+		 * Create a basic empty play state with the given room
+		 *
+		 * @param room The room to use for the play state
+		 */
+		public DemoGameState(Room room){
+			super(room);
+		}
 		
 		@Override
 		public void render(Game game, Renderer r){
@@ -233,7 +242,8 @@ public class GameDemo3D extends Game{
 		}
 	}
 	
-	private static class DummyRoom extends Room{
+	private static class DummyRoom extends Room3D{
+		
 		@Override
 		public void tick(Game game, double dt){
 			super.tick(game, dt);

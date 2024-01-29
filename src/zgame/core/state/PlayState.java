@@ -18,20 +18,13 @@ public class PlayState extends GameState{
 	private boolean inputPaused;
 	
 	/**
-	 * Create a basic empty play state with an empty default room
-	 */
-	public PlayState(){
-		this(true);
-	}
-	
-	/**
-	 * Create a basic empty play state
+	 * Create a basic empty play state with the given room
 	 *
-	 * @param createRoom true to give the {@link PlayState} an empty default room, otherwise use false and call {@link #setCurrentRoom(Room)}
+	 * @param room The room to use for the play state
 	 */
-	public PlayState(boolean createRoom){
+	public PlayState(Room room){
 		super(true);
-		if(createRoom) this.currentRoom = new Room();
+		this.currentRoom = room;
 		this.paused = false;
 		this.inputPaused = false;
 	}

@@ -5,6 +5,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.state.MenuNode;
 import zgame.core.state.PlayState;
+import zgame.world.Room2D;
 import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassPlayer;
@@ -37,6 +38,9 @@ public class MainPlay extends PlayState{
 	 * @param zgame The {@link Game} using this state
 	 */
 	public MainPlay(ZusassGame zgame){
+		// TODO maybe make this go to a hub initially right away instead of a separate method call
+		super(new Room2D());
+		
 		this.enterHub(zgame);
 		
 		this.playerMenusOpen = false;

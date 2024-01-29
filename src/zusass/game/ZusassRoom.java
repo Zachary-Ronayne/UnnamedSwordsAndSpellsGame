@@ -2,11 +2,12 @@ package zusass.game;
 
 import zgame.core.utils.NotNullList;
 import zgame.world.Room;
+import zgame.world.Room2D;
 import zusass.game.things.ZThingClickDetector;
 import zusass.game.things.entities.mobs.ZusassMob;
 
 /** A {@link Room} used by the Zusass game */
-public class ZusassRoom extends Room{
+public class ZusassRoom extends Room2D{
 	
 	/** Create a new room with nothing in it */
 	public ZusassRoom(){

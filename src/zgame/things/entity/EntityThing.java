@@ -22,6 +22,8 @@ import zgame.things.type.PositionedThing;
  */
 public abstract class EntityThing extends PositionedHitboxThing implements GameTickable{
 	
+	// TODO somehow abstract this to 2D and 3D, maybe this will be an interface?
+	
 	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
 	
 	/** The string used to identify the force of gravity in {@link #forces} */

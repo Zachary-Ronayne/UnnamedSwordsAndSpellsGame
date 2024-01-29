@@ -28,6 +28,7 @@ import zgame.menu.scroller.VerticalScroller;
 import zgame.things.still.Door;
 import zgame.things.still.tiles.BaseTiles;
 import zgame.world.Room;
+import zgame.world.Room2D;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -216,11 +217,11 @@ public class MainTest extends Game{
 		private final PlayerTester player;
 		
 		public GameEngineState(){
-			super(false);
-			Room firstRoom = makeRoom();
+			super(new Room2D());
+			var firstRoom = makeRoom();
 			firstRoom.setTile(0, 4, BaseTiles.BOUNCY);
 			firstRoom.setTile(1, 4, BaseTiles.BOUNCY);
-			Room secondRoom = makeRoom();
+			var secondRoom = makeRoom();
 			for(int i = 0; i < 2; i++) secondRoom.setTile(i, 4, BaseTiles.HIGH_FRICTION);
 			this.setCurrentRoom(firstRoom);
 			
@@ -246,8 +247,8 @@ public class MainTest extends Game{
 			game.getCamera().setPos(50, 100);
 		}
 		
-		private Room makeRoom(){
-			Room r = new Room();
+		private Room2D makeRoom(){
+			var r = new Room2D();
 			r.makeWallsSolid();
 			r.initTiles(13, 9, BaseTiles.BACK_DARK);
 			for(int i = 0; i < r.getXTiles(); i++){
@@ -289,11 +290,11 @@ public class MainTest extends Game{
 			
 			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState(game));
 			
-			Room r = getCurrentRoom();
-			if(button == GLFW_KEY_W) r.makeWallState(Room.WALL_CEILING, !r.isSolid(Room.WALL_CEILING));
-			else if(button == GLFW_KEY_A) r.makeWallState(Room.WALL_LEFT, !r.isSolid(Room.WALL_LEFT));
-			else if(button == GLFW_KEY_S) r.makeWallState(Room.WALL_FLOOR, !r.isSolid(Room.WALL_FLOOR));
-			else if(button == GLFW_KEY_D) r.makeWallState(Room.WALL_RIGHT, !r.isSolid(Room.WALL_RIGHT));
+			var r = this.getCurrentRoom();
+			if(button == GLFW_KEY_W) r.makeWallState(Room2D.WALL_CEILING, !r.isSolid(Room2D.WALL_CEILING));
+			else if(button == GLFW_KEY_A) r.makeWallState(Room2D.WALL_LEFT, !r.isSolid(Room2D.WALL_LEFT));
+			else if(button == GLFW_KEY_S) r.makeWallState(Room2D.WALL_FLOOR, !r.isSolid(Room2D.WALL_FLOOR));
+			else if(button == GLFW_KEY_D) r.makeWallState(Room2D.WALL_RIGHT, !r.isSolid(Room2D.WALL_RIGHT));
 			else if(button == GLFW_KEY_MINUS) player.setJumpPower(player.getJumpPower() - 10);
 			else if(button == GLFW_KEY_EQUAL) player.setJumpPower(player.getJumpPower() + 10);
 			else if(shift && button == GLFW_KEY_L) player.setLockCamera(!player.isLockCamera());
@@ -315,6 +316,11 @@ public class MainTest extends Game{
 				return true;
 			}
 			return input;
+		}
+		
+		@Override
+		public Room2D getCurrentRoom(){
+			return (Room2D)super.getCurrentRoom();
 		}
 	}
 	
