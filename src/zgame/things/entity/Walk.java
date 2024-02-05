@@ -3,7 +3,7 @@ package zgame.things.entity;
 import zgame.physics.ZVector;
 
 /** A data object used for storing values related to {@link Movement2D} */
-public class Walk{
+public abstract class Walk{
 	
 	/** The string used to identify the force used to make this walk */
 	public static final String FORCE_NAME_WALKING = "walking";
@@ -36,14 +36,6 @@ public class Walk{
 	/** true if this is currently stopping its jump, false otherwise */
 	private boolean stoppingJump;
 	
-	/** The vector keeping track of the force of this walking */
-	private ZVector walkingForce;
-	
-	/** The direction this is walking. -1 for walking to the left, 0 for not walking, 1 for walking to the right */
-	private int walkingDirection;
-	
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
 	/** The {@link EntityThing} using this walk object */
 	private final EntityThing thing;
 	
@@ -60,7 +52,6 @@ public class Walk{
 		this.jumpTimeBuilt = 0;
 		this.wallJumpAvailable = false;
 		
-		this.walkingForce = thing.setForce(FORCE_NAME_WALKING, new ZVector());
 		this.jumpingForce = thing.setForce(FORCE_NAME_JUMPING, new ZVector());
 	}
 	
@@ -134,16 +125,6 @@ public class Walk{
 		this.wallJumpAvailable = wallJumpAvailable;
 	}
 	
-	/** @return The direction this is walking. -1 for walking to the left, 0 for not walking, 1 for walking to the right */
-	public int getWalkingDirection(){
-		return this.walkingDirection;
-	}
-	
-	// TODO somehow abstract this to 3D
-	/** @param direction The new value for {@link #getWalkingDirection()} */
-	public void setWalkingDirection(int direction){
-		this.walkingDirection = direction;
-	}
 	
 	/** @return See {@link #jumpingForce} */
 	public ZVector getJumpingForce(){
@@ -155,13 +136,7 @@ public class Walk{
 		this.jumpingForce = this.getThing().setForce(FORCE_NAME_WALKING, 0, jumpForce);
 	}
 	
-	/** @return See {@link #walkingForce} */
-	public ZVector getWalkingForce(){
-		return this.walkingForce;
-	}
+	/** @param force The amount of force moving during walking */
+	public abstract void updateWalkingForce(double force);
 	
-	/** @param movement The amount of force applied to the x axis when this mob is walking */
-	public void setWalkingForce(double movement){
-		this.walkingForce = this.getThing().setForce(FORCE_NAME_WALKING, movement, 0);
-	}
 }

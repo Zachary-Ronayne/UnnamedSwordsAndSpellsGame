@@ -5,6 +5,7 @@ import zgame.physics.material.Material;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.Movement2D;
 import zgame.things.entity.Walk;
+import zgame.things.entity.Walk2D;
 import zgame.world.Room;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -20,7 +21,7 @@ public abstract class PlayerTester extends EntityThing implements Movement2D {
 	private boolean lockCamera;
 	
 	/** The {@link Walk} object used by this object's implementation of {@link Movement2D} */
-	private final Walk walk;
+	private final Walk2D walk;
 	
 	/** See {@link Movement2D#getWalkSpeedMax()} */
 	private double walkSpeedMax;
@@ -93,7 +94,7 @@ public abstract class PlayerTester extends EntityThing implements Movement2D {
 		this.normalJumpTime = .1;
 		this.wallJumpTime = .25;
 		this.walking = false;
-		this.walk = new Walk(this);
+		this.walk = new Walk2D(this);
 		
 		this.lockCamera = false;
 		this.width = width;
@@ -167,7 +168,7 @@ public abstract class PlayerTester extends EntityThing implements Movement2D {
 	}
 	
 	@Override
-	public Walk getWalk(){
+	public Walk2D getWalk(){
 		return this.walk;
 	}
 	
@@ -351,6 +352,11 @@ public abstract class PlayerTester extends EntityThing implements Movement2D {
 	@Override
 	public boolean isWalking(){
 		return this.walking;
+	}
+	
+	@Override
+	public double getCurrentWalkingSpeed(){
+		return this.getVX();
 	}
 	
 	/** @param walking See {@link #walking} */

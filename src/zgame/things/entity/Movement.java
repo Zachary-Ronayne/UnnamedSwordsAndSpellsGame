@@ -31,15 +31,63 @@ public interface Movement{
 	/** @return true if this object represents currently walking or running, false otherwise i.e. not moving */
 	boolean isTryingToMove();
 	
+	/** @return The current speed that this thing is walking at */
+	double getCurrentWalkingSpeed();
+	
 	/** Tell this entity to stop walking */
 	void stopWalking();
 	
 	/**
-	 * Update the value of {@link Walk#getWalkingForce()} based on the current state of {@link #getThing()}
+	 * Calculate and then update the current walking force based on the next instance of time
 	 *
 	 * @param dt The amount of time that will pass in the next tick when{@link #getThing()} walks
 	 */
-	void updateWalkForce(double dt);
+	default void updateWalkForce(double dt){
+		var entity = this.getThing();
+		double mass = entity.getMass();
+		double acceleration = this.getWalkAcceleration();
+		double walkForce = acceleration * mass;
+		double maxSpeed = this.getWalkSpeedMax();
+		// TODO consider abstracting this part out to a generalized system?
+		// If the thing is walking, its max speed should be reduced by the ratio
+		if(this.isWalking()) maxSpeed *= this.getWalkingRatio();
+		
+		// If the current velocity is greater than the max speed, and thing is trying to walk in the same direction as the current velocity, walk force will always be zero
+		var vx = Math.abs(this.getCurrentWalkingSpeed());
+		if(vx > 0 && walkForce > 0 && vx > maxSpeed) walkForce = 0;
+		
+		boolean walking = walkForce != 0;
+		
+		// TODO consider abstracting this part out to a generalized system?
+		// If the entity is not on the ground, it's movement force is modified by the air control
+		if(!entity.isOnGround()) walkForce *= this.getWalkAirControl();
+		
+		// Only check the walking speed if there is any walking force
+		if(walking){
+			// Find the total velocity if the new walking force is applied on the next tick
+			double newVel = vx + walkForce * dt / mass;
+			
+			/*
+			 * issue#14 fix this, it's not always setting it to the exact max speed, usually slightly below it, probably related to the friction issue
+			 * This probably needs to account for the change in frictional force
+			 * Why can you still move a bit after landing on a high friction force until you stop moving?
+			 */
+			
+			// If that velocity is greater than the maximum speed, then apply a force such that it will bring the velocity exactly to the maximum speed
+			if(newVel > maxSpeed) walkForce = (maxSpeed - vx) / dt * mass;
+		}
+		
+		// Set the amount the entity is walking
+		this.applyWalkForce(dt, walkForce);
+	}
+	
+	/**
+	 * Apply the given amount of force to this thing's walking force
+	 *
+	 * @param dt The time that will pass in the game tick of this update
+	 * @param newWalkForce The amount of force to apply in the forwards direction of this thing
+	 */
+	void applyWalkForce(double dt, double newWalkForce);
 	
 	/** @return true if {@link #getThing()} is able to perform a normal jump off the ground based on the amount of time since it last touched a wall, false otherwise */
 	default boolean hasTimeToFloorJump(){
@@ -278,7 +326,7 @@ public interface Movement{
 	default double getWalkFrictionConstant(){
 		var entity = this.getThing();
 		// If not on the ground, use the normal amount of friction, otherwise, if currently walking, return walk friction, otherwise, return stop friction
-		return !entity.isOnGround() ? 1 : (this.getWalk().getWalkingDirection() != 0) ? this.getWalkFriction() : this.getWalkStopFriction();
+		return !entity.isOnGround() ? 1 : (this.isWalking()) ? this.getWalkFriction() : this.getWalkStopFriction();
 	}
 	
 }

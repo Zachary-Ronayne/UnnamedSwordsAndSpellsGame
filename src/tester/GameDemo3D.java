@@ -446,6 +446,16 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
+		public void applyWalkForce(double dt, double newWalkForce){
+		
+		}
+		
+		@Override
+		public double getCurrentWalkingSpeed(){
+			return 0;
+		}
+		
+		@Override
 		public double getJumpPower(){
 			return 0;
 		}

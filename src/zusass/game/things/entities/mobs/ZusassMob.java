@@ -15,6 +15,7 @@ import zgame.stat.status.StatusEffects;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.Movement2D;
 import zgame.things.entity.Walk;
+import zgame.things.entity.Walk2D;
 import zgame.things.entity.projectile.Projectile;
 import zgame.things.type.RectangleHitBox;
 import zusass.ZusassGame;
@@ -93,7 +94,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/** The {@link Walk} object used by this object's implementation of {@link Movement2D} */
-	private final Walk walk;
+	private final Walk2D walk;
 	
 	/** See {@link Movement2D#isCanStopJump()} */
 	private boolean canStopJump;
@@ -130,7 +131,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 		this.walkFriction = DEFAULT_WALK_FRICTION;
 		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
 		this.walking = false;
-		this.walk = new Walk(this);
+		this.walk = new Walk2D(this);
 		
 		this.stopWalking();
 		
@@ -508,8 +509,13 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 	}
 	
 	@Override
-	public Walk getWalk(){
+	public Walk2D getWalk(){
 		return this.walk;
+	}
+	
+	@Override
+	public double getCurrentWalkingSpeed(){
+		return this.getVX();
 	}
 	
 	@Override
