@@ -3,7 +3,7 @@ package zgame.core.graphics.buffer;
 import java.util.function.BiConsumer;
 
 import zgame.core.graphics.Renderer;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 
 /** A {@link GameBuffer} that can easily be extended to draw on */
 public class DrawableBuffer extends GameBuffer{
@@ -12,7 +12,7 @@ public class DrawableBuffer extends GameBuffer{
 	private boolean needRedraw;
 	
 	/**
-	 * true if, before redrawing the contents of this buffer, if any bounds of the renderer are set through {@link Renderer#limitBounds(ZRect)},
+	 * true if, before redrawing the contents of this buffer, if any bounds of the renderer are set through {@link Renderer#limitBounds(ZRect2D)},
 	 * the bounds will be unlimited, false otherwise. true by default
 	 */
 	private boolean forceUnlimit;

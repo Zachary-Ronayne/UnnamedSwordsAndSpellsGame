@@ -3,8 +3,8 @@ package zgame.physics.collision;
 import java.awt.geom.Line2D;
 
 import zgame.core.utils.ZMath;
-import zgame.core.utils.ZPoint;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZPoint2D;
+import zgame.core.utils.ZRect2D;
 import zgame.physics.material.Material;
 
 /** A class containing methods for calculating where objects should move when colliding */
@@ -29,7 +29,7 @@ public final class ZCollision{
 	 */
 	public static CollisionResponse rectToRectBasic(double cx, double cy, double cw, double ch, double x, double y, double w, double h, Material m){
 		// If the rectangles do not intersect, then there was no collision
-		ZRect unmoving = new ZRect(cx, cy, cw, ch);
+		ZRect2D unmoving = new ZRect2D(cx, cy, cw, ch);
 		if(!unmoving.intersects(x, y, w, h)) return new CollisionResponse();
 		// Initial Variable values
 		double xDis;
@@ -143,7 +143,7 @@ public final class ZCollision{
 		if(onlyX && onlyY) return rectToRectBasic(cx, cy, cw, ch, x, y, w, h, m);
 		
 		// If the rectangles do not intersect, then there was no collision
-		ZRect unmoving = new ZRect(cx, cy, cw, ch);
+		ZRect2D unmoving = new ZRect2D(cx, cy, cw, ch);
 		if(!unmoving.intersects(x, y, w, h)) return new CollisionResponse();
 		// Initial Variable values
 		double xDis = 0;
@@ -206,7 +206,7 @@ public final class ZCollision{
 			
 			// Using that line as a ray with the position (cornerX, cornerY) and moving in the opposite direction, find where that ray intersects the unmoving bounds
 			// That point is the new corner of the new bounds
-			ZPoint movePoint;
+			ZPoint2D movePoint;
 			// Left line
 			movePoint = rectToRectHelper(new Line2D.Double(cx, cy, cx, cy + h), moveLine, cornerX, cornerY, reverseAngle);
 			// Right line
@@ -216,7 +216,7 @@ public final class ZCollision{
 			// Bot line
 			if(movePoint == null) movePoint = rectToRectHelper(new Line2D.Double(cx, cy + h, cx + w, cy + h), moveLine, cornerX, cornerY, reverseAngle);
 			// Should never happen, but covering bases
-			if(movePoint == null) movePoint = new ZPoint(x, y);
+			if(movePoint == null) movePoint = new ZPoint2D(x, y);
 			
 			// Find the distance to move
 			xDis += movePoint.x - x;
@@ -237,9 +237,9 @@ public final class ZCollision{
 	 * @param reverseAngle The opposite angle of how the colliding object moved
 	 * @return The point to reposition the object if the line is a valid line for where the colliding object should be repositioned, otherwise null
 	 */
-	private static ZPoint rectToRectHelper(Line2D.Double line, Line2D.Double moveLine, double cornerX, double cornerY, double reverseAngle){
+	private static ZPoint2D rectToRectHelper(Line2D.Double line, Line2D.Double moveLine, double cornerX, double cornerY, double reverseAngle){
 		// Find the intersection point for each line
-		ZPoint intersection = ZMath.lineIntersection(line, moveLine);
+		ZPoint2D intersection = ZMath.lineIntersection(line, moveLine);
 		if(intersection == null) return null;
 		
 		// Determine which of those points is on the rectangle
@@ -284,9 +284,9 @@ public final class ZCollision{
 		if(x == px && y == py) return rectToRectBasic(cx, cy, cw, ch, x, y, w, h, m);
 		
 		// Find the bounds
-		ZRect moving = new ZRect(x, y, w, h);
-		ZRect prevMoving = new ZRect(px, py, w, h);
-		ZRect colliding = new ZRect(cx, cy, cw, ch);
+		ZRect2D moving = new ZRect2D(x, y, w, h);
+		ZRect2D prevMoving = new ZRect2D(px, py, w, h);
+		ZRect2D colliding = new ZRect2D(cx, cy, cw, ch);
 		
 		// If the colliding and moving bounds do not touch, then return an empty response
 		if(!moving.intersects(colliding)) return new CollisionResponse();
@@ -298,7 +298,7 @@ public final class ZCollision{
 		boolean right = false;
 		boolean top = false;
 		boolean bottom = false;
-		ZRect newMoving;
+		ZRect2D newMoving;
 		double dist;
 		double angle = ZMath.lineAngle(x, y, px, py);
 		double sinA = Math.sin(angle);
@@ -311,18 +311,18 @@ public final class ZCollision{
 				// Otherwise, base it on the moving bounds
 			else dist = ZMath.hypot(w, h);
 			// Find the new moving bounds
-			newMoving = new ZRect(x + cosA * dist, y + sinA * dist, w, h);
+			newMoving = new ZRect2D(x + cosA * dist, y + sinA * dist, w, h);
 		}
 		// Otherwise, use the previous bounds as the starting point
 		else newMoving = prevMoving;
 		// For the number of given iterations, move the new moving bounds closer to the colliding bounds, ensuring they don't touch at the end of the method
-		ZRect nearBounds = moving;
-		ZRect farBounds = newMoving;
-		ZRect newBounds;
+		ZRect2D nearBounds = moving;
+		ZRect2D farBounds = newMoving;
+		ZRect2D newBounds;
 		for(int i = 0; i < iterations; i++){
 			/// Finding half the distance between the bounds
 			dist = ZMath.hypot(nearBounds.x - farBounds.x, nearBounds.y - farBounds.y) * .5;
-			newBounds = new ZRect(nearBounds.x + cosA * dist, nearBounds.y + sinA * dist, w, h);
+			newBounds = new ZRect2D(nearBounds.x + cosA * dist, nearBounds.y + sinA * dist, w, h);
 			if(colliding.intersects(newBounds)) nearBounds = newBounds;
 			else farBounds = newBounds;
 		}

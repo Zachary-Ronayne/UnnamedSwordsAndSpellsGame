@@ -6,7 +6,8 @@ import zgame.core.file.Saveable;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.things.Tag;
-import zgame.things.entity.EntityThing;
+import zgame.things.entity.Entity;
+import zgame.things.type.bounds.HitBox;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -80,14 +81,6 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	 */
 	public void removeFrom(Game game){
 		game.getCurrentRoom().removeThing(this);
-	}
-	
-	/**
-	 * @return This object, as an {@link EntityThing}, or null if it cannot be an {@link EntityThing}
-	 * 		The return value of this method should equal this object, not another version or reference, i.e. (this == this.asEntity()) should evaluate to true
-	 */
-	public EntityThing asEntity(){
-		return null;
 	}
 	
 	/**

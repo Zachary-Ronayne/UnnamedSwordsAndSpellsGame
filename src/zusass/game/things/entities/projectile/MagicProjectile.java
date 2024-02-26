@@ -6,8 +6,8 @@ import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector;
 import zgame.things.BaseTags;
 import zgame.things.entity.projectile.UsedProjectile;
-import zgame.things.type.CircleHitBox;
-import zgame.things.type.HitBox;
+import zgame.things.type.bounds.CircleHitBox;
+import zgame.things.type.bounds.HitBox;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
 
@@ -67,7 +67,7 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 		this.addTags(BaseTags.PROJECTILE_NOT_COLLIDE);
 		
 		// Turn off gravity
-		this.setGravityLevel(0);
+		this.getEntity().setGravityLevel(0);
 		
 		// Add a function to effect a hit mob with magic
 		this.addHitFunc(ZusassMob.class, m -> {

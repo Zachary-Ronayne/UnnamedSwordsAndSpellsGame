@@ -1,6 +1,7 @@
 package zgame.things.entity;
 
 import zgame.physics.ZVector;
+import zgame.physics.ZVector2D;
 
 /** A data object used for storing values related to {@link Movement2D} */
 public abstract class Walk{
@@ -36,15 +37,15 @@ public abstract class Walk{
 	/** true if this is currently stopping its jump, false otherwise */
 	private boolean stoppingJump;
 	
-	/** The {@link EntityThing} using this walk object */
-	private final EntityThing thing;
+	/** The {@link Entity} using this walk object */
+	private final Entity entity;
 	
 	/**
 	 * Create a new walk object for use in {@link Movement2D}
-	 * @param thing See {@link #thing}
+	 * @param entity See {@link #entity}
 	 */
-	public Walk(EntityThing thing){
-		this.thing = thing;
+	public Walk(Entity entity){
+		this.entity = entity;
 		
 		this.canJump = false;
 		this.jumping = false;
@@ -52,12 +53,12 @@ public abstract class Walk{
 		this.jumpTimeBuilt = 0;
 		this.wallJumpAvailable = false;
 		
-		this.jumpingForce = thing.setForce(FORCE_NAME_JUMPING, new ZVector());
+		this.jumpingForce = entity.setForce(FORCE_NAME_JUMPING, new ZVector2D());
 	}
 	
-	/** @return See {@link #thing} */
-	public EntityThing getThing(){
-		return this.thing;
+	/** @return See {@link #entity} */
+	public Entity getEntity(){
+		return this.entity;
 	}
 	
 	/** @return true if this is in a position where it is allowed to jump, false otherwise */
@@ -133,7 +134,7 @@ public abstract class Walk{
 	
 	/** @param jumpForce The amount of force applied to the y axis while this mob is jumping */
 	public void setJumpingForce(double jumpForce){
-		this.jumpingForce = this.getThing().setForce(FORCE_NAME_WALKING, 0, jumpForce);
+		this.jumpingForce = this.getEntity().setVerticalForce(FORCE_NAME_WALKING, jumpForce);
 	}
 	
 	/** @param force The amount of force moving during walking */

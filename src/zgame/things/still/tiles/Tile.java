@@ -5,6 +5,9 @@ import zgame.core.graphics.Renderer;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.things.type.*;
+import zgame.things.type.bounds.HitBox;
+import zgame.things.type.bounds.HitBox2D;
+import zgame.things.type.bounds.RectangleHitBox;
 
 /** A {@link GameThing} with a rectangular hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
 public class Tile extends PositionedRectangleThing implements RectangleHitBox{
@@ -97,14 +100,16 @@ public class Tile extends PositionedRectangleThing implements RectangleHitBox{
 		return this.getFrontType().getMaterial();
 	}
 	
-	/** See {@link TileHitbox#collide(Tile, HitBox)} */
-	public CollisionResponse collide(HitBox obj){
+	/** See {@link TileHitbox#collide(Tile, HitBox2D)} */
+	public CollisionResponse collide(HitBox2D obj){
 		return this.getFrontType().getHitbox().collide(this, obj);
 	}
 	
-	/** See {@link TileHitbox#intersectsTile(Tile, HitBox)} */
+	/** See {@link TileHitbox#intersectsTile(Tile, HitBox2D)} */
+	@Override
 	public boolean intersects(HitBox obj){
-		return this.getFrontType().getHitbox().intersectsTile(this, obj);
+		// TODO should this be type casting?
+		return this.getFrontType().getHitbox().intersectsTile(this, (HitBox2D)obj);
 	}
 	
 	@Override

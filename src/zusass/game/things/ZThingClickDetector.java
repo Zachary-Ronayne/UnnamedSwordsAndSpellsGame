@@ -1,21 +1,21 @@
 package zusass.game.things;
 
 import zgame.core.Game;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 import zgame.things.ThingClickDetector;
-import zgame.things.type.Bounds;
+import zgame.things.type.bounds.Bounds2D;
 import zusass.ZusassGame;
 
 /** A {@link ThingClickDetector} used for the Zusass game */
-public interface ZThingClickDetector extends ThingClickDetector, Bounds{
+public interface ZThingClickDetector extends ThingClickDetector, Bounds2D{
 	
 	@Override
-	default ZRect getThingBounds(){
+	default ZRect2D getThingBounds(){
 		return this.getBounds();
 	}
 	
 	@Override
-	default ZRect getPlayerBounds(Game game){
+	default ZRect2D getPlayerBounds(Game game){
 		var zgame = (ZusassGame)game;
 		var player = zgame.getPlayer();
 		if(player == null) return null;

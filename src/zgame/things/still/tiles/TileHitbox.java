@@ -1,7 +1,7 @@
 package zgame.things.still.tiles;
 
 import zgame.physics.collision.CollisionResponse;
-import zgame.things.type.HitBox;
+import zgame.things.type.bounds.HitBox2D;
 
 /** An object that represents the hitbox of a tile, i.e., what parts of the tile have collision */
 public interface TileHitbox {
@@ -23,7 +23,7 @@ public interface TileHitbox {
 	 * @param obj The object with a hitbox which collides with the given {@link Tile}
 	 * @return A point to reposition the rectangle to
 	 */
-	CollisionResponse collide(Tile t, HitBox obj);
+	CollisionResponse collide(Tile t, HitBox2D obj);
 	
 	/**
 	 * Determine if a hitbox hits this {@link TileHitbox}
@@ -31,17 +31,17 @@ public interface TileHitbox {
 	 * @param obj The hitbox to check
 	 * @return true if they intersect, false otherwise
 	 */
-	boolean intersectsTile(Tile t, HitBox obj);
+	boolean intersectsTile(Tile t, HitBox2D obj);
 	
 	/** For tiles with no collision */
 	class None implements TileHitbox{
 		@Override
-		public CollisionResponse collide(Tile t, HitBox obj){
+		public CollisionResponse collide(Tile t, HitBox2D obj){
 			return new CollisionResponse();
 		}
 		
 		@Override
-		public boolean intersectsTile(Tile t, HitBox obj){
+		public boolean intersectsTile(Tile t, HitBox2D obj){
 			return false;
 		}
 	}
@@ -49,12 +49,12 @@ public interface TileHitbox {
 	/** For tiles whose hitbox takes up the entire tile */
 	class Full implements TileHitbox{
 		@Override
-		public CollisionResponse collide(Tile t, HitBox obj){
+		public CollisionResponse collide(Tile t, HitBox2D obj){
 			return obj.calculateRectCollision(t.getX(), t.getY(), t.getWidth(), t.getHeight(), t.getMaterial());
 		}
 		
 		@Override
-		public boolean intersectsTile(Tile t, HitBox obj){
+		public boolean intersectsTile(Tile t, HitBox2D obj){
 			return obj.intersectsRect(t.getX(), t.getY(), t.getWidth(), t.getHeight());
 		}
 	}
@@ -62,12 +62,12 @@ public interface TileHitbox {
 	/** For tiles whose hitbox is a circle inscribed by the tile */
 	class Circle implements TileHitbox{
 		@Override
-		public CollisionResponse collide(Tile t, HitBox obj){
+		public CollisionResponse collide(Tile t, HitBox2D obj){
 			return obj.calculateCircleCollision(t.centerX(), t.centerY(), t.getWidth() * 0.5, t.getMaterial());
 		}
 		
 		@Override
-		public boolean intersectsTile(Tile t, HitBox obj){
+		public boolean intersectsTile(Tile t, HitBox2D obj){
 			return obj.intersectsCircle(t.centerX(), t.centerY(), t.getWidth() * 0.5);
 		}
 	}
@@ -75,13 +75,13 @@ public interface TileHitbox {
 	/** For tiles whose hitbox takes up the entire tile */
 	class BottomSlab implements TileHitbox{
 		@Override
-		public CollisionResponse collide(Tile t, HitBox obj){
+		public CollisionResponse collide(Tile t, HitBox2D obj){
 			var h = t.getHeight() * 0.5;
 			return obj.calculateRectCollision(t.getX(), t.getY() + h, t.getWidth(), h, t.getMaterial());
 		}
 		
 		@Override
-		public boolean intersectsTile(Tile t, HitBox obj){
+		public boolean intersectsTile(Tile t, HitBox2D obj){
 			var h = t.getHeight() * 0.5;
 			return obj.intersectsRect(t.getX(), t.getY() + h, t.getWidth(), h);
 		}

@@ -2,9 +2,10 @@ package zgame.things.type;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.things.type.bounds.Bounds2D;
 
-/** A {@link PositionedThing} which also has a rectangular bounds */
-public abstract class PositionedRectangleThing extends PositionedThing implements Bounds{
+/** A 2D {@link PositionedThing} which also has a rectangular bounds */
+public abstract class PositionedRectangleThing extends PositionedThing2D implements Bounds2D{
 	
 	/** The width of this thing */
 	private double width;

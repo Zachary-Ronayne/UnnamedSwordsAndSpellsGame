@@ -5,13 +5,16 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.state.PlayState;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
+import zgame.physics.ZVector;
+import zgame.physics.collision.CollisionResponse;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
-import zgame.things.entity.Movement3D;
-import zgame.things.entity.Walk;
+import zgame.things.entity.*;
+import zgame.things.type.bounds.HitBox;
+import zgame.things.type.bounds.HitboxType;
 import zgame.world.Room;
 import zgame.world.Room3D;
 
@@ -249,7 +252,7 @@ public class GameDemo3D extends Game{
 			super.tick(game, dt);
 			var ki = game.getKeyInput();
 			
-			player.move(dt,
+			player.handleMovementControls(dt,
 					ki.buttonDown(GLFW_KEY_A), ki.buttonDown(GLFW_KEY_D),
 					ki.buttonDown(GLFW_KEY_W), ki.buttonDown(GLFW_KEY_S),
 					ki.buttonDown(GLFW_KEY_Q), ki.buttonDown(GLFW_KEY_Z),
@@ -260,15 +263,15 @@ public class GameDemo3D extends Game{
 			// TODO move jumping to Movement3D
 			if(!flying){
 				// Jumping
-				camera.addY(yVel);
-				if(camera.getY() > minCamY){
-					yVel -= gravity * dt;
-				}
-				if(camera.getY() < minCamY){
-					camera.setY(minCamY);
-					yVel = 0;
-				}
-				if(ki.pressed(GLFW_KEY_Q) && yVel == 0) yVel = jumpVel * dt;
+//				camera.addY(yVel);
+//				if(camera.getY() > minCamY){
+//					yVel -= gravity * dt;
+//				}
+//				if(camera.getY() < minCamY){
+//					camera.setY(minCamY);
+//					yVel = 0;
+//				}
+//				if(ki.pressed(GLFW_KEY_Q) && yVel == 0) yVel = jumpVel * dt;
 			}
 			
 			// TODO add tiling to Movement3D and make it relative to the position looked at
@@ -363,7 +366,7 @@ public class GameDemo3D extends Game{
 		if(paused){
 			game.getCurrentState().popupMenu(game, new Menu(600, 300, 500, 100, false){
 				@Override
-				public void render(Game game, Renderer r, ZRect bounds){
+				public void render(Game game, Renderer r, ZRect2D bounds){
 					super.render(game, r, bounds);
 					// TODO fix proper transparency not working here, probably something with buffers
 					r.setColor(new ZColor(0, .5));
@@ -378,11 +381,17 @@ public class GameDemo3D extends Game{
 		else game.getCurrentState().removeTopMenu(game);
 	}
 	
-	private static class Player3D implements Movement3D{
+	// TODO Make entity thing compatible with 3D
+	private static class Player3D extends Entity implements Movement3D{
 		private final Game game;
 		
+		private Walk3D walk;
+		
 		public Player3D(Game game){
+			// TODO implement this with EntityThing3D
+			super(0);
 			this.game = game;
+//			this.walk = new Walk3D(this);
 		}
 		
 		private GameCamera3D getCamera(){
@@ -427,7 +436,7 @@ public class GameDemo3D extends Game{
 		// TODO implement this stuff in 3D
 		@Override
 		public Walk getWalk(){
-			return null;
+			return this.walk;
 		}
 		
 		@Override
@@ -437,11 +446,6 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public void stopWalking(){
-		
-		}
-		
-		@Override
-		public void updateWalkForce(double dt){
 		
 		}
 		
@@ -528,6 +532,76 @@ public class GameDemo3D extends Game{
 		@Override
 		public boolean isWalking(){
 			return false;
+		}
+		
+		@Override
+		public ZVector zeroVector(){
+			return null;
+		}
+		
+		@Override
+		public void moveEntity(ZVector moveVec, double dt){
+		
+		}
+		
+		@Override
+		public double getSurfaceArea(){
+			return 0;
+		}
+		
+		@Override
+		public double getFrictionConstant(){
+			return 0;
+		}
+		
+		@Override
+		public ZVector setHorizontalForce(String name, double f){
+			return null;
+		}
+		
+		@Override
+		public ZVector setVerticalForce(String name, double f){
+			return null;
+		}
+		
+		@Override
+		public double getHorizontalVel(){
+			return 0;
+		}
+		
+		@Override
+		public void setHorizontalVel(double v){
+		
+		}
+		
+		@Override
+		public double getVerticalVel(){
+			return 0;
+		}
+		
+		@Override
+		public void setVerticalVel(double v){
+		
+		}
+		
+		@Override
+		public HitBox getHitbox(){
+			return null;
+		}
+		
+		@Override
+		public HitboxType getType(){
+			return null;
+		}
+		
+		@Override
+		public boolean intersects(HitBox h){
+			return false;
+		}
+		
+		@Override
+		public void collide(CollisionResponse r){
+		
 		}
 	}
 	

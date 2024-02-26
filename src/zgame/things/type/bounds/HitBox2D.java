@@ -1,15 +1,13 @@
-package zgame.things.type;
+package zgame.things.type.bounds;
 
-import zgame.core.utils.Uuidable;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.things.entity.projectile.Projectile;
 
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
-public interface HitBox extends Bounds, Materialable, Uuidable{
+public interface HitBox2D extends HitBox, Bounds2D {
 	
-	/** @return The type of this hitbox, for determining how it will collide with other hitboxes */
-	HitboxType getType();
+	// TODO abstract this to 2D and 3D
 	
 	/** @param x The new x coordinate for this object */
 	void setX(double x);
@@ -26,13 +24,6 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 	default double maxY(){
 		return this.getY() + this.getHeight();
 	}
-	
-	/**
-	 * Apply the given {@link CollisionResponse} to this object
-	 *
-	 * @param r The {@link CollisionResponse} to use
-	 */
-	void collide(CollisionResponse r);
 	
 	/**
 	 * Determine a {@link CollisionResponse} from colliding this object with the given rectangular bounds. Essentially, move this object so that it no longer intersecting with
@@ -61,12 +52,12 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 	CollisionResponse calculateCircleCollision(double x, double y, double r, Material m);
 	
 	/**
-	 * Calculate a {@link CollisionResponse} from colliding with the given {@link HitBox}
+	 * Calculate a {@link CollisionResponse} from colliding with the given {@link HitBox2D}
 	 *
 	 * @param h The hitbox to collide with
 	 * @return The response
 	 */
-	default CollisionResponse calculateCollision(HitBox h){
+	default CollisionResponse calculateCollision(HitBox2D h){
 		switch(this.getType()){
 			case CIRCLE -> {
 				return this.calculateCircleCollision(h.getX(), h.getY(), h.getWidth() * 0.5, h.getMaterial());
@@ -96,10 +87,13 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 	boolean intersectsCircle(double x, double y, double r);
 	
 	/**
-	 * @param h The hitbox to check
+	 * @param hitbox The hitbox to check, must be 2D
 	 * @return true if this hitbox intersects the given hitbox, false otherwise
 	 */
-	default boolean intersects(HitBox h){
+	@Override
+	default boolean intersects(HitBox hitbox){
+		// TODO is type casting the best thing here? Probably want to use type parameters
+		var h = (HitBox2D)hitbox;
 		switch(h.getType()){
 			case CIRCLE -> {
 				return this.intersectsCircle(h.centerX(), h.centerY(), h.getWidth() * 0.5);
@@ -112,9 +106,9 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 	}
 	
 	/**
-	 * Called when this {@link HitBox} is hit by a projectile. Does nothing by default, implement to provide custom behavior
+	 * Called when this {@link HitBox2D} is hit by a projectile. Does nothing by default, implement to provide custom behavior
 	 *
-	 * @param p The projectile which hit this {@link HitBox}
+	 * @param p The projectile which hit this {@link HitBox2D}
 	 */
 	default void hitBy(Projectile p){}
 	
@@ -179,7 +173,7 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 	/**
 	 * A method that defines what this object does when it touches a floor
 	 *
-	 * @param touched The Material which this {@link HitBox} touched
+	 * @param touched The Material which this {@link HitBox2D} touched
 	 */
 	void touchFloor(Material touched);
 	
@@ -189,7 +183,7 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 	/**
 	 * A method that defines what this object does when it touches a ceiling
 	 *
-	 * @param touched The Material which this {@link HitBox} touched
+	 * @param touched The Material which this {@link HitBox2D} touched
 	 */
 	void touchCeiling(Material touched);
 	
@@ -199,20 +193,20 @@ public interface HitBox extends Bounds, Materialable, Uuidable{
 	/**
 	 * A method that defines what this object does when it touches a wall
 	 *
-	 * @param touched The Material which this {@link HitBox} touched
+	 * @param touched The Material which this {@link HitBox2D} touched
 	 */
 	void touchWall(Material touched);
 	
 	/** A method that defines what this object does when it leaves a wall, i.e. it goes from touching a wall to not touching a wall */
 	void leaveWall();
 	
-	/** @return true if this {@link HitBox} is on the ground, false otherwise i.e. it's in the air */
+	/** @return true if this {@link HitBox2D} is on the ground, false otherwise i.e. it's in the air */
 	boolean isOnGround();
 	
-	/** @return true if this {@link HitBox} is touching a ceiling, false otherwise */
+	/** @return true if this {@link HitBox2D} is touching a ceiling, false otherwise */
 	boolean isOnCeiling();
 	
-	/** @return true if this {@link HitBox} is touching a wall, false otherwise */
+	/** @return true if this {@link HitBox2D} is touching a wall, false otherwise */
 	boolean isOnWall();
 	
 	/** @return The previous value of {@link #getX()} before the last time it was moved with velocity */

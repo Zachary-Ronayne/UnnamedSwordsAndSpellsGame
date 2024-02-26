@@ -1,17 +1,18 @@
 package zgame.things.still;
 
-import java.util.Collection;
 import java.util.UUID;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
-import zgame.things.entity.EntityThing;
+import zgame.things.entity.EntityThing2D;
 import zgame.things.type.GameThing;
-import zgame.things.type.PositionedHitboxThing;
+import zgame.things.type.PositionedHitboxThing2D;
 import zgame.things.type.PositionedRectangleThing;
 import zgame.world.Room;
+import zgame.world.Room2D;
 
+// TODO abstract this to 2D and 3D?
 /** An object that allows other {@link GameThing}s to enter another {@link Room} */
 public class Door extends PositionedRectangleThing implements GameTickable{
 	
@@ -24,7 +25,7 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	private final String uuid;
 	
 	/** The {@link Room} which this door leads to. Can be null to make this a real fake door */
-	private Room leadRoom;
+	private Room2D leadRoom;
 	/** The x coordinate to place objects which go through this door */
 	private double roomX;
 	/** The y coordinate to place objects which go through this door */
@@ -68,14 +69,14 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	 * @param x See {@link #roomX}
 	 * @param y See {@link #roomY}
 	 */
-	public void setLeadRoom(Room r, double x, double y){
+	public void setLeadRoom(Room2D r, double x, double y){
 		this.leadRoom = r;
 		this.roomX = x;
 		this.roomY = y;
 	}
 	
 	/** @return See {@link #leadRoom} */
-	public Room getLeadRoom(){
+	public Room2D getLeadRoom(){
 		return this.leadRoom;
 	}
 	
@@ -110,14 +111,14 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	}
 	
 	/**
-	 * Move the given {@link PositionedHitboxThing} from the given room to {@link #leadRoom}, only if it's able to enter this door
+	 * Move the given {@link PositionedHitboxThing2D} from the given room to {@link #leadRoom}, only if it's able to enter this door
 	 *
 	 * @param r The room which thing is coming from, can be null if there is no room the thing is coming from
 	 * @param thing The thing to move
 	 * @param game The {@link Game} where this room entering takes place
 	 * @return true if thing entered this room, false otherwise
 	 */
-	public boolean enterRoom(Room r, PositionedHitboxThing thing, Game game){
+	public boolean enterRoom(Room r, PositionedHitboxThing2D thing, Game game){
 		if(this.leadRoom != null && !this.leadRoom.canEnter(thing)) return false;
 		
 		if(!this.canEnter(thing)) return false;
@@ -141,7 +142,7 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	 * @param thing The thing
 	 * @return true if thing can enter the door, false otherwise
 	 */
-	public boolean canEnter(PositionedHitboxThing thing){
+	public boolean canEnter(PositionedHitboxThing2D thing){
 		return true;
 	}
 	
@@ -150,8 +151,12 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 		if(!this.isAutoEnter()) return;
 		
 		// Check every entity and if it touches this door, move it to this Room
-		Collection<EntityThing> entities = game.getCurrentRoom().getEntities();
-		for(EntityThing e : entities){
+		
+		// TODO should this be type casting
+		var entities = (game.getCurrentRoom()).getEntities();
+		for(var entity : entities){
+			// TODO should this be type casting?
+			var e = (EntityThing2D) entity;
 			if(e.intersectsRect(this.getX(), this.getY(), this.getWidth(), this.getHeight())){
 				this.enterRoom(game.getCurrentRoom(), e, game);
 			}

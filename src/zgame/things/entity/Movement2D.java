@@ -1,6 +1,6 @@
 package zgame.things.entity;
 
-/** A class that handles an {@link EntityThing} moving by walking and jumping */
+/** A class that handles an {@link Entity} moving by walking and jumping */
 public interface Movement2D extends Movement{
 	
 	@Override
@@ -33,11 +33,9 @@ public interface Movement2D extends Movement{
 	
 	@Override
 	default void applyWalkForce(double dt, double newWalkForce){
-		if(this.getWalk().getWalkingDirection() == 0){
-			this.getWalk().setWalkingForce(0);
-			return;
-		}
-		this.getWalk().setWalkingForce(this.getWalk().getWalkingDirection() == 1 ? newWalkForce : -newWalkForce);
+		var dir = this.getWalk().getWalkingDirection();
+		if(dir == 0) this.getWalk().setWalkingForce(0);
+		else this.getWalk().setWalkingForce(dir == 1 ? newWalkForce : -newWalkForce);
 	}
 	
 	/**

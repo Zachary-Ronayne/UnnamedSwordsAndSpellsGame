@@ -1,13 +1,13 @@
-package zgame.things.type;
+package zgame.things.type.bounds;
 
 import zgame.core.utils.ZMath;
-import zgame.core.utils.ZPoint;
+import zgame.core.utils.ZPoint2D;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
 
 /** An object representing a circle  */
-public interface CircleHitBox extends HitBox{
+public interface CircleHitBox extends HitBox2D{
 	
 	@Override
 	default HitboxType getType(){
@@ -53,7 +53,7 @@ public interface CircleHitBox extends HitBox{
 	
 	@Override
 	default boolean intersectsCircle(double x, double y, double r){
-		var dist = new ZPoint(x, y).distance(this.getX(), this.getY());
+		var dist = new ZPoint2D(x, y).distance(this.getX(), this.getY());
 		return dist <= r + this.getRadius();
 	}
 }

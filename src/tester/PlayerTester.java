@@ -2,15 +2,12 @@ package tester;
 
 import zgame.core.Game;
 import zgame.physics.material.Material;
-import zgame.things.entity.EntityThing;
-import zgame.things.entity.Movement2D;
-import zgame.things.entity.Walk;
-import zgame.things.entity.Walk2D;
+import zgame.things.entity.*;
 import zgame.world.Room;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public abstract class PlayerTester extends EntityThing implements Movement2D {
+public abstract class PlayerTester extends EntityThing2D implements Movement2D {
 	
 	/** The width of this mob */
 	private double width;
@@ -94,7 +91,7 @@ public abstract class PlayerTester extends EntityThing implements Movement2D {
 		this.normalJumpTime = .1;
 		this.wallJumpTime = .25;
 		this.walking = false;
-		this.walk = new Walk2D(this);
+		this.walk = new Walk2D(this.getEntity());
 		
 		this.lockCamera = false;
 		this.width = width;
@@ -103,7 +100,6 @@ public abstract class PlayerTester extends EntityThing implements Movement2D {
 	
 	@Override
 	public void tick(Game game, double dt){
-		this.updateMovementPosVel(game, dt);
 		this.movementTick(game, dt);
 		
 		var ki = game.getKeyInput();
@@ -210,6 +206,7 @@ public abstract class PlayerTester extends EntityThing implements Movement2D {
 		return this.getWalkFrictionConstant();
 	}
 	
+	// TODO make it that this doesn't need to be implemented in this explicit way
 	@Override
 	public void leaveFloor(){
 		super.leaveFloor();

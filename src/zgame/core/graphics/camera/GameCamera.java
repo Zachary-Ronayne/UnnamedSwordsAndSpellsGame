@@ -1,7 +1,7 @@
 package zgame.core.graphics.camera;
 
 import zgame.core.graphics.Renderer;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 import zgame.core.window.GameWindow;
 
 /**
@@ -166,7 +166,7 @@ public class GameCamera{
 	 * @param r The bounds
 	 * @return The converted bounds
 	 */
-	public ZRect boundsGameToScreen(ZRect r){
+	public ZRect2D boundsGameToScreen(ZRect2D r){
 		return this.boundsGameToScreen(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
 	
@@ -179,8 +179,8 @@ public class GameCamera{
 	 * @param h The height of the rectangle
 	 * @return The converted bounds
 	 */
-	public ZRect boundsGameToScreen(double x, double y, double w, double h){
-		return new ZRect(this.gameToScreenX(x), this.gameToScreenY(y), this.sizeGameToScreenX(w), this.sizeGameToScreenY(h));
+	public ZRect2D boundsGameToScreen(double x, double y, double w, double h){
+		return new ZRect2D(this.gameToScreenX(x), this.gameToScreenY(y), this.sizeGameToScreenX(w), this.sizeGameToScreenY(h));
 	}
 	
 	/**
@@ -249,7 +249,7 @@ public class GameCamera{
 	 * @param r The bounds
 	 * @return The converted bounds
 	 */
-	public ZRect boundsScreenToGame(ZRect r){
+	public ZRect2D boundsScreenToGame(ZRect2D r){
 		return this.boundsScreenToGame(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
 	
@@ -262,8 +262,8 @@ public class GameCamera{
 	 * @param h The height of the rectangle
 	 * @return The converted bounds
 	 */
-	public ZRect boundsScreenToGame(double x, double y, double w, double h){
-		return new ZRect(this.screenToGameX(x), this.screenToGameY(y), this.sizeScreenToGameX(w), this.sizeScreenToGameY(h));
+	public ZRect2D boundsScreenToGame(double x, double y, double w, double h){
+		return new ZRect2D(this.screenToGameX(x), this.screenToGameY(y), this.sizeScreenToGameX(w), this.sizeScreenToGameY(h));
 	}
 	
 	/** @return See {@link #x} */

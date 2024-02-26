@@ -6,7 +6,7 @@ import zgame.core.graphics.TextOption;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.utils.ZArrayUtils;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 import zgame.core.utils.ZStringUtils;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -65,7 +65,7 @@ public class MenuTextBox extends MenuButton{
 	private double cursorLocation;
 	
 	/** The bounds of each letter rendered, from the beginning of the text to that letter */
-	private ZRect[] letterBounds;
+	private ZRect2D[] letterBounds;
 	
 	/** The current mode of this text box */
 	private Mode mode;
@@ -289,7 +289,7 @@ public class MenuTextBox extends MenuButton{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect bounds){
+	public void render(Game game, Renderer r, ZRect2D bounds){
 		TextOption op;
 		if(this.getCurrentText().isEmpty()) op = new TextOption(this.getHint(), this.getHintColor());
 		else op = new TextOption(this.getDisplayText(), this.getTextColor());

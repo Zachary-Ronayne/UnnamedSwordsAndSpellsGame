@@ -1,6 +1,7 @@
 package zgame.things.entity;
 
 import zgame.physics.ZVector;
+import zgame.physics.ZVector2D;
 
 /** A type of {@link Walk} that exists in 2D space */
 public class Walk2D extends Walk{
@@ -14,13 +15,13 @@ public class Walk2D extends Walk{
 	/**
 	 * Create a new walk object for use in {@link Movement2D}
 	 *
-	 * @param thing See {@link #thing}
+	 * @param entity See {@link #entity}
 	 */
-	public Walk2D(EntityThing thing){
-		super(thing);
+	public Walk2D(Entity2D entity){
+		super(entity);
 		
 		this.setWalkingDirection(0);
-		this.walkingForce = thing.setForce(FORCE_NAME_WALKING, new ZVector());
+		this.walkingForce = entity.setForce(FORCE_NAME_WALKING, new ZVector2D());
 	}
 	
 	/** @return See {@link #walkingDirection} */
@@ -45,6 +46,6 @@ public class Walk2D extends Walk{
 	
 	@Override
 	public void updateWalkingForce(double force){
-		this.walkingForce = this.getThing().setForce(FORCE_NAME_WALKING, force, 0);
+		this.walkingForce = this.getEntity().setHorizontalForce(FORCE_NAME_WALKING, force);
 	}
 }

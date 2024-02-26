@@ -4,7 +4,7 @@ import java.nio.FloatBuffer;
 
 import org.lwjgl.stb.STBTTAlignedQuad;
 
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 
 /** An object which represents a font to be used for rendering, i.e. a {@link FontAsset} and information like font size */
 public class GameFont{
@@ -107,7 +107,7 @@ public class GameFont{
 	 * @param text The text to find the bounds of
 	 * @return A rectangle with the bounds in screen coordinates
 	 */
-	public ZRect stringBounds(String text){
+	public ZRect2D stringBounds(String text){
 		return this.stringBounds(0, 0, text);
 	}
 	
@@ -120,7 +120,7 @@ public class GameFont{
 	 * @param y The y coordinate where the string is drawn, in screen coordinates
 	 * @return A rectangle with the bounds in screen coordinates
 	 */
-	public ZRect stringBounds(double x, double y, String text){
+	public ZRect2D stringBounds(double x, double y, String text){
 		return this.stringBounds(x, y, text, true);
 	}
 	
@@ -135,7 +135,7 @@ public class GameFont{
 	 * @param padding true to add a pixel of padding around the bounds, false to not add it
 	 * @return A rectangle with the bounds in screen coordinates
 	 */
-	public ZRect stringBounds(double x, double y, String text, boolean padding){
+	public ZRect2D stringBounds(double x, double y, String text, boolean padding){
 		return this.stringBounds(x, y, text, padding ? 1 : 0);
 	}
 	
@@ -148,8 +148,8 @@ public class GameFont{
 	 * @param padding true to add an amount of distance around the bounds, 0 for no padding
 	 * @return A rectangle with the bounds in screen coordinates
 	 */
-	public ZRect stringBounds(double x, double y, String text, double padding){
-		if(text == null || text.isEmpty()) return new ZRect();
+	public ZRect2D stringBounds(double x, double y, String text, double padding){
+		if(text == null || text.isEmpty()) return new ZRect2D();
 		return this.stringBounds(x, y, text, padding, false)[text.length()];
 	}
 	
@@ -165,7 +165,7 @@ public class GameFont{
 	 * 		padded in the same way as individual characters
 	 * 		An array with one empty rectangle is returned if the string is empty or not given
 	 */
-	public ZRect[] characterBounds(double x, double y, String text, double padding){
+	public ZRect2D[] characterBounds(double x, double y, String text, double padding){
 		return this.stringBounds(x, y, text, padding, true);
 	}
 	
@@ -182,11 +182,11 @@ public class GameFont{
 	 * 		padded in the same way as individual characters
 	 * 		An empty array is returned if the string is empty or not given
 	 */
-	public ZRect[] stringBounds(double x, double y, String text, double padding, boolean calcIndividuals){
+	public ZRect2D[] stringBounds(double x, double y, String text, double padding, boolean calcIndividuals){
 		FontAsset a = this.getAsset();
 		
 		// If there is no string, then the array contains only one empty rectangle
-		if(a == null || text == null || text.isEmpty()) return new ZRect[]{new ZRect()};
+		if(a == null || text == null || text.isEmpty()) return new ZRect2D[]{new ZRect2D()};
 		
 		// Set up buffers
 		double pixelRatio = a.pixelRatio(this.getSize());
@@ -209,14 +209,14 @@ public class GameFont{
 		
 		// Go through each letter and find the total width
 		int i = 0;
-		ZRect[] rects = new ZRect[text.length() + 1];
+		ZRect2D[] rects = new ZRect2D[text.length() + 1];
 		do{
 			char c = text.charAt(i);
 			// If this character is a new line, move to the next line and don't find a new size
 			if(c == '\n'){
 				x = baseX;
 				w = 0;
-				rects[i] = new ZRect(x, y, 0, h);
+				rects[i] = new ZRect2D(x, y, 0, h);
 				y += lineSpace + size;
 				maxHeight += lineSpace + size;
 				i++;
@@ -224,14 +224,14 @@ public class GameFont{
 			}
 			double wbVal = this.charWidth(c);
 			
-			if(calcIndividuals) rects[i] = new ZRect(x + w, y, wbVal, h, padding);
+			if(calcIndividuals) rects[i] = new ZRect2D(x + w, y, wbVal, h, padding);
 			w += wbVal;
 			maxWidth = Math.max(maxWidth, w);
 			w += charSpace;
 			
 			i++;
 		}while(i < text.length());
-		rects[text.length()] = new ZRect(baseX, baseY, maxWidth, maxHeight, padding);
+		rects[text.length()] = new ZRect2D(baseX, baseY, maxWidth, maxHeight, padding);
 		return rects;
 	}
 	

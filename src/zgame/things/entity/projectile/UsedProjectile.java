@@ -1,7 +1,7 @@
 package zgame.things.entity.projectile;
 
 import zgame.physics.ZVector;
-import zgame.things.type.HitBox;
+import zgame.things.type.bounds.HitBox;
 
 /** A {@link Projectile} that is used by a particular object, where this projectile can hit anything except for the given {@link HitBox}'s uuid */
 public abstract class UsedProjectile extends Projectile{

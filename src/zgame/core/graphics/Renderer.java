@@ -19,7 +19,7 @@ import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.shader.ShaderProgram;
 import zgame.core.utils.LimitedStack;
 import zgame.core.utils.ZMath;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
 
@@ -53,7 +53,7 @@ public class Renderer implements Destroyable{
 	/** Default value for {@link #renderOnlyInsideStack} */
 	public static final Boolean DEFAULT_RENDER_ONLY_INSIDE = true;
 	/** Default value for {@link #limitedBoundsStack}. null means no limit */
-	public static final ZRect DEFAULT_LIMITED_BOUNDS = null;
+	public static final ZRect2D DEFAULT_LIMITED_BOUNDS = null;
 	
 	/** true if the bounds should never be limited, false otherwise. Should always be false, unless debugging graphics */
 	public static final boolean DISABLE_LIMITING_BOUNDS = false;
@@ -140,7 +140,7 @@ public class Renderer implements Destroyable{
 	/** The buffer used to track {@link #modelView} */
 	private final FloatBuffer modelViewBuff;
 	/** The current bounds of the renderer, transformed based on {@link #modelView()}, or null if it needs to be recalculated */
-	private ZRect transformedRenderBounds;
+	private ZRect2D transformedRenderBounds;
 	/** true if {@link #modelView()} has changed since last being sent to the current shader, and must be resent before any rendering operations take place, false otherwise */
 	private boolean sendModelView;
 	/** true if {@link #getColor()} has changed since last being sent to the current shader */
@@ -185,7 +185,7 @@ public class Renderer implements Destroyable{
 	private final LimitedStack<Boolean> renderOnlyInsideStack;
 	
 	/** The stack keeping track of the current bounds which rendering is limited to, in game coordinates, or null if no bounds is limited */
-	private final LimitedStack<ZRect> limitedBoundsStack;
+	private final LimitedStack<ZRect2D> limitedBoundsStack;
 	
 	/** true if the OpenGL depth test is enabled, false otherwise */
 	private boolean depthTestEnabled;
@@ -515,7 +515,7 @@ public class Renderer implements Destroyable{
 		return this.modelViewStack.peek();
 	}
 	
-	public ZRect getTransformedRenderBounds(){
+	public ZRect2D getTransformedRenderBounds(){
 		if(this.transformedRenderBounds == null) this.recalculateRenderBounds();
 		return this.transformedRenderBounds;
 	}
@@ -551,7 +551,7 @@ public class Renderer implements Destroyable{
 		
 		// This assumes only scaling and translation transformations have occurred
 		
-		ZRect renderBounds = this.getBounds();
+		ZRect2D renderBounds = this.getBounds();
 		
 		// issue#6 Transform the render bounds by the current model view matrix so that it aligns with the given draw bounds, figure out where this math is going wrong
 		
@@ -567,7 +567,7 @@ public class Renderer implements Destroyable{
 		lower.mul(transform);
 		
 		// Set the current transformed bounds based on the calculated corners
-		this.transformedRenderBounds = new ZRect(upper.x, upper.y, lower.x - upper.x, lower.y - upper.y);
+		this.transformedRenderBounds = new ZRect2D(upper.x, upper.y, lower.x - upper.x, lower.y - upper.y);
 	}
 	
 	// issue#6 remove, this is a testing method. If working correctly, it should always draw a transparent rectangle on top of the entire canvas, regardless of any kind of
@@ -827,7 +827,7 @@ public class Renderer implements Destroyable{
 	}
 	
 	/** @return The top of {@link #limitedBoundsStack} */
-	public ZRect getLimitedBounds(){
+	public ZRect2D getLimitedBounds(){
 		return this.limitedBoundsStack.peek();
 	}
 	
@@ -842,7 +842,7 @@ public class Renderer implements Destroyable{
 	 * @param h The height of the bounds
 	 */
 	public void limitBounds(double x, double y, double w, double h){
-		this.limitBounds(new ZRect(x, y, w, h));
+		this.limitBounds(new ZRect2D(x, y, w, h));
 	}
 	
 	/**
@@ -853,8 +853,8 @@ public class Renderer implements Destroyable{
 	 * @param bounds The bounds to limit to, in game coordinates
 	 * @return true if the bounds were changed, false otherwise
 	 */
-	public boolean limitBounds(ZRect bounds){
-		ZRect limited = this.getLimitedBounds();
+	public boolean limitBounds(ZRect2D bounds){
+		ZRect2D limited = this.getLimitedBounds();
 		this.limitedBoundsStack.replaceTop(bounds);
 		
 		// If the new and old bounds are the same, don't change anything
@@ -864,7 +864,7 @@ public class Renderer implements Destroyable{
 		return true;
 	}
 	
-	/** Allow this {@link Renderer} to render anywhere on the screen, i.e. disable {@link #limitBounds(ZRect)}. */
+	/** Allow this {@link Renderer} to render anywhere on the screen, i.e. disable {@link #limitBounds(ZRect2D)}. */
 	public void unlimitBounds(){
 		this.limitBounds(null);
 	}
@@ -874,36 +874,36 @@ public class Renderer implements Destroyable{
 	 *
 	 * @param bounds The bounds to limit to, in game coordinates
 	 */
-	public void pushLimitedBounds(ZRect bounds){
+	public void pushLimitedBounds(ZRect2D bounds){
 		this.limitedBoundsStack.push();
 		this.limitBounds(bounds);
 	}
 	
 	/**
 	 * Push the current value of {@link #getLimitedBounds()} onto the stack, and limit the bounds to the union of the given bounds and the current limited bounds.
-	 * If the bounds are not currently limited, this call is equivalent to {@link #pushLimitedBounds(ZRect)}
+	 * If the bounds are not currently limited, this call is equivalent to {@link #pushLimitedBounds(ZRect2D)}
 	 *
 	 * @param bounds The bounds to limit to, in game coordinates
 	 */
-	public void pushLimitedBoundsUnion(ZRect bounds){
+	public void pushLimitedBoundsUnion(ZRect2D bounds){
 		var newBounds = this.getLimitedBounds();
 		if(newBounds == null) newBounds = bounds;
-		else newBounds = new ZRect(newBounds.createUnion(bounds));
+		else newBounds = new ZRect2D(newBounds.createUnion(bounds));
 		
 		this.pushLimitedBounds(newBounds);
 	}
 	
 	/**
 	 * Push the current value of {@link #getLimitedBounds()} onto the stack, and limit the bounds to the intersection of the given bounds and the current limited bounds.
-	 * If the bounds are not currently limited, this call is equivalent to {@link #pushLimitedBounds(ZRect)}
+	 * If the bounds are not currently limited, this call is equivalent to {@link #pushLimitedBounds(ZRect2D)}
 	 *
 	 * @param bounds The bounds to limit to, in game coordinates
 	 */
-	public void pushLimitedBoundsIntersection(ZRect bounds){
+	public void pushLimitedBoundsIntersection(ZRect2D bounds){
 		var newBounds = this.getLimitedBounds();
 		if(newBounds == null) newBounds = bounds;
-		else newBounds = new ZRect(newBounds.createIntersection(bounds));
-		if(newBounds.getWidth() <= 0 || newBounds.getHeight() <= 0) newBounds = new ZRect();
+		else newBounds = new ZRect2D(newBounds.createIntersection(bounds));
+		if(newBounds.getWidth() <= 0 || newBounds.getHeight() <= 0) newBounds = new ZRect2D();
 		
 		this.pushLimitedBounds(newBounds);
 	}
@@ -928,7 +928,7 @@ public class Renderer implements Destroyable{
 			return;
 		}
 		
-		ZRect b = this.getLimitedBounds();
+		ZRect2D b = this.getLimitedBounds();
 		if(b == null){
 			glDisable(GL_SCISSOR_TEST);
 			return;
@@ -969,7 +969,7 @@ public class Renderer implements Destroyable{
 	 *
 	 * @param r The bounds
 	 */
-	public void positionObject(ZRect r){
+	public void positionObject(ZRect2D r){
 		this.positionObject(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
 	
@@ -1056,7 +1056,7 @@ public class Renderer implements Destroyable{
 	 * @param r The bounds
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawRectangle(ZRect r){
+	public boolean drawRectangle(ZRect2D r){
 		return this.drawRectangle(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
 	
@@ -1097,7 +1097,7 @@ public class Renderer implements Destroyable{
 	 * @param r The bounds
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawEllipse(ZRect r){
+	public boolean drawEllipse(ZRect2D r){
 		return this.drawEllipse(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
 	
@@ -1162,7 +1162,7 @@ public class Renderer implements Destroyable{
 	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawBuffer(ZRect r, GameBuffer b, AlphaMode mode){
+	public boolean drawBuffer(ZRect2D r, GameBuffer b, AlphaMode mode){
 		return this.drawBuffer(r.getX(), r.getY(), r.getWidth(), r.getHeight(), b, mode);
 	}
 	
@@ -1196,7 +1196,7 @@ public class Renderer implements Destroyable{
 	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawImage(ZRect r, GameImage img, AlphaMode mode){
+	public boolean drawImage(ZRect2D r, GameImage img, AlphaMode mode){
 		return this.drawImage(r.getX(), r.getY(), r.getWidth(), r.getHeight(), img, mode);
 	}
 	
@@ -1507,7 +1507,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the bounds should be drawn, false otherwise
 	 */
 	public boolean shouldDraw(double x, double y, double w, double h){
-		return shouldDraw(new ZRect(x, y, w, h));
+		return shouldDraw(new ZRect2D(x, y, w, h));
 	}
 	
 	/**
@@ -1518,7 +1518,7 @@ public class Renderer implements Destroyable{
 	 * @param drawBounds The bounds
 	 * @return true if the bounds should be drawn, false otherwise
 	 */
-	public boolean shouldDraw(ZRect drawBounds){
+	public boolean shouldDraw(ZRect2D drawBounds){
 		// If rendering only inside is not enabled, immediately return true
 		
 		// issue#6 put this method back. Render checking is currently broken. This method is here to improve performance, i.e., only render things that will appear on the screen
@@ -1947,7 +1947,7 @@ public class Renderer implements Destroyable{
 	}
 	
 	/** @return A rectangle of the bounds of this {@link Renderer}, i.e. the position will be (0, 0), width will be {@link #getWidth()} and height will be {@link #getHeight()} */
-	public ZRect getBounds(){
+	public ZRect2D getBounds(){
 		return this.getBuffer().getBounds();
 	}
 	
@@ -2023,10 +2023,10 @@ public class Renderer implements Destroyable{
 	 * @param bounds The bounds to check, in game coordinates
 	 * @return true if they intersect, i.e. return true if any part of the given bounds is in this {@link Renderer}'s bounds, false otherwise
 	 */
-	public boolean gameBoundsInScreen(ZRect bounds){
-		ZRect rBounds = this.getBounds();
+	public boolean gameBoundsInScreen(ZRect2D bounds){
+		ZRect2D rBounds = this.getBounds();
 		GameCamera c = this.getCamera();
-		ZRect gBounds;
+		ZRect2D gBounds;
 		if(c == null) gBounds = rBounds;
 		else gBounds = c.boundsScreenToGame(rBounds.getX(), rBounds.getBounds().getY(), rBounds.getBounds().getWidth(), rBounds.getBounds().getHeight());
 		return gBounds.intersects(bounds);

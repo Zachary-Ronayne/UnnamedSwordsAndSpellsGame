@@ -2,12 +2,13 @@ package zgame.things.type;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.things.type.bounds.HitBox2D;
 
-/** A thing which has a position and a hitbox */
-public abstract class PositionedHitboxThing extends PositionedThing implements HitBox{
+/** A thing which has a position and a hitbox in 2D */
+public abstract class PositionedHitboxThing2D extends PositionedThing2D implements HitBox2D{
 	
 	/** Create a new PositionedHitboxThing at the coordinate (0, 0) */
-	public PositionedHitboxThing(){
+	public PositionedHitboxThing2D(){
 		super(0, 0);
 	}
 	
@@ -17,7 +18,7 @@ public abstract class PositionedHitboxThing extends PositionedThing implements H
 	 * @param x The x coordinate, see {@link #getX()}
 	 * @param y The y coordinate, see {@link #getY()}
 	 */
-	public PositionedHitboxThing(double x, double y){
+	public PositionedHitboxThing2D(double x, double y){
 		super(x, y);
 	}
 	
@@ -27,7 +28,7 @@ public abstract class PositionedHitboxThing extends PositionedThing implements H
 	}
 	
 	@Override
-	public final HitBox asHitBox(){
+	public final HitBox2D asHitBox(){
 		return this;
 	}
 	

@@ -3,7 +3,7 @@ package zusass.menu.pause;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
 import zgame.menu.MenuThing;
 import zusass.ZusassData;
@@ -92,7 +92,7 @@ public class PauseMenu extends Menu{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect bounds){
+	public void render(Game game, Renderer r, ZRect2D bounds){
 		// Fade the background
 		r.setColor(.1, .1, .1, .5);
 		r.fill();

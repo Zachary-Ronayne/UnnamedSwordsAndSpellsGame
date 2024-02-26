@@ -18,7 +18,7 @@ import zgame.core.sound.SoundSource;
 import zgame.core.state.GameState;
 import zgame.core.state.MenuState;
 import zgame.core.state.PlayState;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
 import zgame.menu.*;
@@ -27,7 +27,6 @@ import zgame.menu.scroller.MenuScroller;
 import zgame.menu.scroller.VerticalScroller;
 import zgame.things.still.Door;
 import zgame.things.still.tiles.BaseTiles;
-import zgame.world.Room;
 import zgame.world.Room2D;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -228,7 +227,8 @@ public class MainTest extends Game{
 			if(CIRCLE_PLAYER) this.player = new PlayerTesterCircle(130, 430, 60);
 			else this.player = new PlayerTesterRect(100, 400, 60, 100);
 			
-			this.player.setMass(100);
+			// TODO make it easier to work with the entity object
+			this.player.getEntity().setMass(100);
 			this.player.setLockCamera(true);
 			this.player.setCanWallJump(true);
 			firstRoom.addThing(this.player);
@@ -328,7 +328,7 @@ public class MainTest extends Game{
 		
 		private final TextBuffer textBuffer;
 		
-		private static final ZRect bufferBounds = new ZRect(0, 500, 500, 150);
+		private static final ZRect2D bufferBounds = new ZRect2D(0, 500, 500, 150);
 		
 		private static final String SAVES_PATH = "./saves";
 		private static final String FILE_PATH = SAVES_PATH + "/testGame.json";
@@ -485,7 +485,7 @@ public class MainTest extends Game{
 			r.setColor(new ZColor(0));
 			r.setFont(game.getFont("zfont"));
 			r.setFontSize(40);
-			r.limitBounds(new ZRect(0, -100, 250, 100));
+			r.limitBounds(new ZRect2D(0, -100, 250, 100));
 			r.drawText(0, -10, "a long string that should get cut off");
 			r.unlimitBounds();
 			
@@ -505,9 +505,9 @@ public class MainTest extends Game{
 			r.setColor(new ZColor(1, 0, 1));
 			r.drawText(600, -400, s);
 			
-			ZRect[] bs = r.getFont().stringBounds(600, -400, s, 0, true);
+			ZRect2D[] bs = r.getFont().stringBounds(600, -400, s, 0, true);
 			r.setColor(.25, .25, .25, .2);
-			r.drawRectangle(new ZRect(bs[s.length()], 10));
+			r.drawRectangle(new ZRect2D(bs[s.length()], 10));
 			r.setColor(.25, .25, .25, .4);
 			r.drawRectangle(bs[s.length()]);
 			r.setColor(.7, .7, .7, .1);
@@ -529,7 +529,7 @@ public class MainTest extends Game{
 			r.setColor(new ZColor(1, 0, 1));
 			r.drawText(1100, 0, s);
 			r.setColor(.25, .25, .25, .2);
-			r.drawRectangle(new ZRect(bs[s.length()], 10));
+			r.drawRectangle(new ZRect2D(bs[s.length()], 10));
 			r.setColor(.25, .25, .25, .4);
 			r.drawRectangle(bs[s.length()]);
 			r.setColor(.7, .7, .7, .1);
@@ -875,7 +875,7 @@ public class MainTest extends Game{
 		public void createPopup(Game game){
 			Menu menu = new Menu(){
 				@Override
-				public void render(Game game, Renderer r, ZRect bounds){
+				public void render(Game game, Renderer r, ZRect2D bounds){
 					super.render(game, r, bounds);
 					r.setColor(.2, .2, .4, .3);
 					r.fill();

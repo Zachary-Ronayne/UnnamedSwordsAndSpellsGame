@@ -8,22 +8,16 @@ import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ClassMappedList;
 import zgame.core.utils.NotNullList;
-import zgame.core.utils.ZMath;
 import zgame.physics.collision.CollisionResponse;
-import zgame.physics.material.Material;
-import zgame.physics.material.Materials;
-import zgame.things.entity.EntityThing;
+import zgame.things.entity.Entity;
+import zgame.things.entity.EntityThing2D;
 import zgame.things.still.Door;
-import zgame.things.still.tiles.BaseTiles;
-import zgame.things.still.tiles.Tile;
-import zgame.things.still.tiles.TileType;
-import zgame.things.type.Bounds;
 import zgame.things.type.GameThing;
-import zgame.things.type.HitBox;
+import zgame.things.type.bounds.HitBox;
 import zgame.things.type.PositionedThing;
 
 /** An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc. */
-public abstract class Room extends GameThing implements Bounds{
+public abstract class Room extends GameThing{
 	
 	// TODO abstract this to 2D and 3D
 	
@@ -43,9 +37,9 @@ public abstract class Room extends GameThing implements Bounds{
 		this.thingsMap = new ClassMappedList();
 		// TODO which of these should be here by default?
 		this.thingsMap.addClass(GameThing.class);
-		this.thingsMap.addClass(EntityThing.class);
 		this.thingsMap.addClass(HitBox.class);
 		this.thingsMap.addClass(GameTickable.class);
+		this.thingsMap.addClass(EntityThing2D.class);
 		
 		this.thingsToRemove = new ArrayList<>();
 		this.nextTickFuncs = new ArrayList<>();
@@ -68,16 +62,16 @@ public abstract class Room extends GameThing implements Bounds{
 	}
 	
 	/** @return A list of all the entities in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
-	public NotNullList<EntityThing> getEntities(){
-		return this.thingsMap.get(EntityThing.class);
+	public NotNullList<EntityThing2D> getEntities(){
+		return this.thingsMap.get(EntityThing2D.class);
 	}
 	
 	/**
 	 * @param uuid The uuid of the entity to get
 	 * @return The entity, or null if no entity with that uuid exists in this room
 	 */
-	public EntityThing getEntity(String uuid){
-		return this.thingsMap.getMap(EntityThing.class).get(uuid);
+	public EntityThing2D getEntity(String uuid){
+		return this.thingsMap.getMap(EntityThing2D.class).get(uuid);
 	}
 	
 	/** @return All the tickable things in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
@@ -109,7 +103,7 @@ public abstract class Room extends GameThing implements Bounds{
 	}
 	
 	/**
-	 * Collide the given {@link EntityThing} with this room. Essentially, attempt to move the given object so that it no longer intersects with anything in this room.
+	 * Collide the given {@link Entity} with this room. Essentially, attempt to move the given object so that it no longer intersects with anything in this room.
 	 *
 	 * @param obj The object to collide
 	 * @return The CollisionResponse representing the final collision that took place, where the collision material is the floor collision, if one took place
@@ -118,6 +112,7 @@ public abstract class Room extends GameThing implements Bounds{
 	
 	/**
 	 * Make something happen to this {@link PositionedThing} the next time it is ticked
+	 *
 	 * @param r The function to run
 	 */
 	public void onNextTick(Runnable r){
@@ -138,9 +133,9 @@ public abstract class Room extends GameThing implements Bounds{
 			t.tick(game, dt);
 		}
 		
-		// Update the position of all entities
+		// Update the position of all relevant objects
 		var entities = this.getEntities();
-		for(int i = 0; i < entities.size(); i++) entities.get(i).updatePosition(game, dt);
+		for(int i = 0; i < entities.size(); i++) entities.get(i).getEntity().updatePosition(game, dt);
 		
 		// Check the collision of this room for entities
 		for(int i = 0; i < entities.size(); i++) this.collide(entities.get(i));
@@ -177,6 +172,7 @@ public abstract class Room extends GameThing implements Bounds{
 	
 	/**
 	 * Determine if the given {@link GameThing} is allowed to enter this {@link Room} using a {@link Door}
+	 *
 	 * @param thing The thing to check for
 	 * @return true if it can enter, false otherwise. Always true by default, override to provide custom behavior
 	 */
@@ -186,11 +182,12 @@ public abstract class Room extends GameThing implements Bounds{
 	
 	/**
 	 * Determine if the given {@link GameThing} is allowed to leave this {@link Room} using a {@link Door}
+	 *
 	 * @param thing The thing to check for
 	 * @return true if it can leave, false otherwise. Always true by default, override to provide custom behavior
 	 */
 	public boolean canLeave(GameThing thing){
 		return true;
 	}
-
+	
 }

@@ -1,10 +1,11 @@
-package zgame.things.type;
+package zgame.things.type.bounds;
 
-import zgame.core.utils.ZPoint;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZPoint2D;
+import zgame.core.utils.ZRect2D;
+import zgame.things.type.Position2D;
 
 /** An object which has a bounds that can be defined in a 2D space */
-public interface Bounds extends Position{
+public interface Bounds2D extends Position2D{
 	
 	/** @return The maximum x coordinate of this bounds */
 	double maxX();
@@ -32,14 +33,14 @@ public interface Bounds extends Position{
 		return this.getY() + getHeight() * 0.5;
 	}
 	
-	/** @return The center point of this {@link Bounds} */
-	default ZPoint center(){
-		return new ZPoint(this.centerX(), this.centerY());
+	/** @return The center point of this {@link Bounds2D} */
+	default ZPoint2D center(){
+		return new ZPoint2D(this.centerX(), this.centerY());
 	}
 	
-	/** @return A rectangle representing the full bounds which this {@link Bounds} takes up */
-	default ZRect getBounds(){
-		return new ZRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+	/** @return A rectangle representing the full bounds which this {@link Bounds2D} takes up */
+	default ZRect2D getBounds(){
+		return new ZRect2D(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
 }

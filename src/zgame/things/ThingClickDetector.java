@@ -1,19 +1,19 @@
 package zgame.things;
 
 import zgame.core.Game;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 
 /** A utility interface for handling clicking on a game thing when the Pla */
 public interface ThingClickDetector{
 	
 	/** @return The bounds of this object to check for when it is clicked. Should be in game coordinates */
-	ZRect getThingBounds();
+	ZRect2D getThingBounds();
 	
 	/**
 	 * @param game The game to get the player from
 	 * @return The bounds of the player to check if it is intersecting this object. Should be in game coordinates
 	 */
-	ZRect getPlayerBounds(Game game);
+	ZRect2D getPlayerBounds(Game game);
 	
 	/**
 	 * Utility method for checking if the player clicked an object in the game

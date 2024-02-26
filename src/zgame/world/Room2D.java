@@ -9,12 +9,14 @@ import zgame.physics.material.Materials;
 import zgame.things.still.tiles.BaseTiles;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType;
-import zgame.things.type.HitBox;
+import zgame.things.type.bounds.Bounds2D;
+import zgame.things.type.bounds.HitBox;
+import zgame.things.type.bounds.HitBox2D;
 
 import java.util.ArrayList;
 
 /** A {@link Room} which is made of 2D tiles */
-public class Room2D extends Room{
+public class Room2D extends Room implements Bounds2D{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -97,7 +99,10 @@ public class Room2D extends Room{
 	}
 	
 	@Override
-	public CollisionResponse collide(HitBox obj){
+	public CollisionResponse collide(HitBox h){
+		// TODO is casting the best way to do this?
+		var obj = (HitBox2D)h;
+		
 		// Find touching tiles and collide with them
 		int minX = this.tileX(obj.getX());
 		int minY = this.tileY(obj.getY());
@@ -162,7 +167,9 @@ public class Room2D extends Room{
 		if(!bot && wasOnGround) obj.leaveFloor();
 		// Same thing, but for the walls and for the ceiling
 		if(!top && wasOnCeiling) obj.leaveCeiling();
-		if(!left && !right && wasOnWall) obj.leaveWall();
+		if(!left && !right && wasOnWall) {
+			obj.leaveWall();
+		}
 		
 		return res;
 	}

@@ -6,13 +6,16 @@ import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.things.BaseTags;
-import zgame.things.entity.EntityThing;
-import zgame.things.type.HitBox;
+import zgame.things.entity.Entity;
+import zgame.things.entity.Entity2D;
+import zgame.things.entity.EntityThing2D;
+import zgame.things.type.bounds.HitBox;
 
 import java.util.function.Consumer;
 
-/** An {@link EntityThing} which represents a thing flying through the air */
-public abstract class Projectile extends EntityThing{
+// TODO abstract this to 2D and 3D
+/** An {@link Entity} which represents a thing flying through the air */
+public abstract class Projectile extends EntityThing2D{
 	
 	/**
 	 * A mapping of the functions to call when certain object types are hit. This essentially replaces manually defining abstract functions in this class, allowing a specific
@@ -49,6 +52,21 @@ public abstract class Projectile extends EntityThing{
 		this.onHit = false;
 	}
 	
+	@Override
+	public Entity2D createEntity(double mass){
+		return new Entity2D(this, mass){
+			// TODO implement this in a nicer way
+			@Override
+			public void checkEntityCollision(Game game, Entity entity, double dt){
+				super.checkEntityCollision(game, entity, dt);
+				// Ignore the current thing if the projectile will not hit it, or if the entity should not collide with projectiles
+				if(!willHit(entity) || hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
+				hit(game, entity);
+				if(isOnHit()) removeNext();
+			}
+		};
+	}
+	
 	/**
 	 * Add a new function for {@link #mappedFuncs}
 	 * @param clazz The class of the type of the object accepted by the function
@@ -77,6 +95,9 @@ public abstract class Projectile extends EntityThing{
 	}
 	
 	@Override
+	public void leaveFloor(){}
+	
+	@Override
 	public void touchCeiling(Material touched){
 		if(this.isOnHit()) this.removeNext();
 	}
@@ -87,18 +108,12 @@ public abstract class Projectile extends EntityThing{
 	}
 	
 	@Override
+	public void leaveWall(){}
+	
+	@Override
 	public void collide(CollisionResponse r){
 		// OnHit projectiles are removed on collision
 		if(this.isOnHit() && r.isCollided()) this.removeNext();
-	}
-	
-	@Override
-	public void checkEntityCollision(Game game, EntityThing entity, double dt){
-		super.checkEntityCollision(game, entity, dt);
-		// Ignore the current thing if the projectile will not hit it, or if the entity should not collide with projectiles
-		if(!this.willHit(entity) || entity.hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
-		this.hit(game, entity);
-		if(this.isOnHit()) this.removeNext();
 	}
 	
 	/**
@@ -157,6 +172,6 @@ public abstract class Projectile extends EntityThing{
 		if(r >= 0 && this.totalDistance >= r) this.removeNext();
 		
 		super.tick(game, dt);
-		this.totalDistance += this.getVelocity().getMagnitude() * dt;
+		this.totalDistance += this.getEntity().getVelocity().getMagnitude() * dt;
 	}
 }

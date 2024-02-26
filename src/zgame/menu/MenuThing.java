@@ -7,8 +7,8 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.buffer.DrawableGameBuffer;
 import zgame.core.utils.ClassMappedList;
-import zgame.core.utils.ZPoint;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZPoint2D;
+import zgame.core.utils.ZRect2D;
 import zgame.core.window.GameWindow;
 import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.PixelFormatter;
@@ -72,7 +72,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * The point, relative to this {@link MenuThing} where the mouse was last clicked for dragging, or null if dragging is disabled, or null if
 	 * an anchor point is not set
 	 */
-	private ZPoint anchorPoint;
+	private ZPoint2D anchorPoint;
 	
 	/** The mouse button for actions using {@link #draggableArea} and {@link #draggableSides} */
 	private int draggableButton;
@@ -587,23 +587,23 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/**
-	 * @return A {@link ZRect} containing the position and size of this {@link MenuThing}, using its absolute coordinates
+	 * @return A {@link ZRect2D} containing the position and size of this {@link MenuThing}, using its absolute coordinates
 	 * 		Modifications to the returned rectangle will not modify this object
 	 */
-	public ZRect getBounds(){
-		return new ZRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+	public ZRect2D getBounds(){
+		return new ZRect2D(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
 	/**
-	 * @return A {@link ZRect} containing the position and size of this {@link MenuThing}, using its relative coordinates
+	 * @return A {@link ZRect2D} containing the position and size of this {@link MenuThing}, using its relative coordinates
 	 * 		Modifications to the returned rectangle will not modify this object
 	 */
-	public ZRect getRelBounds(){
-		return new ZRect(this.getRelX(), this.getRelY(), this.getWidth(), this.getHeight());
+	public ZRect2D getRelBounds(){
+		return new ZRect2D(this.getRelX(), this.getRelY(), this.getWidth(), this.getHeight());
 	}
 	
-	/** @return A {@link ZRect} of the bounds of this thing, where the position is relative to first thing in the tree of menu things that uses a buffer */
-	public ZRect getBoundsToBuffer(){
+	/** @return A {@link ZRect2D} of the bounds of this thing, where the position is relative to first thing in the tree of menu things that uses a buffer */
+	public ZRect2D getBoundsToBuffer(){
 		MenuThing p = this;
 		double x = 0;
 		double y = 0;
@@ -612,7 +612,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 			y += p.getRelY();
 			p = p.getParent();
 		}
-		return new ZRect(x, y, this.getWidth(), this.getHeight());
+		return new ZRect2D(x, y, this.getWidth(), this.getHeight());
 	}
 	
 	/** @return See {@link #fill} */
@@ -1206,7 +1206,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 			// Check for the edges being dragged
 			// Left edge
 			var s = this.getDraggableSideRange();
-			var b = new ZRect(0, 0, this.getWidth(), this.getHeight());
+			var b = new ZRect2D(0, 0, this.getWidth(), this.getHeight());
 			if(b.width(s).contains(mx, my)){
 				this.draggingX = -1;
 				dragging = true;
@@ -1234,7 +1234,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		// If any dragging occurred, set the anchor
 		if(dragging){
 			this.onDragStart(game, this.draggingX, this.draggingY, this.isSideDragging());
-			this.anchorPoint = new ZPoint(ax, ay);
+			this.anchorPoint = new ZPoint2D(ax, ay);
 		}
 	}
 	
@@ -1390,24 +1390,24 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	public void mouseExit(Game game){}
 	
-	/** Do not call directly, use {@link #render(Game, Renderer, ZRect)} to draw menu things and override their rendering behavior */
+	/** Do not call directly, use {@link #render(Game, Renderer, ZRect2D)} to draw menu things and override their rendering behavior */
 	@Override
 	public final void renderBackground(Game game, Renderer r){
 	}
 	
-	/** Do not call directly, use {@link #render(Game, Renderer, ZRect)} to draw menu things and override their rendering behavior */
+	/** Do not call directly, use {@link #render(Game, Renderer, ZRect2D)} to draw menu things and override their rendering behavior */
 	@Override
 	public final void render(Game game, Renderer r){
 	}
 	
-	/** Do not call directly, use {@link #render(Game, Renderer, ZRect)} to draw menu things and override their rendering behavior */
+	/** Do not call directly, use {@link #render(Game, Renderer, ZRect2D)} to draw menu things and override their rendering behavior */
 	@Override
 	public final void renderHud(Game game, Renderer r){
 		// If using a buffer, draw the contents of the buffer to the relative position
 		if(this.usesBuffer()){
 			this.buffer.drawToRenderer(this.getRelX(), this.getRelY(), r, game);
 			
-			if(this.isLimitToBounds()) r.pushLimitedBounds(new ZRect(0, 0, this.getWidth(), this.getHeight()));
+			if(this.isLimitToBounds()) r.pushLimitedBounds(new ZRect2D(0, 0, this.getWidth(), this.getHeight()));
 			if(!this.isDrawThingsToBuffer()) this.drawThings(game, r, true);
 		}
 		// Otherwise, draw the object directly with the renderer
@@ -1430,7 +1430,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * @param r The renderer to use
 	 * @param bounds The bounds which this thing will be rendered relative to
 	 */
-	public void render(Game game, Renderer r, ZRect bounds){
+	public void render(Game game, Renderer r, ZRect2D bounds){
 		double b = this.getBorderWidth();
 		r.setColor(this.getBorder());
 		var x = bounds.getX();
@@ -1443,7 +1443,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		r.drawRectangle(x, y + b, b, h - b);
 		
 		r.setColor(this.getFill());
-		r.drawRectangle(new ZRect(bounds, -b));
+		r.drawRectangle(new ZRect2D(bounds, -b));
 		
 		if(this.isDisplayDraggableColor() && this.isDraggable()){
 			// #issue28 If this uses a buffer, the fill is solid, but this value is transparent and should be on top of the solid color, then this part is still transparent. Why?
@@ -1459,13 +1459,13 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/**
-	 * The same thing as {@link #render(Game, Renderer, ZRect)}, but this happens after the main render and things are rendered
+	 * The same thing as {@link #render(Game, Renderer, ZRect2D)}, but this happens after the main render and things are rendered
 	 *
 	 * @param game The game associated with this thing
 	 * @param r The renderer to use
 	 * @param bounds The bounds which this thing will be rendered relative to
 	 */
-	public void renderOnTop(Game game, Renderer r, ZRect bounds){}
+	public void renderOnTop(Game game, Renderer r, ZRect2D bounds){}
 	
 	/**
 	 * Render this {@link MenuThing} to the given renderer using the given game, relative to the internal buffer
@@ -1475,7 +1475,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 */
 	private void renderToBuffer(Game game, Renderer r){
 		// Draw relative to the origin
-		var b = new ZRect(0, 0, this.getWidth(), this.getHeight());
+		var b = new ZRect2D(0, 0, this.getWidth(), this.getHeight());
 		this.render(game, r, b);
 		// If drawing things directly to the buffer, draw them
 		if(this.isDrawThingsToBuffer()) this.drawThings(game, r, false);
@@ -1501,7 +1501,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		var cb = this.getChildBounds();
 		if(cb != null){
 			var bufferedBounds = this.getBoundsToBuffer();
-			var b = new ZRect(cb.getRelBounds(), bufferedBounds.getX(), bufferedBounds.getY());
+			var b = new ZRect2D(cb.getRelBounds(), bufferedBounds.getX(), bufferedBounds.getY());
 			r.pushLimitedBounds(b);
 		}
 		

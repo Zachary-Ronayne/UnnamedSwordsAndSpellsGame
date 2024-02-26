@@ -12,7 +12,7 @@ import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.utils.ZConfig;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 
 /**
  * A class that manages an OpenGL Framebuffer for a Renderer to draw to
@@ -285,8 +285,8 @@ public class GameBuffer implements Destroyable{
 	}
 	
 	/** @return The bounds of this {@link GameBuffer}, i.e., a rectangle positioned at (0, 0) with the dimensions of this buffer */
-	public ZRect getBounds(){
-		return new ZRect(0, 0, this.getWidth(), this.getHeight());
+	public ZRect2D getBounds(){
+		return new ZRect2D(0, 0, this.getWidth(), this.getHeight());
 	}
 	
 	/** @return See {@link #bufferGenerated} */

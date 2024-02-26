@@ -1,4 +1,4 @@
-package zgame.things.type;
+package zgame.things.type.bounds;
 
 import zgame.core.utils.ZMath;
 import zgame.physics.collision.CollisionResponse;
@@ -6,7 +6,7 @@ import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
 
 /** An interface which describe a simple hitbox with a width and height, representing a non rotating rectangle */
-public interface RectangleHitBox extends HitBox{
+public interface RectangleHitBox extends HitBox2D{
 	
 	@Override
 	default HitboxType getType(){

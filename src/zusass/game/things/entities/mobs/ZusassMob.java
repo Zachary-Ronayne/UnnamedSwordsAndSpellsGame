@@ -12,12 +12,9 @@ import zgame.stat.modifier.StatModTracker;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.status.StatusEffect;
 import zgame.stat.status.StatusEffects;
-import zgame.things.entity.EntityThing;
-import zgame.things.entity.Movement2D;
-import zgame.things.entity.Walk;
-import zgame.things.entity.Walk2D;
+import zgame.things.entity.*;
 import zgame.things.entity.projectile.Projectile;
-import zgame.things.type.RectangleHitBox;
+import zgame.things.type.bounds.RectangleHitBox;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
 import zusass.game.magic.*;
@@ -36,7 +33,7 @@ import static zusass.game.stat.ZusassStat.*;
 import java.util.List;
 
 /** A generic mob in the Zusass game */
-public abstract class ZusassMob extends EntityThing implements RectangleHitBox, Movement2D{
+public abstract class ZusassMob extends EntityThing2D implements Movement2D, RectangleHitBox{
 	
 	/** The json key used to store the spellbook which this mob has */
 	public final static String SPELLBOOK_KEY = "spellbook";
@@ -131,7 +128,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 		this.walkFriction = DEFAULT_WALK_FRICTION;
 		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
 		this.walking = false;
-		this.walk = new Walk2D(this);
+		this.walk = new Walk2D(this.getEntity());
 		
 		this.stopWalking();
 		
@@ -198,7 +195,6 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 			if(this.attackTime < 0) this.attackNearest(zgame);
 		}
 		
-		this.updateMovementPosVel(game, dt);
 		this.movementTick(game, dt);
 		
 		// If running and moving, need to drain stamina
@@ -541,6 +537,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox, 
 			return this.getWalkFrictionConstant();
 	}
 	
+	// TODO make it that these random things don't need to be reimplemented
 	@Override
 	public void leaveFloor(){
 		super.leaveFloor();

@@ -6,9 +6,9 @@ import zgame.physics.material.Material;
 /** The base interface for defining how things move, walk, fly, etc */
 public interface Movement{
 	
-	/** @return The {@link EntityThing} using this object */
-	default EntityThing getThing(){
-		return this.getWalk().getThing();
+	/** @return The {@link Entity} using this object */
+	default Entity getThing(){
+		return this.getWalk().getEntity();
 	}
 	
 	/** @return The {@link Walk} object holding the data for this interface */
@@ -21,6 +21,9 @@ public interface Movement{
 	 * @param dt The amount of time that passed in the update
 	 */
 	default void movementTick(Game game, double dt){
+		// After doing the normal tick and update with this entity's position and velocity and adding the jump velocity, reset the jump force to 0
+		this.getWalk().setJumpingForce(0);
+		
 		// Determine the new walking force
 		this.updateWalkForce(dt);
 		
@@ -132,7 +135,7 @@ public interface Movement{
 			if(!this.isCanStopJump()) return;
 			var entity = this.getThing();
 			// Only need to stop jumping if this entity is moving up
-			double vy = entity.getVY();
+			double vy = entity.getVerticalVel();
 			if(vy < 0){
 				double mass = entity.getMass();
 				double newStopJumpVel = this.getJumpStopPower() / mass;
@@ -194,7 +197,7 @@ public interface Movement{
 		double jumpAmount = -power / dt;
 		
 		// If falling downwards, add additional force so that the jump force will counteract the current downwards force
-		double vy = entity.getVY();
+		double vy = entity.getVerticalVel();
 		if(vy > 0) jumpAmount -= vy / dt * entity.getMass();
 		
 		walk.setJumpingForce(jumpAmount);
@@ -291,17 +294,6 @@ public interface Movement{
 	
 	/** @return true if this is currently walking, false for running */
 	boolean isWalking();
-	
-	/**
-	 * Update the position and velocity of {@link #getThing()} based on its current forces and velocity
-	 *
-	 * @param game The {@link Game} where the update takes place
-	 * @param dt The amount of time, in seconds, which passed in the tick where this update took place
-	 */
-	default void updateMovementPosVel(Game game, double dt){
-		// After doing the normal tick and update with this entity's position and velocity and adding the jump velocity, reset the jump force to 0
-		this.getWalk().setJumpingForce(0);
-	}
 	
 	/** This method should be called when the associated entity touches a floor */
 	default void movementTouchFloor(Material m){

@@ -1,4 +1,4 @@
-package zgame.things.type;
+package zgame.things.type.bounds;
 
 /** The type of hitbox that tells an object what hitbox collision method to use */
 public enum HitboxType{

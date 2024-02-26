@@ -126,7 +126,7 @@ public final class ZMath{
 	 * @param l2 The second line
 	 * @return The intersection point, or null if the lines are parallel, i.e. they don't intersect
 	 */
-	public static ZPoint lineIntersection(Line2D.Double l1, Line2D.Double l2){
+	public static ZPoint2D lineIntersection(Line2D.Double l1, Line2D.Double l2){
 		// Find slopes and check if the lines are parallel
 		double m1 = slope(l1);
 		double m2 = slope(l2);
@@ -140,7 +140,7 @@ public final class ZMath{
 			Line2D.Double line = nan1 ? l2 : l1;
 			double m = nan1 ? m2 : m1;
 			double b = yIntercept(line);
-			return new ZPoint(nanL.x1, m * nanL.x1 + b);
+			return new ZPoint2D(nanL.x1, m * nanL.x1 + b);
 		}
 		// Find y intercepts
 		double b1 = yIntercept(l1, m1);
@@ -149,7 +149,7 @@ public final class ZMath{
 		// Find the intersection
 		double x = (b2 - b1) / (m1 - m2);
 		double y = m1 * x + b1;
-		return new ZPoint(x, y);
+		return new ZPoint2D(x, y);
 	}
 	
 	/**
@@ -221,10 +221,10 @@ public final class ZMath{
 		if(!touchLeft && !touchRight && !touchTop && !touchBot) return false;
 		
 		// Check if the center of the circle is close enough, or in between, the corners of the rectangle, if it is, then they intersect
-		var tl = new ZPoint(x, y);
-		var tr = new ZPoint(x + w, y);
-		var bl = new ZPoint(x, y + h);
-		var br = new ZPoint(x + w, y + h);
+		var tl = new ZPoint2D(x, y);
+		var tr = new ZPoint2D(x + w, y);
+		var bl = new ZPoint2D(x, y + h);
+		var br = new ZPoint2D(x + w, y + h);
 		
 		var tld = tl.distance(cx, cy);
 		var trd = tr.distance(cx, cy);

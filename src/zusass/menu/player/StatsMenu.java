@@ -5,7 +5,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.buffer.DrawableBuffer;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 import zgame.menu.MenuThing;
 import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.MultiFormatter;
@@ -106,7 +106,7 @@ public class StatsMenu extends DraggableMenu{
 	}
 	
 	@Override
-	public void renderOnTop(Game game, Renderer r, ZRect bounds){
+	public void renderOnTop(Game game, Renderer r, ZRect2D bounds){
 		super.renderOnTop(game, r, bounds);
 		
 		var currentSelected = this.statList.getSelectedStat();
@@ -186,7 +186,7 @@ public class StatsMenu extends DraggableMenu{
 			r.drawRectangle(0, 0, w, h);
 			
 			r.setColor(new ZColor(.8));
-			r.drawRectangle(new ZRect(0, 0, w, h, -2));
+			r.drawRectangle(new ZRect2D(0, 0, w, h, -2));
 			
 			r.setColor(new ZColor(0));
 			r.drawText(6, 25, this.text);
