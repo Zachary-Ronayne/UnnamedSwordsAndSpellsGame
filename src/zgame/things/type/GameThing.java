@@ -6,7 +6,6 @@ import zgame.core.file.Saveable;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.things.Tag;
-import zgame.things.entity.Entity;
 import zgame.things.type.bounds.HitBox;
 
 import java.util.Arrays;
@@ -95,7 +94,8 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	 * @return This object, as a {@link HitBox}, or null if it cannot be a {@link HitBox}
 	 * 		The return value of this method should equal this object, not another version or reference, i.e. (this == this.asHitbox()) should evaluate to true
 	 */
-	public HitBox asHitBox(){
+	// TODO make it that this method isn't needed
+	public HitBox<?> asHitBox(){
 		return null;
 	}
 	

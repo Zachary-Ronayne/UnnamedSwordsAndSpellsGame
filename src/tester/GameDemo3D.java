@@ -8,12 +8,15 @@ import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
 import zgame.physics.ZVector;
+import zgame.physics.ZVector2D;
+import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResponse;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
 import zgame.things.entity.*;
 import zgame.things.type.bounds.HitBox;
+import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.HitboxType;
 import zgame.world.Room;
 import zgame.world.Room3D;
@@ -382,7 +385,7 @@ public class GameDemo3D extends Game{
 	}
 	
 	// TODO Make entity thing compatible with 3D
-	private static class Player3D extends Entity implements Movement3D{
+	private static class Player3D extends Entity<HitBox3D> implements Movement3D, HitBox3D{
 		private final Game game;
 		
 		private Walk3D walk;
@@ -391,7 +394,7 @@ public class GameDemo3D extends Game{
 			// TODO implement this with EntityThing3D
 			super(0);
 			this.game = game;
-//			this.walk = new Walk3D(this);
+			this.walk = new Walk3D(this);
 		}
 		
 		private GameCamera3D getCamera(){
@@ -435,7 +438,7 @@ public class GameDemo3D extends Game{
 		
 		// TODO implement this stuff in 3D
 		@Override
-		public Walk getWalk(){
+		public Walk3D getWalk(){
 			return this.walk;
 		}
 		
@@ -534,9 +537,10 @@ public class GameDemo3D extends Game{
 			return false;
 		}
 		
+		// TODO implement this as a vector 3D
 		@Override
 		public ZVector zeroVector(){
-			return null;
+			return new ZVector2D();
 		}
 		
 		@Override
@@ -585,7 +589,7 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public HitBox getHitbox(){
+		public HitBox<HitBox3D> getHitbox(){
 			return null;
 		}
 		
@@ -595,13 +599,78 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public boolean intersects(HitBox h){
+		public boolean intersects(HitBox<HitBox3D> h){
 			return false;
 		}
 		
 		@Override
 		public void collide(CollisionResponse r){
 		
+		}
+		
+		@Override
+		public void setX(double x){
+		
+		}
+		
+		@Override
+		public void setY(double y){
+		
+		}
+		
+		@Override
+		public void setZ(double z){
+		
+		}
+		
+		@Override
+		public double getPX(){
+			return 0;
+		}
+		
+		@Override
+		public double getPY(){
+			return 0;
+		}
+		
+		@Override
+		public double getPZ(){
+			return 0;
+		}
+		
+		@Override
+		public HitBox3D get(){
+			return this;
+		}
+		
+		@Override
+		public double getX(){
+			return 0;
+		}
+		
+		@Override
+		public double getY(){
+			return 0;
+		}
+		
+		@Override
+		public double getZ(){
+			return 0;
+		}
+		
+		@Override
+		public double getWidth(){
+			return 0;
+		}
+		
+		@Override
+		public double getHeight(){
+			return 0;
+		}
+		
+		@Override
+		public double getLength(){
+			return 0;
 		}
 	}
 	

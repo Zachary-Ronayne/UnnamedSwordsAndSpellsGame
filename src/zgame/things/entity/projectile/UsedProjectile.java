@@ -2,6 +2,7 @@ package zgame.things.entity.projectile;
 
 import zgame.physics.ZVector;
 import zgame.things.type.bounds.HitBox;
+import zgame.things.type.bounds.HitBox2D;
 
 /** A {@link Projectile} that is used by a particular object, where this projectile can hit anything except for the given {@link HitBox}'s uuid */
 public abstract class UsedProjectile extends Projectile{
@@ -23,7 +24,7 @@ public abstract class UsedProjectile extends Projectile{
 	}
 	
 	@Override
-	public boolean willHit(HitBox thing){
+	public boolean willHit(HitBox2D thing){
 		return super.willHit(thing) && !this.sourceId.equals(thing.getUuid());
 	}
 	

@@ -8,19 +8,22 @@ import java.util.UUID;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
+import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.type.Materialable;
 import zgame.things.type.bounds.HitBox;
+import zgame.things.type.bounds.HitBox2D;
 
 /**
  * A thing which keeps track of an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
  * This is for things like creatures, dropped items, projectiles, etc.
+ * @param <H> The hitbox implementation used by this entity
  */
 // TODO pick a better name and decide how this will be used
-public abstract class Entity implements GameTickable, Materialable, HitBox{
+public abstract class Entity<H extends HitBox<?>> implements GameTickable, Materialable, HitBox<H>{
 	
 	// TODO fix being able to jump without touching the ground first
 	
@@ -457,7 +460,7 @@ public abstract class Entity implements GameTickable, Materialable, HitBox{
 	 * @param entity The entity that was collided with this entity
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
-	public void checkEntityCollision(Game game, Entity entity, double dt){}
+	public void checkEntityCollision(Game game, Entity<H> entity, double dt){}
 	
 	/**
 	 * Collide this {@link Entity} with the entities in the given room. Can override this to perform custom collision
@@ -474,7 +477,8 @@ public abstract class Entity implements GameTickable, Materialable, HitBox{
 		ArrayList<String> toRemove = new ArrayList<>(this.collidingUuids.size());
 		for(String eUuid : this.collidingUuids){
 			var e = room.getEntity(eUuid);
-			if(e == null || !this.intersects(e)) toRemove.add(eUuid);
+			// TODO make this able to be any entity, not just entity 2D
+			if(e == null || !this.intersects((HitBox<H>)e)) toRemove.add(eUuid);
 		}
 		for(String uuid : toRemove){
 			this.collidingUuids.remove(uuid);
@@ -484,14 +488,17 @@ public abstract class Entity implements GameTickable, Materialable, HitBox{
 			if(removed != null) this.addVelocity(removed.scale(-dt / this.getMass()));
 		}
 		// Get all entities
-		var entities = room.getEntities();
+		// TODO fix type
+		NotNullList<EntityThing2D> entities = room.getEntities();
 		
 		// Iterate through all entities, ignoring this entity, and find the ones intersecting this entity
 		for(int i = 0; i < entities.size(); i++){
 			var e = entities.get(i);
 			// TODO make this not need a weird getHotbox method
-			if(e.getEntity() == this || !e.intersects(this.getHitbox())) continue;
-			this.checkEntityCollision(game, e.getEntity(), dt);
+			// TODO make this able to be any entity, not just entity 2D
+			if(e.getEntity() == this || !e.intersects((HitBox<HitBox2D>)this.getHitbox())) continue;
+			// TODO make this not need a type cast
+			this.checkEntityCollision(game, (Entity<H>)e.getEntity(), dt);
 			
 //			// If they intersect, determine the force they should have against each other, and apply it to both entities
 //			String eUuid = e.getUuid();
@@ -594,7 +601,7 @@ public abstract class Entity implements GameTickable, Materialable, HitBox{
 	public ZVector setForce(String name, ZVector force){
 		this.removeForce(name);
 		this.forces.put(name, force);
-		this.totalForce = totalForce.add(force);
+		this.totalForce = this.totalForce.add(force);
 		return force;
 	}
 	
@@ -634,6 +641,6 @@ public abstract class Entity implements GameTickable, Materialable, HitBox{
 	
 	// TODO make it that this method is not needed
 	/** @return A usable hitbox for determining collision with this entity for the type of space it exists in */
-	public abstract HitBox getHitbox();
+	public abstract HitBox<H> getHitbox();
 	
 }

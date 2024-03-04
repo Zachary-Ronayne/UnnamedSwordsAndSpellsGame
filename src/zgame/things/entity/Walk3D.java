@@ -9,12 +9,12 @@ public class Walk3D extends Walk{
 	/** The vector keeping track of the force of this walking */
 	private ZVector walkingForce;
 	
+	// TODO define what thing is in docs
 	/**
 	 * Create a new walk object for use in {@link Movement2D}
-	 *
-	 * @param thing See {@link #thing}
 	 */
-	public Walk3D(Entity thing){
+	// TODO make a hitbox 3D type and use it
+	public Walk3D(Entity<?> thing){
 		super(thing);
 	}
 	

@@ -3,7 +3,6 @@ package zusass.game.things;
 import zgame.core.Game;
 import zgame.things.still.Door;
 import zgame.things.type.PositionedHitboxThing2D;
-import zgame.world.Room;
 import zusass.ZusassData;
 import zusass.ZusassGame;
 import zusass.game.LevelRoom;
@@ -44,7 +43,7 @@ public class LevelDoor extends ZusassDoor{
 	}
 	
 	@Override
-	public boolean enterRoom(Room r, PositionedHitboxThing2D thing, Game game){
+	public boolean enterRoom(ZusassRoom r, PositionedHitboxThing2D thing, Game game){
 		ZusassGame zgame = (ZusassGame)game;
 		
 		// Generate the new room, then enter it

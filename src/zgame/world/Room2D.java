@@ -16,7 +16,7 @@ import zgame.things.type.bounds.HitBox2D;
 import java.util.ArrayList;
 
 /** A {@link Room} which is made of 2D tiles */
-public class Room2D extends Room implements Bounds2D{
+public class Room2D extends Room<HitBox2D> implements Bounds2D{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -99,9 +99,8 @@ public class Room2D extends Room implements Bounds2D{
 	}
 	
 	@Override
-	public CollisionResponse collide(HitBox h){
-		// TODO is casting the best way to do this?
-		var obj = (HitBox2D)h;
+	public CollisionResponse collide(HitBox<HitBox2D> h){
+		var obj = h.get();
 		
 		// Find touching tiles and collide with them
 		int minX = this.tileX(obj.getX());
@@ -443,4 +442,8 @@ public class Room2D extends Room implements Bounds2D{
 		return this.inTilesX(x) && this.inTilesY(y);
 	}
 	
+	@Override
+	public Class<HitBox2D> getHitBoxType(){
+		return HitBox2D.class;
+	}
 }

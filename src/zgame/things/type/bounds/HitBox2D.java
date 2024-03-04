@@ -4,10 +4,10 @@ import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.things.entity.projectile.Projectile;
 
-/** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
-public interface HitBox2D extends HitBox, Bounds2D {
-	
-	// TODO abstract this to 2D and 3D
+/**
+ * An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds
+ */
+public interface HitBox2D extends HitBox<HitBox2D>, Bounds2D{
 	
 	/** @param x The new x coordinate for this object */
 	void setX(double x);
@@ -91,9 +91,8 @@ public interface HitBox2D extends HitBox, Bounds2D {
 	 * @return true if this hitbox intersects the given hitbox, false otherwise
 	 */
 	@Override
-	default boolean intersects(HitBox hitbox){
-		// TODO is type casting the best thing here? Probably want to use type parameters
-		var h = (HitBox2D)hitbox;
+	default boolean intersects(HitBox<HitBox2D> hitbox){
+		var h = hitbox.get();
 		switch(h.getType()){
 			case CIRCLE -> {
 				return this.intersectsCircle(h.centerX(), h.centerY(), h.getWidth() * 0.5);
@@ -214,5 +213,10 @@ public interface HitBox2D extends HitBox, Bounds2D {
 	
 	/** @return The previous value of {@link #getY()} before the last time it was moved with velocity */
 	double getPY();
+	
+	@Override
+	default HitBox2D get(){
+		return this;
+	}
 	
 }

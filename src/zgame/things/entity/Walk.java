@@ -38,13 +38,14 @@ public abstract class Walk{
 	private boolean stoppingJump;
 	
 	/** The {@link Entity} using this walk object */
-	private final Entity entity;
+	// TODO should this be an any type?
+	private final Entity<?> entity;
 	
 	/**
 	 * Create a new walk object for use in {@link Movement2D}
 	 * @param entity See {@link #entity}
 	 */
-	public Walk(Entity entity){
+	public Walk(Entity<?> entity){
 		this.entity = entity;
 		
 		this.canJump = false;
@@ -57,7 +58,7 @@ public abstract class Walk{
 	}
 	
 	/** @return See {@link #entity} */
-	public Entity getEntity(){
+	public Entity<?> getEntity(){
 		return this.entity;
 	}
 	

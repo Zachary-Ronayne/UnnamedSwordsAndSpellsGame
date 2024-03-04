@@ -7,7 +7,7 @@ import zgame.physics.ZVector;
 import zgame.things.BaseTags;
 import zgame.things.entity.projectile.UsedProjectile;
 import zgame.things.type.bounds.CircleHitBox;
-import zgame.things.type.bounds.HitBox;
+import zgame.things.type.bounds.HitBox2D;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
 
@@ -76,7 +76,7 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	}
 	
 	@Override
-	public void hit(Game game, HitBox thing){
+	public void hit(Game game, HitBox2D thing){
 		thing.hitBy(this);
 	}
 	

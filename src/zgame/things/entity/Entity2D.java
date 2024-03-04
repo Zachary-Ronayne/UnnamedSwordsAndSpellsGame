@@ -11,7 +11,7 @@ import zgame.things.type.bounds.HitboxType;
  * A thing which keeps track of an entity in 2D space, i.e. an object which can regularly move around in space and exist at an arbitrary location.
  * This is for things like creatures, dropped items, projectiles, etc.
  */
-public class Entity2D extends Entity{
+public class Entity2D extends Entity<HitBox2D>{
 	
 	// TODO make a 3D version of this
 	
@@ -182,12 +182,17 @@ public class Entity2D extends Entity{
 	
 	// TODO where is this intersects method actually implemented?
 	@Override
-	public boolean intersects(HitBox h){
+	public boolean intersects(HitBox<HitBox2D> h){
 		return this.getThing().intersects(h);
 	}
 	
 	@Override
 	public HitBox2D getHitbox(){
 		return this.getThing().asHitBox();
+	}
+	
+	@Override
+	public HitBox2D get(){
+		return this.getHitbox();
 	}
 }

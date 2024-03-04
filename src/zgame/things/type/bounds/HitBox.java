@@ -6,9 +6,13 @@ import zgame.physics.material.Material;
 import zgame.things.entity.projectile.Projectile;
 import zgame.things.type.Materialable;
 
-/** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
-public interface HitBox extends Materialable, Uuidable{
+/**
+ * An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds
+ * @param <H> The specific hitbox implementation associated with this hitbox
+ */
+public interface HitBox<H extends HitBox<?>> extends Materialable, Uuidable{
 	
+	// TODO abstract out the type?
 	/** @return The type of this hitbox, for determining how it will collide with other hitboxes */
 	HitboxType getType();
 	
@@ -16,13 +20,14 @@ public interface HitBox extends Materialable, Uuidable{
 	 * @param h The hitbox to check
 	 * @return true if this hitbox intersects the given hitbox, false otherwise
 	 */
-	boolean intersects(HitBox h);
+	boolean intersects(HitBox<H> h);
 	
 	/**
 	 * Apply the given {@link CollisionResponse} to this object
 	 *
 	 * @param r The {@link CollisionResponse} to use
 	 */
+	// TODO add the type parameter to collide
 	void collide(CollisionResponse r);
 	
 	/**
@@ -70,5 +75,14 @@ public interface HitBox extends Materialable, Uuidable{
 	
 	/** @return true if this {@link HitBox} is touching a wall, false otherwise */
 	boolean isOnWall();
+	
+	/**
+	 * Wacky java weirdness. Call to get this object as the appropriate type
+	 * Can implement as just
+	 * <p><code>return this;</code></p>
+	 *
+	 * @return This object, as the appropriate type for this hitbox
+	 */
+	H get();
 	
 }

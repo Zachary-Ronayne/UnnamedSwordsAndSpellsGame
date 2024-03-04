@@ -2,9 +2,10 @@ package zgame.things.type;
 
 import zgame.core.Game;
 import zgame.things.entity.Entity;
+import zgame.things.type.bounds.HitBox2D;
 
 /** A {@link GameThing} which uses x and y coordinates */
-public abstract class PositionedThing2D extends PositionedThing implements Position2D{
+public abstract class PositionedThing2D extends PositionedThing<HitBox2D> implements Position2D{
 	
 	/** The x coordinate of this {@link PositionedThing}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link Entity} */
 	private double x;

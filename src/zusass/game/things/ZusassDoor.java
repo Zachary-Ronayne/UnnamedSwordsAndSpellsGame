@@ -1,10 +1,15 @@
 package zusass.game.things;
 
+import zgame.core.Game;
 import zgame.things.still.Door;
+import zgame.things.type.PositionedHitboxThing2D;
+import zgame.things.type.bounds.HitBox2D;
+import zgame.world.Room;
 import zusass.ZusassGame;
+import zusass.game.ZusassRoom;
 
 /** A {@link Door} specifically used by the Zusass game */
-public class ZusassDoor extends Door implements ZThingClickDetector{
+public class ZusassDoor extends Door<HitBox2D> implements ZThingClickDetector{
 	
 	/**
 	 * Create a new door at the given position
@@ -28,4 +33,13 @@ public class ZusassDoor extends Door implements ZThingClickDetector{
 		return this.enterRoom(zgame.getCurrentRoom(), player, zgame);
 	}
 	
+	@Override
+	public boolean enterRoom(Room<HitBox2D> r, PositionedHitboxThing2D thing, Game game){
+		return super.enterRoom(r, thing, game);
+	}
+	
+	/** Convenience method that calls {@link #enterRoom(Room, PositionedHitboxThing2D, Game)} without a need to type cast */
+	public boolean enterRoom(ZusassRoom r, PositionedHitboxThing2D thing, Game game){
+		return this.enterRoom((Room<HitBox2D>)r, thing, game);
+	}
 }

@@ -16,8 +16,11 @@ import zgame.things.type.GameThing;
 import zgame.things.type.bounds.HitBox;
 import zgame.things.type.PositionedThing;
 
-/** An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc. */
-public abstract class Room extends GameThing{
+/**
+ * An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc.
+ * @param <H> The implementation of hitboxes in this room
+ */
+public abstract class Room<H extends HitBox<?>> extends GameThing{
 	
 	// TODO abstract this to 2D and 3D
 	
@@ -80,9 +83,12 @@ public abstract class Room extends GameThing{
 	}
 	
 	/** @return All the hitbox things in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
-	public NotNullList<HitBox> getHitBoxThings(){
-		return this.thingsMap.get(HitBox.class);
+	public NotNullList<H> getHitBoxThings(){
+		return this.thingsMap.get(this.getHitBoxType());
 	}
+	
+	/** @return The type of hitboxes used in this room */
+	public abstract Class<H> getHitBoxType();
 	
 	/**
 	 * Add a {@link GameThing} to this {@link Room}
@@ -108,7 +114,7 @@ public abstract class Room extends GameThing{
 	 * @param obj The object to collide
 	 * @return The CollisionResponse representing the final collision that took place, where the collision material is the floor collision, if one took place
 	 */
-	public abstract CollisionResponse collide(HitBox obj);
+	public abstract CollisionResponse collide(HitBox<H> obj);
 	
 	/**
 	 * Make something happen to this {@link PositionedThing} the next time it is ticked
@@ -138,7 +144,8 @@ public abstract class Room extends GameThing{
 		for(int i = 0; i < entities.size(); i++) entities.get(i).getEntity().updatePosition(game, dt);
 		
 		// Check the collision of this room for entities
-		for(int i = 0; i < entities.size(); i++) this.collide(entities.get(i));
+		// TODO make this not rely on a type cast
+		for(int i = 0; i < entities.size(); i++) this.collide((HitBox<H>)entities.get(i));
 		
 		// Remove all things that need to be removed
 		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(thing);

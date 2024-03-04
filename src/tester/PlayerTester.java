@@ -3,6 +3,7 @@ package tester;
 import zgame.core.Game;
 import zgame.physics.material.Material;
 import zgame.things.entity.*;
+import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -133,7 +134,7 @@ public abstract class PlayerTester extends EntityThing2D implements Movement2D {
 	}
 	
 	@Override
-	public void enterRoom(Room from, Room to, Game game){
+	public void enterRoom(Room<HitBox2D> from, Room<HitBox2D> to, Game game){
 		super.enterRoom(from, to, game);
 		if(to != null) game.getPlayState().setCurrentRoom(to);
 		

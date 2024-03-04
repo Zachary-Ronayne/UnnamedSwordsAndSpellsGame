@@ -4,10 +4,11 @@ import zgame.core.Game;
 import zgame.physics.material.Material;
 
 /** The base interface for defining how things move, walk, fly, etc */
+// TODO should movement have a type param for hitbox?
 public interface Movement{
 	
 	/** @return The {@link Entity} using this object */
-	default Entity getThing(){
+	default Entity<?> getThing(){
 		return this.getWalk().getEntity();
 	}
 	

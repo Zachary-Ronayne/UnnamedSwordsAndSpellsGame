@@ -107,9 +107,8 @@ public class Tile extends PositionedRectangleThing implements RectangleHitBox{
 	
 	/** See {@link TileHitbox#intersectsTile(Tile, HitBox2D)} */
 	@Override
-	public boolean intersects(HitBox obj){
-		// TODO should this be type casting?
-		return this.getFrontType().getHitbox().intersectsTile(this, (HitBox2D)obj);
+	public boolean intersects(HitBox<HitBox2D> obj){
+		return this.getFrontType().getHitbox().intersectsTile(this, obj.get());
 	}
 	
 	@Override

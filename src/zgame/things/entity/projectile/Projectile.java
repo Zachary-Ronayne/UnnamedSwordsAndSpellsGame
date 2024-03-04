@@ -10,6 +10,7 @@ import zgame.things.entity.Entity;
 import zgame.things.entity.Entity2D;
 import zgame.things.entity.EntityThing2D;
 import zgame.things.type.bounds.HitBox;
+import zgame.things.type.bounds.HitBox2D;
 
 import java.util.function.Consumer;
 
@@ -57,11 +58,13 @@ public abstract class Projectile extends EntityThing2D{
 		return new Entity2D(this, mass){
 			// TODO implement this in a nicer way
 			@Override
-			public void checkEntityCollision(Game game, Entity entity, double dt){
+			// TODO allow entity to have a type param
+			public void checkEntityCollision(Game game, Entity<HitBox2D> entity, double dt){
 				super.checkEntityCollision(game, entity, dt);
 				// Ignore the current thing if the projectile will not hit it, or if the entity should not collide with projectiles
-				if(!willHit(entity) || hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
-				hit(game, entity);
+				// TODO abstract this to 2D and 3D
+				if(!willHit((HitBox2D)entity) || hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
+				hit(game, (HitBox2D)entity);
 				if(isOnHit()) removeNext();
 			}
 		};
@@ -122,7 +125,7 @@ public abstract class Projectile extends EntityThing2D{
 	 * @param game The game where thing was hit
 	 * @param thing The {@link HitBox} which was hit
 	 */
-	public abstract void hit(Game game, HitBox thing);
+	public abstract void hit(Game game, HitBox2D thing);
 	
 	/**
 	 * Determine if this {@link Projectile} will hit the given {@link HitBox} thing when their hitboxes intersect
@@ -130,7 +133,7 @@ public abstract class Projectile extends EntityThing2D{
 	 * @param thing The hitbox to check
 	 * @return true thing will hit this, false otherwise
 	 */
-	public boolean willHit(HitBox thing){
+	public boolean willHit(HitBox2D thing){
 		return this != thing && this.intersects(thing);
 	}
 	

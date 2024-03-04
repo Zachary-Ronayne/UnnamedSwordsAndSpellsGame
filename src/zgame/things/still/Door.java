@@ -9,12 +9,18 @@ import zgame.things.entity.EntityThing2D;
 import zgame.things.type.GameThing;
 import zgame.things.type.PositionedHitboxThing2D;
 import zgame.things.type.PositionedRectangleThing;
+import zgame.things.type.bounds.HitBox;
+import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room;
 import zgame.world.Room2D;
 
 // TODO abstract this to 2D and 3D?
-/** An object that allows other {@link GameThing}s to enter another {@link Room} */
-public class Door extends PositionedRectangleThing implements GameTickable{
+
+/**
+ * An object that allows other {@link GameThing}s to enter another {@link Room}
+ * @param <H> The hitbox implementation which can interact with this door
+ */
+public class Door<H extends HitBox<?>> extends PositionedRectangleThing implements GameTickable{
 	
 	/** The default value of {@link #width} */
 	public static final double WIDTH = 70;
@@ -118,7 +124,7 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 	 * @param game The {@link Game} where this room entering takes place
 	 * @return true if thing entered this room, false otherwise
 	 */
-	public boolean enterRoom(Room r, PositionedHitboxThing2D thing, Game game){
+	public boolean enterRoom(Room<H> r, PositionedHitboxThing2D thing, Game game){
 		if(this.leadRoom != null && !this.leadRoom.canEnter(thing)) return false;
 		
 		if(!this.canEnter(thing)) return false;
@@ -129,7 +135,8 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 		if(this.leadRoom != null){
 			thing.setX(this.roomX);
 			thing.setY(this.roomY);
-			thing.enterRoom(r, this.leadRoom, game);
+			// TODO figure out how to make this not need a type cast
+			thing.enterRoom((Room<HitBox2D>)r, this.leadRoom, game);
 		}
 		else return false;
 		return true;
@@ -153,12 +160,13 @@ public class Door extends PositionedRectangleThing implements GameTickable{
 		// Check every entity and if it touches this door, move it to this Room
 		
 		// TODO should this be type casting
-		var entities = (game.getCurrentRoom()).getEntities();
+		var entities = game.getCurrentRoom().getEntities();
 		for(var entity : entities){
 			// TODO should this be type casting?
-			var e = (EntityThing2D) entity;
+			var e = (EntityThing2D)entity;
 			if(e.intersectsRect(this.getX(), this.getY(), this.getWidth(), this.getHeight())){
-				this.enterRoom(game.getCurrentRoom(), e, game);
+				// TODO avoid types being weird here
+				this.enterRoom((Room<H>)game.getCurrentRoom(), e, game);
 			}
 		}
 	}
