@@ -27,9 +27,4 @@ public abstract class PositionedHitboxThing2D extends PositionedThing2D implemen
 		return r.gameBoundsInScreen(this.getBounds());
 	}
 	
-	@Override
-	public final HitBox2D asHitBox(){
-		return this;
-	}
-	
 }

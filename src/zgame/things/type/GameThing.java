@@ -91,15 +91,6 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	}
 	
 	/**
-	 * @return This object, as a {@link HitBox}, or null if it cannot be a {@link HitBox}
-	 * 		The return value of this method should equal this object, not another version or reference, i.e. (this == this.asHitbox()) should evaluate to true
-	 */
-	// TODO make it that this method isn't needed
-	public HitBox<?> asHitBox(){
-		return null;
-	}
-	
-	/**
 	 * Determine if this object has the given tag
 	 * @param tag The tag to check for
 	 * @return true if it has the tag, false otherwise

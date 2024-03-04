@@ -58,13 +58,13 @@ public abstract class Projectile extends EntityThing2D{
 		return new Entity2D(this, mass){
 			// TODO implement this in a nicer way
 			@Override
-			// TODO allow entity to have a type param
+			// TODO allow entity to have a type param and not need a type param here?
 			public void checkEntityCollision(Game game, Entity<HitBox2D> entity, double dt){
 				super.checkEntityCollision(game, entity, dt);
 				// Ignore the current thing if the projectile will not hit it, or if the entity should not collide with projectiles
 				// TODO abstract this to 2D and 3D
-				if(!willHit((HitBox2D)entity) || hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
-				hit(game, (HitBox2D)entity);
+				if(!willHit(entity.get()) || hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
+				hit(game, entity.get());
 				if(isOnHit()) removeNext();
 			}
 		};

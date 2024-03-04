@@ -180,19 +180,13 @@ public class Entity2D extends Entity<HitBox2D>{
 		return this.getThing().getType();
 	}
 	
-	// TODO where is this intersects method actually implemented?
 	@Override
 	public boolean intersects(HitBox<HitBox2D> h){
 		return this.getThing().intersects(h);
 	}
 	
 	@Override
-	public HitBox2D getHitbox(){
-		return this.getThing().asHitBox();
-	}
-	
-	@Override
 	public HitBox2D get(){
-		return this.getHitbox();
+		return this.getThing();
 	}
 }

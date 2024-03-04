@@ -496,7 +496,7 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 			var e = entities.get(i);
 			// TODO make this not need a weird getHotbox method
 			// TODO make this able to be any entity, not just entity 2D
-			if(e.getEntity() == this || !e.intersects((HitBox<HitBox2D>)this.getHitbox())) continue;
+			if(e.getEntity() == this || !e.intersects((HitBox<HitBox2D>)this)) continue;
 			// TODO make this not need a type cast
 			this.checkEntityCollision(game, (Entity<H>)e.getEntity(), dt);
 			
@@ -638,9 +638,5 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 	public String getUuid(){
 		return this.uuid;
 	}
-	
-	// TODO make it that this method is not needed
-	/** @return A usable hitbox for determining collision with this entity for the type of space it exists in */
-	public abstract HitBox<H> getHitbox();
 	
 }

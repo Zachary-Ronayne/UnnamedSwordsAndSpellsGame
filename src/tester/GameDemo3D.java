@@ -589,11 +589,6 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public HitBox<HitBox3D> getHitbox(){
-			return null;
-		}
-		
-		@Override
 		public HitboxType getType(){
 			return null;
 		}

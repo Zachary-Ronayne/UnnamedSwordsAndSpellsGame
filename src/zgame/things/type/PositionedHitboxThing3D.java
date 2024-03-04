@@ -29,9 +29,4 @@ public abstract class PositionedHitboxThing3D extends PositionedThing3D implemen
 		return true;
 	}
 	
-	@Override
-	public final HitBox3D asHitBox(){
-		return this;
-	}
-	
 }
