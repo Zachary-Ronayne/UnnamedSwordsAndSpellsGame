@@ -6,8 +6,7 @@ import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.things.BaseTags;
-import zgame.things.entity.Entity;
-import zgame.things.entity.Entity2D;
+import zgame.things.entity.EntityThing;
 import zgame.things.entity.EntityThing2D;
 import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.HitBox2D;
@@ -15,7 +14,7 @@ import zgame.things.type.bounds.HitBox2D;
 import java.util.function.Consumer;
 
 // TODO abstract this to 2D and 3D
-/** An {@link Entity} which represents a thing flying through the air */
+/** An {@link EntityThing} which represents a thing flying through the air */
 public abstract class Projectile extends EntityThing2D{
 	
 	/**
@@ -54,20 +53,13 @@ public abstract class Projectile extends EntityThing2D{
 	}
 	
 	@Override
-	public Entity2D createEntity(double mass){
-		return new Entity2D(this, mass){
-			// TODO implement this in a nicer way
-			@Override
-			// TODO allow entity to have a type param and not need a type param here?
-			public void checkEntityCollision(Game game, Entity<HitBox2D> entity, double dt){
-				super.checkEntityCollision(game, entity, dt);
-				// Ignore the current thing if the projectile will not hit it, or if the entity should not collide with projectiles
-				// TODO abstract this to 2D and 3D
-				if(!willHit(entity.get()) || hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
-				hit(game, entity.get());
-				if(isOnHit()) removeNext();
-			}
-		};
+	// TODO allow entity to have a type param and not need a type param here?
+	public void checkEntityCollision(Game game, EntityThing<HitBox2D> entity, double dt){
+		super.checkEntityCollision(game, entity, dt);
+		// Ignore the current thing if the projectile will not hit it, or if the entity should not collide with projectiles
+		if(!willHit(entity.get()) || entity.hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
+		hit(game, entity.get());
+		if(isOnHit()) removeNext();
 	}
 	
 	/**
@@ -175,6 +167,6 @@ public abstract class Projectile extends EntityThing2D{
 		if(r >= 0 && this.totalDistance >= r) this.removeNext();
 		
 		super.tick(game, dt);
-		this.totalDistance += this.getEntity().getVelocity().getMagnitude() * dt;
+		this.totalDistance += this.getVelocity().getMagnitude() * dt;
 	}
 }

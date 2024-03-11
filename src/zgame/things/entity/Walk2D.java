@@ -17,7 +17,7 @@ public class Walk2D extends Walk{
 	 *
 	 * @param entity See {@link #entity}
 	 */
-	public Walk2D(Entity2D entity){
+	public Walk2D(EntityThing2D entity){
 		super(entity);
 		
 		this.setWalkingDirection(0);

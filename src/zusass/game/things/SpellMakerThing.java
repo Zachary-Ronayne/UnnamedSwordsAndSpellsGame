@@ -4,15 +4,15 @@ import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.core.state.MenuNode;
+import zgame.things.entity.StaticEntityThing2D;
 import zgame.things.type.GameThing;
-import zgame.things.type.PositionedRectangleThing;
 import zusass.ZusassGame;
 import zusass.menu.spellmaker.SpellMakerMenu;
 
 import java.util.UUID;
 
 /** A {@link GameThing} used as a station for the player to click on to open the spell making interface */
-public class SpellMakerThing extends PositionedRectangleThing implements ZThingClickDetector, GameTickable{
+public class SpellMakerThing extends StaticEntityThing2D implements ZThingClickDetector, GameTickable{
 	
 	/** The uuid of this thing */
 	private final String uuid;
@@ -27,9 +27,7 @@ public class SpellMakerThing extends PositionedRectangleThing implements ZThingC
 	 * @param y The upper left hand y coordinate
 	 */
 	public SpellMakerThing(ZusassGame zgame, double x, double y){
-		super(x, y);
-		this.setWidth(130);
-		this.setHeight(70);
+		super(x, y, 130, 70);
 		this.uuid = UUID.randomUUID().toString();
 		
 		this.menu = new SpellMakerMenu(zgame);

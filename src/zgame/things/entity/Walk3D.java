@@ -14,7 +14,7 @@ public class Walk3D extends Walk{
 	 * Create a new walk object for use in {@link Movement2D}
 	 */
 	// TODO make a hitbox 3D type and use it
-	public Walk3D(Entity<?> thing){
+	public Walk3D(EntityThing<?> thing){
 		super(thing);
 	}
 	

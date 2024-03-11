@@ -92,7 +92,7 @@ public abstract class PlayerTester extends EntityThing2D implements Movement2D {
 		this.normalJumpTime = .1;
 		this.wallJumpTime = .25;
 		this.walking = false;
-		this.walk = new Walk2D(this.getEntity());
+		this.walk = new Walk2D(this);
 		
 		this.lockCamera = false;
 		this.width = width;

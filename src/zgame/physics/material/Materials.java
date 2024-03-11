@@ -1,6 +1,6 @@
 package zgame.physics.material;
 
-import zgame.things.entity.Entity;
+import zgame.things.entity.EntityThing;
 import zgame.world.Room;
 
 /** A class containing instances of {@link Material} for ease of use */
@@ -12,7 +12,7 @@ public final class Materials{
 	public static final Material BOUNDARY = new MaterialConst(MaterialConst.DEFAULT_FRICTION, 0, 0, 0);
 	/** A {@link Material} using all the default values. Mainly for simple walls, floors, and ceilings */
 	public static final Material DEFAULT = new MaterialConst();
-	/** A {@link Material} meant for {@link Entity}s, essentially means the entity will react to the properties of what the entity interacts with */
+	/** A {@link Material} meant for {@link EntityThing}s, essentially means the entity will react to the properties of what the entity interacts with */
 	public static final Material DEFAULT_ENTITY = new MaterialConst(1, 1, 1, 1, 1, 1);
 	/** A {@link Material} with high bounce values */
 	public static final Material BOUNCE = new MaterialConst(MaterialConst.DEFAULT_FRICTION, 0.9, 0.9, 0.9);

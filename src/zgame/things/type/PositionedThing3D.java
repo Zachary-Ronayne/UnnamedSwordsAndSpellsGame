@@ -1,24 +1,26 @@
 package zgame.things.type;
 
-import zgame.things.entity.Entity;
+import zgame.things.entity.EntityThing;
 
 /** A {@link GameThing} which uses x, y, and z coordinates */
-public abstract class PositionedThing3D extends PositionedThing implements Position3D{
+public abstract class PositionedThing3D implements Position3D{
 	
-	/** The x coordinate of this {@link PositionedThing}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link Entity} */
+	// TODO rework this clas to something useful
+	
+	/** The x coordinate of this {@link PositionedThing3D}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link EntityThing} */
 	private double x;
-	/** The y coordinate of this {@link PositionedThing}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link Entity} */
+	/** The y coordinate of this {@link PositionedThing3D}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link EntityThing} */
 	private double y;
-	/** The z coordinate of this {@link PositionedThing}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link Entity} */
+	/** The z coordinate of this {@link PositionedThing3D}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link EntityThing} */
 	private double z;
 	
-	/** Create a new {@link PositionedThing} at (0, 0, 0) */
+	/** Create a new {@link PositionedThing3D} at (0, 0, 0) */
 	public PositionedThing3D(){
 		this(0, 0, 0);
 	}
 	
 	/**
-	 * Create a new {@link PositionedThing2D}
+	 * Create a new {@link PositionedThing3D}
 	 *
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}

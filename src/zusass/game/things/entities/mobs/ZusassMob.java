@@ -128,7 +128,7 @@ public abstract class ZusassMob extends EntityThing2D implements Movement2D, Rec
 		this.walkFriction = DEFAULT_WALK_FRICTION;
 		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
 		this.walking = false;
-		this.walk = new Walk2D(this.getEntity());
+		this.walk = new Walk2D(this);
 		
 		this.stopWalking();
 		

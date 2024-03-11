@@ -227,8 +227,7 @@ public class MainTest extends Game{
 			if(CIRCLE_PLAYER) this.player = new PlayerTesterCircle(130, 430, 60);
 			else this.player = new PlayerTesterRect(100, 400, 60, 100);
 			
-			// TODO make it easier to work with the entity object
-			this.player.getEntity().setMass(100);
+			this.player.setMass(100);
 			this.player.setLockCamera(true);
 			this.player.setCanWallJump(true);
 			firstRoom.addThing(this.player);

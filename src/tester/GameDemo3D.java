@@ -9,7 +9,6 @@ import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
 import zgame.physics.ZVector;
 import zgame.physics.ZVector2D;
-import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResponse;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
@@ -92,6 +91,7 @@ public class GameDemo3D extends Game{
 		 *
 		 * @param room The room to use for the play state
 		 */
+		// TODO add a type param here
 		public DemoGameState(Room room){
 			super(room);
 		}
@@ -385,7 +385,7 @@ public class GameDemo3D extends Game{
 	}
 	
 	// TODO Make entity thing compatible with 3D
-	private static class Player3D extends Entity<HitBox3D> implements Movement3D, HitBox3D{
+	private static class Player3D extends EntityThing<HitBox3D> implements Movement3D, HitBox3D{
 		private final Game game;
 		
 		private Walk3D walk;
@@ -666,6 +666,11 @@ public class GameDemo3D extends Game{
 		@Override
 		public double getLength(){
 			return 0;
+		}
+		
+		@Override
+		protected void render(Game game, Renderer r){
+		
 		}
 	}
 	

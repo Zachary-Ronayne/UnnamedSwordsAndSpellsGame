@@ -5,12 +5,11 @@ import zgame.core.graphics.Renderer;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.things.type.*;
-import zgame.things.type.bounds.HitBox;
+import zgame.things.type.bounds.Bounds2D;
 import zgame.things.type.bounds.HitBox2D;
-import zgame.things.type.bounds.RectangleHitBox;
 
 /** A {@link GameThing} with a rectangular hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
-public class Tile extends PositionedRectangleThing implements RectangleHitBox{
+public class Tile extends GameThing implements Bounds2D, Materialable{
 	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 64;
@@ -28,6 +27,12 @@ public class Tile extends PositionedRectangleThing implements RectangleHitBox{
 	
 	/** The type of this tile used for rendering the front, foreground, of this tile */
 	private TileType frontType;
+	
+	// TODO make these coordinates non mutable? Or somehow be able to recalculate
+	/** The x coordinate of this tile */
+	private double x;
+	/** The y coordinate of this tile */
+	private double y;
 	
 	/**
 	 * Make a new tile at the given index of the default color
@@ -58,11 +63,13 @@ public class Tile extends PositionedRectangleThing implements RectangleHitBox{
 	 * @param frontType See {@link #frontType}
 	 */
 	public Tile(int x, int y, TileType backType, TileType frontType){
-		super(x * size(), y * size(), size(), size());
+		super();
 		this.xIndex = x;
 		this.yIndex = y;
 		this.backType = backType;
 		this.frontType = frontType;
+		this.x = x * size();
+		this.y = y * size();
 	}
 	
 	/** @return See {@link #xIndex} */
@@ -105,12 +112,6 @@ public class Tile extends PositionedRectangleThing implements RectangleHitBox{
 		return this.getFrontType().getHitbox().collide(this, obj);
 	}
 	
-	/** See {@link TileHitbox#intersectsTile(Tile, HitBox2D)} */
-	@Override
-	public boolean intersects(HitBox<HitBox2D> obj){
-		return this.getFrontType().getHitbox().intersectsTile(this, obj.get());
-	}
-	
 	@Override
 	public void render(Game game, Renderer r){
 		this.getBackType().render(this, game, r);
@@ -127,56 +128,33 @@ public class Tile extends PositionedRectangleThing implements RectangleHitBox{
 		return TILE_SIZE_INVERSE;
 	}
 	
-	// Tiles do not move or collide
 	@Override
-	public void collide(CollisionResponse r){}
-	
-	@Override
-	public void touchFloor(Material touched){}
-	
-	@Override
-	public void leaveFloor(){}
-	
-	@Override
-	public void touchCeiling(Material touched){}
-	
-	@Override
-	public void leaveCeiling(){}
-	
-	@Override
-	public void touchWall(Material touched){}
-	
-	@Override
-	public void leaveWall(){}
-	
-	@Override
-	public boolean isOnGround(){
-		return false;
+	public double getX(){
+		return this.x;
 	}
 	
 	@Override
-	public boolean isOnCeiling(){
-		return false;
+	public double getY(){
+		return this.y;
 	}
 	
 	@Override
-	public boolean isOnWall(){
-		return false;
+	public double getWidth(){
+		return size();
 	}
 	
 	@Override
-	public double getPX(){
-		return this.getX();
+	public double getHeight(){
+		return size();
 	}
 	
 	@Override
-	public double getPY(){
-		return this.getY();
+	public double maxX(){
+		return this.getX() + this.getWidth();
 	}
 	
-	/** @return Always an empty string, tiles do not use uuids */
 	@Override
-	public String getUuid(){
-		return "";
+	public double maxY(){
+		return this.getY() + this.getHeight();
 	}
 }

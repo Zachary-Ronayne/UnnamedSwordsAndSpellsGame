@@ -2,30 +2,34 @@ package zgame.things.entity;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
+import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector;
 import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResponse;
-import zgame.physics.material.Material;
-import zgame.things.type.PositionedHitboxThing2D;
-import zgame.things.type.PositionedThing;
+import zgame.things.type.bounds.Bounds2D;
+import zgame.things.type.bounds.HitBox2D;
 
 /**
- * A {@link PositionedThing} which keeps track of an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
- * This is for things like creatures, dropped items, projectiles, etc.
+ * An {@link EntityThing} in 2D
  */
-public abstract class EntityThing2D extends PositionedHitboxThing2D implements GameTickable{
+public abstract class EntityThing2D extends EntityThing<HitBox2D> implements GameTickable, HitBox2D, Bounds2D{
 	
 	// TODO make a 3D version of this
 	
 	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
-
-	// TODO figure out how EntityThing and EntityThing2D need to be combined
-	// TODO make up a naming structure that makes sense
-	/** The {@link Entity} used by this {@link EntityThing2D} */
-	private final Entity2D entity;
+	
+	/** The x coordinate of this {@link EntityThing2D}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link EntityThing2D} */
+	private double x;
+	/** The y coordinate of this {@link EntityThing2D}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link EntityThing2D} */
+	private double y;
+	
+	/** The value of the x coordinate from the last tick */
+	private double px;
+	/** The value of the y coordinate from the last tick */
+	private double py;
 	
 	/**
-	 * Create a new empty entity at (0, 0) with a mass of 1
+	 * Create a new empty entity at (0, 0) with a mass of 100
 	 */
 	public EntityThing2D(){
 		this(0, 0);
@@ -46,75 +50,124 @@ public abstract class EntityThing2D extends PositionedHitboxThing2D implements G
 	 *
 	 * @param x The x coordinate of the entity
 	 * @param y The y coordinate of the entity
-	 * @param mass See {@link Entity#mass}
+	 * @param mass See {@link EntityThing#mass}
 	 */
 	public EntityThing2D(double x, double y, double mass){
-		super(x, y);
-		this.entity = this.createEntity(mass);
+		super(mass);
+		this.setX(x);
+		this.setY(y);
+	}
+	
+	/** @return See {@link #x} */
+	@Override
+	public double getX(){
+		return this.x;
+	}
+	
+	/** @param x See {@link #x} */
+	public void setX(double x){
+		this.x = x;
 	}
 	
 	/**
-	 * Create a new entity for this object. The object returned by this method will be used as this object's entity.
-	 * Override to provide a custom entity
-	 * @param mass The starting mass of the entity
-	 * @return The new entity object
+	 * Add the given value to {@link #x}
+	 *
+	 * @param x The value to add
 	 */
-	public Entity2D createEntity(double mass){
-		return new Entity2D(this, mass);
+	public void addX(double x){
+		this.setX(this.getX() + x);
 	}
 	
-	// TODO should this be in the abstract Entity?
-	/** @return See {@link #entity} */
-	public Entity2D getEntity(){
-		return this.entity;
-	}
-	
+	/** @return See {@link #y} */
 	@Override
-	public void tick(Game game, double dt){
-		this.entity.tick(game, dt);
+	public double getY(){
+		return this.y;
+	}
+	
+	/** @param y See {@link #y} */
+	public void setY(double y){
+		this.y = y;
+	}
+	
+	/**
+	 * Add the given value to {@link #y}
+	 *
+	 * @param y The value to add
+	 */
+	public void addY(double y){
+		this.setY(this.getY() + y);
 	}
 	
 	@Override
 	public void collide(CollisionResponse r){
-		this.entity.collide(r);
+		// TODO implement properly and abstract out some of this logic to 2D and 3D
+		this.addX(r.x());
+		this.addY(r.y());
+		if(r.wall()) this.touchWall(r.material());
+		if(r.ceiling()) this.touchCeiling(r.material());
+		if(r.floor()) this.touchFloor(r.material());
 	}
 	
-	// TODO abstract out and or condense these velocity and force methods
+	@Override
+	public ZVector2D zeroVector(){
+		return new ZVector2D();
+	}
+	
+	@Override
+	public void moveEntity(ZVector acceleration, double dt){
+		// Move the entity based on the current velocity and acceleration
+		this.px = this.getX();
+		this.py = this.getY();
+		// TODO Do this with type params instead of casting
+		var moveVec = (ZVector2D)this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5));
+		this.addX(moveVec.getX());
+		this.addY(moveVec.getY());
+	}
+	
+	// TODO abstract out
+	
 	/**
-	 * @param x The new x velocity of this {@link EntityThing2D}
-	 * @param y The new y velocity of this {@link EntityThing2D}
+	 * Set the given force name with a force built from the given components. If the given name doesn't have a force mapped to it yet, then this method automatically adds it
+	 * to the
+	 * map
+	 *
+	 * @param name The name of the force to set
+	 * @param x The x component
+	 * @param y The y component
+	 * @return The newly set vector object
+	 */
+	public ZVector setForce(String name, double x, double y){
+		return setForce(name, new ZVector2D(x, y));
+	}
+	
+	/**
+	 * @param x The new x velocity of this {@link EntityThing}
+	 * @param y The new y velocity of this {@link EntityThing}
 	 */
 	public void setVelocity(double x, double y){
-		this.getEntity().setVelocity(new ZVector2D(x, y));
+		this.setVelocity(new ZVector2D(x, y));
 	}
 	
-	/** @return The velocity of this {@link EntityThing2D} on the x axis */
+	// TODO implement these properly
+	
+	/** @return The velocity of this {@link EntityThing} on the x axis */
 	public double getVX(){
-		return this.getEntity().getHorizontalVel();
+		return this.getVelocity().getHorizontalForce();
 	}
 	
-	/** @return The velocity of this {@link EntityThing2D} on the y axis */
+	/** @return The velocity of this {@link EntityThing} on the y axis */
 	public double getVY(){
-		return this.getEntity().getVerticalVel();
+		return this.getVelocity().getVerticalForce();
 	}
 	
-	/** @param x the new x velocity of this {@link EntityThing2D} */
+	/** @param x the new x velocity of this {@link EntityThing} */
 	public void setVX(double x){
 		this.setVelocity(x, this.getVY());
 	}
 	
-	/** @param y the new y velocity of this {@link EntityThing2D} */
+	/** @param y the new y velocity of this {@link EntityThing} */
 	public void setVY(double y){
 		this.setVelocity(this.getVX(), y);
-	}
-	
-	/**
-	 * Add the given velocity to the current velocity
-	 *
-	 * @param vec The velocity to add
-	 */
-	public void addVelocity(ZVector vec){
-		this.getEntity().setVelocity(this.entity.getVelocity().add(vec));
 	}
 	
 	/**
@@ -135,84 +188,63 @@ public abstract class EntityThing2D extends PositionedHitboxThing2D implements G
 		this.addVelocity(new ZVector2D(0, y));
 	}
 	
-	// TODO figure out what this is needed for
 	@Override
-	public final GameTickable asTickable(){
-		return this;
+	public double getSurfaceArea(){
+		return this.getWidth();
 	}
 	
-	@Override
-	public String getUuid(){
-		return this.entity.getUuid();
-	}
-	
-	// TODO should this be an abstract method here or somewhere else?
-	/**
-	 * @return The number determining how much friction applies to this {@link Entity}.
-	 * Higher values mean more friction, lower values mean less friction, 0 means no friction, 1 means no movement on a surface can occur.
-	 * Behavior is undefined for negative return values
-	 */
-	public abstract double getFrictionConstant();
-	
-	// TODO make it less stupid to have all this implemented
-	@Override
-	public Material getMaterial(){
-		return this.getEntity().getMaterial();
-	}
-	
-	@Override
-	public void touchFloor(Material touched){
-		this.entity.touchFloor(touched);
-	}
-	
-	@Override
-	public void leaveFloor(){
-		this.entity.leaveFloor();
-	}
-	
-	@Override
-	public void touchCeiling(Material touched){
-		this.entity.touchCeiling(touched);
-	}
-	
-	@Override
-	public void leaveCeiling(){
-		this.entity.leaveCeiling();
-	}
-	
-	@Override
-	public void touchWall(Material touched){
-		this.entity.touchWall(touched);
-	}
-	
-	@Override
-	public void leaveWall(){
-		this.entity.leaveWall();
-	}
-	
-	@Override
-	public boolean isOnGround(){
-		return this.entity.isOnGround();
-	}
-	
-	@Override
-	public boolean isOnCeiling(){
-		return this.entity.isOnCeiling();
-	}
-	
-	@Override
-	public boolean isOnWall(){
-		return this.entity.isOnWall();
-	}
-	
-	@Override
+	/** @return The x coordinate of this {@link EntityThing2D} where it was in the previous instance of time, based on its current velocity */
 	public double getPX(){
-		return this.entity.getPX();
+		return px;
+	}
+	
+	/** @return The y coordinate of this {@link EntityThing2D} where it was in the previous instance of time, based on its current velocity */
+	public double getPY(){
+		return py;
 	}
 	
 	@Override
-	public double getPY(){
-		return this.entity.getPY();
+	public ZVector setHorizontalForce(String name, double f){
+		return this.setForce(name, f, 0);
+	}
+	
+	@Override
+	public ZVector setVerticalForce(String name, double f){
+		return this.setForce(name, 0, f);
+	}
+	
+	@Override
+	public double getHorizontalVel(){
+		return this.getVX();
+	}
+	
+	@Override
+	public void setHorizontalVel(double v){
+		this.setVX(v);
+	}
+	
+	@Override
+	public double getVerticalVel(){
+		return this.getVY();
+	}
+	
+	@Override
+	public void setVerticalVel(double v){
+		this.setVY(v);
+	}
+	
+	@Override
+	public boolean shouldRender(Game game, Renderer r){
+		return r.gameBoundsInScreen(this.getBounds());
+	}
+	
+	/**
+	 * Center the camera of the given {@link Game} to the center of this object
+	 *
+	 * @param game The game
+	 */
+	public void centerCamera(Game game){
+		game.centerCamera(this.centerX(), this.centerY());
 	}
 	
 }

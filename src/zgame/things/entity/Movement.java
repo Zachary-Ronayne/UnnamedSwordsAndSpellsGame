@@ -7,8 +7,8 @@ import zgame.physics.material.Material;
 // TODO should movement have a type param for hitbox?
 public interface Movement{
 	
-	/** @return The {@link Entity} using this object */
-	default Entity<?> getThing(){
+	/** @return The {@link EntityThing} using this object */
+	default EntityThing<?> getThing(){
 		return this.getWalk().getEntity();
 	}
 	

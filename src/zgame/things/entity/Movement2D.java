@@ -1,6 +1,6 @@
 package zgame.things.entity;
 
-/** A class that handles an {@link Entity} moving by walking and jumping */
+/** A class that handles an {@link EntityThing} moving by walking and jumping */
 public interface Movement2D extends Movement{
 	
 	@Override

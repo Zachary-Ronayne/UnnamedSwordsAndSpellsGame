@@ -6,7 +6,6 @@ import zgame.core.file.Saveable;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.things.Tag;
-import zgame.things.type.bounds.HitBox;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -80,14 +79,6 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	 */
 	public void removeFrom(Game game){
 		game.getCurrentRoom().removeThing(this);
-	}
-	
-	/**
-	 * @return This object, as a {@link GameTickable}, or null if it cannot be a {@link GameTickable}
-	 * 		The return value of this method should equal this object, not another version or reference, i.e. (this == this.asTickable()) should evaluate to true
-	 */
-	public GameTickable asTickable(){
-		return null;
 	}
 	
 	/**

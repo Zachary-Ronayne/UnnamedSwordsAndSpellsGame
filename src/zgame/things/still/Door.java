@@ -6,21 +6,18 @@ import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.things.entity.EntityThing2D;
+import zgame.things.entity.StaticEntityThing2D;
 import zgame.things.type.GameThing;
-import zgame.things.type.PositionedHitboxThing2D;
-import zgame.things.type.PositionedRectangleThing;
-import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room;
 import zgame.world.Room2D;
 
-// TODO abstract this to 2D and 3D?
+// TODO abstract this to 2D and 3D
 
 /**
  * An object that allows other {@link GameThing}s to enter another {@link Room}
- * @param <H> The hitbox implementation which can interact with this door
  */
-public class Door<H extends HitBox<?>> extends PositionedRectangleThing implements GameTickable{
+public class Door extends StaticEntityThing2D implements GameTickable{
 	
 	/** The default value of {@link #width} */
 	public static final double WIDTH = 70;
@@ -58,11 +55,9 @@ public class Door<H extends HitBox<?>> extends PositionedRectangleThing implemen
 	 * @param autoEnter See {@link #autoEnter}
 	 */
 	public Door(double x, double y, boolean autoEnter){
-		super(x, y);
+		super(x, y, WIDTH, HEIGHT);
 		this.uuid = UUID.randomUUID().toString();
 		
-		this.setWidth(WIDTH);
-		this.setHeight(HEIGHT);
 		this.setAutoEnter(autoEnter);
 		
 		this.setLeadRoom(null, 0, 0);
@@ -117,14 +112,14 @@ public class Door<H extends HitBox<?>> extends PositionedRectangleThing implemen
 	}
 	
 	/**
-	 * Move the given {@link PositionedHitboxThing2D} from the given room to {@link #leadRoom}, only if it's able to enter this door
+	 * Move the given {@link EntityThing2D} from the given room to {@link #leadRoom}, only if it's able to enter this door
 	 *
 	 * @param r The room which thing is coming from, can be null if there is no room the thing is coming from
 	 * @param thing The thing to move
 	 * @param game The {@link Game} where this room entering takes place
 	 * @return true if thing entered this room, false otherwise
 	 */
-	public boolean enterRoom(Room<H> r, PositionedHitboxThing2D thing, Game game){
+	public boolean enterRoom(Room<HitBox2D> r, EntityThing2D thing, Game game){
 		if(this.leadRoom != null && !this.leadRoom.canEnter(thing)) return false;
 		
 		if(!this.canEnter(thing)) return false;
@@ -135,8 +130,7 @@ public class Door<H extends HitBox<?>> extends PositionedRectangleThing implemen
 		if(this.leadRoom != null){
 			thing.setX(this.roomX);
 			thing.setY(this.roomY);
-			// TODO figure out how to make this not need a type cast
-			thing.enterRoom((Room<HitBox2D>)r, this.leadRoom, game);
+			thing.enterRoom(r, this.leadRoom, game);
 		}
 		else return false;
 		return true;
@@ -149,12 +143,14 @@ public class Door<H extends HitBox<?>> extends PositionedRectangleThing implemen
 	 * @param thing The thing
 	 * @return true if thing can enter the door, false otherwise
 	 */
-	public boolean canEnter(PositionedHitboxThing2D thing){
+	public boolean canEnter(EntityThing2D thing){
 		return true;
 	}
 	
 	@Override
 	public void tick(Game game, double dt){
+		super.tick(game, dt);
+		
 		if(!this.isAutoEnter()) return;
 		
 		// Check every entity and if it touches this door, move it to this Room
@@ -166,7 +162,7 @@ public class Door<H extends HitBox<?>> extends PositionedRectangleThing implemen
 			var e = (EntityThing2D)entity;
 			if(e.intersectsRect(this.getX(), this.getY(), this.getWidth(), this.getHeight())){
 				// TODO avoid types being weird here
-				this.enterRoom((Room<H>)game.getCurrentRoom(), e, game);
+				this.enterRoom((Room<HitBox2D>)game.getCurrentRoom(), e, game);
 			}
 		}
 	}
@@ -175,11 +171,6 @@ public class Door<H extends HitBox<?>> extends PositionedRectangleThing implemen
 	public void render(Game game, Renderer r){
 		r.setColor(.25, .125, 0);
 		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-	}
-	
-	@Override
-	public final GameTickable asTickable(){
-		return this;
 	}
 	
 	@Override

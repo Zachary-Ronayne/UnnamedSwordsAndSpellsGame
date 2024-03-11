@@ -67,7 +67,7 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 		this.addTags(BaseTags.PROJECTILE_NOT_COLLIDE);
 		
 		// Turn off gravity
-		this.getEntity().setGravityLevel(0);
+		this.setGravityLevel(0);
 		
 		// Add a function to effect a hit mob with magic
 		this.addHitFunc(ZusassMob.class, m -> {

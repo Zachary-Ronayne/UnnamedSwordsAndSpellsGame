@@ -9,12 +9,11 @@ import zgame.core.graphics.Renderer;
 import zgame.core.utils.ClassMappedList;
 import zgame.core.utils.NotNullList;
 import zgame.physics.collision.CollisionResponse;
-import zgame.things.entity.Entity;
+import zgame.things.entity.EntityThing;
 import zgame.things.entity.EntityThing2D;
 import zgame.things.still.Door;
 import zgame.things.type.GameThing;
 import zgame.things.type.bounds.HitBox;
-import zgame.things.type.PositionedThing;
 
 /**
  * An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc.
@@ -38,10 +37,10 @@ public abstract class Room<H extends HitBox<?>> extends GameThing{
 	 */
 	public Room(){
 		this.thingsMap = new ClassMappedList();
-		// TODO which of these should be here by default?
 		this.thingsMap.addClass(GameThing.class);
 		this.thingsMap.addClass(HitBox.class);
 		this.thingsMap.addClass(GameTickable.class);
+		// TODO abstract this out to be entities of whatever type the room is
 		this.thingsMap.addClass(EntityThing2D.class);
 		
 		this.thingsToRemove = new ArrayList<>();
@@ -109,7 +108,7 @@ public abstract class Room<H extends HitBox<?>> extends GameThing{
 	}
 	
 	/**
-	 * Collide the given {@link Entity} with this room. Essentially, attempt to move the given object so that it no longer intersects with anything in this room.
+	 * Collide the given {@link EntityThing} with this room. Essentially, attempt to move the given object so that it no longer intersects with anything in this room.
 	 *
 	 * @param obj The object to collide
 	 * @return The CollisionResponse representing the final collision that took place, where the collision material is the floor collision, if one took place
@@ -117,7 +116,7 @@ public abstract class Room<H extends HitBox<?>> extends GameThing{
 	public abstract CollisionResponse collide(HitBox<H> obj);
 	
 	/**
-	 * Make something happen to this {@link PositionedThing} the next time it is ticked
+	 * Make something happen to this {@link GameThing} the next time it is ticked
 	 *
 	 * @param r The function to run
 	 */
@@ -141,7 +140,7 @@ public abstract class Room<H extends HitBox<?>> extends GameThing{
 		
 		// Update the position of all relevant objects
 		var entities = this.getEntities();
-		for(int i = 0; i < entities.size(); i++) entities.get(i).getEntity().updatePosition(game, dt);
+		for(int i = 0; i < entities.size(); i++) entities.get(i).updatePosition(game, dt);
 		
 		// Check the collision of this room for entities
 		// TODO make this not rely on a type cast

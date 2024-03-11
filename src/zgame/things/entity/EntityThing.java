@@ -13,17 +13,18 @@ import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
+import zgame.things.type.GameThing;
 import zgame.things.type.Materialable;
 import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.HitBox2D;
+import zgame.world.Room;
 
 /**
- * A thing which keeps track of an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
+ * A thing is an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
  * This is for things like creatures, dropped items, projectiles, etc.
  * @param <H> The hitbox implementation used by this entity
  */
-// TODO pick a better name and decide how this will be used
-public abstract class Entity<H extends HitBox<?>> implements GameTickable, Materialable, HitBox<H>{
+public abstract class EntityThing<H extends HitBox<?>> extends GameThing implements GameTickable, Materialable, HitBox<H>{
 	
 	// TODO fix being able to jump without touching the ground first
 	
@@ -43,52 +44,52 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 	/** The uuid of this entity */
 	private final String uuid;
 	
-	/** The current velocity of this {@link Entity} */
+	/** The current velocity of this {@link EntityThing} */
 	private ZVector velocity;
 	
-	/** The current force of gravity on this {@link Entity} */
+	/** The current force of gravity on this {@link EntityThing} */
 	private ZVector gravity;
 	
-	/** The percentage of gravity that applies to this {@link Entity}, defaults to 1, i.e. 100% */
+	/** The percentage of gravity that applies to this {@link EntityThing}, defaults to 1, i.e. 100% */
 	private double gravityLevel;
 	
-	/** The current force of friction on this {@link Entity}. */
+	/** The current force of friction on this {@link EntityThing}. */
 	private ZVector frictionForce;
 	
-	/** The current force of drag acting against gravity on this {@link Entity} */
+	/** The current force of drag acting against gravity on this {@link EntityThing} */
 	private ZVector gravityDragForce;
 	
-	/** Every force currently acting on this {@link Entity}, mapped by a name */
+	/** Every force currently acting on this {@link EntityThing}, mapped by a name */
 	private final Map<String, ZVector> forces;
 	
 	/** A set of all the uuids which are currently colliding with this entity */
 	private final HashSet<String> collidingUuids;
 	
-	/** A {@link ZVector} representing the total force acting on this {@link Entity} */
+	/** A {@link ZVector} representing the total force acting on this {@link EntityThing} */
 	private ZVector totalForce;
 	
-	/** The amount of time in seconds since this {@link Entity} last touched the ground, or -1 if it is currently on the ground */
+	/** The amount of time in seconds since this {@link EntityThing} last touched the ground, or -1 if it is currently on the ground */
 	private double groundTime;
 	
-	/** The material which this {@link Entity} is standing on, or {@link Materials#NONE} if no material is being touched */
+	/** The material which this {@link EntityThing} is standing on, or {@link Materials#NONE} if no material is being touched */
 	private Material groundMaterial;
 	
-	/** The amount of time in seconds since this {@link Entity} last touched a ceiling, or -1 if it is currently touching a ceiling */
+	/** The amount of time in seconds since this {@link EntityThing} last touched a ceiling, or -1 if it is currently touching a ceiling */
 	private double ceilingTime;
 	
-	/** The material which this {@link Entity} is holding onto from the ceiling, or {@link Materials#NONE} if no ceiling is touched */
+	/** The material which this {@link EntityThing} is holding onto from the ceiling, or {@link Materials#NONE} if no ceiling is touched */
 	private Material ceilingMaterial;
 	
-	/** The amount of time in seconds since this {@link Entity} last touched a wall, or -1 if it is currently touching a wall */
+	/** The amount of time in seconds since this {@link EntityThing} last touched a wall, or -1 if it is currently touching a wall */
 	private double wallTime;
 	
-	/** The material which this {@link Entity} is holding on a wall, or {@link Materials#NONE} if no wall is touched */
+	/** The material which this {@link EntityThing} is holding on a wall, or {@link Materials#NONE} if no wall is touched */
 	private Material wallMaterial;
 	
-	/** The mass, i.e. weight, of this {@link Entity} */
+	/** The mass, i.e. weight, of this {@link EntityThing} */
 	private double mass;
 	
-	/** The Material which this {@link Entity} is made of */
+	/** The Material which this {@link EntityThing} is made of */
 	private Material material;
 	
 	/**
@@ -96,7 +97,7 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 	 *
 	 * @param mass See {@link #mass}
 	 */
-	public Entity(double mass){
+	public EntityThing(double mass){
 		this.uuid = UUID.randomUUID().toString();
 		
 		this.velocity = this.zeroVector();
@@ -151,7 +152,7 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 	}
 	
 	/**
-	 * Update the position and velocity of this {@link Entity} based on its current forces and velocity
+	 * Update the position and velocity of this {@link EntityThing} based on its current forces and velocity
 	 *
 	 * @param game The {@link Game} where the update takes place
 	 * @param dt The amount of time, in seconds, which passed in the tick where this update took place
@@ -173,7 +174,7 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 	public abstract void moveEntity(ZVector moveVec, double dt);
 	
 	/**
-	 * Determine the current amount of friction on this {@link Entity} and update the force
+	 * Determine the current amount of friction on this {@link EntityThing} and update the force
 	 *
 	 * @param dt The amount of time, in seconds, that will pass the next time the frictional force is applied
 	 */
@@ -209,7 +210,7 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 	}
 	
 	/**
-	 * Update the current amount of drag on this {@link Entity} counteracting the force of gravity
+	 * Update the current amount of drag on this {@link EntityThing} counteracting the force of gravity
 	 *
 	 * @param dt The amount of time, in seconds, that will pass the next time the drag force is applied
 	 */
@@ -231,7 +232,7 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 	}
 	
 	/**
-	 * Update the amount of force applied against gravity on this {@link Entity} from sliding down walls
+	 * Update the amount of force applied against gravity on this {@link EntityThing} from sliding down walls
 	 *
 	 * @param dt The amount of time, in seconds, that will pass the next time the wall slide force is applied
 	 */
@@ -265,9 +266,9 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 	}
 	
 	/**
-	 * @return The terminal velocity of this {@link Entity}. By default, based on the mass, the acceleration of gravity, the value of {@link #getSurfaceArea()},
-	 * and the friction of the ground material, which is also the air material when this {@link Entity} is not on the ground.
-	 * Returns 0 if this {@link Entity} is on the ground.
+	 * @return The terminal velocity of this {@link EntityThing}. By default, based on the mass, the acceleration of gravity, the value of {@link #getSurfaceArea()},
+	 * and the friction of the ground material, which is also the air material when this {@link EntityThing} is not on the ground.
+	 * Returns 0 if this {@link EntityThing} is on the ground.
 	 * If {@link #getSurfaceArea()} returns 0, or is negative, then the value is ignored in the calculation.
 	 * If this method is made to return a negative value, terminal velocity is removed, i.e. the force of gravity will continue to accelerate
 	 */
@@ -284,11 +285,11 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 		return Math.sqrt(Math.abs((2.0 * this.getMass() * GRAVITY_ACCELERATION) / (m.getFriction() * surfaceArea * 0.01)));
 	}
 	
-	/** @return The surface area of this {@link Entity} */
+	/** @return The surface area of this {@link EntityThing} */
 	public abstract double getSurfaceArea();
 	
 	/**
-	 * @return The number determining how much friction applies to this {@link Entity}.
+	 * @return The number determining how much friction applies to this {@link EntityThing}.
 	 * Higher values mean more friction, lower values mean less friction, 0 means no friction, 1 means no movement on a surface can occur.
 	 * Behavior is undefined for negative return values
 	 */
@@ -319,7 +320,7 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 		return this.gravity;
 	}
 	
-	/** Update the amount of gravitational force being applied to this {@link Entity} */
+	/** Update the amount of gravitational force being applied to this {@link EntityThing} */
 	private void updateGravity(){
 		this.gravity = this.setVerticalForce(FORCE_NAME_GRAVITY, GRAVITY_ACCELERATION * this.getMass() * this.getGravityLevel());
 	}
@@ -371,7 +372,7 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 		return this.wallMaterial;
 	}
 	
-	/** @return true if this {@link Entity} was on the ground in the past {@link #tick(Game, double)}, false otherwise */
+	/** @return true if this {@link EntityThing} was on the ground in the past {@link #tick(Game, double)}, false otherwise */
 	@Override
 	public boolean isOnGround(){
 		return this.groundTime == -1;
@@ -392,13 +393,13 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 		return this.wallTime;
 	}
 	
-	/** @return true if this {@link Entity} was on a ceiling in the past {@link #tick(Game, double)}, false otherwise */
+	/** @return true if this {@link EntityThing} was on a ceiling in the past {@link #tick(Game, double)}, false otherwise */
 	@Override
 	public boolean isOnCeiling(){
 		return this.ceilingTime == -1;
 	}
 	
-	/** @return true if this {@link Entity} was touching a wall in the past {@link #tick(Game, double)}, false otherwise */
+	/** @return true if this {@link EntityThing} was touching a wall in the past {@link #tick(Game, double)}, false otherwise */
 	@Override
 	public boolean isOnWall(){
 		return this.wallTime == -1;
@@ -453,17 +454,17 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 	}
 	
 	/**
-	 * Called each this {@link Entity} has its entity collision handled.
+	 * Called each this {@link EntityThing} has its entity collision handled.
 	 * Does nothing by default, override to add custom behavior
 	 *
 	 * @param game The game the collision happened in
 	 * @param entity The entity that was collided with this entity
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
-	public void checkEntityCollision(Game game, Entity<H> entity, double dt){}
+	public void checkEntityCollision(Game game, EntityThing<H> entity, double dt){}
 	
 	/**
-	 * Collide this {@link Entity} with the entities in the given room. Can override this to perform custom collision
+	 * Collide this {@link EntityThing} with the entities in the given room. Can override this to perform custom collision
 	 *
 	 * @param game The game with the current room to collide with
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
@@ -496,9 +497,9 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 			var e = entities.get(i);
 			// TODO make this not need a weird getHotbox method
 			// TODO make this able to be any entity, not just entity 2D
-			if(e.getEntity() == this || !e.intersects((HitBox<HitBox2D>)this)) continue;
+			if(e == this || !e.intersects((HitBox<HitBox2D>)this)) continue;
 			// TODO make this not need a type cast
-			this.checkEntityCollision(game, (Entity<H>)e.getEntity(), dt);
+			this.checkEntityCollision(game, (EntityThing<H>)e, dt);
 			
 //			// If they intersect, determine the force they should have against each other, and apply it to both entities
 //			String eUuid = e.getUuid();
@@ -553,7 +554,7 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 		}
 	}
 	
-	/** @param velocity The new current velocity of this {@link Entity} */
+	/** @param velocity The new current velocity of this {@link EntityThing} */
 	public void setVelocity(ZVector velocity){
 		this.velocity = velocity;
 	}
@@ -568,17 +569,17 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 	}
 
 	/**
-	 * Determine if this {@link Entity} has the force object mapped to the given name
+	 * Determine if this {@link EntityThing} has the force object mapped to the given name
 	 *
 	 * @param name The object to check for
-	 * @return true if this {@link Entity} has the given force, false otherwise
+	 * @return true if this {@link EntityThing} has the given force, false otherwise
 	 */
 	public boolean hasForce(String name){
 		return this.forces.containsKey(name);
 	}
 	
 	/**
-	 * Remove the {@link ZVector} with the specified name object from this {@link Entity}'s forces
+	 * Remove the {@link ZVector} with the specified name object from this {@link EntityThing}'s forces
 	 *
 	 * @param name The name of the force to remove
 	 * @return The removed force vector, or null if the given force was not found
@@ -637,6 +638,18 @@ public abstract class Entity<H extends HitBox<?>> implements GameTickable, Mater
 	@Override
 	public String getUuid(){
 		return this.uuid;
+	}
+	
+	/**
+	 * Take this {@link EntityThing} from the given room, and place it in the other given room
+	 *
+	 * @param from The room to move the thing from, i.e. the thing was in this room. Can be null if the thing didn't come from a room
+	 * @param to The room to move the thing to, i.e. the thing is now in this room. Can be null if the thing isn't going to a room
+	 * @param game The {@link Game} where this thing entered the room
+	 */
+	public void enterRoom(Room<H> from, Room<H> to, Game game){
+		if(from != null) from.removeThing(this);
+		if(to != null) to.addThing(this);
 	}
 	
 }
