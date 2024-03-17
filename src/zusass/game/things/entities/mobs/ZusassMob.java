@@ -537,25 +537,6 @@ public abstract class ZusassMob extends EntityThing2D implements Movement2D, Rec
 			return this.getWalkFrictionConstant();
 	}
 	
-	// TODO make it that these random things don't need to be reimplemented
-	@Override
-	public void leaveFloor(){
-		super.leaveFloor();
-		this.movementLeaveFloor();
-	}
-
-	@Override
-	public void leaveWall(){
-		super.leaveWall();
-		this.movementLeaveWall();
-	}
-
-	@Override
-	public void touchFloor(Material touched){
-		super.touchFloor(touched);
-		this.movementTouchFloor(touched);
-	}
-	
 	@Override
 	public double getJumpPower(){
 		return Math.pow(this.stat(AGILITY), 0.3) * 35000;

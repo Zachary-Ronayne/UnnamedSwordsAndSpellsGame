@@ -8,6 +8,8 @@ import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResponse;
 import zgame.things.type.bounds.Bounds2D;
 import zgame.things.type.bounds.HitBox2D;
+import zgame.world.Room;
+import zgame.world.Room2D;
 
 /**
  * An {@link EntityThing} in 2D
@@ -247,4 +249,12 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D>
 		game.centerCamera(this.centerX(), this.centerY());
 	}
 	
+	@Override
+	public final void enterRoom(Room<HitBox2D, EntityThing2D> from, Room<HitBox2D, EntityThing2D> to, Game game){
+		this.enterRoom((Room2D)from, (Room2D)to, game);
+	}
+	
+	public void enterRoom(Room2D from,Room2D to, Game game){
+		super.enterRoom(from, to, game);
+	}
 }

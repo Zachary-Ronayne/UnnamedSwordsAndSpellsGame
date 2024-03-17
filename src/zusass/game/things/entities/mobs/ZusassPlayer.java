@@ -13,9 +13,7 @@ import zgame.core.utils.ZMath;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.modifier.TypedModifier;
-import zgame.things.entity.EntityThing2D;
-import zgame.things.type.bounds.HitBox2D;
-import zgame.world.Room;
+import zgame.world.Room2D;
 import zusass.ZusassGame;
 import zusass.game.magic.MultiSpell;
 import zusass.game.magic.ProjectileSpell;
@@ -196,9 +194,8 @@ public class ZusassPlayer extends ZusassMob{
 		zgame.getData().checkAutoSave(zgame);
 	}
 	
-	// TODO make a convenience method to not need to do this type casting
 	@Override
-	public void enterRoom(Room<HitBox2D, EntityThing2D> from, Room<HitBox2D, EntityThing2D> to, Game game){
+	public void enterRoom(Room2D from, Room2D to, Game game){
 		ZusassGame zgame = (ZusassGame)game;
 		super.enterRoom(from, to, zgame);
 		if(to != null){

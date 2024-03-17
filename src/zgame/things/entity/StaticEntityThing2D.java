@@ -49,4 +49,9 @@ public abstract class StaticEntityThing2D extends EntityThingRect2D{
 	public void moveEntity(ZVector acceleration, double dt){
 		// Do nothing when moving with a static entity by default
 	}
+	
+	@Override
+	public boolean canEnterRooms(){
+		return false;
+	}
 }

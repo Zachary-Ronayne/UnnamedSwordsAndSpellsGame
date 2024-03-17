@@ -1,14 +1,12 @@
 package zgame.things.still;
 
-import java.util.UUID;
-
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
+import zgame.things.entity.EntityThing;
 import zgame.things.entity.EntityThing2D;
 import zgame.things.entity.StaticEntityThing2D;
 import zgame.things.type.GameThing;
-import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room;
 import zgame.world.Room2D;
 
@@ -23,9 +21,6 @@ public class Door extends StaticEntityThing2D implements GameTickable{
 	public static final double WIDTH = 70;
 	/** The default value of {@link #height} */
 	public static final double HEIGHT = 150;
-	
-	/** The uuid of this door */
-	private final String uuid;
 	
 	/** The {@link Room} which this door leads to. Can be null to make this a real fake door */
 	private Room2D leadRoom;
@@ -56,8 +51,6 @@ public class Door extends StaticEntityThing2D implements GameTickable{
 	 */
 	public Door(double x, double y, boolean autoEnter){
 		super(x, y, WIDTH, HEIGHT);
-		this.uuid = UUID.randomUUID().toString();
-		
 		this.setAutoEnter(autoEnter);
 		
 		this.setLeadRoom(null, 0, 0);
@@ -125,12 +118,13 @@ public class Door extends StaticEntityThing2D implements GameTickable{
 		if(!this.canEnter(thing)) return false;
 		// If the thing can leave the room, remove it
 		if(r != null && r.canLeave(thing)) r.removeThing(thing);
-			// Otherwise, do not allow the thing to enter the room
-		else return false;
+		// Otherwise, do not allow the thing to enter the room
+		else {
+			return false;
+		}
 		if(this.leadRoom != null){
 			thing.setX(this.roomX);
 			thing.setY(this.roomY);
-			// TODO fix this type cast?
 			thing.enterRoom(r, this.leadRoom, game);
 		}
 		else return false;
@@ -144,8 +138,9 @@ public class Door extends StaticEntityThing2D implements GameTickable{
 	 * @param thing The thing
 	 * @return true if thing can enter the door, false otherwise
 	 */
-	public boolean canEnter(EntityThing2D thing){
-		return true;
+	// TODO make this not generic
+	public boolean canEnter(EntityThing<?, ?> thing){
+		return thing.canEnterRooms();
 	}
 	
 	@Override
@@ -155,10 +150,11 @@ public class Door extends StaticEntityThing2D implements GameTickable{
 		if(!this.isAutoEnter()) return;
 		
 		// Check every entity and if it touches this door, move it to this Room
-		
-		// TODO should this be type casting
 		var entities = game.getCurrentRoom().getEntities();
 		for(var entity : entities){
+			// TODO avoid needing this double check
+			if(!this.canEnter(entity)) continue;
+			
 			// TODO should this be type casting?
 			var e = (EntityThing2D)entity;
 			if(e.intersectsRect(this.getX(), this.getY(), this.getWidth(), this.getHeight())){
@@ -172,11 +168,6 @@ public class Door extends StaticEntityThing2D implements GameTickable{
 	public void render(Game game, Renderer r){
 		r.setColor(.25, .125, 0);
 		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-	}
-	
-	@Override
-	public String getUuid(){
-		return this.uuid;
 	}
 	
 }

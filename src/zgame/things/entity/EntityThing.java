@@ -653,4 +653,9 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		if(to != null) to.addThing(this);
 	}
 	
+	/** @return true if this thing can eter a rom, false otherwise, always returns true by default */
+	public boolean canEnterRooms(){
+		return true;
+	}
+	
 }

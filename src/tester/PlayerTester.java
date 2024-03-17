@@ -3,8 +3,7 @@ package tester;
 import zgame.core.Game;
 import zgame.physics.material.Material;
 import zgame.things.entity.*;
-import zgame.things.type.bounds.HitBox2D;
-import zgame.world.Room;
+import zgame.world.Room2D;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -133,9 +132,8 @@ public abstract class PlayerTester extends EntityThing2D implements Movement2D {
 		this.lockCamera = lockCamera;
 	}
 	
-	// TODO should this need all of these type parameters?
 	@Override
-	public void enterRoom(Room<HitBox2D, EntityThing2D> from, Room<HitBox2D, EntityThing2D> to, Game game){
+	public void enterRoom(Room2D from, Room2D to, Game game){
 		super.enterRoom(from, to, game);
 		if(to != null) game.getPlayState().setCurrentRoom(to);
 		
@@ -206,25 +204,6 @@ public abstract class PlayerTester extends EntityThing2D implements Movement2D {
 	@Override
 	public double getFrictionConstant(){
 		return this.getWalkFrictionConstant();
-	}
-	
-	// TODO make it that this doesn't need to be implemented in this explicit way
-	@Override
-	public void leaveFloor(){
-		super.leaveFloor();
-		this.movementLeaveFloor();
-	}
-	
-	@Override
-	public void leaveWall(){
-		super.leaveWall();
-		this.movementLeaveWall();
-	}
-	
-	@Override
-	public void touchFloor(Material touched){
-		super.touchFloor(touched);
-		this.movementTouchFloor(touched);
 	}
 	
 	/** @return See {@link #jumpPower} */
