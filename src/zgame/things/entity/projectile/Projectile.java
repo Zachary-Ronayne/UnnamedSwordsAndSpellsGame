@@ -54,7 +54,7 @@ public abstract class Projectile extends EntityThing2D{
 	
 	@Override
 	// TODO allow entity to have a type param and not need a type param here?
-	public void checkEntityCollision(Game game, EntityThing<HitBox2D> entity, double dt){
+	public void checkEntityCollision(Game game, EntityThing<HitBox2D, EntityThing2D> entity, double dt){
 		super.checkEntityCollision(game, entity, dt);
 		// Ignore the current thing if the projectile will not hit it, or if the entity should not collide with projectiles
 		if(!willHit(entity.get()) || entity.hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;

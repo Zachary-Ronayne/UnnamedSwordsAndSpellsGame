@@ -6,6 +6,7 @@ import zgame.core.utils.ZMath;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
+import zgame.things.entity.EntityThing2D;
 import zgame.things.still.tiles.BaseTiles;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType;
@@ -16,7 +17,7 @@ import zgame.things.type.bounds.HitBox2D;
 import java.util.ArrayList;
 
 /** A {@link Room} which is made of 2D tiles */
-public class Room2D extends Room<HitBox2D> implements Bounds2D{
+public class Room2D extends Room<HitBox2D, EntityThing2D> implements Bounds2D{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -445,5 +446,10 @@ public class Room2D extends Room<HitBox2D> implements Bounds2D{
 	@Override
 	public Class<HitBox2D> getHitBoxType(){
 		return HitBox2D.class;
+	}
+	
+	@Override
+	public Class<EntityThing2D> getEntityClass(){
+		return EntityThing2D.class;
 	}
 }

@@ -9,6 +9,7 @@ import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
 import zgame.physics.ZVector;
 import zgame.physics.ZVector2D;
+import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResponse;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
@@ -385,7 +386,7 @@ public class GameDemo3D extends Game{
 	}
 	
 	// TODO Make entity thing compatible with 3D
-	private static class Player3D extends EntityThing<HitBox3D> implements Movement3D, HitBox3D{
+	private static class Player3D extends EntityThing3D implements Movement3D, HitBox3D{
 		private final Game game;
 		
 		private Walk3D walk;
@@ -437,9 +438,60 @@ public class GameDemo3D extends Game{
 		}
 		
 		// TODO implement this stuff in 3D
+		
 		@Override
-		public Walk3D getWalk(){
-			return this.walk;
+		public ZVector zeroVector(){
+			return new ZVector2D();
+		}
+		
+		@Override
+		public void moveEntity(ZVector moveVec, double dt){
+		
+		}
+		
+		@Override
+		public double getSurfaceArea(){
+			return 0;
+		}
+		
+		@Override
+		public double getFrictionConstant(){
+			return 0;
+		}
+		
+		@Override
+		public ZVector setHorizontalForce(String name, double f){
+			return null;
+		}
+		
+		@Override
+		public ZVector setVerticalForce(String name, double f){
+			return null;
+		}
+		
+		@Override
+		public double getHorizontalVel(){
+			return 0;
+		}
+		
+		@Override
+		public void setHorizontalVel(double v){
+		
+		}
+		
+		@Override
+		public double getVerticalVel(){
+			return 0;
+		}
+		
+		@Override
+		public void setVerticalVel(double v){
+		
+		}
+		
+		@Override
+		public Walk getWalk(){
+			return new Walk3D(this);
 		}
 		
 		@Override
@@ -448,18 +500,13 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public void stopWalking(){
-		
-		}
-		
-		@Override
-		public void applyWalkForce(double dt, double newWalkForce){
-		
-		}
-		
-		@Override
 		public double getCurrentWalkingSpeed(){
 			return 0;
+		}
+		
+		@Override
+		public void stopWalking(){
+		
 		}
 		
 		@Override
@@ -537,55 +584,39 @@ public class GameDemo3D extends Game{
 			return false;
 		}
 		
-		// TODO implement this as a vector 3D
 		@Override
-		public ZVector zeroVector(){
-			return new ZVector2D();
-		}
-		
-		@Override
-		public void moveEntity(ZVector moveVec, double dt){
+		protected void render(Game game, Renderer r){
 		
 		}
 		
 		@Override
-		public double getSurfaceArea(){
+		public double getX(){
 			return 0;
 		}
 		
 		@Override
-		public double getFrictionConstant(){
+		public double getY(){
 			return 0;
 		}
 		
 		@Override
-		public ZVector setHorizontalForce(String name, double f){
-			return null;
-		}
-		
-		@Override
-		public ZVector setVerticalForce(String name, double f){
-			return null;
-		}
-		
-		@Override
-		public double getHorizontalVel(){
+		public double getZ(){
 			return 0;
 		}
 		
 		@Override
-		public void setHorizontalVel(double v){
-		
-		}
-		
-		@Override
-		public double getVerticalVel(){
+		public double getWidth(){
 			return 0;
 		}
 		
 		@Override
-		public void setVerticalVel(double v){
+		public double getHeight(){
+			return 0;
+		}
 		
+		@Override
+		public double getLength(){
+			return 0;
 		}
 		
 		@Override
@@ -631,46 +662,6 @@ public class GameDemo3D extends Game{
 		@Override
 		public double getPZ(){
 			return 0;
-		}
-		
-		@Override
-		public HitBox3D get(){
-			return this;
-		}
-		
-		@Override
-		public double getX(){
-			return 0;
-		}
-		
-		@Override
-		public double getY(){
-			return 0;
-		}
-		
-		@Override
-		public double getZ(){
-			return 0;
-		}
-		
-		@Override
-		public double getWidth(){
-			return 0;
-		}
-		
-		@Override
-		public double getHeight(){
-			return 0;
-		}
-		
-		@Override
-		public double getLength(){
-			return 0;
-		}
-		
-		@Override
-		protected void render(Game game, Renderer r){
-		
 		}
 	}
 	

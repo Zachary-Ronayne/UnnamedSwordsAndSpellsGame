@@ -12,7 +12,7 @@ import zgame.things.type.bounds.HitBox2D;
 /**
  * An {@link EntityThing} in 2D
  */
-public abstract class EntityThing2D extends EntityThing<HitBox2D> implements GameTickable, HitBox2D, Bounds2D{
+public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D> implements GameTickable, HitBox2D, Bounds2D{
 	
 	// TODO make a 3D version of this
 	

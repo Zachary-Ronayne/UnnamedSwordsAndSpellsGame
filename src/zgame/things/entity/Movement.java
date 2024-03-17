@@ -8,7 +8,7 @@ import zgame.physics.material.Material;
 public interface Movement{
 	
 	/** @return The {@link EntityThing} using this object */
-	default EntityThing<?> getThing(){
+	default EntityThing<?, ?> getThing(){
 		return this.getWalk().getEntity();
 	}
 	

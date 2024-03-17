@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
-import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
@@ -16,15 +15,15 @@ import zgame.physics.material.Materials;
 import zgame.things.type.GameThing;
 import zgame.things.type.Materialable;
 import zgame.things.type.bounds.HitBox;
-import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room;
 
 /**
  * A thing is an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
  * This is for things like creatures, dropped items, projectiles, etc.
+ *
  * @param <H> The hitbox implementation used by this entity
  */
-public abstract class EntityThing<H extends HitBox<?>> extends GameThing implements GameTickable, Materialable, HitBox<H>{
+public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, E>> extends GameThing implements GameTickable, Materialable, HitBox<H>{
 	
 	// TODO fix being able to jump without touching the ground first
 	
@@ -267,10 +266,10 @@ public abstract class EntityThing<H extends HitBox<?>> extends GameThing impleme
 	
 	/**
 	 * @return The terminal velocity of this {@link EntityThing}. By default, based on the mass, the acceleration of gravity, the value of {@link #getSurfaceArea()},
-	 * and the friction of the ground material, which is also the air material when this {@link EntityThing} is not on the ground.
-	 * Returns 0 if this {@link EntityThing} is on the ground.
-	 * If {@link #getSurfaceArea()} returns 0, or is negative, then the value is ignored in the calculation.
-	 * If this method is made to return a negative value, terminal velocity is removed, i.e. the force of gravity will continue to accelerate
+	 * 		and the friction of the ground material, which is also the air material when this {@link EntityThing} is not on the ground.
+	 * 		Returns 0 if this {@link EntityThing} is on the ground.
+	 * 		If {@link #getSurfaceArea()} returns 0, or is negative, then the value is ignored in the calculation.
+	 * 		If this method is made to return a negative value, terminal velocity is removed, i.e. the force of gravity will continue to accelerate
 	 */
 	public double getTerminalVelocity(){
 		if(this.isOnGround()) return 0;
@@ -290,8 +289,8 @@ public abstract class EntityThing<H extends HitBox<?>> extends GameThing impleme
 	
 	/**
 	 * @return The number determining how much friction applies to this {@link EntityThing}.
-	 * Higher values mean more friction, lower values mean less friction, 0 means no friction, 1 means no movement on a surface can occur.
-	 * Behavior is undefined for negative return values
+	 * 		Higher values mean more friction, lower values mean less friction, 0 means no friction, 1 means no movement on a surface can occur.
+	 * 		Behavior is undefined for negative return values
 	 */
 	public abstract double getFrictionConstant();
 	
@@ -461,7 +460,7 @@ public abstract class EntityThing<H extends HitBox<?>> extends GameThing impleme
 	 * @param entity The entity that was collided with this entity
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
-	public void checkEntityCollision(Game game, EntityThing<H> entity, double dt){}
+	public void checkEntityCollision(Game game, EntityThing<H, E> entity, double dt){}
 	
 	/**
 	 * Collide this {@link EntityThing} with the entities in the given room. Can override this to perform custom collision
@@ -489,18 +488,17 @@ public abstract class EntityThing<H extends HitBox<?>> extends GameThing impleme
 			if(removed != null) this.addVelocity(removed.scale(-dt / this.getMass()));
 		}
 		// Get all entities
-		// TODO fix type
-		NotNullList<EntityThing2D> entities = room.getEntities();
+		var entities = room.getEntities();
 		
 		// Iterate through all entities, ignoring this entity, and find the ones intersecting this entity
 		for(int i = 0; i < entities.size(); i++){
 			var e = entities.get(i);
 			// TODO make this not need a weird getHotbox method
 			// TODO make this able to be any entity, not just entity 2D
-			if(e == this || !e.intersects((HitBox<HitBox2D>)this)) continue;
+			if(e == this || !this.intersects((EntityThing<H, E>)e)) continue;
 			// TODO make this not need a type cast
-			this.checkEntityCollision(game, (EntityThing<H>)e, dt);
-			
+			this.checkEntityCollision(game, (EntityThing<H, E>)e, dt);
+
 //			// If they intersect, determine the force they should have against each other, and apply it to both entities
 //			String eUuid = e.getUuid();
 //			ZPoint thisP = new ZPoint(this.centerX(), this.maxY());
@@ -567,7 +565,7 @@ public abstract class EntityThing<H extends HitBox<?>> extends GameThing impleme
 	public void addVelocity(ZVector vec){
 		this.velocity = this.velocity.add(vec);
 	}
-
+	
 	/**
 	 * Determine if this {@link EntityThing} has the force object mapped to the given name
 	 *
@@ -608,6 +606,7 @@ public abstract class EntityThing<H extends HitBox<?>> extends GameThing impleme
 	
 	// TODO is this the best way to do this?
 	// TODO redo doc for abstraction
+	
 	/**
 	 * Only modify the x value, keep the y value the same.
 	 * If the force does not already exist, a force is created with the given name using a zero for the y value
@@ -616,6 +615,7 @@ public abstract class EntityThing<H extends HitBox<?>> extends GameThing impleme
 	
 	// TODO is this the best way to do this?
 	// TODO redo doc for abstraction
+	
 	/**
 	 * Only modify the x value, keep the y value the same.
 	 * If the force does not already exist, a force is created with the given name using a zero for the y value
@@ -623,6 +623,7 @@ public abstract class EntityThing<H extends HitBox<?>> extends GameThing impleme
 	public abstract ZVector setVerticalForce(String name, double f);
 	
 	// TODO is this the best way to do this?
+	
 	/** @return The total horizontal velocity of this entity */
 	public abstract double getHorizontalVel();
 	
@@ -647,7 +648,7 @@ public abstract class EntityThing<H extends HitBox<?>> extends GameThing impleme
 	 * @param to The room to move the thing to, i.e. the thing is now in this room. Can be null if the thing isn't going to a room
 	 * @param game The {@link Game} where this thing entered the room
 	 */
-	public void enterRoom(Room<H> from, Room<H> to, Game game){
+	public void enterRoom(Room<H, E> from, Room<H, E> to, Game game){
 		if(from != null) from.removeThing(this);
 		if(to != null) to.addThing(this);
 	}

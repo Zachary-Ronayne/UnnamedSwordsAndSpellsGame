@@ -133,8 +133,9 @@ public abstract class PlayerTester extends EntityThing2D implements Movement2D {
 		this.lockCamera = lockCamera;
 	}
 	
+	// TODO should this need all of these type parameters?
 	@Override
-	public void enterRoom(Room<HitBox2D> from, Room<HitBox2D> to, Game game){
+	public void enterRoom(Room<HitBox2D, EntityThing2D> from, Room<HitBox2D, EntityThing2D> to, Game game){
 		super.enterRoom(from, to, game);
 		if(to != null) game.getPlayState().setCurrentRoom(to);
 		

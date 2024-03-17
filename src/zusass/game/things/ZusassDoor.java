@@ -5,6 +5,7 @@ import zgame.things.entity.EntityThing2D;
 import zgame.things.still.Door;
 import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room;
+import zgame.world.Room2D;
 import zusass.ZusassGame;
 import zusass.game.ZusassRoom;
 
@@ -34,13 +35,12 @@ public class ZusassDoor extends Door implements ZThingClickDetector{
 	}
 	
 	@Override
-	public boolean enterRoom(Room<HitBox2D> r, EntityThing2D thing, Game game){
+	public boolean enterRoom(Room2D r, EntityThing2D thing, Game game){
 		return super.enterRoom(r, thing, game);
 	}
 	
-	/** Convenience method that calls {@link #enterRoom(Room, EntityThing2D, Game)} without a need to type cast */
+	/** Convenience method that calls {@link #enterRoom(Room2D, EntityThing2D, Game)} without a need to type cast */
 	public boolean enterRoom(ZusassRoom r, EntityThing2D thing, Game game){
-		// TODO avoid needing to cast this
-		return this.enterRoom((Room<HitBox2D>)r, thing, game);
+		return this.enterRoom((Room2D)r, thing, game);
 	}
 }

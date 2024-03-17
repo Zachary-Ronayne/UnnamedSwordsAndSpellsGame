@@ -993,7 +993,7 @@ public class Game implements Saveable, Destroyable{
 	
 	/** @return The {@link Room} that the current {@link #playState} is using, or null if there is no play state */
 	// TODO should this be an any type or should Game have a type?
-	public Room<?> getCurrentRoom(){
+	public Room<?, ?> getCurrentRoom(){
 		PlayState p = this.getPlayState();
 		if(p == null) return null;
 		return p.getCurrentRoom();

@@ -10,7 +10,6 @@ import zgame.core.utils.ClassMappedList;
 import zgame.core.utils.NotNullList;
 import zgame.physics.collision.CollisionResponse;
 import zgame.things.entity.EntityThing;
-import zgame.things.entity.EntityThing2D;
 import zgame.things.still.Door;
 import zgame.things.type.GameThing;
 import zgame.things.type.bounds.HitBox;
@@ -18,10 +17,9 @@ import zgame.things.type.bounds.HitBox;
 /**
  * An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc.
  * @param <H> The implementation of hitboxes in this room
+ * @param <E> The type of entities in this room
  */
-public abstract class Room<H extends HitBox<?>> extends GameThing{
-	
-	// TODO abstract this to 2D and 3D
+public abstract class Room<H extends HitBox<H>, E extends EntityThing<H, E>> extends GameThing{
 	
 	/** All of the things in this room */
 	private final ClassMappedList thingsMap;
@@ -40,8 +38,7 @@ public abstract class Room<H extends HitBox<?>> extends GameThing{
 		this.thingsMap.addClass(GameThing.class);
 		this.thingsMap.addClass(HitBox.class);
 		this.thingsMap.addClass(GameTickable.class);
-		// TODO abstract this out to be entities of whatever type the room is
-		this.thingsMap.addClass(EntityThing2D.class);
+		this.thingsMap.addClass(this.getEntityClass());
 		
 		this.thingsToRemove = new ArrayList<>();
 		this.nextTickFuncs = new ArrayList<>();
@@ -64,16 +61,16 @@ public abstract class Room<H extends HitBox<?>> extends GameThing{
 	}
 	
 	/** @return A list of all the entities in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
-	public NotNullList<EntityThing2D> getEntities(){
-		return this.thingsMap.get(EntityThing2D.class);
+	public NotNullList<E> getEntities(){
+		return this.thingsMap.get(this.getEntityClass());
 	}
 	
 	/**
 	 * @param uuid The uuid of the entity to get
 	 * @return The entity, or null if no entity with that uuid exists in this room
 	 */
-	public EntityThing2D getEntity(String uuid){
-		return this.thingsMap.getMap(EntityThing2D.class).get(uuid);
+	public E getEntity(String uuid){
+		return this.thingsMap.getMap(this.getEntityClass()).get(uuid);
 	}
 	
 	/** @return All the tickable things in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
@@ -86,8 +83,11 @@ public abstract class Room<H extends HitBox<?>> extends GameThing{
 		return this.thingsMap.get(this.getHitBoxType());
 	}
 	
-	/** @return The type of hitboxes used in this room */
+	/** @return The type of hitboxes used in this room should just return the class of H */
 	public abstract Class<H> getHitBoxType();
+	
+	/** @return The type of entities used by this class */
+	public abstract Class<E> getEntityClass();
 	
 	/**
 	 * Add a {@link GameThing} to this {@link Room}
@@ -143,8 +143,7 @@ public abstract class Room<H extends HitBox<?>> extends GameThing{
 		for(int i = 0; i < entities.size(); i++) entities.get(i).updatePosition(game, dt);
 		
 		// Check the collision of this room for entities
-		// TODO make this not rely on a type cast
-		for(int i = 0; i < entities.size(); i++) this.collide((HitBox<H>)entities.get(i));
+		for(int i = 0; i < entities.size(); i++) this.collide(entities.get(i));
 		
 		// Remove all things that need to be removed
 		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(thing);

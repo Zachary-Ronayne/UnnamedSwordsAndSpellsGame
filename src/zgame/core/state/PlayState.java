@@ -11,7 +11,7 @@ public class PlayState extends GameState{
 	
 	// TODO should this be any type?
 	/** The {@link Room} which is currently used by this {@link PlayState} */
-	private Room<?> currentRoom;
+	private Room<?, ?> currentRoom;
 	
 	/** true if this {@link PlayState} is paused and should not perform tick updates, false otherwise */
 	private boolean paused;
@@ -23,7 +23,7 @@ public class PlayState extends GameState{
 	 *
 	 * @param room The room to use for the play state
 	 */
-	public PlayState(Room<?> room){
+	public PlayState(Room<?, ?> room){
 		super(true);
 		this.currentRoom = room;
 		this.paused = false;
@@ -37,7 +37,7 @@ public class PlayState extends GameState{
 	}
 	
 	/** @return See {@link #currentRoom} */
-	public Room<?> getCurrentRoom(){
+	public Room<?, ?> getCurrentRoom(){
 		return this.currentRoom;
 	}
 	
@@ -47,7 +47,7 @@ public class PlayState extends GameState{
 	 * @param r See {@link #currentRoom}
 	 * @return true if the room was set, false otherwise
 	 */
-	public boolean setCurrentRoom(Room<?> r){
+	public boolean setCurrentRoom(Room<?, ?> r){
 		if(r == null) return false;
 		this.currentRoom = r;
 		return true;

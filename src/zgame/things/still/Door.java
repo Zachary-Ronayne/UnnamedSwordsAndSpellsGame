@@ -119,7 +119,7 @@ public class Door extends StaticEntityThing2D implements GameTickable{
 	 * @param game The {@link Game} where this room entering takes place
 	 * @return true if thing entered this room, false otherwise
 	 */
-	public boolean enterRoom(Room<HitBox2D> r, EntityThing2D thing, Game game){
+	public boolean enterRoom(Room2D r, EntityThing2D thing, Game game){
 		if(this.leadRoom != null && !this.leadRoom.canEnter(thing)) return false;
 		
 		if(!this.canEnter(thing)) return false;
@@ -130,6 +130,7 @@ public class Door extends StaticEntityThing2D implements GameTickable{
 		if(this.leadRoom != null){
 			thing.setX(this.roomX);
 			thing.setY(this.roomY);
+			// TODO fix this type cast?
 			thing.enterRoom(r, this.leadRoom, game);
 		}
 		else return false;
@@ -162,7 +163,7 @@ public class Door extends StaticEntityThing2D implements GameTickable{
 			var e = (EntityThing2D)entity;
 			if(e.intersectsRect(this.getX(), this.getY(), this.getWidth(), this.getHeight())){
 				// TODO avoid types being weird here
-				this.enterRoom((Room<HitBox2D>)game.getCurrentRoom(), e, game);
+				this.enterRoom((Room2D)game.getCurrentRoom(), e, game);
 			}
 		}
 	}

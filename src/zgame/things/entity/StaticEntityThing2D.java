@@ -36,7 +36,7 @@ public abstract class StaticEntityThing2D extends EntityThingRect2D{
 	}
 	
 	@Override
-	public void checkEntityCollision(Game game, EntityThing<HitBox2D> entity, double dt){
+	public void checkEntityCollision(Game game, EntityThing<HitBox2D, EntityThing2D> entity, double dt){
 		// Do nothing when colliding with a static entity by default
 	}
 	
