@@ -1,20 +1,21 @@
 package zgame.things.entity;
 
-import zgame.physics.ZVector;
+import zgame.physics.ZVector3D;
+import zgame.things.type.bounds.HitBox3D;
+import zgame.world.Room3D;
 
 /** A type of {@link Walk} that exists in 3D space */
-public class Walk3D extends Walk{
+public class Walk3D extends Walk<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
 	
 	// TODO make 2D and 3D vectors
 	/** The vector keeping track of the force of this walking */
-	private ZVector walkingForce;
+	private ZVector3D walkingForce;
 	
 	// TODO define what thing is in docs
 	/**
 	 * Create a new walk object for use in {@link Movement2D}
 	 */
-	// TODO make a hitbox 3D type and use it
-	public Walk3D(EntityThing<?, ?> thing){
+	public Walk3D(EntityThing3D thing){
 		super(thing);
 	}
 	

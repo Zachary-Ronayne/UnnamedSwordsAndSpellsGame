@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
-import zgame.physics.material.Material;
 import zgame.stat.Stat;
 import zgame.stat.ValueStat;
 import zgame.stat.modifier.ModifierType;

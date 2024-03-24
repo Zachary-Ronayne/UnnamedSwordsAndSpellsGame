@@ -20,7 +20,7 @@ public interface HitBox<H extends HitBox<H>> extends Materialable, Uuidable {
 	 * @param h The hitbox to check
 	 * @return true if this hitbox intersects the given hitbox, false otherwise
 	 */
-	boolean intersects(HitBox<H> h);
+	boolean intersects(H h);
 	
 	/**
 	 * Apply the given {@link CollisionResponse} to this object

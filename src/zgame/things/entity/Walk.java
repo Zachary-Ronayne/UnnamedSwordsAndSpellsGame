@@ -1,10 +1,17 @@
 package zgame.things.entity;
 
 import zgame.physics.ZVector;
-import zgame.physics.ZVector2D;
+import zgame.things.type.bounds.HitBox;
+import zgame.world.Room;
 
-/** A data object used for storing values related to {@link Movement2D} */
-public abstract class Walk{
+/**
+ * A data object used for storing values related to {@link Movement}
+ *
+ * @param <H> The type of hitbox which uses this class
+ * @param <E> The type of entity which uses this class
+ * @param <V> The type of vectors using this class
+ */
+public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>>{
 	
 	/** The string used to identify the force used to make this walk */
 	public static final String FORCE_NAME_WALKING = "walking";
@@ -26,7 +33,7 @@ public abstract class Walk{
 	
 	// TODO need some way of abstracting vectors to allow for 2D/3D here, implementations of Movement need to generate 2D/3D vectors
 	/** The force of jumping on this */
-	private ZVector jumpingForce;
+	private V jumpingForce;
 	
 	/** The amount of time, in seconds, this has built up their jump height */
 	private double jumpTimeBuilt;
@@ -38,14 +45,14 @@ public abstract class Walk{
 	private boolean stoppingJump;
 	
 	/** The {@link EntityThing} using this walk object */
-	// TODO should this be an any type?
-	private final EntityThing<?, ?> entity;
+	private final E entity;
 	
 	/**
 	 * Create a new walk object for use in {@link Movement2D}
+	 *
 	 * @param entity See {@link #entity}
 	 */
-	public Walk(EntityThing<?, ?> entity){
+	public Walk(E entity){
 		this.entity = entity;
 		
 		this.canJump = false;
@@ -54,11 +61,11 @@ public abstract class Walk{
 		this.jumpTimeBuilt = 0;
 		this.wallJumpAvailable = false;
 		
-		this.jumpingForce = entity.setForce(FORCE_NAME_JUMPING, new ZVector2D());
+		this.jumpingForce = entity.setForce(FORCE_NAME_JUMPING, this.entity.zeroVector());
 	}
 	
 	/** @return See {@link #entity} */
-	public EntityThing<?, ?> getEntity(){
+	public E getEntity(){
 		return this.entity;
 	}
 	
@@ -127,9 +134,8 @@ public abstract class Walk{
 		this.wallJumpAvailable = wallJumpAvailable;
 	}
 	
-	
 	/** @return See {@link #jumpingForce} */
-	public ZVector getJumpingForce(){
+	public V getJumpingForce(){
 		return this.jumpingForce;
 	}
 	

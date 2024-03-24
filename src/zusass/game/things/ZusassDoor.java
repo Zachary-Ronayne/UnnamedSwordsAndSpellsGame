@@ -3,8 +3,6 @@ package zusass.game.things;
 import zgame.core.Game;
 import zgame.things.entity.EntityThing2D;
 import zgame.things.still.Door;
-import zgame.things.type.bounds.HitBox2D;
-import zgame.world.Room;
 import zgame.world.Room2D;
 import zusass.ZusassGame;
 import zusass.game.ZusassRoom;

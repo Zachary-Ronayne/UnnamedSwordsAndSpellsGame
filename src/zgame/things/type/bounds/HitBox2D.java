@@ -91,7 +91,7 @@ public interface HitBox2D extends HitBox<HitBox2D>, Bounds2D{
 	 * @return true if this hitbox intersects the given hitbox, false otherwise
 	 */
 	@Override
-	default boolean intersects(HitBox<HitBox2D> hitbox){
+	default boolean intersects(HitBox2D hitbox){
 		var h = hitbox.get();
 		switch(h.getType()){
 			case CIRCLE -> {

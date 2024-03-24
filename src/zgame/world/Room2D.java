@@ -3,6 +3,7 @@ package zgame.world;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZMath;
+import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
@@ -11,13 +12,12 @@ import zgame.things.still.tiles.BaseTiles;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType;
 import zgame.things.type.bounds.Bounds2D;
-import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.HitBox2D;
 
 import java.util.ArrayList;
 
 /** A {@link Room} which is made of 2D tiles */
-public class Room2D extends Room<HitBox2D, EntityThing2D> implements Bounds2D{
+public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> implements Bounds2D{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -100,7 +100,7 @@ public class Room2D extends Room<HitBox2D, EntityThing2D> implements Bounds2D{
 	}
 	
 	@Override
-	public CollisionResponse collide(HitBox<HitBox2D> h){
+	public CollisionResponse collide(HitBox2D h){
 		var obj = h.get();
 		
 		// Find touching tiles and collide with them

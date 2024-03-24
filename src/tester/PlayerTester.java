@@ -1,7 +1,6 @@
 package tester;
 
 import zgame.core.Game;
-import zgame.physics.material.Material;
 import zgame.things.entity.*;
 import zgame.world.Room2D;
 

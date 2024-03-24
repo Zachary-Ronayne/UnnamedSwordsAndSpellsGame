@@ -1,19 +1,27 @@
 package zgame.things.entity;
 
 import zgame.core.Game;
+import zgame.physics.ZVector;
 import zgame.physics.material.Material;
+import zgame.things.type.bounds.HitBox;
+import zgame.world.Room;
 
-/** The base interface for defining how things move, walk, fly, etc */
-// TODO should movement have a type param for hitbox?
-public interface Movement{
+/**
+ * The base interface for defining how things move, walk, fly, etc
+ * @param <H> The type of hitbox which uses this class
+ * @param <E> The type of entity which uses this class
+ * @param <V> The type of vector which uses this class
+ * @param <R> The type of room which E uses
+ */
+public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>>{
 	
 	/** @return The {@link EntityThing} using this object */
-	default EntityThing<?, ?> getThing(){
+	default E getThing(){
 		return this.getWalk().getEntity();
 	}
 	
 	/** @return The {@link Walk} object holding the data for this interface */
-	Walk getWalk();
+	Walk<H, E, V, R> getWalk();
 	
 	/**
 	 * Perform the game update actions handling {@link #getThing()}'s walking and jumping
@@ -218,6 +226,7 @@ public interface Movement{
 	
 	/**
 	 * Attempt to jump or stop the jump, essentially, a "release the jump button" method
+	 *
 	 * @param dt The amount of time passing in the game tick where the button was pressed
 	 */
 	default void checkPerformOrStopJump(double dt){

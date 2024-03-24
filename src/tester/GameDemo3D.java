@@ -7,15 +7,12 @@ import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
-import zgame.physics.ZVector;
-import zgame.physics.ZVector2D;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResponse;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
 import zgame.things.entity.*;
-import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.HitboxType;
 import zgame.world.Room;
@@ -93,7 +90,7 @@ public class GameDemo3D extends Game{
 		 * @param room The room to use for the play state
 		 */
 		// TODO add a type param here
-		public DemoGameState(Room room){
+		public DemoGameState(Room<?, ?, ?, ?> room){
 			super(room);
 		}
 		
@@ -440,12 +437,12 @@ public class GameDemo3D extends Game{
 		// TODO implement this stuff in 3D
 		
 		@Override
-		public ZVector zeroVector(){
-			return new ZVector2D();
+		public ZVector3D zeroVector(){
+			return new ZVector3D();
 		}
 		
 		@Override
-		public void moveEntity(ZVector moveVec, double dt){
+		public void moveEntity(ZVector3D moveVec, double dt){
 		
 		}
 		
@@ -460,12 +457,12 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public ZVector setHorizontalForce(String name, double f){
+		public ZVector3D setHorizontalForce(String name, double f){
 			return null;
 		}
 		
 		@Override
-		public ZVector setVerticalForce(String name, double f){
+		public ZVector3D setVerticalForce(String name, double f){
 			return null;
 		}
 		
@@ -490,7 +487,7 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public Walk getWalk(){
+		public Walk3D getWalk(){
 			return new Walk3D(this);
 		}
 		
@@ -625,7 +622,7 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public boolean intersects(HitBox<HitBox3D> h){
+		public boolean intersects(HitBox3D h){
 			return false;
 		}
 		

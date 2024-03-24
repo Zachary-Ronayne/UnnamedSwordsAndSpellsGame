@@ -3,7 +3,7 @@ package zusass.game.things.entities.projectile;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.NotNullList;
-import zgame.physics.ZVector;
+import zgame.physics.ZVector2D;
 import zgame.things.BaseTags;
 import zgame.things.entity.projectile.UsedProjectile;
 import zgame.things.type.bounds.CircleHitBox;
@@ -29,7 +29,7 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	 * @param launchVelocity The initial velocity of the projectile
 	 * @param effects See {@link #effects}
 	 */
-	public MagicProjectile(double x, double y, String sourceId, ZVector launchVelocity, NotNullList<SpellEffect> effects){
+	public MagicProjectile(double x, double y, String sourceId, ZVector2D launchVelocity, NotNullList<SpellEffect> effects){
 		this(x, y, 10, sourceId, launchVelocity, effects);
 	}
 	
@@ -43,7 +43,7 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	 * @param launchVelocity The initial velocity of the projectile
 	 * @param effects See {@link #effects}
 	 */
-	public MagicProjectile(double x, double y, double radius, String sourceId, ZVector launchVelocity, NotNullList<SpellEffect> effects){
+	public MagicProjectile(double x, double y, double radius, String sourceId, ZVector2D launchVelocity, NotNullList<SpellEffect> effects){
 		this(x, y, radius, -1, sourceId, launchVelocity, effects);
 	}
 	
@@ -58,7 +58,7 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	 * @param launchVelocity The initial velocity of the projectile
 	 * @param effects See {@link #effects}
 	 */
-	public MagicProjectile(double x, double y, double radius, double range, String sourceId, ZVector launchVelocity, NotNullList<SpellEffect> effects){
+	public MagicProjectile(double x, double y, double radius, double range, String sourceId, ZVector2D launchVelocity, NotNullList<SpellEffect> effects){
 		super(x, y, sourceId, launchVelocity);
 		this.setRadius(radius);
 		this.setRange(range);

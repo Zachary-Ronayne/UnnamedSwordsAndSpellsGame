@@ -1,10 +1,9 @@
 package zgame.things.entity;
 
 import zgame.core.Game;
-import zgame.physics.ZVector;
+import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResponse;
 import zgame.things.BaseTags;
-import zgame.things.type.bounds.HitBox2D;
 
 /** A 2D entity which does not move */
 public abstract class StaticEntityThing2D extends EntityThingRect2D{
@@ -36,7 +35,7 @@ public abstract class StaticEntityThing2D extends EntityThingRect2D{
 	}
 	
 	@Override
-	public void checkEntityCollision(Game game, EntityThing<HitBox2D, EntityThing2D> entity, double dt){
+	public void checkEntityCollision(Game game, EntityThing2D entity, double dt){
 		// Do nothing when colliding with a static entity by default
 	}
 	
@@ -46,7 +45,7 @@ public abstract class StaticEntityThing2D extends EntityThingRect2D{
 	}
 	
 	@Override
-	public void moveEntity(ZVector acceleration, double dt){
+	public void moveEntity(ZVector2D acceleration, double dt){
 		// Do nothing when moving with a static entity by default
 	}
 	

@@ -3,7 +3,6 @@ package zgame.things.still;
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
-import zgame.things.entity.EntityThing;
 import zgame.things.entity.EntityThing2D;
 import zgame.things.entity.StaticEntityThing2D;
 import zgame.things.type.GameThing;
@@ -139,7 +138,7 @@ public class Door extends StaticEntityThing2D implements GameTickable{
 	 * @return true if thing can enter the door, false otherwise
 	 */
 	// TODO make this not generic
-	public boolean canEnter(EntityThing<?, ?> thing){
+	public boolean canEnter(EntityThing2D thing){
 		return thing.canEnterRooms();
 	}
 	
@@ -153,7 +152,8 @@ public class Door extends StaticEntityThing2D implements GameTickable{
 		var entities = game.getCurrentRoom().getEntities();
 		for(var entity : entities){
 			// TODO avoid needing this double check
-			if(!this.canEnter(entity)) continue;
+			// TODO avoid needing type casting
+			if(!this.canEnter((EntityThing2D)entity)) continue;
 			
 			// TODO should this be type casting?
 			var e = (EntityThing2D)entity;

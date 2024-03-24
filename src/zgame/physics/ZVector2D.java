@@ -5,7 +5,7 @@ import zgame.core.utils.ZMath;
 /**
  * A Vector with an x and y component. The internal values of this object cannot be modified after the object is created, i.e. this object is immutable
  */
-public class ZVector2D extends ZVector{
+public class ZVector2D extends ZVector<ZVector2D>{
 	
 	/** The x component of this {@link ZVector2D} */
 	private double x;
@@ -65,7 +65,6 @@ public class ZVector2D extends ZVector{
 		this.setMagnitude(Math.sqrt(Math.pow(this.getX(), 2) + Math.pow(this.getY(), 2)));
 	}
 	
-	// TODO is this tie best way to do this?
 	@Override
 	public double getHorizontalForce(){
 		return this.getX();
@@ -104,10 +103,8 @@ public class ZVector2D extends ZVector{
 	 * @return The result of adding both vectors
 	 */
 	@Override
-	public ZVector2D add(ZVector newV){
-		// TODO is type casting the best way to do this?
-		var v = (ZVector2D)newV;
-		return new ZVector2D(this.getX() + v.getX(), this.getY() + v.getY());
+	public ZVector2D add(ZVector2D newV){
+		return new ZVector2D(this.getX() + newV.getX(), this.getY() + newV.getY());
 	}
 	
 	/**

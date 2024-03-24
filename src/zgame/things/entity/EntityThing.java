@@ -1,10 +1,6 @@
 package zgame.things.entity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
@@ -22,8 +18,12 @@ import zgame.world.Room;
  * This is for things like creatures, dropped items, projectiles, etc.
  *
  * @param <H> The hitbox implementation used by this entity
+ * @param <E> The entity implementation of this entity
+ * @param <V> The vector implementation used by this entity
+ * @param <R> The room implementation which this entity can exist in
  */
-public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, E>> extends GameThing implements GameTickable, Materialable, HitBox<H>{
+// TODO make all of these stupid type parameters one central type somehow, so this comical definition doesn't need to be repeated so much
+public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>> extends GameThing implements GameTickable, Materialable, HitBox<H>{
 	
 	// TODO fix being able to jump without touching the ground first
 	
@@ -36,7 +36,6 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	/** The string used to identify the force of sticking to a wall in {@link #forces} */
 	public static final String FORCE_NAME_WALL_SLIDE = "wallSlide";
 	
-	// TODO why is gravity so low?
 	/** The acceleration of gravity */
 	public static final double GRAVITY_ACCELERATION = 800;
 	
@@ -44,28 +43,28 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	private final String uuid;
 	
 	/** The current velocity of this {@link EntityThing} */
-	private ZVector velocity;
+	private V velocity;
 	
 	/** The current force of gravity on this {@link EntityThing} */
-	private ZVector gravity;
+	private V gravity;
 	
 	/** The percentage of gravity that applies to this {@link EntityThing}, defaults to 1, i.e. 100% */
 	private double gravityLevel;
 	
 	/** The current force of friction on this {@link EntityThing}. */
-	private ZVector frictionForce;
+	private V frictionForce;
 	
 	/** The current force of drag acting against gravity on this {@link EntityThing} */
-	private ZVector gravityDragForce;
+	private V gravityDragForce;
 	
 	/** Every force currently acting on this {@link EntityThing}, mapped by a name */
-	private final Map<String, ZVector> forces;
+	private final Map<String, V> forces;
 	
 	/** A set of all the uuids which are currently colliding with this entity */
 	private final HashSet<String> collidingUuids;
 	
 	/** A {@link ZVector} representing the total force acting on this {@link EntityThing} */
-	private ZVector totalForce;
+	private V totalForce;
 	
 	/** The amount of time in seconds since this {@link EntityThing} last touched the ground, or -1 if it is currently on the ground */
 	private double groundTime;
@@ -128,7 +127,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	}
 	
 	/** @return A new empty vector, representing no motion, for use with this entity. Should always return a new instance */
-	public abstract ZVector zeroVector();
+	public abstract V zeroVector();
 	
 	@Override
 	public void tick(Game game, double dt){
@@ -170,7 +169,8 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	}
 	
 	// TODO somehow abstract this to 2D and 3D
-	public abstract void moveEntity(ZVector moveVec, double dt);
+	// TODO make doc
+	public abstract void moveEntity(V moveVec, double dt);
 	
 	/**
 	 * Determine the current amount of friction on this {@link EntityThing} and update the force
@@ -180,7 +180,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	public void updateFrictionForce(double dt){
 		// Determining direction
 		double mass = this.getMass();
-		ZVector force = this.getForce();
+		var force = this.getForce();
 		// TODO abstract to 3D
 		double vx = this.getHorizontalVel();
 		double fx = force.getHorizontalForce() - this.frictionForce.getHorizontalForce();
@@ -305,17 +305,17 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	}
 	
 	/** @return A {@link ZVector} representing the total of all forces on this object */
-	public ZVector getForce(){
+	public V getForce(){
 		return this.totalForce;
 	}
 	
 	/** @return See {@link #velocity} */
-	public ZVector getVelocity(){
+	public V getVelocity(){
 		return this.velocity;
 	}
 	
 	/** @return See {@link #gravity} */
-	public ZVector getGravity(){
+	public V getGravity(){
 		return this.gravity;
 	}
 	
@@ -336,12 +336,12 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	}
 	
 	/** @return See {@link #frictionForce} */
-	public ZVector getFriction(){
+	public V getFriction(){
 		return this.frictionForce;
 	}
 	
 	/** @return SEE {@link #gravityDragForce} */
-	public ZVector getGravityDragForce(){
+	public V getGravityDragForce(){
 		return this.gravityDragForce;
 	}
 	
@@ -460,7 +460,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 * @param entity The entity that was collided with this entity
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
-	public void checkEntityCollision(Game game, EntityThing<H, E> entity, double dt){}
+	public void checkEntityCollision(Game game, E entity, double dt){}
 	
 	/**
 	 * Collide this {@link EntityThing} with the entities in the given room. Can override this to perform custom collision
@@ -476,15 +476,15 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		// Check any stored entities, and remove them if they are not intersecting or are not in the room
 		ArrayList<String> toRemove = new ArrayList<>(this.collidingUuids.size());
 		for(String eUuid : this.collidingUuids){
-			var e = room.getEntity(eUuid);
-			// TODO make this able to be any entity, not just entity 2D
-			if(e == null || !this.intersects((HitBox<H>)e)) toRemove.add(eUuid);
+			// TODO avoid type casting
+			E e = (E)room.getEntity(eUuid);
+			if(e == null || !this.intersects(e.get())) toRemove.add(eUuid);
 		}
 		for(String uuid : toRemove){
 			this.collidingUuids.remove(uuid);
 			
 			// Set the velocity so that it will move this entity an amount to cancel out the current force applied on the next tick, then remove the force on the next tick
-			ZVector removed = this.removeForce(uuid);
+			var removed = this.removeForce(uuid);
 			if(removed != null) this.addVelocity(removed.scale(-dt / this.getMass()));
 		}
 		// Get all entities
@@ -492,12 +492,10 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		
 		// Iterate through all entities, ignoring this entity, and find the ones intersecting this entity
 		for(int i = 0; i < entities.size(); i++){
-			var e = entities.get(i);
-			// TODO make this not need a weird getHotbox method
-			// TODO make this able to be any entity, not just entity 2D
-			if(e == this || !this.intersects((EntityThing<H, E>)e)) continue;
-			// TODO make this not need a type cast
-			this.checkEntityCollision(game, (EntityThing<H, E>)e, dt);
+			// TODO make this not need type casts
+			var e = (E)entities.get(i);
+			if(e == this || !this.intersects((H)e)) continue;
+			this.checkEntityCollision(game, e, dt);
 
 //			// If they intersect, determine the force they should have against each other, and apply it to both entities
 //			String eUuid = e.getUuid();
@@ -553,7 +551,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	}
 	
 	/** @param velocity The new current velocity of this {@link EntityThing} */
-	public void setVelocity(ZVector velocity){
+	public void setVelocity(V velocity){
 		this.velocity = velocity;
 	}
 	
@@ -562,7 +560,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 *
 	 * @param vec The velocity to add
 	 */
-	public void addVelocity(ZVector vec){
+	public void addVelocity(V vec){
 		this.velocity = this.velocity.add(vec);
 	}
 	
@@ -582,8 +580,8 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 * @param name The name of the force to remove
 	 * @return The removed force vector, or null if the given force was not found
 	 */
-	public ZVector removeForce(String name){
-		ZVector removed = this.forces.remove(name);
+	public V removeForce(String name){
+		var removed = this.forces.remove(name);
 		if(removed == null) return null;
 		this.totalForce = this.totalForce.add(removed.scale(-1));
 		return removed;
@@ -597,7 +595,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 * @param force The force object to set
 	 * @return force
 	 */
-	public ZVector setForce(String name, ZVector force){
+	public V setForce(String name, V force){
 		this.removeForce(name);
 		this.forces.put(name, force);
 		this.totalForce = this.totalForce.add(force);
@@ -611,7 +609,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 * Only modify the x value, keep the y value the same.
 	 * If the force does not already exist, a force is created with the given name using a zero for the y value
 	 */
-	public abstract ZVector setHorizontalForce(String name, double f);
+	public abstract V setHorizontalForce(String name, double f);
 	
 	// TODO is this the best way to do this?
 	// TODO redo doc for abstraction
@@ -620,9 +618,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 * Only modify the x value, keep the y value the same.
 	 * If the force does not already exist, a force is created with the given name using a zero for the y value
 	 */
-	public abstract ZVector setVerticalForce(String name, double f);
-	
-	// TODO is this the best way to do this?
+	public abstract V setVerticalForce(String name, double f);
 	
 	/** @return The total horizontal velocity of this entity */
 	public abstract double getHorizontalVel();
@@ -648,14 +644,13 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 * @param to The room to move the thing to, i.e. the thing is now in this room. Can be null if the thing isn't going to a room
 	 * @param game The {@link Game} where this thing entered the room
 	 */
-	public void enterRoom(Room<H, E> from, Room<H, E> to, Game game){
+	public void enterRoom(R from, R to, Game game){
 		if(from != null) from.removeThing(this);
 		if(to != null) to.addThing(this);
 	}
 	
-	/** @return true if this thing can eter a rom, false otherwise, always returns true by default */
+	/** @return true if this thing can enter a rom, false otherwise, always returns true by default */
 	public boolean canEnterRooms(){
 		return true;
 	}
-	
 }

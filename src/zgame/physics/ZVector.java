@@ -2,8 +2,10 @@ package zgame.physics;
 
 /**
  * A Vector with an x and y component. The internal values of this object cannot be modified after the object is created outside of its extensions, i.e. this object is immutable
+ *
+ * @param <V> The type of vector used by this vector
  */
-public abstract class ZVector{
+public abstract class ZVector<V extends ZVector<V>>{
 	
 	/** The magnitude, i.e. length or distance, of this {@link ZVector} */
 	private double magnitude;
@@ -38,7 +40,6 @@ public abstract class ZVector{
 		this.magnitude = magnitude;
 	}
 	
-	// TODO is this the best way to do this?
 	/** @return The magnitude of the horizontal components of this vector */
 	public abstract double getHorizontalForce();
 	
@@ -52,7 +53,7 @@ public abstract class ZVector{
 	 * @param newV The ZVector to add
 	 * @return The result of adding both vectors
 	 */
-	public abstract ZVector add(ZVector newV);
+	public abstract V add(V newV);
 	
 	/**
 	 * Scale the vector based on the given value, i.e. multiply the x and y components by the given value.
@@ -61,6 +62,6 @@ public abstract class ZVector{
 	 * @param scalar The value to scale by
 	 * @return The result of scaling the vector
 	 */
-	public abstract ZVector scale(double scalar);
+	public abstract V scale(double scalar);
 	
 }

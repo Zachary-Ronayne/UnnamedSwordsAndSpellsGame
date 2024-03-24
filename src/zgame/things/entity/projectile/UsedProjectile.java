@@ -1,6 +1,6 @@
 package zgame.things.entity.projectile;
 
-import zgame.physics.ZVector;
+import zgame.physics.ZVector2D;
 import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.HitBox2D;
 
@@ -18,7 +18,7 @@ public abstract class UsedProjectile extends Projectile{
 	 * @param sourceId See {@link #sourceId}
 	 * @param launchVelocity The initial velocity of the projectile
 	 */
-	public UsedProjectile(double x, double y, String sourceId, ZVector launchVelocity){
+	public UsedProjectile(double x, double y, String sourceId, ZVector2D launchVelocity){
 		super(x, y, launchVelocity);
 		this.sourceId = sourceId;
 	}

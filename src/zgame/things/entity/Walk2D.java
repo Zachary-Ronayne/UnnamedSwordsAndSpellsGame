@@ -1,16 +1,17 @@
 package zgame.things.entity;
 
-import zgame.physics.ZVector;
 import zgame.physics.ZVector2D;
+import zgame.things.type.bounds.HitBox2D;
+import zgame.world.Room2D;
 
 /** A type of {@link Walk} that exists in 2D space */
-public class Walk2D extends Walk{
+public class Walk2D extends Walk<HitBox2D, EntityThing2D, ZVector2D, Room2D>{
 	
 	/** The direction this is walking. -1 for walking to the left, 0 for not walking, 1 for walking to the right */
 	private int walkingDirection;
 	
 	/** The vector keeping track of the force of this walking */
-	private ZVector walkingForce;
+	private ZVector2D walkingForce;
 	
 	/**
 	 * Create a new walk object for use in {@link Movement2D}
@@ -35,7 +36,7 @@ public class Walk2D extends Walk{
 	}
 	
 	/** @return See {@link #walkingForce} */
-	public ZVector getWalkingForce(){
+	public ZVector2D getWalkingForce(){
 		return this.walkingForce;
 	}
 	

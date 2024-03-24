@@ -1,7 +1,6 @@
 package zusass.game.things;
 
 import zgame.core.Game;
-import zgame.things.entity.EntityThing;
 import zgame.things.entity.EntityThing2D;
 import zgame.things.still.Door;
 import zusass.ZusassData;
@@ -64,8 +63,7 @@ public class LevelDoor extends ZusassDoor{
 	}
 	
 	@Override
-	// TODO make this not generic
-	public boolean canEnter(EntityThing<?, ?> thing){
+	public boolean canEnter(EntityThing2D thing){
 		return thing.canEnterRooms() && thing.hasTag(ZusassTags.CAN_ENTER_LEVEL_DOOR);
 	}
 	
@@ -74,7 +72,7 @@ public class LevelDoor extends ZusassDoor{
 		return this.level;
 	}
 	
-	/** @return  See {@link #room} */
+	/** @return See {@link #room} */
 	public ZusassRoom getRoom(){
 		return this.room;
 	}

@@ -1,7 +1,11 @@
 package zgame.things.entity;
 
+import zgame.physics.ZVector3D;
+import zgame.things.type.bounds.HitBox3D;
+import zgame.world.Room3D;
+
 /** An interface used to control movement in 3D */
-public interface Movement3D extends Movement{
+public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
 	
 	@Override
 	default void applyWalkForce(double dt, double newWalkForce){

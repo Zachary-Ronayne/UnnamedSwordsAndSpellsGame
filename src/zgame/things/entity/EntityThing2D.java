@@ -3,20 +3,16 @@ package zgame.things.entity;
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
-import zgame.physics.ZVector;
 import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResponse;
 import zgame.things.type.bounds.Bounds2D;
 import zgame.things.type.bounds.HitBox2D;
-import zgame.world.Room;
 import zgame.world.Room2D;
 
 /**
  * An {@link EntityThing} in 2D
  */
-public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D> implements GameTickable, HitBox2D, Bounds2D{
-	
-	// TODO make a 3D version of this
+public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D, ZVector2D, Room2D> implements GameTickable, HitBox2D, Bounds2D{
 	
 	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
 	
@@ -116,7 +112,7 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D>
 	}
 	
 	@Override
-	public void moveEntity(ZVector acceleration, double dt){
+	public void moveEntity(ZVector2D acceleration, double dt){
 		// Move the entity based on the current velocity and acceleration
 		this.px = this.getX();
 		this.py = this.getY();
@@ -126,7 +122,7 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D>
 		this.addY(moveVec.getY());
 	}
 	
-	// TODO abstract out
+	// TODO abstract out?
 	
 	/**
 	 * Set the given force name with a force built from the given components. If the given name doesn't have a force mapped to it yet, then this method automatically adds it
@@ -138,7 +134,7 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D>
 	 * @param y The y component
 	 * @return The newly set vector object
 	 */
-	public ZVector setForce(String name, double x, double y){
+	public ZVector2D setForce(String name, double x, double y){
 		return setForce(name, new ZVector2D(x, y));
 	}
 	
@@ -206,12 +202,12 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D>
 	}
 	
 	@Override
-	public ZVector setHorizontalForce(String name, double f){
+	public ZVector2D setHorizontalForce(String name, double f){
 		return this.setForce(name, f, 0);
 	}
 	
 	@Override
-	public ZVector setVerticalForce(String name, double f){
+	public ZVector2D setVerticalForce(String name, double f){
 		return this.setForce(name, 0, f);
 	}
 	
@@ -249,12 +245,4 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D>
 		game.centerCamera(this.centerX(), this.centerY());
 	}
 	
-	@Override
-	public final void enterRoom(Room<HitBox2D, EntityThing2D> from, Room<HitBox2D, EntityThing2D> to, Game game){
-		this.enterRoom((Room2D)from, (Room2D)to, game);
-	}
-	
-	public void enterRoom(Room2D from,Room2D to, Game game){
-		super.enterRoom(from, to, game);
-	}
 }

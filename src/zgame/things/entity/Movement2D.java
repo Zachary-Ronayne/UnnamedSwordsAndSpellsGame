@@ -1,7 +1,11 @@
 package zgame.things.entity;
 
+import zgame.physics.ZVector2D;
+import zgame.things.type.bounds.HitBox2D;
+import zgame.world.Room2D;
+
 /** A class that handles an {@link EntityThing} moving by walking and jumping */
-public interface Movement2D extends Movement{
+public interface Movement2D extends Movement<HitBox2D, EntityThing2D, ZVector2D, Room2D>{
 	
 	@Override
 	Walk2D getWalk();

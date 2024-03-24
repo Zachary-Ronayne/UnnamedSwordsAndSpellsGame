@@ -2,7 +2,7 @@ package zgame.things.entity.projectile;
 
 import zgame.core.Game;
 import zgame.core.utils.FunctionMap;
-import zgame.physics.ZVector;
+import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
 import zgame.things.BaseTags;
@@ -42,7 +42,7 @@ public abstract class Projectile extends EntityThing2D{
 	 * @param y The initial y position of the projectile
 	 * @param launchVelocity The initial velocity of the projectile
 	 */
-	public Projectile(double x, double y, ZVector launchVelocity){
+	public Projectile(double x, double y, ZVector2D launchVelocity){
 		super(x, y);
 		this.addVelocity(launchVelocity);
 		this.mappedFuncs = new FunctionMap();
@@ -53,8 +53,7 @@ public abstract class Projectile extends EntityThing2D{
 	}
 	
 	@Override
-	// TODO allow entity to have a type param and not need a type param here?
-	public void checkEntityCollision(Game game, EntityThing<HitBox2D, EntityThing2D> entity, double dt){
+	public void checkEntityCollision(Game game, EntityThing2D entity, double dt){
 		super.checkEntityCollision(game, entity, dt);
 		// Ignore the current thing if the projectile will not hit it, or if the entity should not collide with projectiles
 		if(!willHit(entity.get()) || entity.hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;

@@ -8,6 +8,7 @@ import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ClassMappedList;
 import zgame.core.utils.NotNullList;
+import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResponse;
 import zgame.things.entity.EntityThing;
 import zgame.things.still.Door;
@@ -18,8 +19,10 @@ import zgame.things.type.bounds.HitBox;
  * An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc.
  * @param <H> The implementation of hitboxes in this room
  * @param <E> The type of entities in this room
+ * @param <V> The type of vector used by this room
+ * @param <R> The room implementation
  */
-public abstract class Room<H extends HitBox<H>, E extends EntityThing<H, E>> extends GameThing{
+public abstract class Room<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>> extends GameThing{
 	
 	/** All of the things in this room */
 	private final ClassMappedList thingsMap;
@@ -113,7 +116,7 @@ public abstract class Room<H extends HitBox<H>, E extends EntityThing<H, E>> ext
 	 * @param obj The object to collide
 	 * @return The CollisionResponse representing the final collision that took place, where the collision material is the floor collision, if one took place
 	 */
-	public abstract CollisionResponse collide(HitBox<H> obj);
+	public abstract CollisionResponse collide(H obj);
 	
 	/**
 	 * Make something happen to this {@link GameThing} the next time it is ticked
@@ -143,7 +146,7 @@ public abstract class Room<H extends HitBox<H>, E extends EntityThing<H, E>> ext
 		for(int i = 0; i < entities.size(); i++) entities.get(i).updatePosition(game, dt);
 		
 		// Check the collision of this room for entities
-		for(int i = 0; i < entities.size(); i++) this.collide(entities.get(i));
+		for(int i = 0; i < entities.size(); i++) this.collide(entities.get(i).get());
 		
 		// Remove all things that need to be removed
 		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(thing);

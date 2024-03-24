@@ -1,7 +1,6 @@
 package zgame.things.type;
 
 import zgame.core.Game;
-import zgame.core.GameTickable;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
