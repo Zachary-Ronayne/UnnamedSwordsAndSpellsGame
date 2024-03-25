@@ -31,7 +31,6 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	/** true if this mob is able to wall jump, i.e. it has touched the ground since its last wall jump */
 	private boolean wallJumpAvailable;
 	
-	// TODO need some way of abstracting vectors to allow for 2D/3D here, implementations of Movement need to generate 2D/3D vectors
 	/** The force of jumping on this */
 	private V jumpingForce;
 	

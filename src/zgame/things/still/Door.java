@@ -137,7 +137,6 @@ public class Door extends StaticEntityThing2D implements GameTickable{
 	 * @param thing The thing
 	 * @return true if thing can enter the door, false otherwise
 	 */
-	// TODO make this not generic
 	public boolean canEnter(EntityThing2D thing){
 		return thing.canEnterRooms();
 	}
@@ -149,17 +148,14 @@ public class Door extends StaticEntityThing2D implements GameTickable{
 		if(!this.isAutoEnter()) return;
 		
 		// Check every entity and if it touches this door, move it to this Room
-		var entities = game.getCurrentRoom().getEntities();
+		var room = (Room2D)game.getCurrentRoom();
+		var entities = room.getEntities();
 		for(var entity : entities){
-			// TODO avoid needing this double check
-			// TODO avoid needing type casting
-			if(!this.canEnter((EntityThing2D)entity)) continue;
+			// TODO avoid needing this double check call to canEnter
+			if(!this.canEnter(entity)) continue;
 			
-			// TODO should this be type casting?
-			var e = (EntityThing2D)entity;
-			if(e.intersectsRect(this.getX(), this.getY(), this.getWidth(), this.getHeight())){
-				// TODO avoid types being weird here
-				this.enterRoom((Room2D)game.getCurrentRoom(), e, game);
+			if(entity.intersectsRect(this.getX(), this.getY(), this.getWidth(), this.getHeight())){
+				this.enterRoom(room, entity, game);
 			}
 		}
 	}

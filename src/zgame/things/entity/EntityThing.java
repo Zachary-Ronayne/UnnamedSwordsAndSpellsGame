@@ -4,6 +4,7 @@ import java.util.*;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
+import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
@@ -22,7 +23,6 @@ import zgame.world.Room;
  * @param <V> The vector implementation used by this entity
  * @param <R> The room implementation which this entity can exist in
  */
-// TODO make all of these stupid type parameters one central type somehow, so this comical definition doesn't need to be repeated so much
 public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>> extends GameThing implements GameTickable, Materialable, HitBox<H>{
 	
 	// TODO fix being able to jump without touching the ground first
@@ -468,16 +468,16 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 * @param game The game with the current room to collide with
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
+	@SuppressWarnings("unchecked")
 	public void checkEntityCollisions(Game game, double dt){
-		var room = game.getCurrentRoom();
+		Room<H, E, V, R> room = (Room<H, E, V, R>)game.getCurrentRoom();
 		
 		// issue#21 make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
 		
 		// Check any stored entities, and remove them if they are not intersecting or are not in the room
 		ArrayList<String> toRemove = new ArrayList<>(this.collidingUuids.size());
 		for(String eUuid : this.collidingUuids){
-			// TODO avoid type casting
-			E e = (E)room.getEntity(eUuid);
+			E e = room.getEntity(eUuid);
 			if(e == null || !this.intersects(e.get())) toRemove.add(eUuid);
 		}
 		for(String uuid : toRemove){
@@ -488,13 +488,12 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 			if(removed != null) this.addVelocity(removed.scale(-dt / this.getMass()));
 		}
 		// Get all entities
-		var entities = room.getEntities();
+		NotNullList<E> entities = room.getEntities();
 		
 		// Iterate through all entities, ignoring this entity, and find the ones intersecting this entity
 		for(int i = 0; i < entities.size(); i++){
-			// TODO make this not need type casts
-			var e = (E)entities.get(i);
-			if(e == this || !this.intersects((H)e)) continue;
+			var e = entities.get(i);
+			if(e == this || !this.intersects(e.get())) continue;
 			this.checkEntityCollision(game, e, dt);
 
 //			// If they intersect, determine the force they should have against each other, and apply it to both entities

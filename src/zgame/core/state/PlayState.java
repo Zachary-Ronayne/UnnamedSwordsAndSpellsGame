@@ -9,8 +9,7 @@ import zgame.world.Room;
  */
 public class PlayState extends GameState{
 	
-	// TODO should this be any type?
-	/** The {@link Room} which is currently used by this {@link PlayState} */
+	/** The {@link Room} which is currently used by this {@link PlayState}. The system assumes this will always be an appropriate type of room for the game played */
 	private Room<?, ?, ?, ?> currentRoom;
 	
 	/** true if this {@link PlayState} is paused and should not perform tick updates, false otherwise */

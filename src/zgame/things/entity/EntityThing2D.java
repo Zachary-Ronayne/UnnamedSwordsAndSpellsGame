@@ -116,13 +116,10 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 		// Move the entity based on the current velocity and acceleration
 		this.px = this.getX();
 		this.py = this.getY();
-		// TODO Do this with type params instead of casting
-		var moveVec = (ZVector2D)this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5));
+		var moveVec = this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5));
 		this.addX(moveVec.getX());
 		this.addY(moveVec.getY());
 	}
-	
-	// TODO abstract out?
 	
 	/**
 	 * Set the given force name with a force built from the given components. If the given name doesn't have a force mapped to it yet, then this method automatically adds it
@@ -145,8 +142,6 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	public void setVelocity(double x, double y){
 		this.setVelocity(new ZVector2D(x, y));
 	}
-	
-	// TODO implement these properly
 	
 	/** @return The velocity of this {@link EntityThing} on the x axis */
 	public double getVX(){

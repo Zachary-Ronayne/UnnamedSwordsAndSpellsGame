@@ -15,7 +15,6 @@ import zgame.settings.IntTypeSetting;
 import zgame.things.entity.*;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.HitboxType;
-import zgame.world.Room;
 import zgame.world.Room3D;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -89,8 +88,7 @@ public class GameDemo3D extends Game{
 		 *
 		 * @param room The room to use for the play state
 		 */
-		// TODO add a type param here
-		public DemoGameState(Room<?, ?, ?, ?> room){
+		public DemoGameState(Room3D room){
 			super(room);
 		}
 		
@@ -382,14 +380,12 @@ public class GameDemo3D extends Game{
 		else game.getCurrentState().removeTopMenu(game);
 	}
 	
-	// TODO Make entity thing compatible with 3D
 	private static class Player3D extends EntityThing3D implements Movement3D, HitBox3D{
 		private final Game game;
 		
 		private Walk3D walk;
 		
 		public Player3D(Game game){
-			// TODO implement this with EntityThing3D
 			super(0);
 			this.game = game;
 			this.walk = new Walk3D(this);

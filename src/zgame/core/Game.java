@@ -735,7 +735,7 @@ public class Game implements Saveable, Destroyable{
 		var file = new File(pathFile);
 		var pathName = file.getParent();
 		var path = new File(pathName);
-		if(!path.exists()) {
+		if(!path.exists()){
 			path.mkdirs();
 			try{
 				file.createNewFile();
@@ -746,7 +746,7 @@ public class Game implements Saveable, Destroyable{
 		
 		var success = ZJsonFile.loadJsonFile(pathFile, this.globalSettings::load);
 		// If the settings fail to load, save the default settings
-		if(!success) {
+		if(!success){
 			ZConfig.error("Failed to load global settings at path ", pathFile, " saving defaults");
 			this.saveGlobalSettings();
 		}
@@ -991,8 +991,10 @@ public class Game implements Saveable, Destroyable{
 		return this.playState;
 	}
 	
-	/** @return The {@link Room} that the current {@link #playState} is using, or null if there is no play state */
-	// TODO should this be an any type or should Game have a type?
+	/**
+	 * @return The {@link Room} that the current {@link #playState} is using, or null if there is no play state. The system assumes the room will always be an aoppropriate
+	 * 		type for the game
+	 */
 	public Room<?, ?, ?, ?> getCurrentRoom(){
 		PlayState p = this.getPlayState();
 		if(p == null) return null;
