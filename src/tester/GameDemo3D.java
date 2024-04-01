@@ -351,10 +351,6 @@ public class GameDemo3D extends Game{
 			// Rotate the pillar
 			pillarAngle += 2 * dt;
 		}
-		
-		@Override
-		public void render(Game game, Renderer r){
-		}
 	}
 	
 	private static void updatePaused(boolean paused){
@@ -544,8 +540,7 @@ public class GameDemo3D extends Game{
 		@Override
 		protected void render(Game game, Renderer r){
 			r.setColor(new ZColor(.5, 0, 0));
-			// TODO why isn't this rendering?
-			r.drawSidePlaneX(this.getX(), this.getY(), this.getZ(), 0.2, this.getHeight(), this.getCamera().getRotY());
+			r.drawSidePlaneZ(this.getX(), this.getY(), this.getZ(), 0.2, this.getHeight(), this.getCamera().getRotY());
 			
 			// TODO make some way of rendering this differently when it's the selected thing to control?
 		}
