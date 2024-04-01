@@ -43,6 +43,8 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 		double ySpeed = 0;
 		double zSpeed = 0;
 		
+		// TODO implement this using vectors
+		
 		// Determining movement direction
 		var ang = this.getRotY();
 		if(left && forward || right && backward) ang -= Math.PI * 0.25;

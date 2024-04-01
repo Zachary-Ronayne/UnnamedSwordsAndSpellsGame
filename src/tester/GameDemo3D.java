@@ -7,14 +7,12 @@ import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
-import zgame.physics.ZVector3D;
-import zgame.physics.collision.CollisionResponse;
+import zgame.physics.material.Materials;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
 import zgame.things.entity.*;
 import zgame.things.type.bounds.HitBox3D;
-import zgame.things.type.bounds.HitboxType;
 import zgame.world.Room3D;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -45,7 +43,6 @@ public class GameDemo3D extends Game{
 	private static final double gravity = 0.08;
 	private static final double jumpVel = 2;
 	private static double yVel = 0;
-	private static final double minCamY = .3;
 	private static final double minCamDist = 3.85;
 	
 	private static Player3D player;
@@ -68,15 +65,16 @@ public class GameDemo3D extends Game{
 		window.setWindowTitle("Cube Demo");
 		window.setSizeUniform(1500, 900);
 		window.center();
-		game.getWindow().getRenderer().getCamera3D().setZ(2);
-		game.getWindow().getRenderer().getCamera3D().setY(minCamY);
 		
-		var state = new DemoGameState(new DummyRoom());
+		var room = new DummyRoom();
+		var state = new DemoGameState(room);
 		game.setCurrentState(state);
 		
 		updatePaused(true);
 		
 		player = new Player3D(game);
+		player.setZ(2);
+		room.addThing(player);
 		
 		game.start();
 	}
@@ -194,6 +192,7 @@ public class GameDemo3D extends Game{
 		public void renderHud(Game game, Renderer r){
 			super.renderHud(game, r);
 			r.setFontSize(30);
+			// TODO abstract this to a getFps call
 			var s = "FPS: " + game.getRenderLooper().getLastFuncCalls();
 			
 			r.setColor(new ZColor(0));
@@ -383,7 +382,7 @@ public class GameDemo3D extends Game{
 	private static class Player3D extends EntityThing3D implements Movement3D, HitBox3D{
 		private final Game game;
 		
-		private Walk3D walk;
+		private final Walk3D walk;
 		
 		public Player3D(Game game){
 			super(0);
@@ -391,10 +390,29 @@ public class GameDemo3D extends Game{
 			this.walk = new Walk3D(this);
 		}
 		
+		@Override
+		public void tick(Game game, double dt){
+			super.tick(game, dt);
+			
+			// TODO implement real collision
+			if(this.getY() < 0) {
+				this.setY(0);
+				this.touchFloor(Materials.DEFAULT);
+			}
+			
+			// TODO abstract this out?
+			// Move the camera to the player
+			var cam = this.getCamera();
+			cam.setX(this.getX());
+			cam.setY(this.getY() + this.getHeight());
+			cam.setZ(this.getZ());
+		}
+		
 		private GameCamera3D getCamera(){
 			return this.game.getWindow().getRenderer().getCamera3D();
 		}
 		
+		// TODO should this just be the camera?
 		@Override
 		public double getRotX(){
 			return this.getCamera().getRotX();
@@ -411,35 +429,8 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public void addX(double x){
-			this.getCamera().addX(x);
-		}
-		
-		@Override
-		public void addY(double y){
-			this.getCamera().addY(y);
-		}
-		
-		@Override
-		public void addZ(double z){
-			this.getCamera().addZ(z);
-		}
-		
-		@Override
 		public double getMoveSpeed(){
 			return moveSpeed;
-		}
-		
-		// TODO implement this stuff in 3D
-		
-		@Override
-		public ZVector3D zeroVector(){
-			return new ZVector3D();
-		}
-		
-		@Override
-		public void moveEntity(ZVector3D moveVec, double dt){
-		
 		}
 		
 		@Override
@@ -449,72 +440,44 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getFrictionConstant(){
-			return 0;
-		}
-		
-		@Override
-		public ZVector3D setHorizontalForce(String name, double f){
-			return null;
-		}
-		
-		@Override
-		public ZVector3D setVerticalForce(String name, double f){
-			return null;
-		}
-		
-		@Override
-		public double getHorizontalVel(){
-			return 0;
-		}
-		
-		@Override
-		public void setHorizontalVel(double v){
-		
-		}
-		
-		@Override
-		public double getVerticalVel(){
-			return 0;
-		}
-		
-		@Override
-		public void setVerticalVel(double v){
-		
+			return this.getWalkFrictionConstant();
 		}
 		
 		@Override
 		public Walk3D getWalk(){
-			return new Walk3D(this);
+			return this.walk;
 		}
 		
 		@Override
 		public boolean isTryingToMove(){
+			// TODO implement
 			return false;
 		}
 		
 		@Override
 		public double getCurrentWalkingSpeed(){
+			// TODO implement
 			return 0;
 		}
 		
 		@Override
 		public void stopWalking(){
-		
+			// TODO implement
 		}
 		
 		@Override
 		public double getJumpPower(){
-			return 0;
+			return 600;
 		}
 		
 		@Override
 		public double getJumpStopPower(){
-			return 0;
+			return 30;
 		}
 		
 		@Override
 		public boolean isCanStopJump(){
-			return false;
+			return true;
 		}
 		
 		@Override
@@ -524,138 +487,87 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public boolean isJumpAfterBuildUp(){
-			return false;
+			return true;
 		}
 		
 		@Override
 		public double getWalkAcceleration(){
-			return 0;
+			return 0.05;
 		}
 		
 		@Override
 		public double getWalkSpeedMax(){
-			return 0;
+			return 1.0;
 		}
 		
 		@Override
 		public double getWalkAirControl(){
-			return 0;
+			return 0.5;
 		}
 		
 		@Override
 		public double getWalkFriction(){
-			return 0;
+			return 1.0;
 		}
 		
 		@Override
 		public double getWalkStopFriction(){
-			return 0;
+			return 1.0;
 		}
 		
 		@Override
 		public double getWalkingRatio(){
-			return 0;
+			return 0.5;
 		}
 		
 		@Override
 		public boolean isCanWallJump(){
-			return false;
+			return true;
 		}
 		
 		@Override
 		public double getNormalJumpTime(){
-			return 0;
+			return 0.2;
 		}
 		
 		@Override
 		public double getWallJumpTime(){
-			return 0;
+			return 0.2;
 		}
 		
 		@Override
 		public boolean isWalking(){
+			// TODO implement
 			return false;
 		}
 		
 		@Override
 		protected void render(Game game, Renderer r){
-		
-		}
-		
-		@Override
-		public double getX(){
-			return 0;
-		}
-		
-		@Override
-		public double getY(){
-			return 0;
-		}
-		
-		@Override
-		public double getZ(){
-			return 0;
+			r.setColor(new ZColor(.5, 0, 0));
+			// TODO why isn't this rendering?
+			r.drawSidePlaneX(this.getX(), this.getY(), this.getZ(), 0.2, this.getHeight(), this.getCamera().getRotY());
+			
+			// TODO make some way of rendering this differently when it's the selected thing to control?
 		}
 		
 		@Override
 		public double getWidth(){
+			// TODO implement in an abstracted class
 			return 0;
 		}
 		
 		@Override
 		public double getHeight(){
-			return 0;
+			// TODO implement in an abstracted class
+			return 0.3;
 		}
 		
 		@Override
 		public double getLength(){
+			// TODO implement in an abstracted class
 			return 0;
 		}
 		
-		@Override
-		public HitboxType getType(){
-			return null;
-		}
-		
-		@Override
-		public boolean intersects(HitBox3D h){
-			return false;
-		}
-		
-		@Override
-		public void collide(CollisionResponse r){
-		
-		}
-		
-		@Override
-		public void setX(double x){
-		
-		}
-		
-		@Override
-		public void setY(double y){
-		
-		}
-		
-		@Override
-		public void setZ(double z){
-		
-		}
-		
-		@Override
-		public double getPX(){
-			return 0;
-		}
-		
-		@Override
-		public double getPY(){
-			return 0;
-		}
-		
-		@Override
-		public double getPZ(){
-			return 0;
-		}
 	}
 	
 }

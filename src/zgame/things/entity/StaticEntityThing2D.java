@@ -8,6 +8,8 @@ import zgame.things.BaseTags;
 /** A 2D entity which does not move */
 public abstract class StaticEntityThing2D extends EntityThingRect2D{
 	
+	// TODO make this not coded as an entity? Just another game thing?
+	
 	// TODO avoid doing any force calculations for this entity
 	
 	/**
