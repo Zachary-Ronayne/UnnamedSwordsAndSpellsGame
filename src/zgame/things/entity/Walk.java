@@ -140,7 +140,7 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	
 	/** @param jumpForce The amount of force applied to the y axis while this mob is jumping */
 	public void setJumpingForce(double jumpForce){
-		this.jumpingForce = this.getEntity().setVerticalForce(FORCE_NAME_WALKING, jumpForce);
+		this.jumpingForce = this.getEntity().setVerticalForce(FORCE_NAME_JUMPING, jumpForce);
 	}
 	
 	/** @param force The amount of force moving during walking */

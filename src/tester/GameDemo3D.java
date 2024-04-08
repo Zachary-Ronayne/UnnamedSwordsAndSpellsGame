@@ -12,7 +12,6 @@ import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
 import zgame.things.entity.*;
-import zgame.things.type.bounds.HitBox3D;
 import zgame.world.Room3D;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -40,9 +39,6 @@ public class GameDemo3D extends Game{
 	private static boolean flying = false;
 	private static final double tiltSpeed = 3;
 	private static double currentTilt = 0;
-	private static final double gravity = 0.08;
-	private static final double jumpVel = 2;
-	private static double yVel = 0;
 	private static final double minCamDist = 3.85;
 	
 	private static Player3D player;
@@ -258,20 +254,6 @@ public class GameDemo3D extends Game{
 			);
 			var camera = game.getWindow().getRenderer().getCamera3D();
 			
-			// TODO move jumping to Movement3D
-			if(!flying){
-				// Jumping
-//				camera.addY(yVel);
-//				if(camera.getY() > minCamY){
-//					yVel -= gravity * dt;
-//				}
-//				if(camera.getY() < minCamY){
-//					camera.setY(minCamY);
-//					yVel = 0;
-//				}
-//				if(ki.pressed(GLFW_KEY_Q) && yVel == 0) yVel = jumpVel * dt;
-			}
-			
 			// TODO add tiling to Movement3D and make it relative to the position looked at
 			// Tilting the camera to the side
 			var tiltLeft = ki.pressed(GLFW_KEY_COMMA);
@@ -375,13 +357,13 @@ public class GameDemo3D extends Game{
 		else game.getCurrentState().removeTopMenu(game);
 	}
 	
-	private static class Player3D extends EntityThing3D implements Movement3D, HitBox3D{
+	private static class Player3D extends EntityThing3D implements Movement3D{
 		private final Game game;
 		
 		private final Walk3D walk;
 		
 		public Player3D(Game game){
-			super(0);
+			super(10);
 			this.game = game;
 			this.walk = new Walk3D(this);
 		}
@@ -389,6 +371,8 @@ public class GameDemo3D extends Game{
 		@Override
 		public void tick(Game game, double dt){
 			super.tick(game, dt);
+			
+			this.movementTick(game, dt);
 			
 			// TODO implement real collision
 			if(this.getY() < 0) {
@@ -463,12 +447,16 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getJumpPower(){
-			return 600;
+			// TODO make this not need to be negative
+			// TODO why doesn't this number effect anything?
+			// TODO why doesn't jumping start on pressing the jump button?
+			return -5.0;
 		}
 		
 		@Override
 		public double getJumpStopPower(){
-			return 30;
+			// TODO make this not need to be negative
+			return -30;
 		}
 		
 		@Override
@@ -483,7 +471,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public boolean isJumpAfterBuildUp(){
-			return true;
+			return false;
 		}
 		
 		@Override
@@ -548,7 +536,7 @@ public class GameDemo3D extends Game{
 		@Override
 		public double getWidth(){
 			// TODO implement in an abstracted class
-			return 0;
+			return 0.1;
 		}
 		
 		@Override
@@ -560,7 +548,7 @@ public class GameDemo3D extends Game{
 		@Override
 		public double getLength(){
 			// TODO implement in an abstracted class
-			return 0;
+			return 0.1;
 		}
 		
 	}

@@ -1,9 +1,7 @@
 package zgame.things.entity;
 
-import zgame.core.GameTickable;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResponse;
-import zgame.things.type.bounds.Bounds3D;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.HitboxType;
 import zgame.world.Room3D;
@@ -11,7 +9,7 @@ import zgame.world.Room3D;
 /**
  * An {@link EntityThing} in 3D
  */
-public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D, ZVector3D, Room3D> implements GameTickable, HitBox3D, Bounds3D{
+public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D, ZVector3D, Room3D> implements HitBox3D{
 	
 	// TODO implement
 	
@@ -24,22 +22,62 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	/** The z coordinate of the bottom center of this entity thing */
 	private double z;
 	
+	/** The value of the x coordinate from the last tick */
+	private double px;
+	/** The value of the y coordinate from the last tick */
+	private double py;
+	/** The value of the z coordinate from the last tick */
+	private double pz;
+	
 	/**
 	 * Create a new empty entity with the given mass
 	 *
 	 * @param mass See {@link #mass}
 	 */
 	public EntityThing3D(double mass){
+		this(0, 0, 0, mass);
+	}
+	
+	/**
+	 * Create a new empty entity with the given mass
+	 *
+	 * @param x See {@link #x}
+	 * @param y See {@link #y}
+	 * @param z See {@link #z}
+	 * @param mass See {@link #mass}
+	 */
+	public EntityThing3D(double x, double y, double z, double mass){
 		super(mass);
-		// TODO make a better constructor
-		this.x = 0;
-		this.y = 0;
-		this.z = 0;
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.px = x;
+		this.py = y;
+		this.pz = z;
 	}
 	
 	@Override
-	public void moveEntity(ZVector3D moveVec, double dt){
-		// TODO implement
+	public void moveEntity(ZVector3D distance){
+		this.px = this.getX();
+		this.py = this.getY();
+		this.pz = this.getZ();
+		this.addX(distance.getX());
+		this.addY(distance.getY());
+		this.addZ(distance.getZ());
+	}
+	
+	/**
+	 * Set the given force name with a force built from the given components.
+	 * If the given name doesn't have a force mapped to it yet, then this method automatically adds it to the map
+	 *
+	 * @param name The name of the force to set
+	 * @param x The x component
+	 * @param y The y component
+	 * @param z The z component
+	 * @return The newly set vector object
+	 */
+	public ZVector3D setForce(String name, double x, double y, double z){
+		return this.setForce(name, new ZVector3D(x, y, z));
 	}
 	
 	@Override
@@ -50,8 +88,8 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	
 	@Override
 	public ZVector3D setVerticalForce(String name, double f){
-		// TODO implement
-		return zeroVector();
+		// TODO figure out how to not make y velocity inverted in here, and in 2D, shouldn't need to do this bs with negative numbers
+		return this.setForce(name, 0, -f, 0);
 	}
 	
 	@Override
@@ -67,13 +105,13 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	
 	@Override
 	public double getVerticalVel(){
-		// TODO implement
-		return 0;
+		return this.getVelocity().getY();
 	}
 	
 	@Override
 	public void setVerticalVel(double v){
-		// TODO implement
+		var vel = this.getVelocity();
+		this.setVelocity(new ZVector3D(vel.getX(), v, vel.getZ()));
 	}
 	
 	@Override
@@ -95,20 +133,17 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	
 	@Override
 	public double getPX(){
-		// TODO implement
-		return 0;
+		return this.px;
 	}
 	
 	@Override
 	public double getPY(){
-		// TODO implement
-		return 0;
+		return this.py;
 	}
 	
 	@Override
 	public double getPZ(){
-		// TODO implement
-		return 0;
+		return this.pz;
 	}
 	
 	/** @return See {@link #x} */
@@ -174,5 +209,10 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	@Override
 	public ZVector3D zeroVector(){
 		return new ZVector3D();
+	}
+	
+	@Override
+	public double getGravityAcceleration(){
+		return 9.8;
 	}
 }

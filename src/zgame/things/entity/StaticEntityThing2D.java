@@ -47,7 +47,7 @@ public abstract class StaticEntityThing2D extends EntityThingRect2D{
 	}
 	
 	@Override
-	public void moveEntity(ZVector2D acceleration, double dt){
+	public void moveEntity(ZVector2D acceleration){
 		// Do nothing when moving with a static entity by default
 	}
 	

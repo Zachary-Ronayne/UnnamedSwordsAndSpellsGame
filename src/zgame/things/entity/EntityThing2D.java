@@ -1,18 +1,16 @@
 package zgame.things.entity;
 
 import zgame.core.Game;
-import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResponse;
-import zgame.things.type.bounds.Bounds2D;
 import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room2D;
 
 /**
  * An {@link EntityThing} in 2D
  */
-public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D, ZVector2D, Room2D> implements GameTickable, HitBox2D, Bounds2D{
+public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D, ZVector2D, Room2D> implements HitBox2D{
 	
 	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
 	
@@ -112,19 +110,17 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	}
 	
 	@Override
-	public void moveEntity(ZVector2D acceleration, double dt){
+	public void moveEntity(ZVector2D distance){
 		// Move the entity based on the current velocity and acceleration
 		this.px = this.getX();
 		this.py = this.getY();
-		var moveVec = this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5));
-		this.addX(moveVec.getX());
-		this.addY(moveVec.getY());
+		this.addX(distance.getX());
+		this.addY(distance.getY());
 	}
 	
 	/**
-	 * Set the given force name with a force built from the given components. If the given name doesn't have a force mapped to it yet, then this method automatically adds it
-	 * to the
-	 * map
+	 * Set the given force name with a force built from the given components.
+	 * If the given name doesn't have a force mapped to it yet, then this method automatically adds it to the map
 	 *
 	 * @param name The name of the force to set
 	 * @param x The x component
@@ -132,7 +128,7 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	 * @return The newly set vector object
 	 */
 	public ZVector2D setForce(String name, double x, double y){
-		return setForce(name, new ZVector2D(x, y));
+		return this.setForce(name, new ZVector2D(x, y));
 	}
 	
 	/**
@@ -196,7 +192,12 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 		return py;
 	}
 	
-	@Override
+	/**
+	 * Set a frictional force on the horizontal, i.e. non-gravitational, axis
+	 * @param name The string identifying the force
+	 * @param f The quantity of the force, negative or positive to use direction
+	 * @return The vector representing the added force
+	 */
 	public ZVector2D setHorizontalForce(String name, double f){
 		return this.setForce(name, f, 0);
 	}
@@ -224,6 +225,11 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	@Override
 	public void setVerticalVel(double v){
 		this.setVY(v);
+	}
+	
+	@Override
+	public double getGravityAcceleration(){
+		return 800;
 	}
 	
 	@Override

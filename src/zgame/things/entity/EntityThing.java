@@ -10,7 +10,6 @@ import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.type.GameThing;
-import zgame.things.type.Materialable;
 import zgame.things.type.bounds.HitBox;
 import zgame.world.Room;
 
@@ -23,7 +22,7 @@ import zgame.world.Room;
  * @param <V> The vector implementation used by this entity
  * @param <R> The room implementation which this entity can exist in
  */
-public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>> extends GameThing implements GameTickable, Materialable, HitBox<H>{
+public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>> extends GameThing implements GameTickable, HitBox<H>{
 	
 	// TODO fix being able to jump without touching the ground first
 	
@@ -35,9 +34,6 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	public static final String FORCE_NAME_GRAVITY_DRAG = "gravityDrag";
 	/** The string used to identify the force of sticking to a wall in {@link #forces} */
 	public static final String FORCE_NAME_WALL_SLIDE = "wallSlide";
-	
-	/** The acceleration of gravity */
-	public static final double GRAVITY_ACCELERATION = 800;
 	
 	/** The uuid of this entity */
 	private final String uuid;
@@ -165,12 +161,14 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		this.addVelocity(acceleration.scale(dt));
 		
 		// Apply the movement of the velocity
-		this.moveEntity(this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5)), dt);
+		this.moveEntity(this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5)));
 	}
 	
-	// TODO somehow abstract this to 2D and 3D
-	// TODO make doc
-	public abstract void moveEntity(V moveVec, double dt);
+	/**
+	 * Move the entity by the given amount
+	 * @param distance The distance to move this entity by
+	 */
+	public abstract void moveEntity(V distance);
 	
 	/**
 	 * Determine the current amount of friction on this {@link EntityThing} and update the force
@@ -281,7 +279,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		// Multiplied by 2.0 because the internet says that constant is there for the equation is for terminal velocity
 		// Multiplied by 0.01 as a placeholder for density. For now, everything entities fall through is considered to have that same constant density
 		// TODO make a getDensity method
-		return Math.sqrt(Math.abs((2.0 * this.getMass() * GRAVITY_ACCELERATION) / (m.getFriction() * surfaceArea * 0.01)));
+		return Math.sqrt(Math.abs((2.0 * this.getMass() * this.getGravityAcceleration()) / (m.getFriction() * surfaceArea * 0.01)));
 	}
 	
 	/** @return The surface area of this {@link EntityThing} */
@@ -321,13 +319,16 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	
 	/** Update the amount of gravitational force being applied to this {@link EntityThing} */
 	private void updateGravity(){
-		this.gravity = this.setVerticalForce(FORCE_NAME_GRAVITY, GRAVITY_ACCELERATION * this.getMass() * this.getGravityLevel());
+		this.gravity = this.setVerticalForce(FORCE_NAME_GRAVITY, this.getGravityAcceleration() * this.getMass() * this.getGravityLevel());
 	}
 	
 	/** @return See {@link #gravityLevel} */
 	public double getGravityLevel(){
 		return this.gravityLevel;
 	}
+	
+	/** @return The acceleration of gravity */
+	public abstract double getGravityAcceleration();
 	
 	/** @param gravityLevel See {@link #gravityLevel} */
 	public void setGravityLevel(double gravityLevel){
@@ -601,21 +602,14 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		return force;
 	}
 	
-	// TODO is this the best way to do this?
-	// TODO redo doc for abstraction
-	
-	/**
-	 * Only modify the x value, keep the y value the same.
-	 * If the force does not already exist, a force is created with the given name using a zero for the y value
-	 */
+	// TODO remove this method, instead make an abstract method that generates frictional force
 	public abstract V setHorizontalForce(String name, double f);
 	
-	// TODO is this the best way to do this?
-	// TODO redo doc for abstraction
-	
 	/**
-	 * Only modify the x value, keep the y value the same.
-	 * If the force does not already exist, a force is created with the given name using a zero for the y value
+	 * Set a force on the vertical, i.e. gravitational, axis.
+	 * @param name The string identifying the force
+	 * @param f The quantity of the force, positive means down and negative means up
+	 * @return The vector representing the added force
 	 */
 	public abstract V setVerticalForce(String name, double f);
 	

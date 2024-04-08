@@ -116,6 +116,8 @@ public class ZVector3D extends ZVector<ZVector3D>{
 		sb.append(this.getX());
 		sb.append(", y: ");
 		sb.append(this.getY());
+		sb.append(", z: ");
+		sb.append(this.getZ());
 		sb.append(", angle: ");
 		sb.append(this.getAngle());
 		sb.append(", mag: ");
