@@ -12,20 +12,6 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 		// TODO implement using Walk3D
 	}
 	
-	// TODO make all of this stuff interact with the base Movement class
-	/**
-	 * Move this object based on the given parameters simulating walking
-	 *
-	 * @param dt The amount of time, in seconds, that passed
-	 * @param left true if this object is moving to its left, false otherwise
-	 * @param right true if this object is moving to its right, false otherwise
-	 * @param forward true if this object is moving forward, false otherwise
-	 * @param backward true if this object is moving backward, false otherwise
-	 */
-	default void handleMovementControls(double dt, boolean left, boolean right, boolean forward, boolean backward){
-		this.handleMovementControls(dt, left, right, forward, backward, false, false, false);
-	}
-	
 	/**
 	 * Move this object based on the given parameters
 	 *

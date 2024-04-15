@@ -64,4 +64,8 @@ public interface Movement2D extends Movement<HitBox2D, EntityThing2D, ZVector2D,
 		else this.checkPerformOrStopJump(dt);
 	}
 	
+	@Override
+	default boolean jumpingInverted(){
+		return true;
+	}
 }

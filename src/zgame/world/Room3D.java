@@ -2,6 +2,7 @@ package zgame.world;
 
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResponse;
+import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.type.bounds.Bounds3D;
 import zgame.things.type.bounds.HitBox3D;
@@ -47,6 +48,13 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D> imp
 	
 	@Override
 	public CollisionResponse collide(HitBox3D obj){
+		
+		// TODO implement real collision
+		if(obj.getY() <= 0) {
+			obj.setY(0);
+			obj.touchFloor(Materials.DEFAULT);
+		}
+		
 		return new CollisionResponse();
 	}
 	
@@ -59,6 +67,5 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D> imp
 	public Class<EntityThing3D> getEntityClass(){
 		return EntityThing3D.class;
 	}
-	
 	
 }

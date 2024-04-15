@@ -145,13 +145,18 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 			var entity = this.getThing();
 			// Only need to stop jumping if this entity is moving up
 			double vy = entity.getVerticalVel();
-			if(vy < 0){
+			boolean invert = this.jumpingInverted();
+			if(invert && vy < 0 || !invert && vy > 0){
 				double mass = entity.getMass();
-				double newStopJumpVel = this.getJumpStopPower() / mass;
-				double newStopJumpForce = this.getJumpStopPower() / dt;
-				// If the jump force would add extra velocity making its total velocity downwards,
+				double power = this.getJumpStopPower();
+				double newStopJumpVel = power / mass;
+				double newStopJumpForce = power / dt;
+				
+				// If the jump force would adjust extra velocity making its total velocity downwards,
 				// then the jump stop force should be such that the y velocity will be 0 on the next tick
-				if(vy + newStopJumpVel > 0) newStopJumpForce = -vy * mass / dt;
+				if(invert && vy < newStopJumpVel || !invert && vy > newStopJumpVel){
+					newStopJumpForce = -vy * mass / dt;
+				}
 				
 				walk.setJumpingForce(newStopJumpForce);
 			}
@@ -203,11 +208,17 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		
 		// The jump power is either itself if jumping is instant, or multiplied by the ratio of jump time built and the total time to build a jump, keeping it at most 1
 		double power = this.getJumpPower() * (this.jumpsAreInstant() ? 1 : Math.min(1, walk.getJumpTimeBuilt() / this.getJumpBuildTime()));
-		double jumpAmount = -power / dt;
+		double jumpAmount = power / dt;
+		boolean invert = this.jumpingInverted();
+		if(invert) jumpAmount = -jumpAmount;
 		
 		// If falling downwards, add additional force so that the jump force will counteract the current downwards force
 		double vy = entity.getVerticalVel();
-		if(vy > 0) jumpAmount -= vy / dt * entity.getMass();
+		if(invert && vy > 0 || !invert && vy < 0) {
+			double adjust = vy / dt * entity.getMass();
+			if(invert) jumpAmount += adjust;
+			else jumpAmount -= adjust;
+		}
 		
 		walk.setJumpingForce(jumpAmount);
 		walk.setJumpTimeBuilt(0);
@@ -236,6 +247,11 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		}
 		// Otherwise, perform the built up jump
 		else this.jumpFromBuiltUp(dt);
+	}
+	
+	/** @return true if jumping should decrease the y axis instead of increasing it */
+	default boolean jumpingInverted(){
+		return false;
 	}
 	
 	/** @return true if {@link #getThing()} jumps instantly, false if it has to build up a jump */

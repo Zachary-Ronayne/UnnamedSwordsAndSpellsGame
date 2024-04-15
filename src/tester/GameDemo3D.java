@@ -246,12 +246,6 @@ public class GameDemo3D extends Game{
 			super.tick(game, dt);
 			var ki = game.getKeyInput();
 			
-			player.handleMovementControls(dt,
-					ki.buttonDown(GLFW_KEY_A), ki.buttonDown(GLFW_KEY_D),
-					ki.buttonDown(GLFW_KEY_W), ki.buttonDown(GLFW_KEY_S),
-					ki.buttonDown(GLFW_KEY_Q), ki.buttonDown(GLFW_KEY_Z),
-					flying
-			);
 			var camera = game.getWindow().getRenderer().getCamera3D();
 			
 			// TODO add tiling to Movement3D and make it relative to the position looked at
@@ -363,22 +357,25 @@ public class GameDemo3D extends Game{
 		private final Walk3D walk;
 		
 		public Player3D(Game game){
-			super(10);
+			super(100);
 			this.game = game;
 			this.walk = new Walk3D(this);
 		}
 		
 		@Override
 		public void tick(Game game, double dt){
-			super.tick(game, dt);
-			
+			// TODO maybe abstract out this movement and tick crap to avoid having to worry about the order of when these random methods should be called
 			this.movementTick(game, dt);
 			
-			// TODO implement real collision
-			if(this.getY() < 0) {
-				this.setY(0);
-				this.touchFloor(Materials.DEFAULT);
-			}
+			var ki = game.getKeyInput();
+			this.handleMovementControls(dt,
+					ki.buttonDown(GLFW_KEY_A), ki.buttonDown(GLFW_KEY_D),
+					ki.buttonDown(GLFW_KEY_W), ki.buttonDown(GLFW_KEY_S),
+					ki.buttonDown(GLFW_KEY_Q), ki.buttonDown(GLFW_KEY_Z),
+					flying
+			);
+			
+			super.tick(game, dt);
 			
 			// TODO abstract this out?
 			// Move the camera to the player
@@ -447,16 +444,12 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getJumpPower(){
-			// TODO make this not need to be negative
-			// TODO why doesn't this number effect anything?
-			// TODO why doesn't jumping start on pressing the jump button?
-			return -5.0;
+			return 300.0;
 		}
 		
 		@Override
 		public double getJumpStopPower(){
-			// TODO make this not need to be negative
-			return -30;
+			return 150.0;
 		}
 		
 		@Override
@@ -471,7 +464,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public boolean isJumpAfterBuildUp(){
-			return false;
+			return true;
 		}
 		
 		@Override

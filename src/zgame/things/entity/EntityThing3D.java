@@ -88,8 +88,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	
 	@Override
 	public ZVector3D setVerticalForce(String name, double f){
-		// TODO figure out how to not make y velocity inverted in here, and in 2D, shouldn't need to do this bs with negative numbers
-		return this.setForce(name, 0, -f, 0);
+		return this.setForce(name, 0, f, 0);
 	}
 	
 	@Override
@@ -213,6 +212,6 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	
 	@Override
 	public double getGravityAcceleration(){
-		return 9.8;
+		return -9.8;
 	}
 }
