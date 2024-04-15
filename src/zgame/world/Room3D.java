@@ -54,6 +54,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D> imp
 			obj.setY(0);
 			obj.touchFloor(Materials.DEFAULT);
 		}
+		else if(obj.isOnGround()) obj.leaveFloor();
 		
 		return new CollisionResponse();
 	}

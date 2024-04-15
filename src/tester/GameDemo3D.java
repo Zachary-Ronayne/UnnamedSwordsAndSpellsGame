@@ -7,7 +7,7 @@ import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
-import zgame.physics.material.Materials;
+import zgame.physics.material.Material;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
@@ -544,6 +544,24 @@ public class GameDemo3D extends Game{
 			return 0.1;
 		}
 		
+		// TODO abstract this out to not need to be in every random implementation of stuff?
+		@Override
+		public void touchFloor(Material touched){
+			super.touchFloor(touched);
+			this.movementTouchFloor(touched);
+		}
+
+		@Override
+		public void leaveFloor(){
+			super.leaveFloor();
+			this.movementLeaveFloor();
+		}
+
+		@Override
+		public void leaveWall(){
+			super.leaveWall();
+			this.movementLeaveWall();
+		}
 	}
 	
 }

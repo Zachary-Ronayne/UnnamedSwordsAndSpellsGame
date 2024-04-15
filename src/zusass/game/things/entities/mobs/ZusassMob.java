@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
+import zgame.physics.material.Material;
 import zgame.stat.Stat;
 import zgame.stat.ValueStat;
 import zgame.stat.modifier.ModifierType;
@@ -488,6 +489,7 @@ public abstract class ZusassMob extends EntityThing2D implements Movement2D, Rec
 		this.height = height;
 	}
 	
+	// TODO should this even be a method?
 	/**
 	 * @return This object, as an {@link Npc}, or null if it cannot be an {@link Npc}
 	 * 		The return value of this method should equal this object, not another version or reference, i.e. (this == this.asNpc()) should evaluate to true
@@ -506,6 +508,25 @@ public abstract class ZusassMob extends EntityThing2D implements Movement2D, Rec
 	@Override
 	public Walk2D getWalk(){
 		return this.walk;
+	}
+	
+	// TODO abstract this out to not need to be in every random implementation of stuff? Maybe maybe a movement entity that's like a pseudo mob
+	@Override
+	public void touchFloor(Material touched){
+		super.touchFloor(touched);
+		this.movementTouchFloor(touched);
+	}
+	
+	@Override
+	public void leaveFloor(){
+		super.leaveFloor();
+		this.movementLeaveFloor();
+	}
+	
+	@Override
+	public void leaveWall(){
+		super.leaveWall();
+		this.movementLeaveWall();
 	}
 	
 	@Override
