@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
-import zgame.physics.material.Material;
 import zgame.stat.Stat;
 import zgame.stat.ValueStat;
 import zgame.stat.modifier.ModifierType;
@@ -13,6 +12,8 @@ import zgame.stat.modifier.StatModifier;
 import zgame.stat.status.StatusEffect;
 import zgame.stat.status.StatusEffects;
 import zgame.things.entity.*;
+import zgame.things.entity.movement.Movement2D;
+import zgame.things.entity.movement.MovementEntityThing2D;
 import zgame.things.entity.projectile.Projectile;
 import zgame.things.type.bounds.RectangleHitBox;
 import zusass.ZusassGame;
@@ -33,7 +34,7 @@ import static zusass.game.stat.ZusassStat.*;
 import java.util.List;
 
 /** A generic mob in the Zusass game */
-public abstract class ZusassMob extends EntityThing2D implements Movement2D, RectangleHitBox{
+public abstract class ZusassMob extends MovementEntityThing2D implements RectangleHitBox{
 	
 	/** The json key used to store the spellbook which this mob has */
 	public final static String SPELLBOOK_KEY = "spellbook";
@@ -194,8 +195,6 @@ public abstract class ZusassMob extends EntityThing2D implements Movement2D, Rec
 			this.attackTime -= dt;
 			if(this.attackTime < 0) this.attackNearest(zgame);
 		}
-		
-		this.movementTick(game, dt);
 		
 		// If running and moving, need to drain stamina
 		this.staminaRunDrain.setValue(!this.isWalking() && this.isTryingToMove() ? -35 : 0);
@@ -489,18 +488,9 @@ public abstract class ZusassMob extends EntityThing2D implements Movement2D, Rec
 		this.height = height;
 	}
 	
-	// TODO should this even be a method?
-	/**
-	 * @return This object, as an {@link Npc}, or null if it cannot be an {@link Npc}
-	 * 		The return value of this method should equal this object, not another version or reference, i.e. (this == this.asNpc()) should evaluate to true
-	 */
-	public Npc asNpc(){
-		return null;
-	}
-	
 	@Override
 	public boolean jump(double dt){
-		var jumped = Movement2D.super.jump(dt);
+		var jumped = super.jump(dt);
 		if(jumped) this.getStat(STAMINA).addValue(-6);
 		return jumped;
 	}
@@ -508,25 +498,6 @@ public abstract class ZusassMob extends EntityThing2D implements Movement2D, Rec
 	@Override
 	public Walk2D getWalk(){
 		return this.walk;
-	}
-	
-	// TODO abstract this out to not need to be in every random implementation of stuff? Maybe maybe a movement entity that's like a pseudo mob
-	@Override
-	public void touchFloor(Material touched){
-		super.touchFloor(touched);
-		this.movementTouchFloor(touched);
-	}
-	
-	@Override
-	public void leaveFloor(){
-		super.leaveFloor();
-		this.movementLeaveFloor();
-	}
-	
-	@Override
-	public void leaveWall(){
-		super.leaveWall();
-		this.movementLeaveWall();
 	}
 	
 	@Override

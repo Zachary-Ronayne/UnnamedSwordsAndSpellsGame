@@ -1,6 +1,7 @@
 package zgame.things.entity;
 
 import zgame.physics.ZVector3D;
+import zgame.things.entity.movement.Movement3D;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.world.Room3D;
 

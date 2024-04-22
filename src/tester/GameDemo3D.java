@@ -7,11 +7,12 @@ import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
-import zgame.physics.material.Material;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
 import zgame.things.entity.*;
+import zgame.things.entity.movement.Movement3D;
+import zgame.things.entity.movement.MovementEntityThing3D;
 import zgame.world.Room3D;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -230,7 +231,10 @@ public class GameDemo3D extends Game{
 			 */
 			
 			// Toggle fly
-			if(button == GLFW_KEY_F) flying = !flying;
+			if(button == GLFW_KEY_F) {
+				flying = !flying;
+				player.setGravityLevel(flying ? 0 : 1);
+			}
 			
 			// Toggle vsync
 			if(button == GLFW_KEY_V) game.toggle(BooleanTypeSetting.V_SYNC, false);
@@ -318,11 +322,11 @@ public class GameDemo3D extends Game{
 			yRot += yRotSpeed * dt;
 			zRot += zRotSpeed * dt;
 			
-			// Force the camera to stay in certain bounds
-			if(camera.getX() < -minCamDist) camera.setX(-minCamDist);
-			else if(camera.getX() > minCamDist) camera.setX(minCamDist);
-			if(camera.getZ() < -minCamDist) camera.setZ(-minCamDist);
-			else if(camera.getZ() > minCamDist) camera.setZ(minCamDist);
+			// Force the player to stay in certain bounds
+			if(player.getX() < -minCamDist) player.setX(-minCamDist);
+			else if(player.getX() > minCamDist) player.setX(minCamDist);
+			if(player.getZ() < -minCamDist) player.setZ(-minCamDist);
+			else if(player.getZ() > minCamDist) player.setZ(minCamDist);
 			
 			// Rotate the pillar
 			pillarAngle += 2 * dt;
@@ -351,21 +355,17 @@ public class GameDemo3D extends Game{
 		else game.getCurrentState().removeTopMenu(game);
 	}
 	
-	private static class Player3D extends EntityThing3D implements Movement3D{
+	private static class Player3D extends MovementEntityThing3D{
 		private final Game game;
-		
-		private final Walk3D walk;
 		
 		public Player3D(Game game){
 			super(100);
 			this.game = game;
-			this.walk = new Walk3D(this);
 		}
 		
 		@Override
 		public void tick(Game game, double dt){
-			// TODO maybe abstract out this movement and tick crap to avoid having to worry about the order of when these random methods should be called
-			this.movementTick(game, dt);
+			super.tick(game, dt);
 			
 			var ki = game.getKeyInput();
 			this.handleMovementControls(dt,
@@ -374,8 +374,6 @@ public class GameDemo3D extends Game{
 					ki.buttonDown(GLFW_KEY_Q), ki.buttonDown(GLFW_KEY_Z),
 					flying
 			);
-			
-			super.tick(game, dt);
 			
 			// TODO abstract this out?
 			// Move the camera to the player
@@ -418,11 +416,6 @@ public class GameDemo3D extends Game{
 		@Override
 		public double getFrictionConstant(){
 			return this.getWalkFrictionConstant();
-		}
-		
-		@Override
-		public Walk3D getWalk(){
-			return this.walk;
 		}
 		
 		@Override
@@ -542,25 +535,6 @@ public class GameDemo3D extends Game{
 		public double getLength(){
 			// TODO implement in an abstracted class
 			return 0.1;
-		}
-		
-		// TODO abstract this out to not need to be in every random implementation of stuff?
-		@Override
-		public void touchFloor(Material touched){
-			super.touchFloor(touched);
-			this.movementTouchFloor(touched);
-		}
-
-		@Override
-		public void leaveFloor(){
-			super.leaveFloor();
-			this.movementLeaveFloor();
-		}
-
-		@Override
-		public void leaveWall(){
-			super.leaveWall();
-			this.movementLeaveWall();
 		}
 	}
 	

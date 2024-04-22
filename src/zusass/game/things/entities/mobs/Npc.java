@@ -94,9 +94,4 @@ public class Npc extends ZusassMob{
 		this.renderAttackTimer(game, r);
 	}
 	
-	@Override
-	public Npc asNpc(){
-		return this;
-	}
-	
 }

@@ -1,12 +1,13 @@
 package tester;
 
 import zgame.core.Game;
-import zgame.things.entity.*;
+import zgame.things.entity.movement.Movement2D;
+import zgame.things.entity.movement.MovementEntityThing2D;
 import zgame.world.Room2D;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public abstract class PlayerTester extends EntityThing2D implements Movement2D {
+public abstract class PlayerTester extends MovementEntityThing2D{
 	
 	/** The width of this mob */
 	private double width;
@@ -15,9 +16,6 @@ public abstract class PlayerTester extends EntityThing2D implements Movement2D {
 	
 	/** true to lock the camera to the center of the player, false otherwise */
 	private boolean lockCamera;
-	
-	/** The {@link Walk} object used by this object's implementation of {@link Movement2D} */
-	private final Walk2D walk;
 	
 	/** See {@link Movement2D#getWalkSpeedMax()} */
 	private double walkSpeedMax;
@@ -90,7 +88,6 @@ public abstract class PlayerTester extends EntityThing2D implements Movement2D {
 		this.normalJumpTime = .1;
 		this.wallJumpTime = .25;
 		this.walking = false;
-		this.walk = new Walk2D(this);
 		
 		this.lockCamera = false;
 		this.width = width;
@@ -99,18 +96,16 @@ public abstract class PlayerTester extends EntityThing2D implements Movement2D {
 	
 	@Override
 	public void tick(Game game, double dt){
-		this.movementTick(game, dt);
+		// Perform the normal game tick on the player
+		super.tick(game, dt);
 		
+		// Now handle movement controls
 		var ki = game.getKeyInput();
 		this.handleMovementControls(ki.pressed(GLFW_KEY_LEFT), ki.pressed(GLFW_KEY_RIGHT), ki.pressed(GLFW_KEY_UP), dt);
-		
-		// Lastly, perform the normal game tick on the player
-		super.tick(game, dt);
 		
 		// Now the camera to the player after repositioning the player
 		this.checkCenterCamera(game);
 	}
-	
 	
 	/**
 	 * If the camera should be locked to this {@link PlayerTester}, then lock the camera, otherwise do nothing
@@ -160,11 +155,6 @@ public abstract class PlayerTester extends EntityThing2D implements Movement2D {
 	/** @param height See {@link #height} */
 	public void setHeight(double height){
 		this.height = height;
-	}
-	
-	@Override
-	public Walk2D getWalk(){
-		return this.walk;
 	}
 	
 	/** @return See {@link #walkSpeedMax} */

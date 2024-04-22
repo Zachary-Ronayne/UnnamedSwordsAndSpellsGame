@@ -40,8 +40,11 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	/** Update the internal x and y values based on the current values of {@link #angle} and {@link #magnitude} */
 	@Override
 	public void calcComponents(){
-		this.x = Math.cos(this.getAngle()) * this.getMagnitude();
-		this.y = Math.sin(this.getAngle()) * this.getMagnitude();
+//		this.x = Math.cos(this.getAngle()) * this.getMagnitude();
+//		this.y = Math.sin(this.getAngle()) * this.getMagnitude();
+		this.x = 0;
+		this.y = 0;
+		this.z = 0;
 	}
 	
 	/** Update the internal angle and magnitude values based on the current values of {@link #x} and {@link #y} */

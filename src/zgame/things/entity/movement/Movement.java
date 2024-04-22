@@ -1,8 +1,10 @@
-package zgame.things.entity;
+package zgame.things.entity.movement;
 
 import zgame.core.Game;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
+import zgame.things.entity.EntityThing;
+import zgame.things.entity.Walk;
 import zgame.things.type.bounds.HitBox;
 import zgame.world.Room;
 
@@ -337,6 +339,7 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	
 	/** This method should be called when the associated entity leaves a wall */
 	default void movementLeaveWall(){
+		// Any jump that was being built up is no longer being built up after leaving a wall
 		this.cancelJump();
 	}
 	
