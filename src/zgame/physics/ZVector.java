@@ -41,10 +41,10 @@ public abstract class ZVector<V extends ZVector<V>>{
 	}
 	
 	/** @return The magnitude of the horizontal components of this vector */
-	public abstract double getHorizontalForce();
+	public abstract double getHorizontal();
 	
 	/** @return The magnitude of the vertical components of this vector */
-	public abstract double getVerticalForce();
+	public abstract double getVertical();
 	
 	/**
 	 * Add the given {@link ZVector} to this ZVector and return the result.

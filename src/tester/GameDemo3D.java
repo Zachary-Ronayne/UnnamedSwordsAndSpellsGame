@@ -10,8 +10,6 @@ import zgame.menu.Menu;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
-import zgame.things.entity.*;
-import zgame.things.entity.movement.Movement3D;
 import zgame.things.entity.movement.MovementEntityThing3D;
 import zgame.world.Room3D;
 
@@ -368,16 +366,19 @@ public class GameDemo3D extends Game{
 			super.tick(game, dt);
 			
 			var ki = game.getKeyInput();
-			this.handleMovementControls(dt,
-					ki.buttonDown(GLFW_KEY_A), ki.buttonDown(GLFW_KEY_D),
-					ki.buttonDown(GLFW_KEY_W), ki.buttonDown(GLFW_KEY_S),
-					ki.buttonDown(GLFW_KEY_Q), ki.buttonDown(GLFW_KEY_Z),
-					flying
-			);
+			// TODO make a better way of getting these angles?
+			var cam = this.getCamera();
+			
+			var left = ki.buttonDown(GLFW_KEY_A);
+			var right = ki.buttonDown(GLFW_KEY_D);
+			var forward = ki.buttonDown(GLFW_KEY_W);
+			var backward = ki.buttonDown(GLFW_KEY_S);
+			var up = ki.buttonDown(GLFW_KEY_Q);
+			var down = ki.buttonDown(GLFW_KEY_Z);
+			this.handleMovementControls(dt, cam.getRotY(), cam.getRotX(), left, right, forward, backward, up, down, flying);
 			
 			// TODO abstract this out?
 			// Move the camera to the player
-			var cam = this.getCamera();
 			cam.setX(this.getX());
 			cam.setY(this.getY() + this.getHeight());
 			cam.setZ(this.getZ());
@@ -403,10 +404,11 @@ public class GameDemo3D extends Game{
 			return this.getCamera().getRotZ();
 		}
 		
-		@Override
-		public double getMoveSpeed(){
-			return moveSpeed;
-		}
+		// TODO remove old code after implement movement in 3D
+//		@Override
+//		public double getMoveSpeed(){
+//			return moveSpeed;
+//		}
 		
 		@Override
 		public double getSurfaceArea(){
@@ -419,15 +421,8 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public boolean isTryingToMove(){
-			// TODO implement
-			return false;
-		}
-		
-		@Override
 		public double getCurrentWalkingSpeed(){
-			// TODO implement
-			return 0;
+			return this.getHorizontalVel();
 		}
 		
 		@Override
@@ -462,12 +457,12 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getWalkAcceleration(){
-			return 0.05;
+			return 0.5;
 		}
 		
 		@Override
 		public double getWalkSpeedMax(){
-			return 1.0;
+			return moveSpeed;
 		}
 		
 		@Override
@@ -507,8 +502,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public boolean isWalking(){
-			// TODO implement
-			return false;
+			return this.game.getKeyInput().shift();
 		}
 		
 		@Override

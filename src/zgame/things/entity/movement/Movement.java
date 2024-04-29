@@ -92,16 +92,15 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		}
 		
 		// Set the amount the entity is walking
-		this.applyWalkForce(dt, walkForce);
+		this.applyWalkForce(walkForce);
 	}
 	
 	/**
 	 * Apply the given amount of force to this thing's walking force
 	 *
-	 * @param dt The time that will pass in the game tick of this update
 	 * @param newWalkForce The amount of force to apply in the forwards direction of this thing
 	 */
-	void applyWalkForce(double dt, double newWalkForce);
+	void applyWalkForce(double newWalkForce);
 	
 	/** @return true if {@link #getThing()} is able to perform a normal jump off the ground based on the amount of time since it last touched a wall, false otherwise */
 	default boolean hasTimeToFloorJump(){

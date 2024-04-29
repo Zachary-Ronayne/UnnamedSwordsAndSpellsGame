@@ -7,8 +7,6 @@ import zgame.core.utils.ZMath;
  */
 public class ZVector3D extends ZVector<ZVector3D>{
 	
-	// TODO implement as 3D
-	
 	/** The x component of this {@link ZVector3D} */
 	private double x;
 	/** The y component of this {@link ZVector3D} */
@@ -16,8 +14,14 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	/** The z component of this {@link ZVector3D} */
 	private double z;
 	
-	/** The angle, in radians, of this {@link ZVector3D} */
-	private double angle;
+	/** The angle, in radians, of this {@link ZVector3D}, along the horizontal axis, i.e. the x z plane */
+	private double angleH;
+	
+	/** The angle, in radians, of this {@link ZVector3D}, along the vertical axis, i.e. the y axis */
+	private double angleV;
+	
+	/** The magnitude on the horizontal axis, i.e. x z plane */
+	private double horizontalMag;
 	
 	/** Create a {@link ZVector3D} with a magnitude of 0 */
 	public ZVector3D(){
@@ -25,43 +29,69 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	}
 	
 	/**
-	 * Create a new ZVector with the given component values
+	 * Create a new ZVector with the given angle and magnitude values
 	 *
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 * @param z See {@link #z}
 	 */
 	public ZVector3D(double x, double y, double z){
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		this(x, y, z, true);
 	}
 	
-	/** Update the internal x and y values based on the current values of {@link #angle} and {@link #magnitude} */
+	/**
+	 * Create a new ZVector with the given component values
+	 *
+	 * @param a If comps is true, see {@link #x}, otherwise see {@link #angleH}
+	 * @param b If comps is true, See {@link #y}, otherwise see {@link #angleV}
+	 * @param c If comps is true, See {@link #y}, otherwise see {@link #magnitude}
+	 * @param comps true if a, b, and c represent the x, y, and z components of this {@link ZVector2D}, otherwise, they represent the angles and magnitude
+	 */
+	public ZVector3D(double a, double b, double c, boolean comps){
+		super();
+		if(comps){
+			this.x = a;
+			this.y = b;
+			this.z = c;
+			this.calcAngleMag();
+		}
+		else{
+			this.angleH = a;
+			this.angleV = b;
+			this.setMagnitude(c);
+			this.calcComponents();
+		}
+	}
+	
+	/** Update the internal x, y, and z values based on the current values of {@link #angleH}, {@link #angleV} */
 	@Override
 	public void calcComponents(){
-//		this.x = Math.cos(this.getAngle()) * this.getMagnitude();
-//		this.y = Math.sin(this.getAngle()) * this.getMagnitude();
-		this.x = 0;
-		this.y = 0;
-		this.z = 0;
+		// TODO explain where these equations come from, and figure out if they are even correct
+		this.horizontalMag = Math.cos(angleV) * this.getMagnitude();
+		this.x = Math.sin(this.angleH) * this.horizontalMag;
+		this.y = Math.cos(this.angleV) * this.getMagnitude();
+		this.z = Math.sin(this.angleH) * this.horizontalMag;
 	}
 	
-	/** Update the internal angle and magnitude values based on the current values of {@link #x} and {@link #y} */
+	/** Update the internal angle and magnitude values based on the current values of {@link #x}, {@link #y}, and {@link #z} */
 	@Override
 	public void calcAngleMag(){
-		this.angle = (Math.atan2(this.getY(), this.getX()) + ZMath.TAU) % ZMath.TAU;
-		this.setMagnitude(Math.sqrt(Math.pow(this.getX(), 2) + Math.pow(this.getY(), 2)));
+		// TODO maybe abstract out some of these equations and make this more readable
+		// TODO explain where these equations come from, and figure out if they are even correct
+		this.horizontalMag = Math.sqrt(this.x * this.x + this.z * this.z);
+		this.angleH = (Math.atan2(this.z, this.x) + ZMath.TAU) % ZMath.TAU;
+		this.angleV = (Math.atan2(this.y, this.horizontalMag) + ZMath.TAU) % ZMath.TAU;
+		this.setMagnitude(Math.sqrt(this.y * this.y + this.horizontalMag * this.horizontalMag));
 	}
 	
 	@Override
-	public double getHorizontalForce(){
-		return 0;
+	public double getHorizontal(){
+		return this.horizontalMag;
 	}
 	
 	@Override
-	public double getVerticalForce(){
-		return 0;
+	public double getVertical(){
+		return this.y;
 	}
 	
 	/** @return See {@link #x} */
@@ -79,14 +109,14 @@ public class ZVector3D extends ZVector<ZVector3D>{
 		return this.z;
 	}
 	
-	/** @return See {@link #angle} */
-	public double getAngle(){
-		return this.angle;
+	/** @return See {@link #angleH} */
+	public double getAngleH(){
+		return this.angleH;
 	}
 	
-	/** @return The value of {@link #angle} in degrees */
-	public double getAngleDeg(){
-		return this.angle * 180.0 / Math.PI;
+	/** @return See {@link #angleV} */
+	public double getAngleV(){
+		return this.angleV;
 	}
 	
 	/**
@@ -115,14 +145,16 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	
 	@Override
 	public String toString(){
-		StringBuilder sb = new StringBuilder("[ZVector | x: ");
+		StringBuilder sb = new StringBuilder("[ZVector3D | x: ");
 		sb.append(this.getX());
 		sb.append(", y: ");
 		sb.append(this.getY());
 		sb.append(", z: ");
 		sb.append(this.getZ());
-		sb.append(", angle: ");
-		sb.append(this.getAngle());
+		sb.append(", angleH: ");
+		sb.append(this.getAngleH());
+		sb.append(", angleV: ");
+		sb.append(this.getAngleV());
 		sb.append(", mag: ");
 		sb.append(this.getMagnitude());
 		sb.append("]");

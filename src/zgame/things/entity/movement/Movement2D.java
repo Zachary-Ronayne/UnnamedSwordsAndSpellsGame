@@ -39,7 +39,7 @@ public interface Movement2D extends Movement<HitBox2D, EntityThing2D, ZVector2D,
 	}
 	
 	@Override
-	default void applyWalkForce(double dt, double newWalkForce){
+	default void applyWalkForce(double newWalkForce){
 		var dir = this.getWalk().getWalkingDirection();
 		if(dir == 0) this.getWalk().setWalkingForce(0);
 		else this.getWalk().setWalkingForce(dir == 1 ? newWalkForce : -newWalkForce);

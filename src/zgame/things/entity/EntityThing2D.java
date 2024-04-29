@@ -141,12 +141,12 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	
 	/** @return The velocity of this {@link EntityThing} on the x axis */
 	public double getVX(){
-		return this.getVelocity().getHorizontalForce();
+		return this.getVelocity().getHorizontal();
 	}
 	
 	/** @return The velocity of this {@link EntityThing} on the y axis */
 	public double getVY(){
-		return this.getVelocity().getVerticalForce();
+		return this.getVelocity().getVertical();
 	}
 	
 	/** @param x the new x velocity of this {@link EntityThing} */

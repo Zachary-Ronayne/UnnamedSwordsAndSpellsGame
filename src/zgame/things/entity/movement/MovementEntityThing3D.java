@@ -30,7 +30,7 @@ public abstract class MovementEntityThing3D extends EntityThing3D implements Mov
 	public MovementEntityThing3D(double x, double y, double z, double mass){
 		super(x, y, z, mass);
 		
-		this.walk = new Walk3D(this);
+		this.walk = new Walk3D(this, 0);
 	}
 	
 	@Override

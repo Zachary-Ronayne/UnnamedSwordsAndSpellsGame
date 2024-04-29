@@ -11,19 +11,15 @@ public class Walk2D extends Walk<HitBox2D, EntityThing2D, ZVector2D, Room2D>{
 	/** The direction this is walking. -1 for walking to the left, 0 for not walking, 1 for walking to the right */
 	private int walkingDirection;
 	
-	/** The vector keeping track of the force of this walking */
-	private ZVector2D walkingForce;
-	
 	/**
 	 * Create a new walk object for use in {@link Movement2D}
 	 *
 	 * @param entity See {@link #entity}
 	 */
 	public Walk2D(EntityThing2D entity){
-		super(entity);
+		super(entity, entity.setForce(FORCE_NAME_WALKING, new ZVector2D()));
 		
 		this.setWalkingDirection(0);
-		this.walkingForce = entity.setForce(FORCE_NAME_WALKING, new ZVector2D());
 	}
 	
 	/** @return See {@link #walkingDirection} */
@@ -36,11 +32,6 @@ public class Walk2D extends Walk<HitBox2D, EntityThing2D, ZVector2D, Room2D>{
 		this.walkingDirection = direction;
 	}
 	
-	/** @return See {@link #walkingForce} */
-	public ZVector2D getWalkingForce(){
-		return this.walkingForce;
-	}
-	
 	/** @param movement The amount of force applied to the x axis when this mob is walking */
 	public void setWalkingForce(double movement){
 		this.updateWalkingForce(movement);
@@ -48,6 +39,6 @@ public class Walk2D extends Walk<HitBox2D, EntityThing2D, ZVector2D, Room2D>{
 	
 	@Override
 	public void updateWalkingForce(double force){
-		this.walkingForce = this.getEntity().setHorizontalForce(FORCE_NAME_WALKING, force);
+		this.setWalkingForce(this.getEntity().setHorizontalForce(FORCE_NAME_WALKING, force));
 	}
 }

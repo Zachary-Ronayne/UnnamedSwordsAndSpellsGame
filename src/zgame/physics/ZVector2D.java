@@ -66,12 +66,12 @@ public class ZVector2D extends ZVector<ZVector2D>{
 	}
 	
 	@Override
-	public double getHorizontalForce(){
+	public double getHorizontal(){
 		return this.getX();
 	}
 	
 	@Override
-	public double getVerticalForce(){
+	public double getVertical(){
 		return this.getY();
 	}
 	
@@ -121,7 +121,7 @@ public class ZVector2D extends ZVector<ZVector2D>{
 	
 	@Override
 	public String toString(){
-		StringBuilder sb = new StringBuilder("[ZVector | x: ");
+		StringBuilder sb = new StringBuilder("[ZVector2D | x: ");
 		sb.append(this.getX());
 		sb.append(", y: ");
 		sb.append(this.getY());

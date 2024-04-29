@@ -11,8 +11,6 @@ import zgame.world.Room3D;
  */
 public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D, ZVector3D, Room3D> implements HitBox3D{
 	
-	// TODO implement
-	
 	// TODO make a cylinder extension of entity thing 3D
 	
 	/** The x coordinate of the bottom center of this entity thing */
@@ -82,7 +80,9 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	
 	@Override
 	public ZVector3D setHorizontalForce(String name, double f){
-		// TODO implement
+		// TODO where does the angle come from to start with?
+		
+		// TODO implement, i.e. do it without changing the horizontal angle, other than moving backwards with a negative force
 		return zeroVector();
 	}
 	
@@ -93,13 +93,13 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	
 	@Override
 	public double getHorizontalVel(){
-		// TODO implement
-		return 0;
+		return this.getVelocity().getHorizontal();
 	}
 	
 	@Override
 	public void setHorizontalVel(double v){
 		// TODO implement
+		// TODO where does the angle come from to start with?
 	}
 	
 	@Override

@@ -33,6 +33,9 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	/** true if this mob is able to wall jump, i.e. it has touched the ground since its last wall jump */
 	private boolean wallJumpAvailable;
 	
+	/** The vector keeping track of the force of this walking */
+	private V walkingForce;
+	
 	/** The force of jumping on this */
 	private V jumpingForce;
 	
@@ -53,7 +56,7 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	 *
 	 * @param entity See {@link #entity}
 	 */
-	public Walk(E entity){
+	public Walk(E entity, V walkingForce){
 		this.entity = entity;
 		
 		this.canJump = false;
@@ -62,6 +65,7 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 		this.jumpTimeBuilt = 0;
 		this.wallJumpAvailable = false;
 		
+		this.walkingForce = walkingForce;
 		this.jumpingForce = entity.setForce(FORCE_NAME_JUMPING, this.entity.zeroVector());
 	}
 	
@@ -133,6 +137,16 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	/** @param wallJumpAvailable See {@link #wallJumpAvailable} */
 	public void setWallJumpAvailable(boolean wallJumpAvailable){
 		this.wallJumpAvailable = wallJumpAvailable;
+	}
+	
+	/** @return See {@link #walkingForce} */
+	public V getWalkingForce(){
+		return this.walkingForce;
+	}
+	
+	/** @param walkingForce See {@link #walkingForce} */
+	public void setWalkingForce(V walkingForce){
+		this.walkingForce = walkingForce;
 	}
 	
 	/** @return See {@link #jumpingForce} */

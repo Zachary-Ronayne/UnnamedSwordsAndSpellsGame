@@ -181,9 +181,9 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		var force = this.getForce();
 		// TODO abstract to 3D
 		double vx = this.getHorizontalVel();
-		double fx = force.getHorizontalForce() - this.frictionForce.getHorizontalForce();
+		double fx = force.getHorizontal() - this.frictionForce.getHorizontal();
 		// Find the total constant for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
-		double newFrictionForce = (this.getFrictionConstant() * this.getGroundMaterial().getFriction()) * Math.abs(this.getGravity().getVerticalForce());
+		double newFrictionForce = (this.getFrictionConstant() * this.getGroundMaterial().getFriction()) * Math.abs(this.getGravity().getVertical());
 		
 		// If there is no velocity, then the force of friction is equal and opposite to the current total force without friction, and will not exceed the value based on gravity
 		if(vx == 0){
@@ -218,13 +218,13 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		// If downward velocity exceeds terminal velocity, and terminal velocity is not negative, set the vector to be equal and opposite to gravity
 		if(this.getVerticalVel() >= terminalVelocity && terminalVelocity > 0){
 			// Only set the value if it is not equal and opposite to gravity
-			double gravityForce = -this.getGravity().getVerticalForce();
-			if(this.getGravityDragForce().getVerticalForce() != gravityForce) this.gravityDragForce = this.setVerticalForce(FORCE_NAME_GRAVITY_DRAG, gravityForce);
+			double gravityForce = -this.getGravity().getVertical();
+			if(this.getGravityDragForce().getVertical() != gravityForce) this.gravityDragForce = this.setVerticalForce(FORCE_NAME_GRAVITY_DRAG, gravityForce);
 		}
 		// Otherwise, remove the force
 		else{
 			// Only remove the force if it is not already zero
-			if(this.getGravityDragForce().getVerticalForce() != 0) this.gravityDragForce = this.setVerticalForce(FORCE_NAME_GRAVITY_DRAG, 0);
+			if(this.getGravityDragForce().getVertical() != 0) this.gravityDragForce = this.setVerticalForce(FORCE_NAME_GRAVITY_DRAG, 0);
 		}
 	}
 	
@@ -250,7 +250,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 			return;
 		}
 		// The base amount of force to apply for sliding is the opposite of gravity
-		double slideForce = -this.getGravity().getVerticalForce();
+		double slideForce = -this.getGravity().getVertical();
 		double mass = this.getMass();
 		// If we get to this point, then we are falling faster than the maximum sliding speed, increase the slide force to slow the falling (slideForce will be a negative number)
 		slideForce -= slideStopForce;
