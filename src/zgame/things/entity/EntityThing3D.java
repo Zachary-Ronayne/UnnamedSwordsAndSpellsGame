@@ -1,5 +1,6 @@
 package zgame.things.entity;
 
+import zgame.core.utils.ZStringUtils;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResponse;
 import zgame.things.type.bounds.HitBox3D;
@@ -79,11 +80,25 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	}
 	
 	@Override
+	public ZVector3D setForce(String name, ZVector3D force){
+		if(FORCE_NAME_FRICTION.equals(name)){
+			var x = force.getX();
+			var y = force.getY();
+			var z = force.getZ();
+			if(x != 0 || y != 0 || z != 0) {
+				ZStringUtils.prints(name, x, y, z); // TODO Remove
+			}
+		}
+		return super.setForce(name, force);
+	}
+	
+	@Override
 	public ZVector3D setHorizontalForce(String name, double f){
-		// TODO where does the angle come from to start with?
+		var oldForce = this.getForce(name);
+		var oldAngle = oldForce.getAngleH();
+		var newForce = new ZVector3D(Math.cos(oldAngle) * f, oldForce.getVertical(), Math.sin(oldAngle) * f, true);
 		
-		// TODO implement, i.e. do it without changing the horizontal angle, other than moving backwards with a negative force
-		return zeroVector();
+		return this.setForce(name, newForce);
 	}
 	
 	@Override
@@ -98,8 +113,12 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	
 	@Override
 	public void setHorizontalVel(double v){
-		// TODO implement
-		// TODO where does the angle come from to start with?
+		// TODO test once wall collision is implemented
+		var oldVel = this.getVelocity();
+		var oldAngle = oldVel.getAngleH();
+		var newVel = new ZVector3D(Math.cos(oldAngle) * v, oldVel.getVertical(), Math.sin(oldAngle) * v, true);
+		
+		this.setVelocity(newVel);
 	}
 	
 	@Override

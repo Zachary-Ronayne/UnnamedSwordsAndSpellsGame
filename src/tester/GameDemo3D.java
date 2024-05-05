@@ -7,6 +7,7 @@ import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
+import zgame.physics.ZVector3D;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
@@ -32,9 +33,6 @@ public class GameDemo3D extends Game{
 	
 	private static double pillarAngle = 0;
 	
-	private static final double walkSpeed = 0.7;
-	private static final double runSpeed = 2.5;
-	private static double moveSpeed = walkSpeed;
 	private static boolean flying = false;
 	private static final double tiltSpeed = 3;
 	private static double currentTilt = 0;
@@ -201,9 +199,6 @@ public class GameDemo3D extends Game{
 		public void playKeyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 			super.playKeyAction(game, button, press, shift, alt, ctrl);
 			
-			if(shift) moveSpeed = runSpeed;
-			else moveSpeed = walkSpeed;
-			
 			if(press) return;
 			
 			// Toggle paused
@@ -314,6 +309,11 @@ public class GameDemo3D extends Game{
 				xRot = 0;
 				yRot = 0;
 				zRot = 0;
+				
+				player.setX(0);
+				player.setY(0);
+				player.setZ(2);
+				player.setVelocity(new ZVector3D());
 			}
 			
 			xRot += xRotSpeed * dt;
@@ -404,12 +404,6 @@ public class GameDemo3D extends Game{
 			return this.getCamera().getRotZ();
 		}
 		
-		// TODO remove old code after implement movement in 3D
-//		@Override
-//		public double getMoveSpeed(){
-//			return moveSpeed;
-//		}
-		
 		@Override
 		public double getSurfaceArea(){
 			return 0;
@@ -462,7 +456,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getWalkSpeedMax(){
-			return moveSpeed;
+			return 0.7;
 		}
 		
 		@Override
@@ -500,6 +494,7 @@ public class GameDemo3D extends Game{
 			return 0.2;
 		}
 		
+		// TODO make sure this is actually implemented in 3D
 		@Override
 		public boolean isWalking(){
 			return this.game.getKeyInput().shift();
