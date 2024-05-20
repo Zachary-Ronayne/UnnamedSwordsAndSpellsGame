@@ -103,14 +103,10 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	public ZVector3D setFrictionForce(double dt, double mass, double newFrictionForce, double horizontalVel, double horizontalForce){
 		var vel = this.getVelocity();
 		
-		// TODO maybe abstract out some of this weird logic?
 		// If there is no velocity, then the force of friction is equal and opposite to the current total force without friction, and will not exceed the value based on gravity
-		if(horizontalVel == 0){
-			// TODO where do any of these numbers come from?
-			newFrictionForce = Math.min(Math.abs(newFrictionForce), Math.abs(horizontalForce));
-		}
+		if(horizontalVel == 0) newFrictionForce = horizontalForce;
 		else{
-			// TODO if horizontal velocity becomes too small, should friction just be set to 0?
+			// TODO make velocity get set to 0 when movement stops, also figure out when this condition should trigger
 			
 			// If applying the new force of friction would make the velocity go in the opposite direction, then the force should be such that it will bring the velocity to zero
 			double massTime = dt / mass;
@@ -121,11 +117,9 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 			}
 		}
 		
-		// TODO remove this and re-enable friction
-		newFrictionForce = 0;
-		
+		// TODO why does the offset need to be 90 degrees and not 180?
 		// Friction will always be the opposite direction of the current velocity
-		return this.setForce(FORCE_NAME_FRICTION, new ZVector3D(vel.getAngleH() + Math.PI, 0, newFrictionForce, false));
+		return this.setForce(FORCE_NAME_FRICTION, new ZVector3D(vel.getAngleH() - ZMath.PI_BY_2, 0, newFrictionForce, false));
 	}
 	
 	@Override

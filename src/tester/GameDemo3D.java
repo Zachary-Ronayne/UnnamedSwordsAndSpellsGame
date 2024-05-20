@@ -451,7 +451,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getWalkSpeedMax(){
-			return 0.7;
+			return 1.1;
 		}
 		
 		@Override

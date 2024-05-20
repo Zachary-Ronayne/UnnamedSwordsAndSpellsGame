@@ -193,7 +193,7 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		return true;
 	}
 	
-	// TODO fix being able to jump a second time while in the air because of normalJumpTime
+	// TODO fix being able to jump a second time while in the air because of normalJumpTime, this seems to only happen if you do it right after a short jump you stop early
 	
 	/**
 	 * Cause this entity to instantly jump with the currently built power, only if it is allowed to jump
