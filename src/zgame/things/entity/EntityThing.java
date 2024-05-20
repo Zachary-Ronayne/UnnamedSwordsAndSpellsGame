@@ -5,7 +5,6 @@ import java.util.*;
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.utils.NotNullList;
-import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
@@ -23,8 +22,6 @@ import zgame.world.Room;
  * @param <R> The room implementation which this entity can exist in
  */
 public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>> extends GameThing implements GameTickable, HitBox<H>{
-	
-	// TODO fix being able to jump without touching the ground first
 	
 	/** The string used to identify the force of gravity in {@link #forces} */
 	public static final String FORCE_NAME_GRAVITY = "gravity";
@@ -152,8 +149,6 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 * @param dt The amount of time, in seconds, which passed in the tick where this update took place
 	 */
 	public void updatePosition(Game game, double dt){
-		// TODO should this method be integrated to the main tick method?
-		
 		// Find the current acceleration
 		var acceleration = this.getForce().scale(1.0 / this.getMass());
 		
@@ -177,34 +172,34 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 * @param dt The amount of time, in seconds, that will pass the next time the frictional force is applied
 	 */
 	public void updateFrictionForce(double dt){
-		// Determining direction
+		// TODO allow friction to work on slopes? Or make a note to implement this later, for now this only does proper friction on flat surfaces
+		
 		double mass = this.getMass();
 		var force = this.getForce();
 		
-		double vHorizontal = this.getHorizontalVel();
-		double fHorizontal = force.getHorizontal() - this.frictionForce.getHorizontal();
+		double horizontalVel = this.getHorizontalVel();
+		double horizontalForce = force.getHorizontal() - this.frictionForce.getHorizontal();
 		// Find the total constant for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
 		double newFrictionForce = (this.getFrictionConstant() * this.getGroundMaterial().getFriction()) * Math.abs(this.getGravity().getVertical());
 		
-		// If there is no velocity, then the force of friction is equal and opposite to the current total force without friction, and will not exceed the value based on gravity
-		if(vHorizontal == 0){
-			newFrictionForce = Math.min(newFrictionForce, Math.abs(fHorizontal));
-			if(fHorizontal > 0) newFrictionForce *= -1;
-		}
-		else{
-			// Need to make the force of friction move in the opposite direction of movement, so make it negative if the direction is positive, otherwise leave it positive
-			if(vHorizontal > 0) newFrictionForce *= -1;
-			
-			// If applying the new force of friction would make the velocity go in the opposite direction, then the force should be such that it will bring the velocity to zero
-			double massTime = dt / mass;
-			// TODO is this actually accounting for the amount of velocity added based on acceleration? Or is it that it needs to account for a change in acceleration, like when the walk force changes?
-			double oldVel = vHorizontal + fHorizontal * massTime;
-			double newVel = vHorizontal + (fHorizontal + newFrictionForce) * massTime;
-			// TODO does friction direction matter with angle vs sign?
-			if(!ZMath.sameSign(oldVel, newVel)) newFrictionForce = -vHorizontal / massTime;
-		}
-		this.frictionForce = this.setHorizontalForce(FORCE_NAME_FRICTION, newFrictionForce);
+		this.frictionForce = this.setFrictionForce(dt, mass, newFrictionForce, horizontalVel, horizontalForce);
 	}
+	
+	/**
+	 * Apply the given amount of force as the current frictional force.
+	 * Friction should always be applied in the opposite direction of the current horizontal movement.
+	 * Use the constant {@link #FORCE_NAME_FRICTION} for the name of the vector
+	 * @param dt The amount of time that passed during this application of friction
+	 * @param mass The precomputed current mass of this thing
+	 * @param newFrictionForce The force to apply
+	 * @param horizontalVel The precomputed current horizontal velocity of this thing
+	 * @param horizontalForce The precomputed current horizontal force of this thing
+	 * @return The updated force vector for friction, cannot be null
+	 */
+	// TODO does this really need this many params passed in?
+	// TODO rethink what specific parts of 2D and 3D need to be implemented in their respective classes
+	// TODO horizontalForce should be specified to be the force without friction
+	public abstract V setFrictionForce(double dt, double mass, double newFrictionForce, double horizontalVel, double horizontalForce);
 	
 	/**
 	 * Update the current amount of drag on this {@link EntityThing} counteracting the force of gravity
@@ -609,9 +604,6 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		this.totalForce = this.totalForce.add(force);
 		return force;
 	}
-	
-	// TODO remove this method, instead make an abstract method that generates frictional force?
-	public abstract V setHorizontalForce(String name, double f);
 	
 	/**
 	 * Set a force on the vertical, i.e. gravitational, axis.

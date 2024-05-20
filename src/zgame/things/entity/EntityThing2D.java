@@ -2,6 +2,7 @@ package zgame.things.entity;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.core.utils.ZMath;
 import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResponse;
 import zgame.things.type.bounds.HitBox2D;
@@ -96,7 +97,7 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	
 	@Override
 	public void collide(CollisionResponse r){
-		// TODO implement properly and abstract out some of this logic to 2D and 3D
+		// TODO implement properly and abstract out some of this logic to 2D and 3D? CollisionResponse will need 2D and 3D versions
 		this.addX(r.x());
 		this.addY(r.y());
 		if(r.wall()) this.touchWall(r.material());
@@ -200,6 +201,27 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	 */
 	public ZVector2D setHorizontalForce(String name, double f){
 		return this.setForce(name, f, 0);
+	}
+	
+	@Override
+	public ZVector2D setFrictionForce(double dt, double mass, double newFrictionForce, double horizontalVel, double horizontalForce){
+		// If there is no velocity, then the force of friction is equal and opposite to the current total force without friction, and will not exceed the value based on gravity
+		if(horizontalVel == 0){
+			newFrictionForce = Math.min(newFrictionForce, Math.abs(horizontalForce));
+			if(horizontalForce > 0) newFrictionForce *= -1;
+		}
+		else{
+			// Need to make the force of friction move in the opposite direction of movement, so make it negative if the direction is positive, otherwise leave it positive
+			if(horizontalVel > 0) newFrictionForce *= -1;
+			
+			// If applying the new force of friction would make the velocity go in the opposite direction, then the force should be such that it will bring the velocity to zero
+			double massTime = dt / mass;
+			double oldVel = horizontalVel + horizontalForce * massTime;
+			double newVel = horizontalVel + (horizontalForce + newFrictionForce) * massTime;
+			if(!ZMath.sameSign(oldVel, newVel)) newFrictionForce = -horizontalVel / massTime;
+		}
+		
+		return this.setHorizontalForce(FORCE_NAME_FRICTION, newFrictionForce);
 	}
 	
 	@Override

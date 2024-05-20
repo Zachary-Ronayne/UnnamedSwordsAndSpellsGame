@@ -1,6 +1,6 @@
 package zgame.things.entity;
 
-import zgame.core.utils.ZStringUtils;
+import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResponse;
 import zgame.things.type.bounds.HitBox3D;
@@ -80,28 +80,6 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	}
 	
 	@Override
-	public ZVector3D setForce(String name, ZVector3D force){
-		if(FORCE_NAME_FRICTION.equals(name)){
-			var x = force.getX();
-			var y = force.getY();
-			var z = force.getZ();
-			if(x != 0 || y != 0 || z != 0) {
-				ZStringUtils.prints(name, x, y, z); // TODO Remove
-			}
-		}
-		return super.setForce(name, force);
-	}
-	
-	@Override
-	public ZVector3D setHorizontalForce(String name, double f){
-		var oldForce = this.getForce(name);
-		var oldAngle = oldForce.getAngleH();
-		var newForce = new ZVector3D(Math.cos(oldAngle) * f, oldForce.getVertical(), Math.sin(oldAngle) * f, true);
-		
-		return this.setForce(name, newForce);
-	}
-	
-	@Override
 	public ZVector3D setVerticalForce(String name, double f){
 		return this.setForce(name, 0, f, 0);
 	}
@@ -119,6 +97,35 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 		var newVel = new ZVector3D(Math.cos(oldAngle) * v, oldVel.getVertical(), Math.sin(oldAngle) * v, true);
 		
 		this.setVelocity(newVel);
+	}
+	
+	@Override
+	public ZVector3D setFrictionForce(double dt, double mass, double newFrictionForce, double horizontalVel, double horizontalForce){
+		var vel = this.getVelocity();
+		
+		// TODO maybe abstract out some of this weird logic?
+		// If there is no velocity, then the force of friction is equal and opposite to the current total force without friction, and will not exceed the value based on gravity
+		if(horizontalVel == 0){
+			// TODO where do any of these numbers come from?
+			newFrictionForce = Math.min(Math.abs(newFrictionForce), Math.abs(horizontalForce));
+		}
+		else{
+			// TODO if horizontal velocity becomes too small, should friction just be set to 0?
+			
+			// If applying the new force of friction would make the velocity go in the opposite direction, then the force should be such that it will bring the velocity to zero
+			double massTime = dt / mass;
+			double oldVel = horizontalVel + horizontalForce * massTime;
+			double newVel = horizontalVel + (horizontalForce + newFrictionForce) * massTime;
+			if(!ZMath.sameSign(oldVel, newVel)){
+				newFrictionForce = horizontalVel / massTime;
+			}
+		}
+		
+		// TODO remove this and re-enable friction
+		newFrictionForce = 0;
+		
+		// Friction will always be the opposite direction of the current velocity
+		return this.setForce(FORCE_NAME_FRICTION, new ZVector3D(vel.getAngleH() + Math.PI, 0, newFrictionForce, false));
 	}
 	
 	@Override

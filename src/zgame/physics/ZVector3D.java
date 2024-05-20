@@ -1,7 +1,6 @@
 package zgame.physics;
 
 import zgame.core.utils.ZMath;
-import zgame.core.utils.ZStringUtils;
 
 /**
  * A Vector with an x, y, and z component. The internal values of this object cannot be modified after the object is created, i.e. this object is immutable
@@ -67,33 +66,27 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	/** Update the internal x, y, and z values based on the current values of {@link #angleH}, {@link #angleV} */
 	@Override
 	public void calcComponents(){
-		// TODO explain where these equations come from, and figure out if they are even correct
-		
 		// Horizontal magnitude will be the cos, i.e. horizontal, value of the vertical angle and the total magnitude
 		this.horizontalMag = Math.cos(this.angleV) * this.getMagnitude();
-		// The x component will be the cos value on the horizontal axis with the total horizontal magnitude
-		this.x = Math.cos(this.angleH) * this.horizontalMag;
+		// The x component will be the sin value on the horizontal axis with the total horizontal magnitude
+		this.x = Math.sin(this.angleH) * this.horizontalMag;
 		// The vertical magnitude will be the sin value of the vertical angle and the total magnitude
 		this.y = Math.sin(this.angleV) * this.getMagnitude();
-		// The z component will be the sin value on the horizontal axis with the total horizontal magnitude
-		this.z = Math.sin(this.angleH) * this.horizontalMag;
+		// The z component will be the negative cos value on the horizontal axis with the total horizontal magnitude
+		this.z = -Math.cos(this.angleH) * this.horizontalMag;
 	}
 	
 	/** Update the internal angle and magnitude values based on the current values of {@link #x}, {@link #y}, and {@link #z} */
 	@Override
 	public void calcAngleMag(){
-		// TODO maybe abstract out some of these equations and make this more readable
-		// TODO explain where these equations come from, and figure out if they are even correct
-		
 		// The horizontal magnitude is just the distance formula for the 2 horizontal axes
-		this.horizontalMag = Math.sqrt(this.x * this.x + this.z * this.z);
+		this.horizontalMag = ZMath.hypot(this.x, this.z);
 		// The horizontal angle is the angle between the two horizontal axes, modded to be between [0, 2PI]
-		this.angleH = (Math.atan2(this.z, this.x) + ZMath.TAU) % ZMath.TAU;
-		ZStringUtils.prints(this.z, this.x, this.angleH); // TODO Remove
+		this.angleH = ZMath.atan2Normalized(this.z, this.x);
 		// The vertical angle is the angle between the horizontal magnitude and the y magnitude, modded to be between [0, 2PI]
-		this.angleV = (Math.atan2(this.y, this.horizontalMag) + ZMath.TAU) % ZMath.TAU;
+		this.angleV = ZMath.atan2Normalized(this.y, this.horizontalMag);
 		// The total magnitude is just the distance formula for the vertical and horizontal axes
-		this.setMagnitude(Math.sqrt(this.y * this.y + this.horizontalMag * this.horizontalMag));
+		this.setMagnitude(ZMath.hypot(this.y, this.horizontalMag));
 	}
 	
 	@Override

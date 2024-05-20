@@ -120,6 +120,25 @@ public final class ZMath{
 	}
 	
 	/**
+	 * Returns the same value as {@link Math#atan2(double, double)}, with the result normalized to be in the range [0, 2pi)
+	 * @param a The y component given to atan2
+	 * @param b The x component given to atan2
+	 * @return The angle in the range [2, 2pi)
+	 */
+	public static double atan2Normalized(double a, double b){
+		return angleNormalized(Math.atan2(a, b) + ZMath.TAU);
+	}
+	
+	/**
+	 * Get the normalized version of the given angle in the range [0, 2pi)
+	 * @param a The angle to normalize
+	 * @return The normalized angle
+	 */
+	public static double angleNormalized(double a){
+		return a % ZMath.TAU;
+	}
+	
+	/**
 	 * Find the intersection point of 2 lines
 	 *
 	 * @param l1 The first line

@@ -429,11 +429,13 @@ public class GameDemo3D extends Game{
 			return 300.0;
 		}
 		
+		// TODO fix this number seemingly not applying?
 		@Override
 		public double getJumpStopPower(){
-			return 150.0;
+			return 0.00000000001;
 		}
 		
+		// TODO is this field even necessary? Just don't allow stopping a jump if jumpStopPower is 0
 		@Override
 		public boolean isCanStopJump(){
 			return true;
@@ -451,7 +453,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getWalkAcceleration(){
-			return 0.5;
+			return 2.0;
 		}
 		
 		@Override
@@ -494,7 +496,6 @@ public class GameDemo3D extends Game{
 			return 0.2;
 		}
 		
-		// TODO make sure this is actually implemented in 3D
 		@Override
 		public boolean isWalking(){
 			return this.game.getKeyInput().shift();

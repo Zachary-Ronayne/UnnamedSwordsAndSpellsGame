@@ -12,6 +12,8 @@ public abstract class StaticEntityThing2D extends EntityThingRect2D{
 	
 	// TODO avoid doing any force calculations for this entity
 	
+	// TODO make a 3D version of this
+	
 	/**
 	 * Create a new entity with the given values
 	 * @param x See {@link #x}
