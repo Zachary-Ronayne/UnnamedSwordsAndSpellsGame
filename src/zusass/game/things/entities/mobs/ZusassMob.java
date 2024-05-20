@@ -41,8 +41,6 @@ public abstract class ZusassMob extends MovementEntityThing2D implements Rectang
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	/** The default value of {@link #canStopJump} */
-	public static final boolean DEFAULT_CAN_STOP_JUMP = true;
 	/** The default value of {@link #jumpBuildTime} */
 	public static final double DEFAULT_JUMP_BUILD_TIME = 0;
 	/** The default value of {@link #jumpAfterBuildUp} */
@@ -94,9 +92,6 @@ public abstract class ZusassMob extends MovementEntityThing2D implements Rectang
 	/** The {@link Walk} object used by this object's implementation of {@link Movement2D} */
 	private final Walk2D walk;
 	
-	/** See {@link Movement2D#isCanStopJump()} */
-	private boolean canStopJump;
-	
 	/** See {@link Movement2D#getJumpBuildTime()} */
 	private double jumpBuildTime;
 	
@@ -123,7 +118,6 @@ public abstract class ZusassMob extends MovementEntityThing2D implements Rectang
 	public ZusassMob(double x, double y, double width, double height){
 		super(x, y);
 		
-		this.canStopJump = DEFAULT_CAN_STOP_JUMP;
 		this.jumpBuildTime = DEFAULT_JUMP_BUILD_TIME;
 		this.jumpAfterBuildUp = DEFAULT_JUMP_AFTER_BUILD_UP;
 		this.walkFriction = DEFAULT_WALK_FRICTION;
@@ -536,17 +530,6 @@ public abstract class ZusassMob extends MovementEntityThing2D implements Rectang
 	@Override
 	public double getJumpStopPower(){
 		return Math.pow(this.stat(AGILITY), 0.3) * 3000;
-	}
-	
-	/** @return See {@link #canStopJump} */
-	@Override
-	public boolean isCanStopJump(){
-		return this.canStopJump;
-	}
-	
-	/** @param canStopJump See {@link #canStopJump} */
-	public void setCanStopJump(boolean canStopJump){
-		this.canStopJump = canStopJump;
 	}
 	
 	/** @return See {@link #jumpBuildTime} */

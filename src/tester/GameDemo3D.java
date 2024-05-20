@@ -429,16 +429,9 @@ public class GameDemo3D extends Game{
 			return 300.0;
 		}
 		
-		// TODO fix this number seemingly not applying?
 		@Override
 		public double getJumpStopPower(){
-			return 0.00000000001;
-		}
-		
-		// TODO is this field even necessary? Just don't allow stopping a jump if jumpStopPower is 0
-		@Override
-		public boolean isCanStopJump(){
-			return true;
+			return 50.0;
 		}
 		
 		@Override

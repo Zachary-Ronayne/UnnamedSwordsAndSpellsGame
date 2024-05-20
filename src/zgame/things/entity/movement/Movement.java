@@ -10,6 +10,7 @@ import zgame.world.Room;
 
 /**
  * The base interface for defining how things move, walk, fly, etc
+ *
  * @param <H> The type of hitbox which uses this class
  * @param <E> The type of entity which uses this class
  * @param <V> The type of vector which uses this class
@@ -151,13 +152,16 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 				double mass = entity.getMass();
 				double power = this.getJumpStopPower();
 				double newStopJumpVel = power / mass;
-				double newStopJumpForce = power / dt;
+				double newStopJumpForce = -power / dt;
 				
 				// If the jump force would adjust extra velocity making its total velocity downwards,
 				// then the jump stop force should be such that the y velocity will be 0 on the next tick
-				if(invert && vy < newStopJumpVel || !invert && vy > newStopJumpVel){
+				if(invert && vy > newStopJumpVel || !invert && vy < newStopJumpVel){
 					newStopJumpForce = -vy * mass / dt;
 				}
+				
+				// Account for inverted jumping axis
+				if(invert) newStopJumpForce = -newStopJumpForce;
 				
 				walk.setJumpingForce(newStopJumpForce);
 			}
@@ -215,7 +219,7 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		
 		// If falling downwards, add additional force so that the jump force will counteract the current downwards force
 		double vy = entity.getVerticalVel();
-		if(invert && vy > 0 || !invert && vy < 0) {
+		if(invert && vy > 0 || !invert && vy < 0){
 			double adjust = vy / dt * entity.getMass();
 			if(invert) jumpAmount += adjust;
 			else jumpAmount -= adjust;
@@ -268,12 +272,15 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	
 	/**
 	 * @return In the same units as {@link #getJumpPower}, the power at which this is able to stop jumping while in the air
-	 * 		Physics wise doesn't make any sense, but it's to give an option to control jump height by holding down or letting go of a jump button
+	 * 		Physics wise doesn't make any sense, but it's to give an option to control jump height by holding down or letting go of a jump button.
+	 * 		Return 0 to disable
 	 */
 	double getJumpStopPower();
 	
 	/** @return true if this entity has the ability to stop jumping while it's in the air, false otherwise */
-	boolean isCanStopJump();
+	default boolean isCanStopJump(){
+		return this.getJumpStopPower() != 0;
+	}
 	
 	/** @return The amount of time, in seconds, it takes this entity to build up to a full jump, use 0 to make jumping instant */
 	double getJumpBuildTime();

@@ -32,9 +32,6 @@ public abstract class PlayerTester extends MovementEntityThing2D{
 	/** See {@link Movement2D#getJumpStopPower()} */
 	private double jumpStopPower;
 	
-	/** See {@link Movement2D#isCanStopJump()} */
-	private boolean canStopJump;
-	
 	/** See {@link Movement2D#getJumpBuildTime()} */
 	private double jumpBuildTime;
 	
@@ -78,7 +75,6 @@ public abstract class PlayerTester extends MovementEntityThing2D{
 		this.walkStopFriction = 10;
 		this.jumpPower = 60000;
 		this.jumpStopPower = 3000;
-		this.canStopJump = true;
 		this.jumpBuildTime = 0;
 		this.jumpAfterBuildUp = true;
 		this.walkAirControl = .5;
@@ -215,17 +211,6 @@ public abstract class PlayerTester extends MovementEntityThing2D{
 	/** @param jumpStopPower See {@link #jumpStopPower} */
 	public void setJumpStopPower(double jumpStopPower){
 		this.jumpStopPower = jumpStopPower;
-	}
-	
-	/** @return See {@link #canStopJump} */
-	@Override
-	public boolean isCanStopJump(){
-		return this.canStopJump;
-	}
-	
-	/** @param canStopJump See {@link #canStopJump} */
-	public void setCanStopJump(boolean canStopJump){
-		this.canStopJump = canStopJump;
 	}
 	
 	/** @return See {@link #jumpBuildTime} */
