@@ -3,6 +3,7 @@ package zgame.things.entity;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResponse;
+import zgame.physics.material.Material;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.HitboxType;
 import zgame.world.Room3D;
@@ -91,7 +92,6 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	
 	@Override
 	public void setHorizontalVel(double v){
-		// TODO test once wall collision is implemented
 		var oldVel = this.getVelocity();
 		var oldAngle = oldVel.getAngleH();
 		var newVel = new ZVector3D(Math.cos(oldAngle) * v, oldVel.getVertical(), Math.sin(oldAngle) * v, true);
@@ -147,6 +147,13 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	@Override
 	public void collide(CollisionResponse r){
 	
+	}
+	
+	@Override
+	public void touchWall(Material touched){
+		// TODO somehow this needs to account for the angle the thing was at when it hit the wall and adjust the angle appropriately
+		
+		super.touchWall(touched);
 	}
 	
 	@Override

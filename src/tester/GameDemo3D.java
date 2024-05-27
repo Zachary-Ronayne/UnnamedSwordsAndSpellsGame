@@ -7,6 +7,7 @@ import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
+import zgame.physics.material.Materials;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
@@ -321,10 +322,23 @@ public class GameDemo3D extends Game{
 			zRot += zRotSpeed * dt;
 			
 			// Force the player to stay in certain bounds
-			if(player.getX() < -minCamDist) player.setX(-minCamDist);
-			else if(player.getX() > minCamDist) player.setX(minCamDist);
-			if(player.getZ() < -minCamDist) player.setZ(-minCamDist);
-			else if(player.getZ() > minCamDist) player.setZ(minCamDist);
+			// TODO move this wall logic using the boundary material to the main Room3D class after implementing real collision
+			if(player.getX() < -minCamDist) {
+				player.setX(-minCamDist);
+				player.touchWall(Materials.BOUNDARY);
+			}
+			else if(player.getX() > minCamDist) {
+				player.setX(minCamDist);
+				player.touchWall(Materials.DEFAULT);
+			}
+			if(player.getZ() < -minCamDist) {
+				player.setZ(-minCamDist);
+				player.touchWall(Materials.BOUNDARY);
+			}
+			else if(player.getZ() > minCamDist) {
+				player.setZ(minCamDist);
+				player.touchWall(Materials.DEFAULT);
+			}
 			
 			// Rotate the pillar
 			pillarAngle += 2 * dt;
