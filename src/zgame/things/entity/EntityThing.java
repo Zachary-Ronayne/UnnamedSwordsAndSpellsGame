@@ -197,12 +197,9 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 * @param mass The precomputed current mass of this thing
 	 * @param newFrictionForce The force to apply
 	 * @param horizontalVel The precomputed current horizontal velocity of this thing
-	 * @param horizontalForce The precomputed current horizontal force of this thing
+	 * @param horizontalForce The precomputed current horizontal force of this thing without the current friction force applied
 	 * @return The updated force vector for friction, cannot be null
 	 */
-	// TODO does this really need this many params passed in?
-	// TODO rethink what specific parts of 2D and 3D need to be implemented in their respective classes
-	// TODO horizontalForce should be specified to be the force without friction
 	public abstract V setFrictionForce(double dt, double mass, double newFrictionForce, double horizontalVel, double horizontalForce);
 	
 	/**
@@ -277,7 +274,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		
 		// Multiplied by 2.0 because the internet says that constant is there for the equation is for terminal velocity
 		// Multiplied by 0.01 as a placeholder for density. For now, everything entities fall through is considered to have that same constant density
-		// TODO make a getDensity method
+		// TODO make a getDensity method, this would have to be a material the entities are current in
 		return Math.sqrt(Math.abs((2.0 * this.getMass() * this.getGravityAcceleration()) / (m.getFriction() * surfaceArea * 0.01)));
 	}
 	
@@ -646,7 +643,6 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	/** @param v The new total vertical velocity of this entity */
 	public abstract void setVerticalVel(double v);
 	
-	// TODO is this the correct way to implement something like this?
 	/**
 	 * @return If the absolute value of the magnitude of velocity on the horizontal axes ever reaches a value greater than zero and less than this value,
 	 * 		velocity will be clamped to zero. Override if this value must be more restrictive

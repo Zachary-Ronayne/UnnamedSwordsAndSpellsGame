@@ -64,7 +64,6 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		double acceleration = this.getWalkAcceleration();
 		double walkForce = acceleration * mass;
 		double maxSpeed = this.getWalkSpeedMax();
-		// TODO consider abstracting this part out to a generalized system?
 		// If the thing is walking, its max speed should be reduced by the ratio
 		if(this.isWalking()) maxSpeed *= this.getWalkingRatio();
 		
@@ -74,7 +73,6 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		
 		boolean walking = walkForce != 0;
 		
-		// TODO consider abstracting this part out to a generalized system?
 		// If the entity is not on the ground, it's movement force is modified by the air control
 		if(!entity.isOnGround()) walkForce *= this.getWalkAirControl();
 		

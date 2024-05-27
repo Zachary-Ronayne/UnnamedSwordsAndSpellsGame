@@ -35,7 +35,7 @@ public interface Movement2D extends Movement<HitBox2D, EntityThing2D, ZVector2D,
 	
 	@Override
 	default boolean isWalking(){
-		// TODO does this make sense?
+		// -1 or 1 mean trying to walk in a particular direction, 0 means not tryiing to walk
 		return this.getWalk().getWalkingDirection() == 0;
 	}
 	
