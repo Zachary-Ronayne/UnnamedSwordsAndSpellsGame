@@ -58,6 +58,7 @@ public abstract class MovementEntityThing2D extends EntityThing2D implements Mov
 	public void touchFloor(Material touched){
 		super.touchFloor(touched);
 		this.movementTouchFloor(touched);
+		this.getWalk().setGroundedSinceLastJump(true);
 	}
 	
 	@Override

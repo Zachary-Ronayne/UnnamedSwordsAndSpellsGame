@@ -48,6 +48,9 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	/** true if this is currently stopping its jump, false otherwise */
 	private boolean stoppingJump;
 	
+	/** true if this has hit the ground since it last jumped */
+	private boolean groundedSinceLastJump;
+	
 	/** The {@link EntityThing} using this walk object */
 	private final E entity;
 	
@@ -64,6 +67,7 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 		this.stoppingJump = false;
 		this.jumpTimeBuilt = 0;
 		this.wallJumpAvailable = false;
+		this.groundedSinceLastJump = false;
 		
 		this.walkingForce = walkingForce;
 		this.jumpingForce = entity.setForce(FORCE_NAME_JUMPING, this.entity.zeroVector());
@@ -137,6 +141,16 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	/** @param wallJumpAvailable See {@link #wallJumpAvailable} */
 	public void setWallJumpAvailable(boolean wallJumpAvailable){
 		this.wallJumpAvailable = wallJumpAvailable;
+	}
+	
+	/** @return See {@link #groundedSinceLastJump} */
+	public boolean isGroundedSinceLastJump(){
+		return this.groundedSinceLastJump;
+	}
+	
+	/** @param groundedSinceLastJump See {@link #groundedSinceLastJump} */
+	public void setGroundedSinceLastJump(boolean groundedSinceLastJump){
+		this.groundedSinceLastJump = groundedSinceLastJump;
 	}
 	
 	/** @return See {@link #walkingForce} */

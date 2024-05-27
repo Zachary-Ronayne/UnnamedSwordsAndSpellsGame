@@ -1,6 +1,7 @@
 package zgame.things.entity.movement;
 
 import zgame.core.Game;
+import zgame.core.utils.ZStringUtils;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 import zgame.things.entity.EntityThing;
@@ -133,7 +134,7 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		var walk = this.getWalk();
 		
 		// This entity can jump if it's on the ground, or if it can wall jump and is on a wall
-		walk.setCanJump(this.hasTimeToFloorJump() || this.isCanWallJump() && this.hasTimeToWallJump() && walk.isWallJumpAvailable());
+		walk.setCanJump((this.hasTimeToFloorJump() || this.isCanWallJump() && this.hasTimeToWallJump() && walk.isWallJumpAvailable()) && walk.isGroundedSinceLastJump());
 		
 		// If building a jump, and able to jump, then add the time
 		if(walk.isBuildingJump() && walk.isCanJump()){
@@ -193,8 +194,6 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		return true;
 	}
 	
-	// TODO fix being able to jump a second time while in the air because of normalJumpTime, this seems to only happen if you do it right after a short jump you stop early
-	
 	/**
 	 * Cause this entity to instantly jump with the currently built power, only if it is allowed to jump
 	 *
@@ -207,6 +206,7 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		var entity = this.getThing();
 		
 		walk.setJumping(true);
+		walk.setGroundedSinceLastJump(false);
 		
 		// If this entity is on a wall and not on the ground, this counts a wall jump
 		if(!this.hasTimeToFloorJump() && this.hasTimeToWallJump()) walk.setWallJumpAvailable(false);
