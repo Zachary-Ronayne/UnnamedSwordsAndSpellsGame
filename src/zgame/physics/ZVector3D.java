@@ -83,8 +83,10 @@ public class ZVector3D extends ZVector<ZVector3D>{
 		this.horizontalMag = ZMath.hypot(this.x, this.z);
 		// The horizontal angle is the angle between the two horizontal axes, modded to be between [0, 2PI]
 		this.angleH = ZMath.atan2Normalized(this.z, this.x);
-		// The vertical angle is the angle between the horizontal magnitude and the y magnitude, modded to be between [0, 2PI]
+		if(Double.isNaN(this.angleH)) this.angleH = 0;
+		// The vertical angle is the angle angleH the horizontal magnitude and the y magnitude, modded to be between [0, 2PI]
 		this.angleV = ZMath.atan2Normalized(this.y, this.horizontalMag);
+		if(Double.isNaN(this.angleV)) this.angleV = 0;
 		// The total magnitude is just the distance formula for the vertical and horizontal axes
 		this.setMagnitude(ZMath.hypot(this.y, this.horizontalMag));
 	}
@@ -160,6 +162,8 @@ public class ZVector3D extends ZVector<ZVector3D>{
 		sb.append(this.getAngleH());
 		sb.append(", angleV: ");
 		sb.append(this.getAngleV());
+		sb.append(", horizontal: ");
+		sb.append(this.getHorizontal());
 		sb.append(", mag: ");
 		sb.append(this.getMagnitude());
 		sb.append("]");

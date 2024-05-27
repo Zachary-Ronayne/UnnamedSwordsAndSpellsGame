@@ -35,6 +35,7 @@ public interface Movement2D extends Movement<HitBox2D, EntityThing2D, ZVector2D,
 	
 	@Override
 	default boolean isWalking(){
+		// TODO does this make sense?
 		return this.getWalk().getWalkingDirection() == 0;
 	}
 	

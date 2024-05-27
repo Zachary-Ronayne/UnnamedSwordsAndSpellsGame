@@ -22,7 +22,7 @@ public abstract class StaticEntityThing2D extends EntityThingRect2D{
 	 * @param h See {@link #height}
 	 */
 	public StaticEntityThing2D(double x, double y, double w, double h){
-		super(x, y, w, h, 0);
+		super(x, y, w, h, 1);
 		this.addTags(BaseTags.PROJECTILE_NOT_COLLIDE);
 		this.setGravityLevel(0);
 	}

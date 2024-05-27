@@ -155,6 +155,9 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		// Add the acceleration to the current velocity
 		this.addVelocity(acceleration.scale(dt));
 		
+		// Account for clamping the velocity
+		if(Math.abs(this.getHorizontalVel()) < this.getHorizontalClampVelocity()) this.setHorizontalVel(0);
+		
 		// Apply the movement of the velocity
 		this.moveEntity(this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5)));
 	}
@@ -189,6 +192,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 * Apply the given amount of force as the current frictional force.
 	 * Friction should always be applied in the opposite direction of the current horizontal movement.
 	 * Use the constant {@link #FORCE_NAME_FRICTION} for the name of the vector
+	 *
 	 * @param dt The amount of time that passed during this application of friction
 	 * @param mass The precomputed current mass of this thing
 	 * @param newFrictionForce The force to apply
@@ -578,6 +582,22 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	}
 	
 	/**
+	 * @return A list of all forces acting on this thing. This returned list does not reflect actual the collection of forces applied to this thing
+	 * 		and should be treated as read only
+	 */
+	public Collection<Map.Entry<String, V>> getForces(){
+		return this.forces.entrySet().stream().toList();
+	}
+	
+	/**
+	 * Set the velocity of this thing to zero on all axes and set the current applied for forces to 0
+	 */
+	public void clearMotion(){
+		this.setVelocity(this.zeroVector());
+		for(var f : this.getForces()) this.setForce(f.getKey(), this.zeroVector());
+	}
+	
+	/**
 	 * Remove the {@link ZVector} with the specified name object from this {@link EntityThing}'s forces
 	 *
 	 * @param name The name of the force to remove
@@ -625,6 +645,15 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	
 	/** @param v The new total vertical velocity of this entity */
 	public abstract void setVerticalVel(double v);
+	
+	// TODO is this the correct way to implement something like this?
+	/**
+	 * @return If the absolute value of the magnitude of velocity on the horizontal axes ever reaches a value greater than zero and less than this value,
+	 * 		velocity will be clamped to zero. Override if this value must be more restrictive
+	 */
+	public double getHorizontalClampVelocity(){
+		return 1E-13;
+	}
 	
 	@Override
 	public String getUuid(){

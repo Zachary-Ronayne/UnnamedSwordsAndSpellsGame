@@ -16,9 +16,10 @@ public abstract class EntityThingRect2D extends EntityThing2D implements Rectang
 	 * @param y See {@link #y}
 	 * @param w See {@link #width}
 	 * @param h See {@link #height}
+	 * @param mass See {@link #mass}
 	 */
 	public EntityThingRect2D(double x, double y, double w, double h, double mass){
-		super(x, y, 0);
+		super(x, y, mass);
 		this.setWidth(w);
 		this.setHeight(h);
 	}

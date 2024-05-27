@@ -7,7 +7,6 @@ import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
-import zgame.physics.ZVector3D;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
@@ -313,7 +312,8 @@ public class GameDemo3D extends Game{
 				player.setX(0);
 				player.setY(0);
 				player.setZ(2);
-				player.setVelocity(new ZVector3D());
+				
+				player.clearMotion();
 			}
 			
 			xRot += xRotSpeed * dt;
@@ -376,6 +376,7 @@ public class GameDemo3D extends Game{
 			var up = ki.buttonDown(GLFW_KEY_Q);
 			var down = ki.buttonDown(GLFW_KEY_Z);
 			this.handleMovementControls(dt, cam.getRotY(), cam.getRotX(), left, right, forward, backward, up, down, flying);
+			if(!left && !right && !forward && !backward && this.getWalk().getWalkingForce().getMagnitude() != 0) this.stopWalking();
 			
 			// TODO abstract this out?
 			// Move the camera to the player
@@ -421,7 +422,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public void stopWalking(){
-			// TODO implement
+			this.getWalk().setWalkingForce(zeroVector());
 		}
 		
 		@Override

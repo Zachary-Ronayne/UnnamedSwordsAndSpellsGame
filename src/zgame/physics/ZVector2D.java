@@ -62,6 +62,7 @@ public class ZVector2D extends ZVector<ZVector2D>{
 	@Override
 	public void calcAngleMag(){
 		this.angle = (Math.atan2(this.getY(), this.getX()) + ZMath.TAU) % ZMath.TAU;
+		if(Double.isNaN(this.angle)) this.angle = 0;
 		this.setMagnitude(Math.sqrt(Math.pow(this.getX(), 2) + Math.pow(this.getY(), 2)));
 	}
 	
