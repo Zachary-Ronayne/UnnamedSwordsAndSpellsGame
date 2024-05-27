@@ -4,7 +4,7 @@ import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.core.state.MenuNode;
-import zgame.things.entity.StaticEntityThing2D;
+import zgame.things.entity.StaticThing2D;
 import zgame.things.type.GameThing;
 import zusass.ZusassGame;
 import zusass.menu.spellmaker.SpellMakerMenu;
@@ -12,7 +12,7 @@ import zusass.menu.spellmaker.SpellMakerMenu;
 import java.util.UUID;
 
 /** A {@link GameThing} used as a station for the player to click on to open the spell making interface */
-public class SpellMakerThing extends StaticEntityThing2D implements ZThingClickDetector, GameTickable{
+public class SpellMakerThing extends StaticThing2D implements ZThingClickDetector, GameTickable{
 	
 	/** The uuid of this thing */
 	private final String uuid;

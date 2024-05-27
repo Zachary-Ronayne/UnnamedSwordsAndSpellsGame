@@ -4,7 +4,7 @@ import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.things.entity.EntityThing2D;
-import zgame.things.entity.StaticEntityThing2D;
+import zgame.things.entity.StaticThing2D;
 import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zgame.world.Room2D;
@@ -14,7 +14,7 @@ import zgame.world.Room2D;
 /**
  * An object that allows other {@link GameThing}s to enter another {@link Room}
  */
-public class Door extends StaticEntityThing2D implements GameTickable{
+public class Door extends StaticThing2D implements GameTickable{
 	
 	/** The default value of {@link #width} */
 	public static final double WIDTH = 70;
@@ -143,8 +143,6 @@ public class Door extends StaticEntityThing2D implements GameTickable{
 	
 	@Override
 	public void tick(Game game, double dt){
-		super.tick(game, dt);
-		
 		if(!this.isAutoEnter()) return;
 		
 		// Check every entity and if it touches this door, move it to this Room
