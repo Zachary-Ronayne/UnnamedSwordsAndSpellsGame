@@ -863,6 +863,11 @@ public class Game implements Saveable, Destroyable{
 		return this.renderLooper;
 	}
 	
+	/** @return The current FPS based on the last second */
+	public int getFps(){
+		return this.getRenderLooper().getLastFuncCalls();
+	}
+	
 	/** @return See {@link #tickLooper} */
 	public GameLooper getTickLooper(){
 		return this.tickLooper;

@@ -190,8 +190,7 @@ public class GameDemo3D extends Game{
 		public void renderHud(Game game, Renderer r){
 			super.renderHud(game, r);
 			r.setFontSize(30);
-			// TODO abstract this to a getFps call
-			var s = "FPS: " + game.getRenderLooper().getLastFuncCalls();
+			var s = "FPS: " + game.getFps();
 			
 			r.setColor(new ZColor(0));
 			r.drawRectangle(20, 6, 10 + r.getFont().stringWidth(s), 40);
