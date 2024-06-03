@@ -12,14 +12,11 @@ import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
 import zgame.things.entity.movement.MovementEntityThing3D;
 import zgame.world.Directions3D;
-import zgame.world.Room;
 import zgame.world.Room3D;
 
 import static org.lwjgl.glfw.GLFW.*;
 
 public class GameDemo3D extends Game{
-	
-	// TODO generally investigate issues with buffers, particularly when going to full screen
 	
 	private static GameDemo3D game;
 	
@@ -526,21 +523,19 @@ public class GameDemo3D extends Game{
 			// TODO make some way of rendering this differently when it's the selected thing to control?
 		}
 		
+		// TODO implement these in an abstracted class for a cylinder
 		@Override
 		public double getWidth(){
-			// TODO implement in an abstracted class
 			return 0.3;
 		}
 		
 		@Override
 		public double getHeight(){
-			// TODO implement in an abstracted class
 			return 0.3;
 		}
 		
 		@Override
 		public double getLength(){
-			// TODO implement in an abstracted class
 			return 0.3;
 		}
 	}
