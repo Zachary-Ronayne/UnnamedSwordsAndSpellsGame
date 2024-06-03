@@ -22,6 +22,7 @@ public interface HitBox3D extends HitBox<HitBox3D>, Bounds3D {
 	 */
 	default void hitBy(Projectile p){}
 	
+	// TODO with the touch methods, make them pass a hitbox which was touched as a parameter
 	/**
 	 * A method that defines what this object does when it touches a floor
 	 *

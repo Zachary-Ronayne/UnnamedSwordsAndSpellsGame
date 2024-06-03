@@ -7,11 +7,12 @@ import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
-import zgame.physics.material.Materials;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
 import zgame.things.entity.movement.MovementEntityThing3D;
+import zgame.world.Directions3D;
+import zgame.world.Room;
 import zgame.world.Room3D;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -36,7 +37,6 @@ public class GameDemo3D extends Game{
 	private static boolean flying = false;
 	private static final double tiltSpeed = 3;
 	private static double currentTilt = 0;
-	private static final double minCamDist = 3.85;
 	
 	private static Player3D player;
 	
@@ -84,6 +84,11 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
+		public Room3D getCurrentRoom(){
+			return (Room3D)super.getCurrentRoom();
+		}
+		
+		@Override
 		public void render(Game game, Renderer r){
 			super.render(game, r);
 			
@@ -103,9 +108,9 @@ public class GameDemo3D extends Game{
 			
 			// Draw a checkerboard floor
 			for(int x = 0; x < 32; x++){
-				for(int z = 0; z < 32; z++){
+				for(int z = 0; z < 40; z++){
 					r.setColor(new ZColor(((x % 2 == 0) != (z % 2 == 0)) ? .2 : .6));
-					r.drawFlatPlane(x * .25 - 3.875, 0, z * .25 - 3.875, .25, .25);
+					r.drawFlatPlane(x * .25 - 3.875, 0, z * .25 - 4.875, .25, .25);
 				}
 			}
 			
@@ -170,13 +175,13 @@ public class GameDemo3D extends Game{
 			for(int x = 0; x < 32; x++){
 				for(int y = 0; y < 4; y++){
 					r.setColor(new ZColor(((x % 2 == 0) != (y % 2 == 0)) ? .2 : .6, 0, .5));
-					r.drawSidePlaneX(x * .25 - 3.875, y * .25, 4, .25, .25);
+					r.drawSidePlaneX(x * .25 - 3.875, y * .25, 5, .25, .25);
 				}
 			}
-			for(int z = 0; z < 32; z++){
+			for(int z = 0; z < 40; z++){
 				for(int y = 0; y < 4; y++){
 					r.setColor(new ZColor(.5, 0, ((z % 2 == 0) != (y % 2 == 0)) ? .2 : .6));
-					r.drawSidePlaneZ(4, y * .25, z * .25 - 3.875, .25, .25);
+					r.drawSidePlaneZ(4, y * .25, z * .25 - 4.875, .25, .25);
 				}
 			}
 		}
@@ -208,20 +213,35 @@ public class GameDemo3D extends Game{
 			if(button == GLFW_KEY_LEFT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) - .1, false);
 			else if(button == GLFW_KEY_RIGHT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) + .1, false);
 			
-			// Toggling the cube rotating on its own
-			if(button == GLFW_KEY_1) autoRotate = !autoRotate;
+			// Numerical button related controls
 			
-			// Toggling full screen
-			if(button == GLFW_KEY_2) game.toggleFullscreen();
-			/*
-			   TODO fix OpenGL warning when exiting full screen
-				[LWJGL] OpenGL debug message
-				ID: 0x20092
-				Source: API
-				Type: PERFORMANCE
-				Severity: MEDIUM
-				Message: Program/shader state performance warning: Vertex shader in program 12 is being recompiled based on GL state.
-			 */
+			// Toggle the boundaries
+			if(shift){
+				var r = getCurrentRoom();
+				if(button == GLFW_KEY_1) r.toggleBoundary(Directions3D.EAST);
+				else if(button == GLFW_KEY_2) r.toggleBoundary(Directions3D.WEST);
+				else if(button == GLFW_KEY_3) r.toggleBoundary(Directions3D.NORTH);
+				else if(button == GLFW_KEY_4) r.toggleBoundary(Directions3D.SOUTH);
+				else if(button == GLFW_KEY_5) r.toggleBoundary(Directions3D.UP);
+				else if(button == GLFW_KEY_6) r.toggleBoundary(Directions3D.DOWN);
+			}
+			else{
+				
+				// Toggling the cube rotating on its own
+				if(button == GLFW_KEY_1) autoRotate = !autoRotate;
+				
+				// Toggling full screen
+				if(button == GLFW_KEY_2) game.toggleFullscreen();
+				/*
+				   TODO fix OpenGL warning when exiting full screen
+					[LWJGL] OpenGL debug message
+					ID: 0x20092
+					Source: API
+					Type: PERFORMANCE
+					Severity: MEDIUM
+					Message: Program/shader state performance warning: Vertex shader in program 12 is being recompiled based on GL state.
+				 */
+			}
 			
 			// Toggle fly
 			if(button == GLFW_KEY_F) {
@@ -237,6 +257,15 @@ public class GameDemo3D extends Game{
 	}
 	
 	private static class DummyRoom extends Room3D{
+		
+		public DummyRoom(){
+			super();
+			this.setEqualWidth(8);
+			this.setEqualLength(10);
+			this.setBoundary(Directions3D.DOWN, 0);
+			this.setBoundary(Directions3D.UP, 0.6);
+			this.setBoundary(Directions3D.UP, false);
+		}
 		
 		@Override
 		public void tick(Game game, double dt){
@@ -320,25 +349,6 @@ public class GameDemo3D extends Game{
 			xRot += xRotSpeed * dt;
 			yRot += yRotSpeed * dt;
 			zRot += zRotSpeed * dt;
-			
-			// Force the player to stay in certain bounds
-			// TODO move this wall logic using the boundary material to the main Room3D class after implementing real collision
-			if(player.getX() < -minCamDist) {
-				player.setX(-minCamDist);
-				player.touchWall(Materials.BOUNDARY);
-			}
-			else if(player.getX() > minCamDist) {
-				player.setX(minCamDist);
-				player.touchWall(Materials.DEFAULT);
-			}
-			if(player.getZ() < -minCamDist) {
-				player.setZ(-minCamDist);
-				player.touchWall(Materials.BOUNDARY);
-			}
-			else if(player.getZ() > minCamDist) {
-				player.setZ(minCamDist);
-				player.touchWall(Materials.DEFAULT);
-			}
 			
 			// Rotate the pillar
 			pillarAngle += 2 * dt;
@@ -461,12 +471,12 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getWalkAcceleration(){
-			return 2.0;
+			return 4.0;
 		}
 		
 		@Override
 		public double getWalkSpeedMax(){
-			return 1.1;
+			return 2.6;
 		}
 		
 		@Override
@@ -506,7 +516,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public boolean isWalking(){
-			return this.game.getKeyInput().shift();
+			return !this.game.getKeyInput().shift();
 		}
 		
 		@Override
@@ -520,7 +530,7 @@ public class GameDemo3D extends Game{
 		@Override
 		public double getWidth(){
 			// TODO implement in an abstracted class
-			return 0.1;
+			return 0.3;
 		}
 		
 		@Override
@@ -532,7 +542,7 @@ public class GameDemo3D extends Game{
 		@Override
 		public double getLength(){
 			// TODO implement in an abstracted class
-			return 0.1;
+			return 0.3;
 		}
 	}
 	
