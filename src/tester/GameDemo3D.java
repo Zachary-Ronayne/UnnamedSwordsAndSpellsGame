@@ -11,6 +11,7 @@ import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
 import zgame.things.entity.movement.MovementEntityThing3D;
+import zgame.things.entity.movement.WalkType;
 import zgame.world.Directions3D;
 import zgame.world.Room3D;
 
@@ -31,7 +32,6 @@ public class GameDemo3D extends Game{
 	
 	private static double pillarAngle = 0;
 	
-	private static boolean flying = false;
 	private static final double tiltSpeed = 3;
 	private static double currentTilt = 0;
 	
@@ -241,8 +241,8 @@ public class GameDemo3D extends Game{
 			
 			// Toggle fly
 			if(button == GLFW_KEY_F) {
-				flying = !flying;
-				player.setGravityLevel(flying ? 0 : 1);
+				var walk = player.getWalk();
+				walk.setType(walk.getType() == WalkType.FLYING ? WalkType.WALKING : WalkType.FLYING);
 			}
 			
 			// Toggle vsync
@@ -395,7 +395,7 @@ public class GameDemo3D extends Game{
 			var backward = ki.buttonDown(GLFW_KEY_S);
 			var up = ki.buttonDown(GLFW_KEY_Q);
 			var down = ki.buttonDown(GLFW_KEY_Z);
-			this.handleMovementControls(dt, cam.getRotY(), cam.getRotX(), left, right, forward, backward, up, down, flying);
+			this.handleMovementControls(dt, cam.getRotY(), -cam.getRotX(), left, right, forward, backward, up, down);
 			if(!left && !right && !forward && !backward && this.getWalk().getWalkingForce().getMagnitude() != 0) this.stopWalking();
 			
 			// TODO abstract this out?

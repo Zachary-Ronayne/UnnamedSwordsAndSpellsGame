@@ -18,6 +18,11 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 		this.getWalk().updateWalkingForce(newWalkForce);
 	}
 	
+	@Override
+	default void applyFlyForce(double newFlyForce){
+		this.getWalk().updateFlyingForce(newFlyForce);
+	}
+	
 	/**
 	 * Move this object based on the given parameters
 	 *
@@ -30,40 +35,45 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 	 * @param backward true if this object is moving backward, false otherwise
 	 * @param up true if this object is moving up, false otherwise. Only does anything if flying is true
 	 * @param down true if this object is moving down, false otherwise. Only does anything if flying is true
-	 * @param flying true if this object is flying, false otherwise
 	 */
-	default void handleMovementControls(double dt, double angleH, double angleV, boolean left, boolean right, boolean forward, boolean backward, boolean up, boolean down, boolean flying){
+	default void handleMovementControls(double dt, double angleH, double angleV, boolean left, boolean right, boolean forward, boolean backward, boolean up, boolean down){
 		
 		// Check for walking
 		var horizontalMove = left || right || forward || backward;
 		var verticalMove = up || down;
 		
 		var walk = this.getWalk();
-		if(horizontalMove || verticalMove){
-			double walkingAngle = angleH;
-			
-			// Account for moving backwards
-			if(backward && !forward) walkingAngle = ZMath.angleNormalized(walkingAngle + Math.PI);
-			
-			// Account for strafing
-			if(left || right) {
-				double modifier = (forward || backward) ? ZMath.PI_BY_4 : ZMath.PI_BY_2;
-				if(left && !backward || right && backward) modifier = -modifier;
-				walkingAngle = ZMath.angleNormalized(walkingAngle + modifier);
+
+		// TODO implement flying based on just moving along the x, y, z, axes
+		if(walk.getType() == WalkType.FLYING){
+			// TODO move forwards or backwards depending on which is pressed
+			walk.setTryingToMove(forward || backward);
+			walk.setVerticalAngle(angleV);
+			walk.setWalkingAngle(angleH);
+		}
+		else{
+			if(horizontalMove || verticalMove){
+				double walkingAngle = angleH;
+				
+				// Account for moving backwards
+				if(backward && !forward) walkingAngle = ZMath.angleNormalized(walkingAngle + Math.PI);
+				
+				// Account for strafing
+				if(left || right){
+					double modifier = (forward || backward) ? ZMath.PI_BY_4 : ZMath.PI_BY_2;
+					if(left && !backward || right && backward) modifier = -modifier;
+					walkingAngle = ZMath.angleNormalized(walkingAngle + modifier);
+				}
+				
+				walk.setWalkingAngle(walkingAngle);
 			}
 			
-			walk.setWalkingAngle(walkingAngle);
-		}
-		
-		// TODO implement flying based on look angle
-		// TODO implement flying based on just moving along the x, y, z, axes
-		if(flying) walk.setTryingToMove(horizontalMove || verticalMove);
-		else walk.setTryingToMove(horizontalMove);
-		
-		// Check for jumping
-		if(!flying){
+			// Check for jumping
+			walk.setTryingToMove(horizontalMove);
 			// Jump if holding the jump button
-			if(up) this.jump(dt);
+			if(up) {
+				this.jump(dt);
+			}
 			// For not holding the button
 			else this.checkPerformOrStopJump(dt);
 		}
@@ -71,15 +81,19 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 	
 	/** @return The rotation of this object on the x axis */
 	double getRotX();
+	
 	/** @return The rotation of this object on the y axis */
 	double getRotY();
+	
 	/** @return The rotation of this object on the z axis */
 	double getRotZ();
 	
 	/** @param x The amount to move on the x axis */
 	void addX(double x);
+	
 	/** @param y The amount to move on the y axis */
 	void addY(double y);
+	
 	/** @param z The amount to move on the z axis */
 	void addZ(double z);
 	
@@ -87,5 +101,5 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 	default boolean isTryingToMove(){
 		return this.getWalk().isTryingToMove();
 	}
-
+	
 }

@@ -46,6 +46,11 @@ public interface Movement2D extends Movement<HitBox2D, EntityThing2D, ZVector2D,
 		else this.getWalk().setWalkingForce(dir == 1 ? newWalkForce : -newWalkForce);
 	}
 	
+	@Override
+	default void applyFlyForce(double newFlyForce){
+		// TODO implement
+	}
+	
 	/**
 	 * A utility method that handles a simple implementation of moving
 	 *
@@ -55,15 +60,15 @@ public interface Movement2D extends Movement<HitBox2D, EntityThing2D, ZVector2D,
 	 * @param dt The amount of time that passed during this instance of time
 	 */
 	default void handleMovementControls(boolean moveLeft, boolean moveRight, boolean jump, double dt){
+		// TODO implement flying
+		
 		// Move left and right
 		if(moveLeft) this.walkLeft();
 		else if(moveRight) this.walkRight();
 		else this.stopWalking();
 		
 		// Jump if holding the jump button
-		if(jump){
-			this.jump(dt);
-		}
+		if(jump) this.jump(dt);
 		// For not holding the button
 		else this.checkPerformOrStopJump(dt);
 	}

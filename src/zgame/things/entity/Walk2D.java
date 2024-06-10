@@ -17,7 +17,7 @@ public class Walk2D extends Walk<HitBox2D, EntityThing2D, ZVector2D, Room2D>{
 	 * @param entity See {@link #entity}
 	 */
 	public Walk2D(EntityThing2D entity){
-		super(entity, entity.setForce(FORCE_NAME_WALKING, new ZVector2D()));
+		super(entity);
 		
 		this.setWalkingDirection(0);
 	}
@@ -40,5 +40,11 @@ public class Walk2D extends Walk<HitBox2D, EntityThing2D, ZVector2D, Room2D>{
 	@Override
 	public void updateWalkingForce(double force){
 		this.setWalkingForce(this.getEntity().setHorizontalForce(FORCE_NAME_WALKING, force));
+	}
+	
+	@Override
+	public void updateFlyingForce(double force){
+		// TODO implement with an angle
+		this.setWalkingForce(this.getEntity().setForce(FORCE_NAME_WALKING, new ZVector2D()));
 	}
 }

@@ -1,7 +1,6 @@
 package zgame.things.entity.movement;
 
 import zgame.core.Game;
-import zgame.core.utils.ZStringUtils;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 import zgame.things.entity.EntityThing;
@@ -34,14 +33,23 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	 * @param dt The amount of time that passed in the update
 	 */
 	default void movementTick(Game game, double dt){
-		// After doing the normal tick and update with this entity's position and velocity and adding the jump velocity, reset the jump force to 0
-		this.getWalk().setJumpingForce(0);
-		
-		// Determine the new walking force
-		this.updateWalkForce(dt);
-		
-		// Update the state of the jumping force
-		this.updateJumpState(dt);
+		var walk = this.getWalk();
+		// TODO is an enum with a switch statement the best way to do this?
+		switch(walk.getType()){
+			case WALKING -> {
+				// After doing the normal tick and update with this entity's position and velocity and adding the jump velocity, reset the jump force to 0
+				this.getWalk().setJumpingForce(0);
+				
+				//
+				
+				// Determine the new walking force
+				this.updateWalkForce(dt);
+				
+				// Update the state of the jumping force
+				this.updateJumpState(dt);
+			}
+			case FLYING -> this.updateFlyForce(dt);
+		}
 	}
 	
 	/** @return true if this object represents currently walking or running, false otherwise i.e. not moving */
@@ -101,6 +109,23 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	 * @param newWalkForce The amount of force to apply in the forwards direction of this thing
 	 */
 	void applyWalkForce(double newWalkForce);
+	
+	/**
+	 * Calculate and then update the current flying force based on the next instance of time
+	 *
+	 * @param dt The amount of time that will pass in the next tick when{@link #getThing()} flies
+	 */
+	default void updateFlyForce(double dt){
+		// TODO implement properly, not just a hard coded number
+		this.applyFlyForce(3 * this.getThing().getMass());
+	}
+	
+	/**
+	 * Apply the given amount of force to this thing's flying force
+	 *
+	 * @param newFlyForce The amount of force to apply in the direction this thing is flying
+	 */
+	void applyFlyForce(double newFlyForce);
 	
 	/** @return true if {@link #getThing()} is able to perform a normal jump off the ground based on the amount of time since it last touched a wall, false otherwise */
 	default boolean hasTimeToFloorJump(){

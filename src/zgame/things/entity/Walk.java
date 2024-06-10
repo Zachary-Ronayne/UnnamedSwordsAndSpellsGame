@@ -3,6 +3,7 @@ package zgame.things.entity;
 import zgame.physics.ZVector;
 import zgame.things.entity.movement.Movement;
 import zgame.things.entity.movement.Movement2D;
+import zgame.things.entity.movement.WalkType;
 import zgame.things.type.bounds.HitBox;
 import zgame.world.Room;
 
@@ -17,10 +18,10 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	
 	/** The string used to identify the force used to make this walk */
 	public static final String FORCE_NAME_WALKING = "walking";
+	/** The string used to identify the force used to make this fly */
+	public static final String FORCE_NAME_FLYING = "flying";
 	/** The string used to identify the force used to make this jump */
 	public static final String FORCE_NAME_JUMPING = "jumping";
-	/** The string used to identify the force used to make this stop jumping */
-	public static final String FORCE_NAME_JUMPING_STOP = "jumpingStop";
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -39,6 +40,9 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	/** The force of jumping on this */
 	private V jumpingForce;
 	
+	/** The force applied to this thing to modify its movement based on flying */
+	private V flyingForce;
+	
 	/** The amount of time, in seconds, this has built up their jump height */
 	private double jumpTimeBuilt;
 	
@@ -54,12 +58,16 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	/** The {@link EntityThing} using this walk object */
 	private final E entity;
 	
+	// TODO does it even make sense to use an enum here?
+	/** The current state describing the type of this thing's movement */
+	private WalkType type;
+	
 	/**
 	 * Create a new walk object for use in {@link Movement2D}
 	 *
 	 * @param entity See {@link #entity}
 	 */
-	public Walk(E entity, V walkingForce){
+	public Walk(E entity){
 		this.entity = entity;
 		
 		this.canJump = false;
@@ -69,8 +77,11 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 		this.wallJumpAvailable = false;
 		this.groundedSinceLastJump = false;
 		
-		this.walkingForce = walkingForce;
+		this.walkingForce = entity.setForce(FORCE_NAME_WALKING, this.entity.zeroVector());
+		this.flyingForce = entity.setForce(FORCE_NAME_FLYING, this.entity.zeroVector());
 		this.jumpingForce = entity.setForce(FORCE_NAME_JUMPING, this.entity.zeroVector());
+		
+		this.setType(WalkType.WALKING);
 	}
 	
 	/** @return See {@link #entity} */
@@ -160,7 +171,27 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	
 	/** @param walkingForce See {@link #walkingForce} */
 	public void setWalkingForce(V walkingForce){
-		this.walkingForce = walkingForce;
+		if(this.getType() != WalkType.WALKING){
+			this.walkingForce = walkingForce;
+			return;
+		}
+		
+		this.walkingForce = this.getEntity().setForce(FORCE_NAME_WALKING, walkingForce);
+	}
+	
+	/** @return See {@link #flyingForce} */
+	public V getFlyingForce(){
+		return this.flyingForce;
+	}
+	
+	/** @param flyingForce See {@link #flyingForce} */
+	public void setFlyingForce(V flyingForce){
+		if(this.getType() != WalkType.FLYING){
+			this.flyingForce = flyingForce;
+			return;
+		}
+		
+		this.flyingForce = this.getEntity().setForce(FORCE_NAME_FLYING, flyingForce);
 	}
 	
 	/** @return See {@link #jumpingForce} */
@@ -176,4 +207,35 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	/** @param force The amount of force moving during walking */
 	public abstract void updateWalkingForce(double force);
 	
+	/** @param force The amount of force moving during flyinh */
+	public abstract void updateFlyingForce(double force);
+	
+	/** @return See {@link #type} */
+	public WalkType getType(){
+		return this.type;
+	}
+	
+	/** @param type See {@link #type} */
+	public void setType(WalkType type){
+		// TODO make a better way of doing this kind of thing that scales as new states are added
+		this.type = type;
+		var thing = this.getEntity();
+		switch(this.type){
+			case FLYING -> {
+				thing.removeForce(FORCE_NAME_WALKING);
+				thing.removeForce(FORCE_NAME_JUMPING);
+				
+				thing.setForce(FORCE_NAME_FLYING, this.flyingForce);
+				thing.setGravityLevel(0);
+			}
+			case WALKING -> {
+				thing.removeForce(FORCE_NAME_FLYING);
+				
+				thing.setForce(FORCE_NAME_WALKING, this.walkingForce);
+				this.jumpingForce = thing.zeroVector();
+				thing.setForce(FORCE_NAME_JUMPING, this.jumpingForce);
+				thing.setGravityLevel(1);
+			}
+		}
+	}
 }

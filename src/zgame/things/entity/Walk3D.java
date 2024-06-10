@@ -11,6 +11,9 @@ public class Walk3D extends Walk<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
 	/** The angle, in radians, on the x z plane that {@link #entity} is walking in */
 	private double walkingAngle;
 	
+	/** The angle on the y axis where {@link #entity} is looking */
+	private double verticalAngle;
+	
 	/** true if {@link #entity} wants to walk, false otherwise */
 	private boolean tryingToMove;
 	
@@ -20,9 +23,10 @@ public class Walk3D extends Walk<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
 	 * @param entity The entity which this walk object will hold data for
 	 */
 	public Walk3D(EntityThing3D entity, double walkingAngle){
-		super(entity, entity.setForce(FORCE_NAME_WALKING, new ZVector3D()));
+		super(entity);
 		
 		this.walkingAngle = walkingAngle;
+		this.verticalAngle = 0;
 		this.tryingToMove = false;
 	}
 	
@@ -34,6 +38,16 @@ public class Walk3D extends Walk<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
 	/** @param walkingAngle See {@link #walkingAngle} */
 	public void setWalkingAngle(double walkingAngle){
 		this.walkingAngle = walkingAngle;
+	}
+	
+	/** @return See {@link #verticalAngle} */
+	public double getVerticalAngle(){
+		return this.verticalAngle;
+	}
+	
+	/** @param verticalAngle See {@link #verticalAngle} */
+	public void setVerticalAngle(double verticalAngle){
+		this.verticalAngle = verticalAngle;
 	}
 	
 	/** @return See {@link #tryingToMove} */
@@ -49,5 +63,10 @@ public class Walk3D extends Walk<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
 	@Override
 	public void updateWalkingForce(double force){
 		this.setWalkingForce(this.getEntity().setForce(FORCE_NAME_WALKING, new ZVector3D(this.walkingAngle, 0, this.tryingToMove ? force : 0, false)));
+	}
+	
+	@Override
+	public void updateFlyingForce(double force){
+		this.setFlyingForce(this.getEntity().setForce(FORCE_NAME_FLYING, new ZVector3D(this.walkingAngle, this.verticalAngle, this.tryingToMove ? force : 0, false)));
 	}
 }
