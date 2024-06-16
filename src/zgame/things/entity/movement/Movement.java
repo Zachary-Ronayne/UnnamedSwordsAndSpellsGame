@@ -116,8 +116,20 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	 * @param dt The amount of time that will pass in the next tick when{@link #getThing()} flies
 	 */
 	default void updateFlyForce(double dt){
-		// TODO implement properly, not just a hard coded number
-		this.applyFlyForce(3 * this.getThing().getMass());
+		var entity = this.getThing();
+		double mass = entity.getMass();
+		double acceleration = this.getFlyAcceleration();
+		double flyForce = acceleration * mass;
+		double maxSpeed = this.getFlySpeedMax();
+		var totalVel = entity.getVelocity();
+		
+		// TODO If the current velocity in the direction of flight is greater than or equal to the max fly speed and flying is trying to happen in that direction, don't apply any force
+		
+		// TODO If not trying to fly, but velocity is not 0, then try to stop movement by flying in the opposite direction of current movement
+		
+		// TODO only auto try to stop movement if a method returns true, the method should return true by default
+		
+		this.applyFlyForce(flyForce);
 	}
 	
 	/**
@@ -351,6 +363,24 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	
 	/** @return true if this is currently walking, false for running */
 	boolean isWalking();
+	
+	/** @return The acceleration of this while flying, i.e., how fast it gets to {@link #getFlySpeedMax()}, defaults to {@link #getWalkAcceleration()} */
+	default double getFlyAcceleration(){
+		return this.getWalkAcceleration();
+	}
+	
+	/**
+	 * @return The magnitude of how much this entity can stop its flying speed in units of momentum, i.e. mass * velocity
+	 * 		Defaults to {@link #getFlyAcceleration()}
+	 */
+	default double getFlyStopPower(){
+		return this.getWalkAcceleration();
+	}
+	
+	/** @return The maximum walking speed of this entity thing, defaults to {@link #getWalkSpeedMax()} */
+	default double getFlySpeedMax(){
+		return this.getWalkSpeedMax();
+	}
 	
 	/** This method should be called when the associated entity touches a floor */
 	default void movementTouchFloor(Material m){

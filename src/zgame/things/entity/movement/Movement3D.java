@@ -39,17 +39,33 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 	default void handleMovementControls(double dt, double angleH, double angleV, boolean left, boolean right, boolean forward, boolean backward, boolean up, boolean down){
 		
 		// Check for walking
-		var horizontalMove = left || right || forward || backward;
-		var verticalMove = up || down;
+		boolean horizontalMove = left || right || forward || backward;
+		boolean verticalMove = up || down;
 		
 		var walk = this.getWalk();
 
 		// TODO implement flying based on just moving along the x, y, z, axes
 		if(walk.getType() == WalkType.FLYING){
-			// TODO move forwards or backwards depending on which is pressed
-			walk.setTryingToMove(forward || backward);
-			walk.setVerticalAngle(angleV);
-			walk.setWalkingAngle(angleH);
+			walk.setTryingToMove(left || right || verticalMove || forward != backward);
+			double verticalAngle = angleV;
+			double horizontalAngle = angleH;
+			// TODO explain why the horizontal angle doesn't also need to be inverted
+			if(backward) verticalAngle = verticalAngle + Math.PI;
+			
+			// Account for strafing left and right
+			if(left || right){
+				double modifier = (forward || backward) ? ZMath.PI_BY_4 : ZMath.PI_BY_2;
+				if(left && !backward || right && backward) modifier = -modifier;
+				horizontalAngle = horizontalAngle + modifier;
+			}
+			// Account for strafing up and down
+			if(up || down){
+				double modifier = up ? ZMath.PI_BY_2 : -ZMath.PI_BY_2;
+				verticalAngle = verticalAngle + modifier;
+			}
+			
+			walk.setVerticalAngle(ZMath.angleNormalized(verticalAngle));
+			walk.setWalkingAngle(ZMath.angleNormalized(horizontalAngle));
 		}
 		else{
 			if(horizontalMove || verticalMove){
