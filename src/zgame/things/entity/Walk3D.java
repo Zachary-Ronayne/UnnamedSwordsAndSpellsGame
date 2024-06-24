@@ -76,6 +76,7 @@ public class Walk3D extends Walk<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
 		}
 		else{
 			var currentVel = this.getEntity().getVelocity();
+			// TODO why does this need to be modified by pi/2?
 			angleH = currentVel.getAngleH() + ZMath.PI_BY_2;
 			angleV = currentVel.getAngleV();
 		}

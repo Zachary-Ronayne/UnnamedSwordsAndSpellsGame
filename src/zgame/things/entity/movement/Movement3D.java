@@ -26,14 +26,13 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 	}
 	
 	@Override
-	default double getMovementAngleRatioToTryingToMove(){
+	default double getMovementTryingRatio(){
 		var walk = this.getWalk();
 		// TODO this should not be based on facing, but based on direction trying to move in
 		double facingH = walk.getWalkingAngle();
 		double facingV = walk.getVerticalAngle();
 		
 		var totalVel = this.getThing().getVelocity();
-		// TODO should this be based on a threshold?
 		boolean moving = totalVel.getMagnitude() != 0;
 		double movingH = moving ? totalVel.getAngleH() : facingH;
 		double movingV = moving ? totalVel.getAngleV() : facingV;
@@ -41,6 +40,7 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 		double diffH = ZMath.angleDiff(facingH, movingH);
 		double diffV = ZMath.angleDiff(facingV, movingV);
 		
+		// TODO fix flying backwards not working, it's because this is always positive
 		return (Math.PI - diffH) * (Math.PI - diffV) / (Math.PI * Math.PI);
 	}
 	
@@ -65,28 +65,49 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 		
 		var walk = this.getWalk();
 
-		// TODO implement flying based on just moving along the x, y, z, axes
 		if(walk.getType() == WalkType.FLYING){
 			walk.setTryingToMove(left != right || up != down || forward != backward);
-			double verticalAngle = angleV;
-			double horizontalAngle = angleH;
-			// TODO explain why the horizontal angle doesn't also need to be inverted
-			if(backward) verticalAngle = verticalAngle + Math.PI;
+			double verticalAngle;
+			double horizontalAngle;
 			
-			// Account for strafing left and right
-			if(left || right){
-				double modifier = (forward || backward) ? ZMath.PI_BY_4 : ZMath.PI_BY_2;
-				if(left && !backward || right && backward) modifier = -modifier;
-				horizontalAngle = horizontalAngle + modifier;
+			// TODO make this a function
+			boolean axisFlying = true;
+			if(axisFlying){
+				// Go straight up and down
+				if(up) verticalAngle = ZMath.PI_BY_2;
+				else if(down) verticalAngle = ZMath.PI_BY_2 + Math.PI;
+				else verticalAngle = 0;
+				
+				// TODO maybe abstract out this strafing thing, with how it's also used with walking
+				horizontalAngle = angleH;
+				// Account for strafing left and right
+				if(left || right){
+					double modifier = (forward || backward) ? ZMath.PI_BY_4 : ZMath.PI_BY_2;
+					if(left && !backward || right && backward) modifier = -modifier;
+					horizontalAngle = horizontalAngle + modifier;
+				}
 			}
-			// Account for strafing up and down
-			if(up || down){
-				double modifier = up ? ZMath.PI_BY_2 : -ZMath.PI_BY_2;
-				verticalAngle = verticalAngle + modifier;
+			else{
+				verticalAngle = angleV;
+				horizontalAngle = angleH;
+				// TODO explain why the horizontal angle doesn't also need to be inverted
+				if(backward) verticalAngle = verticalAngle + Math.PI;
+				
+				// Account for strafing left and right
+				if(left || right){
+					double modifier = (forward || backward) ? ZMath.PI_BY_4 : ZMath.PI_BY_2;
+					if(left && !backward || right && backward) modifier = -modifier;
+					horizontalAngle = horizontalAngle + modifier;
+				}
+				// Account for strafing up and down
+				if(up || down){
+					double modifier = up ? ZMath.PI_BY_2 : -ZMath.PI_BY_2;
+					verticalAngle = verticalAngle + modifier;
+				}
 			}
 			
-			walk.setVerticalAngle(ZMath.angleNormalized(verticalAngle));
 			walk.setWalkingAngle(ZMath.angleNormalized(horizontalAngle));
+			walk.setVerticalAngle(ZMath.angleNormalized(verticalAngle));
 		}
 		else{
 			if(horizontalMove || verticalMove){

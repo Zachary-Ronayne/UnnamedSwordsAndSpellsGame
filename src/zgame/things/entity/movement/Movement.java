@@ -124,10 +124,10 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		var totalVel = entity.getVelocity();
 		
 		double currentVel = totalVel.getMagnitude();
-		double angleRatio = this.getMovementAngleRatioToTryingToMove();
-
+		double angleRatio = this.getMovementTryingRatio();
+		
 		boolean tryingToMove = this.isTryingToMove();
-
+		
 		// TODO clean up this messy code
 		// TODO explain this code
 		// If moving in the current facing way would exceed max speed
@@ -176,9 +176,11 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	 */
 	void applyFlyForce(double newFlyForce, boolean applyFacing);
 	
-	// TODO add real docs and make a better name
-	/** @return Should be a value in the range [-1, 1] */
-	double getMovementAngleRatioToTryingToMove();
+	/**
+	 * @return A value in the range [-1, 1] representing how close the angle of movement is to the angle of desired movement.
+	 * A value of 1 means movement is trying to happen in the exact same direction as current movement, -1 means the exact opposite direction
+	 */
+	double getMovementTryingRatio();
 	
 	/** @return true if {@link #getThing()} is able to perform a normal jump off the ground based on the amount of time since it last touched a wall, false otherwise */
 	default boolean hasTimeToFloorJump(){

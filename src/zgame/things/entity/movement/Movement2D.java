@@ -52,7 +52,7 @@ public interface Movement2D extends Movement<HitBox2D, EntityThing2D, ZVector2D,
 	}
 	
 	@Override
-	default double getMovementAngleRatioToTryingToMove(){
+	default double getMovementTryingRatio(){
 		// TODO implement
 		return 1;
 	}
