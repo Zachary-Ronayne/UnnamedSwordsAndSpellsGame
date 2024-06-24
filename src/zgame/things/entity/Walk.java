@@ -207,8 +207,9 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	/** @param force The amount of force moving during walking */
 	public abstract void updateWalkingForce(double force);
 	
-	/** @param force The amount of force moving during flyinh */
-	public abstract void updateFlyingForce(double force);
+	// TODO should these be the params
+	/** @param force The amount of force moving during flying */
+	public abstract void updateFlyingForce(double force, boolean applyFacing);
 	
 	/** @return See {@link #type} */
 	public WalkType getType(){

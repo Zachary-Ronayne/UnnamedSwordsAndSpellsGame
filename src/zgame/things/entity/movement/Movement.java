@@ -123,21 +123,62 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		double maxSpeed = this.getFlySpeedMax();
 		var totalVel = entity.getVelocity();
 		
-		// TODO If the current velocity in the direction of flight is greater than or equal to the max fly speed and flying is trying to happen in that direction, don't apply any force
+		double currentVel = totalVel.getMagnitude();
+		double angleRatio = this.getMovementAngleRatioToTryingToMove();
+
+		boolean tryingToMove = this.isTryingToMove();
+
+		// TODO clean up this messy code
+		// TODO explain this code
+		// If moving in the current facing way would exceed max speed
+		if(currentVel * angleRatio >= maxSpeed){
+			// If trying to move, then move forward based on the ratio to facing forward
+			
+			// Find the total velocity if the new flying force is applied on the next tick
+			double newVel = currentVel + angleRatio * flyForce * dt / mass;
+			
+			// Likely related to issue#14
+			// If that velocity is greater than the maximum speed, then apply a force such that it will bring the velocity exactly to the maximum speed
+			// Use max speed if moving in the same direction, or 0 if the opposite direction
+			if(angleRatio > 0){
+				if(newVel > maxSpeed) flyForce = (maxSpeed - currentVel) / dt * mass;
+			}
+			else{
+				if(newVel < 0) flyForce = currentVel / dt * mass;
+				flyForce = -flyForce;
+			}
+		}
+		// Otherwise, if not trying to move, also try to slow down
+		else if(!tryingToMove){
+			double newVel = currentVel - flyForce * dt / mass;
+			
+			// Likely related to issue#14
+			if(newVel < 0) flyForce = currentVel / dt * mass;
+			flyForce = -flyForce;
+		}
+		// Otherwise, apply the full amount of force
 		
-		// TODO If not trying to fly, but velocity is not 0, then try to stop movement by flying in the opposite direction of current movement
+		// Apply the force
+		this.applyFlyForce(flyForce, tryingToMove);
 		
-		// TODO only auto try to stop movement if a method returns true, the method should return true by default
-		
-		this.applyFlyForce(flyForce);
+		// Account for clamping the force to 0
+		if(!tryingToMove){
+			if(Math.abs(entity.getVelocity().getMagnitude()) < entity.getHorizontalClampVelocity()) entity.setVelocity(entity.zeroVector());
+		}
 	}
 	
+	// TODO is this what the params should be?
 	/**
 	 * Apply the given amount of force to this thing's flying force
 	 *
-	 * @param newFlyForce The amount of force to apply in the direction this thing is flying
+	 * @param newFlyForce The amount of force to apply in the direction this thing is flying. Negative means move in the opposite direction
+	 * @param applyFacing true if the force should be applied in the direction the thing is facing, false to apply it in the direction it's moving
 	 */
-	void applyFlyForce(double newFlyForce);
+	void applyFlyForce(double newFlyForce, boolean applyFacing);
+	
+	// TODO add real docs and make a better name
+	/** @return Should be a value in the range [-1, 1] */
+	double getMovementAngleRatioToTryingToMove();
 	
 	/** @return true if {@link #getThing()} is able to perform a normal jump off the ground based on the amount of time since it last touched a wall, false otherwise */
 	default boolean hasTimeToFloorJump(){

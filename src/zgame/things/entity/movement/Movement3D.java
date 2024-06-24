@@ -19,8 +19,29 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 	}
 	
 	@Override
-	default void applyFlyForce(double newFlyForce){
-		this.getWalk().updateFlyingForce(newFlyForce);
+	default void applyFlyForce(double newFlyForce, boolean applyFacing){
+		// TODO should this check if newFlyForce is negative? Should the same check be applied for walking force?
+		// TODO maybe enforce that all vectors will have a positive value, and the angle exclusively determines direction?
+		this.getWalk().updateFlyingForce(newFlyForce, applyFacing);
+	}
+	
+	@Override
+	default double getMovementAngleRatioToTryingToMove(){
+		var walk = this.getWalk();
+		// TODO this should not be based on facing, but based on direction trying to move in
+		double facingH = walk.getWalkingAngle();
+		double facingV = walk.getVerticalAngle();
+		
+		var totalVel = this.getThing().getVelocity();
+		// TODO should this be based on a threshold?
+		boolean moving = totalVel.getMagnitude() != 0;
+		double movingH = moving ? totalVel.getAngleH() : facingH;
+		double movingV = moving ? totalVel.getAngleV() : facingV;
+		
+		double diffH = ZMath.angleDiff(facingH, movingH);
+		double diffV = ZMath.angleDiff(facingV, movingV);
+		
+		return (Math.PI - diffH) * (Math.PI - diffV) / (Math.PI * Math.PI);
 	}
 	
 	/**
@@ -46,7 +67,7 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 
 		// TODO implement flying based on just moving along the x, y, z, axes
 		if(walk.getType() == WalkType.FLYING){
-			walk.setTryingToMove(left || right || verticalMove || forward != backward);
+			walk.setTryingToMove(left != right || up != down || forward != backward);
 			double verticalAngle = angleV;
 			double horizontalAngle = angleH;
 			// TODO explain why the horizontal angle doesn't also need to be inverted

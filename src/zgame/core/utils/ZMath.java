@@ -139,6 +139,17 @@ public final class ZMath{
 	}
 	
 	/**
+	 * Determine the difference between the two angles
+	 * @param a1 The first angle, in radians
+	 * @param a2 The second angle, in radians
+	 * @return The difference as a positive value, in radians, in the range [0, pi)
+	 */
+	public static double angleDiff(double a1, double a2){
+		double diff = ZMath.angleNormalized(Math.abs(a1 - a2));
+		return Math.min(diff, ZMath.TAU - diff);
+	}
+	
+	/**
 	 * Find the intersection point of 2 lines
 	 *
 	 * @param l1 The first line

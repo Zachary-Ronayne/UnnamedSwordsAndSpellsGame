@@ -1,5 +1,6 @@
 package zgame.things.entity;
 
+import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
 import zgame.things.entity.movement.Movement3D;
 import zgame.things.type.bounds.HitBox3D;
@@ -66,7 +67,19 @@ public class Walk3D extends Walk<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
 	}
 	
 	@Override
-	public void updateFlyingForce(double force){
-		this.setFlyingForce(this.getEntity().setForce(FORCE_NAME_FLYING, new ZVector3D(this.walkingAngle, this.verticalAngle, this.tryingToMove ? force : 0, false)));
+	public void updateFlyingForce(double force, boolean applyFacing){
+		double angleH;
+		double angleV;
+		if(applyFacing){
+			angleH = this.walkingAngle;
+			angleV = this.verticalAngle;
+		}
+		else{
+			var currentVel = this.getEntity().getVelocity();
+			angleH = currentVel.getAngleH() + ZMath.PI_BY_2;
+			angleV = currentVel.getAngleV();
+		}
+		
+		this.setFlyingForce(this.getEntity().setForce(FORCE_NAME_FLYING, new ZVector3D(angleH, angleV, force, false)));
 	}
 }

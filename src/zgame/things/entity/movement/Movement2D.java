@@ -47,8 +47,14 @@ public interface Movement2D extends Movement<HitBox2D, EntityThing2D, ZVector2D,
 	}
 	
 	@Override
-	default void applyFlyForce(double newFlyForce){
+	default void applyFlyForce(double newFlyForce, boolean applyFacing){
 		// TODO implement
+	}
+	
+	@Override
+	default double getMovementAngleRatioToTryingToMove(){
+		// TODO implement
+		return 1;
 	}
 	
 	/**
