@@ -40,7 +40,7 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 		double diffH = ZMath.angleDiff(facingH, movingH);
 		double diffV = ZMath.angleDiff(facingV, movingV);
 		
-		// TODO fix flying backwards not working, it's because this is always positive
+		// TODO fix infinite horizontal acceleration when flying on axes? Why is there sudden periodic stutter stepping while flying?
 		return (Math.PI - diffH) * (Math.PI - diffV) / (Math.PI * Math.PI);
 	}
 	
@@ -86,6 +86,8 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 					if(left && !backward || right && backward) modifier = -modifier;
 					horizontalAngle = horizontalAngle + modifier;
 				}
+				// TODO explain why the horizontal angle doesn't also need to be inverted
+				if(backward) horizontalAngle = horizontalAngle + Math.PI;
 			}
 			else{
 				verticalAngle = angleV;
