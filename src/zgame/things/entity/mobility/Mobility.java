@@ -1,6 +1,5 @@
 package zgame.things.entity.mobility;
 
-import zgame.core.Game;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 import zgame.things.entity.EntityThing;
@@ -29,25 +28,33 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	/**
 	 * Perform the game update actions handling {@link #getThing()}'s walking and jumping
 	 *
-	 * @param game The {@link Game} where {@link #getThing()} is in
 	 * @param dt The amount of time that passed in the update
 	 */
-	default void mobilityTick(Game game, double dt){
-		var mobilityData = this.getMobilityData();
-		// TODO is an enum with a switch statement the best way to do this?
-		switch(mobilityData.getType()){
-			case WALKING -> {
-				// After doing the normal tick and update with this entity's position and velocity and adding the jump velocity, reset the jump force to 0
-				this.getMobilityData().setJumpingForce(0);
-				
-				// Determine the new walking force
-				this.updateWalkForce(dt);
-				
-				// Update the state of the jumping force
-				this.updateJumpState(dt);
-			}
-			case FLYING, FLYING_AXIS -> this.updateFlyForce(dt);
-		}
+	default void mobilityTick(double dt){
+		this.getMobilityData().getType().tick(this, dt);
+	}
+	
+	/**
+	 * Perform all actions needed to happen in a tick to make this thing walk
+	 * @param dt The amount of time that passed in the tick
+	 */
+	default void walkingTick(double dt){
+		// After doing the normal tick and update with this entity's position and velocity and adding the jump velocity, reset the jump force to 0
+		this.getMobilityData().setJumpingForce(0);
+		
+		// Determine the new walking force
+		this.updateWalkForce(dt);
+		
+		// Update the state of the jumping force
+		this.updateJumpState(dt);
+	}
+	
+	/**
+	 * Perform all actions needed to happen in a tick to make this thing fly
+	 * @param dt The amount of time that passed in the tick
+	 */
+	default void flyingTick(double dt){
+		this.updateFlyForce(dt);
 	}
 	
 	/** @return true if this object represents currently walking or running, false otherwise i.e. not moving */

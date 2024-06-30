@@ -35,7 +35,7 @@ public abstract class MobilityEntityThing3D extends EntityThing3D implements Mob
 	
 	@Override
 	public void tick(Game game, double dt){
-		this.mobilityTick(game, dt);
+		this.mobilityTick(dt);
 		super.tick(game, dt);
 	}
 	

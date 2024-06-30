@@ -58,7 +58,6 @@ public abstract class MobilityData<H extends HitBox<H>, E extends EntityThing<H,
 	/** The {@link EntityThing} using this walk object */
 	private final E entity;
 	
-	// TODO does it even make sense to use an enum here?
 	/** The current state describing the type of {@link #entity}'s mobility */
 	private MobilityType type;
 	
@@ -221,25 +220,29 @@ public abstract class MobilityData<H extends HitBox<H>, E extends EntityThing<H,
 	
 	/** @param type See {@link #type} */
 	public void setType(MobilityType type){
-		// TODO make a better way of doing this kind of thing that scales as new states are added
 		this.type = type;
-		var thing = this.getEntity();
-		switch(this.type){
-			case FLYING, FLYING_AXIS -> {
-				thing.removeForce(FORCE_NAME_WALKING);
-				thing.removeForce(FORCE_NAME_JUMPING);
-				
-				thing.setForce(FORCE_NAME_FLYING, this.flyingForce);
-				thing.setGravityLevel(0);
-			}
-			case WALKING -> {
-				thing.removeForce(FORCE_NAME_FLYING);
-				
-				thing.setForce(FORCE_NAME_WALKING, this.walkingForce);
-				this.jumpingForce = thing.zeroVector();
-				thing.setForce(FORCE_NAME_JUMPING, this.jumpingForce);
-				thing.setGravityLevel(1);
-			}
-		}
+		this.type.updateForces(this);
 	}
+	
+	/** Update all necessary forces to make {@link #entity} able to walk and not other forms of movement */
+	public void updateWalkForces(){
+		var thing = this.getEntity();
+		thing.removeForce(FORCE_NAME_FLYING);
+		
+		thing.setForce(FORCE_NAME_WALKING, this.walkingForce);
+		this.jumpingForce = thing.zeroVector();
+		thing.setForce(FORCE_NAME_JUMPING, this.jumpingForce);
+		thing.setGravityLevel(1);
+	}
+	
+	/** Update all necessary forces to make {@link #entity} able to fly and not other forms of movement */
+	public void updateFlyForces(){
+		var thing = this.getEntity();
+		thing.removeForce(FORCE_NAME_WALKING);
+		thing.removeForce(FORCE_NAME_JUMPING);
+		
+		thing.setForce(FORCE_NAME_FLYING, this.flyingForce);
+		thing.setGravityLevel(0);
+	}
+	
 }
