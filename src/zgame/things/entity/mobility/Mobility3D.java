@@ -58,78 +58,51 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	 * @param down true if this object is moving down, false otherwise. Only does anything if flying is true
 	 */
 	default void handleMobilityControls(double dt, double angleH, double angleV, boolean left, boolean right, boolean forward, boolean backward, boolean up, boolean down){
-		
-		// Check for walking
-		boolean horizontalMove = left || right || forward || backward;
-		boolean verticalMove = up || down;
-		
 		var mobilityData = this.getMobilityData();
 
-		// TODO is this the best way of changing mobility types?
 		var mobilityType = mobilityData.getType();
 		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){
 			mobilityData.setTryingToMove(left != right || up != down || forward != backward);
 			double verticalAngle;
-			double horizontalAngle;
+			double horizontalAngle = angleH;
 			
 			if(mobilityType == MobilityType.FLYING_AXIS){
 				// Go straight up and down
 				if(up) verticalAngle = ZMath.PI_BY_2;
 				else if(down) verticalAngle = ZMath.PI_BY_2 + Math.PI;
 				else verticalAngle = 0;
-				
-				// TODO maybe abstract out this strafing thing, with how it's also used with walking
-				horizontalAngle = angleH;
-				// Account for strafing left and right
-				if(left || right){
-					double modifier = (forward || backward) ? ZMath.PI_BY_4 : ZMath.PI_BY_2;
-					if(left && !backward || right && backward) modifier = -modifier;
-					horizontalAngle = horizontalAngle + modifier;
-				}
-				// TODO explain why the horizontal angle doesn't also need to be inverted
-				if(backward) horizontalAngle = horizontalAngle + Math.PI;
 			}
 			else{
 				verticalAngle = angleV;
-				horizontalAngle = angleH;
-				// TODO explain why the horizontal angle doesn't also need to be inverted
-				if(backward) verticalAngle = verticalAngle + Math.PI;
 				
-				// Account for strafing left and right
-				if(left || right){
-					double modifier = (forward || backward) ? ZMath.PI_BY_4 : ZMath.PI_BY_2;
-					if(left && !backward || right && backward) modifier = -modifier;
-					horizontalAngle = horizontalAngle + modifier;
-				}
 				// Account for strafing up and down
 				if(up || down){
 					double modifier = up ? ZMath.PI_BY_2 : -ZMath.PI_BY_2;
 					verticalAngle = verticalAngle + modifier;
 				}
 			}
+			// Account for strafing
+			horizontalAngle += this.calculateStrafeModifier(left, right, forward, backward);
+			
+			// Only the vertical axis needs to be inverted here because only one axis needs to be inverted
+			if(backward && !forward) verticalAngle = verticalAngle + Math.PI;
 			
 			mobilityData.setHorizontalAngle(ZMath.angleNormalized(horizontalAngle));
 			mobilityData.setVerticalAngle(ZMath.angleNormalized(verticalAngle));
 		}
 		else if(mobilityType == MobilityType.WALKING){
-			if(horizontalMove || verticalMove){
-				double horizontalAngle = angleH;
-				
+			mobilityData.setTryingToMove(left != right || forward != backward);
+			double horizontalAngle = angleH;
+			
+			if(mobilityData.isTryingToMove()){
 				// Account for moving backwards
 				if(backward && !forward) horizontalAngle = ZMath.angleNormalized(horizontalAngle + Math.PI);
 				
 				// Account for strafing
-				if(left || right){
-					double modifier = (forward || backward) ? ZMath.PI_BY_4 : ZMath.PI_BY_2;
-					if(left && !backward || right && backward) modifier = -modifier;
-					horizontalAngle = ZMath.angleNormalized(horizontalAngle + modifier);
-				}
-				
+				horizontalAngle += this.calculateStrafeModifier(left, right, forward, backward);
 				mobilityData.setHorizontalAngle(horizontalAngle);
 			}
 			
-			// Check for jumping
-			mobilityData.setTryingToMove(horizontalMove);
 			// Jump if holding the jump button
 			if(up) {
 				this.jump(dt);
@@ -137,6 +110,23 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 			// For not holding the button
 			else this.checkPerformOrStopJump(dt);
 		}
+	}
+	
+	/**
+	 * Determine the modifier value to use when strafing, depending on which directions are being moved in
+	 * @param left True if moving left, false otherwise
+	 * @param right True if moving right, false otherwise
+	 * @param forward True if moving forward, false otherwise
+	 * @param backward True if moving backwards, false otherwise
+	 * @return The modifier, can be 0 if there is no strafing
+	 */
+	default double calculateStrafeModifier(boolean left, boolean right, boolean forward, boolean backward){
+		if(left || right){
+			double modifier = (forward || backward) ? ZMath.PI_BY_4 : ZMath.PI_BY_2;
+			if(left && !backward || right && backward) modifier = -modifier;
+			return modifier;
+		}
+		return 0;
 	}
 	
 	/** @return The rotation of this object on the x axis */
