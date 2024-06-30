@@ -117,7 +117,7 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		var entity = this.getThing();
 		double mass = entity.getMass();
 		double acceleration = this.getFlyAcceleration();
-		double flyForce = acceleration * mass;
+		double newFlyForce = acceleration * mass;
 		double maxSpeed = this.getFlySpeedMax();
 		var totalVel = entity.getVelocity();
 		
@@ -131,33 +131,34 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 			// If trying to move, then move forward based on the ratio to facing forward
 			
 			// Find the total velocity if the new flying force is applied on the next tick
-			double newVel = currentVel + (angleRatio * flyForce * dt / mass);
+			double newVel = currentVel + (angleRatio * newFlyForce * dt / mass);
 			
 			// Likely related to issue#14
 			// If that velocity is greater than the maximum speed, then apply a force such that it will bring the velocity exactly to the maximum speed
 			// Use max speed if moving in the same direction, or 0 if the opposite direction
 			if(angleRatio > 0){
-				if(newVel > maxSpeed) flyForce = (maxSpeed - currentVel) / dt * mass;
+				if(newVel > maxSpeed) newFlyForce = (maxSpeed - currentVel) / dt * mass;
 			}
 			else{
-				if(newVel < 0) flyForce = currentVel / dt * mass;
+				if(newVel < 0) newFlyForce = currentVel / dt * mass;
 				// If moving in the opposite direction, must put the force in the opposite direction
-				flyForce = -flyForce;
+				newFlyForce = -newFlyForce;
 			}
 		}
 		// Otherwise, if not trying to move, also try to slow down
 		else if(!tryingToMove){
-			double newVel = currentVel - (flyForce * dt / mass);
+			double flyStopPower = this.getFlyStopPower();
+			double newVel = currentVel - (flyStopPower * dt / mass);
 			
 			// Likely related to issue#14
-			if(newVel < 0) flyForce = currentVel / dt * mass;
+			if(newVel < 0) newFlyForce = currentVel / dt * mass;
 			// When trying to slow down, must go in the opposite direction
-			flyForce = -flyForce;
+			newFlyForce = -newFlyForce;
 		}
 		// Otherwise, apply the full amount of force
 		
 		// Apply the force
-		this.applyFlyForce(flyForce, tryingToMove);
+		this.applyFlyForce(newFlyForce, tryingToMove);
 	}
 	
 	/**

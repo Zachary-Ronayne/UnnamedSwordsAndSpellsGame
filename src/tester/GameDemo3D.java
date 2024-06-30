@@ -474,6 +474,11 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
+		public double getFlyStopPower(){
+			return 10000.0;
+		}
+		
+		@Override
 		public boolean isWalking(){
 			return !this.game.getKeyInput().shift();
 		}
