@@ -186,7 +186,8 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	
 	/** @param flyingForce See {@link #flyingForce} */
 	public void setFlyingForce(V flyingForce){
-		if(this.getType() != WalkType.FLYING){
+		var type = this.getType();
+		if(type != WalkType.FLYING && type != WalkType.FLYING_AXIS){
 			this.flyingForce = flyingForce;
 			return;
 		}
@@ -222,7 +223,7 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 		this.type = type;
 		var thing = this.getEntity();
 		switch(this.type){
-			case FLYING -> {
+			case FLYING, FLYING_AXIS -> {
 				thing.removeForce(FORCE_NAME_WALKING);
 				thing.removeForce(FORCE_NAME_JUMPING);
 				

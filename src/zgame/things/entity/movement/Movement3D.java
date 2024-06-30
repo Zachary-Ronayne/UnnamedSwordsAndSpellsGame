@@ -65,14 +65,14 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 		
 		var walk = this.getWalk();
 
-		if(walk.getType() == WalkType.FLYING){
+		// TODO is this the best way of changing movement types?
+		var walkType = walk.getType();
+		if(walkType == WalkType.FLYING || walkType == WalkType.FLYING_AXIS){
 			walk.setTryingToMove(left != right || up != down || forward != backward);
 			double verticalAngle;
 			double horizontalAngle;
 			
-			// TODO make this a function
-			boolean axisFlying = true;
-			if(axisFlying){
+			if(walkType == WalkType.FLYING_AXIS){
 				// Go straight up and down
 				if(up) verticalAngle = ZMath.PI_BY_2;
 				else if(down) verticalAngle = ZMath.PI_BY_2 + Math.PI;
@@ -111,7 +111,7 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 			walk.setWalkingAngle(ZMath.angleNormalized(horizontalAngle));
 			walk.setVerticalAngle(ZMath.angleNormalized(verticalAngle));
 		}
-		else{
+		else if(walkType == WalkType.WALKING){
 			if(horizontalMove || verticalMove){
 				double walkingAngle = angleH;
 				

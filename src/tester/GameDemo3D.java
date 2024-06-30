@@ -90,18 +90,8 @@ public class GameDemo3D extends Game{
 			super.render(game, r);
 			
 			// Draw the cube
-			r.drawRectPrism(
-					0, .2, 0,
-					.6, .6, .6,
-					xRot, yRot, zRot,
-					0, -.3, 0,
-					new ZColor(1, 0, 0),
-					new ZColor(1, 1, 0),
-					new ZColor(0, 1, 0),
-					new ZColor(0, 1, 1),
-					new ZColor(0, 0, 1),
-					new ZColor(1, 0, 1)
-			);
+			r.drawRectPrism(0, .2, 0, .6, .6, .6, xRot, yRot, zRot, 0, -.3, 0, new ZColor(1, 0, 0), new ZColor(1, 1, 0), new ZColor(0, 1, 0), new ZColor(0, 1, 1),
+					new ZColor(0, 0, 1), new ZColor(1, 0, 1));
 			
 			// Draw a checkerboard floor
 			for(int x = 0; x < 32; x++){
@@ -112,42 +102,15 @@ public class GameDemo3D extends Game{
 			}
 			
 			// Draw a rectangular prism that rotates only on the y axis
-			r.drawRectPrism(
-					2, 0, 3,
-					.1, .8, .1,
-					pillarAngle,
-					new ZColor(.5, .5, .8),
-					new ZColor(.5, .5, .4),
-					new ZColor(.5, .5, .6),
-					new ZColor(.5, .5, .2),
-					new ZColor(.5, .5, 1),
-					new ZColor(0, 0)
-			);
-			r.drawRectPrism(
-					2.5, 0, 3,
-					.1, .8, .1,
-					pillarAngle,
-					new ZColor(.5, .5, .8),
-					new ZColor(.5, .5, .4),
-					new ZColor(.5, .5, .6),
-					new ZColor(.5, .5, .2, 0),
-					new ZColor(.5, .5, 1),
-					new ZColor(0, 0)
-			);
+			r.drawRectPrism(2, 0, 3, .1, .8, .1, pillarAngle, new ZColor(.5, .5, .8), new ZColor(.5, .5, .4), new ZColor(.5, .5, .6), new ZColor(.5, .5, .2),
+					new ZColor(.5, .5, 1), new ZColor(0, 0));
+			r.drawRectPrism(2.5, 0, 3, .1, .8, .1, pillarAngle, new ZColor(.5, .5, .8), new ZColor(.5, .5, .4), new ZColor(.5, .5, .6), new ZColor(.5, .5, .2, 0),
+					new ZColor(.5, .5, 1), new ZColor(0, 0));
 			
 			// Draw some transparent cubes
 			for(int i = 0; i < 3; i++){
-				r.drawRectPrism(
-						-2 + i * .2, .45 - i * .05, -3 + i * .2,
-						.1, .1, .1,
-						Math.PI * .25 * i,
-						new ZColor(1, 0, 0, .5),
-						new ZColor(1, 1, 0, .5),
-						new ZColor(0, 1, 0, .5),
-						new ZColor(0, 1, 1, .5),
-						new ZColor(0, 0, 1, .5),
-						new ZColor(1, 0, 1, .5)
-				);
+				r.drawRectPrism(-2 + i * .2, .45 - i * .05, -3 + i * .2, .1, .1, .1, Math.PI * .25 * i, new ZColor(1, 0, 0, .5), new ZColor(1, 1, 0, .5),
+						new ZColor(0, 1, 0, .5), new ZColor(0, 1, 1, .5), new ZColor(0, 0, 1, .5), new ZColor(1, 0, 1, .5));
 			}
 			// Draw a transparent plane
 			r.setColor(new ZColor(1, 0, 0, .5));
@@ -240,9 +203,9 @@ public class GameDemo3D extends Game{
 			}
 			
 			// Toggle fly
-			if(button == GLFW_KEY_F) {
+			if(button == GLFW_KEY_F){
 				var walk = player.getWalk();
-				walk.setType(walk.getType() == WalkType.FLYING ? WalkType.WALKING : WalkType.FLYING);
+				walk.setType(walk.getType() == WalkType.WALKING ? (shift ? WalkType.FLYING_AXIS : WalkType.FLYING) : WalkType.WALKING);
 			}
 			
 			// Toggle vsync
@@ -281,15 +244,15 @@ public class GameDemo3D extends Game{
 			var rotZ = camera.getRotZ();
 			if(rotZ != 0 && !tiltLeft && !tiltRight){
 				// TODO make untilting also move the x rotation axis
-				if(Math.abs(rotZ) < tiltAmount) {
+				if(Math.abs(rotZ) < tiltAmount){
 					camera.setRotZ(0);
 					currentTilt = 0;
 				}
-				else if(rotZ < 0) {
+				else if(rotZ < 0){
 					camera.addRotZ(tiltAmount);
 					currentTilt += tiltAmount;
 				}
-				else {
+				else{
 					camera.addRotZ(-tiltAmount);
 					currentTilt -= tiltAmount;
 				}
@@ -330,7 +293,7 @@ public class GameDemo3D extends Game{
 				else zRotSpeed = 0;
 			}
 			
-			if(ki.pressed(GLFW_KEY_R)) {
+			if(ki.pressed(GLFW_KEY_R)){
 				xRot = 0;
 				yRot = 0;
 				zRot = 0;

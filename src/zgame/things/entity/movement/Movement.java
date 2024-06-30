@@ -40,15 +40,13 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 				// After doing the normal tick and update with this entity's position and velocity and adding the jump velocity, reset the jump force to 0
 				this.getWalk().setJumpingForce(0);
 				
-				//
-				
 				// Determine the new walking force
 				this.updateWalkForce(dt);
 				
 				// Update the state of the jumping force
 				this.updateJumpState(dt);
 			}
-			case FLYING -> this.updateFlyForce(dt);
+			case FLYING, FLYING_AXIS -> this.updateFlyForce(dt);
 		}
 	}
 	
