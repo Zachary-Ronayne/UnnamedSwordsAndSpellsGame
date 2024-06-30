@@ -155,8 +155,8 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		// Add the acceleration to the current velocity
 		this.addVelocity(acceleration.scale(dt));
 		
-		// Account for clamping the velocity
-		if(Math.abs(this.getHorizontalVel()) < this.getHorizontalClampVelocity()) this.setHorizontalVel(0);
+//		// Account for clamping the velocity
+		if(Math.abs(this.getVelocity().getMagnitude()) < this.getClampVelocity()) this.setVelocity(this.zeroVector());
 		
 		// Apply the movement of the velocity
 		this.moveEntity(this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5)));
@@ -644,10 +644,10 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	public abstract void setVerticalVel(double v);
 	
 	/**
-	 * @return If the absolute value of the magnitude of velocity on the horizontal axes ever reaches a value greater than zero and less than this value,
+	 * @return If the absolute value of the magnitude of velocity ever reaches a value greater than zero and less than this value,
 	 * 		velocity will be clamped to zero. Override if this value must be more restrictive
 	 */
-	public double getHorizontalClampVelocity(){
+	public double getClampVelocity(){
 		return 1E-13;
 	}
 	

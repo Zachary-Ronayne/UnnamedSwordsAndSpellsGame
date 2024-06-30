@@ -158,11 +158,6 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		
 		// Apply the force
 		this.applyFlyForce(flyForce, tryingToMove);
-		
-		// Account for clamping the force to 0
-		if(!tryingToMove){
-			if(Math.abs(entity.getVelocity().getMagnitude()) < entity.getHorizontalClampVelocity()) entity.setVelocity(entity.zeroVector());
-		}
 	}
 	
 	/**

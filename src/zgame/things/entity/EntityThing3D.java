@@ -104,7 +104,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 		var vel = this.getVelocity();
 		
 		// If there is effectively no velocity, then the force of friction will just be nothing
-		if(Math.abs(horizontalVel) < this.getHorizontalClampVelocity()) {
+		if(Math.abs(horizontalVel) < this.getClampVelocity()) {
 			newFrictionForce = 0;
 		}
 		else{
