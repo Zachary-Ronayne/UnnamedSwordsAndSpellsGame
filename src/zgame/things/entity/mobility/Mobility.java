@@ -126,14 +126,12 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		
 		boolean tryingToMove = this.isTryingToMove();
 		
-		// TODO clean up this messy code
-		// TODO explain this code
 		// If moving in the current facing way would exceed max speed
 		if(currentVel * angleRatio >= maxSpeed){
 			// If trying to move, then move forward based on the ratio to facing forward
 			
 			// Find the total velocity if the new flying force is applied on the next tick
-			double newVel = currentVel + angleRatio * flyForce * dt / mass;
+			double newVel = currentVel + (angleRatio * flyForce * dt / mass);
 			
 			// Likely related to issue#14
 			// If that velocity is greater than the maximum speed, then apply a force such that it will bring the velocity exactly to the maximum speed
@@ -143,15 +141,17 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 			}
 			else{
 				if(newVel < 0) flyForce = currentVel / dt * mass;
+				// If moving in the opposite direction, must put the force in the opposite direction
 				flyForce = -flyForce;
 			}
 		}
 		// Otherwise, if not trying to move, also try to slow down
 		else if(!tryingToMove){
-			double newVel = currentVel - flyForce * dt / mass;
+			double newVel = currentVel - (flyForce * dt / mass);
 			
 			// Likely related to issue#14
 			if(newVel < 0) flyForce = currentVel / dt * mass;
+			// When trying to slow down, must go in the opposite direction
 			flyForce = -flyForce;
 		}
 		// Otherwise, apply the full amount of force
