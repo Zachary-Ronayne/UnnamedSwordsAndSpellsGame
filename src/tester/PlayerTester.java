@@ -1,13 +1,13 @@
 package tester;
 
 import zgame.core.Game;
-import zgame.things.entity.movement.Movement2D;
-import zgame.things.entity.movement.MovementEntityThing2D;
+import zgame.things.entity.mobility.Mobility2D;
+import zgame.things.entity.mobility.MobilityEntityThing2D;
 import zgame.world.Room2D;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public abstract class PlayerTester extends MovementEntityThing2D{
+public abstract class PlayerTester extends MobilityEntityThing2D{
 	
 	/** The width of this mob */
 	private double width;
@@ -17,46 +17,46 @@ public abstract class PlayerTester extends MovementEntityThing2D{
 	/** true to lock the camera to the center of the player, false otherwise */
 	private boolean lockCamera;
 	
-	/** See {@link Movement2D#getWalkSpeedMax()} */
+	/** See {@link Mobility2D#getWalkSpeedMax()} */
 	private double walkSpeedMax;
 	
-	/** See {@link Movement2D#getWalkAcceleration()} */
+	/** See {@link Mobility2D#getWalkAcceleration()} */
 	private double walkAcceleration;
 	
-	/** See {@link Movement2D#getWalkStopFriction()} */
+	/** See {@link Mobility2D#getWalkStopFriction()} */
 	private double walkStopFriction;
 	
-	/** See {@link Movement2D#getJumpPower()} */
+	/** See {@link Mobility2D#getJumpPower()} */
 	private double jumpPower;
 	
-	/** See {@link Movement2D#getJumpStopPower()} */
+	/** See {@link Mobility2D#getJumpStopPower()} */
 	private double jumpStopPower;
 	
-	/** See {@link Movement2D#getJumpBuildTime()} */
+	/** See {@link Mobility2D#getJumpBuildTime()} */
 	private double jumpBuildTime;
 	
-	/** See {@link Movement2D#isJumpAfterBuildUp()} */
+	/** See {@link Mobility2D#isJumpAfterBuildUp()} */
 	private boolean jumpAfterBuildUp;
 	
-	/** See {@link Movement2D#getWalkAirControl()} */
+	/** See {@link Mobility2D#getWalkAirControl()} */
 	private double walkAirControl;
 	
-	/** See {@link Movement2D#getWalkFriction()} */
+	/** See {@link Mobility2D#getWalkFriction()} */
 	private double walkFriction;
 	
-	/** See {@link Movement2D#getWalkingRatio()} */
+	/** See {@link Mobility2D#getWalkingRatio()} */
 	private double walkingRatio;
 	
-	/** See {@link Movement2D#isCanWallJump()} */
+	/** See {@link Mobility2D#isCanWallJump()} */
 	private boolean canWallJump;
 	
-	/** See {@link Movement2D#getNormalJumpTime()} */
+	/** See {@link Mobility2D#getNormalJumpTime()} */
 	private double normalJumpTime;
 	
-	/** See {@link Movement2D#getWallJumpTime()} */
+	/** See {@link Mobility2D#getWallJumpTime()} */
 	private double wallJumpTime;
 	
-	/** See {@link Movement2D#isWalking()} */
+	/** See {@link Mobility2D#isWalking()} */
 	private boolean walking;
 	
 	/**
@@ -97,7 +97,7 @@ public abstract class PlayerTester extends MovementEntityThing2D{
 		
 		// Now handle movement controls
 		var ki = game.getKeyInput();
-		this.handleMovementControls(ki.pressed(GLFW_KEY_LEFT), ki.pressed(GLFW_KEY_RIGHT), ki.pressed(GLFW_KEY_UP), dt);
+		this.handleMobilityControls(ki.pressed(GLFW_KEY_LEFT), ki.pressed(GLFW_KEY_RIGHT), ki.pressed(GLFW_KEY_UP), dt);
 		
 		// Now the camera to the player after repositioning the player
 		this.checkCenterCamera(game);

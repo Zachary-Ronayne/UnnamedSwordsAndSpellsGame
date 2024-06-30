@@ -1,20 +1,20 @@
 package zgame.things.entity;
 
 import zgame.physics.ZVector;
-import zgame.things.entity.movement.Movement;
-import zgame.things.entity.movement.Movement2D;
-import zgame.things.entity.movement.WalkType;
+import zgame.things.entity.mobility.Mobility;
+import zgame.things.entity.mobility.Mobility2D;
+import zgame.things.entity.mobility.MobilityType;
 import zgame.things.type.bounds.HitBox;
 import zgame.world.Room;
 
 /**
- * A data object used for storing values related to {@link Movement}
+ * A data object used for storing values related to {@link Mobility}
  *
  * @param <H> The type of hitbox which uses this class
  * @param <E> The type of entity which uses this class
  * @param <V> The type of vectors using this class
  */
-public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>>{
+public abstract class MobilityData<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>>{
 	
 	/** The string used to identify the force used to make this walk */
 	public static final String FORCE_NAME_WALKING = "walking";
@@ -59,15 +59,15 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	private final E entity;
 	
 	// TODO does it even make sense to use an enum here?
-	/** The current state describing the type of this thing's movement */
-	private WalkType type;
+	/** The current state describing the type of {@link #entity}'s mobility */
+	private MobilityType type;
 	
 	/**
-	 * Create a new walk object for use in {@link Movement2D}
+	 * Create a new walk object for use in {@link Mobility2D}
 	 *
 	 * @param entity See {@link #entity}
 	 */
-	public Walk(E entity){
+	public MobilityData(E entity){
 		this.entity = entity;
 		
 		this.canJump = false;
@@ -81,7 +81,7 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 		this.flyingForce = entity.setForce(FORCE_NAME_FLYING, this.entity.zeroVector());
 		this.jumpingForce = entity.setForce(FORCE_NAME_JUMPING, this.entity.zeroVector());
 		
-		this.setType(WalkType.WALKING);
+		this.setType(MobilityType.WALKING);
 	}
 	
 	/** @return See {@link #entity} */
@@ -171,7 +171,7 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	
 	/** @param walkingForce See {@link #walkingForce} */
 	public void setWalkingForce(V walkingForce){
-		if(this.getType() != WalkType.WALKING){
+		if(this.getType() != MobilityType.WALKING){
 			this.walkingForce = walkingForce;
 			return;
 		}
@@ -187,7 +187,7 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	/** @param flyingForce See {@link #flyingForce} */
 	public void setFlyingForce(V flyingForce){
 		var type = this.getType();
-		if(type != WalkType.FLYING && type != WalkType.FLYING_AXIS){
+		if(type != MobilityType.FLYING && type != MobilityType.FLYING_AXIS){
 			this.flyingForce = flyingForce;
 			return;
 		}
@@ -208,17 +208,19 @@ public abstract class Walk<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	/** @param force The amount of force moving during walking */
 	public abstract void updateWalkingForce(double force);
 	
-	// TODO should these be the params
-	/** @param force The amount of force moving during flying */
+	/**
+	 * @param force The amount of force moving during flying
+	 * @param applyFacing true to apply the force in the direction {@link #entity} is facing, false for the movement direction
+	 */
 	public abstract void updateFlyingForce(double force, boolean applyFacing);
 	
 	/** @return See {@link #type} */
-	public WalkType getType(){
+	public MobilityType getType(){
 		return this.type;
 	}
 	
 	/** @param type See {@link #type} */
-	public void setType(WalkType type){
+	public void setType(MobilityType type){
 		// TODO make a better way of doing this kind of thing that scales as new states are added
 		this.type = type;
 		var thing = this.getEntity();

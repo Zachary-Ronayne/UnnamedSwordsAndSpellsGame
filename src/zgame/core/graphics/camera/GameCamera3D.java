@@ -153,7 +153,7 @@ public class GameCamera3D{
 	 * @param y The new y coordinate of the mouse, obtained from {@link Game#mouseMove(double, double)}
 	 */
 	public void look(Game game, double x, double y){
-		// TODO this should be in Movement3D, split this up to not need game as a parameter or to rely on mouse input here
+		// TODO this should be in Mobility3D, split this up to not need game as a parameter or to rely on mouse input here
 		
 		// TODO fix sudden camera jolts when switching between normal and not normal mouse modes
 		

@@ -1,36 +1,36 @@
-package zgame.things.entity.movement;
+package zgame.things.entity.mobility;
 
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
 import zgame.things.entity.EntityThing3D;
-import zgame.things.entity.Walk3D;
+import zgame.things.entity.MobilityData3D;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.world.Room3D;
 
 /** An interface used to control movement in 3D */
-public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
+public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
 	
 	@Override
-	Walk3D getWalk();
+	MobilityData3D getMobilityData();
 	
 	@Override
 	default void applyWalkForce(double newWalkForce){
-		this.getWalk().updateWalkingForce(newWalkForce);
+		this.getMobilityData().updateWalkingForce(newWalkForce);
 	}
 	
 	@Override
 	default void applyFlyForce(double newFlyForce, boolean applyFacing){
 		// TODO should this check if newFlyForce is negative? Should the same check be applied for walking force?
 		// TODO maybe enforce that all vectors will have a positive value, and the angle exclusively determines direction?
-		this.getWalk().updateFlyingForce(newFlyForce, applyFacing);
+		this.getMobilityData().updateFlyingForce(newFlyForce, applyFacing);
 	}
 	
 	@Override
-	default double getMovementTryingRatio(){
-		var walk = this.getWalk();
+	default double getMobilityTryingRatio(){
+		var mobilityData = this.getMobilityData();
 		// TODO this should not be based on facing, but based on direction trying to move in
-		double facingH = walk.getWalkingAngle();
-		double facingV = walk.getVerticalAngle();
+		double facingH = mobilityData.getHorizontalAngle();
+		double facingV = mobilityData.getVerticalAngle();
 		
 		var totalVel = this.getThing().getVelocity();
 		boolean moving = totalVel.getMagnitude() != 0;
@@ -57,22 +57,22 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 	 * @param up true if this object is moving up, false otherwise. Only does anything if flying is true
 	 * @param down true if this object is moving down, false otherwise. Only does anything if flying is true
 	 */
-	default void handleMovementControls(double dt, double angleH, double angleV, boolean left, boolean right, boolean forward, boolean backward, boolean up, boolean down){
+	default void handleMobilityControls(double dt, double angleH, double angleV, boolean left, boolean right, boolean forward, boolean backward, boolean up, boolean down){
 		
 		// Check for walking
 		boolean horizontalMove = left || right || forward || backward;
 		boolean verticalMove = up || down;
 		
-		var walk = this.getWalk();
+		var mobilityData = this.getMobilityData();
 
-		// TODO is this the best way of changing movement types?
-		var walkType = walk.getType();
-		if(walkType == WalkType.FLYING || walkType == WalkType.FLYING_AXIS){
-			walk.setTryingToMove(left != right || up != down || forward != backward);
+		// TODO is this the best way of changing mobility types?
+		var mobilityType = mobilityData.getType();
+		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){
+			mobilityData.setTryingToMove(left != right || up != down || forward != backward);
 			double verticalAngle;
 			double horizontalAngle;
 			
-			if(walkType == WalkType.FLYING_AXIS){
+			if(mobilityType == MobilityType.FLYING_AXIS){
 				// Go straight up and down
 				if(up) verticalAngle = ZMath.PI_BY_2;
 				else if(down) verticalAngle = ZMath.PI_BY_2 + Math.PI;
@@ -108,28 +108,28 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 				}
 			}
 			
-			walk.setWalkingAngle(ZMath.angleNormalized(horizontalAngle));
-			walk.setVerticalAngle(ZMath.angleNormalized(verticalAngle));
+			mobilityData.setHorizontalAngle(ZMath.angleNormalized(horizontalAngle));
+			mobilityData.setVerticalAngle(ZMath.angleNormalized(verticalAngle));
 		}
-		else if(walkType == WalkType.WALKING){
+		else if(mobilityType == MobilityType.WALKING){
 			if(horizontalMove || verticalMove){
-				double walkingAngle = angleH;
+				double horizontalAngle = angleH;
 				
 				// Account for moving backwards
-				if(backward && !forward) walkingAngle = ZMath.angleNormalized(walkingAngle + Math.PI);
+				if(backward && !forward) horizontalAngle = ZMath.angleNormalized(horizontalAngle + Math.PI);
 				
 				// Account for strafing
 				if(left || right){
 					double modifier = (forward || backward) ? ZMath.PI_BY_4 : ZMath.PI_BY_2;
 					if(left && !backward || right && backward) modifier = -modifier;
-					walkingAngle = ZMath.angleNormalized(walkingAngle + modifier);
+					horizontalAngle = ZMath.angleNormalized(horizontalAngle + modifier);
 				}
 				
-				walk.setWalkingAngle(walkingAngle);
+				mobilityData.setHorizontalAngle(horizontalAngle);
 			}
 			
 			// Check for jumping
-			walk.setTryingToMove(horizontalMove);
+			mobilityData.setTryingToMove(horizontalMove);
 			// Jump if holding the jump button
 			if(up) {
 				this.jump(dt);
@@ -159,7 +159,7 @@ public interface Movement3D extends Movement<HitBox3D, EntityThing3D, ZVector3D,
 	
 	@Override
 	default boolean isTryingToMove(){
-		return this.getWalk().isTryingToMove();
+		return this.getMobilityData().isTryingToMove();
 	}
 	
 }

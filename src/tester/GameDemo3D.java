@@ -10,8 +10,8 @@ import zgame.menu.Menu;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
-import zgame.things.entity.movement.MovementEntityThing3D;
-import zgame.things.entity.movement.WalkType;
+import zgame.things.entity.mobility.MobilityEntityThing3D;
+import zgame.things.entity.mobility.MobilityType;
 import zgame.world.Directions3D;
 import zgame.world.Room3D;
 
@@ -204,8 +204,8 @@ public class GameDemo3D extends Game{
 			
 			// Toggle fly
 			if(button == GLFW_KEY_F){
-				var walk = player.getWalk();
-				walk.setType(walk.getType() == WalkType.WALKING ? (shift ? WalkType.FLYING_AXIS : WalkType.FLYING) : WalkType.WALKING);
+				var mobilityData = player.getMobilityData();
+				mobilityData.setType(mobilityData.getType() == MobilityType.WALKING ? (shift ? MobilityType.FLYING_AXIS : MobilityType.FLYING) : MobilityType.WALKING);
 			}
 			
 			// Toggle vsync
@@ -233,7 +233,7 @@ public class GameDemo3D extends Game{
 			
 			var camera = game.getWindow().getRenderer().getCamera3D();
 			
-			// TODO add tiling to Movement3D and make it relative to the position looked at
+			// TODO add tiling to Mobility3D and make it relative to the position looked at
 			// Tilting the camera to the side
 			var tiltLeft = ki.pressed(GLFW_KEY_COMMA);
 			var tiltRight = ki.pressed(GLFW_KEY_PERIOD);
@@ -336,7 +336,7 @@ public class GameDemo3D extends Game{
 		else game.getCurrentState().removeTopMenu(game);
 	}
 	
-	private static class Player3D extends MovementEntityThing3D{
+	private static class Player3D extends MobilityEntityThing3D{
 		private final Game game;
 		
 		public Player3D(Game game){
@@ -358,8 +358,8 @@ public class GameDemo3D extends Game{
 			var backward = ki.buttonDown(GLFW_KEY_S);
 			var up = ki.buttonDown(GLFW_KEY_Q);
 			var down = ki.buttonDown(GLFW_KEY_Z);
-			this.handleMovementControls(dt, cam.getRotY(), -cam.getRotX(), left, right, forward, backward, up, down);
-			if(!left && !right && !forward && !backward && this.getWalk().getWalkingForce().getMagnitude() != 0) this.stopWalking();
+			this.handleMobilityControls(dt, cam.getRotY(), -cam.getRotX(), left, right, forward, backward, up, down);
+			if(!left && !right && !forward && !backward && this.getMobilityData().getWalkingForce().getMagnitude() != 0) this.stopWalking();
 			
 			// TODO abstract this out?
 			// Move the camera to the player
@@ -405,7 +405,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public void stopWalking(){
-			this.getWalk().setWalkingForce(zeroVector());
+			this.getMobilityData().setWalkingForce(zeroVector());
 		}
 		
 		@Override

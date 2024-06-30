@@ -2,15 +2,15 @@ package zgame.things.entity;
 
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
-import zgame.things.entity.movement.Movement3D;
+import zgame.things.entity.mobility.Mobility3D;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.world.Room3D;
 
-/** A type of {@link Walk} that exists in 3D space */
-public class Walk3D extends Walk<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
+/** A type of {@link MobilityData} that exists in 3D space */
+public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
 	
-	/** The angle, in radians, on the x z plane that {@link #entity} is walking in */
-	private double walkingAngle;
+	/** The angle, in radians, on the x z plane that {@link #entity} is walking in, i.e. on facing on the horizontal axis */
+	private double horizontalAngle;
 	
 	/** The angle on the y axis where {@link #entity} is looking */
 	private double verticalAngle;
@@ -19,26 +19,26 @@ public class Walk3D extends Walk<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
 	private boolean tryingToMove;
 	
 	/**
-	 * Create a new walk object for use in {@link Movement3D}
+	 * Create a new walk object for use in {@link Mobility3D}
 	 *
 	 * @param entity The entity which this walk object will hold data for
 	 */
-	public Walk3D(EntityThing3D entity, double walkingAngle){
+	public MobilityData3D(EntityThing3D entity, double horizontalAngle){
 		super(entity);
 		
-		this.walkingAngle = walkingAngle;
+		this.horizontalAngle = horizontalAngle;
 		this.verticalAngle = 0;
 		this.tryingToMove = false;
 	}
 	
-	/** @return See {@link #walkingAngle} */
-	public double getWalkingAngle(){
-		return this.walkingAngle;
+	/** @return See {@link #horizontalAngle} */
+	public double getHorizontalAngle(){
+		return this.horizontalAngle;
 	}
 	
-	/** @param walkingAngle See {@link #walkingAngle} */
-	public void setWalkingAngle(double walkingAngle){
-		this.walkingAngle = walkingAngle;
+	/** @param horizontalAngle See {@link #horizontalAngle} */
+	public void setHorizontalAngle(double horizontalAngle){
+		this.horizontalAngle = horizontalAngle;
 	}
 	
 	/** @return See {@link #verticalAngle} */
@@ -63,7 +63,7 @@ public class Walk3D extends Walk<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
 	
 	@Override
 	public void updateWalkingForce(double force){
-		this.setWalkingForce(this.getEntity().setForce(FORCE_NAME_WALKING, new ZVector3D(this.walkingAngle, 0, this.tryingToMove ? force : 0, false)));
+		this.setWalkingForce(this.getEntity().setForce(FORCE_NAME_WALKING, new ZVector3D(this.horizontalAngle, 0, this.tryingToMove ? force : 0, false)));
 	}
 	
 	@Override
@@ -71,7 +71,7 @@ public class Walk3D extends Walk<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
 		double angleH;
 		double angleV;
 		if(applyFacing){
-			angleH = this.walkingAngle;
+			angleH = this.horizontalAngle;
 			angleV = this.verticalAngle;
 		}
 		else{

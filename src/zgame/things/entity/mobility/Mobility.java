@@ -1,10 +1,10 @@
-package zgame.things.entity.movement;
+package zgame.things.entity.mobility;
 
 import zgame.core.Game;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 import zgame.things.entity.EntityThing;
-import zgame.things.entity.Walk;
+import zgame.things.entity.MobilityData;
 import zgame.things.type.bounds.HitBox;
 import zgame.world.Room;
 
@@ -16,15 +16,15 @@ import zgame.world.Room;
  * @param <V> The type of vector which uses this class
  * @param <R> The type of room which E uses
  */
-public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>>{
+public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>>{
 	
 	/** @return The {@link EntityThing} using this object */
 	default E getThing(){
-		return this.getWalk().getEntity();
+		return this.getMobilityData().getEntity();
 	}
 	
-	/** @return The {@link Walk} object holding the data for this interface */
-	Walk<H, E, V, R> getWalk();
+	/** @return The {@link MobilityData} object holding the data for this interface */
+	MobilityData<H, E, V, R> getMobilityData();
 	
 	/**
 	 * Perform the game update actions handling {@link #getThing()}'s walking and jumping
@@ -32,13 +32,13 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	 * @param game The {@link Game} where {@link #getThing()} is in
 	 * @param dt The amount of time that passed in the update
 	 */
-	default void movementTick(Game game, double dt){
-		var walk = this.getWalk();
+	default void mobilityTick(Game game, double dt){
+		var mobilityData = this.getMobilityData();
 		// TODO is an enum with a switch statement the best way to do this?
-		switch(walk.getType()){
+		switch(mobilityData.getType()){
 			case WALKING -> {
 				// After doing the normal tick and update with this entity's position and velocity and adding the jump velocity, reset the jump force to 0
-				this.getWalk().setJumpingForce(0);
+				this.getMobilityData().setJumpingForce(0);
 				
 				// Determine the new walking force
 				this.updateWalkForce(dt);
@@ -122,7 +122,7 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		var totalVel = entity.getVelocity();
 		
 		double currentVel = totalVel.getMagnitude();
-		double angleRatio = this.getMovementTryingRatio();
+		double angleRatio = this.getMobilityTryingRatio();
 		
 		boolean tryingToMove = this.isTryingToMove();
 		
@@ -165,7 +165,6 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		}
 	}
 	
-	// TODO is this what the params should be?
 	/**
 	 * Apply the given amount of force to this thing's flying force
 	 *
@@ -178,7 +177,7 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	 * @return A value in the range [-1, 1] representing how close the angle of movement is to the angle of desired movement.
 	 * A value of 1 means movement is trying to happen in the exact same direction as current movement, -1 means the exact opposite direction
 	 */
-	double getMovementTryingRatio();
+	double getMobilityTryingRatio();
 	
 	/** @return true if {@link #getThing()} is able to perform a normal jump off the ground based on the amount of time since it last touched a wall, false otherwise */
 	default boolean hasTimeToFloorJump(){
@@ -196,29 +195,29 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	
 	/** Remove any jump time built up */
 	default void cancelJump(){
-		var walk = this.getWalk();
-		walk.setBuildingJump(false);
-		walk.setJumpTimeBuilt(0);
+		var mobilityData = this.getMobilityData();
+		mobilityData.setBuildingJump(false);
+		mobilityData.setJumpTimeBuilt(0);
 	}
 	
 	/**
-	 * Update the value of {@link Walk#jumpingForce} based on the current state of {@link #getThing()}
+	 * Update the value of {@link MobilityData#jumpingForce} based on the current state of {@link #getThing()}
 	 *
 	 * @param dt The amount of time, in seconds, that will pass in the next tick when {@link #getThing()} stops jumping
 	 */
 	default void updateJumpState(double dt){
-		var walk = this.getWalk();
+		var mobilityData = this.getMobilityData();
 		
 		// This entity can jump if it's on the ground, or if it can wall jump and is on a wall
-		walk.setCanJump((this.hasTimeToFloorJump() || this.isCanWallJump() && this.hasTimeToWallJump() && walk.isWallJumpAvailable()) && walk.isGroundedSinceLastJump());
+		mobilityData.setCanJump((this.hasTimeToFloorJump() || this.isCanWallJump() && this.hasTimeToWallJump() && mobilityData.isWallJumpAvailable()) && mobilityData.isGroundedSinceLastJump());
 		
 		// If building a jump, and able to jump, then add the time
-		if(walk.isBuildingJump() && walk.isCanJump()){
-			walk.addJumpTimeBuilt(dt);
+		if(mobilityData.isBuildingJump() && mobilityData.isCanJump()){
+			mobilityData.addJumpTimeBuilt(dt);
 			// If the jump time threshold has been met, and this entity is set to jump right away, then perform the jump now
-			if(walk.getJumpTimeBuilt() >= this.getJumpBuildTime() && this.isJumpAfterBuildUp()) this.jumpFromBuiltUp(dt);
+			if(mobilityData.getJumpTimeBuilt() >= this.getJumpBuildTime() && this.isJumpAfterBuildUp()) this.jumpFromBuiltUp(dt);
 		}
-		if(walk.isStoppingJump()){
+		if(mobilityData.isStoppingJump()){
 			// Can only stop jumping if it's allowed
 			if(!this.isCanStopJump()) return;
 			var entity = this.getThing();
@@ -240,12 +239,12 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 				// Account for inverted jumping axis
 				if(invert) newStopJumpForce = -newStopJumpForce;
 				
-				walk.setJumpingForce(newStopJumpForce);
+				mobilityData.setJumpingForce(newStopJumpForce);
 			}
 			// Otherwise it is no longer stopping its jump, so remove the stopping force amount
 			else{
-				walk.setStoppingJump(false);
-				walk.setJumpingForce(0);
+				mobilityData.setStoppingJump(false);
+				mobilityData.setJumpingForce(0);
 			}
 		}
 	}
@@ -258,15 +257,15 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	 * @return true if the jump occurred or started building up, false otherwise
 	 */
 	default boolean jump(double dt){
-		var walk = this.getWalk();
-		if(!walk.isCanJump() || walk.getJumpTimeBuilt() > 0 || walk.isJumping()) return false;
+		var mobilityData = this.getMobilityData();
+		if(!mobilityData.isCanJump() || mobilityData.getJumpTimeBuilt() > 0 || mobilityData.isJumping()) return false;
 		
 		// If it takes no time to jump, jump right away
 		if(this.jumpsAreInstant()){
 			this.jumpFromBuiltUp(dt);
 		}
 		// Otherwise, start building up a jump
-		else walk.setBuildingJump(true);
+		else mobilityData.setBuildingJump(true);
 		return true;
 	}
 	
@@ -276,19 +275,19 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	 * @param dt The amount of time, in seconds, that will pass in one tick after the entity jumps off the ground
 	 */
 	default void jumpFromBuiltUp(double dt){
-		var walk = this.getWalk();
+		var mobilityData = this.getMobilityData();
 		
-		if(!walk.isCanJump()) return;
+		if(!mobilityData.isCanJump()) return;
 		var entity = this.getThing();
 		
-		walk.setJumping(true);
-		walk.setGroundedSinceLastJump(false);
+		mobilityData.setJumping(true);
+		mobilityData.setGroundedSinceLastJump(false);
 		
 		// If this entity is on a wall and not on the ground, this counts a wall jump
-		if(!this.hasTimeToFloorJump() && this.hasTimeToWallJump()) walk.setWallJumpAvailable(false);
+		if(!this.hasTimeToFloorJump() && this.hasTimeToWallJump()) mobilityData.setWallJumpAvailable(false);
 		
 		// The jump power is either itself if jumping is instant, or multiplied by the ratio of jump time built and the total time to build a jump, keeping it at most 1
-		double power = this.getJumpPower() * (this.jumpsAreInstant() ? 1 : Math.min(1, walk.getJumpTimeBuilt() / this.getJumpBuildTime()));
+		double power = this.getJumpPower() * (this.jumpsAreInstant() ? 1 : Math.min(1, mobilityData.getJumpTimeBuilt() / this.getJumpBuildTime()));
 		double jumpAmount = power / dt;
 		boolean invert = this.jumpingInverted();
 		if(invert) jumpAmount = -jumpAmount;
@@ -301,19 +300,19 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 			else jumpAmount -= adjust;
 		}
 		
-		walk.setJumpingForce(jumpAmount);
-		walk.setJumpTimeBuilt(0);
-		walk.setBuildingJump(false);
+		mobilityData.setJumpingForce(jumpAmount);
+		mobilityData.setJumpTimeBuilt(0);
+		mobilityData.setBuildingJump(false);
 	}
 	
 	/** Cause this {@link #getThing()} to stop jumping. Does nothing if this entity is not currently jumping */
 	default void stopJump(){
-		var walk = this.getWalk();
+		var mobilityData = this.getMobilityData();
 		
-		if(!walk.isJumping()) return;
-		walk.setJumpingForce(0);
-		walk.setJumping(false);
-		walk.setStoppingJump(true);
+		if(!mobilityData.isJumping()) return;
+		mobilityData.setJumpingForce(0);
+		mobilityData.setJumping(false);
+		mobilityData.setStoppingJump(true);
 	}
 	
 	/**
@@ -323,7 +322,7 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	 */
 	default void checkPerformOrStopJump(double dt){
 		// if jumps should be instant, or no jump time is being built up, then stop the jump
-		if(this.jumpsAreInstant() || this.getWalk().getJumpTimeBuilt() == 0){
+		if(this.jumpsAreInstant() || this.getMobilityData().getJumpTimeBuilt() == 0){
 			this.stopJump();
 		}
 		// Otherwise, perform the built up jump
@@ -424,21 +423,21 @@ public interface Movement<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	}
 	
 	/** This method should be called when the associated entity touches a floor */
-	default void movementTouchFloor(Material m){
-		var walk = this.getWalk();
-		walk.setJumpingForce(0);
-		walk.setJumping(false);
-		walk.setWallJumpAvailable(true);
+	default void mobilityTouchFloor(Material m){
+		var mobilityData = this.getMobilityData();
+		mobilityData.setJumpingForce(0);
+		mobilityData.setJumping(false);
+		mobilityData.setWallJumpAvailable(true);
 	}
 	
 	/** This method should be called when the associated entity leaves a floor */
-	default void movementLeaveFloor(){
+	default void mobilityLeaveFloor(){
 		// Any jump that was being built up is no longer being built up after leaving the floor
 		this.cancelJump();
 	}
 	
 	/** This method should be called when the associated entity leaves a wall */
-	default void movementLeaveWall(){
+	default void mobilityLeaveWall(){
 		// Any jump that was being built up is no longer being built up after leaving a wall
 		this.cancelJump();
 	}

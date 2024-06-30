@@ -1,21 +1,21 @@
-package zgame.things.entity.movement;
+package zgame.things.entity.mobility;
 
 import zgame.core.Game;
 import zgame.physics.material.Material;
 import zgame.things.entity.*;
 
-/** A 3D entity which uses movement capabilities */
-public abstract class MovementEntityThing3D extends EntityThing3D implements Movement3D{
+/** A 3D entity which uses mobility capabilities */
+public abstract class MobilityEntityThing3D extends EntityThing3D implements Mobility3D{
 	
-	/** The {@link Walk} object used by this object's implementation of {@link Movement3D} */
-	private final Walk3D walk;
+	/** The {@link MobilityData} object used by this object's implementation of {@link Mobility3D} */
+	private final MobilityData3D mobilityData;
 	
 	/**
 	 * Create a new empty entity with the given mass
 	 *
 	 * @param mass See {@link #mass}
 	 */
-	public MovementEntityThing3D(double mass){
+	public MobilityEntityThing3D(double mass){
 		this(0, 0, 0, mass);
 	}
 	
@@ -27,39 +27,39 @@ public abstract class MovementEntityThing3D extends EntityThing3D implements Mov
 	 * @param z See {@link #z}
 	 * @param mass See {@link #mass}
 	 */
-	public MovementEntityThing3D(double x, double y, double z, double mass){
+	public MobilityEntityThing3D(double x, double y, double z, double mass){
 		super(x, y, z, mass);
 		
-		this.walk = new Walk3D(this, 0);
+		this.mobilityData = new MobilityData3D(this, 0);
 	}
 	
 	@Override
 	public void tick(Game game, double dt){
-		this.movementTick(game, dt);
+		this.mobilityTick(game, dt);
 		super.tick(game, dt);
 	}
 	
 	@Override
-	public Walk3D getWalk(){
-		return this.walk;
+	public MobilityData3D getMobilityData(){
+		return this.mobilityData;
 	}
 	
 	@Override
 	public void touchFloor(Material touched){
 		super.touchFloor(touched);
-		this.movementTouchFloor(touched);
-		this.getWalk().setGroundedSinceLastJump(true);
+		this.mobilityTouchFloor(touched);
+		this.getMobilityData().setGroundedSinceLastJump(true);
 	}
 	
 	@Override
 	public void leaveFloor(){
 		super.leaveFloor();
-		this.movementLeaveFloor();
+		this.mobilityLeaveFloor();
 	}
 	
 	@Override
 	public void leaveWall(){
 		super.leaveWall();
-		this.movementLeaveWall();
+		this.mobilityLeaveWall();
 	}
 }

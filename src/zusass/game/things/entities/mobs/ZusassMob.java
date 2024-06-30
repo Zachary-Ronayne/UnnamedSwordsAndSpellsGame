@@ -12,8 +12,8 @@ import zgame.stat.modifier.StatModifier;
 import zgame.stat.status.StatusEffect;
 import zgame.stat.status.StatusEffects;
 import zgame.things.entity.*;
-import zgame.things.entity.movement.Movement2D;
-import zgame.things.entity.movement.MovementEntityThing2D;
+import zgame.things.entity.mobility.Mobility2D;
+import zgame.things.entity.mobility.MobilityEntityThing2D;
 import zgame.things.entity.projectile.Projectile;
 import zgame.things.type.bounds.RectangleHitBox;
 import zusass.ZusassGame;
@@ -34,7 +34,7 @@ import static zusass.game.stat.ZusassStat.*;
 import java.util.List;
 
 /** A generic mob in the Zusass game */
-public abstract class ZusassMob extends MovementEntityThing2D implements RectangleHitBox{
+public abstract class ZusassMob extends MobilityEntityThing2D implements RectangleHitBox{
 	
 	/** The json key used to store the spellbook which this mob has */
 	public final static String SPELLBOOK_KEY = "spellbook";
@@ -89,22 +89,22 @@ public abstract class ZusassMob extends MovementEntityThing2D implements Rectang
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	/** The {@link Walk} object used by this object's implementation of {@link Movement2D} */
-	private final Walk2D walk;
+	/** The {@link MobilityData} object used by this object's implementation of {@link Mobility2D} */
+	private final MobilityData2D mobilityData;
 	
-	/** See {@link Movement2D#getJumpBuildTime()} */
+	/** See {@link Mobility2D#getJumpBuildTime()} */
 	private double jumpBuildTime;
 	
-	/** See {@link Movement2D#isJumpAfterBuildUp()} */
+	/** See {@link Mobility2D#isJumpAfterBuildUp()} */
 	private boolean jumpAfterBuildUp;
 	
-	/** See {@link Movement2D#getWalkFriction()} */
+	/** See {@link Mobility2D#getWalkFriction()} */
 	private double walkFriction;
 	
-	/** See {@link Movement2D#isCanWallJump()} */
+	/** See {@link Mobility2D#isCanWallJump()} */
 	private boolean canWallJump;
 	
-	/** See {@link Movement2D#isWalking()} */
+	/** See {@link Mobility2D#isWalking()} */
 	private boolean walking;
 	
 	/**
@@ -123,7 +123,7 @@ public abstract class ZusassMob extends MovementEntityThing2D implements Rectang
 		this.walkFriction = DEFAULT_WALK_FRICTION;
 		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
 		this.walking = false;
-		this.walk = new Walk2D(this);
+		this.mobilityData = new MobilityData2D(this);
 		
 		this.stopWalking();
 		
@@ -490,8 +490,8 @@ public abstract class ZusassMob extends MovementEntityThing2D implements Rectang
 	}
 	
 	@Override
-	public Walk2D getWalk(){
-		return this.walk;
+	public MobilityData2D getMobilityData(){
+		return this.mobilityData;
 	}
 	
 	@Override
