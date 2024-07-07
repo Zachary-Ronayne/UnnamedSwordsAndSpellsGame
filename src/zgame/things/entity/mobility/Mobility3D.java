@@ -29,16 +29,16 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 		double movingH = mobilityData.getMovingHorizontalAngle();
 		double movingV = mobilityData.getMovingVerticalAngle();
 		
-		var totalVel = this.getThing().getVelocity();
-		boolean moving = totalVel.getMagnitude() != 0;
-		double currentH = moving ? totalVel.getAngleH() : movingH;
-		double currentV = moving ? totalVel.getAngleV() : movingV;
+		var thing = this.getThing();
+		var totalVel = thing.getVelocity();
+		double threshold = thing.getClampVelocity();
+		double currentH = (Math.abs(totalVel.getHorizontal()) > threshold) ? totalVel.getAngleH() + ZMath.PI_BY_2 : movingH;
+		double currentV = (Math.abs(totalVel.getVertical()) > threshold) ? totalVel.getAngleV() : movingV;
 		
 		double diffH = ZMath.angleDiff(movingH, currentH);
 		double diffV = ZMath.angleDiff(movingV, currentV);
 		
-		// TODO fix infinite horizontal acceleration when flying on axes? Why is there sudden periodic stutter stepping while flying?
-		return (ZMath.PI_BY_2 - diffH) * (ZMath.PI_BY_2 - diffV) / (Math.PI * Math.PI);
+		return (ZMath.PI_BY_2 - diffH) * (ZMath.PI_BY_2 - diffV) / (ZMath.PI_BY_2 * ZMath.PI_BY_2);
 	}
 	
 	/**

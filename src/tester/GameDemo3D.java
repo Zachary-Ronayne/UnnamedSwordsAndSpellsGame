@@ -463,6 +463,18 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
+		public double getFlySpeedMax(){
+			return 3.4;
+		}
+		
+		@Override
+		public double getFlyAcceleration(){
+			// TODO fix flying being faster than it should when acceleration is really high
+			// TODO for both walking and flying, just directly set velocity when accelerating would put it over the max speed
+			return super.getFlyAcceleration();
+		}
+		
+		@Override
 		public boolean isWalking(){
 			return !this.game.getKeyInput().shift();
 		}
