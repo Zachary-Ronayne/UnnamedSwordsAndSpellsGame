@@ -20,28 +20,25 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	
 	@Override
 	default void applyFlyForce(double newFlyForce, boolean applyFacing){
-		// TODO should this check if newFlyForce is negative? Should the same check be applied for walking force?
-		// TODO maybe enforce that all vectors will have a positive value, and the angle exclusively determines direction?
 		this.getMobilityData().updateFlyingForce(newFlyForce, applyFacing);
 	}
 	
 	@Override
 	default double getMobilityTryingRatio(){
 		var mobilityData = this.getMobilityData();
-		// TODO this should not be based on facing, but based on direction trying to move in
-		double facingH = mobilityData.getHorizontalAngle();
-		double facingV = mobilityData.getVerticalAngle();
+		double movingH = mobilityData.getMovingHorizontalAngle();
+		double movingV = mobilityData.getMovingVerticalAngle();
 		
 		var totalVel = this.getThing().getVelocity();
 		boolean moving = totalVel.getMagnitude() != 0;
-		double movingH = moving ? totalVel.getAngleH() : facingH;
-		double movingV = moving ? totalVel.getAngleV() : facingV;
+		double currentH = moving ? totalVel.getAngleH() : movingH;
+		double currentV = moving ? totalVel.getAngleV() : movingV;
 		
-		double diffH = ZMath.angleDiff(facingH, movingH);
-		double diffV = ZMath.angleDiff(facingV, movingV);
+		double diffH = ZMath.angleDiff(movingH, currentH);
+		double diffV = ZMath.angleDiff(movingV, currentV);
 		
 		// TODO fix infinite horizontal acceleration when flying on axes? Why is there sudden periodic stutter stepping while flying?
-		return (Math.PI - diffH) * (Math.PI - diffV) / (Math.PI * Math.PI);
+		return (ZMath.PI_BY_2 - diffH) * (ZMath.PI_BY_2 - diffV) / (Math.PI * Math.PI);
 	}
 	
 	/**
@@ -59,6 +56,8 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	 */
 	default void handleMobilityControls(double dt, double angleH, double angleV, boolean left, boolean right, boolean forward, boolean backward, boolean up, boolean down){
 		var mobilityData = this.getMobilityData();
+		mobilityData.setFacingHorizontalAngle(angleH);
+		mobilityData.setFacingVerticalAngle(angleV);
 
 		var mobilityType = mobilityData.getType();
 		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){
@@ -87,8 +86,8 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 			// Only the vertical axis needs to be inverted here because only one axis needs to be inverted
 			if(backward && !forward) verticalAngle = verticalAngle + Math.PI;
 			
-			mobilityData.setHorizontalAngle(ZMath.angleNormalized(horizontalAngle));
-			mobilityData.setVerticalAngle(ZMath.angleNormalized(verticalAngle));
+			mobilityData.setMovingHorizontalAngle(ZMath.angleNormalized(horizontalAngle));
+			mobilityData.setMovingVerticalAngle(ZMath.angleNormalized(verticalAngle));
 		}
 		else if(mobilityType == MobilityType.WALKING){
 			mobilityData.setTryingToMove(left != right || forward != backward);
@@ -100,7 +99,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 				
 				// Account for strafing
 				horizontalAngle += this.calculateStrafeModifier(left, right, forward, backward);
-				mobilityData.setHorizontalAngle(horizontalAngle);
+				mobilityData.setMovingHorizontalAngle(horizontalAngle);
 			}
 			
 			// Jump if holding the jump button
@@ -128,15 +127,6 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 		}
 		return 0;
 	}
-	
-	/** @return The rotation of this object on the x axis */
-	double getRotX();
-	
-	/** @return The rotation of this object on the y axis */
-	double getRotY();
-	
-	/** @return The rotation of this object on the z axis */
-	double getRotZ();
 	
 	/** @param x The amount to move on the x axis */
 	void addX(double x);

@@ -9,11 +9,17 @@ import zgame.world.Room3D;
 /** A type of {@link MobilityData} that exists in 3D space */
 public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
 	
-	/** The angle, in radians, on the x z plane that {@link #entity} is walking in, i.e. on facing on the horizontal axis */
-	private double horizontalAngle;
+	/** The angle, in radians, on the x z plane that {@link #entity} is attempting to move in, i.e. trying to move on the horizontal axis */
+	private double movingHorizontalAngle;
 	
-	/** The angle on the y axis where {@link #entity} is looking */
-	private double verticalAngle;
+	/** The angle on the y axis where {@link #entity} is trying to move */
+	private double movingVerticalAngle;
+	
+	/** The angle, in radians, on the x z plane that {@link #entity} is facing in, i.e. facing on the horizontal axis */
+	private double facingHorizontalAngle;
+	
+	/** The angle on the y axis where {@link #entity} is facing */
+	private double facingVerticalAngle;
 	
 	/** true if {@link #entity} wants to walk, false otherwise */
 	private boolean tryingToMove;
@@ -23,32 +29,54 @@ public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVecto
 	 *
 	 * @param entity The entity which this walk object will hold data for
 	 */
-	public MobilityData3D(EntityThing3D entity, double horizontalAngle){
+	public MobilityData3D(EntityThing3D entity, double movingHorizontalAngle){
 		super(entity);
 		
-		this.horizontalAngle = horizontalAngle;
-		this.verticalAngle = 0;
+		this.movingHorizontalAngle = movingHorizontalAngle;
+		this.movingVerticalAngle = 0;
+		this.facingHorizontalAngle = this.movingHorizontalAngle;
+		this.facingVerticalAngle = this.movingVerticalAngle;
 		this.tryingToMove = false;
 	}
 	
-	/** @return See {@link #horizontalAngle} */
-	public double getHorizontalAngle(){
-		return this.horizontalAngle;
+	/** @return See {@link #movingHorizontalAngle} */
+	public double getMovingHorizontalAngle(){
+		return this.movingHorizontalAngle;
 	}
 	
-	/** @param horizontalAngle See {@link #horizontalAngle} */
-	public void setHorizontalAngle(double horizontalAngle){
-		this.horizontalAngle = horizontalAngle;
+	/** @param movingHorizontalAngle See {@link #movingHorizontalAngle} */
+	public void setMovingHorizontalAngle(double movingHorizontalAngle){
+		this.movingHorizontalAngle = movingHorizontalAngle;
 	}
 	
-	/** @return See {@link #verticalAngle} */
-	public double getVerticalAngle(){
-		return this.verticalAngle;
+	/** @return See {@link #movingVerticalAngle} */
+	public double getMovingVerticalAngle(){
+		return this.movingVerticalAngle;
 	}
 	
-	/** @param verticalAngle See {@link #verticalAngle} */
-	public void setVerticalAngle(double verticalAngle){
-		this.verticalAngle = verticalAngle;
+	/** @param movingVerticalAngle See {@link #movingVerticalAngle} */
+	public void setMovingVerticalAngle(double movingVerticalAngle){
+		this.movingVerticalAngle = movingVerticalAngle;
+	}
+	
+	/** @return See {@link #facingHorizontalAngle} */
+	public double getFacingHorizontalAngle(){
+		return this.facingHorizontalAngle;
+	}
+	
+	/** @param facingHorizontalAngle See {@link #facingHorizontalAngle} */
+	public void setFacingHorizontalAngle(double facingHorizontalAngle){
+		this.facingHorizontalAngle = facingHorizontalAngle;
+	}
+	
+	/** @return See {@link #facingVerticalAngle} */
+	public double getFacingVerticalAngle(){
+		return this.facingVerticalAngle;
+	}
+	
+	/** @param facingVerticalAngle See {@link #facingVerticalAngle} */
+	public void setFacingVerticalAngle(double facingVerticalAngle){
+		this.facingVerticalAngle = facingVerticalAngle;
 	}
 	
 	/** @return See {@link #tryingToMove} */
@@ -63,7 +91,7 @@ public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVecto
 	
 	@Override
 	public void updateWalkingForce(double force){
-		this.setWalkingForce(this.getEntity().setForce(FORCE_NAME_WALKING, new ZVector3D(this.horizontalAngle, 0, this.tryingToMove ? force : 0, false)));
+		this.setWalkingForce(this.getEntity().setForce(FORCE_NAME_WALKING, new ZVector3D(this.movingHorizontalAngle, 0, this.tryingToMove ? force : 0, false)));
 	}
 	
 	@Override
@@ -71,8 +99,8 @@ public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVecto
 		double angleH;
 		double angleV;
 		if(applyFacing){
-			angleH = this.horizontalAngle;
-			angleV = this.verticalAngle;
+			angleH = this.movingHorizontalAngle;
+			angleV = this.movingVerticalAngle;
 		}
 		else{
 			var currentVel = this.getEntity().getVelocity();

@@ -371,23 +371,7 @@ public class GameDemo3D extends Game{
 		private GameCamera3D getCamera(){
 			return this.game.getWindow().getRenderer().getCamera3D();
 		}
-		
-		// TODO should this just be the camera?
-		@Override
-		public double getRotX(){
-			return this.getCamera().getRotX();
-		}
-		
-		@Override
-		public double getRotY(){
-			return this.getCamera().getRotY();
-		}
-		
-		@Override
-		public double getRotZ(){
-			return this.getCamera().getRotZ();
-		}
-		
+
 		@Override
 		public double getSurfaceArea(){
 			return 0;
@@ -475,7 +459,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getFlyStopPower(){
-			return 10000.0;
+			return 1000.0;
 		}
 		
 		@Override
