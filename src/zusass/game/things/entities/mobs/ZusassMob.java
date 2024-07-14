@@ -13,7 +13,7 @@ import zgame.stat.status.StatusEffect;
 import zgame.stat.status.StatusEffects;
 import zgame.things.entity.*;
 import zgame.things.entity.mobility.Mobility2D;
-import zgame.things.entity.mobility.MobilityEntityThing2D;
+import zgame.things.entity.mobility.MobilityEntity2D;
 import zgame.things.entity.projectile.Projectile;
 import zgame.things.type.bounds.RectangleHitBox;
 import zusass.ZusassGame;
@@ -34,7 +34,7 @@ import static zusass.game.stat.ZusassStat.*;
 import java.util.List;
 
 /** A generic mob in the Zusass game */
-public abstract class ZusassMob extends MobilityEntityThing2D implements RectangleHitBox{
+public abstract class ZusassMob extends MobilityEntity2D implements RectangleHitBox{
 	
 	/** The json key used to store the spellbook which this mob has */
 	public final static String SPELLBOOK_KEY = "spellbook";

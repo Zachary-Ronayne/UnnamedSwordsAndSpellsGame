@@ -205,20 +205,23 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	
 	@Override
 	public ZVector2D setFrictionForce(double dt, double mass, double newFrictionForce, double horizontalVel, double horizontalForce){
-		// If there is no velocity, then the force of friction is equal and opposite to the current total force without friction, and will not exceed the value based on gravity
-		if(horizontalVel == 0){
-			newFrictionForce = Math.min(newFrictionForce, Math.abs(horizontalForce));
-			if(horizontalForce > 0) newFrictionForce *= -1;
+		
+		// If there is effectively no velocity, then the force of friction will just be nothing
+		if(Math.abs(horizontalVel) < this.getClampVelocity()) {
+			newFrictionForce = 0;
 		}
 		else{
 			// Need to make the force of friction move in the opposite direction of movement, so make it negative if the direction is positive, otherwise leave it positive
 			if(horizontalVel > 0) newFrictionForce *= -1;
 			
-			// If applying the new force of friction would make the velocity go in the opposite direction, then the force should be such that it will bring the velocity to zero
+			// If applying the new force of friction would make the velocity go in the opposite direction, then the force should be 0 and hard set the velocity to 0
 			double massTime = dt / mass;
 			double oldVel = horizontalVel + horizontalForce * massTime;
 			double newVel = horizontalVel + (horizontalForce + newFrictionForce) * massTime;
-			if(!ZMath.sameSign(oldVel, newVel)) newFrictionForce = -horizontalVel / massTime;
+			if(!ZMath.sameSign(oldVel, newVel)) {
+				newFrictionForce = 0;
+				this.setHorizontalVel(0);
+			}
 		}
 		
 		return this.setHorizontalForce(FORCE_NAME_FRICTION, newFrictionForce);

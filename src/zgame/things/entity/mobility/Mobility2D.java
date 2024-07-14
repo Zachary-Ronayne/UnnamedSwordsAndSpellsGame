@@ -1,5 +1,6 @@
 package zgame.things.entity.mobility;
 
+import zgame.core.utils.ZMath;
 import zgame.physics.ZVector2D;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.EntityThing2D;
@@ -53,8 +54,13 @@ public interface Mobility2D extends Mobility<HitBox2D, EntityThing2D, ZVector2D,
 	
 	@Override
 	default double getMobilityTryingRatio(){
-		// TODO implement
-		return 1;
+		// TODO implement this for both dimensions when flying?
+		
+		var mobilityData = this.getMobilityData();
+		double walkingDirection = mobilityData.getWalkingDirection();
+		if(walkingDirection == 0) return 0;
+		double currentVel = this.getThing().getHorizontalVel();
+		return ZMath.sameSign(currentVel, walkingDirection) ? 1 : -1;
 	}
 	
 	/**

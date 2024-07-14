@@ -58,6 +58,8 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 		var mobilityData = this.getMobilityData();
 		mobilityData.setFacingHorizontalAngle(angleH);
 		mobilityData.setFacingVerticalAngle(angleV);
+		
+		// TODO fix strafing not working
 
 		var mobilityType = mobilityData.getType();
 		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){

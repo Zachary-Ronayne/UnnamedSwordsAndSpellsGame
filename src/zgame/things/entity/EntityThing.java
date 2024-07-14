@@ -155,7 +155,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		// Add the acceleration to the current velocity
 		this.addVelocity(acceleration.scale(dt));
 		
-//		// Account for clamping the velocity
+		// Account for clamping the velocity
 		if(Math.abs(this.getVelocity().getMagnitude()) < this.getClampVelocity()) this.setVelocity(this.zeroVector());
 		
 		// Apply the movement of the velocity

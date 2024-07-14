@@ -1,5 +1,6 @@
 package zgame.things.entity.mobility;
 
+import zgame.core.utils.ZStringUtils;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 import zgame.things.entity.EntityThing;
@@ -60,6 +61,7 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	/** @return true if this object represents currently walking or running, false otherwise i.e. not moving */
 	boolean isTryingToMove();
 	
+	// TODO should this really be a method?
 	/** @return The current speed that this thing is walking at */
 	double getCurrentWalkingSpeed();
 	
@@ -81,8 +83,8 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		if(this.isWalking()) maxSpeed *= this.getWalkingRatio();
 		
 		// If the current velocity is greater than the max speed, and thing is trying to walk in the same direction as the current velocity, walk force will always be zero
-		var vx = Math.abs(this.getCurrentWalkingSpeed());
-		if(vx > 0 && walkForce > 0 && vx > maxSpeed) walkForce = 0;
+		var currentWalkSpeed = Math.abs(this.getCurrentWalkingSpeed());
+		if(currentWalkSpeed > 0 && walkForce > 0 && currentWalkSpeed > maxSpeed) walkForce = 0;
 		
 		boolean walking = walkForce != 0;
 		
@@ -92,7 +94,7 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		// Only check the walking speed if there is any walking force
 		if(walking){
 			// Find the total velocity if the new walking force is applied on the next tick
-			double newVel = vx + walkForce * dt / mass;
+			double newVel = currentWalkSpeed + walkForce * dt / mass;
 			
 			/*
 			 * issue#14 fix this, it's not always setting it to the exact max speed, usually slightly below it, probably related to the friction issue
@@ -100,8 +102,18 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 			 * Why can you still move a bit after landing on a high friction force until you stop moving?
 			 */
 			
-			// If that velocity is greater than the maximum speed, then apply a force such that it will bring the velocity exactly to the maximum speed
-			if(newVel > maxSpeed) walkForce = (maxSpeed - vx) / dt * mass;
+			/*
+			 If that velocity is greater than the maximum speed,
+			 the current velocity is less than the max speed,
+			 the entity is trying to move,
+			 and the desired movement is in the same direction as the current movement,
+			 then the force will be 0 and hard set the velocity to the max
+			 */
+			double currentVel = entity.getHorizontalVel();
+			if(newVel > maxSpeed && currentWalkSpeed < maxSpeed && this.getMobilityTryingRatio() > 0 && this.isTryingToMove()) {
+				walkForce = 0;
+				entity.setHorizontalVel(currentVel < 0 ? -maxSpeed : maxSpeed);
+			}
 		}
 		
 		// Set the amount the entity is walking
@@ -140,6 +152,8 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 			// Find the total velocity if the new flying force is applied on the next tick
 			double newVel = currentVel + (angleRatio * newFlyForce * dt / mass);
 			
+			// TODO make flying hard set the velocity
+			// TODO make a method that sets the magnitude of velocity without changing the angle
 			// Likely related to issue#14
 			// If that velocity is greater than the maximum speed, then apply a force such that it will bring the velocity exactly to the maximum speed
 			// Use max speed if moving in the same direction, or 0 if the opposite direction

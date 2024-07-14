@@ -10,7 +10,7 @@ import zgame.menu.Menu;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
-import zgame.things.entity.mobility.MobilityEntityThing3D;
+import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.mobility.MobilityType;
 import zgame.world.Directions3D;
 import zgame.world.Room3D;
@@ -336,7 +336,7 @@ public class GameDemo3D extends Game{
 		else game.getCurrentState().removeTopMenu(game);
 	}
 	
-	private static class Player3D extends MobilityEntityThing3D{
+	private static class Player3D extends MobilityEntity3D{
 		private final Game game;
 		
 		public Player3D(Game game){

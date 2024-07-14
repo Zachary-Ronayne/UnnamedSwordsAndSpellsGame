@@ -5,7 +5,7 @@ import zgame.physics.material.Material;
 import zgame.things.entity.*;
 
 /** A 3D entity which uses mobility capabilities */
-public abstract class MobilityEntityThing3D extends EntityThing3D implements Mobility3D{
+public abstract class MobilityEntity3D extends EntityThing3D implements Mobility3D{
 	
 	/** The {@link MobilityData} object used by this object's implementation of {@link Mobility3D} */
 	private final MobilityData3D mobilityData;
@@ -15,7 +15,7 @@ public abstract class MobilityEntityThing3D extends EntityThing3D implements Mob
 	 *
 	 * @param mass See {@link #mass}
 	 */
-	public MobilityEntityThing3D(double mass){
+	public MobilityEntity3D(double mass){
 		this(0, 0, 0, mass);
 	}
 	
@@ -27,7 +27,7 @@ public abstract class MobilityEntityThing3D extends EntityThing3D implements Mob
 	 * @param z See {@link #z}
 	 * @param mass See {@link #mass}
 	 */
-	public MobilityEntityThing3D(double x, double y, double z, double mass){
+	public MobilityEntity3D(double x, double y, double z, double mass){
 		super(x, y, z, mass);
 		
 		this.mobilityData = new MobilityData3D(this, 0);

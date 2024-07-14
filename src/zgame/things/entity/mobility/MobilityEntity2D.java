@@ -8,7 +8,7 @@ import zgame.things.entity.MobilityData;
 import zgame.things.entity.MobilityData2D;
 
 /** A 2D entity which uses mobility capabilities */
-public abstract class MobilityEntityThing2D extends EntityThing2D implements Mobility2D{
+public abstract class MobilityEntity2D extends EntityThing2D implements Mobility2D{
 	
 	/** The {@link MobilityData} object used by this object's implementation of {@link Mobility2D} */
 	private final MobilityData2D mobilityData;
@@ -16,7 +16,7 @@ public abstract class MobilityEntityThing2D extends EntityThing2D implements Mob
 	/**
 	 * Create a new empty entity at (0, 0) with a mass of 100
 	 */
-	public MobilityEntityThing2D(){
+	public MobilityEntity2D(){
 		this(0, 0);
 	}
 	
@@ -26,7 +26,7 @@ public abstract class MobilityEntityThing2D extends EntityThing2D implements Mob
 	 * @param x The x coordinate of the entity
 	 * @param y The y coordinate of the entity
 	 */
-	public MobilityEntityThing2D(double x, double y){
+	public MobilityEntity2D(double x, double y){
 		this(x, y, 100);
 	}
 	
@@ -37,7 +37,7 @@ public abstract class MobilityEntityThing2D extends EntityThing2D implements Mob
 	 * @param y The y coordinate of the entity
 	 * @param mass See {@link EntityThing#mass}
 	 */
-	public MobilityEntityThing2D(double x, double y, double mass){
+	public MobilityEntity2D(double x, double y, double mass){
 		super(x, y, mass);
 		
 		this.mobilityData = new MobilityData2D(this);

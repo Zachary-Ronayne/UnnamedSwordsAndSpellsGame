@@ -109,10 +109,14 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 		}
 		else{
 			double massTime = dt / mass;
-			double oldVel = horizontalVel + horizontalForce * massTime;
-			double newVel = horizontalVel - (horizontalForce + newFrictionForce) * massTime;
-			// If applying the new force of friction would make the velocity go in the opposite direction, then the force should be such that it will bring the velocity to zero
-			if(!ZMath.sameSign(oldVel, newVel)) newFrictionForce = horizontalVel / massTime;
+			horizontalVel = this.getHorizontalVel();
+			double oldVel = horizontalVel;
+			double newVel = horizontalVel - newFrictionForce * massTime;
+			// If applying the new force of friction would make the velocity go in the opposite direction, then the force should be 0 and hard set the velocity to 0
+			if(!ZMath.sameSign(oldVel, newVel)) {
+				newFrictionForce = 0;
+				this.setHorizontalVel(0);
+			}
 			// Otherwise just leave it as is
 		}
 		

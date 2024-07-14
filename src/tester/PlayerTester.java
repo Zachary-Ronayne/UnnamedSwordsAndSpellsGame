@@ -2,12 +2,12 @@ package tester;
 
 import zgame.core.Game;
 import zgame.things.entity.mobility.Mobility2D;
-import zgame.things.entity.mobility.MobilityEntityThing2D;
+import zgame.things.entity.mobility.MobilityEntity2D;
 import zgame.world.Room2D;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public abstract class PlayerTester extends MobilityEntityThing2D{
+public abstract class PlayerTester extends MobilityEntity2D{
 	
 	/** The width of this mob */
 	private double width;
