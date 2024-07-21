@@ -36,7 +36,7 @@ public abstract class ZVector<V extends ZVector<V>>{
 	}
 	
 	/** @param magnitude See {@link #magnitude} */
-	public void setMagnitude(double magnitude){
+	protected void setMagnitude(double magnitude){
 		this.magnitude = magnitude;
 	}
 	
@@ -63,5 +63,12 @@ public abstract class ZVector<V extends ZVector<V>>{
 	 * @return The result of scaling the vector
 	 */
 	public abstract V scale(double scalar);
+	
+	/**
+	 * Create a new vector which has the same direction as this vector, but with the given magnitude
+	 * @param magnitude The magnitude
+	 * @return The new vector
+	 */
+	public abstract V modifyMagnitude(double magnitude);
 	
 }

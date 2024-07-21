@@ -1,6 +1,5 @@
 package zgame.things.entity.mobility;
 
-import zgame.core.utils.ZStringUtils;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 import zgame.things.entity.EntityThing;
@@ -37,6 +36,7 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	
 	/**
 	 * Perform all actions needed to happen in a tick to make this thing walk
+	 *
 	 * @param dt The amount of time that passed in the tick
 	 */
 	default void walkingTick(double dt){
@@ -52,6 +52,7 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	
 	/**
 	 * Perform all actions needed to happen in a tick to make this thing fly
+	 *
 	 * @param dt The amount of time that passed in the tick
 	 */
 	default void flyingTick(double dt){
@@ -62,6 +63,7 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	boolean isTryingToMove();
 	
 	// TODO should this really be a method?
+	
 	/** @return The current speed that this thing is walking at */
 	double getCurrentWalkingSpeed();
 	
@@ -110,7 +112,7 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 			 then the force will be 0 and hard set the velocity to the max
 			 */
 			double currentVel = entity.getHorizontalVel();
-			if(newVel > maxSpeed && currentWalkSpeed < maxSpeed && this.getMobilityTryingRatio() > 0 && this.isTryingToMove()) {
+			if(newVel > maxSpeed && currentWalkSpeed < maxSpeed && this.shouldMaxMovementSpeed() && this.isTryingToMove()){
 				walkForce = 0;
 				entity.setHorizontalVel(currentVel < 0 ? -maxSpeed : maxSpeed);
 			}
@@ -118,6 +120,19 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		
 		// Set the amount the entity is walking
 		this.applyWalkForce(walkForce);
+	}
+	
+	/** @return true if the direction of desired movement is close enough to the current movement direction that movement speed should be maxed out */
+	default boolean shouldMaxMovementSpeed(){
+		return this.shouldMaxMovementSpeed(this.getMobilityTryingRatio());
+	}
+	
+	/**
+	 * @param ratio The precomputed value of {@link #getMobilityTryingRatio()}
+	 * @return true if the direction of desired movement is close enough to the current movement direction that movement speed should be maxed out
+	 */
+	default boolean shouldMaxMovementSpeed(double ratio){
+		return ratio < 0.001 && ratio > 0;
 	}
 	
 	/**
@@ -134,49 +149,74 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	 */
 	default void updateFlyForce(double dt){
 		var entity = this.getThing();
+		var totalVel = entity.getVelocity();
+		
 		double mass = entity.getMass();
 		double acceleration = this.getFlyAcceleration();
 		double newFlyForce = acceleration * mass;
 		double maxSpeed = this.getFlySpeedMax();
-		var totalVel = entity.getVelocity();
-		
 		double currentVel = totalVel.getMagnitude();
 		double angleRatio = this.getMobilityTryingRatio();
 		
 		boolean tryingToMove = this.isTryingToMove();
 		
-		// If moving in the current facing way would exceed max speed
-		if(currentVel * angleRatio >= maxSpeed){
-			// If trying to move, then move forward based on the ratio to facing forward
+		// Find the additional velocity if the new flying force is applied on the next tick
+		double initialFlyForceVel = newFlyForce * dt / mass;
+		
+		// If trying to move, then move forward based on the ratio to facing forward
+		if(tryingToMove){
+			// TODO fix flying being faster than it should when acceleration is really high
+			// TODO fix flying having random jittering
+			// TODO changing directions for flying, and probably walking, should be based on the amount of stopping power the entity has
+			// TODO fix sometimes flying and accelerating in the wrong direction
 			
-			// Find the total velocity if the new flying force is applied on the next tick
-			double newVel = currentVel + (angleRatio * newFlyForce * dt / mass);
+			// If moving close enough to the desired angle, and the new velocity would exceed or meet the maximum speed, hard set the velocity, and apply no force
+			if(this.shouldMaxMovementSpeed(angleRatio) && Math.abs(currentVel + initialFlyForceVel) >= maxSpeed){
+				newFlyForce = 0;
+				entity.setVelocity(entity.getVelocity().modifyMagnitude(maxSpeed));
+			}
+			// Otherwise, attempt to apply the full amount of force in the desired movement direction
+			else{
+				double newVel = currentVel + (initialFlyForceVel);
+				
+				// Likely related to issue#14
+				
+				// If that velocity is still greater than the maximum speed, then apply a force such that it will bring the velocity exactly to the maximum speed
+				// Use max speed if moving in the same direction, or 0 if the opposite direction
+				if(Math.abs(newVel) >= maxSpeed){
+					// Moving in the desired direction
+					if(angleRatio > 0){
+						newFlyForce = (maxSpeed - currentVel) / dt * mass;
+					}
+					// Moving away from the desired direction
+					else{
+						if(newVel < 0) newFlyForce = currentVel / dt * mass;
+						
+						// If moving in the opposite direction than desired, must put the force in the opposite direction
+						newFlyForce = -newFlyForce;
+					}
+				}
+				// Otherwise, just apply the already calculated full amount
+			}
+		}
+		// Otherwise, if moving and not trying to move, try to slow down
+		else if(Math.abs(currentVel) > 0){
+			double flyStopPower = this.getFlyStopPower();
+			double stopVel = currentVel - (flyStopPower * dt / mass);
 			
-			// TODO make flying hard set the velocity
-			// TODO make a method that sets the magnitude of velocity without changing the angle
 			// Likely related to issue#14
-			// If that velocity is greater than the maximum speed, then apply a force such that it will bring the velocity exactly to the maximum speed
-			// Use max speed if moving in the same direction, or 0 if the opposite direction
-			if(angleRatio > 0){
-				if(newVel > maxSpeed) newFlyForce = (maxSpeed - currentVel) / dt * mass;
+			// If applying the force would move the velocity below 0, then hard set velocity to 0 and apply no force
+			if(stopVel < 0){
+				entity.setVelocity(entity.zeroVector());
+				newFlyForce = 0;
 			}
 			else{
-				if(newVel < 0) newFlyForce = currentVel / dt * mass;
-				// If moving in the opposite direction, must put the force in the opposite direction
+				// When trying to slow down, must go in the opposite direction
 				newFlyForce = -newFlyForce;
 			}
 		}
-		// Otherwise, if not trying to move, also try to slow down
-		else if(!tryingToMove){
-			double flyStopPower = this.getFlyStopPower();
-			double newVel = currentVel - (flyStopPower * dt / mass);
-			
-			// Likely related to issue#14
-			if(newVel < 0) newFlyForce = currentVel / dt * mass;
-			// When trying to slow down, must go in the opposite direction
-			newFlyForce = -newFlyForce;
-		}
-		// Otherwise, apply the full amount of force
+		// Otherwise, apply no force
+		else newFlyForce = 0;
 		
 		// Apply the force
 		this.applyFlyForce(newFlyForce, tryingToMove);
@@ -192,7 +232,7 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	
 	/**
 	 * @return A value in the range [-1, 1] representing how close the angle of movement is to the angle of desired movement.
-	 * A value of 1 means movement is trying to happen in the exact same direction as current movement, -1 means the exact opposite direction
+	 * 		A value of 1 means movement is trying to happen in the exact same direction as current movement, -1 means the exact opposite direction
 	 */
 	double getMobilityTryingRatio();
 	
@@ -226,7 +266,8 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		var mobilityData = this.getMobilityData();
 		
 		// This entity can jump if it's on the ground, or if it can wall jump and is on a wall
-		mobilityData.setCanJump((this.hasTimeToFloorJump() || this.isCanWallJump() && this.hasTimeToWallJump() && mobilityData.isWallJumpAvailable()) && mobilityData.isGroundedSinceLastJump());
+		mobilityData.setCanJump(
+				(this.hasTimeToFloorJump() || this.isCanWallJump() && this.hasTimeToWallJump() && mobilityData.isWallJumpAvailable()) && mobilityData.isGroundedSinceLastJump());
 		
 		// If building a jump, and able to jump, then add the time
 		if(mobilityData.isBuildingJump() && mobilityData.isCanJump()){
