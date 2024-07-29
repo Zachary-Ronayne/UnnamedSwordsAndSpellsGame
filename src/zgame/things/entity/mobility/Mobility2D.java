@@ -29,6 +29,16 @@ public interface Mobility2D extends Mobility<HitBox2D, EntityThing2D, ZVector2D,
 		this.getMobilityData().setWalkingDirection(1);
 	}
 	
+	/** @return true {@link #getThing()} is walking to the left, false otherwise */
+	default boolean walkingLeft(){
+		return this.getMobilityData().getWalkingDirection() < 0;
+	}
+	
+	/** @return true {@link #getThing()} is walking to the right, false otherwise */
+	default boolean walkingRight(){
+		return this.getMobilityData().getWalkingDirection() > 0;
+	}
+	
 	@Override
 	default void stopWalking(){
 		this.getMobilityData().setWalkingDirection(0);
@@ -88,5 +98,12 @@ public interface Mobility2D extends Mobility<HitBox2D, EntityThing2D, ZVector2D,
 	@Override
 	default boolean jumpingInverted(){
 		return true;
+	}
+	
+	@Override
+	default ZVector2D createTryingToMoveVector(double magnitude){
+		if(this.walkingLeft()) return new ZVector2D(magnitude, Math.PI, false);
+		else if(this.walkingRight()) return new ZVector2D(magnitude, 0, false);
+		return new ZVector2D();
 	}
 }

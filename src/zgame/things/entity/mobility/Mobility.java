@@ -127,6 +127,7 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		return this.shouldMaxMovementSpeed(this.getMobilityTryingRatio());
 	}
 	
+	// TODO remove this method and replace it, do something similar to the flying code
 	/**
 	 * @param ratio The precomputed value of {@link #getMobilityTryingRatio()}
 	 * @return true if the direction of desired movement is close enough to the current movement direction that movement speed should be maxed out
@@ -156,55 +157,33 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		double newFlyForce = acceleration * mass;
 		double maxSpeed = this.getFlySpeedMax();
 		double currentVel = totalVel.getMagnitude();
-		double angleRatio = this.getMobilityTryingRatio();
 		
 		boolean tryingToMove = this.isTryingToMove();
 		
 		// Find the additional velocity if the new flying force is applied on the next tick
 		double initialFlyForceVel = newFlyForce * dt / mass;
 		
+		// TODO if moving at too different of an angle, then acceleration should be reduced, i.e. going from going full speed forward to moving hard left, it should accelerate instead of instantly changing angle
+		
 		// If trying to move, then move forward based on the ratio to facing forward
 		if(tryingToMove){
-			// TODO fix flying being faster than it should when acceleration is really high
-			// TODO fix flying having random jittering
-			// TODO changing directions for flying, and probably walking, should be based on the amount of stopping power the entity has
-			// TODO fix sometimes flying and accelerating in the wrong direction
-			
-			// If moving close enough to the desired angle, and the new velocity would exceed or meet the maximum speed, hard set the velocity, and apply no force
-			if(this.shouldMaxMovementSpeed(angleRatio) && Math.abs(currentVel + initialFlyForceVel) >= maxSpeed){
+			// If at or above max speed, just set the angle, apply no force
+			if(currentVel >= maxSpeed){
 				newFlyForce = 0;
-				entity.setVelocity(entity.getVelocity().modifyMagnitude(maxSpeed));
+				entity.setVelocity(this.createTryingToMoveVector(currentVel));
 			}
-			// Otherwise, attempt to apply the full amount of force in the desired movement direction
-			else{
-				double newVel = currentVel + (initialFlyForceVel);
-				
-				// Likely related to issue#14
-				
-				// If that velocity is still greater than the maximum speed, then apply a force such that it will bring the velocity exactly to the maximum speed
-				// Use max speed if moving in the same direction, or 0 if the opposite direction
-				if(Math.abs(newVel) >= maxSpeed){
-					// Moving in the desired direction
-					if(angleRatio > 0){
-						newFlyForce = (maxSpeed - currentVel) / dt * mass;
-					}
-					// Moving away from the desired direction
-					else{
-						if(newVel < 0) newFlyForce = currentVel / dt * mass;
-						
-						// If moving in the opposite direction than desired, must put the force in the opposite direction
-						newFlyForce = -newFlyForce;
-					}
-				}
-				// Otherwise, just apply the already calculated full amount
+			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
+			else if(Math.abs(currentVel + initialFlyForceVel) >= maxSpeed){
+				newFlyForce = 0;
+				entity.setVelocity(this.createTryingToMoveVector(maxSpeed));
 			}
+			// Otherwise, just apply the already calculated full amount
 		}
 		// Otherwise, if moving and not trying to move, try to slow down
-		else if(Math.abs(currentVel) > 0){
+		else if(currentVel > 0){
 			double flyStopPower = this.getFlyStopPower();
 			double stopVel = currentVel - (flyStopPower * dt / mass);
 			
-			// Likely related to issue#14
 			// If applying the force would move the velocity below 0, then hard set velocity to 0 and apply no force
 			if(stopVel < 0){
 				entity.setVelocity(entity.zeroVector());
@@ -212,15 +191,22 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 			}
 			else{
 				// When trying to slow down, must go in the opposite direction
-				newFlyForce = -newFlyForce;
+				newFlyForce = -flyStopPower;
 			}
 		}
-		// Otherwise, apply no force
+		// Otherwise, apply zero force
 		else newFlyForce = 0;
 		
 		// Apply the force
 		this.applyFlyForce(newFlyForce, tryingToMove);
 	}
+	
+	/**
+	 * Create a vector for {@link #getThing()} with the given magnitude, and in the direction this thing is trying to move in
+	 * @param magnitude The magnitude
+	 * @return The vector
+	 */
+	V createTryingToMoveVector(double magnitude);
 	
 	/**
 	 * Apply the given amount of force to this thing's flying force

@@ -6,7 +6,6 @@ import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect2D;
-import zgame.core.utils.ZStringUtils;
 import zgame.menu.Menu;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
@@ -367,8 +366,6 @@ public class GameDemo3D extends Game{
 			cam.setX(this.getX());
 			cam.setY(this.getY() + this.getHeight());
 			cam.setZ(this.getZ());
-			
-			ZStringUtils.prints(this.getFlySpeedMax(), this.getVelocity().getMagnitude(), this.getMobilityTryingRatio()); // TODO Remove
 		}
 		
 		private GameCamera3D getCamera(){
@@ -472,7 +469,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getFlyAcceleration(){
-			return super.getFlyAcceleration();
+			return 2.0;
 		}
 		
 		@Override
