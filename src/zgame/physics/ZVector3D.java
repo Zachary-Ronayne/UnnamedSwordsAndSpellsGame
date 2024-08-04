@@ -156,6 +156,16 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	}
 	
 	@Override
+	public ZVector3D modifyHorizontalMagnitude(double magnitude){
+		return new ZVector3D(Math.sin(this.getAngleH()) * magnitude, this.getY(), -Math.cos(this.getAngleH()) * magnitude);
+	}
+	
+	@Override
+	public ZVector3D modifyVerticalMagnitude(double magnitude){
+		return new ZVector3D(this.getX(), magnitude, this.getZ());
+	}
+	
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder("[ZVector3D | x: ");
 		sb.append(this.getX());

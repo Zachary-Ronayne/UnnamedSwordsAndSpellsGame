@@ -147,4 +147,11 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 		var data = this.getMobilityData();
 		return new ZVector3D(data.getMovingHorizontalAngle(), data.getMovingVerticalAngle(), magnitude, false);
 	}
+	
+	@Override
+	default ZVector3D createTryingToMoveVectorHorizontal(double magnitude){
+		var data = this.getMobilityData();
+		double movingAngle = data.getMovingHorizontalAngle();
+		return new ZVector3D(Math.sin(movingAngle) * magnitude, 0, -Math.cos(movingAngle) * magnitude);
+	}
 }

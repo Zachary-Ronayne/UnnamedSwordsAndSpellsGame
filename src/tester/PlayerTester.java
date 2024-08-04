@@ -306,11 +306,6 @@ public abstract class PlayerTester extends MobilityEntity2D{
 		return this.walking;
 	}
 	
-	@Override
-	public double getCurrentWalkingSpeed(){
-		return this.getVX();
-	}
-	
 	/** @param walking See {@link #walking} */
 	public void setWalking(boolean walking){
 		this.walking = walking;

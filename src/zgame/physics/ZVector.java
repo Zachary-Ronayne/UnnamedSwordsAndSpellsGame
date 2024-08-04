@@ -71,4 +71,18 @@ public abstract class ZVector<V extends ZVector<V>>{
 	 */
 	public abstract V modifyMagnitude(double magnitude);
 	
+	/**
+	 * Create a new vector which has the same direction as this vector and the same vertical magnitude, but with the given horizontal magnitude
+	 * @param magnitude The magnitude
+	 * @return The new vector
+	 */
+	public abstract V modifyHorizontalMagnitude(double magnitude);
+	
+	/**
+	 * Create a new vector which has the same direction as this vector and the same horizontal magnitude, but with the given vertical magnitude
+	 * @param magnitude The magnitude
+	 * @return The new vector
+	 */
+	public abstract V modifyVerticalMagnitude(double magnitude);
+	
 }

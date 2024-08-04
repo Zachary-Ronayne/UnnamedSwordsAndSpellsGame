@@ -106,4 +106,11 @@ public interface Mobility2D extends Mobility<HitBox2D, EntityThing2D, ZVector2D,
 		else if(this.walkingRight()) return new ZVector2D(magnitude, 0, false);
 		return new ZVector2D();
 	}
+	
+	@Override
+	default ZVector2D createTryingToMoveVectorHorizontal(double magnitude){
+		if(this.walkingLeft()) return new ZVector2D(-magnitude, 0);
+		else if(this.walkingRight()) return new ZVector2D(magnitude, 0);
+		return new ZVector2D();
+	}
 }

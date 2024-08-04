@@ -383,11 +383,6 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public double getCurrentWalkingSpeed(){
-			return this.getHorizontalVel();
-		}
-		
-		@Override
 		public void stopWalking(){
 			this.getMobilityData().setWalkingForce(zeroVector());
 		}
@@ -414,7 +409,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getWalkAcceleration(){
-			return 4.0;
+			return 2;
 		}
 		
 		@Override
@@ -427,6 +422,7 @@ public class GameDemo3D extends Game{
 			return 0.5;
 		}
 		
+		// TODO fix walking friction not being properly applied
 		@Override
 		public double getWalkFriction(){
 			return 1.0;

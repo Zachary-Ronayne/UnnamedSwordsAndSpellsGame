@@ -126,6 +126,18 @@ public class ZVector2D extends ZVector<ZVector2D>{
 	}
 	
 	@Override
+	public ZVector2D modifyHorizontalMagnitude(double magnitude){
+		if(Math.cos(this.getAngle()) < 0) magnitude = -magnitude;
+		return new ZVector2D(magnitude, this.getY());
+	}
+	
+	@Override
+	public ZVector2D modifyVerticalMagnitude(double magnitude){
+		if(Math.sin(this.getAngle()) < 0) magnitude = -magnitude;
+		return new ZVector2D(this.getX(), magnitude);
+	}
+	
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder("[ZVector2D | x: ");
 		sb.append(this.getX());

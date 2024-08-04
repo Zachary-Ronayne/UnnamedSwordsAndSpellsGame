@@ -62,11 +62,6 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	/** @return true if this object represents currently walking or running, false otherwise i.e. not moving */
 	boolean isTryingToMove();
 	
-	// TODO should this really be a method?
-	
-	/** @return The current speed that this thing is walking at */
-	double getCurrentWalkingSpeed();
-	
 	/** Tell this entity to stop walking */
 	void stopWalking();
 	
@@ -84,9 +79,9 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		// If the thing is walking, its max speed should be reduced by the ratio
 		if(this.isWalking()) maxSpeed *= this.getWalkingRatio();
 		
-		// If the current velocity is greater than the max speed, and thing is trying to walk in the same direction as the current velocity, walk force will always be zero
-		var currentWalkSpeed = Math.abs(this.getCurrentWalkingSpeed());
-		if(currentWalkSpeed > 0 && walkForce > 0 && currentWalkSpeed > maxSpeed) walkForce = 0;
+		// If the current velocity is greater than the max speed, and entity is trying to walk in the same direction as the current velocity, walk force will always be zero
+		var currentVelMag = Math.abs(entity.getHorizontalVel());
+		if(currentVelMag > 0 && walkForce > 0 && currentVelMag > maxSpeed) walkForce = 0;
 		
 		boolean walking = walkForce != 0;
 		
@@ -94,46 +89,24 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		if(!entity.isOnGround()) walkForce *= this.getWalkAirControl();
 		
 		// Only check the walking speed if there is any walking force
-		if(walking){
+		if(walking && this.isTryingToMove()){
 			// Find the total velocity if the new walking force is applied on the next tick
-			double newVel = currentWalkSpeed + walkForce * dt / mass;
+			double newVel = currentVelMag + walkForce * dt / mass;
 			
-			/*
-			 * issue#14 fix this, it's not always setting it to the exact max speed, usually slightly below it, probably related to the friction issue
-			 * This probably needs to account for the change in frictional force
-			 * Why can you still move a bit after landing on a high friction force until you stop moving?
-			 */
-			
-			/*
-			 If that velocity is greater than the maximum speed,
-			 the current velocity is less than the max speed,
-			 the entity is trying to move,
-			 and the desired movement is in the same direction as the current movement,
-			 then the force will be 0 and hard set the velocity to the max
-			 */
-			double currentVel = entity.getHorizontalVel();
-			if(newVel > maxSpeed && currentWalkSpeed < maxSpeed && this.shouldMaxMovementSpeed() && this.isTryingToMove()){
+			// If at or above max speed, just set the angle, apply no force
+			if(currentVelMag >= maxSpeed){
 				walkForce = 0;
-				entity.setHorizontalVel(currentVel < 0 ? -maxSpeed : maxSpeed);
+				moveVelocityHorizontalToDesired(this.getMobilityTryingRatio(), currentVelMag, entity.getVelocity());
+			}
+			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
+			else if(Math.abs(newVel) >= maxSpeed){
+				walkForce = 0;
+				moveVelocityHorizontalToDesired(this.getMobilityTryingRatio(), maxSpeed, entity.getVelocity());
 			}
 		}
 		
 		// Set the amount the entity is walking
 		this.applyWalkForce(walkForce);
-	}
-	
-	/** @return true if the direction of desired movement is close enough to the current movement direction that movement speed should be maxed out */
-	default boolean shouldMaxMovementSpeed(){
-		return this.shouldMaxMovementSpeed(this.getMobilityTryingRatio());
-	}
-	
-	// TODO remove this method and replace it, do something similar to the flying code
-	/**
-	 * @param ratio The precomputed value of {@link #getMobilityTryingRatio()}
-	 * @return true if the direction of desired movement is close enough to the current movement direction that movement speed should be maxed out
-	 */
-	default boolean shouldMaxMovementSpeed(double ratio){
-		return ratio < 0.001 && ratio > 0;
 	}
 	
 	/**
@@ -199,6 +172,8 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		this.applyFlyForce(newFlyForce, tryingToMove);
 	}
 	
+	// #issue36
+	
 	/**
 	 * Set the velocity of {@link #getThing()} to a velocity not exceeding the desired velocity, but combined with a vector of the current velocity
 	 * @param ratio The precomputed value of {@link #getMobilityTryingRatio()}
@@ -208,10 +183,24 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	default void moveVelocityToDesired(double ratio, double desiredVel, V currentVel){
 		// If the desired angle is different from actual angle, then the speed needs to be a combination of the current velocity and the desired velocity
 		double facingRatio = (ratio + 1.0) / 2.0;
-		var entity = this.getThing();
-		var newVel = currentVel.scale(1 - facingRatio).add(this.createTryingToMoveVector(desiredVel).scale(facingRatio));
+		var newVel = currentVel.modifyVerticalMagnitude(0).scale(1 - facingRatio).add(this.createTryingToMoveVector(desiredVel).scale(facingRatio));
 		if(newVel.getMagnitude() > desiredVel) newVel = newVel.modifyMagnitude(desiredVel);
-		entity.setVelocity(newVel);
+		this.getThing().setVelocity(newVel);
+	}
+	
+	/**
+	 * Set the velocity of {@link #getThing()} to a velocity not exceeding the desired velocity, but combined with a vector of the current velocity, exclusively on the horizontal axis
+	 * @param ratio The precomputed value of {@link #getMobilityTryingRatio()}
+	 * @param desiredVel The desired velocity the entity wants to be at
+	 * @param currentVel The current velocity vector
+	 */
+	default void moveVelocityHorizontalToDesired(double ratio, double desiredVel, V currentVel){
+		// If the desired angle is different from actual angle, then the speed needs to be a combination of the current velocity and the desired velocity
+		double facingRatio = (ratio + 1.0) / 2.0;
+		var newVel = currentVel.modifyVerticalMagnitude(0).scale(1 - facingRatio).add(this.createTryingToMoveVectorHorizontal(desiredVel).scale(facingRatio));
+		if(newVel.getHorizontal() > desiredVel) newVel = newVel.modifyHorizontalMagnitude(desiredVel);
+		newVel = newVel.modifyVerticalMagnitude(currentVel.getVertical());
+		this.getThing().setVelocity(newVel);
 	}
 	
 	/**
@@ -220,6 +209,12 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	 * @return The vector
 	 */
 	V createTryingToMoveVector(double magnitude);
+	/**
+	 * Create a vector for {@link #getThing()} with the given magnitude, and in the direction this thing is trying to move in, exclusively on the horizontal axis
+	 * @param magnitude The magnitude
+	 * @return The vector
+	 */
+	V createTryingToMoveVectorHorizontal(double magnitude);
 	
 	/**
 	 * Apply the given amount of force to this thing's flying force
