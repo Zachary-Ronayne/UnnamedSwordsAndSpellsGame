@@ -459,7 +459,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getFlyStopPower(){
-			return 1000.0;
+			return 2000.0;
 		}
 		
 		@Override
@@ -469,7 +469,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getFlyAcceleration(){
-			return 2.0;
+			return 3.0;
 		}
 		
 		@Override

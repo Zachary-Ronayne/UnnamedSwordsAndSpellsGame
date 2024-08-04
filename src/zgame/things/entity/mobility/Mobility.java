@@ -150,39 +150,37 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	 */
 	default void updateFlyForce(double dt){
 		var entity = this.getThing();
-		var totalVel = entity.getVelocity();
+		var currentVel = entity.getVelocity();
 		
 		double mass = entity.getMass();
 		double acceleration = this.getFlyAcceleration();
 		double newFlyForce = acceleration * mass;
 		double maxSpeed = this.getFlySpeedMax();
-		double currentVel = totalVel.getMagnitude();
+		double currentVelMag = currentVel.getMagnitude();
 		
 		boolean tryingToMove = this.isTryingToMove();
 		
 		// Find the additional velocity if the new flying force is applied on the next tick
 		double initialFlyForceVel = newFlyForce * dt / mass;
 		
-		// TODO if moving at too different of an angle, then acceleration should be reduced, i.e. going from going full speed forward to moving hard left, it should accelerate instead of instantly changing angle
-		
 		// If trying to move, then move forward based on the ratio to facing forward
 		if(tryingToMove){
 			// If at or above max speed, just set the angle, apply no force
-			if(currentVel >= maxSpeed){
+			if(currentVelMag >= maxSpeed){
 				newFlyForce = 0;
-				entity.setVelocity(this.createTryingToMoveVector(currentVel));
+				moveVelocityToDesired(this.getMobilityTryingRatio(), currentVelMag, currentVel);
 			}
 			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
-			else if(Math.abs(currentVel + initialFlyForceVel) >= maxSpeed){
+			else if(Math.abs(currentVelMag + initialFlyForceVel) >= maxSpeed){
 				newFlyForce = 0;
-				entity.setVelocity(this.createTryingToMoveVector(maxSpeed));
+				moveVelocityToDesired(this.getMobilityTryingRatio(), maxSpeed, currentVel);
 			}
-			// Otherwise, just apply the already calculated full amount
+			// Otherwise, just apply the already calculated full amount for newFlyForce
 		}
 		// Otherwise, if moving and not trying to move, try to slow down
-		else if(currentVel > 0){
+		else if(currentVelMag > 0){
 			double flyStopPower = this.getFlyStopPower();
-			double stopVel = currentVel - (flyStopPower * dt / mass);
+			double stopVel = currentVelMag - (flyStopPower * dt / mass);
 			
 			// If applying the force would move the velocity below 0, then hard set velocity to 0 and apply no force
 			if(stopVel < 0){
@@ -199,6 +197,21 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		
 		// Apply the force
 		this.applyFlyForce(newFlyForce, tryingToMove);
+	}
+	
+	/**
+	 * Set the velocity of {@link #getThing()} to a velocity not exceeding the desired velocity, but combined with a vector of the current velocity
+	 * @param ratio The precomputed value of {@link #getMobilityTryingRatio()}
+	 * @param desiredVel The desired velocity the entity wants to be at
+	 * @param currentVel The current velocity vector
+	 */
+	default void moveVelocityToDesired(double ratio, double desiredVel, V currentVel){
+		// If the desired angle is different from actual angle, then the speed needs to be a combination of the current velocity and the desired velocity
+		double facingRatio = (ratio + 1.0) / 2.0;
+		var entity = this.getThing();
+		var newVel = currentVel.scale(1 - facingRatio).add(this.createTryingToMoveVector(desiredVel).scale(facingRatio));
+		if(newVel.getMagnitude() > desiredVel) newVel = newVel.modifyMagnitude(desiredVel);
+		entity.setVelocity(newVel);
 	}
 	
 	/**
