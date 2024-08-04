@@ -199,7 +199,6 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D> imp
 		}
 		else if(this.boundaryEnabled(Directions3D.DOWN) && obj.getY() < -this.getBoundary(Directions3D.DOWN)){
 			obj.setY(-this.getBoundary(Directions3D.DOWN));
-			// TODO why does friction seen really low, and like it's just on or off instead of continuous?
 			obj.touchFloor(Materials.BOUNDARY);
 		}
 		// TODO also call this when the thing touches the ground once proper collision is implemented

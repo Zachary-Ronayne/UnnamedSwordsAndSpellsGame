@@ -172,7 +172,7 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		this.applyFlyForce(newFlyForce, tryingToMove);
 	}
 	
-	// #issue36
+	// issue#36
 	
 	/**
 	 * Set the velocity of {@link #getThing()} to a velocity not exceeding the desired velocity, but combined with a vector of the current velocity

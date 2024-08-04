@@ -175,7 +175,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 * @param dt The amount of time, in seconds, that will pass the next time the frictional force is applied
 	 */
 	public void updateFrictionForce(double dt){
-		// TODO allow friction to work on slopes? Or make a note to implement this later, for now this only does proper friction on flat surfaces
+		// issue#36 allow friction to work on slopes? For now this only does proper friction on flat surfaces
 		
 		double mass = this.getMass();
 		var force = this.getForce();
