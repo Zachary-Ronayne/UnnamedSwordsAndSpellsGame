@@ -1,6 +1,5 @@
 package zgame.things.entity;
 
-import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
@@ -97,31 +96,6 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 		var newVel = new ZVector3D(Math.cos(oldAngle) * v, oldVel.getVertical(), Math.sin(oldAngle) * v, true);
 		
 		this.setVelocity(newVel);
-	}
-	
-	@Override
-	public ZVector3D setFrictionForce(double dt, double mass, double newFrictionForce, double horizontalVel, double horizontalForce){
-		var vel = this.getVelocity();
-		
-		// If there is effectively no velocity, then the force of friction will just be nothing
-		if(Math.abs(horizontalVel) < this.getClampVelocity()) {
-			newFrictionForce = 0;
-		}
-		else{
-			double massTime = dt / mass;
-			double oldVel = horizontalVel;
-			double newVel = horizontalVel - newFrictionForce * massTime;
-			// If applying the new force of friction would make the velocity go in the opposite direction, then the force should be 0 and hard set the velocity to 0
-			if(!ZMath.sameSign(oldVel, newVel)) {
-				newFrictionForce = 0;
-				this.setHorizontalVel(0);
-			}
-			// Otherwise just leave it as is
-		}
-		
-		// Friction will always be the opposite direction of the current velocity
-		// TODO why does the offset need to be 90 degrees and not 180?
-		return this.setForce(FORCE_NAME_FRICTION, new ZVector3D(vel.getAngleH() - ZMath.PI_BY_2, 0, newFrictionForce, false));
 	}
 	
 	@Override

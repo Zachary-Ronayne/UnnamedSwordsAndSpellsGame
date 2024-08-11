@@ -65,6 +65,9 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	/** The material which this {@link EntityThing} is standing on, or {@link Materials#NONE} if no material is being touched */
 	private Material groundMaterial;
 	
+	/** The angle, in radians, that this thing is relative to the ground */
+	private double groundAngle;
+	
 	/** The amount of time in seconds since this {@link EntityThing} last touched a ceiling, or -1 if it is currently touching a ceiling */
 	private double ceilingTime;
 	
@@ -113,6 +116,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		
 		this.groundMaterial = Materials.NONE;
 		this.groundTime = 0;
+		this.groundAngle = 0;
 		this.ceilingMaterial = Materials.NONE;
 		this.ceilingTime = 0;
 		this.wallMaterial = Materials.NONE;
@@ -175,32 +179,56 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 * @param dt The amount of time, in seconds, that will pass the next time the frictional force is applied
 	 */
 	public void updateFrictionForce(double dt){
+		// TODO fix walking friction magnitude not being properly applied in 3D?
+		
 		// issue#36 allow friction to work on slopes? For now this only does proper friction on flat surfaces
+		// TODO make slope collision in 3D and test this code
 		
 		double mass = this.getMass();
-		var force = this.getForce();
+		var currentForce = this.getForce();
+		var currentFriction = this.getFriction();
+		var currentVel = this.getVelocity();
 		
-		double horizontalVel = this.getHorizontalVel();
-		double horizontalForce = force.getHorizontal() - this.frictionForce.getHorizontal();
-		// Find the total constant for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
-		double newFrictionForce = (this.getFrictionConstant() * this.getGroundMaterial().getFriction()) * Math.abs(this.getGravity().getVertical());
+		// With no velocity, no horizontal velocity, or not touching ground or a wall, friction will be zero
+		double clampVel = this.getClampVelocity();
+		// TODO should friction be disabled when vertical velocity is much higher than horizontal velocity?
+		if(currentVel.getMagnitude() < clampVel || Math.abs(currentVel.getHorizontal()) < clampVel || (!this.isOnGround() && !this.isOnWall())){
+			// Don't bother changing friction if it's already 0
+			if(currentFriction.getMagnitude() == 0) return;
+			
+			this.frictionForce = this.setForce(FORCE_NAME_FRICTION, this.zeroVector());
+			return;
+		}
 		
-		this.frictionForce = this.setFrictionForce(dt, mass, newFrictionForce, horizontalVel, horizontalForce);
+		// Find the total force for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
+		double newFrictionForce = this.getFrictionConstant() * this.getGroundMaterial().getFriction() * Math.abs(this.getGravity().getVertical());
+
+		// TODO somehow use the ground angle
+		
+		// TODO populate ground angle when appropriate, test with moving on spherical collision
+//		double angle = this.getGroundAngle();
+//		double frictionH = Math.cos(angle) * newFrictionForce;
+//		double frictionV = Math.sin(angle) * newFrictionForce;
+		
+		// TODO does doing friction this way mean there's no need for wall climb friction? No need for air resistance?
+		
+		// The new frictional force will always be in the opposite direction of current movement
+		var newFriction = currentVel.inverse().modifyMagnitude(newFrictionForce);
+		
+		// Find the new force if friction is fully applied
+		var forceWithoutFriction = currentForce.add(currentFriction.inverse());
+		var newForce = forceWithoutFriction.add(newFriction);
+		
+		// If adding the new frictional force would result in moving in the opposite direction after accounting for the current velocity, stop movement entirely
+		if(currentVel.isOpposite(currentVel.add(newForce.scale(dt / mass)))){
+			this.frictionForce = this.setForce(FORCE_NAME_FRICTION, forceWithoutFriction.inverse());
+			this.setVelocity(this.zeroVector());
+			return;
+		}
+		
+		// Otherwise, apply the full amount of friction
+		this.frictionForce = this.setForce(FORCE_NAME_FRICTION, newFriction);
 	}
-	
-	/**
-	 * Apply the given amount of force as the current frictional force.
-	 * Friction should always be applied in the opposite direction of the current horizontal movement.
-	 * Use the constant {@link #FORCE_NAME_FRICTION} for the name of the vector
-	 *
-	 * @param dt The amount of time that passed during this application of friction
-	 * @param mass The precomputed current mass of this thing
-	 * @param newFrictionForce The force to apply
-	 * @param horizontalVel The precomputed current horizontal velocity of this thing
-	 * @param horizontalForce The precomputed current horizontal force of this thing without the current friction force applied
-	 * @return The updated force vector for friction, cannot be null
-	 */
-	public abstract V setFrictionForce(double dt, double mass, double newFrictionForce, double horizontalVel, double horizontalForce);
 	
 	/**
 	 * Update the current amount of drag on this {@link EntityThing} counteracting the force of gravity
@@ -283,7 +311,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	
 	/**
 	 * @return The number determining how much friction applies to this {@link EntityThing}.
-	 * 		Higher values mean more friction, lower values mean less friction, 0 means no friction, 1 means no movement on a surface can occur.
+	 * 		Higher values mean more friction, lower values mean less friction, 0 means no friction.
 	 * 		Behavior is undefined for negative return values
 	 */
 	public abstract double getFrictionConstant();
@@ -364,6 +392,11 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	/** @return See {@link #groundMaterial} */
 	public Material getGroundMaterial(){
 		return this.groundMaterial;
+	}
+	
+	/** @return See {@link #groundAngle} */
+	public double getGroundAngle(){
+		return this.groundAngle;
 	}
 	
 	/** @return See {@link #ceilingMaterial} */

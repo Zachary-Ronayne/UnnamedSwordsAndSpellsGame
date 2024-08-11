@@ -1,5 +1,7 @@
 package zgame.physics;
 
+import zgame.core.utils.ZMath;
+
 /**
  * A Vector with an x and y component. The internal values of this object cannot be modified after the object is created outside of its extensions, i.e. this object is immutable
  *
@@ -64,6 +66,11 @@ public abstract class ZVector<V extends ZVector<V>>{
 	 */
 	public abstract V scale(double scalar);
 	
+	/** @return A new vector which is the same as this vector, but in the opposite direction */
+	public V inverse(){
+		return this.scale(-1);
+	}
+	
 	/**
 	 * Create a new vector which has the same direction as this vector, but with the given magnitude
 	 * @param magnitude The magnitude
@@ -84,5 +91,22 @@ public abstract class ZVector<V extends ZVector<V>>{
 	 * @return The new vector
 	 */
 	public abstract V modifyVerticalMagnitude(double magnitude);
+	
+	/**
+	 * Determine if the given vector moves in close enough to the opposite direction as this vector
+	 * @param vector The given vector
+ 	 * @return true if they are close enough to moving in opposite directions, false otherwise
+	 */
+	public abstract boolean isOpposite(V vector);
+	
+	/**
+	 * Determine if the two angles are close enough to be opposite of one another
+	 * @param a The first angle
+	 * @param b The second angle
+	 * @return true if they are close enough to moving in opposite directions, false otherwise
+	 */
+	public static boolean isOpposite(double a, double b){
+		return ZMath.angleDiff(a, b) > ZMath.PI_BY_2;
+	}
 	
 }

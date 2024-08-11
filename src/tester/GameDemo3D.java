@@ -294,6 +294,7 @@ public class GameDemo3D extends Game{
 			}
 			
 			if(ki.pressed(GLFW_KEY_R)){
+				// TODO why does this make jumping impossible after doing this?
 				xRot = 0;
 				yRot = 0;
 				zRot = 0;
@@ -409,7 +410,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getWalkAcceleration(){
-			return 2;
+			return 7.0;
 		}
 		
 		@Override
@@ -422,7 +423,6 @@ public class GameDemo3D extends Game{
 			return 0.5;
 		}
 		
-		// TODO fix walking friction not being properly applied
 		@Override
 		public double getWalkFriction(){
 			return 1.0;
@@ -463,9 +463,10 @@ public class GameDemo3D extends Game{
 			return 3.4;
 		}
 		
+		// TODO should this be power, like momentum, instead of acceleration?
 		@Override
 		public double getFlyAcceleration(){
-			return 3.0;
+			return 10.0;
 		}
 		
 		@Override

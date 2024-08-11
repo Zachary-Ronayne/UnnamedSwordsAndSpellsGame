@@ -138,6 +138,11 @@ public class ZVector2D extends ZVector<ZVector2D>{
 	}
 	
 	@Override
+	public boolean isOpposite(ZVector2D vector){
+		return ZVector.isOpposite(this.getAngle(), vector.getAngle());
+	}
+	
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder("[ZVector2D | x: ");
 		sb.append(this.getX());

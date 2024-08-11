@@ -151,6 +151,12 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	}
 	
 	@Override
+	public ZVector3D inverse(){
+		// TODO why is this pi/2 and not pi? And why doesn't it need to be on both angles?
+		return new ZVector3D(this.getAngleH() - ZMath.PI_BY_2, this.getAngleV(), this.getMagnitude(), false);
+	}
+	
+	@Override
 	public ZVector3D modifyMagnitude(double magnitude){
 		return new ZVector3D(this.getAngleH(), this.getAngleV(), magnitude, false);
 	}
@@ -163,6 +169,11 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	@Override
 	public ZVector3D modifyVerticalMagnitude(double magnitude){
 		return new ZVector3D(this.getX(), magnitude, this.getZ());
+	}
+	
+	@Override
+	public boolean isOpposite(ZVector3D vector){
+		return ZVector.isOpposite(this.getAngleH(), vector.getAngleH()) || ZVector.isOpposite(this.getAngleV(), vector.getAngleV());
 	}
 	
 	@Override
