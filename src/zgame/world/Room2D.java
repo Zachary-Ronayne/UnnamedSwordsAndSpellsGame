@@ -28,6 +28,9 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	/** The index for {@link #wallSolid} that represents the floor (bottom wall) */
 	public static final int WALL_FLOOR = 3;
 	
+	/** The material to use for the walls of this room */
+	private Material wallMaterial;
+	
 	/** The 2D grid of {@link Tile} objects defining this {@link Room} */
 	private ArrayList<ArrayList<Tile>> tiles;
 	
@@ -62,6 +65,8 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	 */
 	public Room2D(int xTiles, int yTiles){
 		super();
+		this.setWallMaterial(Materials.BOUNDARY);
+		
 		this.initTiles(xTiles, yTiles);
 		
 		this.wallSolid = new boolean[]{true, true, true, true};
@@ -149,19 +154,19 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 		// Keep the object inside the game bounds, if the walls are enabled
 		if(this.isSolid(WALL_LEFT) && obj.keepRight(this.getX())){
 			left = true;
-			obj.touchWall(Materials.BOUNDARY);
+			obj.touchWall(this.getWallMaterial());
 		}
 		if(this.isSolid(WALL_RIGHT) && obj.keepLeft(this.maxX())){
 			right = true;
-			obj.touchWall(Materials.BOUNDARY);
+			obj.touchWall(this.getWallMaterial());
 		}
 		if(this.isSolid(WALL_CEILING) && obj.keepBelow(this.getY())){
 			top = true;
-			obj.touchCeiling(Materials.BOUNDARY);
+			obj.touchCeiling(this.getWallMaterial());
 		}
 		if(this.isSolid(WALL_FLOOR) && obj.keepAbove(this.maxY())){
 			bot = true;
-			obj.touchFloor(Materials.BOUNDARY);
+			obj.touchFloor(this.getWallMaterial());
 		}
 		// If no tiles were touched on the ground and the object was on the ground, the entity has left the floor
 		if(!bot && wasOnGround) obj.leaveFloor();
@@ -441,6 +446,16 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	 */
 	public boolean inTiles(int x, int y){
 		return this.inTilesX(x) && this.inTilesY(y);
+	}
+	
+	/** @return See {@link #wallMaterial} */
+	public Material getWallMaterial(){
+		return this.wallMaterial;
+	}
+	
+	/** @param wallMaterial See {@link #wallMaterial} */
+	public void setWallMaterial(Material wallMaterial){
+		this.wallMaterial = wallMaterial;
 	}
 	
 	@Override

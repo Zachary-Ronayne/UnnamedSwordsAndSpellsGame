@@ -179,8 +179,6 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 * @param dt The amount of time, in seconds, that will pass the next time the frictional force is applied
 	 */
 	public void updateFrictionForce(double dt){
-		// TODO fix walking friction magnitude not being properly applied in 3D?
-		
 		// issue#36 allow friction to work on slopes? For now this only does proper friction on flat surfaces
 		// TODO make slope collision in 3D and test this code
 		
@@ -189,10 +187,19 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		var currentFriction = this.getFriction();
 		var currentVel = this.getVelocity();
 		
-		// With no velocity, no horizontal velocity, or not touching ground or a wall, friction will be zero
+		// Find the total force for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
+		double newFrictionForce = this.getFrictionConstant() * this.getGroundMaterial().getFriction() * Math.abs(this.getGravity().getVertical());
+		
 		double clampVel = this.getClampVelocity();
-		// TODO should friction be disabled when vertical velocity is much higher than horizontal velocity?
-		if(currentVel.getMagnitude() < clampVel || Math.abs(currentVel.getHorizontal()) < clampVel || (!this.isOnGround() && !this.isOnWall())){
+		// Depending on conditions, the friction force may be zero
+		if(
+				// With no velocity
+				currentVel.getMagnitude() < clampVel ||
+				// When not touching the ground or a wall
+				(!this.isOnGround() && !this.isOnWall())
+				// When the current force applied to the entity is less than the base force of friction
+				|| currentForce.getMagnitude() > newFrictionForce
+		){
 			// Don't bother changing friction if it's already 0
 			if(currentFriction.getMagnitude() == 0) return;
 			
@@ -200,17 +207,12 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 			return;
 		}
 		
-		// Find the total force for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
-		double newFrictionForce = this.getFrictionConstant() * this.getGroundMaterial().getFriction() * Math.abs(this.getGravity().getVertical());
-
 		// TODO somehow use the ground angle
 		
 		// TODO populate ground angle when appropriate, test with moving on spherical collision
 //		double angle = this.getGroundAngle();
 //		double frictionH = Math.cos(angle) * newFrictionForce;
 //		double frictionV = Math.sin(angle) * newFrictionForce;
-		
-		// TODO does doing friction this way mean there's no need for wall climb friction? No need for air resistance?
 		
 		// The new frictional force will always be in the opposite direction of current movement
 		var newFriction = currentVel.inverse().modifyMagnitude(newFrictionForce);

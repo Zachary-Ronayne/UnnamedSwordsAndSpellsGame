@@ -17,6 +17,8 @@ import zgame.world.Room;
  */
 public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>>{
 	
+	// TODO Fix wall jumping
+	
 	/** @return The {@link EntityThing} using this object */
 	default E getThing(){
 		return this.getMobilityData().getEntity();
@@ -81,7 +83,8 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		
 		// If the current velocity is greater than the max speed, and entity is trying to walk in the same direction as the current velocity, walk force will always be zero
 		var currentVelMag = Math.abs(entity.getHorizontalVel());
-		if(currentVelMag > 0 && walkForce > 0 && currentVelMag > maxSpeed) walkForce = 0;
+		double tryRatio = this.getMobilityTryingRatio();
+		if(currentVelMag > 0 && walkForce > 0 && currentVelMag > maxSpeed && tryRatio > 0) walkForce = 0;
 		
 		boolean walking = walkForce != 0;
 		
@@ -96,12 +99,12 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 			// If at or above max speed, just set the angle, apply no force
 			if(currentVelMag >= maxSpeed){
 				walkForce = 0;
-				moveVelocityHorizontalToDesired(this.getMobilityTryingRatio(), currentVelMag, entity.getVelocity());
+				moveVelocityHorizontalToDesired(tryRatio, currentVelMag, entity.getVelocity());
 			}
 			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
 			else if(Math.abs(newVel) >= maxSpeed){
 				walkForce = 0;
-				moveVelocityHorizontalToDesired(this.getMobilityTryingRatio(), maxSpeed, entity.getVelocity());
+				moveVelocityHorizontalToDesired(tryRatio, maxSpeed, entity.getVelocity());
 			}
 		}
 		
@@ -191,15 +194,21 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	/**
 	 * Set the velocity of {@link #getThing()} to a velocity not exceeding the desired velocity, but combined with a vector of the current velocity, exclusively on the horizontal axis
 	 * @param ratio The precomputed value of {@link #getMobilityTryingRatio()}
-	 * @param desiredVel The desired velocity the entity wants to be at
+	 * @param desiredVel The magnitude of the desired velocity the entity wants to be at
 	 * @param currentVel The current velocity vector
 	 */
 	default void moveVelocityHorizontalToDesired(double ratio, double desiredVel, V currentVel){
 		// If the desired angle is different from actual angle, then the speed needs to be a combination of the current velocity and the desired velocity
 		double facingRatio = (ratio + 1.0) / 2.0;
-		var newVel = currentVel.modifyVerticalMagnitude(0).scale(1 - facingRatio).add(this.createTryingToMoveVectorHorizontal(desiredVel).scale(facingRatio));
-		if(newVel.getHorizontal() > desiredVel) newVel = newVel.modifyHorizontalMagnitude(desiredVel);
-		newVel = newVel.modifyVerticalMagnitude(currentVel.getVertical());
+		
+		// Calculate the new velocity for the horizontal axis
+		var newVel = currentVel.modifyHorizontalMagnitude(0).scale(1 - facingRatio).add(this.createTryingToMoveVectorHorizontal(desiredVel).scale(facingRatio));
+		if(Math.abs(newVel.getHorizontal()) > desiredVel) newVel = newVel.modifyHorizontalMagnitude(desiredVel);
+		
+		// Keep the same vertical velocity as the original
+		newVel = newVel.modifyVerticalValue(currentVel.getVertical());
+		
+		// Update the velocity
 		this.getThing().setVelocity(newVel);
 	}
 	
@@ -497,8 +506,8 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	/** @return The friction constant that this thing should have, based on its current walking state */
 	default double getWalkFrictionConstant(){
 		var entity = this.getThing();
-		// If not on the ground, use the normal amount of friction, otherwise, if currently walking, return walk friction, otherwise, return stop friction
-		return !entity.isOnGround() ? 1 : (this.isWalking()) ? this.getWalkFriction() : this.getWalkStopFriction();
+		// If not on the ground, use the normal amount of friction, otherwise, if currently trying to move, return walk friction, otherwise, return stop friction
+		return !entity.isOnGround() ? 1 : (this.isTryingToMove()) ? this.getWalkFriction() : this.getWalkStopFriction();
 	}
 	
 }

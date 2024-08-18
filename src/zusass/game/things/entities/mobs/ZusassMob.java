@@ -509,7 +509,7 @@ public abstract class ZusassMob extends MobilityEntity2D implements RectangleHit
 	@Override
 	public double getWalkStopFriction(){
 		// For now just making this a hard coded number based on the move speed stat
-		return this.stat(MOVE_SPEED) / 30;
+		return this.stat(MOVE_SPEED) / 5;
 	}
 
 	@Override

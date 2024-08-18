@@ -138,6 +138,11 @@ public class ZVector2D extends ZVector<ZVector2D>{
 	}
 	
 	@Override
+	public ZVector2D modifyVerticalValue(double magnitude){
+		return new ZVector2D(this.getX(), magnitude);
+	}
+	
+	@Override
 	public boolean isOpposite(ZVector2D vector){
 		return ZVector.isOpposite(this.getAngle(), vector.getAngle());
 	}

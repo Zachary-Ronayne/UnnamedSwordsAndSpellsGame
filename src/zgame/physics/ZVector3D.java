@@ -168,6 +168,11 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	
 	@Override
 	public ZVector3D modifyVerticalMagnitude(double magnitude){
+		return new ZVector3D(this.getX(), this.getVertical() > 0 ? magnitude : -magnitude, this.getZ());
+	}
+	
+	@Override
+	public ZVector3D modifyVerticalValue(double magnitude){
 		return new ZVector3D(this.getX(), magnitude, this.getZ());
 	}
 	

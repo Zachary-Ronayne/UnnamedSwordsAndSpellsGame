@@ -25,6 +25,8 @@ import zgame.menu.*;
 import zgame.menu.scroller.HorizontalScroller;
 import zgame.menu.scroller.MenuScroller;
 import zgame.menu.scroller.VerticalScroller;
+import zgame.physics.material.MaterialConst;
+import zgame.physics.material.Materials;
 import zgame.things.still.Door;
 import zgame.things.still.tiles.BaseTiles;
 import zgame.world.Room2D;
@@ -303,8 +305,32 @@ public class MainTest extends Game{
 			else if(button == GLFW_KEY_L) game.getCamera().getX().shift(50);
 			else if(button == GLFW_KEY_I) game.getCamera().getY().shift(-50);
 			else if(button == GLFW_KEY_K) game.getCamera().getY().shift(50);
+			else if(button == GLFW_KEY_F1) {
+				if(shift){
+					game.setPrintFps(true);
+					game.setPrintTps(true);
+					game.setPrintSoundUpdates(true);
+				}
+				else{
+					game.setPrintFps(false);
+					game.setPrintTps(false);
+					game.setPrintSoundUpdates(false);
+				}
+			}
 			
 			else if(button == GLFW_KEY_M) player.toggleWalking();
+			
+			boolean addFriction = button == GLFW_KEY_1;
+			boolean subFriction = button == GLFW_KEY_2;
+			if(addFriction) {
+				this.getCurrentRoom().setWallMaterial(new MaterialConst(this.getCurrentRoom().getWallMaterial().getFriction() + (ctrl ? 0.01 : 0.05), 0));
+			}
+			else if(subFriction) {
+				this.getCurrentRoom().setWallMaterial(new MaterialConst(this.getCurrentRoom().getWallMaterial().getFriction() - (ctrl ? 0.01 : 0.05), 0));
+			}
+			if(addFriction || subFriction) {
+				if(shift) this.getCurrentRoom().setWallMaterial(Materials.BOUNDARY);
+			}
 		}
 		
 		@Override

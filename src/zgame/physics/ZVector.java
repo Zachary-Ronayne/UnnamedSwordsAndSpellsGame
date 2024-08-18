@@ -93,6 +93,13 @@ public abstract class ZVector<V extends ZVector<V>>{
 	public abstract V modifyVerticalMagnitude(double magnitude);
 	
 	/**
+	 * Create a new vector which has the same horizontal value, but with the given vertical value
+	 * @param magnitude The magnitude
+	 * @return The new vector
+	 */
+	public abstract V modifyVerticalValue(double magnitude);
+	
+	/**
 	 * Determine if the given vector moves in close enough to the opposite direction as this vector
 	 * @param vector The given vector
  	 * @return true if they are close enough to moving in opposite directions, false otherwise

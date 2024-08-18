@@ -430,7 +430,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getWalkStopFriction(){
-			return 1.0;
+			return 10.0;
 		}
 		
 		@Override
