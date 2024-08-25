@@ -3,6 +3,7 @@ package zgame.things.type.bounds;
 import zgame.core.utils.Uuidable;
 import zgame.physics.collision.CollisionResponse;
 import zgame.physics.material.Material;
+import zgame.physics.material.Materials;
 import zgame.things.entity.projectile.Projectile;
 import zgame.things.type.Materialable;
 
@@ -27,7 +28,6 @@ public interface HitBox<H extends HitBox<H>> extends Materialable, Uuidable {
 	 *
 	 * @param r The {@link CollisionResponse} to use
 	 */
-	// TODO add the type parameter to collide
 	void collide(CollisionResponse r);
 	
 	/**
@@ -75,6 +75,15 @@ public interface HitBox<H extends HitBox<H>> extends Materialable, Uuidable {
 	
 	/** @return true if this {@link HitBox} is touching a wall, false otherwise */
 	boolean isOnWall();
+	
+	/** @return The material of the ground that this thing is on, or {@link Materials#NONE} if not on ground */
+	Material getFloorMaterial();
+	
+	/** @return The material of the ceiling that this thing is on, or {@link Materials#NONE} if not on ground */
+	Material getCeilingMaterial();
+	
+	/** @return The material of the wall that this thing is on, or {@link Materials#NONE} if not on ground */
+	Material getWallMaterial();
 	
 	/**
 	 * Wacky java weirdness. Call to get this object as the appropriate type

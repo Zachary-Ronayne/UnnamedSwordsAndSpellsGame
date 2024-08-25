@@ -63,10 +63,10 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	private double groundTime;
 	
 	/** The material which this {@link EntityThing} is standing on, or {@link Materials#NONE} if no material is being touched */
-	private Material groundMaterial;
+	private Material floorMaterial;
 	
 	/** The angle, in radians, that this thing is relative to the ground */
-	private double groundAngle;
+	private double floorAngle;
 	
 	/** The amount of time in seconds since this {@link EntityThing} last touched a ceiling, or -1 if it is currently touching a ceiling */
 	private double ceilingTime;
@@ -114,9 +114,9 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		
 		this.setForce(FORCE_NAME_WALL_SLIDE, this.zeroVector());
 		
-		this.groundMaterial = Materials.NONE;
+		this.floorMaterial = Materials.NONE;
 		this.groundTime = 0;
-		this.groundAngle = 0;
+		this.floorAngle = 0;
 		this.ceilingMaterial = Materials.NONE;
 		this.ceilingTime = 0;
 		this.wallMaterial = Materials.NONE;
@@ -179,31 +179,41 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 * @param dt The amount of time, in seconds, that will pass the next time the frictional force is applied
 	 */
 	public void updateFrictionForce(double dt){
+		// When not on a surface, there is no friction
+		boolean onSurface = this.isOnGround() || this.isOnWall() || this.isOnCeiling();
+		var currentFriction = this.getFriction();
+		if(!onSurface){
+			// Don't bother changing friction if it's already 0
+			if(currentFriction.getMagnitude() != 0) this.frictionForce = this.setForce(FORCE_NAME_FRICTION, this.zeroVector());
+			return;
+		}
+		
 		// issue#36 allow friction to work on slopes? For now this only does proper friction on flat surfaces
 		// TODO make slope collision in 3D and test this code
 		
-		double mass = this.getMass();
 		var currentForce = this.getForce();
-		var currentFriction = this.getFriction();
 		var currentVel = this.getVelocity();
 		
 		// Find the total force for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
-		double newFrictionForce = this.getFrictionConstant() * this.getGroundMaterial().getFriction() * Math.abs(this.getGravity().getVertical());
+		double newFrictionForce = this.getFrictionConstant() * this.getFloorMaterial().getFriction() * Math.abs(this.getGravity().getVertical());
 		
 		double clampVel = this.getClampVelocity();
+		boolean noVelocity = currentVel.getMagnitude() < clampVel;
 		// Depending on conditions, the friction force may be zero
-		if(
-				// With no velocity
-				currentVel.getMagnitude() < clampVel ||
-				// When not touching the ground or a wall
-				(!this.isOnGround() && !this.isOnWall())
-				// When the current force applied to the entity is less than the base force of friction
-				|| currentForce.getMagnitude() > newFrictionForce
-		){
-			// Don't bother changing friction if it's already 0
-			if(currentFriction.getMagnitude() == 0) return;
-			
-			this.frictionForce = this.setForce(FORCE_NAME_FRICTION, this.zeroVector());
+		// When not touching the ground or a wall
+		// When the current force applied to the entity is less than the base force of friction
+		if(noVelocity || currentForce.getMagnitude() > newFrictionForce){
+			// If the frictional force exceeds the current force, then there will be equal and opposite frictional force
+			if(currentForce.getMagnitude() <= newFrictionForce){
+				// When friction exceeds current force, and on a surface, velocity must also be set to 0
+				if(!noVelocity) this.setVelocity(this.zeroVector());
+				this.frictionForce = this.setForce(FORCE_NAME_FRICTION, currentForce.add(currentFriction.inverse()).inverse());
+			}
+			// Otherwise, there will be no frictional force
+			else{
+				if(currentFriction.getMagnitude() == 0) return;
+				this.frictionForce = this.setForce(FORCE_NAME_FRICTION, this.zeroVector());
+			}
 			return;
 		}
 		
@@ -222,6 +232,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		var newForce = forceWithoutFriction.add(newFriction);
 		
 		// If adding the new frictional force would result in moving in the opposite direction after accounting for the current velocity, stop movement entirely
+		double mass = this.getMass();
 		if(currentVel.isOpposite(currentVel.add(newForce.scale(dt / mass)))){
 			this.frictionForce = this.setForce(FORCE_NAME_FRICTION, forceWithoutFriction.inverse());
 			this.setVelocity(this.zeroVector());
@@ -298,7 +309,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	public double getTerminalVelocity(){
 		if(this.isOnGround()) return 0;
 		
-		Material m = this.getGroundMaterial();
+		Material m = this.getFloorMaterial();
 		double s = this.getSurfaceArea();
 		double surfaceArea = (s <= 0) ? 1 : s;
 		
@@ -391,22 +402,25 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		this.updateGravity();
 	}
 	
-	/** @return See {@link #groundMaterial} */
-	public Material getGroundMaterial(){
-		return this.groundMaterial;
+	/** @return See {@link #floorMaterial} */
+	@Override
+	public Material getFloorMaterial(){
+		return this.floorMaterial;
 	}
 	
-	/** @return See {@link #groundAngle} */
-	public double getGroundAngle(){
-		return this.groundAngle;
+	/** @return See {@link #floorAngle} */
+	public double getFloorAngle(){
+		return this.floorAngle;
 	}
 	
 	/** @return See {@link #ceilingMaterial} */
+	@Override
 	public Material getCeilingMaterial(){
 		return this.ceilingMaterial;
 	}
 	
 	/** @return See {@link #wallMaterial} */
+	@Override
 	public Material getWallMaterial(){
 		return this.wallMaterial;
 	}
@@ -446,14 +460,14 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	
 	@Override
 	public void leaveFloor(){
-		this.groundMaterial = Materials.NONE;
+		this.floorMaterial = Materials.NONE;
 		this.groundTime = 0;
 	}
 	
 	@Override
 	public void touchFloor(Material touched){
 		// Touching a floor means this entity is on the ground
-		this.groundMaterial = touched;
+		this.floorMaterial = touched;
 		this.groundTime = -1;
 		
 		// Bounce off the floor, or reset the y velocity to 0 if either material has no floor bounciness
@@ -627,6 +641,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	public void clearMotion(){
 		this.setVelocity(this.zeroVector());
 		for(var f : this.getForces()) this.setForce(f.getKey(), this.zeroVector());
+		this.updateGravity();
 	}
 	
 	/**

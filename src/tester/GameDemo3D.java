@@ -294,7 +294,6 @@ public class GameDemo3D extends Game{
 			}
 			
 			if(ki.pressed(GLFW_KEY_R)){
-				// TODO why does this make jumping impossible after doing this?
 				xRot = 0;
 				yRot = 0;
 				zRot = 0;

@@ -224,7 +224,7 @@ public class MainTest extends Game{
 			firstRoom.setTile(1, 4, BaseTiles.BOUNCY);
 			var secondRoom = makeRoom();
 			for(int i = 0; i < 2; i++) secondRoom.setTile(i, 4, BaseTiles.HIGH_FRICTION);
-			this.setCurrentRoom(firstRoom);
+			this.setCurrentRoom(secondRoom);
 			
 			if(CIRCLE_PLAYER) this.player = new PlayerTesterCircle(130, 430, 60);
 			else this.player = new PlayerTesterRect(100, 400, 60, 100);
@@ -232,7 +232,8 @@ public class MainTest extends Game{
 			this.player.setMass(100);
 			this.player.setLockCamera(true);
 			this.player.setCanWallJump(true);
-			firstRoom.addThing(this.player);
+			this.player.setY(130);
+			secondRoom.addThing(this.player);
 			
 			Door d = new Door(700, 400);
 			d.setLeadRoom(secondRoom, 50, 100);
@@ -285,6 +286,16 @@ public class MainTest extends Game{
 		}
 		
 		@Override
+		public void renderHud(Game game, Renderer r){
+			super.renderHud(game, r);
+			if(this.isPaused()){
+				r.setColor(0.5, 0, 1);
+				r.setFontSize(40);
+				r.drawText(50, 100, "PAUSED");
+			}
+		}
+		
+		@Override
 		public void playKeyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 			super.playKeyAction(game, button, press, shift, alt, ctrl);
 			if(press) return;
@@ -317,8 +328,10 @@ public class MainTest extends Game{
 					game.setPrintSoundUpdates(false);
 				}
 			}
-			
 			else if(button == GLFW_KEY_M) player.toggleWalking();
+			else if(button == GLFW_KEY_ESCAPE){
+				this.setPaused(!this.isPaused());
+			}
 			
 			boolean addFriction = button == GLFW_KEY_1;
 			boolean subFriction = button == GLFW_KEY_2;

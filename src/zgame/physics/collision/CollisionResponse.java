@@ -6,7 +6,8 @@ import zgame.physics.material.Materials;
 
 /** An object containing values for what should happen to an object when it collides with something */
 public class CollisionResponse{
-	// TODO abstract this to 2D and 3D?
+	// TODO abstract this to 2D and 3D
+	// TODO rename this to CollisionResult
 	
 	/** The amount to add to the x coordinate so that it no longer collides */
 	private final double x;

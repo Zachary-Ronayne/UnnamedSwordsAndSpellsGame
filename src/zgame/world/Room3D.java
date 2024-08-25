@@ -202,7 +202,10 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D> imp
 			obj.touchFloor(Materials.BOUNDARY);
 		}
 		// TODO also call this when the thing touches the ground once proper collision is implemented
-		else if(obj.isOnGround()) obj.leaveFloor();
+		else if(obj.isOnGround()) {
+			if(obj.getY() != obj.getPX()) obj.leaveFloor();
+			else obj.touchFloor(obj.getFloorMaterial());
+		}
 		
 		return new CollisionResponse();
 	}

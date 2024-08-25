@@ -72,7 +72,7 @@ public abstract class PlayerTester extends MobilityEntity2D{
 		
 		this.walkSpeedMax = 300;
 		this.walkAcceleration = 2000;
-		this.walkStopFriction = 30;
+		this.walkStopFriction = 100;
 		this.jumpPower = 60000;
 		this.jumpStopPower = 3000;
 		this.jumpBuildTime = 0;

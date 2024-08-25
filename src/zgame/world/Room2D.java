@@ -151,29 +151,52 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 		// Determine the final collision
 		CollisionResponse res = new CollisionResponse(mx, my, left, right, top, bot, material);
 		
+		boolean touchedFloor = false;
+		boolean touchedCeiling = false;
+		boolean touchedWall = false;
 		// Keep the object inside the game bounds, if the walls are enabled
 		if(this.isSolid(WALL_LEFT) && obj.keepRight(this.getX())){
 			left = true;
 			obj.touchWall(this.getWallMaterial());
+			touchedWall = true;
 		}
 		if(this.isSolid(WALL_RIGHT) && obj.keepLeft(this.maxX())){
 			right = true;
 			obj.touchWall(this.getWallMaterial());
+			touchedWall = true;
 		}
 		if(this.isSolid(WALL_CEILING) && obj.keepBelow(this.getY())){
 			top = true;
 			obj.touchCeiling(this.getWallMaterial());
+			touchedCeiling = true;
 		}
 		if(this.isSolid(WALL_FLOOR) && obj.keepAbove(this.maxY())){
 			bot = true;
 			obj.touchFloor(this.getWallMaterial());
+			touchedFloor = true;
 		}
-		// If no tiles were touched on the ground and the object was on the ground, the entity has left the floor
-		if(!bot && wasOnGround) obj.leaveFloor();
+		if(wasOnGround){
+			// If the hitbox was on the ground, but no y axis movement happened, then the hitbox is still on the ground, so touch the floor
+			if(obj.getPY() == obj.getY() || bot){
+				if(!touchedFloor) obj.touchFloor(obj.getFloorMaterial());
+			}
+			// Otherwise, leave the floor
+			else obj.leaveFloor();
+		}
+		
 		// Same thing, but for the walls and for the ceiling
-		if(!top && wasOnCeiling) obj.leaveCeiling();
-		if(!left && !right && wasOnWall) {
-			obj.leaveWall();
+		if(wasOnCeiling){
+			if(obj.getPY() == obj.getY() || top){
+				if(!touchedCeiling) obj.touchCeiling(obj.getCeilingMaterial());
+			}
+			else obj.leaveCeiling();
+		}
+		
+		if(wasOnWall){
+			if(obj.getPX() == obj.getX() || left || right){
+				if(!touchedWall) obj.touchWall(obj.getWallMaterial());
+			}
+			else obj.leaveWall();
 		}
 		
 		return res;
