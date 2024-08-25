@@ -65,9 +65,6 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	/** The material which this {@link EntityThing} is standing on, or {@link Materials#NONE} if no material is being touched */
 	private Material floorMaterial;
 	
-	/** The angle, in radians, that this thing is relative to the ground */
-	private double floorAngle;
-	
 	/** The amount of time in seconds since this {@link EntityThing} last touched a ceiling, or -1 if it is currently touching a ceiling */
 	private double ceilingTime;
 	
@@ -116,7 +113,6 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		
 		this.floorMaterial = Materials.NONE;
 		this.groundTime = 0;
-		this.floorAngle = 0;
 		this.ceilingMaterial = Materials.NONE;
 		this.ceilingTime = 0;
 		this.wallMaterial = Materials.NONE;
@@ -188,9 +184,6 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 			return;
 		}
 		
-		// issue#36 allow friction to work on slopes? For now this only does proper friction on flat surfaces
-		// TODO make slope collision in 3D and test this code
-		
 		var currentForce = this.getForce();
 		var currentVel = this.getVelocity();
 		
@@ -216,13 +209,6 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 			}
 			return;
 		}
-		
-		// TODO somehow use the ground angle
-		
-		// TODO populate ground angle when appropriate, test with moving on spherical collision
-//		double angle = this.getGroundAngle();
-//		double frictionH = Math.cos(angle) * newFrictionForce;
-//		double frictionV = Math.sin(angle) * newFrictionForce;
 		
 		// The new frictional force will always be in the opposite direction of current movement
 		var newFriction = currentVel.inverse().modifyMagnitude(newFrictionForce);
@@ -406,11 +392,6 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	@Override
 	public Material getFloorMaterial(){
 		return this.floorMaterial;
-	}
-	
-	/** @return See {@link #floorAngle} */
-	public double getFloorAngle(){
-		return this.floorAngle;
 	}
 	
 	/** @return See {@link #ceilingMaterial} */

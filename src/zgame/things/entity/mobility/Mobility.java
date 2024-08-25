@@ -173,8 +173,6 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		this.applyFlyForce(newFlyForce, tryingToMove);
 	}
 	
-	// issue#36
-	
 	/**
 	 * Set the velocity of {@link #getThing()} to a velocity not exceeding the desired velocity, but combined with a vector of the current velocity
 	 *
@@ -291,6 +289,7 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 			boolean invert = this.jumpingInverted();
 			if(invert && vy < 0 || !invert && vy > 0){
 				double mass = entity.getMass();
+				// TODO fix high jump stop power snapping you to the ground
 				double power = this.getJumpStopPower();
 				double newStopJumpVel = power / mass;
 				double newStopJumpForce = -power / dt;
