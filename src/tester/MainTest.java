@@ -224,7 +224,7 @@ public class MainTest extends Game{
 			firstRoom.setTile(1, 4, BaseTiles.BOUNCY);
 			var secondRoom = makeRoom();
 			for(int i = 0; i < 2; i++) secondRoom.setTile(i, 4, BaseTiles.HIGH_FRICTION);
-			this.setCurrentRoom(secondRoom);
+			this.setCurrentRoom(firstRoom);
 			
 			if(CIRCLE_PLAYER) this.player = new PlayerTesterCircle(130, 430, 60);
 			else this.player = new PlayerTesterRect(100, 400, 60, 100);
@@ -232,8 +232,7 @@ public class MainTest extends Game{
 			this.player.setMass(100);
 			this.player.setLockCamera(true);
 			this.player.setCanWallJump(true);
-			this.player.setY(130);
-			secondRoom.addThing(this.player);
+			firstRoom.addThing(this.player);
 			
 			Door d = new Door(700, 400);
 			d.setLeadRoom(secondRoom, 50, 100);

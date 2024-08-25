@@ -17,8 +17,6 @@ import zgame.world.Room;
  */
 public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>>{
 	
-	// TODO Fix wall jumping
-	
 	/** @return The {@link EntityThing} using this object */
 	default E getThing(){
 		return this.getMobilityData().getEntity();
@@ -179,6 +177,7 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	
 	/**
 	 * Set the velocity of {@link #getThing()} to a velocity not exceeding the desired velocity, but combined with a vector of the current velocity
+	 *
 	 * @param ratio The precomputed value of {@link #getMobilityTryingRatio()}
 	 * @param desiredVel The desired velocity the entity wants to be at
 	 * @param currentVel The current velocity vector
@@ -192,7 +191,9 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	}
 	
 	/**
-	 * Set the velocity of {@link #getThing()} to a velocity not exceeding the desired velocity, but combined with a vector of the current velocity, exclusively on the horizontal axis
+	 * Set the velocity of {@link #getThing()} to a velocity not exceeding the desired velocity, but combined with a vector of the current velocity, exclusively on the
+	 * horizontal axis
+	 *
 	 * @param ratio The precomputed value of {@link #getMobilityTryingRatio()}
 	 * @param desiredVel The magnitude of the desired velocity the entity wants to be at
 	 * @param currentVel The current velocity vector
@@ -214,12 +215,15 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	
 	/**
 	 * Create a vector for {@link #getThing()} with the given magnitude, and in the direction this thing is trying to move in
+	 *
 	 * @param magnitude The magnitude
 	 * @return The vector
 	 */
 	V createTryingToMoveVector(double magnitude);
+	
 	/**
 	 * Create a vector for {@link #getThing()} with the given magnitude, and in the direction this thing is trying to move in, exclusively on the horizontal axis
+	 *
 	 * @param magnitude The magnitude
 	 * @return The vector
 	 */
@@ -270,7 +274,7 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		
 		// This entity can jump if it's on the ground, or if it can wall jump and is on a wall
 		mobilityData.setCanJump(
-				(this.hasTimeToFloorJump() || this.isCanWallJump() && this.hasTimeToWallJump() && mobilityData.isWallJumpAvailable()) && mobilityData.isGroundedSinceLastJump());
+				(this.hasTimeToFloorJump() && mobilityData.isGroundedSinceLastJump()) || (this.isCanWallJump() && this.hasTimeToWallJump() && mobilityData.isWallJumpAvailable()));
 		
 		// If building a jump, and able to jump, then add the time
 		if(mobilityData.isBuildingJump() && mobilityData.isCanJump()){
