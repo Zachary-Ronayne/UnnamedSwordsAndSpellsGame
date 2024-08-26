@@ -289,15 +289,18 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 			boolean invert = this.jumpingInverted();
 			if(invert && vy < 0 || !invert && vy > 0){
 				double mass = entity.getMass();
-				// TODO fix high jump stop power snapping you to the ground
 				double power = this.getJumpStopPower();
 				double newStopJumpVel = power / mass;
 				double newStopJumpForce = -power / dt;
 				
-				// If the jump force would adjust extra velocity making its total velocity downwards,
-				// then the jump stop force should be such that the y velocity will be 0 on the next tick
-				if(invert && vy > newStopJumpVel || !invert && vy < newStopJumpVel){
-					newStopJumpForce = -vy * mass / dt;
+				/*
+				 If the jump force would adjust extra velocity making its total velocity downwards,
+				 apply no force and set vertical velocity to 0
+				 */
+				if(!invert && vy > newStopJumpVel || invert && vy < newStopJumpVel){
+					mobilityData.setJumpingForce(0);
+					entity.setVerticalVel(0);
+					return;
 				}
 				
 				// Account for inverted jumping axis
