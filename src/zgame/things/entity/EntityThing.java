@@ -83,6 +83,9 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	/** The Material which this {@link EntityThing} is made of */
 	private Material material;
 	
+	/** true if collision should be disabled, false otherwise */
+	private boolean noClip;
+	
 	/**
 	 * Create a new empty entity with the given mass
 	 *
@@ -117,6 +120,9 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 		this.ceilingTime = 0;
 		this.wallMaterial = Materials.NONE;
 		this.wallTime = 0;
+		
+		this.noClip = false;
+		this.noClip = false;
 	}
 	
 	/** @return A new empty vector, representing no motion, for use with this entity. Should always return a new instance */
@@ -680,6 +686,16 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 */
 	public double getClampVelocity(){
 		return 1E-13;
+	}
+	
+	/** @return See {@link #noClip} */
+	public boolean isNoClip(){
+		return this.noClip;
+	}
+	
+	/** @param noClip See {@link #noClip} */
+	public void setNoClip(boolean noClip){
+		this.noClip = noClip;
 	}
 	
 	@Override

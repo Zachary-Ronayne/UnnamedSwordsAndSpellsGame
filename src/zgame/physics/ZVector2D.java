@@ -147,6 +147,11 @@ public class ZVector2D extends ZVector<ZVector2D>{
 		return ZVector.isOpposite(this.getAngle(), vector.getAngle());
 	}
 	
+	/** @return A vector which is the same as this one, but with the y axis inverted */
+	public ZVector2D invertY(){
+		return new ZVector2D(this.getX(), -this.getY());
+	}
+	
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder("[ZVector2D | x: ");

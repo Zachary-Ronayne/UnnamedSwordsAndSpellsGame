@@ -110,7 +110,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	}
 	
 	@Override
-	public HitboxType getType(){
+	public HitboxType getHitboxType(){
 		// TODO implement
 		return HitboxType.RECT;
 	}

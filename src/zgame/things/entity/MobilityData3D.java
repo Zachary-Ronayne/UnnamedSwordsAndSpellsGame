@@ -109,6 +109,6 @@ public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVecto
 			angleV = currentVel.getAngleV();
 		}
 		
-		this.setFlyingForce(this.getEntity().setForce(FORCE_NAME_FLYING, new ZVector3D(angleH, angleV, force, false)));
+		this.setFlyingForce(new ZVector3D(angleH, angleV, force, false));
 	}
 }

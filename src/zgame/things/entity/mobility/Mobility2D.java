@@ -59,18 +59,26 @@ public interface Mobility2D extends Mobility<HitBox2D, EntityThing2D, ZVector2D,
 	
 	@Override
 	default void applyFlyForce(double newFlyForce, boolean applyFacing){
-		// TODO implement
+		this.getMobilityData().updateFlyingForce(newFlyForce, applyFacing);
 	}
 	
 	@Override
 	default double getMobilityTryingRatio(){
-		// TODO implement this for both dimensions when flying?
-		
 		var mobilityData = this.getMobilityData();
-		double walkingDirection = mobilityData.getWalkingDirection();
-		if(walkingDirection == 0) return 0;
-		double currentVel = this.getThing().getHorizontalVel();
-		return ZMath.sameSign(currentVel, walkingDirection) ? 1 : -1;
+		var mobilityType = mobilityData.getType();
+		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){
+			var thing = this.getThing();
+			var velocity = thing.getVelocity();
+			double angleDiff = ZMath.angleDiff(mobilityData.getFlyingAngle(), velocity.getAngle());
+			return angleDiff / ZMath.PI_BY_2 - 1;
+		}
+		else if(mobilityType == MobilityType.WALKING){
+			double walkingDirection = mobilityData.getWalkingDirection();
+			if(walkingDirection == 0) return 0;
+			double currentVel = this.getThing().getHorizontalVel();
+			return ZMath.sameSign(currentVel, walkingDirection) ? 1 : -1;
+		}
+		return 0;
 	}
 	
 	/**
@@ -78,21 +86,43 @@ public interface Mobility2D extends Mobility<HitBox2D, EntityThing2D, ZVector2D,
 	 *
 	 * @param moveLeft true if movement should be to the left, false otherwise
 	 * @param moveRight true if movement should be to the right, false otherwise
-	 * @param jump true if jumping should occur, false otherwise
+	 * @param moveUp true if movement should happen in the upwards direction, false otherwise
+	 * @param moveDown true if movement should happen in the downwards direction, false otherwise
+	 * @param jump true if jumping should occur, false otherwise, ignored when flying
 	 * @param dt The amount of time that passed during this instance of time
 	 */
-	default void handleMobilityControls(boolean moveLeft, boolean moveRight, boolean jump, double dt){
-		// TODO implement flying
-		
-		// Move left and right
-		if(moveLeft) this.walkLeft();
-		else if(moveRight) this.walkRight();
-		else this.stopWalking();
-		
-		// Jump if holding the jump button
-		if(jump) this.jump(dt);
-		// For not holding the button
-		else this.checkPerformOrStopJump(dt);
+	default void handleMobilityControls(boolean moveLeft, boolean moveRight, boolean moveUp, boolean moveDown, boolean jump, double dt){
+		var data = this.getMobilityData();
+		var mobilityType = data.getType();
+		// Flying types don't matter for 2D, just has to be one of them
+		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){
+			int xDir;
+			int yDir;
+			if(moveLeft && !moveRight) xDir = -1;
+			else if(!moveLeft && moveRight) xDir = 1;
+			else xDir = 0;
+			
+			if(moveDown && !moveUp) yDir = 1;
+			else if(!moveDown && moveUp) yDir = -1;
+			else yDir = 0;
+			
+			boolean tryingToMove = moveLeft != moveRight || moveDown != moveUp;
+			if(tryingToMove) data.setFlyingAngle(ZMath.atan2Normalized(yDir, xDir));
+			else data.setFlyingAngle(this.getThing().getVelocity().getAngle());
+			// 0 for not moving, 1 for moving
+			data.setWalkingDirection(tryingToMove ? 1 : 0);
+		}
+		else if(mobilityType == MobilityType.WALKING){
+			// Move left and right
+			if(moveLeft) this.walkLeft();
+			else if(moveRight) this.walkRight();
+			else this.stopWalking();
+			
+			// Jump if holding the jump button
+			if(jump) this.jump(dt);
+			// For not holding the button
+			else this.checkPerformOrStopJump(dt);
+		}
 	}
 	
 	@Override
@@ -102,8 +132,16 @@ public interface Mobility2D extends Mobility<HitBox2D, EntityThing2D, ZVector2D,
 	
 	@Override
 	default ZVector2D createTryingToMoveVector(double magnitude){
-		if(this.walkingLeft()) return new ZVector2D(magnitude, Math.PI, false);
-		else if(this.walkingRight()) return new ZVector2D(magnitude, 0, false);
+		var data = this.getMobilityData();
+		var mobilityType = data.getType();
+		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){
+			return new ZVector2D(data.getFlyingAngle(), magnitude, false);
+		}
+		else if(mobilityType == MobilityType.WALKING){
+			if(this.walkingLeft()) return new ZVector2D(Math.PI, magnitude, false);
+			else if(this.walkingRight()) return new ZVector2D(0, magnitude, false);
+		}
+		
 		return new ZVector2D();
 	}
 	

@@ -58,7 +58,7 @@ public interface HitBox2D extends HitBox<HitBox2D>, Bounds2D{
 	 * @return The response
 	 */
 	default CollisionResponse calculateCollision(HitBox2D h){
-		switch(this.getType()){
+		switch(this.getHitboxType()){
 			case CIRCLE -> {
 				return this.calculateCircleCollision(h.getX(), h.getY(), h.getWidth() * 0.5, h.getMaterial());
 			}
@@ -93,7 +93,7 @@ public interface HitBox2D extends HitBox<HitBox2D>, Bounds2D{
 	@Override
 	default boolean intersects(HitBox2D hitbox){
 		var h = hitbox.get();
-		switch(h.getType()){
+		switch(h.getHitboxType()){
 			case CIRCLE -> {
 				return this.intersectsCircle(h.centerX(), h.centerY(), h.getWidth() * 0.5);
 			}

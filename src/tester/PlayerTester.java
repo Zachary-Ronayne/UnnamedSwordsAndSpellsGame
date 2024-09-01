@@ -97,7 +97,8 @@ public abstract class PlayerTester extends MobilityEntity2D{
 		
 		// Now handle movement controls
 		var ki = game.getKeyInput();
-		this.handleMobilityControls(ki.pressed(GLFW_KEY_LEFT), ki.pressed(GLFW_KEY_RIGHT), ki.pressed(GLFW_KEY_UP), dt);
+		boolean up = ki.pressed(GLFW_KEY_UP);
+		this.handleMobilityControls(ki.pressed(GLFW_KEY_LEFT), ki.pressed(GLFW_KEY_RIGHT), up, ki.pressed(GLFW_KEY_DOWN), up, dt);
 		
 		// Now the camera to the player after repositioning the player
 		this.checkCenterCamera(game);
@@ -316,4 +317,8 @@ public abstract class PlayerTester extends MobilityEntity2D{
 		this.setWalking(!this.isWalking());
 	}
 	
+	@Override
+	public double getFlyStopPower(){
+		return this.getWalkAcceleration() * 100;
+	}
 }

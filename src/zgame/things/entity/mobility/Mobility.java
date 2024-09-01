@@ -1,5 +1,6 @@
 package zgame.things.entity.mobility;
 
+import zgame.core.utils.ZStringUtils;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 import zgame.things.entity.EntityThing;
@@ -142,12 +143,12 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 			// If at or above max speed, just set the angle, apply no force
 			if(currentVelMag >= maxSpeed){
 				newFlyForce = 0;
-				moveVelocityToDesired(this.getMobilityTryingRatio(), currentVelMag, currentVel);
+				this.getThing().setVelocity(this.createTryingToMoveVector(currentVelMag));
 			}
 			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
 			else if(Math.abs(currentVelMag + initialFlyForceVel) >= maxSpeed){
 				newFlyForce = 0;
-				moveVelocityToDesired(this.getMobilityTryingRatio(), maxSpeed, currentVel);
+				this.getThing().setVelocity(this.createTryingToMoveVector(maxSpeed));
 			}
 			// Otherwise, just apply the already calculated full amount for newFlyForce
 		}
@@ -171,21 +172,6 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 		
 		// Apply the force
 		this.applyFlyForce(newFlyForce, tryingToMove);
-	}
-	
-	/**
-	 * Set the velocity of {@link #getThing()} to a velocity not exceeding the desired velocity, but combined with a vector of the current velocity
-	 *
-	 * @param ratio The precomputed value of {@link #getMobilityTryingRatio()}
-	 * @param desiredVel The desired velocity the entity wants to be at
-	 * @param currentVel The current velocity vector
-	 */
-	default void moveVelocityToDesired(double ratio, double desiredVel, V currentVel){
-		// If the desired angle is different from actual angle, then the speed needs to be a combination of the current velocity and the desired velocity
-		double facingRatio = (ratio + 1.0) / 2.0;
-		var newVel = currentVel.modifyVerticalMagnitude(0).scale(1 - facingRatio).add(this.createTryingToMoveVector(desiredVel).scale(facingRatio));
-		if(newVel.getMagnitude() > desiredVel) newVel = newVel.modifyMagnitude(desiredVel);
-		this.getThing().setVelocity(newVel);
 	}
 	
 	/**

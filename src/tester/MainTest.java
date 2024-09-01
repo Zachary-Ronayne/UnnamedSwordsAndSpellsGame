@@ -27,6 +27,7 @@ import zgame.menu.scroller.MenuScroller;
 import zgame.menu.scroller.VerticalScroller;
 import zgame.physics.material.MaterialConst;
 import zgame.physics.material.Materials;
+import zgame.things.entity.mobility.MobilityType;
 import zgame.things.still.Door;
 import zgame.things.still.tiles.BaseTiles;
 import zgame.world.Room2D;
@@ -306,6 +307,13 @@ public class MainTest extends Game{
 			else if(button == GLFW_KEY_A) r.makeWallState(Room2D.WALL_LEFT, !r.isSolid(Room2D.WALL_LEFT));
 			else if(button == GLFW_KEY_S) r.makeWallState(Room2D.WALL_FLOOR, !r.isSolid(Room2D.WALL_FLOOR));
 			else if(button == GLFW_KEY_D) r.makeWallState(Room2D.WALL_RIGHT, !r.isSolid(Room2D.WALL_RIGHT));
+			else if(button == GLFW_KEY_F) {
+				var mobilityData = player.getMobilityData();
+				var mobilityType = mobilityData.getType();
+				if(mobilityType == MobilityType.WALKING) mobilityData.setType(shift ? MobilityType.FLYING_AXIS : MobilityType.FLYING);
+				else mobilityData.setType(MobilityType.WALKING);
+			}
+			else if(button == GLFW_KEY_N) player.setNoClip(!player.isNoClip());
 			else if(button == GLFW_KEY_MINUS) player.setJumpPower(player.getJumpPower() - 10);
 			else if(button == GLFW_KEY_EQUAL) player.setJumpPower(player.getJumpPower() + 10);
 			else if(shift && button == GLFW_KEY_L) player.setLockCamera(!player.isLockCamera());

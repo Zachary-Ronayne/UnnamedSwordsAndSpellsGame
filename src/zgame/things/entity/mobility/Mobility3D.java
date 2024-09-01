@@ -61,6 +61,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 		
 		var mobilityType = mobilityData.getType();
 		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){
+			// TODO fix flying feeling borked when trying to move in more than one direction at once, i.e. left, up, and back
 			mobilityData.setTryingToMove(left != right || up != down || forward != backward);
 			double verticalAngle;
 			double horizontalAngle = angleH;

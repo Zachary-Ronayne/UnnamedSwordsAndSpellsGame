@@ -9,7 +9,7 @@ import zgame.physics.material.Material;
 public interface RectangleHitBox extends HitBox2D{
 	
 	@Override
-	default HitboxType getType(){
+	default HitboxType getHitboxType(){
 		return HitboxType.RECT;
 	}
 	

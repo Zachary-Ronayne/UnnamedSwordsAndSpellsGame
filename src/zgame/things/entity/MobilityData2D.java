@@ -8,8 +8,11 @@ import zgame.world.Room2D;
 /** A type of {@link MobilityData} that exists in 2D space */
 public class MobilityData2D extends MobilityData<HitBox2D, EntityThing2D, ZVector2D, Room2D>{
 	
-	/** The direction this is walking. -1 for walking to the left, 0 for not walking, 1 for walking to the right */
+	/** The direction {@link #entity} walking. -1 for walking to the left, 0 for not walking, 1 for walking to the right */
 	private int walkingDirection;
+	
+	/** The angle, in radians that {@link #entity} is trying to fly at */
+	private double flyingAngle;
 	
 	/**
 	 * Create a new walk object for use in {@link Mobility2D}
@@ -20,6 +23,7 @@ public class MobilityData2D extends MobilityData<HitBox2D, EntityThing2D, ZVecto
 		super(entity);
 		
 		this.setWalkingDirection(0);
+		this.setFlyingAngle(0);
 	}
 	
 	/** @return See {@link #walkingDirection} */
@@ -42,9 +46,19 @@ public class MobilityData2D extends MobilityData<HitBox2D, EntityThing2D, ZVecto
 		this.setWalkingForce(this.getEntity().setHorizontalForce(FORCE_NAME_WALKING, force));
 	}
 	
+	/** @return See {@link #flyingAngle} */
+	public double getFlyingAngle(){
+		return this.flyingAngle;
+	}
+	
+	/** @param flyingAngle See {@link #flyingAngle} */
+	public void setFlyingAngle(double flyingAngle){
+		this.flyingAngle = flyingAngle;
+	}
+	
 	@Override
 	public void updateFlyingForce(double force, boolean applyFacing){
-		// TODO implement with an angle
-		this.setWalkingForce(this.getEntity().setForce(FORCE_NAME_FLYING, new ZVector2D()));
+		// For 2D, apply facing is irrelevant
+		this.setFlyingForce(new ZVector2D(this.getFlyingAngle(), force, false));
 	}
 }

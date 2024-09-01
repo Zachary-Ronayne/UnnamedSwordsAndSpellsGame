@@ -146,7 +146,11 @@ public abstract class Room<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 		for(int i = 0; i < entities.size(); i++) entities.get(i).updatePosition(game, dt);
 		
 		// Check the collision of this room for entities
-		for(int i = 0; i < entities.size(); i++) this.collide(entities.get(i).get());
+		for(int i = 0; i < entities.size(); i++) {
+			var e = entities.get(i);
+			if(e.isNoClip()) continue;
+			this.collide(e.get());
+		}
 		
 		// Remove all things that need to be removed
 		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(thing);

@@ -15,7 +15,7 @@ public interface HitBox<H extends HitBox<H>> extends Materialable, Uuidable {
 	
 	// TODO abstract out the type?
 	/** @return The type of this hitbox, for determining how it will collide with other hitboxes */
-	HitboxType getType();
+	HitboxType getHitboxType();
 	
 	/**
 	 * @param h The hitbox to check

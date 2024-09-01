@@ -462,7 +462,7 @@ public class GameDemo3D extends Game{
 			return 3.4;
 		}
 		
-		// TODO should this be power, like momentum, instead of acceleration?
+		// TODO should this be power, like momentum, instead of acceleration? Make all of these power fields use the same units, also rename if needed
 		@Override
 		public double getFlyAcceleration(){
 			return 10.0;

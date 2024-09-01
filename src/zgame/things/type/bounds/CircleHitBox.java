@@ -10,7 +10,7 @@ import zgame.physics.material.Material;
 public interface CircleHitBox extends HitBox2D{
 	
 	@Override
-	default HitboxType getType(){
+	default HitboxType getHitboxType(){
 		return HitboxType.CIRCLE;
 	}
 	
