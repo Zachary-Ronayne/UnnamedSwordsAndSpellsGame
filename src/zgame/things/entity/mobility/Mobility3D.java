@@ -61,7 +61,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 		
 		var mobilityType = mobilityData.getType();
 		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){
-			// TODO fix flying feeling borked when trying to move in more than one direction at once, i.e. left, up, and back
+			// issue#37 fix flying feeling borked when trying to move in more than one direction at once, i.e. left, up, and back
 			mobilityData.setTryingToMove(left != right || up != down || forward != backward);
 			double verticalAngle;
 			double horizontalAngle = angleH;
@@ -74,7 +74,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 			}
 			else{
 				verticalAngle = angleV;
-				
+
 				// Account for strafing up and down
 				if(up || down){
 					double modifier = up ? ZMath.PI_BY_2 : -ZMath.PI_BY_2;
@@ -83,7 +83,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 			}
 			// Account for strafing
 			horizontalAngle += this.calculateStrafeModifier(left, right, forward, backward);
-			
+
 			// Only the vertical axis needs to be inverted here because only one axis needs to be inverted
 			if(backward && !forward) verticalAngle = verticalAngle + Math.PI;
 			
