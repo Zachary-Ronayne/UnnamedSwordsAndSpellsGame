@@ -4,17 +4,15 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector2D;
-import zgame.physics.collision.CollisionResponse;
+import zgame.physics.collision.CollisionResult;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing2D;
-import zgame.things.still.tiles.BaseTiles;
-import zgame.things.still.tiles.Tile;
-import zgame.things.still.tiles.TileType;
+import zgame.things.still.tiles.BaseTiles2D;
+import zgame.things.still.tiles.Tile2D;
+import zgame.things.still.tiles.TileType2D;
 import zgame.things.type.bounds.Bounds2D;
 import zgame.things.type.bounds.HitBox2D;
-
-import java.util.ArrayList;
 
 /** A {@link Room} which is made of 2D tiles */
 public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> implements Bounds2D{
@@ -31,8 +29,8 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	/** The material to use for the walls of this room */
 	private Material wallMaterial;
 	
-	/** The 2D grid of {@link Tile} objects defining this {@link Room} */
-	private ArrayList<ArrayList<Tile>> tiles;
+	/** The 2D grid of {@link Tile2D} objects defining this {@link Room} */
+	private Tile2D[][] tiles;
 	
 	/** The number of tiles wide this room is, i.e. the number of tiles on the x axis */
 	private int xTiles;
@@ -79,7 +77,7 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	 * @param yTiles The number of tiles on the y axis
 	 */
 	public void initTiles(int xTiles, int yTiles){
-		this.initTiles(xTiles, yTiles, BaseTiles.AIR);
+		this.initTiles(xTiles, yTiles, BaseTiles2D.AIR);
 	}
 	
 	/**
@@ -89,23 +87,21 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	 * @param yTiles The number of tiles on the y axis
 	 * @param t The type for every tile
 	 */
-	public void initTiles(int xTiles, int yTiles, TileType t){
+	public void initTiles(int xTiles, int yTiles, TileType2D t){
 		this.xTiles = xTiles;
 		this.yTiles = yTiles;
-		this.width = xTiles * Tile.TILE_SIZE;
-		this.height = yTiles * Tile.TILE_SIZE;
-		this.tiles = new ArrayList<>(xTiles);
+		this.width = xTiles * Tile2D.TILE_SIZE;
+		this.height = yTiles * Tile2D.TILE_SIZE;
+		this.tiles = new Tile2D[xTiles][yTiles];
 		for(int i = 0; i < xTiles; i++){
-			ArrayList<Tile> col = new ArrayList<>(yTiles);
-			this.tiles.add(col);
 			for(int j = 0; j < yTiles; j++){
-				col.add(new Tile(i, j, t, t));
+				tiles[i][j] = new Tile2D(i, j, t, t);
 			}
 		}
 	}
 	
 	@Override
-	public CollisionResponse collide(HitBox2D h){
+	public CollisionResult collide(HitBox2D h){
 		var obj = h.get();
 		
 		// Find touching tiles and collide with them
@@ -127,8 +123,8 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 		
 		for(int x = minX; x <= maxX; x++){
 			for(int y = minY; y <= maxY; y++){
-				Tile t = this.tiles.get(x).get(y);
-				CollisionResponse res = t.collide(obj);
+				Tile2D t = this.tiles[x][y];
+				CollisionResult res = t.collide(obj);
 				// Keep track of if a tile was touched
 				boolean currentCollided = res.x() != 0 || res.y() != 0;
 				
@@ -149,7 +145,7 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 			}
 		}
 		// Determine the final collision
-		CollisionResponse res = new CollisionResponse(mx, my, left, right, top, bot, material);
+		CollisionResult res = new CollisionResult(mx, my, left, right, top, bot, material);
 		
 		boolean touchedFloor = false;
 		boolean touchedCeiling = false;
@@ -210,12 +206,12 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	 */
 	public void render(Game game, Renderer r){
 		// Determine the indexes of the tiles that need to be rendered
-		int startX = Math.max(0, (int)Math.floor(game.getScreenLeft() / Tile.size()));
-		int endX = Math.min(this.getXTiles(), (int)Math.ceil(game.getScreenRight() / Tile.size()));
-		int startY = Math.max(0, (int)Math.floor(game.getScreenTop() / Tile.size()));
-		int endY = Math.min(this.getYTiles(), (int)Math.ceil(game.getScreenBottom() / Tile.size()));
+		int startX = Math.max(0, (int)Math.floor(game.getScreenLeft() / Tile2D.size()));
+		int endX = Math.min(this.getXTiles(), (int)Math.ceil(game.getScreenRight() / Tile2D.size()));
+		int startY = Math.max(0, (int)Math.floor(game.getScreenTop() / Tile2D.size()));
+		int endY = Math.min(this.getYTiles(), (int)Math.ceil(game.getScreenBottom() / Tile2D.size()));
 		// Draw all the tiles
-		for(int i = startX; i < endX; i++) for(int j = startY; j < endY; j++) this.tiles.get(i).get(j).renderWithCheck(game, r);
+		for(int i = startX; i < endX; i++) for(int j = startY; j < endY; j++) this.tiles[i][j].renderWithCheck(game, r);
 		
 		super.render(game, r);
 	}
@@ -344,8 +340,8 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	 * @param y The tile on the y axis
 	 * @return The tile, or null if the tile is outside of the range of the grid
 	 */
-	public Tile getTile(int x, int y){
-		if(!ZMath.in(0, x, this.tiles.size() - 1) || !ZMath.in(0, y, this.tiles.get(x).size() - 1)) return null;
+	public Tile2D getTile(int x, int y){
+		if(!ZMath.in(0, x, this.tiles.length - 1) || !ZMath.in(0, y, this.tiles[x].length - 1)) return null;
 		return this.getTileUnchecked(x, y);
 	}
 	
@@ -358,8 +354,8 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	 * @param y The tile on the y axis
 	 * @return The tile
 	 */
-	public Tile getTileUnchecked(int x, int y){
-		return this.tiles.get(x).get(y);
+	public Tile2D getTileUnchecked(int x, int y){
+		return this.tiles[x][y];
 	}
 	
 	/**
@@ -370,9 +366,9 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	 * @param t The type of tile to set
 	 * @return true if the tile was set, false if it was not i.e. the index was outside the grid
 	 */
-	public boolean setTile(int x, int y, TileType t){
+	public boolean setTile(int x, int y, TileType2D t){
 		if(!this.inTiles(x, y)) return false;
-		this.tiles.get(x).set(y, new Tile(x, y, t));
+		this.tiles[x][y] = new Tile2D(x, y, t);
 		return true;
 	}
 	
@@ -384,9 +380,9 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	 * @param t The type of tile to use as the back type
 	 * @return true if the tile was set, false if it was not i.e. the index was outside the grid
 	 */
-	public boolean setBackTile(int x, int y, TileType t){
+	public boolean setBackTile(int x, int y, TileType2D t){
 		if(!this.inTiles(x, y)) return false;
-		this.tiles.get(x).get(y).setBackType(t);
+		this.tiles[x][y].setBackType(t);
 		return true;
 	}
 	
@@ -399,9 +395,9 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	 * @param t The type of tile to use as the front type
 	 * @return true if the tile was set, false if it was not i.e. the index was outside the grid
 	 */
-	public boolean setFrontTile(int x, int y, TileType t){
+	public boolean setFrontTile(int x, int y, TileType2D t){
 		if(!this.inTiles(x, y)) return false;
-		this.tiles.get(x).get(y).setFrontType(t);
+		this.tiles[x][y].setFrontType(t);
 		return true;
 	}
 	
@@ -414,9 +410,9 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	 * @param front The type of tile for the front
 	 * @return true if the tile was set, false if it was not i.e. the index was outside the grid
 	 */
-	public boolean setTile(int x, int y, TileType back, TileType front){
+	public boolean setTile(int x, int y, TileType2D back, TileType2D front){
 		if(!this.inTiles(x, y)) return false;
-		this.tiles.get(x).set(y, new Tile(x, y, back, front));
+		this.tiles[x][y] = new Tile2D(x, y, back, front);
 		return true;
 	}
 	
@@ -427,7 +423,7 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	 * @return The index, or if the coordinate is outside the bounds, then the index of the closest tile to the side the coordinate is out of bounds on
 	 */
 	public int tileX(double x){
-		return (int)ZMath.minMax(0, this.getXTiles() - 1, Math.floor(x * Tile.inverseSize()));
+		return (int)ZMath.minMax(0, this.getXTiles() - 1, Math.floor(x * Tile2D.inverseSize()));
 	}
 	
 	/**
@@ -437,7 +433,7 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	 * @return The index, or if the coordinate is outside the bounds, then the index of the closest tile to the side the coordinate is out of bounds on
 	 */
 	public int tileY(double y){
-		return (int)ZMath.minMax(0, this.getYTiles() - 1, Math.floor(y * Tile.inverseSize()));
+		return (int)ZMath.minMax(0, this.getYTiles() - 1, Math.floor(y * Tile2D.inverseSize()));
 	}
 	
 	/**

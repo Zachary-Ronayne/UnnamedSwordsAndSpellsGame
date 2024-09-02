@@ -1,9 +1,12 @@
 package zgame.world;
 
+import zgame.core.Game;
+import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector3D;
-import zgame.physics.collision.CollisionResponse;
+import zgame.physics.collision.CollisionResult;
 import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing3D;
+import zgame.things.still.tiles.*;
 import zgame.things.type.bounds.Bounds3D;
 import zgame.things.type.bounds.HitBox3D;
 
@@ -18,16 +21,58 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D> imp
 	/** An array of 6 elements representing how far along each axis the boundary exists from the origin (0, 0, 0) */
 	private final double[] boundarySizes;
 	
+	// TODO should tiles be able to go into the negatives? Or have a Minecraft like "chunk" system? Need to decide after getting a minimal implementation working
+	
+	/** All tiles which are used by this room */
+	private Tile3D[][][] tiles;
+	
+	/** The number of tiles in the x axis in the room */
+	private int tilesX;
+	
+	/** The number of tiles in the y axis in the room */
+	private int tilesY;
+	
+	/** The number of tiles in the z axis in the room */
+	private int tilesZ;
+	
 	/**
-	 * Create a new empty room in 3D space
+	 * Create a new empty room in 3D space with the given tile size
+	 * @param tilesX See {@link #tilesX}
+	 * @param tilesY See {@link #tilesY}
+	 * @param tilesZ See {@link #tilesZ}
 	 */
-	public Room3D(){
+	public Room3D(int tilesX, int tilesY, int tilesZ){
 		super();
+		this.initTiles(tilesX, tilesY, tilesZ, BaseTiles3D.AIR);
+		
 		this.enabledBoundaries = new boolean[6];
 		this.setAllBoundaries(true);
 		this.boundarySizes = new double[6];
 		this.setAllBoundaries(4);
 		this.setBoundary(Directions3D.DOWN, 0);
+	}
+	
+	/**
+	 * Initialize {@link #tiles} to the given size
+	 *
+	 * @param xTiles The number of tiles on the x axis
+	 * @param yTiles The number of tiles on the y axis
+	 * @param zTiles The number of tiles on the z axis
+	 * @param t The type for every tile
+	 */
+	public void initTiles(int xTiles, int yTiles, int zTiles, TileType3D t){
+		this.tilesX = xTiles;
+		this.tilesY = yTiles;
+		this.tilesZ = zTiles;
+		
+		this.tiles = new Tile3D[xTiles][yTiles][zTiles];
+		for(int x = 0; x < xTiles; x++){
+			for(int y = 0; y < yTiles; y++){
+				for(int z = 0; z < zTiles; z++){
+					this.setTile(x, y, z, t);
+				}
+			}
+		}
 	}
 	
 	/** The position of a room will always be the origin (0, 0, 0) */
@@ -99,7 +144,6 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D> imp
 		Arrays.fill(this.enabledBoundaries, enabled);
 	}
 	
-	
 	/**
 	 * Update the size of the every boundary
 	 *
@@ -168,7 +212,21 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D> imp
 	}
 	
 	@Override
-	public CollisionResponse collide(HitBox3D obj){
+	public void render(Game game, Renderer r){
+		// TODO make a way to efficiently render tiles, i.e. only render the ones that need to be rendered
+		for(int x = 0; x < this.tilesX; x++){
+			for(int y = 0; y < this.tilesY; y++){
+				for(int z = 0; z < this.tilesZ; z++){
+					this.tiles[x][y][z].render(game, r);
+				}
+			}
+		}
+		
+		super.render(game, r);
+	}
+	
+	@Override
+	public CollisionResult collide(HitBox3D obj){
 		// x axis, i.e. east west
 		double widthOffset = obj.getWidth() * 0.5;
 		if(this.boundaryEnabled(Directions3D.EAST) && obj.getX() > this.getBoundary(Directions3D.EAST) - widthOffset){
@@ -191,6 +249,8 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D> imp
 			obj.touchWall(Materials.BOUNDARY);
 		}
 		
+		// TODO implement collision with tiles
+		
 		// y axis, i.e. up down
 		double height = obj.getHeight();
 		if(this.boundaryEnabled(Directions3D.UP) && obj.getY() > this.getBoundary(Directions3D.UP) - height){
@@ -207,7 +267,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D> imp
 			else obj.touchFloor(obj.getFloorMaterial());
 		}
 		
-		return new CollisionResponse();
+		return new CollisionResult();
 	}
 	
 	@Override
@@ -220,4 +280,29 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D> imp
 		return EntityThing3D.class;
 	}
 	
+	/**
+	 * Set the tile at the given indexes
+	 * @param x The x index
+	 * @param y The y index
+	 * @param z The x index
+	 * @param t The new tile type
+	 */
+	public void setTile(int x, int y, int z, TileType3D t){
+		this.tiles[x][y][z] = new Tile3D(x, y, z, t);
+	}
+	
+	/** @return See {@link #tilesX} */
+	public int getTilesX(){
+		return this.tilesX;
+	}
+	
+	/** @return See {@link #tilesY} */
+	public int getTilesY(){
+		return this.tilesY;
+	}
+	
+	/** @return See {@link #tilesZ} */
+	public int getTilesZ(){
+		return this.tilesZ;
+	}
 }

@@ -17,11 +17,11 @@ public class CircleColorTile extends ColorTile{
 	 * @param material See {@link #material}
 	 */
 	public CircleColorTile(String id, String origin, ZColor frontColor, Material material){
-		super(id, origin, TileHitbox.CIRCLE, frontColor, material);
+		super(id, origin, TileHitbox2D.CIRCLE, frontColor, material);
 	}
 	
 	@Override
-	public void render(Tile t, Game g, Renderer r){
+	public void render(Tile2D t, Game g, Renderer r){
 		r.setColor(this.getColor());
 		var b = t.getBounds();
 		r.drawCircle(b.getCenterX(), b.getCenterY(), b.getWidth() * 0.5);

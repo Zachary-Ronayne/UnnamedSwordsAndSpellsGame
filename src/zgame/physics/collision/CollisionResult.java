@@ -5,9 +5,8 @@ import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 
 /** An object containing values for what should happen to an object when it collides with something */
-public class CollisionResponse{
+public class CollisionResult{
 	// TODO abstract this to 2D and 3D
-	// TODO rename this to CollisionResult
 	
 	/** The amount to add to the x coordinate so that it no longer collides */
 	private final double x;
@@ -26,23 +25,23 @@ public class CollisionResponse{
 	private final Material material;
 	
 	/** A response representing no collision occurring */
-	public CollisionResponse(){
+	public CollisionResult(){
 		this(0, 0, null);
 	}
 	
 	/**
-	 * Create a new {@link CollisionResponse} with the given amount of movement, where no walls were collided with
+	 * Create a new {@link CollisionResult} with the given amount of movement, where no walls were collided with
 	 *
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
 	 */
-	public CollisionResponse(double x, double y, Material material){
+	public CollisionResult(double x, double y, Material material){
 		this(x, y, false, false, false, false, material);
 	}
 	
 	/**
-	 * Create a new {@link CollisionResponse} with the given values
+	 * Create a new {@link CollisionResult} with the given values
 	 *
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
@@ -52,7 +51,7 @@ public class CollisionResponse{
 	 * @param floor See {@link #floor}
 	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
 	 */
-	public CollisionResponse(double x, double y, boolean left, boolean right, boolean ceiling, boolean floor, Material material){
+	public CollisionResult(double x, double y, boolean left, boolean right, boolean ceiling, boolean floor, Material material){
 		this.x = x;
 		this.y = y;
 		this.left = left;
@@ -63,7 +62,7 @@ public class CollisionResponse{
 		this.material = (material == null) ? Materials.NONE : material;
 	}
 	
-	/** @return true if this {@link CollisionResponse} represents a collision happening, false if no collision took place */
+	/** @return true if this {@link CollisionResult} represents a collision happening, false if no collision took place */
 	public boolean isCollided(){
 		return this.x() != 0 || this.y() != 0;
 	}
@@ -114,34 +113,34 @@ public class CollisionResponse{
 	}
 	
 	/**
-	 * Get an identical copy of this {@link CollisionResponse}, but with the x and y values scaled by the given value
+	 * Get an identical copy of this {@link CollisionResult}, but with the x and y values scaled by the given value
 	 *
 	 * @param s The scaling value
 	 * @return The scaled response
 	 */
-	public CollisionResponse scale(double s){
+	public CollisionResult scale(double s){
 		if(s < 0){
 			var oppositeSide = !this.left() && !this.right();
 			var oppositeTop = !this.ceiling() && !this.floor();
-			return new CollisionResponse(this.x() * s, this.y() * s,
+			return new CollisionResult(this.x() * s, this.y() * s,
 					this.left() == oppositeSide, this.right() == oppositeSide,
 					this.ceiling() == oppositeTop, this.floor() == oppositeTop,
 					this.material()
 			);
 		}
-		return new CollisionResponse(s * this.x(), s * this.y(), this.left(), this.right(), this.ceiling(), this.floor(), this.material());
+		return new CollisionResult(s * this.x(), s * this.y(), this.left(), this.right(), this.ceiling(), this.floor(), this.material());
 	}
 	
 	/**
-	 * Get an identical copy of this {@link CollisionResponse}, but with the left and right sides and the ceiling and floor values swapped
+	 * Get an identical copy of this {@link CollisionResult}, but with the left and right sides and the ceiling and floor values swapped
 	 * if one is true and the other is false
 	 *
 	 * @return The modified response
 	 */
-	public CollisionResponse invertDirections(){
+	public CollisionResult invertDirections(){
 		var oppositeSide = !this.left() && !this.right();
 		var oppositeTop = !this.ceiling() && !this.floor();
-		return new CollisionResponse(this.x(), this.y(),
+		return new CollisionResult(this.x(), this.y(),
 				this.left() == oppositeSide, this.right() == oppositeSide,
 				this.ceiling() == oppositeTop, this.floor() == oppositeTop,
 				this.material()

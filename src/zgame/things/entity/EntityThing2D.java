@@ -3,7 +3,7 @@ package zgame.things.entity;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector2D;
-import zgame.physics.collision.CollisionResponse;
+import zgame.physics.collision.CollisionResult;
 import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room2D;
 
@@ -95,7 +95,7 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	}
 	
 	@Override
-	public void collide(CollisionResponse r){
+	public void collide(CollisionResult r){
 		// TODO implement properly and abstract out some of this logic to 2D and 3D? CollisionResponse will need 2D and 3D versions
 		this.addX(r.x());
 		this.addY(r.y());

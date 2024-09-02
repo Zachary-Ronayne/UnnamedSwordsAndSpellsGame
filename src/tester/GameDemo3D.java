@@ -12,6 +12,7 @@ import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
 import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.mobility.MobilityType;
+import zgame.things.still.tiles.BaseTiles3D;
 import zgame.world.Directions3D;
 import zgame.world.Room3D;
 
@@ -218,11 +219,14 @@ public class GameDemo3D extends Game{
 	private static class DummyRoom extends Room3D{
 		
 		public DummyRoom(){
-			super();
+			super(2, 2, 2);
+			this.setTile(1, 0, 1, BaseTiles3D.SOLID_LIGHT);
 			this.setEqualWidth(8);
 			this.setEqualLength(10);
+			
+			// TODO make boundaries based on the tiles
 			this.setBoundary(Directions3D.DOWN, 0);
-			this.setBoundary(Directions3D.UP, 0.6);
+			this.setBoundary(Directions3D.UP, 4);
 			this.setBoundary(Directions3D.UP, false);
 		}
 		
@@ -389,7 +393,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getJumpPower(){
-			return 300.0;
+			return 500.0;
 		}
 		
 		@Override
@@ -489,7 +493,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getHeight(){
-			return 0.3;
+			return 0.6;
 		}
 		
 		@Override

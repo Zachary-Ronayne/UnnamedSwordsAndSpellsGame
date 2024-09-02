@@ -1,7 +1,7 @@
 package zgame.things.type.bounds;
 
 import zgame.core.utils.Uuidable;
-import zgame.physics.collision.CollisionResponse;
+import zgame.physics.collision.CollisionResult;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.entity.projectile.Projectile;
@@ -24,11 +24,11 @@ public interface HitBox<H extends HitBox<H>> extends Materialable, Uuidable {
 	boolean intersects(H h);
 	
 	/**
-	 * Apply the given {@link CollisionResponse} to this object
+	 * Apply the given {@link CollisionResult} to this object
 	 *
-	 * @param r The {@link CollisionResponse} to use
+	 * @param r The {@link CollisionResult} to use
 	 */
-	void collide(CollisionResponse r);
+	void collide(CollisionResult r);
 	
 	/**
 	 * Called when this {@link HitBox} is hit by a projectile. Does nothing by default, implement to provide custom behavior

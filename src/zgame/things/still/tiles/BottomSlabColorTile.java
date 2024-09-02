@@ -17,11 +17,11 @@ public class BottomSlabColorTile extends ColorTile{
 	 * @param material See {@link #material}
 	 */
 	public BottomSlabColorTile(String id, String origin, ZColor frontColor, Material material){
-		super(id, origin, TileHitbox.BOTTOM_SLAB, frontColor, material);
+		super(id, origin, TileHitbox2D.BOTTOM_SLAB, frontColor, material);
 	}
 	
 	@Override
-	public void render(Tile t, Game g, Renderer r){
+	public void render(Tile2D t, Game g, Renderer r){
 		r.setColor(this.getColor());
 		var b = t.getBounds();
 		r.drawRectangle(b.getX(), b.getCenterY(), b.getWidth(), b.getHeight() * 0.5);

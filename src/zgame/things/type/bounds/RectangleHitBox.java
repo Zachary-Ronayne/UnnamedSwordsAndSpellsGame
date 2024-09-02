@@ -1,7 +1,7 @@
 package zgame.things.type.bounds;
 
 import zgame.core.utils.ZMath;
-import zgame.physics.collision.CollisionResponse;
+import zgame.physics.collision.CollisionResult;
 import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
 
@@ -14,12 +14,12 @@ public interface RectangleHitBox extends HitBox2D{
 	}
 	
 	@Override
-	default CollisionResponse calculateRectCollision(double x, double y, double w, double h, Material m){
+	default CollisionResult calculateRectCollision(double x, double y, double w, double h, Material m){
 		return ZCollision.rectToRectBasic(x, y, w, h, this.getX(), this.getY(), this.getWidth(), this.getHeight(), m);
 	}
 	
 	@Override
-	default CollisionResponse calculateCircleCollision(double x, double y, double r, Material m){
+	default CollisionResult calculateCircleCollision(double x, double y, double r, Material m){
 		return ZCollision.rectToCircleBasic(this.getX(), this.getY(), this.getWidth(), this.getHeight(), x, y, r, m).scale(-1);
 	}
 	

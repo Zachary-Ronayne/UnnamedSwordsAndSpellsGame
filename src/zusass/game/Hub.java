@@ -2,8 +2,8 @@ package zusass.game;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.things.still.tiles.BaseTiles;
-import zgame.things.still.tiles.Tile;
+import zgame.things.still.tiles.BaseTiles2D;
+import zgame.things.still.tiles.Tile2D;
 import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zusass.ZusassData;
@@ -34,13 +34,13 @@ public class Hub extends ZusassRoom{
 			for(int j = 0; j < Y_TILES; j++){
 				boolean i0 = i % 2 == 0;
 				boolean j0 = j % 2 == 0;
-				this.setTile(i, j, (i0 == j0) ? BaseTiles.BACK_LIGHT : BaseTiles.BACK_DARK);
+				this.setTile(i, j, (i0 == j0) ? BaseTiles2D.BACK_LIGHT : BaseTiles2D.BACK_DARK);
 			}
 		}
 		// The door to start at the highest level gotten to
-		this.setTile(9, 10, BaseTiles.WALL_DARK);
-		this.setTile(6, 11, BaseTiles.WALL_DARK);
-		Tile t = this.getTile(9, 10);
+		this.setTile(9, 10, BaseTiles2D.WALL_DARK);
+		this.setTile(6, 11, BaseTiles2D.WALL_DARK);
+		Tile2D t = this.getTile(9, 10);
 		
 		double doorX = t.getX();
 		ZusassData data = zgame.getData();

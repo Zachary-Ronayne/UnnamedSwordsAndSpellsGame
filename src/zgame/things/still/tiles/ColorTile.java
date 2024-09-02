@@ -20,7 +20,7 @@ public class ColorTile extends BasicTile{
 	 * @param hitbox See {@link #getHitbox()}
 	 * @param color See {@link #color}
 	 */
-	public ColorTile(String id, String origin, TileHitbox hitbox, ZColor color){
+	public ColorTile(String id, String origin, TileHitbox2D hitbox, ZColor color){
 		this(id, origin, hitbox, color, Materials.DEFAULT);
 	}
 	
@@ -33,7 +33,7 @@ public class ColorTile extends BasicTile{
 	 * @param color See {@link #color}
 	 * @param material See {@link #material}
 	 */
-	public ColorTile(String id, String origin, TileHitbox hitbox, ZColor color, Material material){
+	public ColorTile(String id, String origin, TileHitbox2D hitbox, ZColor color, Material material){
 		super(id, origin, hitbox, material);
 		this.color = color;
 	}
@@ -53,7 +53,7 @@ public class ColorTile extends BasicTile{
 	}
 	
 	@Override
-	public void render(Tile t, Game g, Renderer r){
+	public void render(Tile2D t, Game g, Renderer r){
 		r.setColor(this.getColor());
 		r.drawRectangle(t.getX(), t.getY(), t.getWidth(), t.getHeight());
 	}

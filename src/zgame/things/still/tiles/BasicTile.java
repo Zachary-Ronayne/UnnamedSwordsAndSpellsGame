@@ -3,9 +3,9 @@ package zgame.things.still.tiles;
 import zgame.physics.material.Material;
 
 /** A simple tile which has a constant material */
-public abstract class BasicTile extends TileType{
+public abstract class BasicTile extends TileType2D{
 	
-	/** The {@link Material} of this {@link ColorTile} */
+	/** The {@link Material} of this {@link BasicTile} */
 	private final Material material;
 	
 	/**
@@ -16,7 +16,7 @@ public abstract class BasicTile extends TileType{
 	 * @param hitbox See {@link #getHitbox()}
 	 * @param material See {@link #material}
 	 */
-	public BasicTile(String id, String origin, TileHitbox hitbox, Material material){
+	public BasicTile(String id, String origin, TileHitbox2D hitbox, Material material){
 		super(id, origin, hitbox);
 		this.material = material;
 	}

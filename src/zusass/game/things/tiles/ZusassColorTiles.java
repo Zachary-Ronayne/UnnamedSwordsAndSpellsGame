@@ -2,15 +2,15 @@ package zusass.game.things.tiles;
 
 import zgame.core.graphics.ZColor;
 import zgame.things.still.tiles.ColorTile;
-import zgame.things.still.tiles.TileHitbox;
+import zgame.things.still.tiles.TileHitbox2D;
 
 /** A class for rendering basic filled in colored tiles for temporary tile rendering */
 public final class ZusassColorTiles{
 	
 	/** A tile with no hitbox that displays 1 solid color */
-	public static final ColorTile BACK_COLOR = new ColorTile("backColor", "zusassColor", TileHitbox.NONE, new ZColor(0));
+	public static final ColorTile BACK_COLOR = new ColorTile("backColor", "zusassColor", TileHitbox2D.NONE, new ZColor(0));
 	/** A tile with no hitbox that displays a darker color than {@link #BACK_COLOR} */
-	public static final ColorTile BACK_COLOR_DARK = new ColorTile("backColorDark", "zusassColor", TileHitbox.NONE, new ZColor(0));
+	public static final ColorTile BACK_COLOR_DARK = new ColorTile("backColorDark", "zusassColor", TileHitbox2D.NONE, new ZColor(0));
 	
 	/**
 	 * Set the colors used by {@link #BACK_COLOR} and {@link #BACK_COLOR_DARK}

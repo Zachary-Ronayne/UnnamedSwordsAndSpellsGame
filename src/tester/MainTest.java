@@ -29,7 +29,7 @@ import zgame.physics.material.MaterialConst;
 import zgame.physics.material.Materials;
 import zgame.things.entity.mobility.MobilityType;
 import zgame.things.still.Door;
-import zgame.things.still.tiles.BaseTiles;
+import zgame.things.still.tiles.BaseTiles2D;
 import zgame.world.Room2D;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -221,10 +221,10 @@ public class MainTest extends Game{
 		public GameEngineState(){
 			super(new Room2D());
 			var firstRoom = makeRoom();
-			firstRoom.setTile(0, 4, BaseTiles.BOUNCY);
-			firstRoom.setTile(1, 4, BaseTiles.BOUNCY);
+			firstRoom.setTile(0, 4, BaseTiles2D.BOUNCY);
+			firstRoom.setTile(1, 4, BaseTiles2D.BOUNCY);
 			var secondRoom = makeRoom();
-			for(int i = 0; i < 2; i++) secondRoom.setTile(i, 4, BaseTiles.HIGH_FRICTION);
+			for(int i = 0; i < 2; i++) secondRoom.setTile(i, 4, BaseTiles2D.HIGH_FRICTION);
 			this.setCurrentRoom(firstRoom);
 			
 			if(CIRCLE_PLAYER) this.player = new PlayerTesterCircle(130, 430, 60);
@@ -252,21 +252,21 @@ public class MainTest extends Game{
 		private Room2D makeRoom(){
 			var r = new Room2D();
 			r.makeWallsSolid();
-			r.initTiles(13, 9, BaseTiles.BACK_DARK);
+			r.initTiles(13, 9, BaseTiles2D.BACK_DARK);
 			for(int i = 0; i < r.getXTiles(); i++){
 				for(int j = 0; j < r.getYTiles(); j++){
 					boolean i0 = i % 2 == 0;
 					boolean j0 = j % 2 == 0;
-					if(i0 == j0) r.setTile(i, j, BaseTiles.BACK_LIGHT);
+					if(i0 == j0) r.setTile(i, j, BaseTiles2D.BACK_LIGHT);
 				}
 			}
-			for(int i = 0; i < 4; i++) r.setTile(4 + i, 6, BaseTiles.WALL_DARK);
-			r.setTile(7, 5, BaseTiles.WALL_DARK);
-			r.setTile(11, 3, BaseTiles.WALL_LIGHT);
+			for(int i = 0; i < 4; i++) r.setTile(4 + i, 6, BaseTiles2D.WALL_DARK);
+			r.setTile(7, 5, BaseTiles2D.WALL_DARK);
+			r.setTile(11, 3, BaseTiles2D.WALL_LIGHT);
 			
-			r.setFrontTile(7, 4, BaseTiles.WALL_CIRCLE);
+			r.setFrontTile(7, 4, BaseTiles2D.WALL_CIRCLE);
 			
-			r.setFrontTile(11, 2, BaseTiles.WALL_BOTTOM_SLAB);
+			r.setFrontTile(11, 2, BaseTiles2D.WALL_BOTTOM_SLAB);
 			
 			return r;
 		}

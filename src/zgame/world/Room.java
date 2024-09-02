@@ -9,7 +9,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.utils.ClassMappedList;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector;
-import zgame.physics.collision.CollisionResponse;
+import zgame.physics.collision.CollisionResult;
 import zgame.things.entity.EntityThing;
 import zgame.things.still.Door;
 import zgame.things.type.GameThing;
@@ -116,7 +116,7 @@ public abstract class Room<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	 * @param obj The object to collide
 	 * @return The CollisionResponse representing the final collision that took place, where the collision material is the floor collision, if one took place
 	 */
-	public abstract CollisionResponse collide(H obj);
+	public abstract CollisionResult collide(H obj);
 	
 	/**
 	 * Make something happen to this {@link GameThing} the next time it is ticked
