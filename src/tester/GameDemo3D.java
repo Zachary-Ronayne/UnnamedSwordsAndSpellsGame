@@ -219,8 +219,9 @@ public class GameDemo3D extends Game{
 	private static class DummyRoom extends Room3D{
 		
 		public DummyRoom(){
-			super(2, 2, 2);
-			this.setTile(1, 0, 1, BaseTiles3D.SOLID_LIGHT);
+			super(2, 2, 3);
+			this.setTile(1, 0, 0, BaseTiles3D.SOLID_LIGHT);
+			this.setTile(1, 0, 2, BaseTiles3D.SOLID_DARK);
 			this.setEqualWidth(8);
 			this.setEqualLength(10);
 			
@@ -315,6 +316,14 @@ public class GameDemo3D extends Game{
 			
 			// Rotate the pillar
 			pillarAngle += 2 * dt;
+		}
+		
+		@Override
+		public void render(Game game, Renderer r){
+			super.render(game, r);
+			// Draw a marker at the origin
+			var c = new ZColor(.5, 0, 0, 0.5);
+			r.drawRectPrism(0, 0, 0, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
 		}
 	}
 	
@@ -479,10 +488,13 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		protected void render(Game game, Renderer r){
+			// TODO make some way of rendering this differently when it's the selected thing to control?
 			r.setColor(new ZColor(.5, 0, 0));
 			r.drawSidePlaneZ(this.getX(), this.getY(), this.getZ(), 0.2, this.getHeight(), this.getCamera().getRotY());
 			
-			// TODO make some way of rendering this differently when it's the selected thing to control?
+			// Pseudo shadow
+			r.setColor(new ZColor(0, 0, 0, 0.5));
+			r.drawFlatPlane(this.getX(), 0.001, this.getZ(), 0.2,0.2);
 		}
 		
 		// TODO implement these in an abstracted class for a cylinder

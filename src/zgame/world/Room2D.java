@@ -147,6 +147,7 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D, Col
 		// Determine the final collision
 		var res = new CollisionResult2D(mx, my, left, right, top, bot, material);
 		
+		// TODO abstract some of this logic to 2D and 3D
 		boolean touchedFloor = false;
 		boolean touchedCeiling = false;
 		boolean touchedWall = false;

@@ -15,6 +15,7 @@ public interface TileHitbox<H extends HitBox<H, C>, T extends Tile<H, C>, C exte
 	 */
 	C collide(T t, H obj);
 	
+	// TODO remove this method? It seems to be unused
 	/**
 	 * Determine if a hitbox hits the given tile
 	 *

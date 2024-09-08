@@ -52,24 +52,6 @@ public interface HitBox2D extends HitBox<HitBox2D, CollisionResult2D>, Bounds2D{
 	CollisionResult2D calculateCircleCollision(double x, double y, double r, Material m);
 	
 	/**
-	 * Calculate a {@link CollisionResult2D} from colliding with the given {@link HitBox2D}
-	 *
-	 * @param h The hitbox to collide with
-	 * @return The response
-	 */
-	default CollisionResult2D calculateCollision(HitBox2D h){
-		switch(this.getHitboxType()){
-			case CIRCLE -> {
-				return this.calculateCircleCollision(h.getX(), h.getY(), h.getWidth() * 0.5, h.getMaterial());
-			}
-			case RECT -> {
-				return this.calculateRectCollision(h.getX(), h.getY(), h.getWidth(), h.getHeight(), h.getMaterial());
-			}
-		}
-		return new CollisionResult2D();
-	}
-	
-	/**
 	 * @param x The upper left hand x rectangle
 	 * @param y The upper left hand y rectangle
 	 * @param w The width of the rectangle

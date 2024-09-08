@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
+import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.still.tiles.*;
@@ -227,15 +228,67 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	
 	@Override
 	public CollisionResult3D collide(HitBox3D obj){
+		boolean wasOnGround = obj.isOnGround();
+		boolean wasOnCeiling = obj.isOnCeiling();
+		boolean wasOnWall = obj.isOnWall();
+		double mx = 0;
+		double my = 0;
+		double mz = 0;
+		boolean wall = false;
+		boolean top = false;
+		boolean bot = false;
+		Material material = null;
+		// TODO find a way to make it only check the tiles needed, similar to 2D
+		int minX = 0;
+		int maxX = this.getTilesX() - 1;
+		int minY = 0;
+		int maxY = this.getTilesY() - 1;
+		int minZ = 0;
+		int maxZ = this.getTilesZ() - 1;
+		
+		for(int x = minX; x <= maxX; x++){
+			for(int z = minZ; z <= maxZ; z++){
+				for(int y = minY; y <= maxY; y++){
+					var t = this.tiles[x][y][z];
+					var res = t.collide(obj);
+					// Keep track of if a tile was touched
+					boolean currentCollided = res.x() != 0 || res.y() != 0;
+					
+					mx += res.x();
+					my += res.y();
+					mz += res.z();
+					if(res.wall()) wall = true;
+					if(res.ceiling()) top = true;
+					if(res.floor()) bot = true;
+					// issue#15 try making it do only one final collision operation at the end
+					obj.collide(res);
+					
+					// Record the material collided with, only if this tile was collided with
+					if(currentCollided){
+						// Set the material if there is none yet, or the floor
+						if(material == null || bot) material = res.material();
+					}
+				}
+			}
+		}
+		// Determine the final collision
+		var res = new CollisionResult3D(mx, my, mz, wall, top, bot, material);
+		
+		boolean touchedFloor = false;
+		boolean touchedCeiling = false;
+		boolean touchedWall = false;
+		
 		// x axis, i.e. east west
 		double widthOffset = obj.getWidth() * 0.5;
 		if(this.boundaryEnabled(Directions3D.EAST) && obj.getX() > this.getBoundary(Directions3D.EAST) - widthOffset){
 			obj.setX(this.getBoundary(Directions3D.EAST) - widthOffset);
 			obj.touchWall(Materials.BOUNDARY);
+			touchedWall = true;
 		}
 		else if(this.boundaryEnabled(Directions3D.WEST) && obj.getX() < -this.getBoundary(Directions3D.WEST) + widthOffset){
 			obj.setX(-this.getBoundary(Directions3D.WEST) + widthOffset);
 			obj.touchWall(Materials.BOUNDARY);
+			touchedWall = true;
 		}
 		
 		// z axis, i.e. north south
@@ -243,10 +296,12 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		if(this.boundaryEnabled(Directions3D.NORTH) && obj.getZ() > this.getBoundary(Directions3D.NORTH) - lengthOffset){
 			obj.setZ(this.getBoundary(Directions3D.NORTH) - lengthOffset);
 			obj.touchWall(Materials.BOUNDARY);
+			touchedWall = true;
 		}
 		else if(this.boundaryEnabled(Directions3D.SOUTH) && obj.getZ() < -this.getBoundary(Directions3D.SOUTH) + lengthOffset){
 			obj.setZ(-this.getBoundary(Directions3D.SOUTH) + lengthOffset);
 			obj.touchWall(Materials.BOUNDARY);
+			touchedWall = true;
 		}
 		
 		// y axis, i.e. up down
@@ -254,20 +309,39 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		if(this.boundaryEnabled(Directions3D.UP) && obj.getY() > this.getBoundary(Directions3D.UP) - height){
 			obj.setY(this.getBoundary(Directions3D.UP) - height);
 			obj.touchCeiling(Materials.BOUNDARY);
+			touchedCeiling = true;
 		}
 		else if(this.boundaryEnabled(Directions3D.DOWN) && obj.getY() < -this.getBoundary(Directions3D.DOWN)){
 			obj.setY(-this.getBoundary(Directions3D.DOWN));
 			obj.touchFloor(Materials.BOUNDARY);
+			touchedFloor = true;
 		}
 		
-		// TODO implement collision with tiles
-		// TODO also call this when the thing touches the ground once proper collision is implemented
-		else if(obj.isOnGround()) {
-			if(obj.getY() != obj.getPX()) obj.leaveFloor();
-			else obj.touchFloor(obj.getFloorMaterial());
+		if(wasOnGround){
+			// If the hitbox was on the ground, but no y axis movement happened, then the hitbox is still on the ground, so touch the floor
+			if(obj.getPY() == obj.getY() || bot){
+				if(!touchedFloor) obj.touchFloor(obj.getFloorMaterial());
+			}
+			// Otherwise, leave the floor
+			else obj.leaveFloor();
 		}
 		
-		return new CollisionResult3D();
+		// Same thing, but for the walls and for the ceiling
+		if(wasOnCeiling){
+			if(obj.getPY() == obj.getY() || top){
+				if(!touchedCeiling) obj.touchCeiling(obj.getCeilingMaterial());
+			}
+			else obj.leaveCeiling();
+		}
+		
+		if(wasOnWall){
+			if(obj.getPX() == obj.getX() || wall){
+				if(!touchedWall) obj.touchWall(obj.getWallMaterial());
+			}
+			else obj.leaveWall();
+		}
+		
+		return res;
 	}
 	
 	@Override

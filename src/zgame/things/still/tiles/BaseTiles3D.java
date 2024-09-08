@@ -13,9 +13,9 @@ public final class BaseTiles3D{
 	/** An empty tile which has no hitbox or display */
 	public static final CubeTile AIR = new CubeTile("air", BASE_ORIGIN, TileHitbox3D.NONE, new ZColor(0, 0, 0, 0), Materials.NONE);
 	/** A tile with a solid hitbox that displays as a dark solid color */
-	public static final CubeTile SOLID_DARK = new CubeTile("wallDark", BASE_ORIGIN, TileHitbox3D.NONE, new ZColor(.55), Materials.DEFAULT);
+	public static final CubeTile SOLID_DARK = new CubeTile("solidDark", BASE_ORIGIN, TileHitbox3D.FULL, new ZColor(.35), Materials.DEFAULT);
 	/** A tile with a solid hitbox that displays as a light solid color */
-	public static final CubeTile SOLID_LIGHT = new CubeTile("wallLight", BASE_ORIGIN, TileHitbox3D.NONE, new ZColor(.65), Materials.DEFAULT);
+	public static final CubeTile SOLID_LIGHT = new CubeTile("solidLight", BASE_ORIGIN, TileHitbox3D.FULL, new ZColor(.65), Materials.DEFAULT);
 	/** A pink tile with a lot of bounciness */
 	public static final CubeTile BOUNCY = new CubeTile("bouncy", BASE_ORIGIN, TileHitbox3D.FULL, new ZColor(1, .5, .5), Materials.BOUNCE);
 	/** A brown tile with a huge friction value */
