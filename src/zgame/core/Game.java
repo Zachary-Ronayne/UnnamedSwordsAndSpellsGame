@@ -1000,8 +1000,8 @@ public class Game implements Saveable, Destroyable{
 	 * @return The {@link Room} that the current {@link #playState} is using, or null if there is no play state. The system assumes the room will always be an aoppropriate
 	 * 		type for the game
 	 */
-	public Room<?, ?, ?, ?> getCurrentRoom(){
-		PlayState p = this.getPlayState();
+	public Room<?, ?, ?, ?, ?> getCurrentRoom(){
+		var p = this.getPlayState();
 		if(p == null) return null;
 		return p.getCurrentRoom();
 	}

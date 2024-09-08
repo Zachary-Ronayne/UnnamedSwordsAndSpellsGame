@@ -6,6 +6,7 @@ import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector;
+import zgame.physics.collision.CollisionResult;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.type.GameThing;
@@ -21,7 +22,7 @@ import zgame.world.Room;
  * @param <V> The vector implementation used by this entity
  * @param <R> The room implementation which this entity can exist in
  */
-public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>> extends GameThing implements GameTickable, HitBox<H>{
+public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<H, E, V, R, C>, V extends ZVector<V>, R extends Room<H, E, V, R, C>, C extends CollisionResult<C>> extends GameThing implements GameTickable, HitBox<H, C>{
 	
 	/** The string used to identify the force of gravity in {@link #forces} */
 	public static final String FORCE_NAME_GRAVITY = "gravity";
@@ -511,7 +512,7 @@ public abstract class EntityThing<H extends HitBox<H>, E extends EntityThing<H, 
 	 */
 	@SuppressWarnings("unchecked")
 	public void checkEntityCollisions(Game game, double dt){
-		Room<H, E, V, R> room = (Room<H, E, V, R>)game.getCurrentRoom();
+		var room = (Room<H, E, V, R, C>)game.getCurrentRoom();
 		
 		// issue#21 make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
 		

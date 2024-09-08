@@ -2,11 +2,12 @@ package zgame.things.still.tiles;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.physics.collision.CollisionResult;
 import zgame.things.type.Materialable;
 import zgame.things.type.bounds.HitBox;
 
 /** An enum that defines tiles that can exist. Extend this enum to add new tile types */
-public abstract class TileType<H extends HitBox<H>, T extends Tile<H>, TH extends TileHitbox<H, T>> implements Materialable{
+public abstract class TileType<H extends HitBox<H, C>, T extends Tile<H, C>, TH extends TileHitbox<H, T, C>, C extends CollisionResult<C>> implements Materialable{
 	
 	/** The hitbox of this tile type */
 	private final TH hitbox;

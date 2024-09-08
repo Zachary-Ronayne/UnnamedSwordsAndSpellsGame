@@ -2,13 +2,14 @@ package zgame.things.entity.mobility;
 
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
+import zgame.physics.collision.CollisionResult3D;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.entity.MobilityData3D;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.world.Room3D;
 
 /** An interface used to control movement in 3D */
-public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
+public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D>{
 	
 	@Override
 	MobilityData3D getMobilityData();

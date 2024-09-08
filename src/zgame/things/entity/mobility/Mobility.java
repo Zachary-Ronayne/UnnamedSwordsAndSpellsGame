@@ -1,7 +1,7 @@
 package zgame.things.entity.mobility;
 
-import zgame.core.utils.ZStringUtils;
 import zgame.physics.ZVector;
+import zgame.physics.collision.CollisionResult;
 import zgame.physics.material.Material;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.MobilityData;
@@ -16,7 +16,7 @@ import zgame.world.Room;
  * @param <V> The type of vector which uses this class
  * @param <R> The type of room which E uses
  */
-public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>>{
+public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V, R, C>, V extends ZVector<V>, R extends Room<H, E, V, R, C>, C extends CollisionResult<C>>{
 	
 	/** @return The {@link EntityThing} using this object */
 	default E getThing(){
@@ -24,7 +24,7 @@ public interface Mobility<H extends HitBox<H>, E extends EntityThing<H, E, V, R>
 	}
 	
 	/** @return The {@link MobilityData} object holding the data for this interface */
-	MobilityData<H, E, V, R> getMobilityData();
+	MobilityData<H, E, V, R, C> getMobilityData();
 	
 	/**
 	 * Perform the game update actions handling {@link #getThing()}'s walking and jumping

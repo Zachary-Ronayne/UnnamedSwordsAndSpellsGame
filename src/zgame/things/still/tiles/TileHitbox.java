@@ -4,7 +4,7 @@ import zgame.physics.collision.CollisionResult;
 import zgame.things.type.bounds.HitBox;
 
 /** An object that represents the hitbox of a tile, i.e., what parts of the tile have collision */
-public interface TileHitbox<H extends HitBox<H>, T extends Tile<H>> {
+public interface TileHitbox<H extends HitBox<H, C>, T extends Tile<H, C>, C extends CollisionResult<C>> {
 	
 	/**
 	 * Based on the given hitbox, determine the new position of that hitbox when it collides with the given tile
@@ -13,7 +13,7 @@ public interface TileHitbox<H extends HitBox<H>, T extends Tile<H>> {
 	 * @param obj The object with a hitbox which collides with the given tile
 	 * @return A point to reposition the rectangle to
 	 */
-	CollisionResult collide(T t, H obj);
+	C collide(T t, H obj);
 	
 	/**
 	 * Determine if a hitbox hits the given tile

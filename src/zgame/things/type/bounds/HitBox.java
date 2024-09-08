@@ -11,7 +11,7 @@ import zgame.things.type.Materialable;
  * An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds
  * @param <H> The specific hitbox implementation associated with this hitbox
  */
-public interface HitBox<H extends HitBox<H>> extends Materialable, Uuidable {
+public interface HitBox<H extends HitBox<H, C>, C extends CollisionResult<C>> extends Materialable, Uuidable {
 	
 	// TODO abstract out the type?
 	/** @return The type of this hitbox, for determining how it will collide with other hitboxes */
@@ -28,7 +28,7 @@ public interface HitBox<H extends HitBox<H>> extends Materialable, Uuidable {
 	 *
 	 * @param r The {@link CollisionResult} to use
 	 */
-	void collide(CollisionResult r);
+	void collide(C r);
 	
 	/**
 	 * Called when this {@link HitBox} is hit by a projectile. Does nothing by default, implement to provide custom behavior

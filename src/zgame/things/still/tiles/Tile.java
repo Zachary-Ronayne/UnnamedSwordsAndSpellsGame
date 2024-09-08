@@ -5,9 +5,9 @@ import zgame.things.type.GameThing;
 import zgame.things.type.bounds.HitBox;
 
 /** A {@link GameThing} with a hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
-public interface Tile<H extends HitBox<H>>{
+public interface Tile<H extends HitBox<H, C>, C extends CollisionResult<C>>{
 	
 	/** See {@link TileHitbox#collide(Tile, HitBox)}  */
-	CollisionResult collide(H obj);
+	C collide(H obj);
 	
 }

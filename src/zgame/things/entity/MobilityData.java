@@ -1,6 +1,7 @@
 package zgame.things.entity;
 
 import zgame.physics.ZVector;
+import zgame.physics.collision.CollisionResult;
 import zgame.things.entity.mobility.Mobility;
 import zgame.things.entity.mobility.Mobility2D;
 import zgame.things.entity.mobility.MobilityType;
@@ -14,7 +15,7 @@ import zgame.world.Room;
  * @param <E> The type of entity which uses this class
  * @param <V> The type of vectors using this class
  */
-public abstract class MobilityData<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>>{
+public abstract class MobilityData<H extends HitBox<H, C>, E extends EntityThing<H, E, V, R, C>, V extends ZVector<V>, R extends Room<H, E, V, R, C>, C extends CollisionResult<C>>{
 	
 	/** The string used to identify the force used to make this walk */
 	public static final String FORCE_NAME_WALKING = "walking";

@@ -3,6 +3,7 @@ package zgame.things.still.tiles;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.collision.CollisionResult;
+import zgame.physics.collision.CollisionResult3D;
 import zgame.physics.material.Material;
 import zgame.things.type.GameThing;
 import zgame.things.type.Materialable;
@@ -12,7 +13,7 @@ import zgame.things.type.bounds.HitBox2D;
 import zgame.things.type.bounds.HitBox3D;
 
 /** A {@link GameThing} with a cube hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
-public class Tile3D extends GameThing implements Tile<HitBox3D>, Bounds3D, Materialable{
+public class Tile3D extends GameThing implements Tile<HitBox3D, CollisionResult3D>, Bounds3D, Materialable{
 	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 1;
@@ -99,7 +100,7 @@ public class Tile3D extends GameThing implements Tile<HitBox3D>, Bounds3D, Mater
 	}
 	
 	@Override
-	public CollisionResult collide(HitBox3D obj){
+	public CollisionResult3D collide(HitBox3D obj){
 		return this.getType().getHitbox().collide(this, obj);
 	}
 	

@@ -1,13 +1,13 @@
 package zgame.things.type.bounds;
 
-import zgame.physics.collision.CollisionResult;
+import zgame.physics.collision.CollisionResult2D;
 import zgame.physics.material.Material;
 import zgame.things.entity.projectile.Projectile;
 
 /**
  * An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds
  */
-public interface HitBox2D extends HitBox<HitBox2D>, Bounds2D{
+public interface HitBox2D extends HitBox<HitBox2D, CollisionResult2D>, Bounds2D{
 	
 	/** @param x The new x coordinate for this object */
 	void setX(double x);
@@ -26,7 +26,7 @@ public interface HitBox2D extends HitBox<HitBox2D>, Bounds2D{
 	}
 	
 	/**
-	 * Determine a {@link CollisionResult} from colliding this object with the given rectangular bounds. Essentially, move this object so that it no longer intersecting with
+	 * Determine a {@link CollisionResult2D} from colliding this object with the given rectangular bounds. Essentially, move this object so that it no longer intersecting with
 	 * the
 	 * given bounds. This method should not change the state of this object, it should only return an object representing how the collision should happen.
 	 *
@@ -37,10 +37,10 @@ public interface HitBox2D extends HitBox<HitBox2D>, Bounds2D{
 	 * @param m The material which was collided with
 	 * @return The information about the collision
 	 */
-	CollisionResult calculateRectCollision(double x, double y, double w, double h, Material m);
+	CollisionResult2D calculateRectCollision(double x, double y, double w, double h, Material m);
 	
 	/**
-	 * Determine a {@link CollisionResult} from colliding this object with the given circular bounds. Essentially, move this object so that it no longer intersecting with
+	 * Determine a {@link CollisionResult2D} from colliding this object with the given circular bounds. Essentially, move this object so that it no longer intersecting with
 	 * the given bounds. This method should not change the state of this object, it should only return an object representing how the collision should happen.
 	 *
 	 * @param x The x coordinate of the upper left hand corner of the bounds
@@ -49,15 +49,15 @@ public interface HitBox2D extends HitBox<HitBox2D>, Bounds2D{
 	 * @param m The material which was collided with
 	 * @return The information about the collision
 	 */
-	CollisionResult calculateCircleCollision(double x, double y, double r, Material m);
+	CollisionResult2D calculateCircleCollision(double x, double y, double r, Material m);
 	
 	/**
-	 * Calculate a {@link CollisionResult} from colliding with the given {@link HitBox2D}
+	 * Calculate a {@link CollisionResult2D} from colliding with the given {@link HitBox2D}
 	 *
 	 * @param h The hitbox to collide with
 	 * @return The response
 	 */
-	default CollisionResult calculateCollision(HitBox2D h){
+	default CollisionResult2D calculateCollision(HitBox2D h){
 		switch(this.getHitboxType()){
 			case CIRCLE -> {
 				return this.calculateCircleCollision(h.getX(), h.getY(), h.getWidth() * 0.5, h.getMaterial());
@@ -66,7 +66,7 @@ public interface HitBox2D extends HitBox<HitBox2D>, Bounds2D{
 				return this.calculateRectCollision(h.getX(), h.getY(), h.getWidth(), h.getHeight(), h.getMaterial());
 			}
 		}
-		return new CollisionResult();
+		return new CollisionResult2D();
 	}
 	
 	/**

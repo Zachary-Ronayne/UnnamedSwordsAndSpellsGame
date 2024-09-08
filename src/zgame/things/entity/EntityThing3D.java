@@ -2,6 +2,7 @@ package zgame.things.entity;
 
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult;
+import zgame.physics.collision.CollisionResult3D;
 import zgame.physics.material.Material;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.HitboxType;
@@ -10,7 +11,7 @@ import zgame.world.Room3D;
 /**
  * An {@link EntityThing} in 3D
  */
-public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D, ZVector3D, Room3D> implements HitBox3D{
+public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D> implements HitBox3D{
 	
 	// TODO make a cylinder extension of entity thing 3D
 	
@@ -122,7 +123,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	}
 	
 	@Override
-	public void collide(CollisionResult r){
+	public void collide(CollisionResult3D r){
 		// TODO implement
 	}
 	

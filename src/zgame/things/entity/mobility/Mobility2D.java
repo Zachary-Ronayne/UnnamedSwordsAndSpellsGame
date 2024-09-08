@@ -2,6 +2,7 @@ package zgame.things.entity.mobility;
 
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector2D;
+import zgame.physics.collision.CollisionResult2D;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.EntityThing2D;
 import zgame.things.entity.MobilityData2D;
@@ -9,7 +10,7 @@ import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room2D;
 
 /** A class that handles an {@link EntityThing} moving by walking and jumping */
-public interface Mobility2D extends Mobility<HitBox2D, EntityThing2D, ZVector2D, Room2D>{
+public interface Mobility2D extends Mobility<HitBox2D, EntityThing2D, ZVector2D, Room2D, CollisionResult2D>{
 	
 	@Override
 	MobilityData2D getMobilityData();

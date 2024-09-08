@@ -3,7 +3,7 @@ package zgame.world;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector3D;
-import zgame.physics.collision.CollisionResult;
+import zgame.physics.collision.CollisionResult3D;
 import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.still.tiles.*;
@@ -13,7 +13,7 @@ import zgame.things.type.bounds.HitBox3D;
 import java.util.Arrays;
 
 /** A {@link Room} which is made of 3D tiles */
-public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D> implements Bounds3D{
+public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D> implements Bounds3D{
 	
 	/** An array of 6 elements representing which of the 6 boundary walls are enabled for collision */
 	private final boolean[] enabledBoundaries;
@@ -226,7 +226,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D> imp
 	}
 	
 	@Override
-	public CollisionResult collide(HitBox3D obj){
+	public CollisionResult3D collide(HitBox3D obj){
 		// x axis, i.e. east west
 		double widthOffset = obj.getWidth() * 0.5;
 		if(this.boundaryEnabled(Directions3D.EAST) && obj.getX() > this.getBoundary(Directions3D.EAST) - widthOffset){
@@ -249,8 +249,6 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D> imp
 			obj.touchWall(Materials.BOUNDARY);
 		}
 		
-		// TODO implement collision with tiles
-		
 		// y axis, i.e. up down
 		double height = obj.getHeight();
 		if(this.boundaryEnabled(Directions3D.UP) && obj.getY() > this.getBoundary(Directions3D.UP) - height){
@@ -261,13 +259,15 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D> imp
 			obj.setY(-this.getBoundary(Directions3D.DOWN));
 			obj.touchFloor(Materials.BOUNDARY);
 		}
+		
+		// TODO implement collision with tiles
 		// TODO also call this when the thing touches the ground once proper collision is implemented
 		else if(obj.isOnGround()) {
 			if(obj.getY() != obj.getPX()) obj.leaveFloor();
 			else obj.touchFloor(obj.getFloorMaterial());
 		}
 		
-		return new CollisionResult();
+		return new CollisionResult3D();
 	}
 	
 	@Override

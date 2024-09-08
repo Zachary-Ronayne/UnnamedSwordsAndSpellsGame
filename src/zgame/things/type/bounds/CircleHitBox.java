@@ -2,7 +2,7 @@ package zgame.things.type.bounds;
 
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint2D;
-import zgame.physics.collision.CollisionResult;
+import zgame.physics.collision.CollisionResult2D;
 import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
 
@@ -37,12 +37,12 @@ public interface CircleHitBox extends HitBox2D{
 	}
 	
 	@Override
-	default CollisionResult calculateRectCollision(double x, double y, double w, double h, Material m){
+	default CollisionResult2D calculateRectCollision(double x, double y, double w, double h, Material m){
 		return ZCollision.rectToCircleBasic(x, y, w, h, this.centerX(), this.centerY(), this.getRadius(), m);
 	}
 	
 	@Override
-	default CollisionResult calculateCircleCollision(double x, double y, double r, Material m){
+	default CollisionResult2D calculateCircleCollision(double x, double y, double r, Material m){
 		return ZCollision.circleToCircleBasic(x, y, r, this.centerX(), this.centerY(), this.getRadius(), m);
 	}
 	

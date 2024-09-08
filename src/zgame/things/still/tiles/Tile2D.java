@@ -2,14 +2,15 @@ package zgame.things.still.tiles;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.physics.collision.CollisionResult;
+import zgame.physics.collision.CollisionResult2D;
 import zgame.physics.material.Material;
 import zgame.things.type.*;
 import zgame.things.type.bounds.Bounds2D;
+import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.HitBox2D;
 
 /** A {@link GameThing} with a rectangular hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
-public class Tile2D extends GameThing implements Tile<HitBox2D>, Bounds2D, Materialable{
+public class Tile2D extends GameThing implements Tile<HitBox2D, CollisionResult2D>, Bounds2D, Materialable{
 	
 	// TODO potentially abstract out Tile2D and Tile3D into Tile
 	
@@ -108,8 +109,8 @@ public class Tile2D extends GameThing implements Tile<HitBox2D>, Bounds2D, Mater
 		return this.getFrontType().getMaterial();
 	}
 	
-	/** See {@link TileHitbox#collide(Tile2D, HitBox2D)} */
-	public CollisionResult collide(HitBox2D obj){
+	/** See {@link TileHitbox2D#collide(Tile, HitBox)} */
+	public CollisionResult2D collide(HitBox2D obj){
 		return this.getFrontType().getHitbox().collide(this, obj);
 	}
 	

@@ -22,7 +22,8 @@ import zgame.things.type.bounds.HitBox;
  * @param <V> The type of vector used by this room
  * @param <R> The room implementation
  */
-public abstract class Room<H extends HitBox<H>, E extends EntityThing<H, E, V, R>, V extends ZVector<V>, R extends Room<H, E, V, R>> extends GameThing{
+// TODO find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
+public abstract class Room<H extends HitBox<H, C>, E extends EntityThing<H, E, V, R, C>, V extends ZVector<V>, R extends Room<H, E, V, R, C>, C extends CollisionResult<C>> extends GameThing{
 	
 	/** All of the things in this room */
 	private final ClassMappedList thingsMap;
@@ -116,7 +117,7 @@ public abstract class Room<H extends HitBox<H>, E extends EntityThing<H, E, V, R
 	 * @param obj The object to collide
 	 * @return The CollisionResponse representing the final collision that took place, where the collision material is the floor collision, if one took place
 	 */
-	public abstract CollisionResult collide(H obj);
+	public abstract C collide(H obj);
 	
 	/**
 	 * Make something happen to this {@link GameThing} the next time it is ticked

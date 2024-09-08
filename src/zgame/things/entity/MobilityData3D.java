@@ -2,12 +2,13 @@ package zgame.things.entity;
 
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
+import zgame.physics.collision.CollisionResult3D;
 import zgame.things.entity.mobility.Mobility3D;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.world.Room3D;
 
 /** A type of {@link MobilityData} that exists in 3D space */
-public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVector3D, Room3D>{
+public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D>{
 	
 	/** The angle, in radians, on the x z plane that {@link #entity} is attempting to move in, i.e. trying to move on the horizontal axis */
 	private double movingHorizontalAngle;

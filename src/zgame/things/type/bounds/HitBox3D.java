@@ -1,10 +1,11 @@
 package zgame.things.type.bounds;
 
+import zgame.physics.collision.CollisionResult3D;
 import zgame.physics.material.Material;
 import zgame.things.entity.projectile.Projectile;
 
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
-public interface HitBox3D extends HitBox<HitBox3D>, Bounds3D {
+public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D {
 	
 	/** @param x The new x coordinate for this object */
 	void setX(double x);

@@ -31,7 +31,7 @@ public enum MobilityType{
 	 * @param m The {@link Mobility} object to apply
 	 * @param dt The amount of time in seconds passed in the tick
 	 */
-	public void tick(Mobility<?, ?, ?, ?> m, double dt){
+	public void tick(Mobility<?, ?, ?, ?, ?> m, double dt){
 		this.tickFunc.tick(m, dt);
 	}
 	
@@ -39,7 +39,7 @@ public enum MobilityType{
 	 * Apply {@link #mobilityDataFunc}
 	 * @param m The {@link MobilityData} object to update
 	 */
-	public void updateForces(MobilityData<?, ?, ?, ?> m){
+	public void updateForces(MobilityData<?, ?, ?, ?, ?> m){
 		this.mobilityDataFunc.run(m);
 	}
 	
@@ -50,7 +50,7 @@ public enum MobilityType{
 		 * @param m The object to perform the tick on
 		 * @param dt The amount of time in seconds passed in the tick
 		 */
-		void tick(Mobility<?, ?, ?, ?> m, double dt);
+		void tick(Mobility<?, ?, ?, ?, ?> m, double dt);
 	}
 	
 	/** A shortcut interface for a function that consumes the data needed to process updating soemthing on a {@link MobilityData} object */
@@ -59,7 +59,7 @@ public enum MobilityType{
 		 * Perform the action on the given {@link Mobility}
 		 * @param m The object to perform on
 		 */
-		void run(MobilityData<?, ?, ?, ?> m);
+		void run(MobilityData<?, ?, ?, ?, ?> m);
 	}
 	
 }

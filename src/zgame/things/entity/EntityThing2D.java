@@ -3,14 +3,14 @@ package zgame.things.entity;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector2D;
-import zgame.physics.collision.CollisionResult;
+import zgame.physics.collision.CollisionResult2D;
 import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room2D;
 
 /**
  * An {@link EntityThing} in 2D
  */
-public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D, ZVector2D, Room2D> implements HitBox2D{
+public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D, ZVector2D, Room2D, CollisionResult2D> implements HitBox2D{
 	
 	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
 	
@@ -95,7 +95,7 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	}
 	
 	@Override
-	public void collide(CollisionResult r){
+	public void collide(CollisionResult2D r){
 		// TODO implement properly and abstract out some of this logic to 2D and 3D? CollisionResponse will need 2D and 3D versions
 		this.addX(r.x());
 		this.addY(r.y());

@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.utils.FunctionMap;
 import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResult;
+import zgame.physics.collision.CollisionResult2D;
 import zgame.physics.material.Material;
 import zgame.things.BaseTags;
 import zgame.things.entity.EntityThing;
@@ -105,7 +106,7 @@ public abstract class Projectile extends EntityThing2D{
 	public void leaveWall(){}
 	
 	@Override
-	public void collide(CollisionResult r){
+	public void collide(CollisionResult2D r){
 		// OnHit projectiles are removed on collision
 		if(this.isOnHit() && r.isCollided()) this.removeNext();
 	}

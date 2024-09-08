@@ -4,7 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector2D;
-import zgame.physics.collision.CollisionResult;
+import zgame.physics.collision.CollisionResult2D;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing2D;
@@ -15,7 +15,7 @@ import zgame.things.type.bounds.Bounds2D;
 import zgame.things.type.bounds.HitBox2D;
 
 /** A {@link Room} which is made of 2D tiles */
-public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> implements Bounds2D{
+public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D, CollisionResult2D> implements Bounds2D{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -101,7 +101,7 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 	}
 	
 	@Override
-	public CollisionResult collide(HitBox2D h){
+	public CollisionResult2D collide(HitBox2D h){
 		var obj = h.get();
 		
 		// Find touching tiles and collide with them
@@ -124,7 +124,7 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 		for(int x = minX; x <= maxX; x++){
 			for(int y = minY; y <= maxY; y++){
 				Tile2D t = this.tiles[x][y];
-				CollisionResult res = t.collide(obj);
+				var res = t.collide(obj);
 				// Keep track of if a tile was touched
 				boolean currentCollided = res.x() != 0 || res.y() != 0;
 				
@@ -145,7 +145,7 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D> imp
 			}
 		}
 		// Determine the final collision
-		CollisionResult res = new CollisionResult(mx, my, left, right, top, bot, material);
+		var res = new CollisionResult2D(mx, my, left, right, top, bot, material);
 		
 		boolean touchedFloor = false;
 		boolean touchedCeiling = false;
