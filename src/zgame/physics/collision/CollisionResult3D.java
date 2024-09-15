@@ -51,6 +51,7 @@ public class CollisionResult3D extends CollisionResult<CollisionResult3D>{
 	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
 	 */
 	public CollisionResult3D(double x, double y, double z, boolean wall, boolean ceiling, boolean floor, Material material){
+		super(material);
 		this.x = x;
 		this.y = y;
 		this.z = z;

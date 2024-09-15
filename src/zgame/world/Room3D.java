@@ -320,7 +320,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		if(wasOnGround){
 			// If the hitbox was on the ground, but no y axis movement happened, then the hitbox is still on the ground, so touch the floor
 			if(obj.getPY() == obj.getY() || bot){
-				if(!touchedFloor) obj.touchFloor(obj.getFloorMaterial());
+				if(!touchedFloor) obj.touchFloor(res.material());
 			}
 			// Otherwise, leave the floor
 			else obj.leaveFloor();
@@ -329,14 +329,14 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		// Same thing, but for the walls and for the ceiling
 		if(wasOnCeiling){
 			if(obj.getPY() == obj.getY() || top){
-				if(!touchedCeiling) obj.touchCeiling(obj.getCeilingMaterial());
+				if(!touchedCeiling) obj.touchCeiling(res.material());
 			}
 			else obj.leaveCeiling();
 		}
 		
 		if(wasOnWall){
 			if(obj.getPX() == obj.getX() || wall){
-				if(!touchedWall) obj.touchWall(obj.getWallMaterial());
+				if(!touchedWall) obj.touchWall(res.material());
 			}
 			else obj.leaveWall();
 		}
