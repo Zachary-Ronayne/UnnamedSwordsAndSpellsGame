@@ -33,6 +33,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 		var thing = this.getThing();
 		var totalVel = thing.getVelocity();
 		double threshold = thing.getClampVelocity();
+		// TODO why does this need to be modified by pi/2
 		double currentH = (Math.abs(totalVel.getHorizontal()) > threshold) ? totalVel.getAngleH() + ZMath.PI_BY_2 : movingH;
 		double currentV = (Math.abs(totalVel.getVertical()) > threshold) ? totalVel.getAngleV() : movingV;
 		

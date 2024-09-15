@@ -1,6 +1,5 @@
 package zgame.things.entity;
 
-import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.things.entity.mobility.Mobility3D;
@@ -99,14 +98,15 @@ public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVecto
 	public void updateFlyingForce(double force, boolean applyFacing){
 		double angleH;
 		double angleV;
+		// When trying to move, go in the direction that movement is trying to happen in
 		if(applyFacing){
 			angleH = this.movingHorizontalAngle;
 			angleV = this.movingVerticalAngle;
 		}
+		// When not trying to move, go based on the direction that movement is happening in
 		else{
 			var currentVel = this.getEntity().getVelocity();
-			// TODO why does this need to be modified by pi/2?
-			angleH = currentVel.getAngleH() + ZMath.PI_BY_2;
+			angleH = currentVel.getAngleH();
 			angleV = currentVel.getAngleV();
 		}
 		

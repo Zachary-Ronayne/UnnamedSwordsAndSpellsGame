@@ -123,7 +123,6 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		this.wallTime = 0;
 		
 		this.noClip = false;
-		this.noClip = false;
 	}
 	
 	/** @return A new empty vector, representing no motion, for use with this entity. Should always return a new instance */

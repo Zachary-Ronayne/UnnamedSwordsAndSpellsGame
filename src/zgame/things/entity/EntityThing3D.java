@@ -1,7 +1,6 @@
 package zgame.things.entity;
 
 import zgame.physics.ZVector3D;
-import zgame.physics.collision.CollisionResult;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.physics.material.Material;
 import zgame.things.type.bounds.HitBox3D;

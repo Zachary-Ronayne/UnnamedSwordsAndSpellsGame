@@ -66,12 +66,22 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	/** Update the internal x, y, and z values based on the current values of {@link #angleH}, {@link #angleV} */
 	@Override
 	public void calcComponents(){
+		// Ensure magnitude is positive
+		double mag = this.getMagnitude();
+		boolean inverted = mag < 0;
+		if(inverted) {
+			// TODO why does the angleH need to be modified?
+			this.angleH = ZMath.angleNormalized(this.angleH - ZMath.PI_BY_2);
+			this.setMagnitude(-mag);
+		}
+		
 		// Horizontal magnitude will be the cos, i.e. horizontal, value of the vertical angle and the total magnitude
 		this.horizontalMag = Math.cos(this.angleV) * this.getMagnitude();
 		// The x component will be the sin value on the horizontal axis with the total horizontal magnitude
 		this.x = Math.sin(this.angleH) * this.horizontalMag;
 		// The vertical magnitude will be the sin value of the vertical angle and the total magnitude
 		this.y = Math.sin(this.angleV) * this.getMagnitude();
+		if(inverted) this.y = -this.y;
 		// The z component will be the negative cos value on the horizontal axis with the total horizontal magnitude
 		this.z = -Math.cos(this.angleH) * this.horizontalMag;
 	}
@@ -150,10 +160,10 @@ public class ZVector3D extends ZVector<ZVector3D>{
 		return new ZVector3D(this.getX() * scalar, this.getY() * scalar, this.getZ() * scalar);
 	}
 	
+	// TODO why can't this just be the normal call to scale(-1)
 	@Override
 	public ZVector3D inverse(){
-		// TODO why is this pi/2 and not pi? And why doesn't it need to be on both angles?
-		return new ZVector3D(this.getAngleH() - ZMath.PI_BY_2, this.getAngleV(), this.getMagnitude(), false);
+		return new ZVector3D(this.getAngleH(), this.getAngleV(), -this.getMagnitude(), false);
 	}
 	
 	@Override
