@@ -196,10 +196,11 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		// Find the total force for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
 		double newFrictionForce = this.getFrictionConstant() * this.getFloorMaterial().getFriction() * Math.abs(this.getGravity().getVertical());
 		
+		// TODO in 3D, you can still move on a high friction surface by spamming left and right on and off, why?
+		
 		double clampVel = this.getClampVelocity();
 		boolean noVelocity = currentVel.getMagnitude() < clampVel;
 		// Depending on conditions, the friction force may be zero
-		// When not touching the ground or a wall
 		// When the current force applied to the entity is less than the base force of friction
 		if(noVelocity || currentForce.getMagnitude() > newFrictionForce){
 			// If the frictional force exceeds the current force, then there will be equal and opposite frictional force

@@ -70,7 +70,7 @@ public class ZVector3D extends ZVector<ZVector3D>{
 		double mag = this.getMagnitude();
 		boolean inverted = mag < 0;
 		if(inverted) {
-			// TODO why does the angleH need to be modified?
+			// Must subtract by 90 degrees to account for the vector flipping upside down because vectors are weird
 			this.angleH = ZMath.angleNormalized(this.angleH - ZMath.PI_BY_2);
 			this.setMagnitude(-mag);
 		}
@@ -157,13 +157,10 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	 */
 	@Override
 	public ZVector3D scale(double scalar){
-		return new ZVector3D(this.getX() * scalar, this.getY() * scalar, this.getZ() * scalar);
-	}
-	
-	// TODO why can't this just be the normal call to scale(-1)
-	@Override
-	public ZVector3D inverse(){
-		return new ZVector3D(this.getAngleH(), this.getAngleV(), -this.getMagnitude(), false);
+		var newVec = new ZVector3D(this.getX() * scalar, this.getY() * scalar, this.getZ() * scalar);
+		// Must subtract by 90 degrees to account for the vector flipping upside down because vectors are weird
+		if(scalar < 0) this.angleH = ZMath.angleNormalized(this.angleH - ZMath.PI_BY_2);
+		return newVec;
 	}
 	
 	@Override
