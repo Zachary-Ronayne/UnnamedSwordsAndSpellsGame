@@ -221,10 +221,12 @@ public class GameDemo3D extends Game{
 		public DummyRoom(){
 			super(2, 2, 3);
 			this.setTile(1, 0, 0, BaseTiles3D.BOUNCY);
-			// TODO fix high friction being broken, and moving up and down happening
 			this.setTile(1, 0, 2, BaseTiles3D.HIGH_FRICTION);
 			this.setEqualWidth(8);
 			this.setEqualLength(10);
+			
+			// TODO fix bouncing not happening when moving horizontally
+			// TODO fix not being able to jump while on a high friction surface
 			
 			// TODO make boundaries based on the tiles
 			this.setBoundary(Directions3D.DOWN, 0);

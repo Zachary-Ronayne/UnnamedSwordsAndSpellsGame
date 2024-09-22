@@ -159,7 +159,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			
 			// If applying the force would move the velocity below 0, then hard set velocity to 0 and apply no force
 			if(stopVel < 0){
-				entity.setVelocity(entity.zeroVector());
+				entity.clearVelocity();
 				newFlyForce = 0;
 			}
 			else{

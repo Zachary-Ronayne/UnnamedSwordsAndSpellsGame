@@ -39,6 +39,9 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 	/** The current velocity of this {@link EntityThing} */
 	private V velocity;
 	
+	/** true if velocity has been reset in this tick before applying movement, and movement should not happen for that tick, false otherwise */
+	private boolean velocityCleared;
+	
 	/** The current force of gravity on this {@link EntityThing} */
 	private V gravity;
 	
@@ -96,6 +99,7 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		this.uuid = UUID.randomUUID().toString();
 		
 		this.velocity = this.zeroVector();
+		this.velocityCleared = false;
 		
 		this.collidingUuids = new HashSet<>();
 		this.forces = new HashMap<>();
@@ -135,9 +139,6 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		if(this.ceilingTime != -1) this.ceilingTime += dt;
 		if(this.wallTime != -1) this.wallTime += dt;
 		
-		// Account for frictional force based on current ground material
-		this.updateFrictionForce(dt);
-		
 		// Account for drag going down for terminal velocity
 		this.updateGravityDragForce(dt);
 		
@@ -155,6 +156,9 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 	 * @param dt The amount of time, in seconds, which passed in the tick where this update took place
 	 */
 	public void updatePosition(Game game, double dt){
+		// Account for frictional force based on current ground material, must be updated directly before applying any movement
+		this.updateFrictionForce(dt);
+		
 		// Find the current acceleration
 		var acceleration = this.getForce().scale(1.0 / this.getMass());
 		
@@ -162,10 +166,11 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		this.addVelocity(acceleration.scale(dt));
 		
 		// Account for clamping the velocity
-		if(Math.abs(this.getVelocity().getMagnitude()) < this.getClampVelocity()) this.setVelocity(this.zeroVector());
+		if(Math.abs(this.getVelocity().getMagnitude()) < this.getClampVelocity()) this.clearVelocity();
 		
 		// Apply the movement of the velocity
-		this.moveEntity(this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5)));
+		if(!this.velocityCleared) this.moveEntity(this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5)));
+		this.velocityCleared = false;
 	}
 	
 	/**
@@ -206,7 +211,8 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 			// If the frictional force exceeds the current force, then there will be equal and opposite frictional force
 			if(currentForce.getMagnitude() <= newFrictionForce){
 				// When friction exceeds current force, and on a surface, velocity must also be set to 0
-				if(!noVelocity) this.setVelocity(this.zeroVector());
+				if(!noVelocity) this.clearVelocity();
+				else this.flagVelocityCleared();
 				this.frictionForce = this.setForce(FORCE_NAME_FRICTION, currentForce.add(currentFriction.inverse()).inverse());
 			}
 			// Otherwise, there will be no frictional force
@@ -228,7 +234,7 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		double mass = this.getMass();
 		if(currentVel.isOpposite(currentVel.add(newForce.scale(dt / mass)))){
 			this.frictionForce = this.setForce(FORCE_NAME_FRICTION, forceWithoutFriction.inverse());
-			this.setVelocity(this.zeroVector());
+			this.clearVelocity();
 			return;
 		}
 		
@@ -627,9 +633,20 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 	 * Set the velocity of this thing to zero on all axes and set the current applied for forces to 0
 	 */
 	public void clearMotion(){
-		this.setVelocity(this.zeroVector());
+		this.clearVelocity();
 		for(var f : this.getForces()) this.setForce(f.getKey(), this.zeroVector());
 		this.updateGravity();
+	}
+	
+	/** Set the current velocity to nothing and flag {@link #velocityCleared} to true */
+	public void clearVelocity(){
+		this.flagVelocityCleared();
+		this.setVelocity(this.zeroVector());
+	}
+	
+	/** Set the {@link #velocityCleared} to true, indicating that movement should not be able to happen on the next tick */
+	public void flagVelocityCleared(){
+		this.velocityCleared = true;
 	}
 	
 	/**

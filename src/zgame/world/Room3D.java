@@ -271,6 +271,13 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 				}
 			}
 		}
+		// If no material was selected, and the thing was on the ground, us the ground material, same goes for walls and then ceilings
+		if(material == null){
+			if(wasOnGround) material = obj.getFloorMaterial();
+			if(wasOnWall) material = obj.getWallMaterial();
+			if(wasOnCeiling) material = obj.getCeilingMaterial();
+		}
+		
 		// Determine the final collision
 		var res = new CollisionResult3D(mx, my, mz, wall, top, bot, material);
 		
