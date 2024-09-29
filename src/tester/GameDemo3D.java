@@ -225,9 +225,6 @@ public class GameDemo3D extends Game{
 			this.setEqualWidth(8);
 			this.setEqualLength(10);
 			
-			// TODO fix bouncing not happening when moving horizontally
-			// TODO fix not being able to jump while on a high friction surface
-			
 			// TODO make boundaries based on the tiles
 			this.setBoundary(Directions3D.DOWN, 0);
 			this.setBoundary(Directions3D.UP, 4);

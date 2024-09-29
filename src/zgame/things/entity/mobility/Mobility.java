@@ -83,7 +83,11 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		// If the current velocity is greater than the max speed, and entity is trying to walk in the same direction as the current velocity, walk force will always be zero
 		var currentVelMag = Math.abs(entity.getHorizontalVel());
 		double tryRatio = this.getMobilityTryingRatio();
-		if(currentVelMag > 0 && walkForce > 0 && currentVelMag > maxSpeed && tryRatio > 0) walkForce = 0;
+		if(currentVelMag > 0 && walkForce > 0 && currentVelMag > maxSpeed && tryRatio > 0) {
+//				walkForce = entity.calculateFrictionForce();
+//			walkForce = 0;
+			walkForce = mass * maxSpeed * dt;
+		}
 		
 		boolean walking = walkForce != 0;
 		
@@ -97,13 +101,17 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			
 			// If at or above max speed, just set the angle, apply no force
 			if(currentVelMag >= maxSpeed){
+//				walkForce = entity.calculateFrictionForce();
+				walkForce = mass * maxSpeed * dt;
 				walkForce = 0;
-				moveVelocityHorizontalToDesired(tryRatio, currentVelMag, entity.getVelocity());
+				this.moveVelocityHorizontalToDesired(tryRatio, currentVelMag, entity.getVelocity());
 			}
 			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
 			else if(Math.abs(newVel) >= maxSpeed){
-				walkForce = 0;
-				moveVelocityHorizontalToDesired(tryRatio, maxSpeed, entity.getVelocity());
+//				walkForce = entity.calculateFrictionForce();
+				walkForce = mass * maxSpeed * dt;
+//				walkForce = 0;
+				this.moveVelocityHorizontalToDesired(tryRatio, maxSpeed, entity.getVelocity());
 			}
 		}
 		

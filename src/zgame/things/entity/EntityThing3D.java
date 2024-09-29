@@ -223,4 +223,9 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	public double getGravityAcceleration(){
 		return -9.8;
 	}
+	
+	@Override
+	public double getClampVelocity(){
+		return 1E-12;
+	}
 }

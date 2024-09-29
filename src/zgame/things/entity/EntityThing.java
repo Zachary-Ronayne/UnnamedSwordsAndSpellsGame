@@ -5,6 +5,7 @@ import java.util.*;
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.utils.NotNullList;
+import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResult;
 import zgame.physics.material.Material;
@@ -26,6 +27,8 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 	
 	/** The string used to identify the force of gravity in {@link #forces} */
 	public static final String FORCE_NAME_GRAVITY = "gravity";
+	/** The string used to identify the force applied from being on a surface in opposition to gravity {@link #forces} */
+	public static final String FORCE_NAME_NORMAL = "normal";
 	/** The string used to identify the force of friction in {@link #forces} */
 	public static final String FORCE_NAME_FRICTION = "friction";
 	/** The string used to identify the force of friction in {@link #forces} */
@@ -44,6 +47,9 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 	
 	/** The current force of gravity on this {@link EntityThing} */
 	private V gravity;
+	
+	/** The current force acting against graivty on this @{@link EntityThing} */
+	private V normalForce;
 	
 	/** The percentage of gravity that applies to this {@link EntityThing}, defaults to 1, i.e. 100% */
 	private double gravityLevel;
@@ -166,7 +172,8 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		this.addVelocity(acceleration.scale(dt));
 		
 		// Account for clamping the velocity
-		if(Math.abs(this.getVelocity().getMagnitude()) < this.getClampVelocity()) this.clearVelocity();
+		double velMag = this.getVelocity().getMagnitude();
+		if(velMag != 0 && velMag < this.getClampVelocity()) this.clearVelocity();
 		
 		// Apply the movement of the velocity
 		if(!this.velocityCleared) this.moveEntity(this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5)));
@@ -191,34 +198,48 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		var currentFriction = this.getFriction();
 		if(!onSurface){
 			// Don't bother changing friction if it's already 0
-			if(currentFriction.getMagnitude() != 0) this.frictionForce = this.setForce(FORCE_NAME_FRICTION, this.zeroVector());
+			if(currentFriction.getMagnitude() != 0) this.setFrictionForce(this.zeroVector());
+			return;
+		}
+		double clampVel = this.getClampVelocity();
+		
+		var currentForce = this.getForce();
+		double currentForceVert = currentForce.sub(this.getNormalForce()).getVertical();
+		double gravity = this.getGravity().getVertical();
+		double gravityDiff = Math.abs(currentForceVert - gravity);
+		
+		// If the vertical component of force without the normal force is greater than the force of gravity, then there will be no friction
+		if(!ZMath.sameSign(gravity, currentForceVert) && Math.abs(gravityDiff - Math.abs(gravity)) > clampVel){
+			this.setFrictionForce(this.zeroVector());
 			return;
 		}
 		
-		var currentForce = this.getForce();
 		var currentVel = this.getVelocity();
 		
 		// Find the total force for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
-		double newFrictionForce = this.getFrictionConstant() * this.getFloorMaterial().getFriction() * Math.abs(this.getGravity().getVertical());
+		double newFrictionForce = this.calculateFrictionForce();
 		
-		// TODO in 3D, you can still move on a high friction surface by spamming left and right on and off, why?
+		// TODO fix vertical bouncing not happening while moving horizontally and not holding forward or jump, it's from friction killing vertical velocity when it shouldn't
+		// TODO bouncing shouldn't infinitely scale while jumping on a bouncy material
 		
-		double clampVel = this.getClampVelocity();
-		boolean noVelocity = currentVel.getMagnitude() < clampVel;
-		// Depending on conditions, the friction force may be zero
-		// When the current force applied to the entity is less than the base force of friction
-		if(noVelocity || currentForce.getMagnitude() > newFrictionForce){
+		// TODO fix the weird thing with being able to walk off the edges of tiles and still float
+		// TODO fix movement always stopping instantly no matter what when walking instead of slowing down
+		// TODO fix stutter stepping while walking
+		
+		var hasHorizontalVel = currentVel.getHorizontal() >= clampVel;
+		boolean currentForceExceedsFriction = currentForce.getMagnitude() > newFrictionForce;
+		// When there is no horizontal velocity, or the current force applied to the entity is less than the base force of friction, the friction force may be zero
+		if(!hasHorizontalVel || currentForceExceedsFriction){
 			// If the frictional force exceeds the current force, then there will be equal and opposite frictional force
-			if(currentForce.getMagnitude() <= newFrictionForce){
-				// When friction exceeds current force, and on a surface, velocity must also be set to 0
-				if(!noVelocity) this.clearVelocity();
+			if(!currentForceExceedsFriction){
+				this.setFrictionForce(currentForce.sub(currentFriction).inverse());
+				// When friction exceeds current force, and on a surface, velocity must also be set to zero
+				if(currentVel.getMagnitude() >= clampVel) this.clearVelocity();
 				else this.flagVelocityCleared();
-				this.frictionForce = this.setForce(FORCE_NAME_FRICTION, currentForce.add(currentFriction.inverse()).inverse());
 			}
-			// Otherwise, there will be no frictional force
+			// Otherwise, there is no horizontal velocity, so there will be no frictional force
 			else{
-				if(currentFriction.getMagnitude() == 0) return;
-				this.frictionForce = this.setForce(FORCE_NAME_FRICTION, this.zeroVector());
+				if(currentFriction.getMagnitude() != 0) this.setFrictionForce(this.zeroVector());
 			}
 			return;
 		}
@@ -227,19 +248,36 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		var newFriction = currentVel.inverse().modifyMagnitude(newFrictionForce);
 		
 		// Find the new force if friction is fully applied
-		var forceWithoutFriction = currentForce.add(currentFriction.inverse());
+		var forceWithoutFriction = currentForce.sub(currentFriction);
 		var newForce = forceWithoutFriction.add(newFriction);
 		
-		// If adding the new frictional force would result in moving in the opposite direction after accounting for the current velocity, stop movement entirely
+		/*
+		 If adding the new frictional force would result in moving in the opposite direction after accounting for the current velocity,
+		 and stop movement entirely if no other forces are acting
+		 */
 		double mass = this.getMass();
 		if(currentVel.isOpposite(currentVel.add(newForce.scale(dt / mass)))){
-			this.frictionForce = this.setForce(FORCE_NAME_FRICTION, forceWithoutFriction.inverse());
+			this.setFrictionForce(forceWithoutFriction.inverse());
 			this.clearVelocity();
 			return;
 		}
 		
 		// Otherwise, apply the full amount of friction
-		this.frictionForce = this.setForce(FORCE_NAME_FRICTION, newFriction);
+		this.setFrictionForce(newFriction);
+	}
+	
+	/** @return The current magnitude which friction should have on this entity */
+	public double calculateFrictionForce(){
+		return this.getFrictionConstant() * this.getFloorMaterial().getFriction() * Math.abs(this.getForce().sub(this.getNormalForce()).getVertical());
+	}
+	
+	/**
+	 * Set the current vector for friction
+	 *
+	 * @param newForce The vector
+	 */
+	private void setFrictionForce(V newForce){
+		this.frictionForce = this.setForce(FORCE_NAME_FRICTION, newForce);
 	}
 	
 	/**
@@ -361,9 +399,20 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		return this.gravity;
 	}
 	
+	/** @return See {@link #normalForce} */
+	public V getNormalForce(){
+		return this.normalForce;
+	}
+	
 	/** Update the amount of gravitational force being applied to this {@link EntityThing} */
 	private void updateGravity(){
 		this.gravity = this.setVerticalForce(FORCE_NAME_GRAVITY, this.getGravityAcceleration() * this.getMass() * this.getGravityLevel());
+	}
+	
+	/** Update the amount of force that should be applied against gravity as a normal force */
+	private void updateNormalForce(){
+		if(this.isOnGround()) this.normalForce = this.setForce(FORCE_NAME_NORMAL, this.getGravity().inverse());
+		else this.normalForce = this.setForce(FORCE_NAME_NORMAL, this.zeroVector());
 	}
 	
 	/** @return See {@link #gravityLevel} */
@@ -456,6 +505,7 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 	public void leaveFloor(){
 		this.floorMaterial = Materials.NONE;
 		this.groundTime = 0;
+		this.updateNormalForce();
 	}
 	
 	@Override
@@ -466,6 +516,7 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		
 		// Bounce off the floor, or reset the y velocity to 0 if either material has no floor bounciness
 		this.setVerticalVel(-this.getVerticalVel() * touched.getFloorBounce() * this.getMaterial().getFloorBounce());
+		this.updateNormalForce();
 	}
 	
 	@Override

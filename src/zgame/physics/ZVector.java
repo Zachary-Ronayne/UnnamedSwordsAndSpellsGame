@@ -9,6 +9,8 @@ import zgame.core.utils.ZMath;
  */
 public abstract class ZVector<V extends ZVector<V>>{
 	
+	// TODO implement lazy component calculation for vectors
+	
 	/** The magnitude, i.e. length or distance, of this {@link ZVector} */
 	private double magnitude;
 	
@@ -56,6 +58,17 @@ public abstract class ZVector<V extends ZVector<V>>{
 	 * @return The result of adding both vectors
 	 */
 	public abstract V add(V newV);
+	
+	/**
+	 * Subtract the given {@link ZVector} from this ZVector and return the result.
+	 * This method does not modify either vector
+	 *
+	 * @param newV The ZVector to subtract
+	 * @return The result of adding both vectors
+	 */
+	public final V sub(V newV){
+		return this.add(newV.inverse());
+	}
 	
 	/**
 	 * Scale the vector based on the given value, i.e. multiply the x and y components by the given value.
