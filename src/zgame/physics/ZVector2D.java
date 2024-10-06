@@ -68,11 +68,16 @@ public class ZVector2D extends ZVector<ZVector2D>{
 	
 	@Override
 	public double getHorizontal(){
-		return this.getX();
+		return Math.abs(this.getX());
 	}
 	
 	@Override
 	public double getVertical(){
+		return Math.abs(this.getY());
+	}
+	
+	@Override
+	public double getVerticalValue(){
 		return this.getY();
 	}
 	
@@ -138,8 +143,8 @@ public class ZVector2D extends ZVector<ZVector2D>{
 	}
 	
 	@Override
-	public ZVector2D modifyVerticalValue(double magnitude){
-		return new ZVector2D(this.getX(), magnitude);
+	public ZVector2D modifyVerticalValue(double value){
+		return new ZVector2D(this.getX(), value);
 	}
 	
 	@Override

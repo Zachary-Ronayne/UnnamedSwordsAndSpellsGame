@@ -141,12 +141,12 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	
 	/** @return The velocity of this {@link EntityThing} on the x axis */
 	public double getVX(){
-		return this.getVelocity().getHorizontal();
+		return this.getVelocity().getX();
 	}
 	
 	/** @return The velocity of this {@link EntityThing} on the y axis */
 	public double getVY(){
-		return this.getVelocity().getVertical();
+		return this.getVelocity().getY();
 	}
 	
 	/** @param x the new x velocity of this {@link EntityThing} */
@@ -214,6 +214,7 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	
 	@Override
 	public void setHorizontalVel(double v){
+		// TODO this needs to account for angle and magnitude using two different values, or a separate method to invert it?
 		this.setVX(v);
 	}
 	

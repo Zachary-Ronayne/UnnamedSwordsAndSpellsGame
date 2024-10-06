@@ -84,8 +84,6 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		var currentVelMag = Math.abs(entity.getHorizontalVel());
 		double tryRatio = this.getMobilityTryingRatio();
 		if(currentVelMag > 0 && walkForce > 0 && currentVelMag > maxSpeed && tryRatio > 0) {
-//				walkForce = entity.calculateFrictionForce();
-//			walkForce = 0;
 			walkForce = mass * maxSpeed * dt;
 		}
 		
@@ -99,18 +97,14 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			// Find the total velocity if the new walking force is applied on the next tick
 			double newVel = currentVelMag + walkForce * dt / mass;
 			
-			// If at or above max speed, just set the angle, apply no force
+			// If at or above max speed, just set the angle, and make the force equal to what friction will be
 			if(currentVelMag >= maxSpeed){
-//				walkForce = entity.calculateFrictionForce();
-				walkForce = mass * maxSpeed * dt;
-				walkForce = 0;
+				walkForce = entity.calculateFrictionForce();
 				this.moveVelocityHorizontalToDesired(tryRatio, currentVelMag, entity.getVelocity());
 			}
-			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
+			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and make the force equal to what friction will be
 			else if(Math.abs(newVel) >= maxSpeed){
-//				walkForce = entity.calculateFrictionForce();
-				walkForce = mass * maxSpeed * dt;
-//				walkForce = 0;
+				walkForce = entity.calculateFrictionForce();
 				this.moveVelocityHorizontalToDesired(tryRatio, maxSpeed, entity.getVelocity());
 			}
 		}
@@ -196,10 +190,10 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		
 		// Calculate the new velocity for the horizontal axis
 		var newVel = currentVel.modifyHorizontalMagnitude(0).scale(1 - facingRatio).add(this.createTryingToMoveVectorHorizontal(desiredVel).scale(facingRatio));
-		if(Math.abs(newVel.getHorizontal()) > desiredVel) newVel = newVel.modifyHorizontalMagnitude(desiredVel);
+		if(newVel.getHorizontal() > desiredVel) newVel = newVel.modifyHorizontalMagnitude(desiredVel);
 		
 		// Keep the same vertical velocity as the original
-		newVel = newVel.modifyVerticalValue(currentVel.getVertical());
+		newVel = newVel.modifyVerticalValue(currentVel.getVerticalValue());
 		
 		// Update the velocity
 		this.getThing().setVelocity(newVel);

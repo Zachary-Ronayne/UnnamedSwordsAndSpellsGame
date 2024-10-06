@@ -151,45 +151,6 @@ public interface HitBox2D extends HitBox<HitBox2D, CollisionResult2D>, Bounds2D{
 		return true;
 	}
 	
-	/**
-	 * A method that defines what this object does when it touches a floor
-	 *
-	 * @param touched The Material which this {@link HitBox2D} touched
-	 */
-	void touchFloor(Material touched);
-	
-	/** A method that defines what this object does when it leaves the floor, i.e. it goes from touching the floor to not touching the floor */
-	void leaveFloor();
-	
-	/**
-	 * A method that defines what this object does when it touches a ceiling
-	 *
-	 * @param touched The Material which this {@link HitBox2D} touched
-	 */
-	void touchCeiling(Material touched);
-	
-	/** A method that defines what this object does when it leaves a ceiling, i.e. it goes from touching a wall to not touching a ceiling */
-	void leaveCeiling();
-	
-	/**
-	 * A method that defines what this object does when it touches a wall
-	 *
-	 * @param touched The Material which this {@link HitBox2D} touched
-	 */
-	void touchWall(Material touched);
-	
-	/** A method that defines what this object does when it leaves a wall, i.e. it goes from touching a wall to not touching a wall */
-	void leaveWall();
-	
-	/** @return true if this {@link HitBox2D} is on the ground, false otherwise i.e. it's in the air */
-	boolean isOnGround();
-	
-	/** @return true if this {@link HitBox2D} is touching a ceiling, false otherwise */
-	boolean isOnCeiling();
-	
-	/** @return true if this {@link HitBox2D} is touching a wall, false otherwise */
-	boolean isOnWall();
-	
 	/** @return The previous value of {@link #getX()} before the last time it was moved with velocity */
 	double getPX();
 	

@@ -50,6 +50,9 @@ public abstract class ZVector<V extends ZVector<V>>{
 	/** @return The magnitude of the vertical components of this vector */
 	public abstract double getVertical();
 	
+	/** @return The value of the vertical components of this vector */
+	public abstract double getVerticalValue();
+	
 	/**
 	 * Add the given {@link ZVector} to this ZVector and return the result.
 	 * This method does not modify either vector
@@ -107,10 +110,10 @@ public abstract class ZVector<V extends ZVector<V>>{
 	
 	/**
 	 * Create a new vector which has the same horizontal value, but with the given vertical value
-	 * @param magnitude The magnitude
+	 * @param value The new value
 	 * @return The new vector
 	 */
-	public abstract V modifyVerticalValue(double magnitude);
+	public abstract V modifyVerticalValue(double value);
 	
 	/**
 	 * Determine if the given vector moves in close enough to the opposite direction as this vector

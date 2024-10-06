@@ -27,8 +27,6 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 	
 	/** The string used to identify the force of gravity in {@link #forces} */
 	public static final String FORCE_NAME_GRAVITY = "gravity";
-	/** The string used to identify the force applied from being on a surface in opposition to gravity {@link #forces} */
-	public static final String FORCE_NAME_NORMAL = "normal";
 	/** The string used to identify the force of friction in {@link #forces} */
 	public static final String FORCE_NAME_FRICTION = "friction";
 	/** The string used to identify the force of friction in {@link #forces} */
@@ -47,9 +45,6 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 	
 	/** The current force of gravity on this {@link EntityThing} */
 	private V gravity;
-	
-	/** The current force acting against graivty on this @{@link EntityThing} */
-	private V normalForce;
 	
 	/** The percentage of gravity that applies to this {@link EntityThing}, defaults to 1, i.e. 100% */
 	private double gravityLevel;
@@ -193,6 +188,8 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 	 * @param dt The amount of time, in seconds, that will pass the next time the frictional force is applied
 	 */
 	public void updateFrictionForce(double dt){
+		// TODO fix speed not getting capped
+		
 		// When not on a surface, there is no friction
 		boolean onSurface = this.isOnGround() || this.isOnWall() || this.isOnCeiling();
 		var currentFriction = this.getFriction();
@@ -204,12 +201,18 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		double clampVel = this.getClampVelocity();
 		
 		var currentForce = this.getForce();
-		double currentForceVert = currentForce.sub(this.getNormalForce()).getVertical();
-		double gravity = this.getGravity().getVertical();
-		double gravityDiff = Math.abs(currentForceVert - gravity);
+		double currentForceVert = currentForce.sub(this.getGravity()).getVerticalValue();
+		var gravity = this.getGravity();
+		double gravityVert = gravity.getVerticalValue();
+		double gravityDiff = Math.abs(currentForceVert - gravityVert);
 		
-		// If the vertical component of force without the normal force is greater than the force of gravity, then there will be no friction
-		if(!ZMath.sameSign(gravity, currentForceVert) && Math.abs(gravityDiff - Math.abs(gravity)) > clampVel){
+		// TODO if velocity is moving in the opposite direction from gravity or from the surface, should there also be no friction?
+		/*
+		 If the vertical component of force without gravity is greater than or equal to the force of gravity,
+		 and the forces are in opposite directions or equal,
+		 then there will be no friction
+		 */
+		if((!ZMath.sameSign(gravityVert, currentForceVert) || gravityVert == currentForceVert) && Math.abs(gravityDiff - Math.abs(gravityVert)) > clampVel){
 			this.setFrictionForce(this.zeroVector());
 			return;
 		}
@@ -219,29 +222,27 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		// Find the total force for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
 		double newFrictionForce = this.calculateFrictionForce();
 		
-		// TODO fix vertical bouncing not happening while moving horizontally and not holding forward or jump, it's from friction killing vertical velocity when it shouldn't
 		// TODO bouncing shouldn't infinitely scale while jumping on a bouncy material
-		
-		// TODO fix the weird thing with being able to walk off the edges of tiles and still float
-		// TODO fix movement always stopping instantly no matter what when walking instead of slowing down
-		// TODO fix stutter stepping while walking
 		
 		var hasHorizontalVel = currentVel.getHorizontal() >= clampVel;
 		boolean currentForceExceedsFriction = currentForce.getMagnitude() > newFrictionForce;
 		// When there is no horizontal velocity, or the current force applied to the entity is less than the base force of friction, the friction force may be zero
 		if(!hasHorizontalVel || currentForceExceedsFriction){
-			// If the frictional force exceeds the current force, then there will be equal and opposite frictional force
+			// If the frictional force exceeds the current force, and velocity is moving opposite of gravity, then there will be equal and opposite frictional force
 			if(!currentForceExceedsFriction){
-				this.setFrictionForce(currentForce.sub(currentFriction).inverse());
-				// When friction exceeds current force, and on a surface, velocity must also be set to zero
-				if(currentVel.getMagnitude() >= clampVel) this.clearVelocity();
-				else this.flagVelocityCleared();
+				if(currentVel.isOpposite(gravity)){
+					this.setFrictionForce(currentForce.sub(currentFriction).inverse());
+					// When friction exceeds current force, and on a surface, velocity must also be set to zero
+					if(currentVel.getMagnitude() >= clampVel) this.clearVelocity();
+					else this.flagVelocityCleared();
+					return;
+				}
 			}
-			// Otherwise, there is no horizontal velocity, so there will be no frictional force
+			// Otherwise, if there is no horizontal velocity, so there will be no frictional force
 			else{
 				if(currentFriction.getMagnitude() != 0) this.setFrictionForce(this.zeroVector());
+				return;
 			}
-			return;
 		}
 		
 		// The new frictional force will always be in the opposite direction of current movement
@@ -253,12 +254,13 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		
 		/*
 		 If adding the new frictional force would result in moving in the opposite direction after accounting for the current velocity,
-		 and stop movement entirely if no other forces are acting
+		 stop movement entirely if no other forces are acting
 		 */
 		double mass = this.getMass();
-		if(currentVel.isOpposite(currentVel.add(newForce.scale(dt / mass)))){
-			this.setFrictionForce(forceWithoutFriction.inverse());
-			this.clearVelocity();
+		if(currentVel.getMagnitude() < clampVel || currentVel.isOpposite(currentVel.add(newForce.scale(dt / mass)))){
+			this.setFrictionForce(this.zeroVector());
+			if(currentVel.getMagnitude() >= clampVel) this.clearVelocity();
+			else this.flagVelocityCleared();
 			return;
 		}
 		
@@ -268,7 +270,7 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 	
 	/** @return The current magnitude which friction should have on this entity */
 	public double calculateFrictionForce(){
-		return this.getFrictionConstant() * this.getFloorMaterial().getFriction() * Math.abs(this.getForce().sub(this.getNormalForce()).getVertical());
+		return this.getFrictionConstant() * this.getFloorMaterial().getFriction() * this.getForce().getVertical();
 	}
 	
 	/**
@@ -292,7 +294,7 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		// If downward velocity exceeds terminal velocity, and terminal velocity is not negative, set the vector to be equal and opposite to gravity
 		if(this.getVerticalVel() >= terminalVelocity && terminalVelocity > 0){
 			// Only set the value if it is not equal and opposite to gravity
-			double gravityForce = -this.getGravity().getVertical();
+			double gravityForce = -this.getGravity().getVerticalValue();
 			if(this.getGravityDragForce().getVertical() != gravityForce) this.gravityDragForce = this.setVerticalForce(FORCE_NAME_GRAVITY_DRAG, gravityForce);
 		}
 		// Otherwise, remove the force
@@ -324,7 +326,7 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 			return;
 		}
 		// The base amount of force to apply for sliding is the opposite of gravity
-		double slideForce = -this.getGravity().getVertical();
+		double slideForce = -this.getGravity().getVerticalValue();
 		double mass = this.getMass();
 		// If we get to this point, then we are falling faster than the maximum sliding speed, increase the slide force to slow the falling (slideForce will be a negative number)
 		slideForce -= slideStopForce;
@@ -399,20 +401,9 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		return this.gravity;
 	}
 	
-	/** @return See {@link #normalForce} */
-	public V getNormalForce(){
-		return this.normalForce;
-	}
-	
 	/** Update the amount of gravitational force being applied to this {@link EntityThing} */
 	private void updateGravity(){
 		this.gravity = this.setVerticalForce(FORCE_NAME_GRAVITY, this.getGravityAcceleration() * this.getMass() * this.getGravityLevel());
-	}
-	
-	/** Update the amount of force that should be applied against gravity as a normal force */
-	private void updateNormalForce(){
-		if(this.isOnGround()) this.normalForce = this.setForce(FORCE_NAME_NORMAL, this.getGravity().inverse());
-		else this.normalForce = this.setForce(FORCE_NAME_NORMAL, this.zeroVector());
 	}
 	
 	/** @return See {@link #gravityLevel} */
@@ -505,7 +496,6 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 	public void leaveFloor(){
 		this.floorMaterial = Materials.NONE;
 		this.groundTime = 0;
-		this.updateNormalForce();
 	}
 	
 	@Override
@@ -516,7 +506,6 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		
 		// Bounce off the floor, or reset the y velocity to 0 if either material has no floor bounciness
 		this.setVerticalVel(-this.getVerticalVel() * touched.getFloorBounce() * this.getMaterial().getFloorBounce());
-		this.updateNormalForce();
 	}
 	
 	@Override
@@ -547,6 +536,7 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		this.wallMaterial = touched;
 		this.wallTime = -1;
 		
+		// TODO instead of this being a negative number, base this on the angle of the vector to the hitbox touched
 		// Bounce off the wall based on the touched material and this entity thing
 		this.setHorizontalVel(-this.getHorizontalVel() * touched.getWallBounce() * this.getMaterial().getWallBounce());
 	}
@@ -737,10 +727,10 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 	 */
 	public abstract V setVerticalForce(String name, double f);
 	
-	/** @return The total horizontal velocity of this entity */
+	/** @return The total magnitude of horizontal velocity of this entity */
 	public abstract double getHorizontalVel();
 	
-	/** @param v The new total horizontal velocity of this entity */
+	/** @param v The new total magnitude horizontal velocity of this entity */
 	public abstract void setHorizontalVel(double v);
 	
 	/** @return The total vertical velocity of this entity */

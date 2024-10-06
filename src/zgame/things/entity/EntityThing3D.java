@@ -91,9 +91,11 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	
 	@Override
 	public void setHorizontalVel(double v){
+		// TODO this needs to account for angle and magnitude using two different values, or a separate method to invert it?
+		
 		var oldVel = this.getVelocity();
 		var oldAngle = oldVel.getAngleH();
-		var newVel = new ZVector3D(Math.cos(oldAngle) * v, oldVel.getVertical(), Math.sin(oldAngle) * v, true);
+		var newVel = new ZVector3D(Math.cos(oldAngle) * v, oldVel.getY(), Math.sin(oldAngle) * v, true);
 		
 		this.setVelocity(newVel);
 	}

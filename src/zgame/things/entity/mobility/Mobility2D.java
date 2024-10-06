@@ -76,7 +76,7 @@ public interface Mobility2D extends Mobility<HitBox2D, EntityThing2D, ZVector2D,
 		else if(mobilityType == MobilityType.WALKING){
 			double walkingDirection = mobilityData.getWalkingDirection();
 			if(walkingDirection == 0) return 0;
-			double currentVel = this.getThing().getHorizontalVel();
+			double currentVel = this.getThing().getVX();
 			return ZMath.sameSign(currentVel, walkingDirection) ? 1 : -1;
 		}
 		return 0;

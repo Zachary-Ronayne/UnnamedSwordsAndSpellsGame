@@ -29,7 +29,7 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	}
 	
 	/**
-	 * Create a new ZVector with the given angle and magnitude values
+	 * Create a new ZVector with the given component values
 	 *
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
@@ -70,20 +70,21 @@ public class ZVector3D extends ZVector<ZVector3D>{
 		double mag = this.getMagnitude();
 		boolean inverted = mag < 0;
 		if(inverted) {
+			// TODO is this needed?
 			// Must subtract by 90 degrees to account for the vector flipping upside down because vectors are weird
 			this.angleH = ZMath.angleNormalized(this.angleH - ZMath.PI_BY_2);
 			this.setMagnitude(-mag);
 		}
 		
 		// Horizontal magnitude will be the cos, i.e. horizontal, value of the vertical angle and the total magnitude
-		this.horizontalMag = Math.cos(this.angleV) * this.getMagnitude();
-		// The x component will be the sin value on the horizontal axis with the total horizontal magnitude
-		this.x = Math.sin(this.angleH) * this.horizontalMag;
+		this.horizontalMag = Math.abs(Math.cos(this.angleV) * this.getMagnitude());
+		// The x component will be the cos value on the horizontal axis with the total horizontal magnitude
+		this.x = Math.cos(this.angleH) * this.horizontalMag;
 		// The vertical magnitude will be the sin value of the vertical angle and the total magnitude
 		this.y = Math.sin(this.angleV) * this.getMagnitude();
 		if(inverted) this.y = -this.y;
-		// The z component will be the negative cos value on the horizontal axis with the total horizontal magnitude
-		this.z = -Math.cos(this.angleH) * this.horizontalMag;
+		// The z component will be the sin value on the horizontal axis with the total horizontal magnitude
+		this.z = Math.sin(this.angleH) * this.horizontalMag;
 	}
 	
 	/** Update the internal angle and magnitude values based on the current values of {@link #x}, {@link #y}, and {@link #z} */
@@ -108,7 +109,12 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	
 	@Override
 	public double getVertical(){
-		return this.y;
+		return Math.abs(this.getY());
+	}
+	
+	@Override
+	public double getVerticalValue(){
+		return this.getY();
 	}
 	
 	/** @return See {@link #x} */
@@ -149,7 +155,7 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	}
 	
 	/**
-	 * Scale the vector based on the given value, i.e. multiply the x and y components by the given value.
+	 * Scale the vector based on the given value, i.e. multiply the x, y, and z components by the given value.
 	 * This method does not modify either vector
 	 *
 	 * @param scalar The value to scale by
@@ -157,10 +163,7 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	 */
 	@Override
 	public ZVector3D scale(double scalar){
-		var newVec = new ZVector3D(this.getX() * scalar, this.getY() * scalar, this.getZ() * scalar);
-		// Must subtract by 90 degrees to account for the vector flipping upside down because vectors are weird
-		if(scalar < 0) this.angleH = ZMath.angleNormalized(this.angleH - ZMath.PI_BY_2);
-		return newVec;
+		return new ZVector3D(this.getX() * scalar, this.getY() * scalar, this.getZ() * scalar);
 	}
 	
 	@Override
@@ -170,17 +173,17 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	
 	@Override
 	public ZVector3D modifyHorizontalMagnitude(double magnitude){
-		return new ZVector3D(Math.sin(this.getAngleH()) * magnitude, this.getY(), -Math.cos(this.getAngleH()) * magnitude);
+		return new ZVector3D(Math.cos(this.getAngleH()) * magnitude, this.getY(), Math.sin(this.getAngleH()) * magnitude);
 	}
 	
 	@Override
 	public ZVector3D modifyVerticalMagnitude(double magnitude){
-		return new ZVector3D(this.getX(), this.getVertical() > 0 ? magnitude : -magnitude, this.getZ());
+		return new ZVector3D(this.getX(), this.getY() > 0 ? magnitude : -magnitude, this.getZ());
 	}
 	
 	@Override
-	public ZVector3D modifyVerticalValue(double magnitude){
-		return new ZVector3D(this.getX(), magnitude, this.getZ());
+	public ZVector3D modifyVerticalValue(double value){
+		return new ZVector3D(this.getX(), value, this.getZ());
 	}
 	
 	@Override

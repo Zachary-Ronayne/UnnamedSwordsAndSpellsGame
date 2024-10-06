@@ -5,6 +5,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.state.PlayState;
+import zgame.core.utils.ZMath;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
 import zgame.settings.BooleanTypeSetting;
@@ -371,7 +372,8 @@ public class GameDemo3D extends Game{
 			var backward = ki.buttonDown(GLFW_KEY_S);
 			var up = ki.buttonDown(GLFW_KEY_Q);
 			var down = ki.buttonDown(GLFW_KEY_Z);
-			this.handleMobilityControls(dt, cam.getRotY(), -cam.getRotX(), left, right, forward, backward, up, down);
+			// TODO fix flying
+			this.handleMobilityControls(dt, cam.getRotY() - ZMath.PI_BY_2, -cam.getRotX(), left, right, forward, backward, up, down);
 			if(!left && !right && !forward && !backward && this.getMobilityData().getWalkingForce().getMagnitude() != 0) this.stopWalking();
 			
 			// TODO abstract this out?

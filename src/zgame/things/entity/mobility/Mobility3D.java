@@ -33,9 +33,10 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 		var thing = this.getThing();
 		var totalVel = thing.getVelocity();
 		double threshold = thing.getClampVelocity();
-		// TODO why does this need to be modified by pi/2
-		double currentH = (Math.abs(totalVel.getHorizontal()) > threshold) ? totalVel.getAngleH() + ZMath.PI_BY_2 : movingH;
-		double currentV = (Math.abs(totalVel.getVertical()) > threshold) ? totalVel.getAngleV() : movingV;
+		// TODO does this version need to be used? If it does, why does it need to add PI/2?
+//		double currentH = (totalVel.getHorizontal() > threshold) ? totalVel.getAngleH() + ZMath.PI_BY_2 : movingH;
+		double currentH = (totalVel.getHorizontal() > threshold) ? totalVel.getAngleH() : movingH;
+		double currentV = (totalVel.getVertical() > threshold) ? totalVel.getAngleV() : movingV;
 		
 		double diffH = ZMath.angleDiff(movingH, currentH);
 		double diffV = ZMath.angleDiff(movingV, currentV);
@@ -155,6 +156,6 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	default ZVector3D createTryingToMoveVectorHorizontal(double magnitude){
 		var data = this.getMobilityData();
 		double movingAngle = data.getMovingHorizontalAngle();
-		return new ZVector3D(Math.sin(movingAngle) * magnitude, 0, -Math.cos(movingAngle) * magnitude);
+		return new ZVector3D(Math.cos(movingAngle) * magnitude, 0, Math.sin(movingAngle) * magnitude);
 	}
 }
