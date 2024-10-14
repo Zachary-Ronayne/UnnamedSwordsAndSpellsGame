@@ -219,8 +219,6 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		// Find the total force for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
 		double newFrictionForce = this.calculateFrictionForce();
 		
-		// TODO bouncing shouldn't infinitely scale while jumping on a bouncy material
-		
 		var hasHorizontalVel = currentVel.getHorizontal() >= clampVel;
 		boolean currentForceExceedsFriction = currentForce.getMagnitude() > newFrictionForce;
 		// When there is no horizontal velocity, or the current force applied to the entity is less than the base force of friction, the friction force may be zero

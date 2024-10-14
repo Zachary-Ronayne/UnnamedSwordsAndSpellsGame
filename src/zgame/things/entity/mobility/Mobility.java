@@ -1,5 +1,6 @@
 package zgame.things.entity.mobility;
 
+import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResult;
 import zgame.physics.material.Material;
@@ -349,10 +350,16 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		
 		// If falling downwards, add additional force so that the jump force will counteract the current downwards force
 		double vy = entity.getVerticalVel();
+		double mass = entity.getMass();
 		if(invert && vy > 0 || !invert && vy < 0){
-			double adjust = vy / dt * entity.getMass();
+			double adjust = vy / dt * mass;
 			if(invert) jumpAmount += adjust;
 			else jumpAmount -= adjust;
+		}
+		// If the current velocity exceeds the velocity a jump will provide, then apply no force
+		double velocityForce = Math.abs(mass * vy / dt);
+		if(ZMath.sameSign(vy, jumpAmount) && velocityForce > Math.abs(jumpAmount)) {
+			jumpAmount = 0;
 		}
 		
 		mobilityData.setJumpingForce(jumpAmount);
