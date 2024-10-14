@@ -199,22 +199,27 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		double clampVel = this.getClampVelocity();
 		
 		var currentForce = this.getForce();
-		double currentForceVert = currentForce.sub(this.getGravity()).getVerticalValue();
 		var gravity = this.getGravity();
 		double gravityVert = gravity.getVerticalValue();
-		double gravityDiff = Math.abs(currentForceVert - gravityVert);
-		
+		double forceNoGravityVert = currentForce.getVerticalValue() - gravityVert;
+
 		/*
 		 If the vertical component of force without gravity is greater than or equal to the force of gravity,
 		 and the forces are in opposite directions or equal,
 		 then there will be no friction
 		 */
-		if((!ZMath.sameSign(gravityVert, currentForceVert) || gravityVert == currentForceVert) && Math.abs(gravityDiff - Math.abs(gravityVert)) > clampVel){
+		if((!ZMath.sameSign(gravityVert, forceNoGravityVert) || gravityVert == forceNoGravityVert) && Math.abs(forceNoGravityVert) > clampVel){
 			this.setFrictionForce(this.zeroVector());
 			return;
 		}
 		
+		// If velocity is in the opposite direction as gravity, apply no friction
 		var currentVel = this.getVelocity();
+		double velVert = currentVel.getVerticalValue();
+		if(Math.abs(velVert) > clampVel && !ZMath.sameSign(velVert, gravityVert)){
+			this.setFrictionForce(this.zeroVector());
+			return;
+		}
 		
 		// Find the total force for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
 		double newFrictionForce = this.calculateFrictionForce();
