@@ -97,14 +97,14 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			// Find the total velocity if the new walking force is applied on the next tick
 			double newVel = currentVelMag + walkForce * dt / mass;
 			
-			// If at or above max speed, just set the angle, and make the force equal to what friction will be
+			// If at or above max speed, just set the angle, and apply no force
 			if(currentVelMag >= maxSpeed){
-				walkForce = entity.calculateFrictionForce();
+				walkForce = 0;
 				this.moveVelocityHorizontalToDesired(tryRatio, currentVelMag, entity.getVelocity());
 			}
-			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and make the force equal to what friction will be
+			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
 			else if(Math.abs(newVel) >= maxSpeed){
-				walkForce = entity.calculateFrictionForce();
+				walkForce = 0;
 				this.moveVelocityHorizontalToDesired(tryRatio, maxSpeed, entity.getVelocity());
 			}
 		}

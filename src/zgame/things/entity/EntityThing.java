@@ -188,8 +188,6 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 	 * @param dt The amount of time, in seconds, that will pass the next time the frictional force is applied
 	 */
 	public void updateFrictionForce(double dt){
-		// TODO fix speed not getting capped
-		
 		// When not on a surface, there is no friction
 		boolean onSurface = this.isOnGround() || this.isOnWall() || this.isOnCeiling();
 		var currentFriction = this.getFriction();
@@ -206,7 +204,6 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		double gravityVert = gravity.getVerticalValue();
 		double gravityDiff = Math.abs(currentForceVert - gravityVert);
 		
-		// TODO if velocity is moving in the opposite direction from gravity or from the surface, should there also be no friction?
 		/*
 		 If the vertical component of force without gravity is greater than or equal to the force of gravity,
 		 and the forces are in opposite directions or equal,
