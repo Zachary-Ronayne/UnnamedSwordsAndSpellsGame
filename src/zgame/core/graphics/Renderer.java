@@ -129,6 +129,9 @@ public class Renderer implements Destroyable{
 	/** The {@link VertexArray} for drawing a finite plane from a quad */
 	private VertexArray planeVertArr;
 	
+	/** The currently bound vertex array for rendering */
+	private VertexArray boundVertexArray;
+	
 	/** The list of all the stacks of this {@link Renderer} keeping track of the state of this {@link Renderer} */
 	private final ArrayList<LimitedStack<?>> stacks;
 	
@@ -439,6 +442,8 @@ public class Renderer implements Destroyable{
 				-0.5f, 0.0f, -0.5f
 		});
 		planeCoordBuff.applyToVertexArray();
+		
+		this.boundVertexArray = null;
 	}
 	
 	/** Free all resources used by the vertex arrays and vertex buffers */
@@ -453,6 +458,16 @@ public class Renderer implements Destroyable{
 		this.imgVertArr.destroy();
 		this.textVertArr.destroy();
 		this.rect3DVertArr.destroy();
+	}
+	
+	/**
+	 * Bind the given vertex array as the current one for rendering. Does nothing if it is already the one bounded
+	 * @param vertexArray The array to bind
+	 */
+	public void bindVertexArray(VertexArray vertexArray){
+		if(this.boundVertexArray == vertexArray) return;
+		this.boundVertexArray = vertexArray;
+		this.boundVertexArray.bind();
 	}
 	
 	/** Delete any resources used by this Renderer */
@@ -812,7 +827,7 @@ public class Renderer implements Destroyable{
 		this.updateGpuModelView();
 		this.popColor();
 		// Bind the vertex array for drawing an image that fills the entire OpenGL space
-		this.imgVertArr.bind();
+		this.bindVertexArray(imgVertArr);
 		
 		// Position the image and the frame buffer to draw to the window
 		glViewport(window.viewportX(), window.viewportY(), window.viewportW(), window.viewportH());
@@ -1075,7 +1090,7 @@ public class Renderer implements Destroyable{
 		
 		// Use the shape shader and the rectangle vertex array
 		this.renderModeShapes();
-		this.rectVertArr.bind();
+		this.bindVertexArray(rectVertArr);
 		
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
@@ -1129,7 +1144,7 @@ public class Renderer implements Destroyable{
 		
 		// Use the shape shader and the rectangle vertex array
 		this.renderModeShapes();
-		this.ellipseVertArr.bind();
+		this.bindVertexArray(ellipseVertArr);
 		
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
@@ -1235,7 +1250,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	private boolean drawTexture(double x, double y, double w, double h, int img, AlphaMode mode){
-		this.imgVertArr.bind();
+		this.bindVertexArray(imgVertArr);
 		glBindTexture(GL_TEXTURE_2D, img);
 		updateAlphaMode(mode);
 		
@@ -1424,7 +1439,7 @@ public class Renderer implements Destroyable{
 		// Use the font shaders
 		this.renderModeFont();
 		// Use the font vertex array
-		this.textVertArr.bind();
+		this.bindVertexArray(textVertArr);
 		
 		// Use the font's bitmap
 		glBindTexture(GL_TEXTURE_2D, fa.getBitmapID());
@@ -1541,7 +1556,7 @@ public class Renderer implements Destroyable{
 	/** Fill the screen with the current color, regardless of camera position */
 	public void fill(){
 		this.renderModeShapes();
-		this.rectVertArr.bind();
+		this.bindVertexArray(rectVertArr);
 		
 		this.pushMatrix();
 		this.identityMatrix();
@@ -1609,7 +1624,7 @@ public class Renderer implements Destroyable{
 								 ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
 		// Use the 3D color shader and the 3D rect vertex array
 		this.renderModeRect3D();
-		this.rect3DVertArr.bind();
+		this.bindVertexArray(rect3DVertArr);
 		
 		// Position the 3D rect
 		this.pushMatrix();
@@ -1757,7 +1772,7 @@ public class Renderer implements Destroyable{
 	public boolean drawPlane(double x, double y, double z, double w, double l, double xRot, double yRot, double zRot, double xA, double yA, double zA){
 		// Use the 3D color shader and the 3D rect vertex array
 		this.renderModeShapes();
-		this.planeVertArr.bind();
+		this.bindVertexArray(planeVertArr);
 		
 		// Position the plane
 		this.pushMatrix();
