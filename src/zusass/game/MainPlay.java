@@ -38,7 +38,7 @@ public class MainPlay extends PlayState{
 	 * @param zgame The {@link Game} using this state
 	 */
 	public MainPlay(ZusassGame zgame){
-		// TODO maybe make this go to a hub initially right away instead of a separate method call
+		// issue#53 maybe make this go to a hub initially right away instead of a separate method call
 		super(new Room2D());
 		
 		this.enterHub(zgame);

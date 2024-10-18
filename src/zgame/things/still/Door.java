@@ -149,7 +149,7 @@ public class Door extends StaticThing2D implements GameTickable{
 		var room = (Room2D)game.getCurrentRoom();
 		var entities = room.getEntities();
 		for(var entity : entities){
-			// TODO avoid needing this double check call to canEnter
+			// issue#49 avoid needing this double check call to canEnter
 			if(!this.canEnter(entity)) continue;
 			
 			if(entity.intersectsRect(this.getX(), this.getY(), this.getWidth(), this.getHeight())){

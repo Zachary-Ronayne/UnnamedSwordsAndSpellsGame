@@ -42,12 +42,12 @@ public class CubeTile extends TileType3D{
 	@Override
 	public void render(Tile3D t, Game g, Renderer r){
 		var c = this.getBaseColor();
-		// TODO render tiles with transparency properly, maybe this as is is good enough, just only render them if they are fully opaque
+		// issue#46 render tiles with transparency properly, maybe this as is, is good enough, just only render them if they are fully opaque
 		if(c.alpha() < 1) return;
 		
-		// TODO render with ambient occlusion or at least some similar effect to make every face not the same color
+		// issue#47 render with ambient occlusion or at least some similar effect to make every face not the same color
 		
-		// TODO only render the necessary faces
+		// issue#48 only render the necessary faces
 		
 		r.drawRectPrism(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength(), 0, c, c, c, c, c, c);
 	}

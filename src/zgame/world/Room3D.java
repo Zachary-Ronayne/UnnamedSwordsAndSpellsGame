@@ -22,7 +22,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	/** An array of 6 elements representing how far along each axis the boundary exists from the origin (0, 0, 0) */
 	private final double[] boundarySizes;
 	
-	// TODO should tiles be able to go into the negatives? Or have a Minecraft like "chunk" system? Need to decide after getting a minimal implementation working
+	// issue#51 should tiles be able to go into the negatives? Or have a Minecraft like "chunk" system? Need to decide after getting a minimal implementation working
 	
 	/** All tiles which are used by this room */
 	private Tile3D[][][] tiles;
@@ -214,7 +214,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	
 	@Override
 	public void render(Game game, Renderer r){
-		// TODO make a way to efficiently render tiles, i.e. only render the ones that need to be rendered
+		// issue#52 make a way to efficiently render tiles, i.e. only render the ones that need to be rendered
 		for(int x = 0; x < this.tilesX; x++){
 			for(int y = 0; y < this.tilesY; y++){
 				for(int z = 0; z < this.tilesZ; z++){
@@ -238,7 +238,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		boolean top = false;
 		boolean bot = false;
 		Material material = null;
-		// TODO find a way to make it only check the tiles needed, similar to 2D
+		// TODO use a 3D rectangular prism bounds aligned to the x, y, z, axes to make it only check the tiles needed, similar to 2D
 		int minX = 0;
 		int maxX = this.getTilesX() - 1;
 		int minY = 0;

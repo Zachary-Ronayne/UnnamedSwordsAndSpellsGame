@@ -7,8 +7,6 @@ import zgame.things.type.bounds.HitBox3D;
 /** An object that represents the hitbox of a tile, i.e., what parts of the tile have collision */
 public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResult3D>{
 	
-	// TODO have a separate hitbox class for 2D and 3D
-	
 	/** See {@link None} */
 	None NONE = new None();
 	/** See {@link Full} */

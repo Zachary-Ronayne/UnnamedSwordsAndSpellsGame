@@ -20,7 +20,6 @@ public abstract class StaticThing2D extends GameThing implements Uuidable, Bound
 	/** The height of this thing */
 	private double height;
 	
-	// TODO should uuids be stored as numbers rather than strings? Store the object and then use the string only when needed for a hashmap key, or make the key an object
 	/** The uuid representing this thing */
 	private final String uuid;
 	

@@ -354,7 +354,8 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		
 		// Multiplied by 2.0 because the internet says that constant is there for the equation is for terminal velocity
 		// Multiplied by 0.01 as a placeholder for density. For now, everything entities fall through is considered to have that same constant density
-		// TODO make a getDensity method, this would have to be a material the entities are current in
+		// issue#45 make a getDensity method, this would have to be a material the entities are current in
+		// issue#45 this should also be how swimming works, so you are swimming if you are more dense than the density of the material you are in
 		return Math.sqrt(Math.abs((2.0 * this.getMass() * this.getGravityAcceleration()) / (m.getFriction() * surfaceArea * 0.01)));
 	}
 	

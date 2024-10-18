@@ -13,7 +13,6 @@ import zgame.things.type.Materialable;
  */
 public interface HitBox<H extends HitBox<H, C>, C extends CollisionResult<C>> extends Materialable, Uuidable {
 	
-	// TODO abstract out the type?
 	/** @return The type of this hitbox, for determining how it will collide with other hitboxes */
 	HitboxType getHitboxType();
 	

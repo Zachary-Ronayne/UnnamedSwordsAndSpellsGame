@@ -22,7 +22,7 @@ import zgame.things.type.bounds.HitBox;
  * @param <V> The type of vector used by this room
  * @param <R> The room implementation
  */
-// TODO find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
+// issue#50 find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
 public abstract class Room<H extends HitBox<H, C>, E extends EntityThing<H, E, V, R, C>, V extends ZVector<V>, R extends Room<H, E, V, R, C>, C extends CollisionResult<C>> extends GameThing{
 	
 	/** All of the things in this room */

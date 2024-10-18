@@ -26,7 +26,7 @@ public class GameCamera3D{
 	private boolean enableLookLimit;
 	
 	/*
-	 TODO this also account for a camera distance from where it rotates around?
+	 issue#42 this also account for a camera distance from where it rotates around?
 	  Like imagine the (x, y, z) point is where the camera's swivel point is,
 	  but the actual point where the camera shows stuff is determined by this distance.
 	  Also this probably is where third person should be handled
@@ -155,7 +155,7 @@ public class GameCamera3D{
 	public void look(Game game, double x, double y){
 		// TODO this should be in Mobility3D, split this up to not need game as a parameter or to rely on mouse input here
 		
-		// TODO fix sudden camera jolts when switching between normal and not normal mouse modes
+		// issue#43 fix sudden camera jolts when switching between normal and not normal mouse modes
 		
 		// Axes swapped because of the way that it feels like it should be when moving a mouse around
 		var dx = (y - game.getMouseInput().lastY()) * game.get(DoubleTypeSetting.CAMERA_LOOK_SPEED_X);

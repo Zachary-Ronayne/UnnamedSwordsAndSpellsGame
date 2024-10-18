@@ -19,6 +19,8 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 		this.getMobilityData().updateWalkingForce(newWalkForce);
 	}
 	
+	// issue#37 fix flying in 3D
+	
 	@Override
 	default void applyFlyForce(double newFlyForce, boolean applyFacing){
 		this.getMobilityData().updateFlyingForce(newFlyForce, applyFacing);
@@ -33,9 +35,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 		var thing = this.getThing();
 		var totalVel = thing.getVelocity();
 		double threshold = thing.getClampVelocity();
-		// TODO does this version need to be used? If it does, why does it need to add PI/2?
-//		double currentH = (totalVel.getHorizontal() > threshold) ? totalVel.getAngleH() + ZMath.PI_BY_2 : movingH;
-		double currentH = (totalVel.getHorizontal() > threshold) ? totalVel.getAngleH() : movingH;
+		double currentH = (totalVel.getHorizontal() > threshold) ? totalVel.getAngleH() + ZMath.PI_BY_2 : movingH;
 		double currentV = (totalVel.getVertical() > threshold) ? totalVel.getAngleV() : movingV;
 		
 		double diffH = ZMath.angleDiff(movingH, currentH);

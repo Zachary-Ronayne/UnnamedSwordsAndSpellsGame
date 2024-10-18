@@ -70,7 +70,7 @@ public class ZVector3D extends ZVector<ZVector3D>{
 		double mag = this.getMagnitude();
 		boolean inverted = mag < 0;
 		if(inverted) {
-			// TODO is this needed?
+			// issue#37 is this needed? Likely important for flying
 			// Must subtract by 90 degrees to account for the vector flipping upside down because vectors are weird
 			this.angleH = ZMath.angleNormalized(this.angleH - ZMath.PI_BY_2);
 			this.setMagnitude(-mag);

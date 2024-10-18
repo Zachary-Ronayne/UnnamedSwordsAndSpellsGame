@@ -1789,7 +1789,7 @@ public class Renderer implements Destroyable{
 		return true;
 	}
 	
-	// TODO implement interpolation
+	// issue#44 implement interpolation
 	
 	/**
 	 * Update the OpenGL frustum

@@ -194,7 +194,7 @@ public class GameDemo3D extends Game{
 				// Toggling full screen
 				if(button == GLFW_KEY_2) game.toggleFullscreen();
 				/*
-				   TODO fix OpenGL warning when exiting full screen
+				   issue#38 fix OpenGL warning when exiting full screen
 					[LWJGL] OpenGL debug message
 					ID: 0x20092
 					Source: API
@@ -213,7 +213,7 @@ public class GameDemo3D extends Game{
 			// Toggle vsync
 			if(button == GLFW_KEY_V) game.toggle(BooleanTypeSetting.V_SYNC, false);
 			
-			// TODO allow for a third person perspective and build it into the engine
+			// issue#39 allow for a third person perspective and build it into the engine
 		}
 	}
 	
@@ -239,7 +239,7 @@ public class GameDemo3D extends Game{
 			
 			var camera = game.getWindow().getRenderer().getCamera3D();
 			
-			// TODO add tiling to Mobility3D and make it relative to the position looked at
+			// issue#40 add tiling to Mobility3D and make it relative to the position looked at
 			// Tilting the camera to the side
 			var tiltLeft = ki.pressed(GLFW_KEY_COMMA);
 			var tiltRight = ki.pressed(GLFW_KEY_PERIOD);
@@ -249,7 +249,7 @@ public class GameDemo3D extends Game{
 			// Move back to zero while not tilting
 			var rotZ = camera.getRotZ();
 			if(rotZ != 0 && !tiltLeft && !tiltRight){
-				// TODO make untilting also move the x rotation axis
+				// issue#40 make untilting also move the x rotation axis
 				if(Math.abs(rotZ) < tiltAmount){
 					camera.setRotZ(0);
 					currentTilt = 0;
@@ -264,7 +264,7 @@ public class GameDemo3D extends Game{
 				}
 			}
 			else{
-				// TODO to do this properly, need to offset angles by 90 degrees?
+				// issue#40 to do this properly, need to offset angles by 90 degrees?
 				// Tilt left or right
 				if(tiltLeft){
 					if(currentTilt > -Math.PI * 0.5) changedTilt -= tiltAmount;
@@ -337,7 +337,7 @@ public class GameDemo3D extends Game{
 				@Override
 				public void render(Game game, Renderer r, ZRect2D bounds){
 					super.render(game, r, bounds);
-					// TODO fix proper transparency not working here, probably something with buffers
+					// issue#28 fix proper transparency not working here, probably something with buffers
 					r.setColor(new ZColor(0, .5));
 					r.drawRectangle(bounds);
 					
@@ -372,7 +372,7 @@ public class GameDemo3D extends Game{
 			var backward = ki.buttonDown(GLFW_KEY_S);
 			var up = ki.buttonDown(GLFW_KEY_Q);
 			var down = ki.buttonDown(GLFW_KEY_Z);
-			// TODO fix flying
+			// issue#37 fix flying
 			this.handleMobilityControls(dt, cam.getRotY() - ZMath.PI_BY_2, -cam.getRotX(), left, right, forward, backward, up, down);
 			if(!left && !right && !forward && !backward && this.getMobilityData().getWalkingForce().getMagnitude() != 0) this.stopWalking();
 			
@@ -490,7 +490,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		protected void render(Game game, Renderer r){
-			// TODO make some way of rendering this differently when it's the selected thing to control?
+			// issue#41 make some way of rendering this differently when it's the selected thing to control?
 			r.setColor(new ZColor(.5, 0, 0));
 			r.drawSidePlaneZ(this.getX(), this.getY(), this.getZ(), 0.2, this.getHeight(), this.getCamera().getRotY());
 			
