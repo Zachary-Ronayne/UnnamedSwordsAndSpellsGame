@@ -97,10 +97,10 @@ public class GameDemo3D extends Game{
 					new ZColor(0, 0, 1), new ZColor(1, 0, 1));
 			
 			// Draw a checkerboard floor
-			for(int x = 0; x < 32; x++){
-				for(int z = 0; z < 40; z++){
+			for(int x = 0; x < 40; x++){
+				for(int z = 0; z < 48; z++){
 					r.setColor(new ZColor(((x % 2 == 0) != (z % 2 == 0)) ? .2 : .6));
-					r.drawFlatPlane(x * .25 - 3.875, 0, z * .25 - 4.875, .25, .25);
+					r.drawFlatPlane(x * .25 - 4.875, 0, z * .25 - 5.875, .25, .25);
 				}
 			}
 			
@@ -135,16 +135,16 @@ public class GameDemo3D extends Game{
 			r.drawSidePlaneZ(1.7, 1, -3, .4, .25, pillarAngle);
 			
 			// Draw some checkerboard walls
-			for(int x = 0; x < 32; x++){
+			for(int x = 0; x < 40; x++){
 				for(int y = 0; y < 4; y++){
 					r.setColor(new ZColor(((x % 2 == 0) != (y % 2 == 0)) ? .2 : .6, 0, .5));
-					r.drawSidePlaneX(x * .25 - 3.875, y * .25, 5, .25, .25);
+					r.drawSidePlaneX(x * .25 - 4.875, y * .25, 6, .25, .25);
 				}
 			}
-			for(int z = 0; z < 40; z++){
+			for(int z = 0; z < 48; z++){
 				for(int y = 0; y < 4; y++){
 					r.setColor(new ZColor(.5, 0, ((z % 2 == 0) != (y % 2 == 0)) ? .2 : .6));
-					r.drawSidePlaneZ(4, y * .25, z * .25 - 4.875, .25, .25);
+					r.drawSidePlaneZ(5, y * .25, z * .25 - 5.875, .25, .25);
 				}
 			}
 		}
@@ -221,11 +221,14 @@ public class GameDemo3D extends Game{
 	private static class DummyRoom extends Room3D{
 		
 		public DummyRoom(){
-			super(2, 2, 3);
+			super(3, 2, 5);
 			this.setTile(1, 0, 0, BaseTiles3D.BOUNCY);
 			this.setTile(1, 0, 2, BaseTiles3D.HIGH_FRICTION);
-			this.setEqualWidth(8);
-			this.setEqualLength(10);
+			this.setTile(1, 0, 4, BaseTiles3D.SOLID_DARK);
+			this.setTile(2, 0, 4, BaseTiles3D.SOLID_LIGHT);
+			this.setTile(2, 1, 3, BaseTiles3D.SOLID_DARK);
+			this.setEqualWidth(10);
+			this.setEqualLength(12);
 			
 			// TODO make boundaries based on the tiles
 			this.setBoundary(Directions3D.DOWN, 0);

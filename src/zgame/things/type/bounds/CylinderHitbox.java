@@ -1,7 +1,7 @@
 package zgame.things.type.bounds;
 
-import zgame.core.utils.ZRect2D;
 import zgame.physics.collision.CollisionResult3D;
+import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
 
 /** A hitbox with a vertical cylinder shape in 3D, which cannot be rotated */
@@ -62,18 +62,11 @@ public interface CylinderHitbox extends HitBox3D{
 	
 	@Override
 	default CollisionResult3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m){
-		// TODO implement real collision
-		if(!new ZRect2D(x - width * 0.5, z - length * 0.5, width, length)
-				.intersects(this.getX() - this.getWidth() * 0.5, this.getZ() - this.getLength() * 0.5, this.getWidth(), this.getLength())) return new CollisionResult3D();
-		
-		if(this.getY() >= y + height) return new CollisionResult3D();
-		
-		return new CollisionResult3D(0, y + height - this.getY(), 0, false, false, true, m);
+		return ZCollision.rectToCylinderBasic(x, y, z, width, height, length, this.getX(), this.getY(), this.getZ(), this.getRadius(), this.getHeight(), m);
 	}
 	
 	@Override
 	default boolean intersectsRect(double x, double y, double z, double width, double height, double length){
-		// TODO implement
-		return false;
+		return ZCollision.rectIntersectsCylinder(x, y, z, width, height, length, this.getX(), this.getY(), this.getZ(), this.getRadius(), this.getHeight());
 	}
 }

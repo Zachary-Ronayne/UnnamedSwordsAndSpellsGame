@@ -613,6 +613,153 @@ public final class ZCollision{
 		return new CollisionResult2D(cos * offset, sin * offset, cos > 0, cos < 0, sin > 0, sin < 0, m);
 	}
 	
+	/**
+	 * Given the rectangular prism bounds of an unmoving object, and the bounds of a cylinder, determine how the later should move colliding with the former
+	 *
+	 * @param rx The bottom middle x coordinate of the rectangular prism
+	 * @param ry The bottom middle y coordinate of the rectangular prism
+	 * @param rz The bottom middle z coordinate of the rectangular prism
+	 * @param rw The total width of the rectangular prism
+	 * @param rh The total height of the rectangular prism
+	 * @param rl The total length of the rectangular prism
+	 * @param cx The bottom middle x coordinate of the cylinder
+	 * @param cy The bottom middle y coordinate of the cylinder
+	 * @param cz The bottom middle z coordinate of the cylinder
+	 * @param cr The radius of the rectangular prism
+	 * @param ch The total height of the rectangular prism
+	 * @param m The material of the rectangular prism
+	 * @return A collision result representing how the cylinder should move
+	 */
+	public static CollisionResult3D rectToCylinderBasic(double rx, double ry, double rz, double rw, double rh, double rl, double cx, double cy, double cz, double cr, double ch, Material m){
+		// With no intersection, there is no collision
+		if(!rectIntersectsCylinder(rx, ry, rz, rw, rh, rl, cx, cy, cz, cr, ch)) return new CollisionResult3D();
+		
+		double minDist = -1;
+		double moveDist = 0;
+		
+		boolean moveX = false;
+		boolean moveY = false;
+		boolean moveZ = false;
+		
+		double hrw = rw * 0.5;
+		double hrl = rl * 0.5;
+		
+		// Check for collision with all 6 sides of the rectangular prism, and find the distance to move on each side, or a negative number if it is too far
+		
+		// Check the x axis, left and right
+		double rxl = rx - hrw;
+		// TODO Figure out the correct coordinates sent to this helper method for all 4 calls to it
+		double leftDist = circleDistanceLineSegment(rz - hrl, rz + hrl, rxl, cz, rxl + (rxl - cx), cr);
+		if(leftDist > 0){
+			moveDist = -leftDist;
+			minDist = moveDist;
+			moveX = true;
+		}
+		double rxr = rx + hrw;
+		double rightDist = circleDistanceLineSegment(rz - hrl, rz + hrl, rxr, cz, cx, cr);
+		if(rightDist > 0 && (minDist < 0 || rightDist < minDist)){
+			moveDist = rightDist;
+			minDist = moveDist;
+			moveX = true;
+		}
+		
+		// Check the z axis, front and back
+		double rzb = rz - hrl;
+		double backDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzb, cz, rzb + (rzb - cz), cr);
+		if(backDist > 0 && (minDist < 0 || backDist < minDist)){
+			moveDist = -backDist;
+			minDist = moveDist;
+			moveZ = true;
+			moveX = false;
+		}
+		double rzf = rz + hrl;
+		double frontDist = circleDistanceLineSegment(rz - hrw, rz + hrw, rzf, cz, cx, cr);
+		if(frontDist > 0 && (minDist < 0 || frontDist < minDist)){
+			moveDist = frontDist;
+			minDist = moveDist;
+			moveZ = true;
+			moveX = false;
+		}
+		
+		// Check the y axis, top and bottom
+		double bottomDist = cy - (ry + rh);
+		if(bottomDist > 0 && (minDist < 0 || bottomDist < minDist)){
+			moveDist = -bottomDist;
+			minDist = moveDist;
+			moveY = true;
+			moveX = false;
+			moveZ = false;
+		}
+		double topDist = (ry + rh) - cy;
+		if(topDist > 0 && (minDist < 0 || topDist < minDist)){
+			moveDist = topDist;
+			moveY = true;
+			minDist = moveDist;
+			moveX = false;
+			moveZ = false;
+		}
+		
+		// If no movement is needed, there is no collision, though this should always be false at this point
+		if(minDist < 0) return new CollisionResult3D();
+		
+		// Otherwise, the result will be only for the side with the smallest change
+		double dx = moveX ? moveDist : 0;
+		double dy = moveY ? moveDist : 0;
+		double dz = moveZ ? moveDist : 0;
+		
+		// Set the flags appropriately for which sides were touched and return the result
+		boolean touchWall = leftDist > 0 || rightDist > 0 || frontDist > 0 || backDist > 0;
+		return new CollisionResult3D(dx, dy, dz, touchWall, bottomDist > 0, topDist > 0, m);
+	}
+	
+	/**
+	 * Determine the distance that the given circle needs to move to no longer collide with the given line segment. This assumes the given values are for a line in 2D
+	 * aligned to the y axis where the circle would need to move down, i.e. increase y, to collide with the wall
+	 *
+	 * @param lx1 The smaller of the two x coordinates representing the line to collide with
+	 * @param lx2 The larger of the two x coordinates representing the line to collide with
+	 * @param ly The y coordinate of the line
+	 * @param cx The center x coordinate of the circle of the circle
+	 * @param cy The center y coordinate of the circle of the circle
+	 * @param cr The radius of the circle
+	 * @return The distance, as a magnitude, the circle needs to move down to align with the line, or a negative value if there's no intersection
+	 */
+	private static double circleDistanceLineSegment(double lx1, double lx2, double ly, double cx, double cy, double cr){
+		// Find the point on the line touching the circle
+		var intersectionX = circleLineIntersection(cx, cy, cr, ly, false, false);
+		// No intersection
+		if(Double.isNaN(intersectionX)) return -1;
+		
+		// TODO finish implementing this
+		// Account for the edges of the lines and if that means the circle needs to be moved less distance than normal
+		
+		// Return the positive distance from the line to the top of the circle
+		return Math.abs(cy - ly);
+	}
+	
+	/**
+	 * Determine if the rectangular prism and the bounds of a cylinder intersect
+	 *
+	 * @param rx The bottom middle x coordinate of the rectangular prism
+	 * @param ry The bottom middle y coordinate of the rectangular prism
+	 * @param rz The bottom middle z coordinate of the rectangular prism
+	 * @param rw The total width of the rectangular prism
+	 * @param rh The total height of the rectangular prism
+	 * @param rl The total length of the rectangular prism
+	 * @param cx The bottom middle x coordinate of the cylinder
+	 * @param cy The bottom middle y coordinate of the cylinder
+	 * @param cz The bottom middle z coordinate of the cylinder
+	 * @param cr The radius of the rectangular prism
+	 * @param ch The total height of the rectangular prism
+	 * @return true if they intersect, false otherwise
+	 */
+	public static boolean rectIntersectsCylinder(double rx, double ry, double rz, double rw, double rh, double rl, double cx, double cy, double cz, double cr, double ch){
+		// If neither of the y bounds of the rectangular prism are inside the cylinder, then there is no collision
+		if(!ZMath.in(cy, ry, cy + ch) && !ZMath.in(cy, ry + rh, cy + ch)) return false;
+		
+		// If the circular bounds doesn't intersect the rectangle, there will be no collision
+		return ZMath.circleIntersectsRect(cx, cz, cr, rx - rw * 0.5, rz - rl * 0.5, rw, rl);
+	}
 	
 	/** Cannot instantiate {@link ZCollision} */
 	private ZCollision(){
