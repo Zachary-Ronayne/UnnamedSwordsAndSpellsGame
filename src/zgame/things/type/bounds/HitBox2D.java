@@ -27,8 +27,7 @@ public interface HitBox2D extends HitBox<HitBox2D, CollisionResult2D>, Bounds2D{
 	
 	/**
 	 * Determine a {@link CollisionResult2D} from colliding this object with the given rectangular bounds. Essentially, move this object so that it no longer intersecting with
-	 * the
-	 * given bounds. This method should not change the state of this object, it should only return an object representing how the collision should happen.
+	 * the given bounds. This method should not change the state of this object, it should only return an object representing how the collision should happen.
 	 *
 	 * @param x The x coordinate of the upper left hand corner of the bounds
 	 * @param y The y coordinate of the upper left hand corner of the bounds

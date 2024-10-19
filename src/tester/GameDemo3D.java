@@ -14,6 +14,7 @@ import zgame.settings.IntTypeSetting;
 import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.mobility.MobilityType;
 import zgame.things.still.tiles.BaseTiles3D;
+import zgame.things.type.bounds.CylinderHitbox;
 import zgame.world.Directions3D;
 import zgame.world.Room3D;
 
@@ -350,7 +351,7 @@ public class GameDemo3D extends Game{
 		else game.getCurrentState().removeTopMenu(game);
 	}
 	
-	private static class Player3D extends MobilityEntity3D{
+	private static class Player3D extends MobilityEntity3D implements CylinderHitbox{
 		private final Game game;
 		
 		public Player3D(Game game){
@@ -499,20 +500,14 @@ public class GameDemo3D extends Game{
 			r.drawFlatPlane(this.getX(), 0.001, this.getZ(), 0.2,0.2);
 		}
 		
-		// TODO implement these in an abstracted class for a cylinder
-		@Override
-		public double getWidth(){
-			return 0.3;
-		}
-		
 		@Override
 		public double getHeight(){
 			return 0.6;
 		}
 		
 		@Override
-		public double getLength(){
-			return 0.3;
+		public double getRadius(){
+			return 0.15;
 		}
 	}
 	

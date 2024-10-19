@@ -5,5 +5,7 @@ public enum HitboxType{
 	/** A non rotating rectangular hitbox */
 	RECT,
 	/** A circle hitbox */
-	CIRCLE
+	CIRCLE,
+	/** A non rotating upwards facing cylinder */
+	CYLINDER
 }

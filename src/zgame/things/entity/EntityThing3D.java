@@ -4,15 +4,12 @@ import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.physics.material.Material;
 import zgame.things.type.bounds.HitBox3D;
-import zgame.things.type.bounds.HitboxType;
 import zgame.world.Room3D;
 
 /**
  * An {@link EntityThing} in 3D
  */
 public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D> implements HitBox3D{
-	
-	// TODO make a cylinder extension of entity thing 3D
 	
 	/** The x coordinate of the bottom center of this entity thing */
 	private double x;
@@ -109,18 +106,6 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	public void setVerticalVel(double v){
 		var vel = this.getVelocity();
 		this.setVelocity(new ZVector3D(vel.getX(), v, vel.getZ()));
-	}
-	
-	@Override
-	public HitboxType getHitboxType(){
-		// TODO implement
-		return HitboxType.RECT;
-	}
-	
-	@Override
-	public boolean intersects(HitBox3D h){
-		// TODO implement
-		return false;
 	}
 	
 	@Override
