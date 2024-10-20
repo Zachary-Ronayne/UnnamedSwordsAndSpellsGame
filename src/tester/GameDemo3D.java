@@ -329,6 +329,16 @@ public class GameDemo3D extends Game{
 			// Draw a marker at the origin
 			var c = new ZColor(.5, 0, 0, 0.5);
 			r.drawRectPrism(0, 0, 0, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
+			
+			// Draw markers at each axis direction
+			c = new ZColor(.5, 0, 0, 1);
+			r.drawRectPrism(-.75, 0, 0, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
+			c = new ZColor(0, 0.5, 0, 1);
+			r.drawRectPrism(.75, 0, 0, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
+			c = new ZColor(0, 0, 0.5, 1);
+			r.drawRectPrism(0, 0, .75, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
+			c = new ZColor(0, 0.5, 0.5, 1);
+			r.drawRectPrism(0, 0, -.75, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
 		}
 	}
 	

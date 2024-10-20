@@ -641,6 +641,10 @@ public final class ZCollision{
 		boolean moveY = false;
 		boolean moveZ = false;
 		
+		boolean touchWall = false;
+		boolean touchFloor = false;
+		boolean touchCeiling = false;
+		
 		double hrw = rw * 0.5;
 		double hrl = rl * 0.5;
 		
@@ -648,56 +652,66 @@ public final class ZCollision{
 		
 		// Check the x axis, left and right
 		double rxl = rx - hrw;
-		// TODO Figure out the correct coordinates sent to this helper method for all 4 calls to it
 		double leftDist = circleDistanceLineSegment(rz - hrl, rz + hrl, rxl, cz, rxl + (rxl - cx), cr);
-		if(leftDist > 0){
+		if(leftDist > 0 && leftDist < rw){
 			moveDist = -leftDist;
-			minDist = moveDist;
+			minDist = leftDist;
 			moveX = true;
+			touchWall = true;
 		}
 		double rxr = rx + hrw;
 		double rightDist = circleDistanceLineSegment(rz - hrl, rz + hrl, rxr, cz, cx, cr);
-		if(rightDist > 0 && (minDist < 0 || rightDist < minDist)){
+		if(rightDist > 0 && rightDist < rw && (minDist < 0 || rightDist < minDist)){
 			moveDist = rightDist;
-			minDist = moveDist;
+			minDist = rightDist;
 			moveX = true;
+			touchWall = true;
 		}
 		
 		// Check the z axis, front and back
-		double rzb = rz - hrl;
-		double backDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzb, cz, rzb + (rzb - cz), cr);
-		if(backDist > 0 && (minDist < 0 || backDist < minDist)){
-			moveDist = -backDist;
-			minDist = moveDist;
+		double rzb = rz + hrl;
+		double backDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzb, cx, rzb + (cz - rzb), cr);
+		if(backDist > 0 && backDist < rl && (minDist < 0 || backDist < minDist)){
+			moveDist = backDist;
+			minDist = backDist;
 			moveZ = true;
 			moveX = false;
+			touchWall = true;
 		}
-		double rzf = rz + hrl;
-		double frontDist = circleDistanceLineSegment(rz - hrw, rz + hrw, rzf, cz, cx, cr);
-		if(frontDist > 0 && (minDist < 0 || frontDist < minDist)){
-			moveDist = frontDist;
-			minDist = moveDist;
+		double rzf = rz - hrl;
+		double frontDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzf, cx, cz, -cr);
+		if(frontDist > 0 && frontDist < rl && (minDist < 0 || frontDist < minDist)){
+			moveDist = -frontDist;
+			minDist = frontDist;
 			moveZ = true;
 			moveX = false;
+			touchWall = true;
 		}
 		
 		// Check the y axis, top and bottom
-		double bottomDist = cy - (ry + rh);
-		if(bottomDist > 0 && (minDist < 0 || bottomDist < minDist)){
-			moveDist = -bottomDist;
-			minDist = moveDist;
-			moveY = true;
-			moveX = false;
-			moveZ = false;
-		}
 		double topDist = (ry + rh) - cy;
-		if(topDist > 0 && (minDist < 0 || topDist < minDist)){
+		if(topDist > 0 && topDist < rh && (minDist < 0 || topDist < minDist)){
 			moveDist = topDist;
+			minDist = topDist;
 			moveY = true;
-			minDist = moveDist;
 			moveX = false;
 			moveZ = false;
+			touchFloor = true;
+			touchWall = false;
 		}
+		double bottomDist = (cy + ch) - ry;
+		if(bottomDist > 0 && bottomDist < rh && (minDist < 0 || bottomDist < minDist)){
+			moveDist = -bottomDist;
+			minDist = bottomDist;
+			moveY = true;
+			moveX = false;
+			moveZ = false;
+			touchCeiling = true;
+			touchFloor = false;
+			touchWall = false;
+		}
+		
+		// TODO fix movement being slow or getting stuck when moving near the edges of tiles
 		
 		// If no movement is needed, there is no collision, though this should always be false at this point
 		if(minDist < 0) return new CollisionResult3D();
@@ -708,8 +722,7 @@ public final class ZCollision{
 		double dz = moveZ ? moveDist : 0;
 		
 		// Set the flags appropriately for which sides were touched and return the result
-		boolean touchWall = leftDist > 0 || rightDist > 0 || frontDist > 0 || backDist > 0;
-		return new CollisionResult3D(dx, dy, dz, touchWall, bottomDist > 0, topDist > 0, m);
+		return new CollisionResult3D(dx, dy, dz, touchWall, touchCeiling, touchFloor, m);
 	}
 	
 	/**
@@ -719,22 +732,25 @@ public final class ZCollision{
 	 * @param lx1 The smaller of the two x coordinates representing the line to collide with
 	 * @param lx2 The larger of the two x coordinates representing the line to collide with
 	 * @param ly The y coordinate of the line
-	 * @param cx The center x coordinate of the circle of the circle
-	 * @param cy The center y coordinate of the circle of the circle
-	 * @param cr The radius of the circle
+	 * @param cx The center x coordinate of the circle
+	 * @param cy The center y coordinate of the circle
+	 * @param cr The radius of the circle, can be negative if the circle needs to be moved in the opposite direction
 	 * @return The distance, as a magnitude, the circle needs to move down to align with the line, or a negative value if there's no intersection
 	 */
 	private static double circleDistanceLineSegment(double lx1, double lx2, double ly, double cx, double cy, double cr){
 		// Find the point on the line touching the circle
-		var intersectionX = circleLineIntersection(cx, cy, cr, ly, false, false);
+		var intersectionX = circleLineIntersection(cx, cy, Math.abs(cr), ly, false, false);
 		// No intersection
 		if(Double.isNaN(intersectionX)) return -1;
 		
-		// TODO finish implementing this
+		// TODO finish implementing this for the literal corner cases
 		// Account for the edges of the lines and if that means the circle needs to be moved less distance than normal
+		// Find the y coordinates on the circle for the two x coordinates of the line segment ends
+		
+		// If either of those coordinates result in a smaller distance than the top of the circle, move that distance instead
 		
 		// Return the positive distance from the line to the top of the circle
-		return Math.abs(cy - ly);
+		return Math.abs((cy - cr) - ly);
 	}
 	
 	/**

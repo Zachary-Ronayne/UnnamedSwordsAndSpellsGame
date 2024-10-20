@@ -1775,10 +1775,12 @@ public class Renderer implements Destroyable{
 		this.bindVertexArray(planeVertArr);
 		
 		// Position the plane
+		// TODO both modifying the stack and positioning the object are a significant amount of the lag, potentially find a way to reduce this?
 		this.pushMatrix();
 		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, xA, yA, zA);
 		
 		// Ensure the gpu has the current modelView and color
+		// TODO this is a huge amount of lag, allow this to not need to happen so often? Potentially group together things of the same color?
 		this.updateGpuColor();
 		this.updateGpuModelView();
 		

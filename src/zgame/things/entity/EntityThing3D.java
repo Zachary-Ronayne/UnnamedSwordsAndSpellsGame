@@ -114,7 +114,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	public void collide(CollisionResult3D r){
 		this.addX(r.x());
 		this.addY(r.y());
-		this.addY(r.z());
+		this.addZ(r.z());
 		// TODO abstract some of this out to 2D
 		if(r.wall()) this.touchWall(r.material());
 		if(r.ceiling()) this.touchCeiling(r.material());
