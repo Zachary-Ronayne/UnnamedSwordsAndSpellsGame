@@ -121,6 +121,12 @@ public class Renderer implements Destroyable{
 	private VertexBuffer rect3DColorBuff;
 	/** The {@link VertexArray} for drawing a 3D rectangular prism */
 	private VertexArray rect3DVertArr;
+	/** The {@link VertexArray} for drawing an ellipse in 3D on the xz plane */
+	private VertexArray ellipse3DVertArr;
+	/** The {@link VertexBuffer} which represents positional values that generate a 3D ellipse */
+	private VertexBuffer ellipse3DPosBuff;
+	/** The index buffer that tracks the indexes for drawing a 3D ellipse */
+	private IndexBuffer ellipse3DIndexBuff;
 	
 	/** The {@link IndexBuffer} that tracks indexes for drawing a finite plane from a quad */
 	private IndexBuffer planeIndexBuff;
@@ -442,6 +448,33 @@ public class Renderer implements Destroyable{
 				-0.5f, 0.0f, -0.5f
 		});
 		planeCoordBuff.applyToVertexArray();
+		
+		// Generate a vertex array for rendering 3D ellipses
+		// Make indexes for the number of triangles minus 1
+		ellipseIndexes = new byte[(NUM_ELLIPSE_POINTS - 1) * 3];
+		// Make one point for each of the points on the circle
+		ellipsePoints = new float[NUM_ELLIPSE_POINTS * 3];
+		// Go through each point
+		for(i = 0; i < NUM_ELLIPSE_POINTS; i++){
+			// Find the current angle based on the index
+			var a = ZMath.TAU * ((float)i / NUM_ELLIPSE_POINTS);
+			var x = Math.cos(a) * 0.5;
+			var z = Math.sin(a) * 0.5;
+			// Apply the angle
+			ellipsePoints[i * 3] = (float)x;
+			ellipsePoints[i * 3 + 1] = 0f;
+			ellipsePoints[i * 3 + 2] = (float)z;
+			// Don't add the last index, that would cause the last triangle to overlap
+			if(i >= NUM_ELLIPSE_POINTS - 1) continue;
+			ellipseIndexes[i * 3] = (byte)(0);
+			ellipseIndexes[i * 3 + 1] = (byte)(i);
+			ellipseIndexes[i * 3 + 2] = (byte)(i + 1);
+		}
+		this.ellipse3DVertArr = new VertexArray();
+		this.ellipse3DVertArr.bind();
+		this.ellipse3DIndexBuff = new IndexBuffer(ellipseIndexes);
+		this.ellipse3DPosBuff = new VertexBuffer(VERTEX_POS_INDEX, 3, GL_STATIC_DRAW, ellipsePoints);
+		this.ellipse3DPosBuff.applyToVertexArray();
 		
 		this.boundVertexArray = null;
 	}
@@ -1786,6 +1819,38 @@ public class Renderer implements Destroyable{
 		
 		// Draw the rect
 		glDrawElements(GL_QUADS, planeIndexBuff.getBuff());
+		this.popMatrix();
+		
+		return true;
+	}
+	
+	
+	/**
+	 * Draw an ellipse in 3D, of the current color of this Renderer, at the specified location. All values are in game coordinates
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 *
+	 * This ellipse is flat on the xz plane
+	 *
+	 * @param x The x coordinate of the center of the ellipse
+	 * @param y The y coordinate of the center of the plane's location
+	 * @param z The z coordinate of the center of the ellipse
+	 * @param w The width of the ellipse
+	 * @param l The length of the ellipse
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawEllipse3D(double x, double y, double z, double w, double l){
+		// Use the shape shader and the rectangle vertex array
+		this.renderModeShapes();
+		this.bindVertexArray(ellipse3DVertArr);
+		
+		this.pushMatrix();
+		this.positionObject(x, y, z, w, 1, l, 0, 0, 0, 0, 0, 0);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
+		glDrawElements(GL_TRIANGLE_FAN, this.ellipse3DIndexBuff.getBuff());
 		this.popMatrix();
 		
 		return true;

@@ -711,7 +711,7 @@ public final class ZCollision{
 			touchWall = false;
 		}
 		
-		// TODO fix movement being slow or getting stuck when moving near the edges of tiles
+		// TODO fix movement being slow or getting stuck when moving near the edges of tiles, this is probably from colliding with multiple tiles at once
 		
 		// If no movement is needed, there is no collision, though this should always be false at this point
 		if(minDist < 0) return new CollisionResult3D();
@@ -743,14 +743,53 @@ public final class ZCollision{
 		// No intersection
 		if(Double.isNaN(intersectionX)) return -1;
 		
-		// TODO finish implementing this for the literal corner cases
-		// Account for the edges of the lines and if that means the circle needs to be moved less distance than normal
-		// Find the y coordinates on the circle for the two x coordinates of the line segment ends
+		// TODO figure out why everything is jittering back and forth while colliding directly with a corner
+		// Find the y coordinate on the circle where the endpoints of the line segment touch the circle, based on the x coordinate line segments
+		// y = +-sqrt(r^2 - (x - rx)^2) + ry
+		Double leftY = null;
+		Double rightY = null;
+		double radiusSquared = cr * cr;
+		double lx1Diff = cx - lx1;
+		double lx1DiffSquared = lx1Diff * lx1Diff;
+		double yDistSquared = (cy - ly) * (cy - ly);
+		// Only consider the endpoint if it is within the circle
+		if(Math.sqrt(yDistSquared + lx1DiffSquared) <= cr){
+			double leftYToRoot = radiusSquared - lx1DiffSquared;
+			if(leftYToRoot >= 0){
+				double rootVal = Math.sqrt(leftYToRoot);
+				// Use the larger of the two possible values, since this scenario is limited to where the circle must be moved down
+				if(rootVal > -rootVal) leftY = rootVal + ly;
+				else leftY = -rootVal + ly;
+			}
+		}
+		double lx2Diff = cx - lx2;
+		double lx2DiffSquared = lx2Diff * lx2Diff;
+		// Only consider the endpoint if it is within the circle
+		if(Math.sqrt(yDistSquared + lx2DiffSquared) <= cr){
+			double rightYToRoot = radiusSquared - lx2DiffSquared;
+			if(rightYToRoot >= 0){
+				double rootVal = Math.sqrt(rightYToRoot);
+				// Use the larger of the two possible values, since this scenario is limited to where the circle must be moved down
+				if(rootVal > -rootVal) rightY = rootVal + ly;
+				else rightY = -rootVal + ly;
+			}
+		}
 		
-		// If either of those coordinates result in a smaller distance than the top of the circle, move that distance instead
+		double circleCheckPosY;
+		
+		// If neither points touch, then use the y coordinate of the line
+		if(leftY == null && rightY == null) circleCheckPosY = cy - cr;
+		// If one of those endpoints touch the circle, then move based on that position
+		else if(leftY != null && rightY == null) circleCheckPosY = leftY;
+		else if(leftY == null) circleCheckPosY = rightY;
+		// Otherwise, if both touch, use the smaller distance
+		else {
+			if(leftY > rightY) circleCheckPosY = rightY;
+			else circleCheckPosY = leftY;
+		}
 		
 		// Return the positive distance from the line to the top of the circle
-		return Math.abs((cy - cr) - ly);
+		return Math.abs(circleCheckPosY - ly);
 	}
 	
 	/**

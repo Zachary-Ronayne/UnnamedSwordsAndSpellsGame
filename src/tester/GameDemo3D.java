@@ -506,21 +506,22 @@ public class GameDemo3D extends Game{
 		protected void render(Game game, Renderer r){
 			// issue#41 make some way of rendering this differently when it's the selected thing to control?
 			r.setColor(new ZColor(.5, 0, 0));
-			r.drawSidePlaneZ(this.getX(), this.getY(), this.getZ(), 0.2, this.getHeight(), this.getCamera().getRotY());
+			double diameter = this.getRadius() * 2.0;
+			r.drawSidePlaneZ(this.getX(), this.getY(), this.getZ(), diameter, this.getHeight(), ZMath.PI_BY_2 - this.getCamera().getRotY());
 			
 			// Pseudo shadow
 			r.setColor(new ZColor(0, 0, 0, 0.5));
-			r.drawFlatPlane(this.getX(), 0.001, this.getZ(), 0.2,0.2);
+			r.drawEllipse3D(this.getX(), 0.001, this.getZ(), diameter, diameter);
 		}
 		
 		@Override
 		public double getHeight(){
-			return 0.6;
+			return 0.95;
 		}
 		
 		@Override
 		public double getRadius(){
-			return 0.15;
+			return 0.25;
 		}
 	}
 	
