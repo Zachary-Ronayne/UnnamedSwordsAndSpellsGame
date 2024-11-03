@@ -331,12 +331,16 @@ public class GameDemo3D extends Game{
 			r.drawRectPrism(0, 0, 0, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
 			
 			// Draw markers at each axis direction
+			// Left, west, negative x: red
 			c = new ZColor(.5, 0, 0, 1);
 			r.drawRectPrism(-.75, 0, 0, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
+			// Right, east, positive x: green
 			c = new ZColor(0, 0.5, 0, 1);
 			r.drawRectPrism(.75, 0, 0, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
+			// Backward, south, positive z: blue
 			c = new ZColor(0, 0, 0.5, 1);
 			r.drawRectPrism(0, 0, .75, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
+			// Forward, north, negative z, cyan
 			c = new ZColor(0, 0.5, 0.5, 1);
 			r.drawRectPrism(0, 0, -.75, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
 		}

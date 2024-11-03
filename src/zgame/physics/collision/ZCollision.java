@@ -652,7 +652,7 @@ public final class ZCollision{
 		
 		// Check the x axis, left and right
 		double rxl = rx - hrw;
-		double leftDist = circleDistanceLineSegment(rz - hrl, rz + hrl, rxl, cz, rxl + (rxl - cx), cr);
+		double leftDist = circleDistanceLineSegment(rz - hrl, rz + hrl, rxl, cz, rxl + (rxl - cx), cr, true);
 		if(leftDist > 0 && leftDist < rw){
 			moveDist = -leftDist;
 			minDist = leftDist;
@@ -660,7 +660,7 @@ public final class ZCollision{
 			touchWall = true;
 		}
 		double rxr = rx + hrw;
-		double rightDist = circleDistanceLineSegment(rz - hrl, rz + hrl, rxr, cz, cx, cr);
+		double rightDist = circleDistanceLineSegment(rz + hrl, rz + hrl, rxr, cz, cx, cr, true);
 		if(rightDist > 0 && rightDist < rw && (minDist < 0 || rightDist < minDist)){
 			moveDist = rightDist;
 			minDist = rightDist;
@@ -670,7 +670,7 @@ public final class ZCollision{
 		
 		// Check the z axis, front and back
 		double rzb = rz + hrl;
-		double backDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzb, cx, rzb + (cz - rzb), cr);
+		double backDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzb, cx, rzb + (cz - rzb), cr, true);
 		if(backDist > 0 && backDist < rl && (minDist < 0 || backDist < minDist)){
 			moveDist = backDist;
 			minDist = backDist;
@@ -679,7 +679,7 @@ public final class ZCollision{
 			touchWall = true;
 		}
 		double rzf = rz - hrl;
-		double frontDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzf, cx, cz, -cr);
+		double frontDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzf, cx, cz, cr, false);
 		if(frontDist > 0 && frontDist < rl && (minDist < 0 || frontDist < minDist)){
 			moveDist = -frontDist;
 			minDist = frontDist;
@@ -713,6 +713,8 @@ public final class ZCollision{
 		
 		// TODO fix movement being slow or getting stuck when moving near the edges of tiles, this is probably from colliding with multiple tiles at once
 		
+		// TODO fix issues with prioritizing collision on the xz plane instead of the y plane
+		
 		// If no movement is needed, there is no collision, though this should always be false at this point
 		if(minDist < 0) return new CollisionResult3D();
 		
@@ -734,16 +736,16 @@ public final class ZCollision{
 	 * @param ly The y coordinate of the line
 	 * @param cx The center x coordinate of the circle
 	 * @param cy The center y coordinate of the circle
-	 * @param cr The radius of the circle, can be negative if the circle needs to be moved in the opposite direction
+	 * @param cr The radius of the circle
+	 * @param invert true if the direction of the comparison will be inverted on the y axis, i.e. the circle needs to be moved in the opposite direction
 	 * @return The distance, as a magnitude, the circle needs to move down to align with the line, or a negative value if there's no intersection
 	 */
-	private static double circleDistanceLineSegment(double lx1, double lx2, double ly, double cx, double cy, double cr){
+	private static double circleDistanceLineSegment(double lx1, double lx2, double ly, double cx, double cy, double cr, boolean invert){
 		// Find the point on the line touching the circle
-		var intersectionX = circleLineIntersection(cx, cy, Math.abs(cr), ly, false, false);
+		var intersectionX = circleLineIntersection(cx, cy, cr, ly, false, false);
 		// No intersection
 		if(Double.isNaN(intersectionX)) return -1;
 		
-		// TODO figure out why everything is jittering back and forth while colliding directly with a corner
 		// Find the y coordinate on the circle where the endpoints of the line segment touch the circle, based on the x coordinate line segments
 		// y = +-sqrt(r^2 - (x - rx)^2) + ry
 		Double leftY = null;
@@ -752,33 +754,34 @@ public final class ZCollision{
 		double lx1Diff = cx - lx1;
 		double lx1DiffSquared = lx1Diff * lx1Diff;
 		double yDistSquared = (cy - ly) * (cy - ly);
-		// Only consider the endpoint if it is within the circle
-		if(Math.sqrt(yDistSquared + lx1DiffSquared) <= cr){
+		// Only consider the endpoint if it is within the circle, and the center of the circle is outside the line
+		if(yDistSquared + lx1DiffSquared <= radiusSquared && cx < lx1){
 			double leftYToRoot = radiusSquared - lx1DiffSquared;
 			if(leftYToRoot >= 0){
 				double rootVal = Math.sqrt(leftYToRoot);
-				// Use the larger of the two possible values, since this scenario is limited to where the circle must be moved down
-				if(rootVal > -rootVal) leftY = rootVal + ly;
-				else leftY = -rootVal + ly;
+				if(invert) leftY = cy - rootVal;
+				else leftY = cy + rootVal;
 			}
 		}
 		double lx2Diff = cx - lx2;
 		double lx2DiffSquared = lx2Diff * lx2Diff;
 		// Only consider the endpoint if it is within the circle
-		if(Math.sqrt(yDistSquared + lx2DiffSquared) <= cr){
+		if(yDistSquared + lx2DiffSquared <= radiusSquared && lx2 < cx){
 			double rightYToRoot = radiusSquared - lx2DiffSquared;
 			if(rightYToRoot >= 0){
 				double rootVal = Math.sqrt(rightYToRoot);
-				// Use the larger of the two possible values, since this scenario is limited to where the circle must be moved down
-				if(rootVal > -rootVal) rightY = rootVal + ly;
-				else rightY = -rootVal + ly;
+				if(invert) rightY = cy - rootVal;
+				else rightY = cy + rootVal;
 			}
 		}
 		
 		double circleCheckPosY;
 		
 		// If neither points touch, then use the y coordinate of the line
-		if(leftY == null && rightY == null) circleCheckPosY = cy - cr;
+		if(leftY == null && rightY == null) {
+			if(invert) circleCheckPosY = cy - cr;
+			else circleCheckPosY = cy + cr;
+		}
 		// If one of those endpoints touch the circle, then move based on that position
 		else if(leftY != null && rightY == null) circleCheckPosY = leftY;
 		else if(leftY == null) circleCheckPosY = rightY;
