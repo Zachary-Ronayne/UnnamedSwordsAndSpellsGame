@@ -246,6 +246,8 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		int minZ = 0;
 		int maxZ = this.getTilesZ() - 1;
 		
+		// TODO fix collision with multiple tiles where collision gets ignored for some
+		
 		for(int x = minX; x <= maxX; x++){
 			for(int z = minZ; z <= maxZ; z++){
 				for(int y = minY; y <= maxY; y++){

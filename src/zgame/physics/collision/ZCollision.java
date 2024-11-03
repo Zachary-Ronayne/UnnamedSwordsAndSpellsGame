@@ -711,10 +711,6 @@ public final class ZCollision{
 			touchWall = false;
 		}
 		
-		// TODO fix movement being slow or getting stuck when moving near the edges of tiles, this is probably from colliding with multiple tiles at once
-		
-		// TODO fix issues with prioritizing collision on the xz plane instead of the y plane
-		
 		// If no movement is needed, there is no collision, though this should always be false at this point
 		if(minDist < 0) return new CollisionResult3D();
 		
@@ -813,7 +809,7 @@ public final class ZCollision{
 	 */
 	public static boolean rectIntersectsCylinder(double rx, double ry, double rz, double rw, double rh, double rl, double cx, double cy, double cz, double cr, double ch){
 		// If neither of the y bounds of the rectangular prism are inside the cylinder, then there is no collision
-		if(!ZMath.in(cy, ry, cy + ch) && !ZMath.in(cy, ry + rh, cy + ch)) return false;
+		if(!ZMath.inExclusive(cy, ry, cy + ch) && !ZMath.inExclusive(cy, ry + rh, cy + ch)) return false;
 		
 		// If the circular bounds doesn't intersect the rectangle, there will be no collision
 		return ZMath.circleIntersectsRect(cx, cz, cr, rx - rw * 0.5, rz - rl * 0.5, rw, rl);
