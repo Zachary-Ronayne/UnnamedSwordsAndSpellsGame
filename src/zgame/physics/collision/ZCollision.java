@@ -774,15 +774,15 @@ public final class ZCollision{
 		double circleCheckPosY;
 		
 		// If neither points touch, then use the y coordinate of the line
-		if(leftY == null && rightY == null) {
+		if(leftY == null && rightY == null){
 			if(invert) circleCheckPosY = cy - cr;
 			else circleCheckPosY = cy + cr;
 		}
 		// If one of those endpoints touch the circle, then move based on that position
 		else if(leftY != null && rightY == null) circleCheckPosY = leftY;
 		else if(leftY == null) circleCheckPosY = rightY;
-		// Otherwise, if both touch, use the smaller distance
-		else {
+			// Otherwise, if both touch, use the smaller distance
+		else{
 			if(leftY > rightY) circleCheckPosY = rightY;
 			else circleCheckPosY = leftY;
 		}
@@ -809,7 +809,12 @@ public final class ZCollision{
 	 */
 	public static boolean rectIntersectsCylinder(double rx, double ry, double rz, double rw, double rh, double rl, double cx, double cy, double cz, double cr, double ch){
 		// If neither of the y bounds of the rectangular prism are inside the cylinder, then there is no collision
-		if(!ZMath.inExclusive(cy, ry, cy + ch) && !ZMath.inExclusive(cy, ry + rh, cy + ch)) return false;
+		if(// Check if the rectangular prism is inside the cylinder
+				!ZMath.inExclusive(cy, ry, cy + ch) && !ZMath.inExclusive(cy, ry + rh, cy + ch) &&
+				// Do the same check in reverse
+				!ZMath.inExclusive(ry, cy, ry + rh) && !ZMath.inExclusive(ry, cy + ch, ry + rh)
+			/////////////////////////////////////////////////////////////////////////
+		) return false;
 		
 		// If the circular bounds doesn't intersect the rectangle, there will be no collision
 		return ZMath.circleIntersectsRect(cx, cz, cr, rx - rw * 0.5, rz - rl * 0.5, rw, rl);
