@@ -187,6 +187,20 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		this.setBoundary(neg, size);
 	}
 	
+	/** Set all boundaries so that they match the bounds the tiles take up */
+	public void setTileBoundaries(){
+		double tileSize = Tile3D.size();
+		
+		this.setBoundary(Directions3D.EAST, tileSize * this.getTilesX());
+		this.setBoundary(Directions3D.WEST, 0);
+		
+		this.setBoundary(Directions3D.NORTH, tileSize * this.getTilesZ());
+		this.setBoundary(Directions3D.SOUTH, 0);
+		
+		this.setBoundary(Directions3D.UP, tileSize * this.getTilesY());
+		this.setBoundary(Directions3D.DOWN, 0);
+	}
+	
 	/**
 	 * Set the width of this room i.e. the boundaries on the x axis, to be evenly divided by the given size
 	 *

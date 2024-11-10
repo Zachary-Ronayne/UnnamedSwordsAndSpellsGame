@@ -7,7 +7,6 @@ import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZRect2D;
-import zgame.core.utils.ZStringUtils;
 import zgame.menu.Menu;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
@@ -40,6 +39,7 @@ public class GameDemo3D extends Game{
 	private static double currentTilt = 0;
 	
 	private static Player3D player;
+	private static DummyRoom dummyRoom;
 	
 	public GameDemo3D(){
 		super();
@@ -60,15 +60,15 @@ public class GameDemo3D extends Game{
 		window.setSizeUniform(1500, 900);
 		window.center();
 		
-		var room = new DummyRoom();
-		var state = new DemoGameState(room);
+		dummyRoom = new DummyRoom();
+		var state = new DemoGameState(dummyRoom);
 		game.setCurrentState(state);
 		
 		updatePaused(true);
 		
 		player = new Player3D(game);
 		player.setZ(2);
-		room.addThing(player);
+		dummyRoom.addThing(player);
 		
 		game.start();
 	}
@@ -187,6 +187,7 @@ public class GameDemo3D extends Game{
 				else if(button == GLFW_KEY_4) r.toggleBoundary(Directions3D.SOUTH);
 				else if(button == GLFW_KEY_5) r.toggleBoundary(Directions3D.UP);
 				else if(button == GLFW_KEY_6) r.toggleBoundary(Directions3D.DOWN);
+				else if(button == GLFW_KEY_7) dummyRoom.toggleUsingTileBoundary();
 			}
 			else{
 				
@@ -221,17 +222,30 @@ public class GameDemo3D extends Game{
 	
 	private static class DummyRoom extends Room3D{
 		
+		private boolean usingTileBoundary;
+		
 		public DummyRoom(){
-			super(3, 2, 5);
+			super(3, 3, 5);
 			this.setTile(1, 0, 0, BaseTiles3D.BOUNCY);
 			this.setTile(1, 0, 2, BaseTiles3D.HIGH_FRICTION);
 			this.setTile(1, 0, 4, BaseTiles3D.SOLID_DARK);
 			this.setTile(2, 0, 4, BaseTiles3D.SOLID_LIGHT);
 			this.setTile(2, 1, 3, BaseTiles3D.SOLID_DARK);
+			
+			this.usingTileBoundary = false;
+			this.setGenericBoundaries();
+		}
+		
+		public void toggleUsingTileBoundary(){
+			this.usingTileBoundary = !this.usingTileBoundary;
+			if(this.usingTileBoundary) this.setTileBoundaries();
+			else this.setGenericBoundaries();
+		}
+		
+		public void setGenericBoundaries(){
 			this.setEqualWidth(10);
 			this.setEqualLength(12);
 			
-			// TODO make boundaries based on the tiles
 			this.setBoundary(Directions3D.DOWN, 0);
 			this.setBoundary(Directions3D.UP, 4);
 			this.setBoundary(Directions3D.UP, false);
