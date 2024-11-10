@@ -2,6 +2,7 @@ package zgame.world;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.physics.material.Material;
@@ -239,13 +240,17 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		boolean top = false;
 		boolean bot = false;
 		Material material = null;
-		// TODO use a 3D rectangular prism bounds aligned to the x, y, z, axes to make it only check the tiles needed, similar to 2D
-		int minX = 0;
-		int maxX = this.getTilesX() - 1;
-		int minY = 0;
-		int maxY = this.getTilesY() - 1;
-		int minZ = 0;
-		int maxZ = this.getTilesZ() - 1;
+		double tileSize = Tile3D.size();
+		int tilesX = this.getTilesX() - 1;
+		int tilesY = this.getTilesY() - 1;
+		int tilesZ = this.getTilesZ() - 1;
+		
+		int minX = (int)ZMath.minMax(0, tilesX, Math.floor(obj.minX() / tileSize));
+		int maxX = (int)ZMath.minMax(0, tilesX, Math.floor(obj.maxX() / tileSize));
+		int minY = (int)ZMath.minMax(0, tilesY, Math.floor(obj.minY() / tileSize));
+		int maxY = (int)ZMath.minMax(0, tilesY, Math.floor(obj.maxY() / tileSize));
+		int minZ = (int)ZMath.minMax(0, tilesZ, Math.floor(obj.minZ() / tileSize));
+		int maxZ = (int)ZMath.minMax(0, tilesZ, Math.floor(obj.maxZ() / tileSize));
 		
 		for(int x = minX; x <= maxX; x++){
 			for(int z = minZ; z <= maxZ; z++){
