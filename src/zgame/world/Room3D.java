@@ -38,6 +38,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	
 	/**
 	 * Create a new empty room in 3D space with the given tile size
+	 *
 	 * @param tilesX See {@link #tilesX}
 	 * @param tilesY See {@link #tilesY}
 	 * @param tilesZ See {@link #tilesZ}
@@ -363,6 +364,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	
 	/**
 	 * Set the tile at the given indexes
+	 *
 	 * @param x The x index
 	 * @param y The y index
 	 * @param z The x index

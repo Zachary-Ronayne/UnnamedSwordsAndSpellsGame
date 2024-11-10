@@ -11,8 +11,6 @@ import zgame.world.Room3D;
  */
 public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D> implements HitBox3D{
 	
-	// TODO investigate stutter stepping while walking instead of always staying at max speed
-	
 	/** The x coordinate of the bottom center of this entity thing */
 	private double x;
 	/** The y coordinate of the bottom center of this entity thing */

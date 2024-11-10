@@ -82,7 +82,8 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		if(this.isWalking()) maxSpeed *= this.getWalkingRatio();
 		
 		// If the current velocity is greater than the max speed, and entity is trying to walk in the same direction as the current velocity, walk force will always be zero
-		var currentVelMag = Math.abs(entity.getHorizontalVel());
+		var currentVel = entity.getVelocity();
+		var currentVelMag = currentVel.getHorizontal();
 		double tryRatio = this.getMobilityTryingRatio();
 		if(currentVelMag > 0 && walkForce > 0 && currentVelMag > maxSpeed && tryRatio > 0) {
 			walkForce = mass * maxSpeed * dt;
@@ -101,7 +102,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			// If at or above max speed, just set the angle, and apply no force
 			if(currentVelMag >= maxSpeed){
 				walkForce = 0;
-				this.moveVelocityHorizontalToDesired(tryRatio, currentVelMag, entity.getVelocity());
+				entity.setVelocity(createTryingToMoveVectorHorizontal(currentVelMag).modifyVerticalValue(currentVel.getVerticalValue()));
 			}
 			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
 			else if(Math.abs(newVel) >= maxSpeed){
@@ -190,7 +191,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		double facingRatio = (ratio + 1.0) / 2.0;
 		
 		// Calculate the new velocity for the horizontal axis
-		var newVel = currentVel.modifyHorizontalMagnitude(0).scale(1 - facingRatio).add(this.createTryingToMoveVectorHorizontal(desiredVel).scale(facingRatio));
+		var newVel = currentVel.modifyHorizontalMagnitude(1).scale(desiredVel * (1 - facingRatio)).add(this.createTryingToMoveVectorHorizontal(desiredVel).scale(facingRatio));
 		if(newVel.getHorizontal() > desiredVel) newVel = newVel.modifyHorizontalMagnitude(desiredVel);
 		
 		// Keep the same vertical velocity as the original

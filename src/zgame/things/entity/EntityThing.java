@@ -229,17 +229,15 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		// When there is no horizontal velocity, or the current force applied to the entity is less than the base force of friction, the friction force may be zero
 		if(!hasHorizontalVel || currentForceExceedsFriction){
 			// If the frictional force exceeds the current force, and velocity is moving opposite of gravity, then there will be equal and opposite frictional force
-			if(!currentForceExceedsFriction){
-				if(currentVel.isOpposite(gravity)){
-					this.setFrictionForce(currentForce.sub(currentFriction).inverse());
-					// When friction exceeds current force, and on a surface, velocity must also be set to zero
-					if(currentVel.getMagnitude() >= clampVel) this.clearVelocity();
-					else this.flagVelocityCleared();
-					return;
-				}
+			if(!currentForceExceedsFriction && currentVel.isOpposite(gravity)){
+				this.setFrictionForce(currentForce.sub(currentFriction).inverse());
+				// When friction exceeds current force, and on a surface, velocity must also be set to zero
+				if(currentVel.getMagnitude() >= clampVel) this.clearVelocity();
+				else this.flagVelocityCleared();
+				return;
 			}
-			// Otherwise, if there is no horizontal velocity, so there will be no frictional force
-			else{
+			// With no horizontal velocity, there is no friction
+			else if(!hasHorizontalVel){
 				if(currentFriction.getMagnitude() != 0) this.setFrictionForce(this.zeroVector());
 				return;
 			}
