@@ -16,10 +16,6 @@ public class CollisionResult2D extends CollisionResult<CollisionResult2D>{
 	private final boolean left;
 	/** true if the collision was into a wall to the right, false otherwise */
 	private final boolean right;
-	/** true if the collision was into a ceiling above, false otherwise */
-	private final boolean ceiling;
-	/** true if the collision was into a floor below, false otherwise */
-	private final boolean floor;
 	
 	/** A response representing no collision occurring */
 	public CollisionResult2D(){
@@ -49,13 +45,11 @@ public class CollisionResult2D extends CollisionResult<CollisionResult2D>{
 	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
 	 */
 	public CollisionResult2D(double x, double y, boolean left, boolean right, boolean ceiling, boolean floor, Material material){
-		super(material);
+		super(material, left || right, ceiling, floor);
 		this.x = x;
 		this.y = y;
 		this.left = left;
 		this.right = right;
-		this.ceiling = ceiling;
-		this.floor = floor;
 	}
 	
 	/** @return true if this {@link CollisionResult2D} represents a collision happening, false if no collision took place */
@@ -82,16 +76,6 @@ public class CollisionResult2D extends CollisionResult<CollisionResult2D>{
 	/** @return See {@link #right} */
 	public boolean right(){
 		return this.right;
-	}
-	
-	/** @return See {@link #ceiling} */
-	public boolean ceiling(){
-		return this.ceiling;
-	}
-	
-	/** @return See {@link #floor} */
-	public boolean floor(){
-		return this.floor;
 	}
 	
 	/** @return true if the collision hit a wall, either on the left or right, false otherwise */

@@ -14,14 +14,6 @@ public class CollisionResult3D extends CollisionResult<CollisionResult3D>{
 	/** The amount to add to the z coordinate so that it no longer collides */
 	private final double z;
 	
-	// TODO can wall/ceiling/floor be abstracted?
-	/** true if the collision was into a wall, false otherwise */
-	private final boolean wall;
-	/** true if the collision was into a ceiling above, false otherwise */
-	private final boolean ceiling;
-	/** true if the collision was into a floor below, false otherwise */
-	private final boolean floor;
-	
 	/** A response representing no collision occurring */
 	public CollisionResult3D(){
 		this(0, 0, 0, null);
@@ -51,13 +43,10 @@ public class CollisionResult3D extends CollisionResult<CollisionResult3D>{
 	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
 	 */
 	public CollisionResult3D(double x, double y, double z, boolean wall, boolean ceiling, boolean floor, Material material){
-		super(material);
+		super(material, wall, ceiling, floor);
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		this.wall = wall;
-		this.ceiling = ceiling;
-		this.floor = floor;
 	}
 	
 	/** @return true if this {@link CollisionResult3D} represents a collision happening, false if no collision took place */
@@ -79,21 +68,6 @@ public class CollisionResult3D extends CollisionResult<CollisionResult3D>{
 	/** @return See {@link #y} */
 	public double z(){
 		return this.z;
-	}
-	
-	/** @return See {@link #wall} */
-	public boolean wall(){
-		return this.wall;
-	}
-	
-	/** @return See {@link #ceiling} */
-	public boolean ceiling(){
-		return ceiling;
-	}
-	
-	/** @return See {@link #floor} */
-	public boolean floor(){
-		return floor;
 	}
 	
 	/** @return true if the collision hit anything, i.e. a wall, ceiling, or floor, false otherwise */
