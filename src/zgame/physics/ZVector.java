@@ -9,7 +9,7 @@ import zgame.core.utils.ZMath;
  */
 public abstract class ZVector<V extends ZVector<V>>{
 	
-	// TODO implement lazy component calculation for vectors
+	// issue#54 implement lazy component calculation for vectors
 	
 	/** The magnitude, i.e. length or distance, of this {@link ZVector} */
 	private double magnitude;

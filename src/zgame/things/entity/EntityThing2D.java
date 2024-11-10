@@ -96,12 +96,9 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	
 	@Override
 	public void collide(CollisionResult2D r){
-		// TODO implement properly and abstract out some of this logic to 2D and 3D? CollisionResponse will need 2D and 3D versions
+		super.collide(r);
 		this.addX(r.x());
 		this.addY(r.y());
-		if(r.wall()) this.touchWall(r.material());
-		if(r.ceiling()) this.touchCeiling(r.material());
-		if(r.floor()) this.touchFloor(r.material());
 	}
 	
 	@Override

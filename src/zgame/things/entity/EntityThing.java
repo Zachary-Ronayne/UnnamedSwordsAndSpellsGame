@@ -540,6 +540,13 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 		this.setHorizontalVel(-this.getHorizontalVel() * touched.getWallBounce() * this.getMaterial().getWallBounce());
 	}
 	
+	@Override
+	public void collide(C r){
+		if(r.wall()) this.touchWall(r.material());
+		if(r.ceiling()) this.touchCeiling(r.material());
+		if(r.floor()) this.touchFloor(r.material());
+	}
+	
 	/**
 	 * Called each this {@link EntityThing} has its entity collision handled.
 	 * Does nothing by default, override to add custom behavior
