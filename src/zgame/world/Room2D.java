@@ -154,12 +154,12 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D, Col
 		// Keep the object inside the game bounds, if the walls are enabled
 		if(this.isSolid(WALL_LEFT) && obj.keepRight(this.getX())){
 			left = true;
-			obj.touchWall(this.getWallMaterial());
+			obj.touchWall(this.getWallMaterial(), new CollisionResult2D(0, 0, true, false, false, false, this.getWallMaterial()));
 			touchedWall = true;
 		}
 		if(this.isSolid(WALL_RIGHT) && obj.keepLeft(this.maxX())){
 			right = true;
-			obj.touchWall(this.getWallMaterial());
+			obj.touchWall(this.getWallMaterial(), new CollisionResult2D(0, 0, false, true, false, false, this.getWallMaterial()));
 			touchedWall = true;
 		}
 		if(this.isSolid(WALL_CEILING) && obj.keepBelow(this.getY())){
@@ -191,7 +191,7 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D, Col
 		
 		if(wasOnWall){
 			if(obj.getPX() == obj.getX() || left || right){
-				if(!touchedWall) obj.touchWall(obj.getWallMaterial());
+				if(!touchedWall) obj.touchWall(obj.getWallMaterial(), res);
 			}
 			else obj.leaveWall();
 		}

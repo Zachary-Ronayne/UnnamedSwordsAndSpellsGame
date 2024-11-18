@@ -14,6 +14,9 @@ public class CollisionResult3D extends CollisionResult<CollisionResult3D>{
 	/** The amount to add to the z coordinate so that it no longer collides */
 	private final double z;
 	
+	/** The angle of the wall collided with */
+	private final double wallAngle;
+	
 	/** A response representing no collision occurring */
 	public CollisionResult3D(){
 		this(0, 0, 0, null);
@@ -28,7 +31,7 @@ public class CollisionResult3D extends CollisionResult<CollisionResult3D>{
 	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
 	 */
 	public CollisionResult3D(double x, double y, double z, Material material){
-		this(x, y, z, false, false, false, material);
+		this(x, y, z, false, false, false, material, 0);
 	}
 	
 	/**
@@ -41,12 +44,14 @@ public class CollisionResult3D extends CollisionResult<CollisionResult3D>{
 	 * @param ceiling See {@link #ceiling}
 	 * @param floor See {@link #floor}
 	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
+	 * @param wallAngle See {@link #wallAngle}
 	 */
-	public CollisionResult3D(double x, double y, double z, boolean wall, boolean ceiling, boolean floor, Material material){
+	public CollisionResult3D(double x, double y, double z, boolean wall, boolean ceiling, boolean floor, Material material, double wallAngle){
 		super(material, wall, ceiling, floor);
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		this.wallAngle = wallAngle;
 	}
 	
 	/** @return true if this {@link CollisionResult3D} represents a collision happening, false if no collision took place */
@@ -70,6 +75,11 @@ public class CollisionResult3D extends CollisionResult<CollisionResult3D>{
 		return this.z;
 	}
 	
+	/** @return See {@link #wallAngle} */
+	public double wallAngle(){
+		return this.wallAngle;
+	}
+	
 	/** @return true if the collision hit anything, i.e. a wall, ceiling, or floor, false otherwise */
 	@Override
 	public boolean hit(){
@@ -85,9 +95,9 @@ public class CollisionResult3D extends CollisionResult<CollisionResult3D>{
 	public CollisionResult3D scale(double s){
 		if(s < 0){
 			var oppositeTop = !this.ceiling() && !this.floor();
-			return new CollisionResult3D(this.x() * s, this.y() * s, this.z() * s, this.wall(), this.ceiling() == oppositeTop, this.floor() == oppositeTop, this.material());
+			return new CollisionResult3D(this.x() * s, this.y() * s, this.z() * s, this.wall(), this.ceiling() == oppositeTop, this.floor() == oppositeTop, this.material(), this.wallAngle());
 		}
-		return new CollisionResult3D(s * this.x(), s * this.y(), s * this.z(), this.wall(), this.ceiling(), this.floor(), this.material());
+		return new CollisionResult3D(s * this.x(), s * this.y(), s * this.z(), this.wall(), this.ceiling(), this.floor(), this.material(), this.wallAngle());
 	}
 	
 	/**
@@ -98,13 +108,13 @@ public class CollisionResult3D extends CollisionResult<CollisionResult3D>{
 	 */
 	public CollisionResult3D invertDirections(){
 		var oppositeTop = !this.ceiling() && !this.floor();
-		return new CollisionResult3D(this.x(), this.y(), this.z(), this.wall(), this.ceiling() == oppositeTop, this.floor() == oppositeTop, this.material());
+		return new CollisionResult3D(this.x(), this.y(), this.z(), this.wall(), this.ceiling() == oppositeTop, this.floor() == oppositeTop, this.material(), this.wallAngle());
 	}
 	
 	@Override
 	public String toString(){
 		return ZStringUtils.concat("[CollisionResponse: x: ", this.x(), ", y: ", this.y(), ", z: ", this.z(), ", wall: ", this.wall(), ", ceiling: ", this.ceiling(),
-				", floor: ", this.floor(), ", material: ", this.material(), "]");
+				", floor: ", this.floor(), ", material: ", this.material(), ", wallAngle: ", this.wallAngle(), "]");
 	}
 	
 }

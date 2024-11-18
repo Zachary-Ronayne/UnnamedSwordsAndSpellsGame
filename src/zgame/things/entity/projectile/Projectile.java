@@ -3,7 +3,6 @@ package zgame.things.entity.projectile;
 import zgame.core.Game;
 import zgame.core.utils.FunctionMap;
 import zgame.physics.ZVector2D;
-import zgame.physics.collision.CollisionResult;
 import zgame.physics.collision.CollisionResult2D;
 import zgame.physics.material.Material;
 import zgame.things.BaseTags;
@@ -98,7 +97,7 @@ public abstract class Projectile extends EntityThing2D{
 	}
 	
 	@Override
-	public void touchWall(Material touched){
+	public void touchWall(Material touched, CollisionResult2D result){
 		if(this.isOnHit()) this.removeNext();
 	}
 	

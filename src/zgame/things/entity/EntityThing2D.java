@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResult2D;
+import zgame.physics.material.Material;
 import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room2D;
 
@@ -99,6 +100,12 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 		super.collide(r);
 		this.addX(r.x());
 		this.addY(r.y());
+	}
+	
+	@Override
+	public void touchWall(Material touched, CollisionResult2D result){
+		super.touchWall(touched, result);
+		this.setHorizontalVel(-this.getHorizontalVel() * touched.getWallBounce() * this.getMaterial().getWallBounce());
 	}
 	
 	@Override

@@ -73,6 +73,8 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	 * @param dt The amount of time that will pass in the next tick when{@link #getThing()} walks
 	 */
 	default void updateWalkForce(double dt){
+		// TODO fix having too much control of movement while in the air, changing walking direction should decelerate and accelerate
+		
 		var entity = this.getThing();
 		double mass = entity.getMass();
 		double acceleration = this.getWalkAcceleration();

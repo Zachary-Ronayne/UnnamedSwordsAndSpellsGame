@@ -117,10 +117,11 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	}
 	
 	@Override
-	public void touchWall(Material touched){
-		// TODO somehow this needs to account for the angle the thing was at when it hit the wall and adjust the angle appropriately
+	public void touchWall(Material touched, CollisionResult3D result){
+		super.touchWall(touched, result);
 		
-		super.touchWall(touched);
+		// TODO somehow this needs to account for the angle the thing was at when it hit the wall and adjust the angle appropriately
+		this.setHorizontalVel(-this.getHorizontalVel() * touched.getWallBounce() * this.getMaterial().getWallBounce());
 	}
 	
 	@Override

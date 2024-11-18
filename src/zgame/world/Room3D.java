@@ -253,6 +253,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		boolean wall = false;
 		boolean top = false;
 		boolean bot = false;
+		double wallAngle = 0;
 		Material material = null;
 		double tileSize = Tile3D.size();
 		int tilesX = this.getTilesX() - 1;
@@ -277,7 +278,10 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 					mx += res.x();
 					my += res.y();
 					mz += res.z();
-					if(res.wall()) wall = true;
+					if(res.wall()) {
+						wall = true;
+						wallAngle = res.wallAngle();
+					}
 					if(res.ceiling()) top = true;
 					if(res.floor()) bot = true;
 					// issue#15 try making it do only one final collision operation at the end
@@ -299,7 +303,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		}
 		
 		// Determine the final collision
-		var res = new CollisionResult3D(mx, my, mz, wall, top, bot, material);
+		var res = new CollisionResult3D(mx, my, mz, wall, top, bot, material, wallAngle);
 		
 		boolean touchedFloor = false;
 		boolean touchedCeiling = false;
@@ -307,14 +311,17 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		
 		// x axis, i.e. east west
 		double widthOffset = obj.getWidth() * 0.5;
+		// TODO make the boundaries have hitboxes
 		if(this.boundaryEnabled(Directions3D.EAST) && obj.getX() > this.getBoundary(Directions3D.EAST) - widthOffset){
 			obj.setX(this.getBoundary(Directions3D.EAST) - widthOffset);
-			obj.touchWall(Materials.BOUNDARY);
+			// TODO populate result distance and wall angle correctly
+			obj.touchWall(Materials.BOUNDARY, new CollisionResult3D(0, 0, 0, true, false, false, Materials.BOUNDARY, 0));
 			touchedWall = true;
 		}
 		else if(this.boundaryEnabled(Directions3D.WEST) && obj.getX() < -this.getBoundary(Directions3D.WEST) + widthOffset){
 			obj.setX(-this.getBoundary(Directions3D.WEST) + widthOffset);
-			obj.touchWall(Materials.BOUNDARY);
+			// TODO populate result distance and wall angle correctly
+			obj.touchWall(Materials.BOUNDARY, new CollisionResult3D(0, 0, 0, true, false, false, Materials.BOUNDARY, 0));
 			touchedWall = true;
 		}
 		
@@ -322,12 +329,14 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		double lengthOffset = obj.getLength() * 0.5;
 		if(this.boundaryEnabled(Directions3D.NORTH) && obj.getZ() > this.getBoundary(Directions3D.NORTH) - lengthOffset){
 			obj.setZ(this.getBoundary(Directions3D.NORTH) - lengthOffset);
-			obj.touchWall(Materials.BOUNDARY);
+			// TODO populate result distance and wall angle correctly
+			obj.touchWall(Materials.BOUNDARY, new CollisionResult3D(0, 0, 0, true, false, false, Materials.BOUNDARY, 0));
 			touchedWall = true;
 		}
 		else if(this.boundaryEnabled(Directions3D.SOUTH) && obj.getZ() < -this.getBoundary(Directions3D.SOUTH) + lengthOffset){
 			obj.setZ(-this.getBoundary(Directions3D.SOUTH) + lengthOffset);
-			obj.touchWall(Materials.BOUNDARY);
+			// TODO populate result distance and wall angle correctly
+			obj.touchWall(Materials.BOUNDARY, new CollisionResult3D(0, 0, 0, true, false, false, Materials.BOUNDARY, 0));
 			touchedWall = true;
 		}
 		
@@ -363,7 +372,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		
 		if(wasOnWall){
 			if(obj.getPX() == obj.getX() || wall){
-				if(!touchedWall) obj.touchWall(res.material());
+				if(!touchedWall) obj.touchWall(res.material(), res);
 			}
 			else obj.leaveWall();
 		}

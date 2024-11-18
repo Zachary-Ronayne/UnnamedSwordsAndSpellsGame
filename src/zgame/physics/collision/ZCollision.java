@@ -720,7 +720,8 @@ public final class ZCollision{
 		double dz = moveZ ? moveDist : 0;
 		
 		// Set the flags appropriately for which sides were touched and return the result
-		return new CollisionResult3D(dx, dy, dz, touchWall, touchCeiling, touchFloor, m);
+		// TODO calculate wall angle
+		return new CollisionResult3D(dx, dy, dz, touchWall, touchCeiling, touchFloor, m, 0);
 	}
 	
 	/**

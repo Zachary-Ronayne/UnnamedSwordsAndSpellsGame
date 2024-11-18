@@ -23,7 +23,12 @@ import zgame.world.Room;
  * @param <V> The vector implementation used by this entity
  * @param <R> The room implementation which this entity can exist in
  */
-public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<H, E, V, R, C>, V extends ZVector<V>, R extends Room<H, E, V, R, C>, C extends CollisionResult<C>> extends GameThing implements GameTickable, HitBox<H, C>{
+public abstract class EntityThing<
+		H extends HitBox<H, C>,
+		E extends EntityThing<H, E, V, R, C>, V extends ZVector<V>,
+		R extends Room<H, E, V, R, C>,
+		C extends CollisionResult<C>
+		> extends GameThing implements GameTickable, HitBox<H, C>{
 	
 	/** The string used to identify the force of gravity in {@link #forces} */
 	public static final String FORCE_NAME_GRAVITY = "gravity";
@@ -531,18 +536,14 @@ public abstract class EntityThing<H extends HitBox<H, C>, E extends EntityThing<
 	}
 	
 	@Override
-	public void touchWall(Material touched){
+	public void touchWall(Material touched, C result){
 		this.wallMaterial = touched;
 		this.wallTime = -1;
-		
-		// TODO instead of this being a negative number, base this on the angle of the vector to the hitbox touched
-		// Bounce off the wall based on the touched material and this entity thing
-		this.setHorizontalVel(-this.getHorizontalVel() * touched.getWallBounce() * this.getMaterial().getWallBounce());
 	}
 	
 	@Override
 	public void collide(C r){
-		if(r.wall()) this.touchWall(r.material());
+		if(r.wall()) this.touchWall(r.material(), r);
 		if(r.ceiling()) this.touchCeiling(r.material());
 		if(r.floor()) this.touchFloor(r.material());
 	}

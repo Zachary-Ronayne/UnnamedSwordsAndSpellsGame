@@ -60,8 +60,9 @@ public interface HitBox<H extends HitBox<H, C>, C extends CollisionResult<C>> ex
 	 * A method that defines what this object does when it touches a wall
 	 *
 	 * @param touched The Material which this {@link HitBox} touched
+	 * @param collision The collision resulting in the wall being touched
 	 */
-	void touchWall(Material touched);
+	void touchWall(Material touched, C collision);
 	
 	/** A method that defines what this object does when it leaves a wall, i.e. it goes from touching a wall to not touching a wall */
 	void leaveWall();
