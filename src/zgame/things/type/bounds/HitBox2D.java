@@ -99,12 +99,13 @@ public interface HitBox2D extends HitBox<HitBox2D, CollisionResult2D>, Bounds2D{
 	 * coordinate
 	 *
 	 * @param x The coordinate
-	 * @return true if the object was moved, false otherwise
+	 * @return The amount of distance the object was moved, 0 for no movement
 	 */
-	default boolean keepLeft(double x){
-		if(this.getX() + this.getWidth() <= x) return false;
+	default double keepLeft(double x){
+		if(this.getX() + this.getWidth() <= x) return 0;
+		double oldX = this.getX();
 		this.setX(x - this.getWidth());
-		return true;
+		return Math.abs(x - oldX);
 	}
 	
 	/**
@@ -114,12 +115,13 @@ public interface HitBox2D extends HitBox<HitBox2D, CollisionResult2D>, Bounds2D{
 	 * coordinate
 	 *
 	 * @param x The coordinate
-	 * @return true if the object was moved, false otherwise
+	 * @return The amount of distance the object was moved, 0 for no movement
 	 */
-	default boolean keepRight(double x){
-		if(this.getX() >= x) return false;
+	default double keepRight(double x){
+		if(this.getX() >= x) return 0;
+		double oldX = this.getX();
 		this.setX(x);
-		return true;
+		return Math.abs(x - oldX);
 	}
 	
 	/**
@@ -128,12 +130,13 @@ public interface HitBox2D extends HitBox<HitBox2D, CollisionResult2D>, Bounds2D{
 	 * If the object will be moved, it should be positioned such that it is as close to its original position as possible, while still being above the given coordinate
 	 *
 	 * @param y The coordinate
-	 * @return true if the object was moved, false otherwise
+	 * @return The amount of distance the object was moved, 0 for no movement
 	 */
-	default boolean keepAbove(double y){
-		if(this.getY() + this.getHeight() <= y) return false;
+	default double keepAbove(double y){
+		if(this.getY() + this.getHeight() <= y) return 0;
+		double oldY = this.getY();
 		this.setY(y - this.getHeight());
-		return true;
+		return Math.abs(y - oldY);
 	}
 	
 	/**
@@ -142,12 +145,13 @@ public interface HitBox2D extends HitBox<HitBox2D, CollisionResult2D>, Bounds2D{
 	 * If the object will be moved, it should be positioned such that it is as close to its original position as possible, while still being below the given coordinate
 	 *
 	 * @param y The coordinate
-	 * @return true if the object was moved, false otherwise
+	 * @return The amount of distance the object was moved, 0 for no movement
 	 */
-	default boolean keepBelow(double y){
-		if(this.getY() >= y) return false;
+	default double keepBelow(double y){
+		if(this.getY() >= y) return 0;
+		double oldY = this.getY();
 		this.setY(y);
-		return true;
+		return Math.abs(y - oldY);
 	}
 	
 	/** @return The previous value of {@link #getX()} before the last time it was moved with velocity */

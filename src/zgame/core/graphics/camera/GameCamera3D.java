@@ -29,7 +29,7 @@ public class GameCamera3D{
 	 issue#42 this also account for a camera distance from where it rotates around?
 	  Like imagine the (x, y, z) point is where the camera's swivel point is,
 	  but the actual point where the camera shows stuff is determined by this distance.
-	  Also this probably is where third person should be handled
+	  Also, this probably is where third person should be handled
 	 */
 	
 	/** Create a base camera at (0, 0, 0), with no rotation on any axis */

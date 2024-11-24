@@ -14,7 +14,7 @@ public class CollisionResult3D extends CollisionResult<CollisionResult3D>{
 	/** The amount to add to the z coordinate so that it no longer collides */
 	private final double z;
 	
-	/** The angle of the wall collided with */
+	/** The angle of the wall collided with in the range [0, PI) */
 	private final double wallAngle;
 	
 	/** A response representing no collision occurring */

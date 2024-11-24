@@ -147,35 +147,47 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D, Col
 		// Determine the final collision
 		var res = new CollisionResult2D(mx, my, left, right, top, bot, material);
 		
-		// TODO abstract some of this logic to 2D and 3D
 		boolean touchedFloor = false;
 		boolean touchedCeiling = false;
 		boolean touchedWall = false;
 		// Keep the object inside the game bounds, if the walls are enabled
-		if(this.isSolid(WALL_LEFT) && obj.keepRight(this.getX())){
-			left = true;
-			obj.touchWall(this.getWallMaterial(), new CollisionResult2D(0, 0, true, false, false, false, this.getWallMaterial()));
-			touchedWall = true;
+		if(this.isSolid(WALL_LEFT)){
+			double dist = obj.keepRight(this.getX());
+			if(dist != 0){
+				left = true;
+				obj.touchWall(new CollisionResult2D(-dist, 0, true, false, false, false, this.getWallMaterial()));
+				touchedWall = true;
+			}
 		}
-		if(this.isSolid(WALL_RIGHT) && obj.keepLeft(this.maxX())){
-			right = true;
-			obj.touchWall(this.getWallMaterial(), new CollisionResult2D(0, 0, false, true, false, false, this.getWallMaterial()));
-			touchedWall = true;
+		if(this.isSolid(WALL_RIGHT)){
+			double dist = obj.keepLeft(this.maxX());
+			if(dist != 0){
+				right = true;
+				obj.touchWall(new CollisionResult2D(dist, 0, false, true, false, false, this.getWallMaterial()));
+				touchedWall = true;
+			}
 		}
-		if(this.isSolid(WALL_CEILING) && obj.keepBelow(this.getY())){
-			top = true;
-			obj.touchCeiling(this.getWallMaterial());
-			touchedCeiling = true;
+		if(this.isSolid(WALL_CEILING)){
+			double dist = obj.keepBelow(this.getY());
+			if(dist != 0){
+				top = true;
+				obj.touchCeiling(new CollisionResult2D(0, dist, false, false, true, false, this.getWallMaterial()));
+				touchedCeiling = true;
+			}
 		}
-		if(this.isSolid(WALL_FLOOR) && obj.keepAbove(this.maxY())){
-			bot = true;
-			obj.touchFloor(this.getWallMaterial());
-			touchedFloor = true;
+		if(this.isSolid(WALL_FLOOR)){
+			double dist = obj.keepAbove(this.maxY());
+			if(dist != 0){
+				bot = true;
+				obj.touchFloor(new CollisionResult2D(0, -dist, false, false, false, true, this.getWallMaterial()));
+				touchedFloor = true;
+			}
 		}
+		
+		// If the hitbox was on the ground, but no y axis movement happened, then the hitbox is still on the ground, so touch the floor
 		if(wasOnGround){
-			// If the hitbox was on the ground, but no y axis movement happened, then the hitbox is still on the ground, so touch the floor
 			if(obj.getPY() == obj.getY() || bot){
-				if(!touchedFloor) obj.touchFloor(obj.getFloorMaterial());
+				if(!touchedFloor) obj.touchFloor(new CollisionResult2D(0, 0, false, false, false, true, obj.getFloorMaterial()));
 			}
 			// Otherwise, leave the floor
 			else obj.leaveFloor();
@@ -184,14 +196,14 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D, Col
 		// Same thing, but for the walls and for the ceiling
 		if(wasOnCeiling){
 			if(obj.getPY() == obj.getY() || top){
-				if(!touchedCeiling) obj.touchCeiling(obj.getCeilingMaterial());
+				if(!touchedCeiling) obj.touchCeiling(new CollisionResult2D(0, 0, false, false, true, false, obj.getCeilingMaterial()));
 			}
 			else obj.leaveCeiling();
 		}
 		
 		if(wasOnWall){
 			if(obj.getPX() == obj.getX() || left || right){
-				if(!touchedWall) obj.touchWall(obj.getWallMaterial(), res);
+				if(!touchedWall) obj.touchWall(new CollisionResult2D(0, 0, left, right, false, false, obj.getCeilingMaterial()));
 			}
 			else obj.leaveWall();
 		}

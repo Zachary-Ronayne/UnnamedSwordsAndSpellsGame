@@ -1,7 +1,7 @@
 package zgame.things.entity.mobility;
 
 import zgame.core.Game;
-import zgame.physics.material.Material;
+import zgame.physics.collision.CollisionResult2D;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.EntityThing2D;
 import zgame.things.entity.MobilityData;
@@ -55,9 +55,9 @@ public abstract class MobilityEntity2D extends EntityThing2D implements Mobility
 	}
 	
 	@Override
-	public void touchFloor(Material touched){
-		super.touchFloor(touched);
-		this.mobilityTouchFloor(touched);
+	public void touchFloor(CollisionResult2D collision){
+		super.touchFloor(collision);
+		this.mobilityTouchFloor(collision);
 		this.getMobilityData().setGroundedSinceLastJump(true);
 	}
 	

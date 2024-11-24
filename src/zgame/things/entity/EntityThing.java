@@ -358,7 +358,7 @@ public abstract class EntityThing<
 		// Multiplied by 2.0 because the internet says that constant is there for the equation is for terminal velocity
 		// Multiplied by 0.01 as a placeholder for density. For now, everything entities fall through is considered to have that same constant density
 		// issue#45 make a getDensity method, this would have to be a material the entities are current in
-		// issue#45 this should also be how swimming works, so you are swimming if you are more dense than the density of the material you are in
+		// issue#45 this should also be how swimming works, so you are swimming if you are denser than the density of the material you are in
 		return Math.sqrt(Math.abs((2.0 * this.getMass() * this.getGravityAcceleration()) / (m.getFriction() * surfaceArea * 0.01)));
 	}
 	
@@ -503,8 +503,9 @@ public abstract class EntityThing<
 	}
 	
 	@Override
-	public void touchFloor(Material touched){
+	public void touchFloor(C collision){
 		// Touching a floor means this entity is on the ground
+		var touched = collision.material();
 		this.floorMaterial = touched;
 		this.groundTime = -1;
 		
@@ -519,7 +520,8 @@ public abstract class EntityThing<
 	}
 	
 	@Override
-	public void touchCeiling(Material touched){
+	public void touchCeiling(C collision){
+		var touched = collision.material();
 		this.ceilingMaterial = touched;
 		this.ceilingTime = -1;
 		
@@ -536,16 +538,16 @@ public abstract class EntityThing<
 	}
 	
 	@Override
-	public void touchWall(Material touched, C result){
-		this.wallMaterial = touched;
+	public void touchWall(C collision){
+		this.wallMaterial = collision.material();
 		this.wallTime = -1;
 	}
 	
 	@Override
 	public void collide(C r){
-		if(r.wall()) this.touchWall(r.material(), r);
-		if(r.ceiling()) this.touchCeiling(r.material());
-		if(r.floor()) this.touchFloor(r.material());
+		if(r.wall()) this.touchWall(r);
+		if(r.ceiling()) this.touchCeiling(r);
+		if(r.floor()) this.touchFloor(r);
 	}
 	
 	/**

@@ -4,7 +4,6 @@ import zgame.core.Game;
 import zgame.core.utils.FunctionMap;
 import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResult2D;
-import zgame.physics.material.Material;
 import zgame.things.BaseTags;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.EntityThing2D;
@@ -84,7 +83,7 @@ public abstract class Projectile extends EntityThing2D{
 	}
 	
 	@Override
-	public void touchFloor(Material touched){
+	public void touchFloor(CollisionResult2D collision){
 		if(this.isOnHit()) this.removeNext();
 	}
 	
@@ -92,12 +91,12 @@ public abstract class Projectile extends EntityThing2D{
 	public void leaveFloor(){}
 	
 	@Override
-	public void touchCeiling(Material touched){
+	public void touchCeiling(CollisionResult2D collision){
 		if(this.isOnHit()) this.removeNext();
 	}
 	
 	@Override
-	public void touchWall(Material touched, CollisionResult2D result){
+	public void touchWall(CollisionResult2D result){
 		if(this.isOnHit()) this.removeNext();
 	}
 	

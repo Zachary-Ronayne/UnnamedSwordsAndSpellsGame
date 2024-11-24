@@ -719,9 +719,16 @@ public final class ZCollision{
 		double dy = moveY ? moveDist : 0;
 		double dz = moveZ ? moveDist : 0;
 		
+		double wallAngle;
+		// x axis wall
+		if(moveX) wallAngle = ZMath.PI_BY_2;
+		// z axis wall
+		else if(moveZ) wallAngle = 0;
+		// No wall hit
+		else wallAngle = 0;
+		
 		// Set the flags appropriately for which sides were touched and return the result
-		// TODO calculate wall angle
-		return new CollisionResult3D(dx, dy, dz, touchWall, touchCeiling, touchFloor, m, 0);
+		return new CollisionResult3D(dx, dy, dz, touchWall, touchCeiling, touchFloor, m, wallAngle);
 	}
 	
 	/**

@@ -1,7 +1,6 @@
 package zgame.things.type.bounds;
 
 import zgame.core.utils.ZMath;
-import zgame.physics.collision.CollisionResult;
 import zgame.physics.collision.CollisionResult2D;
 import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;

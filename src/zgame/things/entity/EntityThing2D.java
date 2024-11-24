@@ -4,7 +4,6 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResult2D;
-import zgame.physics.material.Material;
 import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room2D;
 
@@ -103,9 +102,9 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	}
 	
 	@Override
-	public void touchWall(Material touched, CollisionResult2D result){
-		super.touchWall(touched, result);
-		this.setHorizontalVel(-this.getHorizontalVel() * touched.getWallBounce() * this.getMaterial().getWallBounce());
+	public void touchWall(CollisionResult2D result){
+		super.touchWall(result);
+		this.setHorizontalVel(-this.getHorizontalVel() * result.material().getWallBounce() * this.getMaterial().getWallBounce());
 	}
 	
 	@Override
@@ -218,7 +217,6 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	
 	@Override
 	public void setHorizontalVel(double v){
-		// TODO this needs to account for angle and magnitude using two different values, or a separate method to invert it?
 		this.setVX(v);
 	}
 	

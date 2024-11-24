@@ -997,7 +997,7 @@ public class Game implements Saveable, Destroyable{
 	}
 	
 	/**
-	 * @return The {@link Room} that the current {@link #playState} is using, or null if there is no play state. The system assumes the room will always be an aoppropriate
+	 * @return The {@link Room} that the current {@link #playState} is using, or null if there is no play state. The system assumes the room will always be an appropriate
 	 * 		type for the game
 	 */
 	public Room<?, ?, ?, ?, ?> getCurrentRoom(){

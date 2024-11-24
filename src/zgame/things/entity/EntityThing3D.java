@@ -2,7 +2,6 @@ package zgame.things.entity;
 
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
-import zgame.physics.material.Material;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.world.Room3D;
 
@@ -88,8 +87,6 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	
 	@Override
 	public void setHorizontalVel(double v){
-		// TODO this needs to account for angle and magnitude using two different values, or a separate method to invert it?
-		
 		var oldVel = this.getVelocity();
 		var oldAngle = oldVel.getAngleH();
 		var newVel = new ZVector3D(Math.cos(oldAngle) * v, oldVel.getY(), Math.sin(oldAngle) * v, true);
@@ -117,11 +114,25 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	}
 	
 	@Override
-	public void touchWall(Material touched, CollisionResult3D result){
-		super.touchWall(touched, result);
+	public void touchWall(CollisionResult3D result){
+		super.touchWall(result);
+		var currentVel = this.getVelocity();
 		
-		// TODO somehow this needs to account for the angle the thing was at when it hit the wall and adjust the angle appropriately
-		this.setHorizontalVel(-this.getHorizontalVel() * touched.getWallBounce() * this.getMaterial().getWallBounce());
+		// Determine the amount of velocity on each axis
+		double wallAngle = result.wallAngle();
+		double currentAngle = currentVel.getAngleH();
+		/*
+		I don't really understand how to explain in an intuitive way why this works for finding the bounce angle,
+		but see the bottom of this file for the working out I did by looking for patterns in the 8 scenarios of hitting axis aligned walls
+		 */
+		double bounceAngle = wallAngle * 2 - currentAngle;
+		
+		// The new horizontal velocity will be the bounce factor times the current velocity
+		double velocityMag = currentVel.getHorizontal() * result.material().getWallBounce() * this.getMaterial().getWallBounce();
+		double velX = velocityMag * Math.cos(bounceAngle);
+		double velZ = velocityMag * Math.sin(bounceAngle);
+		
+		this.setVelocity(new ZVector3D(velX, currentVel.getY(), velZ, true));
 	}
 	
 	@Override
@@ -214,3 +225,95 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 		return 1E-12;
 	}
 }
+
+/*
+Touch wall working out to find the equation for bounce angle
+
+45 diff
+east (+x) wall angle 90
+-x, +z, up 45 -> 135, +90
+-x, -z, down 315 -> 225, -90
+
+west (-x) wall angle 90
++x, +z, up 135 -> 45, -90
++x, -z, down 225 -> 315, +90
+
+north (-z) wall angle 90
++x, +z, left 135 -> 225, +90
+-x, +z, right 45 -> 315, -90
+
+south (+z) wall angle 90
++x, -z, left 225 -> 135, -90
+-x, -z, right 315 -> 45, +90
+
+       axis
+       x    z
+-x -z  -90  +90
+-x +z  +90  -90
++x +z  -90  +90
++x -z  +90  -90
+
+
+1 diff
+east (+x) wall angle 90
+-x, +z, up 89 -> 91, +2
+-x, -z, down 271 -> 269, -2
+
+west (-x), wall angle 90
++x, +z, up 91 -> 89, -2
++x, -z, down 269-> 271, +2
+
+north (-z), wall angle 0
++x, +z, left 179 -> 181, +2
+-x, +z, right 1 -> 359, -2
+
+south (+z), wall angle 0
++x, -z, left 181 -> 179, -2
+-x, -z, right 359 -> 1, +2
+
+       axis
+       x    z
+-x -z  -2  +2
+-x +z  +2  -2
++x +z  -2  +2
++x -z  +2  -2
+
+
+a diff
+east (+x) wall angle 90
+-x, +z, up 89 -> 91, +2, a -> ((0 + 90) + (0 + 90 - a))
+-x, -z, down 271 -> 269, -2, ((180 + 90) - (a - 90 - 180)
+
+west (-x), wall angle 90
++x, +z, up 91 -> 89, -2, a -> ((0 + 90) + (0 + 90 - a))
++x, -z, down 269-> 271, +2 -> ((180 + 90) - (a - 90 - 180))
+
+north (-z), wall angle 180
++x, +z, left 179 -> 181, +2, a -> ((0 + 180) + (0 + 180 - a))
+-x, +z, right 1 -> 359, -2, a -> ((180 + 180) + (180 + 180 - a))
+
+south (+z), wall angle 180
++x, -z, left 181 -> 179, a -> ((0 + 180) + (180 + 0 - a))
+-x, -z, right 359 -> 1, +2, a -> ((180 + 180) + (180 + 180 - a))
+
+
+x axis wall, wall angle w
++x, +z, up -> ((0 + w) + (0 + w - a))
++x, -z, down -> ((180 + w) - (a - w - 180))
+
+z axis wall, wall angle w
++x, -z, left, a -> ((0 + w) + (0 + w - a))
+-x, -z, right, a -> ((180 + w) + (w + 180 - a))
+
+
+wall angle w
+-, a -> ((0 + w) + (0 + w - a))
++, a -> ((180 + w) + (w + 180 - a))
+
+
+wall angle w
+a -> (2w - a)
+a -> (2w - a)
+
+
+ */

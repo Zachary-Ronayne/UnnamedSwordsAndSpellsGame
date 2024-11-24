@@ -310,53 +310,73 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		boolean touchedWall = false;
 		
 		// x axis, i.e. east west
-		double widthOffset = obj.getWidth() * 0.5;
-		// TODO make the boundaries have hitboxes
-		if(this.boundaryEnabled(Directions3D.EAST) && obj.getX() > this.getBoundary(Directions3D.EAST) - widthOffset){
-			obj.setX(this.getBoundary(Directions3D.EAST) - widthOffset);
-			// TODO populate result distance and wall angle correctly
-			obj.touchWall(Materials.BOUNDARY, new CollisionResult3D(0, 0, 0, true, false, false, Materials.BOUNDARY, 0));
-			touchedWall = true;
+		boolean touchedAxisX = false;
+		if(this.boundaryEnabled(Directions3D.EAST)){
+			double boundary = this.getBoundary(Directions3D.EAST) - (obj.getWidth() * 0.5);
+			double objX = obj.getX();
+			if(objX > boundary){
+				obj.setX(boundary);
+				obj.touchWall(new CollisionResult3D(-Math.abs(boundary - objX), 0, 0, true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
+				touchedAxisX = true;
+			}
 		}
-		else if(this.boundaryEnabled(Directions3D.WEST) && obj.getX() < -this.getBoundary(Directions3D.WEST) + widthOffset){
-			obj.setX(-this.getBoundary(Directions3D.WEST) + widthOffset);
-			// TODO populate result distance and wall angle correctly
-			obj.touchWall(Materials.BOUNDARY, new CollisionResult3D(0, 0, 0, true, false, false, Materials.BOUNDARY, 0));
-			touchedWall = true;
+		if(this.boundaryEnabled(Directions3D.WEST) && !touchedAxisX){
+			double boundary = -this.getBoundary(Directions3D.WEST) + (obj.getWidth() * 0.5);
+			double objX = obj.getX();
+			if(objX < boundary){
+				obj.setX(boundary);
+				obj.touchWall(new CollisionResult3D(Math.abs(boundary - objX), 0, 0, true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
+				touchedAxisX = true;
+			}
 		}
+		if(touchedAxisX) touchedWall = true;
 		
 		// z axis, i.e. north south
-		double lengthOffset = obj.getLength() * 0.5;
-		if(this.boundaryEnabled(Directions3D.NORTH) && obj.getZ() > this.getBoundary(Directions3D.NORTH) - lengthOffset){
-			obj.setZ(this.getBoundary(Directions3D.NORTH) - lengthOffset);
-			// TODO populate result distance and wall angle correctly
-			obj.touchWall(Materials.BOUNDARY, new CollisionResult3D(0, 0, 0, true, false, false, Materials.BOUNDARY, 0));
-			touchedWall = true;
+		boolean touchedAxisZ = false;
+		if(this.boundaryEnabled(Directions3D.NORTH)){
+			double boundary = this.getBoundary(Directions3D.NORTH) - (obj.getLength() * 0.5);
+			double objZ = obj.getZ();
+			if(objZ > boundary){
+				obj.setZ(boundary);
+				obj.touchWall(new CollisionResult3D(0, 0, Math.abs(boundary - objZ), true, false, false, this.getBoundaryMaterial(), 0));
+				touchedAxisZ = true;
+			}
 		}
-		else if(this.boundaryEnabled(Directions3D.SOUTH) && obj.getZ() < -this.getBoundary(Directions3D.SOUTH) + lengthOffset){
-			obj.setZ(-this.getBoundary(Directions3D.SOUTH) + lengthOffset);
-			// TODO populate result distance and wall angle correctly
-			obj.touchWall(Materials.BOUNDARY, new CollisionResult3D(0, 0, 0, true, false, false, Materials.BOUNDARY, 0));
-			touchedWall = true;
+		if(this.boundaryEnabled(Directions3D.SOUTH) && !touchedAxisZ){
+			double boundary = -this.getBoundary(Directions3D.SOUTH) + (obj.getLength() * 0.5);
+			double objZ = obj.getZ();
+			if(objZ < boundary){
+				obj.setZ(boundary);
+				obj.touchWall(new CollisionResult3D(0, 0, -Math.abs(boundary - objZ), true, false, false, this.getBoundaryMaterial(), 0));
+				touchedAxisZ = true;
+			}
 		}
+		if(touchedAxisZ) touchedWall = true;
 		
 		// y axis, i.e. up down
-		double height = obj.getHeight();
-		if(this.boundaryEnabled(Directions3D.UP) && obj.getY() > this.getBoundary(Directions3D.UP) - height){
-			obj.setY(this.getBoundary(Directions3D.UP) - height);
-			obj.touchCeiling(Materials.BOUNDARY);
-			touchedCeiling = true;
+		if(this.boundaryEnabled(Directions3D.UP)){
+			double boundary = this.getBoundary(Directions3D.UP) - obj.getHeight();
+			double objY = obj.getY();
+			if(objY > boundary){
+				obj.setY(boundary);
+				obj.touchCeiling(new CollisionResult3D(0, Math.abs(boundary - objY), 0, false, true, false, this.getBoundaryMaterial(), 0));
+				touchedCeiling = true;
+			}
 		}
 		else if(this.boundaryEnabled(Directions3D.DOWN) && obj.getY() < -this.getBoundary(Directions3D.DOWN)){
-			obj.setY(-this.getBoundary(Directions3D.DOWN));
-			obj.touchFloor(Materials.BOUNDARY);
-			touchedFloor = true;
+			double boundary = -this.getBoundary(Directions3D.DOWN);
+			double objY = obj.getY();
+			if(objY < boundary){
+				obj.setY(boundary);
+				obj.touchFloor(new CollisionResult3D(0, -Math.abs(boundary - objY), 0, false, false, true, this.getBoundaryMaterial(), 0));
+				touchedFloor = true;
+			}
 		}
 		
 		if(wasOnGround){
 			// If the hitbox was on the ground, but no y axis movement happened, then the hitbox is still on the ground, so touch the floor
 			if(obj.getPY() == obj.getY() || bot){
-				if(!touchedFloor) obj.touchFloor(res.material());
+				if(!touchedFloor) obj.touchFloor(new CollisionResult3D(0, 0, 0, false, false, true, obj.getFloorMaterial(), res.wallAngle()));
 			}
 			// Otherwise, leave the floor
 			else obj.leaveFloor();
@@ -365,14 +385,14 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		// Same thing, but for the walls and for the ceiling
 		if(wasOnCeiling){
 			if(obj.getPY() == obj.getY() || top){
-				if(!touchedCeiling) obj.touchCeiling(res.material());
+				if(!touchedCeiling) obj.touchCeiling(new CollisionResult3D(0, 0, 0, false, true, false, obj.getCeilingMaterial(), res.wallAngle()));
 			}
 			else obj.leaveCeiling();
 		}
 		
 		if(wasOnWall){
 			if(obj.getPX() == obj.getX() || wall){
-				if(!touchedWall) obj.touchWall(res.material(), res);
+				if(!touchedWall) obj.touchWall(new CollisionResult3D(0, 0, 0, true, false, false, obj.getWallMaterial(), res.wallAngle()));
 			}
 			else obj.leaveWall();
 		}
@@ -416,4 +436,9 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	public int getTilesZ(){
 		return this.tilesZ;
 	}
+	
+	public Material getBoundaryMaterial(){
+		return Materials.BOUNDARY;
+	}
+	
 }

@@ -53,7 +53,7 @@ public enum MobilityType{
 		void tick(Mobility<?, ?, ?, ?, ?> m, double dt);
 	}
 	
-	/** A shortcut interface for a function that consumes the data needed to process updating soemthing on a {@link MobilityData} object */
+	/** A shortcut interface for a function that consumes the data needed to process updating something on a {@link MobilityData} object */
 	public interface MobilityDataFunc{
 		/**
 		 * Perform the action on the given {@link Mobility}

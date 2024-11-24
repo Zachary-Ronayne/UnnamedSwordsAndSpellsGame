@@ -3,7 +3,6 @@ package zgame.things.entity.mobility;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResult;
-import zgame.physics.material.Material;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.MobilityData;
 import zgame.things.type.bounds.HitBox;
@@ -488,7 +487,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	}
 	
 	/** This method should be called when the associated entity touches a floor */
-	default void mobilityTouchFloor(Material m){
+	default void mobilityTouchFloor(C collision){
 		var mobilityData = this.getMobilityData();
 		mobilityData.setJumpingForce(0);
 		mobilityData.setJumping(false);

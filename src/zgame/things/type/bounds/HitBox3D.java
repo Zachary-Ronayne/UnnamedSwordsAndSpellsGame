@@ -4,8 +4,6 @@ import zgame.physics.collision.CollisionResult3D;
 import zgame.physics.material.Material;
 import zgame.things.entity.projectile.Projectile;
 
-import java.util.Objects;
-
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
 public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	

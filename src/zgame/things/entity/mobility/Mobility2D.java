@@ -47,7 +47,7 @@ public interface Mobility2D extends Mobility<HitBox2D, EntityThing2D, ZVector2D,
 	
 	@Override
 	default boolean isWalking(){
-		// -1 or 1 mean trying to walk in a particular direction, 0 means not tryiing to walk
+		// -1 or 1 mean trying to walk in a particular direction, 0 means not trying to walk
 		return this.getMobilityData().getWalkingDirection() == 0;
 	}
 	

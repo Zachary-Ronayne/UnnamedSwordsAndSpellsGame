@@ -1,7 +1,7 @@
 package zgame.things.entity.mobility;
 
 import zgame.core.Game;
-import zgame.physics.material.Material;
+import zgame.physics.collision.CollisionResult3D;
 import zgame.things.entity.*;
 
 /** A 3D entity which uses mobility capabilities */
@@ -45,9 +45,9 @@ public abstract class MobilityEntity3D extends EntityThing3D implements Mobility
 	}
 	
 	@Override
-	public void touchFloor(Material touched){
-		super.touchFloor(touched);
-		this.mobilityTouchFloor(touched);
+	public void touchFloor(CollisionResult3D collision){
+		super.touchFloor(collision);
+		this.mobilityTouchFloor(collision);
 		this.getMobilityData().setGroundedSinceLastJump(true);
 	}
 	
