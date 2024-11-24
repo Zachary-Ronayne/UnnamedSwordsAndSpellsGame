@@ -76,8 +76,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		
 		var entity = this.getThing();
 		double mass = entity.getMass();
-		double acceleration = this.getWalkAcceleration();
-		double walkForce = acceleration * mass;
+		double walkForce = this.getWalkPower() / dt;
 		double maxSpeed = this.getWalkSpeedMax();
 		// If the thing is walking, its max speed should be reduced by the ratio
 		if(this.isWalking()) maxSpeed *= this.getWalkingRatio();
@@ -133,8 +132,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		var currentVel = entity.getVelocity();
 		
 		double mass = entity.getMass();
-		double acceleration = this.getFlyAcceleration();
-		double newFlyForce = acceleration * mass;
+		double newFlyForce = this.getFlyPower() / dt;
 		double maxSpeed = this.getFlySpeedMax();
 		double currentVelMag = currentVel.getMagnitude();
 		
@@ -160,7 +158,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		// Otherwise, if moving and not trying to move, try to slow down
 		else if(currentVelMag > 0){
 			double flyStopPower = this.getFlyStopPower();
-			double stopVel = currentVelMag - (flyStopPower * dt / mass);
+			double stopVel = currentVelMag - (flyStopPower / mass);
 			
 			// If applying the force would move the velocity below 0, then hard set velocity to 0 and apply no force
 			if(stopVel < 0){
@@ -169,7 +167,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			}
 			else{
 				// When trying to slow down, must go in the opposite direction
-				newFlyForce = -flyStopPower;
+				newFlyForce = -flyStopPower / dt;
 			}
 		}
 		// Otherwise, apply zero force
@@ -427,8 +425,8 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	/** @return true if after building up a jump to max power, this entity should immediately jump, false to make it that it has to wait to jump */
 	boolean isJumpAfterBuildUp();
 	
-	/** @return The acceleration of this while walking, i.e., how fast it gets to {@link #getWalkSpeedMax()} */
-	double getWalkAcceleration();
+	/** @return The power of this while walking i.e., how fast it gets to {@link #getWalkSpeedMax()}, in momentum units i.e. mass * velocity */
+	double getWalkPower();
 	
 	/** @return The maximum walking speed of this entity thing */
 	double getWalkSpeedMax();
@@ -468,17 +466,17 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	/** @return true if this is currently walking, false for running */
 	boolean isWalking();
 	
-	/** @return The acceleration of this while flying, i.e., how fast it gets to {@link #getFlySpeedMax()}, defaults to {@link #getWalkAcceleration()} */
-	default double getFlyAcceleration(){
-		return this.getWalkAcceleration();
+	/** @return The acceleration of this while flying, i.e., how fast it gets to {@link #getFlySpeedMax()}, defaults to {@link #getWalkPower()} */
+	default double getFlyPower(){
+		return this.getWalkPower();
 	}
 	
 	/**
 	 * @return The magnitude of how much this entity can stop its flying speed in units of momentum, i.e. mass * velocity
-	 * 		Defaults to {@link #getFlyAcceleration()}
+	 * 		Defaults to {@link #getFlyPower()}
 	 */
 	default double getFlyStopPower(){
-		return this.getWalkAcceleration();
+		return this.getWalkPower();
 	}
 	
 	/** @return The maximum walking speed of this entity thing, defaults to {@link #getWalkSpeedMax()} */

@@ -20,8 +20,8 @@ public abstract class PlayerTester extends MobilityEntity2D{
 	/** See {@link Mobility2D#getWalkSpeedMax()} */
 	private double walkSpeedMax;
 	
-	/** See {@link Mobility2D#getWalkAcceleration()} */
-	private double walkAcceleration;
+	/** See {@link Mobility2D#getWalkPower()} */
+	private double walkPower;
 	
 	/** See {@link Mobility2D#getWalkStopFriction()} */
 	private double walkStopFriction;
@@ -71,7 +71,7 @@ public abstract class PlayerTester extends MobilityEntity2D{
 		super(x, y);
 		
 		this.walkSpeedMax = 300;
-		this.walkAcceleration = 2000;
+		this.walkPower = 2000;
 		this.walkStopFriction = 100;
 		this.jumpPower = 60000;
 		this.jumpStopPower = 3000;
@@ -165,15 +165,15 @@ public abstract class PlayerTester extends MobilityEntity2D{
 		this.walkSpeedMax = walkSpeedMax;
 	}
 	
-	/** @return See {@link #walkAcceleration} */
+	/** @return See {@link #walkPower} */
 	@Override
-	public double getWalkAcceleration(){
-		return this.walkAcceleration;
+	public double getWalkPower(){
+		return this.walkPower;
 	}
 	
-	/** @param walkAcceleration See {@link #walkAcceleration} */
-	public void setWalkAcceleration(double walkAcceleration){
-		this.walkAcceleration = walkAcceleration;
+	/** @param walkPower See {@link #walkPower} */
+	public void setWalkPower(double walkPower){
+		this.walkPower = walkPower;
 	}
 	
 	/** @return See {@link #walkStopFriction} */
@@ -319,6 +319,6 @@ public abstract class PlayerTester extends MobilityEntity2D{
 	
 	@Override
 	public double getFlyStopPower(){
-		return this.getWalkAcceleration() * 100;
+		return this.getWalkPower() * 100;
 	}
 }

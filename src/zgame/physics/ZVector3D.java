@@ -69,12 +69,7 @@ public class ZVector3D extends ZVector<ZVector3D>{
 		// Ensure magnitude is positive
 		double mag = this.getMagnitude();
 		boolean inverted = mag < 0;
-		if(inverted) {
-			// issue#37 is this needed? Likely important for flying
-			// Must subtract by 90 degrees to account for the vector flipping upside down because vectors are weird
-			this.angleH = ZMath.angleNormalized(this.angleH - ZMath.PI_BY_2);
-			this.setMagnitude(-mag);
-		}
+		if(inverted) this.setMagnitude(-mag);
 		
 		// Horizontal magnitude will be the cos, i.e. horizontal, value of the vertical angle and the total magnitude
 		this.horizontalMag = Math.abs(Math.cos(this.angleV) * this.getMagnitude());
@@ -82,9 +77,13 @@ public class ZVector3D extends ZVector<ZVector3D>{
 		this.x = Math.cos(this.angleH) * this.horizontalMag;
 		// The vertical magnitude will be the sin value of the vertical angle and the total magnitude
 		this.y = Math.sin(this.angleV) * this.getMagnitude();
-		if(inverted) this.y = -this.y;
 		// The z component will be the sin value on the horizontal axis with the total horizontal magnitude
 		this.z = Math.sin(this.angleH) * this.horizontalMag;
+		if(inverted) {
+			this.x = -this.x;
+			this.y = -this.y;
+			this.z = -this.z;
+		}
 	}
 	
 	/** Update the internal angle and magnitude values based on the current values of {@link #x}, {@link #y}, and {@link #z} */

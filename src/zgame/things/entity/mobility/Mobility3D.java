@@ -19,8 +19,6 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 		this.getMobilityData().updateWalkingForce(newWalkForce);
 	}
 	
-	// issue#37 fix flying in 3D
-	
 	@Override
 	default void applyFlyForce(double newFlyForce, boolean applyFacing){
 		this.getMobilityData().updateFlyingForce(newFlyForce, applyFacing);
@@ -74,6 +72,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 				if(up) verticalAngle = ZMath.PI_BY_2;
 				else if(down) verticalAngle = ZMath.PI_BY_2 + Math.PI;
 				else verticalAngle = 0;
+				if(backward) horizontalAngle += Math.PI;
 			}
 			else{
 				verticalAngle = angleV;

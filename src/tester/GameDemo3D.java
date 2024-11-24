@@ -405,7 +405,6 @@ public class GameDemo3D extends Game{
 			var backward = ki.buttonDown(GLFW_KEY_S);
 			var up = ki.buttonDown(GLFW_KEY_Q);
 			var down = ki.buttonDown(GLFW_KEY_Z);
-			// issue#37 fix flying
 			this.handleMobilityControls(dt, cam.getRotY() - ZMath.PI_BY_2, -cam.getRotX(), left, right, forward, backward, up, down);
 			if(!left && !right && !forward && !backward && this.getMobilityData().getWalkingForce().getMagnitude() != 0) this.stopWalking();
 			
@@ -456,8 +455,8 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public double getWalkAcceleration(){
-			return 7.0;
+		public double getWalkPower(){
+			return 70000.0;
 		}
 		
 		@Override
@@ -502,7 +501,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getFlyStopPower(){
-			return 2000.0;
+			return 30.0;
 		}
 		
 		@Override
@@ -510,10 +509,9 @@ public class GameDemo3D extends Game{
 			return 3.4;
 		}
 		
-		// TODO should this be power, like momentum, instead of acceleration? Make all of these power fields use the same units, also rename if needed
 		@Override
-		public double getFlyAcceleration(){
-			return 10.0;
+		public double getFlyPower(){
+			return 100000.0;
 		}
 		
 		@Override

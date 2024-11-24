@@ -501,7 +501,7 @@ public abstract class ZusassMob extends MobilityEntity2D implements RectangleHit
 	}
 	
 	@Override
-	public double getWalkAcceleration(){
+	public double getWalkPower(){
 		// For now just making this a hard coded number based on the move speed stat
 		return this.stat(MOVE_SPEED) * 7;
 	}
