@@ -17,11 +17,6 @@ public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResu
 		public CollisionResult3D collide(Tile3D t, HitBox3D obj){
 			return new CollisionResult3D();
 		}
-		
-		@Override
-		public boolean intersectsTile(Tile3D t, HitBox3D obj){
-			return false;
-		}
 	}
 	
 	/** For tiles whose hitbox takes up the entire tile */
@@ -29,11 +24,6 @@ public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResu
 		@Override
 		public CollisionResult3D collide(Tile3D t, HitBox3D obj){
 			return obj.calculateRectCollision(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength(), t.getMaterial());
-		}
-		
-		@Override
-		public boolean intersectsTile(Tile3D t, HitBox3D obj){
-			return obj.intersectsRect(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength());
 		}
 	}
 	

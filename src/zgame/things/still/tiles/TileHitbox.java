@@ -15,13 +15,4 @@ public interface TileHitbox<H extends HitBox<H, C>, T extends Tile<H, C>, C exte
 	 */
 	C collide(T t, H obj);
 	
-	// TODO remove this method? It seems to be unused
-	/**
-	 * Determine if a hitbox hits the given tile
-	 *
-	 * @param obj The hitbox to check
-	 * @return true if they intersect, false otherwise
-	 */
-	boolean intersectsTile(T t, H obj);
-	
 }

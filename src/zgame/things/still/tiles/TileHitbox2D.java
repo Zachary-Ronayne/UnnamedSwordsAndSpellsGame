@@ -21,11 +21,6 @@ public interface TileHitbox2D extends TileHitbox<HitBox2D, Tile2D, CollisionResu
 		public CollisionResult2D collide(Tile2D t, HitBox2D obj){
 			return new CollisionResult2D();
 		}
-		
-		@Override
-		public boolean intersectsTile(Tile2D t, HitBox2D obj){
-			return false;
-		}
 	}
 	
 	/** For tiles whose hitbox takes up the entire tile */
@@ -33,11 +28,6 @@ public interface TileHitbox2D extends TileHitbox<HitBox2D, Tile2D, CollisionResu
 		@Override
 		public CollisionResult2D collide(Tile2D t, HitBox2D obj){
 			return obj.calculateRectCollision(t.getX(), t.getY(), t.getWidth(), t.getHeight(), t.getMaterial());
-		}
-		
-		@Override
-		public boolean intersectsTile(Tile2D t, HitBox2D obj){
-			return obj.intersectsRect(t.getX(), t.getY(), t.getWidth(), t.getHeight());
 		}
 	}
 	
@@ -47,11 +37,6 @@ public interface TileHitbox2D extends TileHitbox<HitBox2D, Tile2D, CollisionResu
 		public CollisionResult2D collide(Tile2D t, HitBox2D obj){
 			return obj.calculateCircleCollision(t.centerX(), t.centerY(), t.getWidth() * 0.5, t.getMaterial());
 		}
-		
-		@Override
-		public boolean intersectsTile(Tile2D t, HitBox2D obj){
-			return obj.intersectsCircle(t.centerX(), t.centerY(), t.getWidth() * 0.5);
-		}
 	}
 	
 	/** For tiles whose hitbox takes up the entire tile */
@@ -60,12 +45,6 @@ public interface TileHitbox2D extends TileHitbox<HitBox2D, Tile2D, CollisionResu
 		public CollisionResult2D collide(Tile2D t, HitBox2D obj){
 			var h = t.getHeight() * 0.5;
 			return obj.calculateRectCollision(t.getX(), t.getY() + h, t.getWidth(), h, t.getMaterial());
-		}
-		
-		@Override
-		public boolean intersectsTile(Tile2D t, HitBox2D obj){
-			var h = t.getHeight() * 0.5;
-			return obj.intersectsRect(t.getX(), t.getY() + h, t.getWidth(), h);
 		}
 	}
 	
