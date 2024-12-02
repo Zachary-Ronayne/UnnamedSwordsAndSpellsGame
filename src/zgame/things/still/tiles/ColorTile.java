@@ -7,7 +7,7 @@ import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 
 /** A {@link TileType} which renders tiles as a solid color */
-public class ColorTile extends BasicTile{
+public class ColorTile extends TileType2D{
 	
 	/** The color to draw this tile */
 	private ZColor color;

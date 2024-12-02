@@ -135,6 +135,11 @@ public class Renderer implements Destroyable{
 	/** The {@link VertexArray} for drawing a finite plane from a quad */
 	private VertexArray planeVertArr;
 	
+	/** The {@link VertexBuffer} that tracks the texture coordinates for drawing a rectangular prism with a texture */
+	private VertexBuffer rect3DTexCoordBuff;
+	/** The {@link VertexArray} for drawing a rectangular prism with a texture */
+	private VertexArray rect3DTexVertArr;
+	
 	/** The currently bound vertex array for rendering */
 	private VertexArray boundVertexArray;
 	
@@ -289,6 +294,8 @@ public class Renderer implements Destroyable{
 	
 	/** Initialize all resources used by the vertex arrays and vertex buffers */
 	public void initVertexes(){
+		// TODO clean up and organize this code
+		
 		// Generate an index buffer for drawing rectangles
 		this.rectIndexBuff = new IndexBuffer(new byte[]{
 				/////////
@@ -409,7 +416,7 @@ public class Renderer implements Destroyable{
 		
 		// Create the vertex buffer for the coordinates
 		var cubePositions = new float[6 * 4 * 3];
-		var i = 0;
+		int i = 0;
 		for(int f = 0; f < 6; f++){
 			for(int v = 0; v < 4; v++){
 				for(int p = 0; p < 3; p++){
@@ -476,6 +483,36 @@ public class Renderer implements Destroyable{
 		this.ellipse3DPosBuff = new VertexBuffer(VERTEX_POS_INDEX, 3, GL_STATIC_DRAW, ellipsePoints);
 		this.ellipse3DPosBuff.applyToVertexArray();
 		
+		// Create a vertex array for drawing a textured cube
+		this.rect3DTexVertArr = new VertexArray();
+		this.rect3DTexVertArr.bind();
+		this.rect3DCoordBuff.bind();
+		this.rect3DCoordBuff.applyToVertexArray();
+		
+		// TODO ensure these texture coordinates make sense
+		// Generate a vertex buffer for texture coordinates for rendering images
+		// 6 faces, 4 vertexes per face, 2 coordinates per vertex
+		var rect3DTexCoords = new float[6 * 4 * 2];
+		
+		i = 0;
+		for(int face = 0; face < 6; face++){
+			// Low Left Corner
+			rect3DTexCoords[i++] = 0;
+			rect3DTexCoords[i++] = 0;
+			// Low Right Corner
+			rect3DTexCoords[i++] = 1;
+			rect3DTexCoords[i++] = 0;
+			// Up Right Corner
+			rect3DTexCoords[i++] = 1;
+			rect3DTexCoords[i++] = 1;
+			// Up Left Corner
+			rect3DTexCoords[i++] = 0;
+			rect3DTexCoords[i++] = 1;
+		}
+		this.rect3DTexCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_STATIC_DRAW, rect3DTexCoords);
+		this.rect3DTexCoordBuff.applyToVertexArray();
+		
+		// By default, no bound array
 		this.boundVertexArray = null;
 	}
 	
@@ -491,6 +528,11 @@ public class Renderer implements Destroyable{
 		this.imgVertArr.destroy();
 		this.textVertArr.destroy();
 		this.rect3DVertArr.destroy();
+		
+		this.ellipse3DVertArr.destroy();
+		
+		this.rect3DTexVertArr.destroy();
+		this.rect3DTexCoordBuff.destroy();
 	}
 	
 	/**
@@ -1626,6 +1668,7 @@ public class Renderer implements Destroyable{
 								 ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
 		return this.drawRectPrism(x, y, z, w, h, l, 0, angle, 0, 0, 0, 0, front, back, left, right, top, bot);
 	}
+	
 	/**
 	 * Draw a rectangular prism based on the given values
 	 * @param x The bottom middle x coordinate of the rect
@@ -1684,6 +1727,50 @@ public class Renderer implements Destroyable{
 		
 		// Draw the rect
 		glDrawElements(GL_QUADS, rect3DIndexBuff.getBuff());
+		this.popMatrix();
+		
+		return true;
+	}
+	
+	/**
+	 * Draw a rectangular prism based on the given values
+	 * @param x The bottom middle x coordinate of the rect
+	 * @param y The bottom middle y coordinate of the rect
+	 * @param z The bottom middle z coordinate of the rect
+	 * @param w The width, x axis, of the rect
+	 * @param h The height, y axis, of the rect
+	 * @param l The length, z axis, of the rect
+	 * @param xRot The rotation on the x axis
+	 * @param yRot The rotation on the y axis
+	 * @param zRot The rotation on the z axis
+	 * @param xA The point, relative to the point to draw this object, to rotate on the x axis
+	 * @param yA The point, relative to the point to draw this object, to rotate on the y axis
+	 * @param zA The point, relative to the point to draw this object, to rotate on the z axis
+	 * @param texture The image to use for the texture
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawRectPrismTex(double x, double y, double z,
+								 	double w, double h, double l,
+								 	double xRot, double yRot, double zRot,
+								 	double xA, double yA, double zA,
+									GameImage texture){
+		// Use the 3D color shader and the 3D rect vertex array
+		this.renderModeImage();
+		this.bindVertexArray(this.rect3DTexVertArr);
+		glBindTexture(GL_TEXTURE_2D, texture.getId());
+		// TODO allow for other alpha modes
+		updateAlphaMode(AlphaMode.BUFFER);
+		
+		// Position the 3D rect
+		this.pushMatrix();
+		this.positionObject(x, y, z, w, h, l, xRot, yRot, zRot, xA, yA, zA);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuModelView();
+		this.updateGpuColor();
+		
+		// Draw the rect
+		glDrawElements(GL_QUADS, this.rect3DIndexBuff.getBuff());
 		this.popMatrix();
 		
 		return true;

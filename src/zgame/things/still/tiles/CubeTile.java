@@ -11,7 +11,6 @@ public class CubeTile extends TileType3D{
 	/** The {@link Material} of this {@link CubeTile} */
 	private final Material material;
 	
-	// TODO make this able to use textures
 	/** The initial color to use for rendering this tile before any modifications */
 	private final ZColor baseColor;
 	
@@ -21,10 +20,11 @@ public class CubeTile extends TileType3D{
 	 * @param id See {@link #getId()}
 	 * @param origin See {@link #getOrigin()}
 	 * @param hitbox See {@link #getHitbox()}
+	 * @param baseColor See {@link #baseColor}
 	 * @param material See {@link #material}
 	 */
 	public CubeTile(String id, String origin, TileHitbox3D hitbox, ZColor baseColor, Material material){
-		super(id, origin, hitbox);
+		super(id, origin, hitbox, material);
 		this.baseColor = baseColor;
 		this.material = material;
 	}

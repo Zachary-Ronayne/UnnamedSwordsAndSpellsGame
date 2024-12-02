@@ -3,6 +3,7 @@ package zgame.things.still.tiles;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.collision.CollisionResult;
+import zgame.physics.material.Material;
 import zgame.things.type.Materialable;
 import zgame.things.type.bounds.HitBox;
 
@@ -21,16 +22,20 @@ public abstract class TileType<H extends HitBox<H, C>, T extends Tile<H, C>, TH 
 	 */
 	private final String origin;
 	
+	/** The {@link Material} of this {@link TileType} */
+	private final Material material;
+	
 	/**
 	 * Create a new tile type
 	 *
 	 * @param id See {@link #id}
 	 * @param hitbox See {@link #hitbox}
 	 */
-	protected TileType(String id, String origin, TH hitbox){
+	protected TileType(String id, String origin, TH hitbox, Material material){
 		this.id = id;
 		this.origin = origin;
 		this.hitbox = hitbox;
+		this.material = material;
 	}
 	
 	/** @return The unique identifier for this {@link TileType} */
@@ -61,5 +66,10 @@ public abstract class TileType<H extends HitBox<H, C>, T extends Tile<H, C>, TH 
 	 * @param r The renderer to use for drawing
 	 */
 	public abstract void render(T t, Game g, Renderer r);
+	
+	@Override
+	public Material getMaterial(){
+		return this.material;
+	}
 	
 }

@@ -60,6 +60,8 @@ public class GameDemo3D extends Game{
 		window.setSizeUniform(1500, 900);
 		window.center();
 		
+		game.getImages().add("brick");
+		
 		dummyRoom = new DummyRoom();
 		var state = new DemoGameState(dummyRoom);
 		game.setCurrentState(state);
@@ -228,7 +230,7 @@ public class GameDemo3D extends Game{
 			super(3, 3, 5);
 			this.setTile(1, 0, 0, BaseTiles3D.BOUNCY);
 			this.setTile(1, 0, 2, BaseTiles3D.HIGH_FRICTION);
-			this.setTile(1, 0, 4, BaseTiles3D.SOLID_DARK);
+			this.setTile(1, 0, 4, BaseTiles3D.BRICK_GRAY);
 			this.setTile(2, 0, 4, BaseTiles3D.SOLID_LIGHT);
 			this.setTile(2, 1, 3, BaseTiles3D.SOLID_DARK);
 			
