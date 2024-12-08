@@ -1,5 +1,7 @@
 package zgame.core.sound;
 
+import zgame.core.utils.ZConfig;
+
 import java.util.LinkedList;
 
 import static org.lwjgl.openal.AL11.*;
@@ -58,6 +60,11 @@ public abstract class SoundPlayer<S extends Sound>{
 	 * @param sound The sound to play
 	 */
 	private void playSoundNow(SoundSource source, S sound){
+		if(sound == null){
+			ZConfig.error("Failed to play unloaded sound in SoundPlayer.playSoundNow");
+			return;
+		}
+		
 		// Keep track of the source that is now playing
 		this.playing.put(source);
 		// Use the source to keep track of the sound

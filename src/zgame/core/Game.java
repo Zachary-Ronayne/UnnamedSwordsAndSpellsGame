@@ -54,7 +54,10 @@ public class Game implements Saveable, Destroyable{
 	private RenderStyle renderStyle;
 	
 	/** The {@link SoundManager} used by this {@link Game} to create sounds */
-	private final SoundManager sounds;
+	private SoundManager sounds;
+	
+	/** true to initialize the sound engine on game {@link #start()}, false otherwise, it will have to be started later using {@link #initSound()} */
+	private boolean initSoundOnStart;
 	
 	/** The {@link ImageManager} used by this {@link Game} to load images for ease of use in rendering */
 	private final ImageManager images;
@@ -231,8 +234,8 @@ public class Game implements Saveable, Destroyable{
 		// On initialization, load the global settings
 		this.loadGlobalSettings();
 		
-		// Init sound
-		this.sounds = new SoundManager();
+		// Init sound on start by default
+		this.setInitSoundOnStart(true);
 		
 		// Init window
 		this.window = new GlfwWindow(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
@@ -284,16 +287,24 @@ public class Game implements Saveable, Destroyable{
 		this.tickThread = new Thread(this.tickTask);
 		this.tickThread.start();
 		
-		// Run the audio loop
-		this.soundTask = new SoundLoopTask();
-		this.soundThread = new Thread(this.soundTask);
-		this.soundThread.start();
+		if(this.isInitSoundOnStart()) this.initSound();
 		
 		// Run the render loop in the main thread
 		this.renderLooper.loop();
 		
 		// End the program
 		this.end();
+	}
+	
+	/** Call all necessary methods for initializing sound processes */
+	public void initSound(){
+		this.sounds = new SoundManager();
+		this.sounds.scanDevices();
+		
+		// Run the audio loop
+		this.soundTask = new SoundLoopTask();
+		this.soundThread = new Thread(this.soundTask);
+		this.soundThread.start();
 	}
 	
 	/** Force the game to stop, but ensure the game closes without errors */
@@ -326,7 +337,7 @@ public class Game implements Saveable, Destroyable{
 		this.getWindow().destroy();
 		
 		// Free sounds
-		this.sounds.destroy();
+		if(this.sounds != null) this.sounds.destroy();
 		
 		// Free images
 		this.images.destroy();
@@ -764,7 +775,20 @@ public class Game implements Saveable, Destroyable{
 	
 	/** @return See {@link #sounds} */
 	public SoundManager getSounds(){
+		if(sounds == null){
+			ZConfig.error("Sounds have not been initialized for current game, call Game.initSound before using the sound engine");
+		}
 		return sounds;
+	}
+	
+	/** @return See {@link #initSoundOnStart} */
+	public boolean isInitSoundOnStart(){
+		return this.initSoundOnStart;
+	}
+	
+	/** @param initSoundOnStart See {@link #initSoundOnStart} */
+	public void setInitSoundOnStart(boolean initSoundOnStart){
+		this.initSoundOnStart = initSoundOnStart;
 	}
 	
 	/**

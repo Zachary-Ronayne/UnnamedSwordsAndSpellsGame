@@ -49,6 +49,9 @@ public class GameDemo3D extends Game{
 	public static void main(String[] args){
 		game = new GameDemo3D();
 		
+		// Don't use any sound for this game
+		game.setInitSoundOnStart(false);
+		
 		game.set(BooleanTypeSetting.V_SYNC, true, false);
 		game.set(IntTypeSetting.FPS_LIMIT, 0, false);
 		
@@ -173,6 +176,13 @@ public class GameDemo3D extends Game{
 			
 			// Toggle paused
 			if(button == GLFW_KEY_ESCAPE) updatePaused(!game.getPlayState().isPaused());
+			
+			// Init sound separately from the main startup
+			if(button == GLFW_KEY_P) {
+				if(ctrl) game.initSound();
+				else if(shift) game.playMusic("song.ogg");
+				else game.getSounds().addMusic("song.ogg");
+			}
 			
 			// Modify FOV
 			if(button == GLFW_KEY_LEFT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) - .1, false);
