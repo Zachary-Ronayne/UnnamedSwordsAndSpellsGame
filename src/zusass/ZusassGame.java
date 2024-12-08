@@ -71,6 +71,7 @@ public class ZusassGame extends Game{
 		GameWindow w = this.getWindow();
 		w.setUseVsync(true);
 		w.center();
+		this.setInitSoundOnStart(false);
 		
 		// Loading assets
 		this.getFonts().addAll();

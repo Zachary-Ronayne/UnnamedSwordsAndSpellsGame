@@ -104,7 +104,7 @@ public class Renderer implements Destroyable{
 	/** A {@link VertexArray} for drawing text */
 	private VertexArray textVertArr;
 	/** A {@link VertexBuffer} which represents positional values for a texture whose positional values will regularly change */
-	private VertexBuffer posBuff;
+	private VertexBuffer posBuff2D;
 	/** A {@link VertexBuffer} which represents texture coordinates for a texture whose texture coordinates will regularly change */
 	private VertexBuffer changeTexCoordBuff;
 	
@@ -292,20 +292,81 @@ public class Renderer implements Destroyable{
 		this.setDepthTestEnabled(false);
 	}
 	
-	/** Initialize all resources used by the vertex arrays and vertex buffers */
+	/** Initialize all resources used by index buffers, vertex arrays, and vertex buffers */
 	public void initVertexes(){
-		// TODO clean up and organize this code
+		this.initIndexBuffers();
+		this.initVertexBuffers();
+		this.initVertexArrays();
+	}
+	
+	/** Initialize the constant values for all index buffers */
+	private void initIndexBuffers(){
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// 2D index buffers
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		// Generate an index buffer for drawing rectangles
 		this.rectIndexBuff = new IndexBuffer(new byte[]{
-				/////////
 				0, 1, 2,
-				/////////
-				0, 3, 2});
+				0, 3, 2
+		});
 		
-		// Generate a vertex array for drawing solid colored rectangles
-		this.rectVertArr = new VertexArray();
-		this.rectVertArr.bind();
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate an index buffer for drawing a 2D ellipse
+		
+		// Make indexes for the number of triangles minus 1
+		var ellipseIndexes = new byte[(NUM_ELLIPSE_POINTS - 1) * 3];
+		
+		// Go through each point
+		// Don't add the last index, that would cause the last triangle to overlap
+		for(int i = 0; i < NUM_ELLIPSE_POINTS - 1; i++){
+			ellipseIndexes[i * 3] = (byte)(0);
+			ellipseIndexes[i * 3 + 1] = (byte)(i);
+			ellipseIndexes[i * 3 + 2] = (byte)(i + 1);
+		}
+		this.ellipseIndexBuff = new IndexBuffer(ellipseIndexes);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// 3D index buffers
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate the indexes for the 3D rect
+		var cubeIndices = new byte[24];
+		for(int i = 0; i < cubeIndices.length; i++) cubeIndices[i] = (byte)i;
+		this.rect3DIndexBuff = new IndexBuffer(cubeIndices);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate the indexes for the finite 3D plane
+		this.planeIndexBuff = new IndexBuffer(new byte[]{0, 1, 2, 3});
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate in index buffer for rendering 3D ellipses
+		
+		// Make indexes for the number of triangles minus 1
+		ellipseIndexes = new byte[(NUM_ELLIPSE_POINTS - 1) * 3];
+		// Go through each point
+		// Don't add the last index, that would cause the last triangle to overlap
+		for(int i = 0; i < NUM_ELLIPSE_POINTS - 1; i++){
+			ellipseIndexes[i * 3] = (byte)(0);
+			ellipseIndexes[i * 3 + 1] = (byte)(i);
+			ellipseIndexes[i * 3 + 2] = (byte)(i + 1);
+		}
+		this.ellipse3DIndexBuff = new IndexBuffer(ellipseIndexes);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	}
+	
+	/** Initialize the constant values for all vertex buffers */
+	private void initVertexBuffers(){
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// 2D vertex buffers
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 		// Generate a vertex buffer for drawing rectangles that fill the entire screen and can be scaled
 		this.fillScreenPosBuff = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_STATIC_DRAW, new float[]{
 				// Low Left Corner
@@ -317,10 +378,9 @@ public class Renderer implements Destroyable{
 				// Up Left Corner
 				-1, 1});
 		
-		// Generate a vertex array for rendering images
-		this.imgVertArr = new VertexArray();
-		this.imgVertArr.bind();
-		// Generate a vertex buffer for texture coordinates for rendering images
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate a vertex buffer for texture coordinates for rendering images that renders the entire image
 		this.texCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_STATIC_DRAW, new float[]{
 				// Low Left Corner
 				0, 0,
@@ -330,23 +390,21 @@ public class Renderer implements Destroyable{
 				1, 1,
 				// Up Left Corner
 				0, 1});
-		// Add the positional data to the image rendering
-		this.fillScreenPosBuff.bind();
-		this.fillScreenPosBuff.applyToVertexArray();
 		
-		// Generate a vertex array for rendering text
-		this.textVertArr = new VertexArray();
-		this.textVertArr.bind();
-		// Generate a vertex buffer for positional coordinates that regularly change
-		this.posBuff = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_DYNAMIC_DRAW, 4);
-		this.posBuff.applyToVertexArray();
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 		// Generate a vertex buffer for texture coordinates that regularly change
 		this.changeTexCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_DYNAMIC_DRAW, 4);
-		this.changeTexCoordBuff.applyToVertexArray();
 		
-		// Generate a vertex array for rendering ellipses
-		// Make indexes for the number of triangles minus 1
-		var ellipseIndexes = new byte[(NUM_ELLIPSE_POINTS - 1) * 3];
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate a vertex buffer for positional coordinates that regularly change
+		this.posBuff2D = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_DYNAMIC_DRAW, 4);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate a vertex buffer for drawing an ellipse
+		
 		// Make one point for each of the points on the circle
 		var ellipsePoints = new float[NUM_ELLIPSE_POINTS * 2];
 		// Go through each point
@@ -358,26 +416,14 @@ public class Renderer implements Destroyable{
 			// Apply the angle
 			ellipsePoints[i * 2] = (float)x;
 			ellipsePoints[i * 2 + 1] = (float)y;
-			// Don't add the last index, that would cause the last triangle to overlap
-			if(i >= NUM_ELLIPSE_POINTS - 1) continue;
-			ellipseIndexes[i * 3] = (byte)(0);
-			ellipseIndexes[i * 3 + 1] = (byte)(i);
-			ellipseIndexes[i * 3 + 2] = (byte)(i + 1);
 		}
-		this.ellipseVertArr = new VertexArray();
-		this.ellipseVertArr.bind();
-		this.ellipseIndexBuff = new IndexBuffer(ellipseIndexes);
 		this.ellipsePosBuff = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_STATIC_DRAW, ellipsePoints);
-		this.ellipsePosBuff.applyToVertexArray();
 		
-		// Generate the indexes for the 3D rect
-		var cubeIndices = new byte[24];
-		for(var i = 0; i < cubeIndices.length; i++) cubeIndices[i] = (byte)i;
-		rect3DIndexBuff = new IndexBuffer(cubeIndices);
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// 3D vertex buffers
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
-		// Create and bind the vertex array for the 3D rect
-		rect3DVertArr = new VertexArray();
-		rect3DVertArr.bind();
+		// Create the vertex buffer for the coordinates and colors of a cube with 6 different colors per face
 		
 		// Values for defining the cube
 		// 6 faces, 4 vertices per face, 3 coordinates per position
@@ -414,102 +460,111 @@ public class Renderer implements Destroyable{
 				{0, 1, 5, 4},
 		};
 		
-		// Create the vertex buffer for the coordinates
 		var cubePositions = new float[6 * 4 * 3];
-		int i = 0;
+		int cubeIndex = 0;
 		for(int f = 0; f < 6; f++){
 			for(int v = 0; v < 4; v++){
 				for(int p = 0; p < 3; p++){
-					cubePositions[i++] = cubeCorners[cubeCornerIndices[f][v]][p];
+					cubePositions[cubeIndex++] = cubeCorners[cubeCornerIndices[f][v]][p];
 				}
 			}
 		}
 		
-		rect3DCoordBuff = new VertexBuffer(VERTEX_POS_INDEX, 3, cubePositions);
-		rect3DCoordBuff.applyToVertexArray();
-		
 		// Create the vertex buffer for the colors, default to all white
 		// 6 faces, 4 vertices per face, 4 color channels per color
 		var colorVertices = new float[6 * 4 * 4];
-		for(i = 0; i < colorVertices.length; i++){
+		for(int i = 0; i < colorVertices.length; i++){
 			colorVertices[i] = 1;
 		}
 		
-		rect3DColorBuff = new VertexBuffer(VERTEX_COLOR_INDEX, 4, GL_DYNAMIC_DRAW, colorVertices);
-		rect3DColorBuff.applyToVertexArray();
+		// Buffer for the position vertices
+		this.rect3DCoordBuff = new VertexBuffer(VERTEX_POS_INDEX, 3, cubePositions);
 		
-		// Generate the indexes for the finite 3D plane
-		planeIndexBuff = new IndexBuffer(new byte[]{
-				0, 1, 2, 3
-		});
+		// Buffer for the color vertices
+		this.rect3DColorBuff = new VertexBuffer(VERTEX_COLOR_INDEX, 4, GL_DYNAMIC_DRAW, colorVertices);
 		
-		// Create and bind the vertex array for the finite 3D plane
-		planeVertArr = new VertexArray();
-		planeVertArr.bind();
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
-		// Create the vertex buffer for the coordinates
-		planeCoordBuff = new VertexBuffer(VERTEX_POS_INDEX, 3, new float[]{
+		// Vertex buffer for a plane
+		this.planeCoordBuff = new VertexBuffer(VERTEX_POS_INDEX, 3, new float[]{
 				0.5f, 0.0f, -0.5f,
 				0.5f, 0.0f, 0.5f,
 				-0.5f, 0.0f, 0.5f,
 				-0.5f, 0.0f, -0.5f
 		});
-		planeCoordBuff.applyToVertexArray();
 		
-		// Generate a vertex array for rendering 3D ellipses
-		// Make indexes for the number of triangles minus 1
-		ellipseIndexes = new byte[(NUM_ELLIPSE_POINTS - 1) * 3];
-		// Make one point for each of the points on the circle
-		ellipsePoints = new float[NUM_ELLIPSE_POINTS * 3];
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Vertex buffer for an ellipse in 3D, aligned to the xz plane
+		var ellipsePoints3D = new float[NUM_ELLIPSE_POINTS * 3];
 		// Go through each point
-		for(i = 0; i < NUM_ELLIPSE_POINTS; i++){
+		for(int i = 0; i < NUM_ELLIPSE_POINTS; i++){
 			// Find the current angle based on the index
 			var a = ZMath.TAU * ((float)i / NUM_ELLIPSE_POINTS);
 			var x = Math.cos(a) * 0.5;
 			var z = Math.sin(a) * 0.5;
 			// Apply the angle
-			ellipsePoints[i * 3] = (float)x;
-			ellipsePoints[i * 3 + 1] = 0f;
-			ellipsePoints[i * 3 + 2] = (float)z;
-			// Don't add the last index, that would cause the last triangle to overlap
-			if(i >= NUM_ELLIPSE_POINTS - 1) continue;
-			ellipseIndexes[i * 3] = (byte)(0);
-			ellipseIndexes[i * 3 + 1] = (byte)(i);
-			ellipseIndexes[i * 3 + 2] = (byte)(i + 1);
+			ellipsePoints3D[i * 3] = (float)x;
+			ellipsePoints3D[i * 3 + 1] = 0f;
+			ellipsePoints3D[i * 3 + 2] = (float)z;
 		}
-		this.ellipse3DVertArr = new VertexArray();
-		this.ellipse3DVertArr.bind();
-		this.ellipse3DIndexBuff = new IndexBuffer(ellipseIndexes);
-		this.ellipse3DPosBuff = new VertexBuffer(VERTEX_POS_INDEX, 3, GL_STATIC_DRAW, ellipsePoints);
-		this.ellipse3DPosBuff.applyToVertexArray();
+		this.ellipse3DPosBuff = new VertexBuffer(VERTEX_POS_INDEX, 3, GL_STATIC_DRAW, ellipsePoints3D);
 		
-		// Create a vertex array for drawing a textured cube
-		this.rect3DTexVertArr = new VertexArray();
-		this.rect3DTexVertArr.bind();
-		this.rect3DCoordBuff.bind();
-		this.rect3DCoordBuff.applyToVertexArray();
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		// Generate a vertex buffer for texture coordinates for rendering images
 		// 6 faces, 4 vertexes per face, 2 coordinates per vertex
 		var rect3DTexCoords = new float[6 * 4 * 2];
-		
-		i = 0;
+		int rectIndex = 0;
 		for(int face = 0; face < 6; face++){
 			// Low Left Corner
-			rect3DTexCoords[i++] = 0;
-			rect3DTexCoords[i++] = 0;
+			rect3DTexCoords[rectIndex++] = 0;
+			rect3DTexCoords[rectIndex++] = 0;
 			// Low Right Corner
-			rect3DTexCoords[i++] = 1;
-			rect3DTexCoords[i++] = 0;
+			rect3DTexCoords[rectIndex++] = 1;
+			rect3DTexCoords[rectIndex++] = 0;
 			// Up Right Corner
-			rect3DTexCoords[i++] = 1;
-			rect3DTexCoords[i++] = 1;
+			rect3DTexCoords[rectIndex++] = 1;
+			rect3DTexCoords[rectIndex++] = 1;
 			// Up Left Corner
-			rect3DTexCoords[i++] = 0;
-			rect3DTexCoords[i++] = 1;
+			rect3DTexCoords[rectIndex++] = 0;
+			rect3DTexCoords[rectIndex++] = 1;
 		}
 		this.rect3DTexCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_STATIC_DRAW, rect3DTexCoords);
-		this.rect3DTexCoordBuff.applyToVertexArray();
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	}
+	
+	/** Initialize each type of vertex array core to the renderer */
+	private void initVertexArrays(){
+		
+		// 2D vertex arrays
+		
+		// Generate a vertex array for drawing solid colored rectangles
+		this.rectVertArr = new VertexArray(this.fillScreenPosBuff);
+		
+		// Generate a vertex array for rendering images
+		this.imgVertArr = new VertexArray(this.fillScreenPosBuff, this.texCoordBuff);
+		
+		// Generate a vertex array for rendering text
+		this.textVertArr = new VertexArray(this.posBuff2D, this.changeTexCoordBuff);
+		
+		// Generate a vertex array for rendering ellipses
+		this.ellipseVertArr = new VertexArray(this.ellipsePosBuff);
+		
+		// 3D vertex arrays
+		
+		// Create and bind the vertex array for the 3D rect
+		this.rect3DVertArr = new VertexArray(this.rect3DCoordBuff, this.rect3DColorBuff);
+		
+		// Create and bind the vertex array for the finite 3D plane
+		this.planeVertArr = new VertexArray(this.planeCoordBuff);
+		
+		// Generate a vertex array for rendering 3D ellipses
+		this.ellipse3DVertArr = new VertexArray(this.ellipse3DPosBuff);
+		
+		// Create a vertex array for drawing a textured cube
+		this.rect3DTexVertArr = new VertexArray(this.rect3DCoordBuff, this.rect3DTexCoordBuff);
 		
 		// By default, no bound array
 		this.boundVertexArray = null;
@@ -519,7 +574,7 @@ public class Renderer implements Destroyable{
 	public void destroyVertexes(){
 		this.fillScreenPosBuff.destroy();
 		this.texCoordBuff.destroy();
-		this.posBuff.destroy();
+		this.posBuff2D.destroy();
 		this.changeTexCoordBuff.destroy();
 		this.rect3DColorBuff.destroy();
 		
@@ -536,6 +591,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Bind the given vertex array as the current one for rendering. Does nothing if it is already the one bounded
+	 *
 	 * @param vertexArray The array to bind
 	 */
 	public void bindVertexArray(VertexArray vertexArray){
@@ -775,6 +831,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Set the values in the camera and the current projection matrix to be the perspective of the camera
+	 *
 	 * @param x The new x coordinate
 	 * @param y The new y coordinate
 	 * @param z The new z coordinate
@@ -1548,7 +1605,7 @@ public class Renderer implements Destroyable{
 				if(!this.shouldDraw(rects[i])) continue;
 				
 				// Buffer the new data
-				this.posBuff.updateData(new float[]{
+				this.posBuff2D.updateData(new float[]{
 						//////////////////////////////////////
 						this.textQuad.x0(), this.textQuad.y0(),
 						//////////////////////////////////////
@@ -1645,6 +1702,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a rectangular prism based on the given values
+	 *
 	 * @param x The bottom middle x coordinate of the rect
 	 * @param y The bottom middle y coordinate of the rect
 	 * @param z The bottom middle z coordinate of the rect
@@ -1659,7 +1717,6 @@ public class Renderer implements Destroyable{
 	 * @param top The color of the top of the rect
 	 * @param bot The color of the bottom of the rect
 	 * @return true if the object was drawn, false otherwise
-	 *
 	 */
 	public boolean drawRectPrism(double x, double y, double z,
 								 double w, double h, double l,
@@ -1670,6 +1727,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a rectangular prism based on the given values
+	 *
 	 * @param x The bottom middle x coordinate of the rect
 	 * @param y The bottom middle y coordinate of the rect
 	 * @param z The bottom middle z coordinate of the rect
@@ -1689,7 +1747,6 @@ public class Renderer implements Destroyable{
 	 * @param top The color of the top of the rect
 	 * @param bot The color of the bottom of the rect
 	 * @return true if the object was drawn, false otherwise
-	 *
 	 */
 	// TODO make a better way of passing all these params
 	public boolean drawRectPrism(double x, double y, double z,
@@ -1733,6 +1790,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a rectangular prism based on the given values
+	 *
 	 * @param x The bottom middle x coordinate of the rect
 	 * @param y The bottom middle y coordinate of the rect
 	 * @param z The bottom middle z coordinate of the rect
@@ -1749,9 +1807,9 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawRectPrismTex(double x, double y, double z,
-								 	double w, double h, double l,
-								 	double xRot, double yRot, double zRot,
-								 	double xA, double yA, double zA,
+									double w, double h, double l,
+									double xRot, double yRot, double zRot,
+									double xA, double yA, double zA,
 									GameImage texture){
 		// Use the 3D texture shader and the 3D rect vertex array
 		this.renderModeImage();
@@ -1777,6 +1835,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a plane aligned to the y axis, i.e. a flat plane like the ground
+	 *
 	 * @param x The x coordinate of the center bottom of the plane
 	 * @param y The y coordinate of the center bottom of the plane
 	 * @param z The z coordinate of the center bottom of the plane
@@ -1790,6 +1849,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a plane aligned to the y axis, i.e. a flat plane like the ground
+	 *
 	 * @param x The x coordinate of the center bottom of the plane
 	 * @param y The y coordinate of the center bottom of the plane
 	 * @param z The z coordinate of the center bottom of the plane
@@ -1804,6 +1864,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a plane aligned to the x axis, i.e. the side of something like a wall
+	 *
 	 * @param x The x coordinate of the center bottom of the plane
 	 * @param y The y coordinate of the center bottom of the plane
 	 * @param z The z coordinate of the center bottom of the plane
@@ -1817,6 +1878,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a plane aligned to the x axis, i.e. the side of something like a wall
+	 *
 	 * @param x The x coordinate of the center bottom of the plane
 	 * @param y The y coordinate of the center bottom of the plane
 	 * @param z The z coordinate of the center bottom of the plane
@@ -1831,6 +1893,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a plane aligned to the z axis, i.e. the side of something like a wall
+	 *
 	 * @param x The x coordinate of the center bottom of the plane
 	 * @param y The y coordinate of the center bottom of the plane
 	 * @param z The z coordinate of the center bottom of the plane
@@ -1844,6 +1907,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a plane aligned to the z axis, i.e. the side of something like a wall
+	 *
 	 * @param x The x coordinate of the center bottom of the plane
 	 * @param y The y coordinate of the center bottom of the plane
 	 * @param z The z coordinate of the center bottom of the plane
@@ -1858,6 +1922,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a plane, default aligned to the x axis, i.e. the side of something like a wall
+	 *
 	 * @param x The x coordinate of the center bottom of the plane
 	 * @param y The y coordinate of the center bottom of the plane
 	 * @param z The z coordinate of the center bottom of the plane
@@ -1875,6 +1940,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a plane based on the given values
+	 *
 	 * @param x The x coordinate center of the initially horizontal plane
 	 * @param y The y coordinate of the initially horizontal plane
 	 * @param z The z coordinate center of the initially horizontal plane
@@ -1914,7 +1980,7 @@ public class Renderer implements Destroyable{
 	/**
 	 * Draw an ellipse in 3D, of the current color of this Renderer, at the specified location. All values are in game coordinates
 	 * Coordinate types depend on {@link #positioningEnabledStack}
-	 *
+	 * <p>
 	 * This ellipse is flat on the xz plane
 	 *
 	 * @param x The x coordinate of the center of the ellipse
@@ -1946,6 +2012,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Update the OpenGL frustum
+	 *
 	 * @param leftClip The left vertical clipping plane
 	 * @param rightClip The right vertical clipping plane
 	 * @param bottomClip The bottom horizontal clipping plane

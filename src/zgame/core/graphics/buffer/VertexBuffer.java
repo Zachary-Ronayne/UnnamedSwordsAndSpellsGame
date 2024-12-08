@@ -72,7 +72,6 @@ public class VertexBuffer implements Destroyable{
 		this.bind();
 		glBufferData(GL_ARRAY_BUFFER, this.buff, this.drawMode);
 		this.updateData(data);
-		this.applyToVertexArray();
 	}
 	
 	/** Clear up any resources used by this {@link VertexBuffer} */
