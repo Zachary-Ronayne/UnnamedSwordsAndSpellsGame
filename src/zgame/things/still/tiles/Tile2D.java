@@ -12,8 +12,6 @@ import zgame.things.type.bounds.HitBox2D;
 /** A {@link GameThing} with a rectangular hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
 public class Tile2D extends GameThing implements Tile<HitBox2D, CollisionResult2D>, Bounds2D, Materialable{
 	
-	// TODO abstract out Tile2D and Tile3D into Tile
-	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 64;
 	

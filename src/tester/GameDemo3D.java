@@ -8,12 +8,15 @@ import zgame.core.state.PlayState;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
+import zgame.physics.material.Materials;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
 import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.mobility.MobilityType;
 import zgame.things.still.tiles.BaseTiles3D;
+import zgame.things.still.tiles.CubeTexTile;
+import zgame.things.still.tiles.TileHitbox3D;
 import zgame.things.type.bounds.CylinderHitbox;
 import zgame.world.Directions3D;
 import zgame.world.Room3D;
@@ -40,6 +43,12 @@ public class GameDemo3D extends Game{
 	
 	private static Player3D player;
 	private static DummyRoom dummyRoom;
+	
+	// Custom tiles for this demo
+	public static final String DEMO_GAME_TILE_ORIGIN = "demoGame";
+	
+	/** A tile with a solid hitbox with a generic brick texture */
+	public static final CubeTexTile BRICK_GRAY = new CubeTexTile("brick", DEMO_GAME_TILE_ORIGIN, "brick", TileHitbox3D.FULL, Materials.DEFAULT);
 	
 	public GameDemo3D(){
 		super();
@@ -188,6 +197,9 @@ public class GameDemo3D extends Game{
 			if(button == GLFW_KEY_LEFT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) - .1, false);
 			else if(button == GLFW_KEY_RIGHT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) + .1, false);
 			
+			// Toggle no clip for the player
+			if(button == GLFW_KEY_N) player.setNoClip(!player.isNoClip());
+			
 			// Numerical button related controls
 			
 			// Toggle the boundaries
@@ -237,12 +249,16 @@ public class GameDemo3D extends Game{
 		private boolean usingTileBoundary;
 		
 		public DummyRoom(){
-			super(3, 3, 5);
+			super(5, 3, 5);
 			this.setTile(1, 0, 0, BaseTiles3D.BOUNCY);
 			this.setTile(1, 0, 2, BaseTiles3D.HIGH_FRICTION);
-			this.setTile(1, 0, 4, BaseTiles3D.BRICK_GRAY);
+			this.setTile(1, 0, 4, GameDemo3D.BRICK_GRAY);
 			this.setTile(2, 0, 4, BaseTiles3D.SOLID_LIGHT);
 			this.setTile(2, 1, 3, BaseTiles3D.SOLID_DARK);
+			
+			for(int i = 0; i < 3; i++){
+				this.setTile(4, 0, i, GameDemo3D.BRICK_GRAY);
+			}
 			
 			this.usingTileBoundary = false;
 			this.setGenericBoundaries();

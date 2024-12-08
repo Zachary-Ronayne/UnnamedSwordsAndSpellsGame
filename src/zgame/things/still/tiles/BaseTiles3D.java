@@ -20,11 +20,6 @@ public final class BaseTiles3D{
 	/** A brown tile with a huge friction value */
 	public static final CubeTile HIGH_FRICTION = new CubeTile("highFriction", BASE_ORIGIN, TileHitbox3D.FULL, new ZColor(.25, .125, .0625), Materials.HIGH_FRICTION);
 	
-	// TODO don't keep this as a default tile, no texture tiles should be defaults, figure out if using a textureId is the correct solution
-	// TODO an individual game object may need to chose how to load textures
-	/** A tile with a solid hitbox with a generic brick texture */
-	public static final CubeTexTile BRICK_GRAY = new CubeTexTile("brick", BASE_ORIGIN, TileHitbox3D.FULL, "brick", Materials.DEFAULT);
-	
 	/** Cannot instantiate {@link BaseTiles3D} */
 	private BaseTiles3D(){
 	}

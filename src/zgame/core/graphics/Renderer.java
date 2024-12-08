@@ -489,7 +489,6 @@ public class Renderer implements Destroyable{
 		this.rect3DCoordBuff.bind();
 		this.rect3DCoordBuff.applyToVertexArray();
 		
-		// TODO ensure these texture coordinates make sense
 		// Generate a vertex buffer for texture coordinates for rendering images
 		// 6 faces, 4 vertexes per face, 2 coordinates per vertex
 		var rect3DTexCoords = new float[6 * 4 * 2];
