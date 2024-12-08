@@ -298,6 +298,10 @@ public class Game implements Saveable, Destroyable{
 	
 	/** Call all necessary methods for initializing sound processes */
 	public void initSound(){
+		if(this.sounds != null) {
+			this.sounds.scanDevices();
+			return;
+		}
 		this.sounds = new SoundManager();
 		this.sounds.scanDevices();
 		
@@ -775,10 +779,9 @@ public class Game implements Saveable, Destroyable{
 	
 	/** @return See {@link #sounds} */
 	public SoundManager getSounds(){
-		if(sounds == null){
-			ZConfig.error("Sounds have not been initialized for current game, call Game.initSound before using the sound engine");
-		}
-		return sounds;
+		// Ensure sounds are initialized if they don't exist yet
+		if(this.sounds == null) this.initSound();
+		return this.sounds;
 	}
 	
 	/** @return See {@link #initSoundOnStart} */
