@@ -141,8 +141,8 @@ public class SoundManager implements Destroyable{
 	@Override
 	public void destroy(){
 		this.closeDevices();
-		if(this.effectsManager != null) effectsManager.destroy();
-		if(this.musicManager != null) musicManager.destroy();
+		if(this.effectsManager != null) this.effectsManager.destroy();
+		if(this.musicManager != null) this.musicManager.destroy();
 		if(this.musicSource != null) this.musicSource.destroy();
 	}
 	
