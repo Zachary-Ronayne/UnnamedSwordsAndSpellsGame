@@ -1754,7 +1754,7 @@ public class Renderer implements Destroyable{
 								 	double xRot, double yRot, double zRot,
 								 	double xA, double yA, double zA,
 									GameImage texture){
-		// Use the 3D color shader and the 3D rect vertex array
+		// Use the 3D texture shader and the 3D rect vertex array
 		this.renderModeImage();
 		this.bindVertexArray(this.rect3DTexVertArr);
 		glBindTexture(GL_TEXTURE_2D, texture.getId());
