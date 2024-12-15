@@ -1,8 +1,7 @@
 package zgame.core.sound;
 
-import org.lwjgl.PointerBuffer;
-
 import zgame.core.utils.ZFilePaths;
+import zgame.core.utils.ZPointerBuffer;
 import zgame.core.utils.ZStringUtils;
 
 import static org.lwjgl.openal.AL11.*;
@@ -26,7 +25,7 @@ public class MusicSound extends Sound{
 	private final int bufferSize;
 	
 	/** The pointer pointing to the data for this {@link MusicSound} */
-	private PointerBuffer pointer;
+	private ZPointerBuffer pointer;
 	/** The position in the pointer where the next selection of samples should be loaded from */
 	private int pointerOffset;
 	
@@ -77,7 +76,7 @@ public class MusicSound extends Sound{
 	 * @param p The pointer to use for buffering the data, use null to use the pointer stored in this {@link MusicSound}
 	 */
 	@Override
-	protected void bufferData(PointerBuffer p){
+	protected void bufferData(ZPointerBuffer p){
 		if(p == null) p = this.pointer;
 		if(this.pointer == null) this.pointer = p;
 		int numBuffs = this.getNumBuffers();
@@ -94,23 +93,22 @@ public class MusicSound extends Sound{
 		// Find the total number of samples in the buffer of this sound
 		int totalSize = this.getTotalSize();
 		
-		// Get the pointer and the format, i.e. mono or stereo
-		PointerBuffer p = this.pointer;
+		// Get the format, i.e. mono or stereo
 		int format = this.getFormat();
 		
 		// Get either the size of the buffer for the next buffer allocation, or the remaining size of the buffer
-		int size = Math.min(this.getBufferSize(), totalSize - pointerOffset);
+		int size = Math.min(this.getBufferSize(), totalSize - this.pointerOffset);
 		// If there are no more samples, use zero samples
 		if(size < 0) size = 0;
 		
 		// Buffer the chunk of data
 		short[] data = new short[totalSize];
-		ShortBuffer buff = p.getShortBuffer(0, totalSize);
+		ShortBuffer buff = this.pointer.getBuffer().getShortBuffer(0, totalSize);
 		buff.get(data, 0, totalSize);
-		alBufferData(id, format, Arrays.copyOfRange(data, pointerOffset, pointerOffset + size), this.getSampleRate());
+		alBufferData(id, format, Arrays.copyOfRange(data, this.pointerOffset, this.pointerOffset + size), this.getSampleRate());
 		
 		// Keep track of the change
-		pointerOffset += size;
+		this.pointerOffset += size;
 	}
 	
 	/** @return See {@link #numBuffers} */
@@ -137,7 +135,7 @@ public class MusicSound extends Sound{
 	 */
 	public static MusicSound loadMusic(String name){
 		MusicSound s = new MusicSound(ZStringUtils.concat(ZFilePaths.MUSIC, name));
-		s.load();
+		s.load(false);
 		return s;
 	}
 	

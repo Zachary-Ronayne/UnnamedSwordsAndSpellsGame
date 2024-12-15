@@ -23,7 +23,7 @@ public class SoundManager implements Destroyable{
 	private final MusicPlayer musicPlayer;
 	
 	/** The single {@link SoundSource} which plays music. Will automatically always play relative to the OpenAL listener */
-	private final SoundSource musicSource;
+	private SoundSource musicSource;
 	
 	/** The single {@link SoundListener} which determines where sound is located */
 	private final SoundListener listener;
@@ -44,10 +44,10 @@ public class SoundManager implements Destroyable{
 	private final List<SpeakerDevice> devices;
 	
 	/** The object managing every {@link EffectSound} currently available through this {@link SoundManager} */
-	private final EffectsManager effectsManager;
+	private EffectsManager effectsManager;
 	
 	/** The object managing every piece of music currently available through this {@link SoundManager}. The key is a string representing the name of the sound */
-	private final MusicManager musicManager;
+	private MusicManager musicManager;
 	
 	/** Initialize the {@link SoundManager} to its default state */
 	public SoundManager(){
@@ -139,16 +139,30 @@ public class SoundManager implements Destroyable{
 	
 	/** Clear any resources used by this {@link SoundManager} */
 	@Override
-	public void destroy(){
+	public synchronized void destroy(){
 		this.closeDevices();
-		if(this.effectsManager != null) this.effectsManager.destroy();
-		if(this.musicManager != null) this.musicManager.destroy();
-		if(this.musicSource != null) this.musicSource.destroy();
+		if(this.effectsManager != null) {
+			this.effectsManager.destroy();
+			this.effectsManager = null;
+		}
+		if(this.musicManager != null) {
+			this.musicManager.destroy();
+			this.musicManager = null;
+		}
+		if(this.musicSource != null) {
+			this.musicSource.destroy();
+			this.musicSource = null;
+		}
 	}
 	
 	/** Free all resources used by audio devices sed by this {@link SoundManager} */
-	private void closeDevices(){
-		for(SpeakerDevice s : this.devices) s.destroy();
+	private synchronized void closeDevices(){
+		// Copy the list of devices
+		var deviceList = this.devices.stream().toList();
+		for(var s : deviceList) {
+			s.destroy();
+			this.devices.remove(s);
+		}
 	}
 	
 	/** Update the state of the effects and music player */

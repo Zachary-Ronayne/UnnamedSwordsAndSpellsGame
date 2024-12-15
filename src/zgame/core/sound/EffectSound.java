@@ -1,10 +1,9 @@
 package zgame.core.sound;
 
-import org.lwjgl.PointerBuffer;
-
 import static org.lwjgl.openal.AL11.*;
 
 import zgame.core.utils.ZFilePaths;
+import zgame.core.utils.ZPointerBuffer;
 import zgame.core.utils.ZStringUtils;
 
 /**
@@ -40,9 +39,9 @@ public class EffectSound extends Sound{
 	}
 	
 	@Override
-	protected void bufferData(PointerBuffer p){
+	protected void bufferData(ZPointerBuffer p){
 		// Set up the data with OpenAL
-		alBufferData(this.getId(), this.getFormat(), p.getShortBuffer(this.getTotalSize()), this.getSampleRate());
+		alBufferData(this.getId(), this.getFormat(), p.getBuffer().getShortBuffer(this.getTotalSize()), this.getSampleRate());
 	}
 	
 	/** @return See {@link #id} */
@@ -81,7 +80,7 @@ public class EffectSound extends Sound{
 	 */
 	public static EffectSound loadSound(String name, String type){
 		EffectSound s = new EffectSound(ZStringUtils.concat(ZFilePaths.EFFECTS, name, ".ogg"), type);
-		s.load();
+		s.load(false);
 		return s;
 	}
 	

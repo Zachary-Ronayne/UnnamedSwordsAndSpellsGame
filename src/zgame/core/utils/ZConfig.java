@@ -44,7 +44,7 @@ public class ZConfig{
 	 * @param objs The objects to print
 	 */
 	public static void error(Object... objs){
-		if(ZConfig.printErrors()) ZStringUtils.print(objs);
+		if(ZConfig.printErrors()) ZStringUtils.error(objs);
 	}
 	
 	/**
