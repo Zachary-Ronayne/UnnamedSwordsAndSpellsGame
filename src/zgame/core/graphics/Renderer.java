@@ -1700,46 +1700,11 @@ public class Renderer implements Destroyable{
 		this.popMatrix();
 	}
 	
-	/**
-	 * Draw a rectangular prism based on the given values
-	 *
-	 * @param x The bottom middle x coordinate of the rect
-	 * @param y The bottom middle y coordinate of the rect
-	 * @param z The bottom middle z coordinate of the rect
-	 * @param w The width, x axis, of the rect
-	 * @param h The height, y axis, of the rect
-	 * @param l The length, z axis, of the rect
-	 * @param angle The angle, in radians, to rotate on the y axis
-	 * @param front The color of the front of the rect
-	 * @param back The color of the back of the rect
-	 * @param left The color of the left of the rect
-	 * @param right The color of the right of the rect
-	 * @param top The color of the top of the rect
-	 * @param bot The color of the bottom of the rect
-	 * @return true if the object was drawn, false otherwise
-	 */
-	public boolean drawRectPrism(double x, double y, double z,
-								 double w, double h, double l,
-								 double angle,
-								 ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
-		return this.drawRectPrism(x, y, z, w, h, l, 0, angle, 0, 0, 0, 0, front, back, left, right, top, bot);
-	}
 	
 	/**
 	 * Draw a rectangular prism based on the given values
 	 *
-	 * @param x The bottom middle x coordinate of the rect
-	 * @param y The bottom middle y coordinate of the rect
-	 * @param z The bottom middle z coordinate of the rect
-	 * @param w The width, x axis, of the rect
-	 * @param h The height, y axis, of the rect
-	 * @param l The length, z axis, of the rect
-	 * @param xRot The rotation on the x axis
-	 * @param yRot The rotation on the y axis
-	 * @param zRot The rotation on the z axis
-	 * @param xA The point, relative to the point to draw this object, to rotate on the x axis
-	 * @param yA The point, relative to the point to draw this object, to rotate on the y axis
-	 * @param zA The point, relative to the point to draw this object, to rotate on the z axis
+	 * @param r The position, scaling, and rotation information for rendering
 	 * @param front The color of the front of the rect
 	 * @param back The color of the back of the rect
 	 * @param left The color of the left of the rect
@@ -1748,19 +1713,14 @@ public class Renderer implements Destroyable{
 	 * @param bot The color of the bottom of the rect
 	 * @return true if the object was drawn, false otherwise
 	 */
-	// TODO make a better way of passing all these params
-	public boolean drawRectPrism(double x, double y, double z,
-								 double w, double h, double l,
-								 double xRot, double yRot, double zRot,
-								 double xA, double yA, double zA,
-								 ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
+	public boolean drawRectPrism(RectRender3D r, ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
 		// Use the 3D color shader and the 3D rect vertex array
 		this.renderModeRect3D();
 		this.bindVertexArray(rect3DVertArr);
 		
 		// Position the 3D rect
 		this.pushMatrix();
-		this.positionObject(x, y, z, w, h, l, xRot, yRot, zRot, xA, yA, zA);
+		this.positionObject(r.x(), r.y(), r.z(), r.w(), r.h(), r.l(), r.xRot(), r.yRot(), r.zRot(), r.xA(), r.yA(), r.zA());
 		
 		// Update the color on the cube
 		// 6 faces, 4 vertices per face, 4 color channels per color
@@ -1791,36 +1751,20 @@ public class Renderer implements Destroyable{
 	/**
 	 * Draw a rectangular prism based on the given values
 	 *
-	 * @param x The bottom middle x coordinate of the rect
-	 * @param y The bottom middle y coordinate of the rect
-	 * @param z The bottom middle z coordinate of the rect
-	 * @param w The width, x axis, of the rect
-	 * @param h The height, y axis, of the rect
-	 * @param l The length, z axis, of the rect
-	 * @param xRot The rotation on the x axis
-	 * @param yRot The rotation on the y axis
-	 * @param zRot The rotation on the z axis
-	 * @param xA The point, relative to the point to draw this object, to rotate on the x axis
-	 * @param yA The point, relative to the point to draw this object, to rotate on the y axis
-	 * @param zA The point, relative to the point to draw this object, to rotate on the z axis
+	 * @param r The position, scaling, and rotation information for rendering
 	 * @param texture The image to use for the texture
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawRectPrismTex(double x, double y, double z,
-									double w, double h, double l,
-									double xRot, double yRot, double zRot,
-									double xA, double yA, double zA,
-									GameImage texture){
+	public boolean drawRectPrismTex(RectRender3D r, GameImage texture){
 		// Use the 3D texture shader and the 3D rect vertex array
 		this.renderModeImage();
 		this.bindVertexArray(this.rect3DTexVertArr);
 		glBindTexture(GL_TEXTURE_2D, texture.getId());
-		// TODO allow for other alpha modes
-		updateAlphaMode(AlphaMode.BUFFER);
+		updateAlphaMode(AlphaMode.NORMAL);
 		
 		// Position the 3D rect
 		this.pushMatrix();
-		this.positionObject(x, y, z, w, h, l, xRot, yRot, zRot, xA, yA, zA);
+		this.positionObject(r.x(), r.y(), r.z(), r.w(), r.h(), r.l(), r.xRot(), r.yRot(), r.zRot(), r.xA(), r.yA(), r.zA());
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuModelView();

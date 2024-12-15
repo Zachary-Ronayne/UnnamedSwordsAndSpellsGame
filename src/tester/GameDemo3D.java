@@ -1,6 +1,7 @@
 package tester;
 
 import zgame.core.Game;
+import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera3D;
@@ -108,7 +109,9 @@ public class GameDemo3D extends Game{
 			super.render(game, r);
 			
 			// Draw the cube
-			r.drawRectPrism(0, .2, 0, .6, .6, .6, xRot, yRot, zRot, 0, -.3, 0, new ZColor(1, 0, 0), new ZColor(1, 1, 0), new ZColor(0, 1, 0), new ZColor(0, 1, 1),
+			r.drawRectPrism(new RectRender3D(0, .2, 0, .6, .6, .6, xRot, yRot, zRot, 0, -.3, 0),
+					new ZColor(1, 0, 0), new ZColor(1, 1, 0),
+					new ZColor(0, 1, 0), new ZColor(0, 1, 1),
 					new ZColor(0, 0, 1), new ZColor(1, 0, 1));
 			
 			// Draw a checkerboard floor
@@ -120,15 +123,21 @@ public class GameDemo3D extends Game{
 			}
 			
 			// Draw a rectangular prism that rotates only on the y axis
-			r.drawRectPrism(2, 0, 3, .1, .8, .1, pillarAngle, new ZColor(.5, .5, .8), new ZColor(.5, .5, .4), new ZColor(.5, .5, .6), new ZColor(.5, .5, .2),
+			r.drawRectPrism(new RectRender3D(2, 0, 3, .1, .8, .1, pillarAngle),
+					new ZColor(.5, .5, .8), new ZColor(.5, .5, .4),
+					new ZColor(.5, .5, .6), new ZColor(.5, .5, .2),
 					new ZColor(.5, .5, 1), new ZColor(0, 0));
-			r.drawRectPrism(2.5, 0, 3, .1, .8, .1, pillarAngle, new ZColor(.5, .5, .8), new ZColor(.5, .5, .4), new ZColor(.5, .5, .6), new ZColor(.5, .5, .2, 0),
+			r.drawRectPrism(new RectRender3D(2.5, 0, 3, .1, .8, .1, pillarAngle),
+					new ZColor(.5, .5, .8), new ZColor(.5, .5, .4),
+					new ZColor(.5, .5, .6), new ZColor(.5, .5, .2, 0),
 					new ZColor(.5, .5, 1), new ZColor(0, 0));
 			
 			// Draw some transparent cubes
 			for(int i = 0; i < 3; i++){
-				r.drawRectPrism(-2 + i * .2, .45 - i * .05, -3 + i * .2, .1, .1, .1, Math.PI * .25 * i, new ZColor(1, 0, 0, .5), new ZColor(1, 1, 0, .5),
-						new ZColor(0, 1, 0, .5), new ZColor(0, 1, 1, .5), new ZColor(0, 0, 1, .5), new ZColor(1, 0, 1, .5));
+				r.drawRectPrism(new RectRender3D(-2 + i * .2, .45 - i * .05, -3 + i * .2, .1, .1, .1, Math.PI * .25 * i),
+						new ZColor(1, 0, 0, .5), new ZColor(1, 1, 0, .5),
+						new ZColor(0, 1, 0, .5), new ZColor(0, 1, 1, .5),
+						new ZColor(0, 0, 1, .5), new ZColor(1, 0, 1, .5));
 			}
 			// Draw a transparent plane
 			r.setColor(new ZColor(1, 0, 0, .5));
@@ -187,7 +196,7 @@ public class GameDemo3D extends Game{
 			if(button == GLFW_KEY_ESCAPE) updatePaused(!game.getPlayState().isPaused());
 			
 			// Init sound separately from the main startup
-			if(button == GLFW_KEY_P) {
+			if(button == GLFW_KEY_P){
 				if(ctrl) game.initSound();
 				else if(shift) game.playMusic("song.ogg");
 				else game.getSounds().addMusic("song.ogg");
@@ -371,21 +380,21 @@ public class GameDemo3D extends Game{
 			super.render(game, r);
 			// Draw a marker at the origin
 			var c = new ZColor(.5, 0, 0, 0.5);
-			r.drawRectPrism(0, 0, 0, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
+			r.drawRectPrism(new RectRender3D(0, 0, 0, 0.1, 0.1, 0.1), c, c, c, c, c, c);
 			
 			// Draw markers at each axis direction
 			// Left, west, negative x: red
 			c = new ZColor(.5, 0, 0, 1);
-			r.drawRectPrism(-.75, 0, 0, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
+			r.drawRectPrism(new RectRender3D(-.75, 0, 0, 0.1, 0.1, 0.1), c, c, c, c, c, c);
 			// Right, east, positive x: green
 			c = new ZColor(0, 0.5, 0, 1);
-			r.drawRectPrism(.75, 0, 0, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
+			r.drawRectPrism(new RectRender3D(.75, 0, 0, 0.1, 0.1, 0.1), c, c, c, c, c, c);
 			// Backward, south, positive z: blue
 			c = new ZColor(0, 0, 0.5, 1);
-			r.drawRectPrism(0, 0, .75, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
+			r.drawRectPrism(new RectRender3D(0, 0, .75, 0.1, 0.1, 0.1), c, c, c, c, c, c);
 			// Forward, north, negative z, cyan
 			c = new ZColor(0, 0.5, 0.5, 1);
-			r.drawRectPrism(0, 0, -.75, 0.1, 0.1, 0.1, 0, c, c, c, c, c, c);
+			r.drawRectPrism(new RectRender3D(0, 0, -.75, 0.1, 0.1, 0.1), c, c, c, c, c, c);
 		}
 	}
 	
@@ -446,7 +455,7 @@ public class GameDemo3D extends Game{
 		private GameCamera3D getCamera(){
 			return this.game.getWindow().getRenderer().getCamera3D();
 		}
-
+		
 		@Override
 		public double getSurfaceArea(){
 			return 0;

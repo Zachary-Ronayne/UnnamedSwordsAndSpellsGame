@@ -1,6 +1,7 @@
 package zgame.things.still.tiles;
 
 import zgame.core.Game;
+import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.physics.material.Material;
@@ -49,6 +50,6 @@ public class CubeTile extends TileType3D{
 		
 		// issue#48 only render the necessary faces
 		
-		r.drawRectPrism(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength(), 0, c, c, c, c, c, c);
+		r.drawRectPrism(new RectRender3D(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength()), c, c, c, c, c, c);
 	}
 }

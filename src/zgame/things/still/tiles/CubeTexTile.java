@@ -1,6 +1,7 @@
 package zgame.things.still.tiles;
 
 import zgame.core.Game;
+import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
 import zgame.physics.material.Material;
 
@@ -45,6 +46,6 @@ public class CubeTexTile extends TileType3D{
 		// issue#47 render with ambient occlusion or at least some similar effect to make every face not the same color
 		// issue#48 only render the necessary faces
 		r.setColor(1, 1, 1, 1);
-		r.drawRectPrismTex(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength(), 0, 0, 0, 0, 0, 0, g.getImage(this.getFileName()));
+		r.drawRectPrismTex(new RectRender3D(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength()), g.getImage(this.getFileName()));
 	}
 }
