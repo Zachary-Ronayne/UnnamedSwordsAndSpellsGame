@@ -14,7 +14,7 @@ public class ZColor{
 	
 	/**
 	 * Create a gray color with no transparency
-	 * 
+	 *
 	 * @param g The value for all 3 channels, red, green, and blue
 	 */
 	public ZColor(double g){
@@ -23,7 +23,7 @@ public class ZColor{
 	
 	/**
 	 * Create a gray color with transparency
-	 * 
+	 *
 	 * @param g The value for all 3 channels, red, green, and blue
 	 * @param a See {@link #a}
 	 */
@@ -33,7 +33,7 @@ public class ZColor{
 	
 	/**
 	 * Create a new color with no transparency
-	 * 
+	 *
 	 * @param r See {@link #r}
 	 * @param g See {@link #g}
 	 * @param b See {@link #b}
@@ -44,7 +44,7 @@ public class ZColor{
 	
 	/**
 	 * Create a new color
-	 * 
+	 *
 	 * @param r See {@link #r}
 	 * @param g See {@link #g}
 	 * @param b See {@link #b}
@@ -95,4 +95,14 @@ public class ZColor{
 		return new float[]{(float)this.red(), (float)this.green(), (float)this.blue(), (float)this.alpha()};
 	}
 	
+	@Override
+	public boolean equals(Object obj){
+		if(!(obj instanceof ZColor c)) return false;
+		
+		return
+				this.r == c.r &&
+				this.g == c.g &&
+				this.b == c.b &&
+				this.a == c.a;
+	}
 }

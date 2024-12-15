@@ -166,6 +166,9 @@ public class Renderer implements Destroyable{
 	/** The stack keeping track of the current color used by this {@link Renderer} */
 	private final LimitedStack<ZColor> colorStack;
 	
+	/** The last color sent to the GPU, or null if it needs to be resent */
+	private ZColor lastColor;
+	
 	/** The stack keeping track of the current font of this {@link Renderer}. If the top of the stack is null, no text can be drawn. No font is set by default */
 	private final LimitedStack<GameFont> fontStack;
 	
@@ -254,6 +257,7 @@ public class Renderer implements Destroyable{
 		this.stacks.add(this.colorStack);
 		this.attributeStacks.add(this.colorStack);
 		this.sendColor = true;
+		this.lastColor = null;
 		
 		// Positioning enabled stack
 		this.positioningEnabledStack = new LimitedStack<>(DEFAULT_POSITIONING_ENABLED);
@@ -675,7 +679,6 @@ public class Renderer implements Destroyable{
 		this.modelView().get(this.modelViewBuff);
 		int loc = glGetUniformLocation(this.shader.getId(), "modelView");
 		glUniformMatrix4fv(loc, false, this.modelViewBuff);
-		
 	}
 	
 	/** Update the uniform variable used to track the color, with the current value */
@@ -684,7 +687,11 @@ public class Renderer implements Destroyable{
 		if(!this.sendColor) return;
 		this.sendColor = false;
 		
-		float[] c = this.getColor().toFloat();
+		var col = this.getColor();
+		if(col.equals(this.lastColor)) return;
+		this.lastColor = col;
+		
+		float[] c = col.toFloat();
 		int loc = glGetUniformLocation(this.shader.getId(), "mainColor");
 		if(loc != -1) glUniform4fv(loc, c);
 	}
@@ -727,6 +734,7 @@ public class Renderer implements Destroyable{
 	public void markGpuSend(){
 		this.sendModelView = true;
 		this.sendColor = true;
+		this.lastColor = null;
 	}
 	
 	/**
@@ -1904,12 +1912,10 @@ public class Renderer implements Destroyable{
 		this.bindVertexArray(planeVertArr);
 		
 		// Position the plane
-		// TODO both modifying the stack and positioning the object are a significant amount of the lag, potentially find a way to reduce this?
 		this.pushMatrix();
 		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, xA, yA, zA);
 		
 		// Ensure the gpu has the current modelView and color
-		// TODO this is a huge amount of lag, allow this to not need to happen so often? Potentially group together things of the same color?
 		this.updateGpuColor();
 		this.updateGpuModelView();
 		
