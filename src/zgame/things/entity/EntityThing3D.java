@@ -1,5 +1,6 @@
 package zgame.things.entity;
 
+import zgame.core.graphics.camera.GameCamera3D;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.things.type.bounds.HitBox3D;
@@ -208,6 +209,16 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	 */
 	public void addZ(double z){
 		this.setZ(this.getZ() + z);
+	}
+	
+	/**
+	 * Set the position of this camera to the top center of this thing
+	 * @param camera The camera to set
+	 */
+	public void updateCameraPos(GameCamera3D camera){
+		camera.setX(this.getX());
+		camera.setY(this.getY() + this.getHeight());
+		camera.setZ(this.getZ());
 	}
 	
 	@Override

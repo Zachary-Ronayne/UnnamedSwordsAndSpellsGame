@@ -433,23 +433,17 @@ public class GameDemo3D extends Game{
 			super.tick(game, dt);
 			
 			var ki = game.getKeyInput();
-			// TODO make a better way of getting these angles?
-			var cam = this.getCamera();
-			
 			var left = ki.buttonDown(GLFW_KEY_A);
 			var right = ki.buttonDown(GLFW_KEY_D);
 			var forward = ki.buttonDown(GLFW_KEY_W);
 			var backward = ki.buttonDown(GLFW_KEY_S);
 			var up = ki.buttonDown(GLFW_KEY_Q);
 			var down = ki.buttonDown(GLFW_KEY_Z);
-			this.handleMobilityControls(dt, cam.getRotY() - ZMath.PI_BY_2, -cam.getRotX(), left, right, forward, backward, up, down);
-			if(!left && !right && !forward && !backward && this.getMobilityData().getWalkingForce().getMagnitude() != 0) this.stopWalking();
+			var cam = this.getCamera();
+			this.handleMobilityControls(dt, cam.getRotY(), cam.getRotX(), left, right, forward, backward, up, down);
 			
-			// TODO abstract this out?
 			// Move the camera to the player
-			cam.setX(this.getX());
-			cam.setY(this.getY() + this.getHeight());
-			cam.setZ(this.getZ());
+			this.updateCameraPos(cam);
 		}
 		
 		private GameCamera3D getCamera(){

@@ -57,15 +57,17 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	 */
 	default void handleMobilityControls(double dt, double angleH, double angleV, boolean left, boolean right, boolean forward, boolean backward, boolean up, boolean down){
 		var mobilityData = this.getMobilityData();
-		mobilityData.setFacingHorizontalAngle(angleH);
-		mobilityData.setFacingVerticalAngle(angleV);
+		double adjustedAngleH = angleH - ZMath.PI_BY_2;
+		double adjustedAngleV = -angleV;
+		mobilityData.setFacingHorizontalAngle(adjustedAngleH);
+		mobilityData.setFacingVerticalAngle(adjustedAngleV);
 		
 		var mobilityType = mobilityData.getType();
 		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){
 			// issue#37 fix flying feeling borked when trying to move in more than one direction at once, i.e. left, up, and back
 			mobilityData.setTryingToMove(left != right || up != down || forward != backward);
 			double verticalAngle;
-			double horizontalAngle = angleH;
+			double horizontalAngle = adjustedAngleH;
 			
 			if(mobilityType == MobilityType.FLYING_AXIS){
 				// Go straight up and down
@@ -75,7 +77,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 				if(backward) horizontalAngle += Math.PI;
 			}
 			else{
-				verticalAngle = angleV;
+				verticalAngle = adjustedAngleV;
 
 				// Account for strafing up and down
 				if(up || down){
@@ -94,7 +96,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 		}
 		else if(mobilityType == MobilityType.WALKING){
 			mobilityData.setTryingToMove(left != right || forward != backward);
-			double horizontalAngle = angleH;
+			double horizontalAngle = adjustedAngleH;
 			
 			if(mobilityData.isTryingToMove()){
 				// Account for moving backwards
@@ -111,6 +113,8 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 			}
 			// For not holding the button
 			else this.checkPerformOrStopJump(dt);
+			
+			if(!left && !right && !forward && !backward && mobilityData.getWalkingForce().getMagnitude() != 0) this.stopWalking();
 		}
 	}
 	
