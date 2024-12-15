@@ -17,13 +17,19 @@ import zgame.things.type.bounds.HitBox;
 
 /**
  * An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc.
+ *
  * @param <H> The implementation of hitboxes in this room
  * @param <E> The type of entities in this room
  * @param <V> The type of vector used by this room
  * @param <R> The room implementation
  */
 // issue#50 find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
-public abstract class Room<H extends HitBox<H, C>, E extends EntityThing<H, E, V, R, C>, V extends ZVector<V>, R extends Room<H, E, V, R, C>, C extends CollisionResult<C>> extends GameThing{
+public abstract class Room<
+		H extends HitBox<H, C>,
+		E extends EntityThing<H, E, V, R, C>,
+		V extends ZVector<V>, R extends Room<H, E, V, R, C>,
+		C extends CollisionResult<C>
+		> extends GameThing{
 	
 	/** All of the things in this room */
 	private final ClassMappedList thingsMap;
@@ -147,7 +153,7 @@ public abstract class Room<H extends HitBox<H, C>, E extends EntityThing<H, E, V
 		for(int i = 0; i < entities.size(); i++) entities.get(i).updatePosition(game, dt);
 		
 		// Check the collision of this room for entities
-		for(int i = 0; i < entities.size(); i++) {
+		for(int i = 0; i < entities.size(); i++){
 			var e = entities.get(i);
 			if(e.isNoClip()) continue;
 			this.collide(e.get());

@@ -1111,6 +1111,27 @@ public class Game implements Saveable, Destroyable{
 		this.getCamera3D().setFov(fov);
 	}
 	
+	/**
+	 * Update the 3D camera in this game based on the last amount of distance the camera moved since the last mouse movement.
+	 * Should be called on mouse movement
+	 */
+	public void look3D(){
+		// issue#43 fix sudden camera jolts when switching between normal and not normal mouse modes
+		
+		// Axes swapped because of the way that it feels like it should be when moving a mouse around
+		var mi = this.getMouseInput();
+		var dx = mi.dy() * this.get(DoubleTypeSetting.CAMERA_LOOK_SPEED_X);
+		var dy = mi.dx() * this.get(DoubleTypeSetting.CAMERA_LOOK_SPEED_Y);
+		
+		// Invert if applicable
+		if(this.get(BooleanTypeSetting.CAMERA_LOOK_INVERT_X)) dx = -dx;
+		if(this.get(BooleanTypeSetting.CAMERA_LOOK_INVERT_Y)) dy = -dy;
+		
+		var camera = this.getCamera3D();
+		camera.addRotX(dx);
+		camera.addRotY(dy);
+	}
+	
 	/** @return See {@link #settings} */
 	public Settings getSettings(){
 		return this.settings;

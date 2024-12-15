@@ -103,6 +103,16 @@ public abstract class ZMouseInput extends ZButtonInput<ZMouseEvent>{
 		return this.lastY;
 	}
 	
+	/** @return The amount of distance the mouse has moved on the x axis since the previous input */
+	public double dx(){
+		return this.x() - this.lastX();
+	}
+	
+	/** @return The amount of distance the mouse has moved on the y axis since the previous input */
+	public double dy(){
+		return this.y() - this.lastY();
+	}
+	
 	/** @return See {@link #lastScroll} */
 	public double lastScroll(){
 		return this.lastScroll;

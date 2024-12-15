@@ -11,8 +11,8 @@ public class DoubleTypeSetting extends SettingType<Double>{
 	
 	public static final DoubleTypeSetting FOV = new DoubleTypeSetting("FOV", 1, Game::setFov);
 	
-	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_X = new DoubleTypeSetting("CAMERA_LOOK_SPEED_X", 0.0007);
-	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_Y = new DoubleTypeSetting("CAMERA_LOOK_SPEED_Y", 0.0007);
+	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_X = new DoubleTypeSetting("CAMERA_LOOK_SPEED_X", 0.0009);
+	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_Y = new DoubleTypeSetting("CAMERA_LOOK_SPEED_Y", 0.0009);
 	
 	/**
 	 * Initialize a new double setting.

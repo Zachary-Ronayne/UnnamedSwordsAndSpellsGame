@@ -1,9 +1,6 @@
 package zgame.core.graphics.camera;
 
-import zgame.core.Game;
 import zgame.core.utils.ZMath;
-import zgame.settings.BooleanTypeSetting;
-import zgame.settings.DoubleTypeSetting;
 
 /** A camera meant for 3D graphics */
 public class GameCamera3D{
@@ -264,31 +261,6 @@ public class GameCamera3D{
 	/** @param farClip See {@link #farClip} */
 	public void setFarClip(double farClip){
 		this.farClip = farClip;
-	}
-	
-	/**
-	 * Make this camera look in a direction based on the given mouse coordinates. This will add some amount to {@link #rotX} and {@link #rotY}
-	 * based on the previous mouse position and the given mouse position
-	 *
-	 * @param game The game where the look happened
-	 * @param x The new x coordinate of the mouse, obtained from {@link Game#mouseMove(double, double)}
-	 * @param y The new y coordinate of the mouse, obtained from {@link Game#mouseMove(double, double)}
-	 */
-	public void look(Game game, double x, double y){
-		// TODO this should be in Mobility3D, split this up to not need game as a parameter or to rely on mouse input here
-		
-		// issue#43 fix sudden camera jolts when switching between normal and not normal mouse modes
-		
-		// Axes swapped because of the way that it feels like it should be when moving a mouse around
-		var dx = (y - game.getMouseInput().lastY()) * game.get(DoubleTypeSetting.CAMERA_LOOK_SPEED_X);
-		var dy = (x - game.getMouseInput().lastX()) * game.get(DoubleTypeSetting.CAMERA_LOOK_SPEED_Y);
-		
-		// Invert if applicable
-		if(game.get(BooleanTypeSetting.CAMERA_LOOK_INVERT_X)) dx = -dx;
-		if(game.get(BooleanTypeSetting.CAMERA_LOOK_INVERT_Y)) dy = -dy;
-		
-		this.addRotX(dx);
-		this.addRotY(dy);
 	}
 	
 }
