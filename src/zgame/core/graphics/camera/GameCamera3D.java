@@ -8,6 +8,7 @@ import zgame.settings.DoubleTypeSetting;
 /** A camera meant for 3D graphics */
 public class GameCamera3D{
 	
+	// Position values
 	/** The x coordinate of the camera */
 	private double x;
 	/** The y coordinate of the camera */
@@ -15,12 +16,33 @@ public class GameCamera3D{
 	/** The z coordinate of the camera */
 	private double z;
 	
+	// Rotation values
 	/** The rotation of the camera on the x axis in radians */
 	private double rotX;
 	/** The rotation of the camera on the y axis in radians */
 	private double rotY;
 	/** The rotation of the camera on the z axis in radians */
 	private double rotZ;
+	
+	// Perspective settings
+	/** The current field of view of this camera */
+	private double fov;
+	/** The nearest value for the z buffer for the camera */
+	private double nearZ;
+	/** The farthest value for the z buffer for the camera */
+	private double farZ;
+	/** The left vertical clipping plane */
+	private double leftClip;
+	/** The right vertical clipping plane */
+	private double rightClip;
+	/** The bottom horizontal clipping plane */
+	private double bottomClip;
+	/** The top horizontal clipping plane */
+	private double topClip;
+	/** The distance from the camera to the near clipping plane */
+	private double nearClip;
+	/** The distance from the camera to the far clipping plane */
+	private double farClip;
 	
 	/** true to limit the camera to only looking at most straight up and straight down, false for no limit */
 	private boolean enableLookLimit;
@@ -40,6 +62,16 @@ public class GameCamera3D{
 		this.setRotX(0);
 		this.setRotY(0);
 		this.setRotZ(0);
+		
+		this.setFov(1);
+		this.setNearZ(0.1);
+		this.setFarZ(100.0);
+		this.setLeftClip(-1.0);
+		this.setRightClip(1.0);
+		this.setBottomClip(-1.0);
+		this.setTopClip(1.0);
+		this.setNearClip(0.01);
+		this.setFarClip(1000.0);
 		
 		this.setEnableLookLimit(true);
 	}
@@ -142,6 +174,96 @@ public class GameCamera3D{
 	/** @param enableLookLimit See {@link #enableLookLimit} */
 	public void setEnableLookLimit(boolean enableLookLimit){
 		this.enableLookLimit = enableLookLimit;
+	}
+	
+	/** @return See {@link #fov} */
+	public double getFov(){
+		return this.fov;
+	}
+	
+	/** @param fov See {@link #fov} */
+	public void setFov(double fov){
+		this.fov = fov;
+	}
+	
+	/** @return See {@link #nearZ} */
+	public double getNearZ(){
+		return this.nearZ;
+	}
+	
+	/** @param nearZ See {@link #nearZ} */
+	public void setNearZ(double nearZ){
+		this.nearZ = nearZ;
+	}
+	
+	/** @return See {@link #farZ} */
+	public double getFarZ(){
+		return this.farZ;
+	}
+	
+	/** @param farZ See {@link #farZ} */
+	public void setFarZ(double farZ){
+		this.farZ = farZ;
+	}
+	
+	/** @return See {@link #leftClip} */
+	public double getLeftClip(){
+		return this.leftClip;
+	}
+	
+	/** @param leftClip See {@link #leftClip} */
+	public void setLeftClip(double leftClip){
+		this.leftClip = leftClip;
+	}
+	
+	/** @return See {@link #rightClip} */
+	public double getRightClip(){
+		return this.rightClip;
+	}
+	
+	/** @param rightClip See {@link #rightClip} */
+	public void setRightClip(double rightClip){
+		this.rightClip = rightClip;
+	}
+	
+	/** @return See {@link #bottomClip} */
+	public double getBottomClip(){
+		return this.bottomClip;
+	}
+	
+	/** @param bottomClip See {@link #bottomClip} */
+	public void setBottomClip(double bottomClip){
+		this.bottomClip = bottomClip;
+	}
+	
+	/** @return See {@link #topClip} */
+	public double getTopClip(){
+		return this.topClip;
+	}
+	
+	/** @param topClip See {@link #topClip} */
+	public void setTopClip(double topClip){
+		this.topClip = topClip;
+	}
+	
+	/** @return See {@link #nearClip} */
+	public double getNearClip(){
+		return this.nearClip;
+	}
+	
+	/** @param nearClip See {@link #nearClip} */
+	public void setNearClip(double nearClip){
+		this.nearClip = nearClip;
+	}
+	
+	/** @return See {@link #farClip} */
+	public double getFarClip(){
+		return this.farClip;
+	}
+	
+	/** @param farClip See {@link #farClip} */
+	public void setFarClip(double farClip){
+		this.farClip = farClip;
 	}
 	
 	/**

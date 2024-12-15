@@ -8,6 +8,7 @@ import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.CameraAxis;
 import zgame.core.graphics.camera.GameCamera;
+import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.FontAsset;
@@ -68,10 +69,11 @@ public class Game implements Saveable, Destroyable{
 	/** The looper to run the main OpenGL loop */
 	private final GameLooper renderLooper;
 	
-	// TODO move the 3D camera to here?
-	
 	/** The Camera which determines the relative location and scale of objects drawn in the game */
 	private final GameCamera camera;
+	
+	/** The camera used for 3D graphics */
+	private final GameCamera3D camera3D;
 	
 	/** The {@link GameState} which this game is currently in */
 	private GameState currentState;
@@ -252,6 +254,9 @@ public class Game implements Saveable, Destroyable{
 		
 		// Init camera
 		this.camera = new GameCamera();
+		
+		// 3D camera
+		this.camera3D = new GameCamera3D();
 		
 		// Set up lambda calls for input
 		this.window.setKeyActionMethod(this::keyAction);
@@ -1084,6 +1089,26 @@ public class Game implements Saveable, Destroyable{
 	/** @return The current y coordinate of the mouse in game coordinates. Should use for things that move with the camera */
 	public double mouseGY(){
 		return this.getCamera().screenToGameY(this.mouseSY());
+	}
+	
+	/** Set the model view to be the base matrix for a perspective projection using the current {@link #camera3D} perspective */
+	public void camera3DPerspective(){
+		this.getWindow().getRenderer().camera3DPerspective(this.getCamera3D());
+	}
+	
+	/** @return See {@link #camera3D} */
+	public GameCamera3D getCamera3D(){
+		return this.camera3D;
+	}
+	
+	/** @return The fov of {@link #camera3D} */
+	public double getFov(){
+		return this.getCamera3D().getFov();
+	}
+	
+	/** @param fov The new fov for {@link #camera3D} */
+	public void setFov(double fov){
+		this.getCamera3D().setFov(fov);
 	}
 	
 	/** @return See {@link #settings} */

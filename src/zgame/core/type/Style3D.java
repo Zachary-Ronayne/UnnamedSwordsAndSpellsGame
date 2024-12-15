@@ -11,10 +11,10 @@ public class Style3D implements RenderStyle{
 	
 	@Override
 	public void setupFrame(Game game, Renderer r){
-		r.updateFrustum(-1.0, 1.0, -1.0, 1.0, 0.01, 1000.0);
+		r.updateFrustum(game.getCamera3D());
 		
 		r.setDepthTestEnabled(true);
-		r.camera3DPerspective();
+		game.camera3DPerspective();
 	}
 	
 	@Override
@@ -52,6 +52,6 @@ public class Style3D implements RenderStyle{
 		RenderStyle.super.mouseMove(game, x, y);
 		
 		var window = game.getWindow();
-		if(!window.isMouseNormally()) window.getRenderer().getCamera3D().look(game, x, y);
+		if(!window.isMouseNormally()) game.getCamera3D().look(game, x, y);
 	}
 }

@@ -207,11 +207,6 @@ public class Renderer implements Destroyable{
 	/** true if the OpenGL depth test is enabled, false otherwise */
 	private boolean depthTestEnabled;
 	
-	/** The current fov to use for 3D graphics */
-	private double fov;
-	
-	/** The camera used for 3D graphics */
-	private final GameCamera3D camera3D;
 	
 	/**
 	 * Create a new empty renderer
@@ -225,10 +220,6 @@ public class Renderer implements Destroyable{
 		// Initialize stack list
 		this.stacks = new ArrayList<>();
 		this.attributeStacks = new ArrayList<>();
-		
-		// 3D camera
-		this.camera3D = new GameCamera3D();
-		this.fov = 1;
 		
 		// Buffer stack
 		this.bufferStack = new LimitedStack<>(new GameBuffer(width, height, true), false);
@@ -838,48 +829,15 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
-	 * Set the values in the camera and the current projection matrix to be the perspective of the camera
-	 *
-	 * @param x The new x coordinate
-	 * @param y The new y coordinate
-	 * @param z The new z coordinate
-	 * @param rotX The new rotation on the x axis, in radians
-	 * @param rotY The new rotation on the y axis, in radians
-	 * @param rotZ The new rotation on the z axis, in radians
+	 * Set the model view to be the base matrix for a perspective projection using the given camera's perspective
+	 * @param camera The camera to use
 	 */
-	public void setCamera3D(double x, double y, double z, double rotX, double rotY, double rotZ){
-		this.camera3D.setX(x);
-		this.camera3D.setY(y);
-		this.camera3D.setZ(z);
-		this.camera3D.setRotX(rotX);
-		this.camera3D.setRotY(rotY);
-		this.camera3D.setRotZ(rotZ);
-		
-		this.camera3DPerspective();
-	}
-	
-	/** Set the model view to be the base matrix for a perspective projection using the current {@link #camera3D} perspective */
-	public void camera3DPerspective(){
-		this.setMatrix(new Matrix4f().perspective((float)this.getFov(), (float)this.getBuffer().getRatioWH(), 0.1f, 100f));
-		this.rotate(this.camera3D.getRotX(), 1, 0, 0);
-		this.rotate(this.camera3D.getRotY(), 0, 1, 0);
-		this.rotate(this.camera3D.getRotZ(), 0, 0, 1);
-		this.translate(-this.camera3D.getX(), -this.camera3D.getY(), -this.camera3D.getZ());
-	}
-	
-	/** @return See {@link #camera3D} */
-	public GameCamera3D getCamera3D(){
-		return this.camera3D;
-	}
-	
-	/** @return See {@link #fov} */
-	public double getFov(){
-		return this.fov;
-	}
-	
-	/** @param fov See {@link #fov} */
-	public void setFov(double fov){
-		this.fov = fov;
+	public void camera3DPerspective(GameCamera3D camera){
+		this.setMatrix(new Matrix4f().perspective((float)camera.getFov(), (float)this.getBuffer().getRatioWH(), (float)camera.getNearZ(), (float)camera.getFarZ()));
+		this.rotate(camera.getRotX(), 1, 0, 0);
+		this.rotate(camera.getRotY(), 0, 1, 0);
+		this.rotate(camera.getRotZ(), 0, 0, 1);
+		this.translate(-camera.getX(), -camera.getY(), -camera.getZ());
 	}
 	
 	/** @return The top of {@link #positioningEnabledStack} */
@@ -1961,17 +1919,11 @@ public class Renderer implements Destroyable{
 	// issue#44 implement interpolation
 	
 	/**
-	 * Update the OpenGL frustum
-	 *
-	 * @param leftClip The left vertical clipping plane
-	 * @param rightClip The right vertical clipping plane
-	 * @param bottomClip The bottom horizontal clipping plane
-	 * @param topClip The top horizontal clipping plane
-	 * @param nearClip The distance from the camera to the near clipping plane
-	 * @param farClip The distance from the camera to the far clipping plane
+	 * Update the OpenGL frustum to the given camera
+	 * @param camera The camera to use
 	 */
-	public void updateFrustum(double leftClip, double rightClip, double bottomClip, double topClip, double nearClip, double farClip){
-		glFrustum(leftClip, rightClip, bottomClip, topClip, nearClip, farClip);
+	public void updateFrustum(GameCamera3D camera){
+		glFrustum(camera.getLeftClip(), camera.getRightClip(), camera.getBottomClip(), camera.getTopClip(), camera.getNearClip(), camera.getFarClip());
 	}
 	
 	/** @return The top of {@link #colorStack} */

@@ -293,7 +293,7 @@ public class GameDemo3D extends Game{
 			super.tick(game, dt);
 			var ki = game.getKeyInput();
 			
-			var camera = game.getWindow().getRenderer().getCamera3D();
+			var camera = game.getCamera3D();
 			
 			// issue#40 add tiling to Mobility3D and make it relative to the position looked at
 			// Tilting the camera to the side
@@ -453,7 +453,7 @@ public class GameDemo3D extends Game{
 		}
 		
 		private GameCamera3D getCamera(){
-			return this.game.getWindow().getRenderer().getCamera3D();
+			return this.game.getCamera3D();
 		}
 		
 		@Override
