@@ -28,7 +28,7 @@ import zgame.menu.scroller.VerticalScroller;
 import zgame.physics.material.MaterialConst;
 import zgame.physics.material.Materials;
 import zgame.things.entity.mobility.MobilityType;
-import zgame.things.still.Door;
+import zgame.things.still.Door2D;
 import zgame.things.still.tiles.BaseTiles2D;
 import zgame.world.Room2D;
 
@@ -235,11 +235,11 @@ public class MainTest extends Game{
 			this.player.setCanWallJump(true);
 			firstRoom.addThing(this.player);
 			
-			Door d = new Door(700, 400);
+			var d = new Door2D(700, 400);
 			d.setLeadRoom(secondRoom, 50, 100);
 			firstRoom.addThing(d);
 			
-			d = new Door(400, 500);
+			d = new Door2D(400, 500);
 			d.setLeadRoom(firstRoom, 100, 400);
 			secondRoom.addThing(d);
 		}

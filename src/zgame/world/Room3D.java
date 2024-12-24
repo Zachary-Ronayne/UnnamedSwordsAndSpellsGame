@@ -363,7 +363,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 				touchedCeiling = true;
 			}
 		}
-		else if(this.boundaryEnabled(Directions3D.DOWN) && obj.getY() < -this.getBoundary(Directions3D.DOWN)){
+		if(this.boundaryEnabled(Directions3D.DOWN) && obj.getY() < -this.getBoundary(Directions3D.DOWN)){
 			double boundary = -this.getBoundary(Directions3D.DOWN);
 			double objY = obj.getY();
 			if(objY < boundary){

@@ -4,7 +4,6 @@ import java.util.*;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
-import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResult;
@@ -22,10 +21,13 @@ import zgame.world.Room;
  * @param <E> The entity implementation of this entity
  * @param <V> The vector implementation used by this entity
  * @param <R> The room implementation which this entity can exist in
+ * @param <C> The type of collisions used by this entity
  */
+// issue#50 find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
 public abstract class EntityThing<
 		H extends HitBox<H, C>,
-		E extends EntityThing<H, E, V, R, C>, V extends ZVector<V>,
+		E extends EntityThing<H, E, V, R, C>,
+		V extends ZVector<V>,
 		R extends Room<H, E, V, R, C>,
 		C extends CollisionResult<C>
 		> extends GameThing implements GameTickable, HitBox<H, C>{
@@ -118,7 +120,7 @@ public abstract class EntityThing<
 		this.material = Materials.DEFAULT_ENTITY;
 		
 		this.frictionForce = this.zeroVector();
-		this.setForce(FORCE_NAME_FRICTION, frictionForce);
+		this.setForce(FORCE_NAME_FRICTION, this.frictionForce);
 		
 		this.gravityDragForce = this.zeroVector();
 		this.setForce(FORCE_NAME_GRAVITY_DRAG, this.gravityDragForce);
@@ -568,6 +570,7 @@ public abstract class EntityThing<
 	 */
 	@SuppressWarnings("unchecked")
 	public void checkEntityCollisions(Game game, double dt){
+		// TODO avoid needing this type cast
 		var room = (Room<H, E, V, R, C>)game.getCurrentRoom();
 		
 		// issue#21 make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
@@ -575,7 +578,7 @@ public abstract class EntityThing<
 		// Check any stored entities, and remove them if they are not intersecting or are not in the room
 		ArrayList<String> toRemove = new ArrayList<>(this.collidingUuids.size());
 		for(String eUuid : this.collidingUuids){
-			E e = room.getEntity(eUuid);
+			var e = room.getEntity(eUuid);
 			if(e == null || !this.intersects(e.get())) toRemove.add(eUuid);
 		}
 		for(String uuid : toRemove){
@@ -586,7 +589,7 @@ public abstract class EntityThing<
 			if(removed != null) this.addVelocity(removed.scale(-dt / this.getMass()));
 		}
 		// Get all entities
-		NotNullList<E> entities = room.getEntities();
+		var entities = room.getEntities();
 		
 		// Iterate through all entities, ignoring this entity, and find the ones intersecting this entity
 		for(int i = 0; i < entities.size(); i++){

@@ -64,7 +64,9 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	boolean isTryingToMove();
 	
 	/** Tell this entity to stop walking */
-	void stopWalking();
+	default void stopWalking(){
+		this.getMobilityData().setWalkingForce(this.getThing().zeroVector());
+	}
 	
 	/**
 	 * Calculate and then update the current walking force based on the next instance of time

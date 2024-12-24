@@ -91,4 +91,7 @@ public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	 */
 	CollisionResult3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m);
 	
+	/** @return The surface area of this hitbox */
+	double getSurfaceArea();
+	
 }

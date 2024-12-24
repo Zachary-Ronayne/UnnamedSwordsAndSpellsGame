@@ -3,8 +3,8 @@ package zgame.things;
 import zgame.core.Game;
 import zgame.core.utils.ZRect2D;
 
-/** A utility interface for handling clicking on a game thing when the Pla */
-public interface ThingClickDetector{
+/** A utility interface for handling clicking on a game thing when the Player clicks on them */
+public interface ThingClickDetector2D{
 	
 	/** @return The bounds of this object to check for when it is clicked. Should be in game coordinates */
 	ZRect2D getThingBounds();

@@ -1,6 +1,7 @@
 package zgame.core.input;
 
 import zgame.core.Game;
+import zgame.core.utils.ZConfig;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +58,13 @@ public class InputHandlers{
 	 * @return true if the handler was pressed, false otherwise
 	 */
 	public boolean tick(Game game, int index){
-		return this.handlers.get(index).tick(game);
+		var handler = this.handlers.get(index);
+		if(handler == null){
+			ZConfig.error("No input handler for index", index);
+			return false;
+		}
+		
+		return handler.tick(game);
 	}
 	
 }

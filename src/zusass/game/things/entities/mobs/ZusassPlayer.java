@@ -13,7 +13,7 @@ import zgame.core.utils.ZMath;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.modifier.TypedModifier;
-import zgame.world.Room2D;
+import zgame.world.Room3D;
 import zusass.ZusassGame;
 import zusass.game.magic.MultiSpell;
 import zusass.game.magic.ProjectileSpell;
@@ -27,9 +27,6 @@ import static zusass.game.stat.ZusassStat.*;
 
 /** A player inside the {@link ZusassGame} */
 public class ZusassPlayer extends ZusassMob{
-	
-	/** true to lock the camera to the center of the player, false otherwise */
-	private boolean lockCamera;
 	
 	/** The object tracking what is input used by the player */
 	private InputHandlers inputHandlers;
@@ -49,7 +46,7 @@ public class ZusassPlayer extends ZusassMob{
 	
 	/** Create a new default {@link ZusassPlayer} */
 	public ZusassPlayer(){
-		super(0, 0, 75, 125);
+		super(0, 0, 0, 0.15, 0.5);
 		this.inputDisabled = false;
 		this.addTags(ZusassTags.CAN_ENTER_LEVEL_DOOR, ZusassTags.MUST_CLEAR_LEVEL_ROOM, ZusassTags.HUB_ENTER_RESTORE);
 		
@@ -71,8 +68,6 @@ public class ZusassPlayer extends ZusassMob{
 				new ProjectileSpell(new SpellEffectStatusEffect(new StatEffect(5, new TypedModifier(new StatModifier(-10, ModifierType.ADD), HEALTH_REGEN))))),
 				new MultiSpell(Spell.selfEffect(MOVE_SPEED, 2, 2, ModifierType.MULT_MULT))).named("Bruh"));
 		spells.setSelectedSpellIndex(0);
-		
-		this.lockCamera = false;
 	}
 	
 	/** Set the input buttons to be the default values */
@@ -82,8 +77,8 @@ public class ZusassPlayer extends ZusassMob{
 				new InputHandler(InputType.MOUSE_BUTTONS, GLFW_MOUSE_BUTTON_LEFT),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_F10),
 				new InputHandler(InputType.MOUSE_BUTTONS, GLFW_MOUSE_BUTTON_RIGHT),
-				new InputHandler(InputType.KEYBOARD, GLFW_KEY_SPACE),
-				new InputHandler(InputType.KEYBOARD, GLFW_KEY_Q),
+				new InputHandler(InputType.KEYBOARD, GLFW_KEY_E),
+				new InputHandler(InputType.KEYBOARD, GLFW_KEY_R),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_LEFT_BRACKET),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_RIGHT_BRACKET)
 		);
@@ -95,8 +90,8 @@ public class ZusassPlayer extends ZusassMob{
 		
 		if(!this.isInputDisabled()) this.checkInput(game, dt);
 		
-		// Now the camera to the player after repositioning the player
-		this.checkCenterCamera(game);
+		// Move the camera to the player after repositioning the player
+		this.updateCameraPos(game.getCamera3D());
 	}
 	
 	/**
@@ -106,16 +101,21 @@ public class ZusassPlayer extends ZusassMob{
 	 */
 	private void checkInput(Game game, double dt){
 		var ki = game.getKeyInput();
-		this.handleMobilityControls(ki.pressed(GLFW_KEY_A), ki.pressed(GLFW_KEY_D), false, false, ki.pressed(GLFW_KEY_W), dt);
-		
-		// Toggle camera locked
-		if(this.inputHandlers.tick(game, GLFW_KEY_F10)) this.setLockCamera(!this.isLockCamera());
+		var left = ki.buttonDown(GLFW_KEY_A);
+		var right = ki.buttonDown(GLFW_KEY_D);
+		var forward = ki.buttonDown(GLFW_KEY_W);
+		var backward = ki.buttonDown(GLFW_KEY_S);
+		var up = ki.buttonDown(GLFW_KEY_Q);
+		var down = ki.buttonDown(GLFW_KEY_Z);
+		var cam = game.getCamera3D();
+		// TODO fix walking being glitchy
+		this.handleMobilityControls(dt, cam.getRotY(), cam.getRotX(), left, right, forward, backward, up, down);
 		
 		// Toggle walking
-		if(this.inputHandlers.tick(game, GLFW_KEY_SPACE)) this.toggleWalking();
+		if(this.inputHandlers.tick(game, GLFW_KEY_E)) this.toggleWalking();
 		
 		// Toggle casting or attacking
-		if(this.inputHandlers.tick(game, GLFW_KEY_Q)) this.toggleCasting();
+		if(this.inputHandlers.tick(game, GLFW_KEY_R)) this.toggleCasting();
 		
 		// Go to next or previous spell
 		if(this.inputHandlers.tick(game, GLFW_KEY_RIGHT_BRACKET)) this.getSpells().previousSpell();
@@ -151,33 +151,10 @@ public class ZusassPlayer extends ZusassMob{
 	
 	@Override
 	public void render(Game game, Renderer r){
-		r.setColor(0, 0, .5);
-		r.drawRectangle(this.getBounds());
-		this.renderAttackTimer(game, r);
-	}
-	
-	/**
-	 * If the camera should be locked to this {@link ZusassPlayer}, then lock the camera, otherwise do nothing
-	 *
-	 * @param game The game to get the camera from
-	 */
-	public void checkCenterCamera(Game game){
-		if(this.isLockCamera()) this.centerCamera(game);
-	}
-	
-	/** @return See {@link #lockCamera} */
-	public boolean isLockCamera(){
-		return this.lockCamera;
-	}
-	
-	/** @param lockCamera See {@link #lockCamera} */
-	public void setLockCamera(boolean lockCamera){
-		this.lockCamera = lockCamera;
-	}
-	
-	/** If the camera is locked, unlock it, otherwise, lock it */
-	public void toggleLockCamera(){
-		this.setLockCamera(!this.isLockCamera());
+		// TODO decide what to render for the player
+//		r.setColor(0, 0, .5);
+//		r.drawRectangle(this.getBounds());
+//		this.renderAttackTimer(game, r);
 	}
 	
 	@Override
@@ -195,7 +172,7 @@ public class ZusassPlayer extends ZusassMob{
 	}
 	
 	@Override
-	public void enterRoom(Room2D from, Room2D to, Game game){
+	public void enterRoom(Room3D from, Room3D to, Game game){
 		ZusassGame zgame = (ZusassGame)game;
 		super.enterRoom(from, to, zgame);
 		if(to != null){
@@ -211,9 +188,6 @@ public class ZusassPlayer extends ZusassMob{
 				this.getEffects().removeAllTemporary(this);
 			}
 		}
-		
-		// Center the camera to the player
-		this.checkCenterCamera(zgame);
 	}
 	
 	/** @return See {@link #inputDisabled} */

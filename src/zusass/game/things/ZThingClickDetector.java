@@ -1,21 +1,22 @@
 package zusass.game.things;
 
 import zgame.core.Game;
-import zgame.core.utils.ZRect2D;
-import zgame.things.ThingClickDetector;
-import zgame.things.type.bounds.Bounds2D;
+import zgame.core.utils.ZRect3D;
+import zgame.things.ThingClickDetector2D;
+import zgame.things.ThingClickDetector3D;
+import zgame.things.type.bounds.Bounds3D;
 import zusass.ZusassGame;
 
-/** A {@link ThingClickDetector} used for the Zusass game */
-public interface ZThingClickDetector extends ThingClickDetector, Bounds2D{
+/** A {@link ThingClickDetector2D} used for the Zusass game */
+public interface ZThingClickDetector extends ThingClickDetector3D, Bounds3D{
 	
 	@Override
-	default ZRect2D getThingBounds(){
+	default ZRect3D getThingBounds(){
 		return this.getBounds();
 	}
 	
 	@Override
-	default ZRect2D getPlayerBounds(Game game){
+	default ZRect3D getPlayerBounds(Game game){
 		var zgame = (ZusassGame)game;
 		var player = zgame.getPlayer();
 		if(player == null) return null;
@@ -25,8 +26,8 @@ public interface ZThingClickDetector extends ThingClickDetector, Bounds2D{
 	@Override
 	default boolean handlePress(Game game){
 		var zgame = (ZusassGame)game;
-		if(!ThingClickDetector.super.handlePress(zgame)) return false;
-		return handleZPress(zgame);
+		if(!ThingClickDetector3D.super.handlePress(zgame)) return false;
+		return this.handleZusassPress(zgame);
 	}
 	
 	/**
@@ -34,5 +35,5 @@ public interface ZThingClickDetector extends ThingClickDetector, Bounds2D{
 	 * @param zgame The game where the click happened
 	 * @return true if this was activated, false otherwise
 	 */
-	boolean handleZPress(ZusassGame zgame);
+	boolean handleZusassPress(ZusassGame zgame);
 }

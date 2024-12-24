@@ -63,11 +63,11 @@ public class MainPlay extends PlayState{
 			// Place the player on the next tick
 			hub.onNextTick(() -> {
 				ZusassPlayer player = zgame.getPlayer();
-				player.setX(20);
-				player.setY(hub.maxY() - player.getHeight());
-				player.setLockCamera(true);
+				player.setX(2);
+				player.setY(1);
+				player.setZ(2);
 				hub.addThing(player);
-				player.centerCamera(zgame);
+				player.updateCameraPos(zgame.getCamera3D());
 			});
 		});
 	}

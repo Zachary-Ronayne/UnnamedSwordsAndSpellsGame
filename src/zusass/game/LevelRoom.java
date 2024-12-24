@@ -4,22 +4,23 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZMath;
-import zgame.stat.modifier.ModifierType;
+import zgame.things.still.tiles.BaseTiles3D;
 import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zusass.game.things.LevelDoor;
 import zusass.game.things.ZusassTags;
 import zusass.game.things.entities.mobs.Npc;
 import zusass.game.things.tiles.ZusassColorTiles;
-import static zusass.game.stat.ZusassStat.*;
 
 /** A {@link Room} which represents a randomly generated level for the infinite dungeons */
 public class LevelRoom extends ZusassRoom{
 	
 	/** The number of tiles in a {@link LevelRoom} on the x axis */
-	private static final int X_TILES = 15;
+	private static final int X_TILES = 6;
 	/** The number of tiles in a {@link LevelRoom} on the y axis */
-	private static final int Y_TILES = 8;
+	private static final int Y_TILES = 4;
+	/** The number of tiles in a {@link LevelRoom} on the z axis */
+	private static final int Z_TILES = 5;
 	
 	/**
 	 * The numerical value of the level, i.e. level 1 is the easiest, level 2 is harder, etc.
@@ -41,7 +42,7 @@ public class LevelRoom extends ZusassRoom{
 	 * @param level See {@link #level}
 	 */
 	public LevelRoom(int level){
-		super(X_TILES, Y_TILES);
+		super(X_TILES, Y_TILES, Z_TILES);
 		this.addTags(ZusassTags.IS_LEVEL);
 		this.setLevel(level);
 		this.getAllThings().addClass(Npc.class);
@@ -52,27 +53,39 @@ public class LevelRoom extends ZusassRoom{
 	 */
 	public void initRandom(){
 		// Set up the tiles
+		
+		// Everything is air by default
 		this.checker1 = new ZColor(0.2 + Math.random() * 0.5, 0.2 + Math.random() * 0.5, 0.2 + Math.random() * 0.5);
 		this.checker2 = new ZColor(checker1.red() * 0.5, checker1.green() * 0.5, checker1.blue() * 0.5);
 		for(int i = 0; i < X_TILES; i++){
 			for(int j = 0; j < Y_TILES; j++){
-				boolean i0 = i % 2 == 0;
-				boolean j0 = j % 2 == 0;
-				this.setTile(i, j, (i0 == j0) ? ZusassColorTiles.BACK_COLOR : ZusassColorTiles.BACK_COLOR_DARK);
+				for(int k = 0; k < Z_TILES; k++){
+					this.setTile(i, j, k, BaseTiles3D.AIR);
+				}
+			}
+		}
+		
+		// TODO make all 6 walls have a checkerboard tile pattern
+		// Make a floor
+		for(int i = 0; i < X_TILES; i++){
+			for(int k = 0; k < Z_TILES; k++){
+				this.setTile(i, 0, k, BaseTiles3D.SOLID_DARK);
 			}
 		}
 		
 		// Add the door
-		this.addThing(new LevelDoor(this.getLevel() + 1, this));
+		// TODO figure out what the level door location should be
+		this.addThing(new LevelDoor(3, 1, 3, this.getLevel() + 1, this));
 		
-		// issue#25 if this is changed to add hundreds of enemies, the TPS tanks while not using all the computer's resources. Probably need to make tick looper account for time spent rendering
-		// Add enemies
-		Npc enemy = new Npc(400, 400, 60, 80);
-		enemy.setStat(ENDURANCE, 2 + 6 * (1 - (10 / (this.level + 10.0))));
-		enemy.setStat(STRENGTH, 10);
-		enemy.getStat(STRENGTH).addModifier(enemy.getUuid(), this.level, ModifierType.ADD);
-		enemy.setResourcesMax();
-		this.addThing(enemy);
+		// TODO add the actual enemy
+//		// issue#25 if this is changed to add hundreds of enemies, the TPS tanks while not using all the computer's resources. Probably need to make tick looper account for time spent rendering
+//		// Add enemies
+//		Npc enemy = new Npc(400, 400, 60, 80);
+//		enemy.setStat(ENDURANCE, 2 + 6 * (1 - (10 / (this.level + 10.0))));
+//		enemy.setStat(STRENGTH, 10);
+//		enemy.getStat(STRENGTH).addModifier(enemy.getUuid(), this.level, ModifierType.ADD);
+//		enemy.setResourcesMax();
+//		this.addThing(enemy);
 	}
 	
 	/** @return true if this room is cleared and can be exited, false otherwise */

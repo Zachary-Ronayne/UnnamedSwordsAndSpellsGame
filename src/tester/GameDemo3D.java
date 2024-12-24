@@ -446,23 +446,18 @@ public class GameDemo3D extends Game{
 			this.updateCameraPos(cam);
 		}
 		
+		@Override
+		public double getSurfaceArea(){
+			return CylinderHitbox.super.getSurfaceArea();
+		}
+		
 		private GameCamera3D getCamera(){
 			return this.game.getCamera3D();
 		}
 		
 		@Override
-		public double getSurfaceArea(){
-			return 0;
-		}
-		
-		@Override
 		public double getFrictionConstant(){
 			return this.getWalkFrictionConstant();
-		}
-		
-		@Override
-		public void stopWalking(){
-			this.getMobilityData().setWalkingForce(zeroVector());
 		}
 		
 		@Override

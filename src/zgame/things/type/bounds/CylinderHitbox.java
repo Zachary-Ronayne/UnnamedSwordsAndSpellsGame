@@ -69,4 +69,10 @@ public interface CylinderHitbox extends HitBox3D{
 	default boolean intersectsRect(double x, double y, double z, double width, double height, double length){
 		return ZCollision.rectIntersectsCylinder(x, y, z, width, height, length, this.getX(), this.getY(), this.getZ(), this.getRadius(), this.getHeight());
 	}
+	
+	@Override
+	default double getSurfaceArea(){
+		double r = this.getRadius();
+		return Math.PI * r * r;
+	}
 }

@@ -1,15 +1,9 @@
-package zgame.things.entity;
+package zgame.things.still;
 
-import zgame.core.utils.Uuidable;
-import zgame.things.type.GameThing;
 import zgame.things.type.bounds.Bounds2D;
 
-import java.util.UUID;
-
 /** A 2D thing which does not move as an entity would, and generally doesn't move, but can be at an arbitrary position */
-public abstract class StaticThing2D extends GameThing implements Uuidable, Bounds2D{
-	
-	// TODO make a 3D version of this
+public abstract class StaticThing2D extends StaticThing implements Bounds2D{
 	
 	/** The upper left hand x coordinate of this thing */
 	private double x;
@@ -19,9 +13,6 @@ public abstract class StaticThing2D extends GameThing implements Uuidable, Bound
 	private double width;
 	/** The height of this thing */
 	private double height;
-	
-	/** The uuid representing this thing */
-	private final String uuid;
 	
 	/**
 	 * Create a new entity with the given values
@@ -36,8 +27,6 @@ public abstract class StaticThing2D extends GameThing implements Uuidable, Bound
 		this.setY(y);
 		this.setWidth(w);
 		this.setHeight(h);
-		
-		this.uuid = UUID.randomUUID().toString();
 	}
 	
 	/** @return See {@link #x} */
@@ -90,9 +79,4 @@ public abstract class StaticThing2D extends GameThing implements Uuidable, Bound
 		return this.getY() + this.getHeight();
 	}
 	
-	/** @return See {@link #uuid} */
-	@Override
-	public String getUuid(){
-		return this.uuid;
-	}
 }

@@ -12,10 +12,10 @@ import zgame.stat.modifier.StatModifier;
 import zgame.stat.status.StatusEffect;
 import zgame.stat.status.StatusEffects;
 import zgame.things.entity.*;
-import zgame.things.entity.mobility.Mobility2D;
-import zgame.things.entity.mobility.MobilityEntity2D;
+import zgame.things.entity.mobility.Mobility3D;
+import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.projectile.Projectile;
-import zgame.things.type.bounds.RectangleHitBox;
+import zgame.things.type.bounds.CylinderHitbox;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
 import zusass.game.magic.*;
@@ -31,10 +31,8 @@ import zusass.game.status.StatEffect;
 
 import static zusass.game.stat.ZusassStat.*;
 
-import java.util.List;
-
-/** A generic mob in the Zusass game */
-public abstract class ZusassMob extends MobilityEntity2D implements RectangleHitBox{
+/** A generic mob in the Zusass game. All mobs have a cylinder hitbox */
+public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitbox{
 	
 	/** The json key used to store the spellbook which this mob has */
 	public final static String SPELLBOOK_KEY = "spellbook";
@@ -52,8 +50,8 @@ public abstract class ZusassMob extends MobilityEntity2D implements RectangleHit
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	/** The width of this mob */
-	private double width;
+	/** The radius of the center of this mob */
+	private double radius;
 	/** The height of this mob */
 	private double height;
 	
@@ -89,45 +87,46 @@ public abstract class ZusassMob extends MobilityEntity2D implements RectangleHit
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	/** The {@link MobilityData} object used by this object's implementation of {@link Mobility2D} */
-	private final MobilityData2D mobilityData;
+	/** The {@link MobilityData} object used by this object's implementation of {@link Mobility3D} */
+	private final MobilityData3D mobilityData;
 	
-	/** See {@link Mobility2D#getJumpBuildTime()} */
+	/** See {@link Mobility3D#getJumpBuildTime()} */
 	private double jumpBuildTime;
 	
-	/** See {@link Mobility2D#isJumpAfterBuildUp()} */
+	/** See {@link Mobility3D#isJumpAfterBuildUp()} */
 	private boolean jumpAfterBuildUp;
 	
-	/** See {@link Mobility2D#getWalkFriction()} */
+	/** See {@link Mobility3D#getWalkFriction()} */
 	private double walkFriction;
 	
-	/** See {@link Mobility2D#isCanWallJump()} */
+	/** See {@link Mobility3D#isCanWallJump()} */
 	private boolean canWallJump;
 	
-	/** See {@link Mobility2D#isWalking()} */
+	/** See {@link Mobility3D#isWalking()} */
 	private boolean walking;
 	
 	/**
 	 * Create a new mob with the given bounds
 	 *
-	 * @param x The upper left hand x coordinate
-	 * @param y The upper left hand y coordinate
-	 * @param width The mob's width
-	 * @param height The mob's height
+	 * @param x See {@link #getX()}
+	 * @param y See {@link #getY()}
+	 * @param z See {@link #getZ()}
+	 * @param radius See {@link #radius}
+	 * @param height See {@link #height}
 	 */
-	public ZusassMob(double x, double y, double width, double height){
-		super(x, y);
+	public ZusassMob(double x, double y, double z, double radius, double height){
+		super(x, y, z, 1);
 		
 		this.jumpBuildTime = DEFAULT_JUMP_BUILD_TIME;
 		this.jumpAfterBuildUp = DEFAULT_JUMP_AFTER_BUILD_UP;
 		this.walkFriction = DEFAULT_WALK_FRICTION;
 		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
 		this.walking = false;
-		this.mobilityData = new MobilityData2D(this);
+		this.mobilityData = new MobilityData3D(this, 0);
 		
 		this.stopWalking();
 		
-		this.width = width;
+		this.radius = radius;
 		this.height = height;
 		
 		this.attackTime = -1;
@@ -307,17 +306,18 @@ public abstract class ZusassMob extends MobilityEntity2D implements RectangleHit
 	 * @param game The game where the attack should happen
 	 */
 	public void attackNearest(ZusassGame game){
-		List<ZusassMob> mobs = game.getCurrentRoom().getMobs();
-		for(var m : mobs){
-			// Skip the current mob if it is this mob or the mob is out of the attack range
-			if(m == this || this.center().distance(m.center()) >= this.stat(ATTACK_RANGE)) continue;
-			// Also skip the current mob if it is not in the attack direction
-			double directionX = Math.cos(this.attackDirection);
-			if(this.centerX() < m.centerX() == directionX < 0) continue;
-			// Perform the attack
-			this.attack(m);
-			return;
-		}
+		// TODO implement attacking
+//		List<ZusassMob> mobs = game.getCurrentRoom().getMobs();
+//		for(var m : mobs){
+//			// Skip the current mob if it is this mob or the mob is out of the attack range
+//			if(m == this || this.center().distance(m.center()) >= this.stat(ATTACK_RANGE)) continue;
+//			// Also skip the current mob if it is not in the attack direction
+//			double directionX = Math.cos(this.attackDirection);
+//			if(this.centerX() < m.centerX() == directionX < 0) continue;
+//			// Perform the attack
+//			this.attack(m);
+//			return;
+//		}
 	}
 	
 	/**
@@ -460,15 +460,15 @@ public abstract class ZusassMob extends MobilityEntity2D implements RectangleHit
 		return Math.min(1, Math.max(0, perc));
 	}
 	
-	/** @return See {@link #width} */
+	/** @return See {@link #radius} */
 	@Override
-	public double getWidth(){
-		return this.width;
+	public double getRadius(){
+		return this.radius;
 	}
 	
-	/** @param width See {@link #width} */
-	public void setWidth(double width){
-		this.width = width;
+	/** @param radius See {@link #radius} */
+	public void setRadius(double radius){
+		this.radius = radius;
 	}
 	
 	/** @return See {@link #height} */
@@ -483,6 +483,12 @@ public abstract class ZusassMob extends MobilityEntity2D implements RectangleHit
 	}
 	
 	@Override
+	public double getSurfaceArea(){
+		double r = this.getRadius();
+		return Math.PI * r * r;
+	}
+	
+	@Override
 	public boolean jump(double dt){
 		var jumped = super.jump(dt);
 		if(jumped) this.getStat(STAMINA).addValue(-6);
@@ -490,7 +496,7 @@ public abstract class ZusassMob extends MobilityEntity2D implements RectangleHit
 	}
 	
 	@Override
-	public MobilityData2D getMobilityData(){
+	public MobilityData3D getMobilityData(){
 		return this.mobilityData;
 	}
 	
@@ -519,12 +525,12 @@ public abstract class ZusassMob extends MobilityEntity2D implements RectangleHit
 	
 	@Override
 	public double getJumpPower(){
-		return Math.pow(this.stat(AGILITY), 0.3) * 35000;
+		return Math.pow(this.stat(AGILITY), 0.3) * 1.5;
 	}
 	
 	@Override
 	public double getJumpStopPower(){
-		return Math.pow(this.stat(AGILITY), 0.3) * 3000;
+		return Math.pow(this.stat(AGILITY), 0.3) * 0.1;
 	}
 	
 	/** @return See {@link #jumpBuildTime} */

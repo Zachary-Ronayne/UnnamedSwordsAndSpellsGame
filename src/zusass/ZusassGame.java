@@ -64,12 +64,16 @@ public class ZusassGame extends Game{
 	/** Create the only instance of ZusassGame from this class. This constructor will place the game in the main menu */
 	private ZusassGame(){
 		super();
+		this.make3D();
+		
 		// Window and performance settings
 		this.setTps(100);
-		this.setMaxFps(100);
+		this.setMaxFps(144);
 		this.setCurrentState(new MainMenuState(this));
 		GameWindow w = this.getWindow();
 		w.setUseVsync(true);
+		// TODO make the main menu take up the full screen after changing the window size
+		w.setSize(1920, 1020);
 		w.center();
 		this.setInitSoundOnStart(false);
 		
@@ -176,7 +180,7 @@ public class ZusassGame extends Game{
 		 Init all the static stat dependencies by making a new mob, because the stats are all added when the mob is created.
 		 This is kind of stupid, but whatever, it ensures they are initialized on startup
 		 */
-		new ZusassMob(0, 0, 0, 0){
+		new ZusassMob(0, 0, 0, 0, 0){
 			@Override
 			protected void render(Game game, Renderer r){}
 		};

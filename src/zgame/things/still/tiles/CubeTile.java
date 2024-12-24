@@ -13,7 +13,7 @@ public class CubeTile extends TileType3D{
 	private final Material material;
 	
 	/** The initial color to use for rendering this tile before any modifications */
-	private final ZColor baseColor;
+	private ZColor baseColor;
 	
 	/**
 	 * Create a new {@link CubeTile} using the given data
@@ -33,6 +33,11 @@ public class CubeTile extends TileType3D{
 	/** @return See {@link #baseColor} */
 	public ZColor getBaseColor(){
 		return this.baseColor;
+	}
+	
+	/** @param baseColor See {@link #baseColor} */
+	public void setBaseColor(ZColor baseColor){
+		this.baseColor = baseColor;
 	}
 	
 	@Override

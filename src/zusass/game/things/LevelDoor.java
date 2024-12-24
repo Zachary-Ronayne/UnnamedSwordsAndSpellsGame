@@ -1,7 +1,7 @@
 package zusass.game.things;
 
 import zgame.core.Game;
-import zgame.things.entity.EntityThing2D;
+import zgame.things.entity.EntityThing3D;
 import zgame.things.still.Door;
 import zusass.ZusassData;
 import zusass.ZusassGame;
@@ -18,39 +18,31 @@ public class LevelDoor extends ZusassDoor{
 	private final ZusassRoom room;
 	
 	/**
-	 * Create a new LevelDoor at the default location
-	 *
-	 * @param level See {@link #level}
-	 * @param room The room which contains this {@link LevelDoor}
-	 */
-	public LevelDoor(int level, ZusassRoom room){
-		this(600, 0, level, room);
-		this.setY(room.maxY() - this.getHeight());
-	}
-	
-	/**
 	 * Create a new LevelDoor at the given location
 	 *
-	 * @param x The x coordinate of the door
-	 * @param y The y coordinate of the door
+	 * @param x See {@link #x}
+	 * @param y See {@link #y}
+	 * @param z See {@link #z}
 	 * @param level See {@link #level}
 	 * @param room The room which contains this {@link LevelDoor}
 	 */
-	public LevelDoor(double x, double y, int level, ZusassRoom room){
-		super(x, y);
+	public LevelDoor(double x, double y, double z, int level, ZusassRoom room){
+		super(x, y, z);
 		this.level = level;
 		this.room = room;
 	}
 	
 	@Override
-	public boolean enterRoom(ZusassRoom r, EntityThing2D thing, Game game){
+	public boolean enterRoom(ZusassRoom r, EntityThing3D thing, Game game){
 		ZusassGame zgame = (ZusassGame)game;
 		
 		// Generate the new room, then enter it
 		var levelRoom = new LevelRoom(this.getLevel());
-		this.setLeadRoom(levelRoom, 0, 0);
+		this.setLeadRoom(levelRoom, 0, 0, 0);
 		levelRoom.initRandom();
-		this.setRoomY(this.getLeadRoom().maxY() - thing.getHeight());
+		// TODO figure out the proper way to get these coordinates
+//		this.setRoomY(this.getLeadRoom().maxY() - thing.getHeight());
+		this.setRoomY(1);
 		boolean success = super.enterRoom(r, thing, game);
 		
 		// Update the highest level room the player has been in
@@ -63,7 +55,7 @@ public class LevelDoor extends ZusassDoor{
 	}
 	
 	@Override
-	public boolean canEnter(EntityThing2D thing){
+	public boolean canEnter(EntityThing3D thing){
 		return thing.canEnterRooms() && thing.hasTag(ZusassTags.CAN_ENTER_LEVEL_DOOR);
 	}
 	
