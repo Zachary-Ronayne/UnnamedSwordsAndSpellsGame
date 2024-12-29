@@ -60,4 +60,17 @@ public class ZRect3D extends ZPoint3D{
 	public void setLength(double length){
 		this.length = length;
 	}
+	
+	/**
+	 * Find the distance from this thing to the given thing based on the bottom center
+	 * @param r The thing to compare
+	 * @return The distance
+	 */
+	public double distance(ZRect3D r){
+		var dx = this.getX() - r.getX();
+		var dy = this.getY() - r.getY();
+		var dz = this.getZ() - r.getZ();
+		return Math.sqrt(dx * dx + dy * dy + dz * dz);
+	}
+	
 }

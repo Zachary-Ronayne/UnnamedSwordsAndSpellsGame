@@ -412,6 +412,33 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	}
 	
 	/**
+	 * Get the tile at the specified index
+	 *
+	 * @param x The tile index on the x axis
+	 * @param y The tile index on the y axis
+	 * @param z The tile index on the z axis
+	 * @return The tile, or null if the tile is outside of the range of the grid
+	 */
+	public Tile3D getTile(int x, int y, int z){
+		if(!ZMath.in(0, x, this.tilesX) || !ZMath.in(0, y, this.tilesY) || !ZMath.in(0, z, this.tilesZ)) return null;
+		return this.getTileUnchecked(x, y, z);
+	}
+	
+	/**
+	 * Get the tile at the specified index
+	 * Will cause an {@link IndexOutOfBoundsException} if the indexes are outside the range of the grid.
+	 * Only call this method if the bounds are being checked separately. Use {@link #getTile(int, int, int)} instead to return null if the indexes go out of bounds
+	 *
+	 * @param x The tile index on the x axis
+	 * @param y The tile index on the y axis
+	 * @param z The tile index on the z axis
+	 * @return The tile
+	 */
+	public Tile3D getTileUnchecked(int x, int y, int z){
+		return this.tiles[x][y][z];
+	}
+	
+	/**
 	 * Set the tile at the given indexes
 	 *
 	 * @param x The x index

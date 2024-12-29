@@ -1,7 +1,9 @@
 package zgame.things.still;
 
 import zgame.core.Game;
+import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.things.entity.EntityThing3D;
@@ -103,7 +105,8 @@ public class Door3D extends StaticThing3D implements Door<Room3D, HitBox3D, Enti
 	
 	@Override
 	public void render(Game game, Renderer r){
-		// TODO determine how rendering will work
+		var c = new ZColor(0.35, 0.22, 0);
+		r.drawRectPrism(new RectRender3D(this.getBounds()), c, c, c, c, c, c);
 	}
 	
 }

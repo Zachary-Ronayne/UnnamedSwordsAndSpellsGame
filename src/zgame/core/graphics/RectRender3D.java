@@ -1,21 +1,9 @@
 package zgame.core.graphics;
 
+import zgame.core.utils.ZRect3D;
+
 /** An object holding data for drawing a 3D rectangular prism */
-public class RectRender3D{
-	
-	/** The bottom middle x coordinate of the rect */
-	private double x;
-	/** The bottom middle y coordinate of the rect */
-	private double y;
-	/** The bottom middle z coordinate of the rect */
-	private double z;
-	
-	/** The width, x axis, of the rect */
-	private double w;
-	/** The height, y axis, of the rect */
-	private double h;
-	/** The length, z axis, of the rect */
-	private double l;
+public class RectRender3D extends ZRect3D{
 	
 	/** The rotation on the x axis */
 	private double rotX;
@@ -37,9 +25,9 @@ public class RectRender3D{
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 * @param z See {@link #z}
-	 * @param w See {@link #w}
-	 * @param h See {@link #h}
-	 * @param l See {@link #l}
+	 * @param w See {@link #width}
+	 * @param h See {@link #height}
+	 * @param l See {@link #length}
 	 * @param rotX See {@link #rotX}
 	 * @param rotY See {@link #rotY}
 	 * @param rotZ See {@link #rotZ}
@@ -48,12 +36,7 @@ public class RectRender3D{
 	 * @param za See {@link #za}
 	 */
 	public RectRender3D(double x, double y, double z, double w, double h, double l, double rotX, double rotY, double rotZ, double xa, double ya, double za){
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.w = w;
-		this.h = h;
-		this.l = l;
+		super(x, y, z, w, h, l);
 		this.rotX = rotX;
 		this.rotY = rotY;
 		this.rotZ = rotZ;
@@ -68,9 +51,9 @@ public class RectRender3D{
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 * @param z See {@link #z}
-	 * @param w See {@link #w}
-	 * @param h See {@link #h}
-	 * @param l See {@link #l}
+	 * @param w See {@link #width}
+	 * @param h See {@link #height}
+	 * @param l See {@link #length}
 	 */
 	public RectRender3D(double x, double y, double z, double w, double h, double l){
 		this(x, y, z, w, h, l, 0, 0, 0, 0, 0, 0);
@@ -82,13 +65,17 @@ public class RectRender3D{
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 * @param z See {@link #z}
-	 * @param w See {@link #w}
-	 * @param h See {@link #h}
-	 * @param l See {@link #l}
+	 * @param w See {@link #width}
+	 * @param h See {@link #height}
+	 * @param l See {@link #length}
 	 * @param rotY See {@link #rotY}
 	 */
 	public RectRender3D(double x, double y, double z, double w, double h, double l, double rotY){
 		this(x, y, z, w, h, l, 0, rotY, 0, 0, 0, 0);
+	}
+	
+	public RectRender3D(ZRect3D r){
+		this(r.getX(), r.getY(), r.getZ(), r.getWidth(), r.getHeight(), r.getLength());
 	}
 	
 	/**
@@ -96,36 +83,6 @@ public class RectRender3D{
 	 */
 	public RectRender3D(){
 		this(0, 0, 0, 0, 0, 0);
-	}
-	
-	/** @return See {@link #x} */
-	public double x(){
-		return this.x;
-	}
-	
-	/** @return See {@link #y} */
-	public double y(){
-		return this.y;
-	}
-	
-	/** @return See {@link #z} */
-	public double z(){
-		return this.z;
-	}
-	
-	/** @return See {@link #w} */
-	public double w(){
-		return this.w;
-	}
-	
-	/** @return See {@link #h} */
-	public double h(){
-		return this.h;
-	}
-	
-	/** @return See {@link #l} */
-	public double l(){
-		return this.l;
 	}
 	
 	/** @return See {@link #rotX} */
@@ -156,36 +113,6 @@ public class RectRender3D{
 	/** @return See {@link #za} */
 	public double zA(){
 		return this.za;
-	}
-	
-	/** @param x See {@link #x} */
-	public void setX(double x){
-		this.x = x;
-	}
-	
-	/** @param y See {@link #y} */
-	public void setY(double y){
-		this.y = y;
-	}
-	
-	/** @param z See {@link #z} */
-	public void setZ(double z){
-		this.z = z;
-	}
-	
-	/** @param w See {@link #w} */
-	public void setW(double w){
-		this.w = w;
-	}
-	
-	/** @param h See {@link #h} */
-	public void setH(double h){
-		this.h = h;
-	}
-	
-	/** @param l See {@link #l} */
-	public void setL(double l){
-		this.l = l;
 	}
 	
 	/** @param rotX See {@link #rotX} */

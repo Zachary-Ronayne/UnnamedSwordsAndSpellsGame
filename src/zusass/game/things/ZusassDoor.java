@@ -26,12 +26,20 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 	 * If the player is attempting to click on a door, have the player enter the door, otherwise do nothing
 	 *
 	 * @param zgame The game used by the tick method
+	 * @param room The room used by the tick method
+	 *
 	 * @return true if the door was entered, false otherwise
 	 */
 	@Override
-	public boolean handleZusassPress(ZusassGame zgame){
+	public boolean handleZusassPress(ZusassGame zgame, Room3D room){
 		var player = zgame.getPlayer();
 		return this.enterRoom(zgame.getCurrentRoom(), player, zgame);
+	}
+	
+	@Override
+	public double getMaxClickRange(){
+		// TODO implement this based on the player or something
+		return 1;
 	}
 	
 	@Override

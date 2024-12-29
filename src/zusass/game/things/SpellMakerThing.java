@@ -6,6 +6,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.state.MenuNode;
 import zgame.things.still.StaticThing3D;
 import zgame.things.type.GameThing;
+import zgame.world.Room3D;
 import zusass.ZusassGame;
 import zusass.menu.spellmaker.SpellMakerMenu;
 
@@ -56,13 +57,19 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	}
 	
 	@Override
-	public boolean handleZusassPress(ZusassGame zgame){
+	public boolean handleZusassPress(ZusassGame zgame, Room3D room){
 		var c = zgame.getCurrentState();
 		// Don't pop up this menu if it is already showing this menu
 		if(c.showingMenu(menu)) return false;
 		
 		c.popupMenu(zgame, MenuNode.withAll(this.menu));
 		return true;
+	}
+	
+	@Override
+	public double getMaxClickRange(){
+		// TODO implement this based on the player or something
+		return 1;
 	}
 	
 	@Override

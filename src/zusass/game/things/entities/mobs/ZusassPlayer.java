@@ -96,6 +96,7 @@ public class ZusassPlayer extends ZusassMob{
 	
 	/**
 	 * Perform any actions needed for player input
+	 *
 	 * @param game The game the input took place in
 	 * @param dt The amount of time, in seconds, passed in the tick representing this input
 	 */
@@ -125,17 +126,21 @@ public class ZusassPlayer extends ZusassMob{
 	public boolean mouseAction(ZusassGame zgame, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		if(this.isInputDisabled()) return false;
 		// Left click to interact with something on click
-		if(!press && button == GLFW_MOUSE_BUTTON_LEFT) {
+		if(!press && button == GLFW_MOUSE_BUTTON_LEFT){
 			var clickables = zgame.getCurrentRoom().getAllThings().get(ZThingClickDetector.class);
 			if(clickables != null){
 				for(var c : clickables){
-					if(c.handlePress(zgame)) return true;
+					var mobilityData = this.getMobilityData();
+					if(c.handlePress(zgame, zgame.getCurrentRoom(), this.getBounds(),
+							mobilityData.getFacingHorizontalAngle(), mobilityData.getFacingVerticalAngle())){
+						return true;
+					}
 				}
 			}
 			return false;
 		}
 		// Right click to attack in a direction
-		else if(press && button == GLFW_MOUSE_BUTTON_RIGHT) {
+		else if(press && button == GLFW_MOUSE_BUTTON_RIGHT){
 			this.beginAttackOrSpell(zgame, ZMath.lineAngle(this.centerX(), this.centerY(), zgame.mouseGX(), zgame.mouseGY()));
 			return true;
 		}

@@ -61,14 +61,7 @@ public class MainPlay extends PlayState{
 			this.setCurrentRoom(hub);
 			
 			// Place the player on the next tick
-			hub.onNextTick(() -> {
-				ZusassPlayer player = zgame.getPlayer();
-				player.setX(2);
-				player.setY(1);
-				player.setZ(2);
-				hub.addThing(player);
-				player.updateCameraPos(zgame.getCamera3D());
-			});
+			hub.onNextTick(() -> hub.placePlayer(zgame));
 		});
 	}
 	
@@ -180,6 +173,9 @@ public class MainPlay extends PlayState{
 		r.setColor(1, 1, 1, 1);
 		r.drawText(10, 100, text);
 		
+		// Draw a cross-hair on the center
+		this.drawCrossHair(r);
+		
 		// Now draw the rest of the menus
 		super.renderHud(game, r);
 	}
@@ -198,6 +194,22 @@ public class MainPlay extends PlayState{
 		r.setColor(textColor);
 		r.setFontSize(20);
 		r.drawText(10, 28 + space, Math.round(Math.max(0, c)) + " / " + Math.round(m));
+	}
+	
+	/** @param r The renderer to use to draw the cross-hair */
+	private void drawCrossHair(Renderer r){
+		double size = 8;
+		double thick = 2;
+		double border = 1;
+		double centerX = r.getWidth() * 0.5;
+		double centerY = r.getHeight() * 0.5;
+		
+		r.setColor(0, 0, 0);
+		r.drawRectangle(centerX - size, centerY - thick, size + size, thick + thick);
+		r.drawRectangle(centerX - thick, centerY - size, thick + thick, size + size);
+		r.setColor(0.7, 0.7, 0.7);
+		r.drawRectangle(centerX - size + border, centerY - thick + border, size + size - border - border, thick + thick - border - border);
+		r.drawRectangle(centerX - thick + border, centerY - size + border, thick + thick - border - border, size + size - border - border);
 	}
 	
 	/**

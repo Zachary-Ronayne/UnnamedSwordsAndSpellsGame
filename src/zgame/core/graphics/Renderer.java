@@ -1686,7 +1686,7 @@ public class Renderer implements Destroyable{
 		
 		// Position the 3D rect
 		this.pushMatrix();
-		this.positionObject(r.x(), r.y(), r.z(), r.w(), r.h(), r.l(), r.xRot(), r.yRot(), r.zRot(), r.xA(), r.yA(), r.zA());
+		this.positionObject(r.getX(), r.getY(), r.getZ(), r.getWidth(), r.getHeight(), r.getLength(), r.xRot(), r.yRot(), r.zRot(), r.xA(), r.yA(), r.zA());
 		
 		// Update the color on the cube
 		// 6 faces, 4 vertices per face, 4 color channels per color
@@ -1730,7 +1730,7 @@ public class Renderer implements Destroyable{
 		
 		// Position the 3D rect
 		this.pushMatrix();
-		this.positionObject(r.x(), r.y(), r.z(), r.w(), r.h(), r.l(), r.xRot(), r.yRot(), r.zRot(), r.xA(), r.yA(), r.zA());
+		this.positionObject(r.getX(), r.getY(), r.getZ(), r.getWidth(), r.getHeight(), r.getLength(), r.xRot(), r.yRot(), r.zRot(), r.xA(), r.yA(), r.zA());
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuModelView();

@@ -6,8 +6,10 @@ import zgame.things.still.tiles.BaseTiles3D;
 import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zusass.ZusassGame;
+import zusass.game.things.LevelDoor;
 import zusass.game.things.ZusassTags;
 import zusass.game.things.entities.mobs.ZusassMob;
+import zusass.game.things.entities.mobs.ZusassPlayer;
 
 /** The {@link Room} which represents the main hub of the game, i.e. where the player can enter levels, make items, etc. */
 public class Hub extends ZusassRoom{
@@ -39,28 +41,35 @@ public class Hub extends ZusassRoom{
 			}
 		}
 		
-		// TODO add the door
 		// The door to start at the highest level gotten to
-//		this.setTile(9, 10, BaseTiles2D.WALL_DARK);
-//		this.setTile(6, 11, BaseTiles2D.WALL_DARK);
-//		Tile2D t = this.getTile(9, 10);
-//
-//		double doorX = t.getX();
-//		ZusassData data = zgame.getData();
-//		LevelDoor highDoor = new LevelDoor(doorX, 0, data.getHighestRoomLevel(), this);
-//		highDoor.setY(t.getY() - highDoor.getHeight());
-//		this.addThing(highDoor);
-//
-//		// The door to start from level 1
-//		LevelDoor levelDoor = new LevelDoor(doorX, 0, 1, this);
-//		levelDoor.setY(this.maxY() - levelDoor.getHeight());
-//		this.addThing(levelDoor);
+		var t = this.getTile(1, 1, 1);
+		var data = zgame.getData();
+		var highDoor = new LevelDoor(t.getX(), 1, t.getZ(), data.getHighestRoomLevel(), this);
+		this.addThing(highDoor);
+		
+		// The door to start from level 1
+		t = this.getTile(3, 1, 1);
+		var levelDoor = new LevelDoor(t.getX(), 1, t.getZ(), 0, this);
+		this.addThing(levelDoor);
 		
 		// TODO add the spell maker
 //		// Add the spell maker
 //		var spellMaker = new SpellMakerThing(zgame, 100, 0);
 //		spellMaker.setY(this.maxY() - spellMaker.getHeight());
 //		this.addThing(spellMaker);
+	}
+	
+	/**
+	 * Put the current player of the game into the hub at the default position
+	 * @param zgame The game to use
+	 */
+	public void placePlayer(ZusassGame zgame){
+		var player = zgame.getPlayer();
+		player.setX(2);
+		player.setY(1);
+		player.setZ(3);
+		this.addThing(player);
+		player.updateCameraPos(zgame.getCamera3D());
 	}
 	
 	@Override
