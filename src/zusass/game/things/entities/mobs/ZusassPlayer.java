@@ -108,7 +108,6 @@ public class ZusassPlayer extends ZusassMob{
 		var up = ki.buttonDown(GLFW_KEY_Q);
 		var down = ki.buttonDown(GLFW_KEY_Z);
 		var cam = game.getCamera3D();
-		// TODO fix walking being glitchy
 		this.handleMobilityControls(dt, cam.getRotY(), cam.getRotX(), left, right, forward, backward, up, down);
 		
 		// Toggle walking

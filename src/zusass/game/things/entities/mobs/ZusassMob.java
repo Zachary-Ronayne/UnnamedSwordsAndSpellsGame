@@ -515,12 +515,12 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	@Override
 	public double getWalkStopFriction(){
 		// For now just making this a hard coded number based on the move speed stat
-		return this.stat(MOVE_SPEED) / 5;
+		return this.stat(MOVE_SPEED) * 2 + this.stat(AGILITY) / 10.0;
 	}
 
 	@Override
 	public double getFrictionConstant(){
-			return this.getWalkFrictionConstant();
+		return this.getWalkFrictionConstant();
 	}
 	
 	@Override
