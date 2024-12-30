@@ -3,7 +3,6 @@ package zusass.game;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
-import zgame.core.utils.ZMath;
 import zgame.things.still.tiles.BaseTiles3D;
 import zgame.things.type.GameThing;
 import zgame.world.Room;
@@ -16,20 +15,17 @@ import zusass.game.things.tiles.ZusassColorTiles;
 public class LevelRoom extends ZusassRoom{
 	
 	/** The number of tiles in a {@link LevelRoom} on the x axis */
-	private static final int X_TILES = 6;
+	private static final int X_TILES = 9;
 	/** The number of tiles in a {@link LevelRoom} on the y axis */
-	private static final int Y_TILES = 4;
+	private static final int Y_TILES = 5;
 	/** The number of tiles in a {@link LevelRoom} on the z axis */
-	private static final int Z_TILES = 5;
+	private static final int Z_TILES = 7;
 	
 	/**
 	 * The numerical value of the level, i.e. level 1 is the easiest, level 2 is harder, etc.
 	 * If this value is less than 1, it is set to 1
 	 */
 	private int level;
-	
-	/** An array used for displaying the level number in a boolean way */
-	private boolean[] levelDisp;
 	
 	/** The first color of the checkerboard pattern of this room */
 	private ZColor checker1;
@@ -46,6 +42,7 @@ public class LevelRoom extends ZusassRoom{
 		this.addTags(ZusassTags.IS_LEVEL);
 		this.setLevel(level);
 		this.getAllThings().addClass(Npc.class);
+		this.setTileBoundaries();
 	}
 	
 	/**
@@ -66,16 +63,33 @@ public class LevelRoom extends ZusassRoom{
 		}
 		
 		// TODO make all 6 walls have a checkerboard tile pattern
-		// Make a floor
+		// Make a floor and ceiling
 		for(int i = 0; i < X_TILES; i++){
 			for(int k = 0; k < Z_TILES; k++){
-				this.setTile(i, 0, k, BaseTiles3D.SOLID_DARK);
+				this.setTile(i, 0, k, (i % 2 == 0) == (k % 2 == 0) ? ZusassColorTiles.BACK_COLOR : ZusassColorTiles.BACK_COLOR_DARK);
+				this.setTile(i, Y_TILES - 1, k, (i % 2 == 0) != (k % 2 == 0) ? ZusassColorTiles.BACK_COLOR : ZusassColorTiles.BACK_COLOR_DARK);
+			}
+		}
+		
+		// Make east/west walls
+		for(int i = 0; i < X_TILES; i++){
+			for(int j = 0; j < Y_TILES; j++){
+				this.setTile(i, j, 0, (i % 2 == 0) != (j % 2 == 0) ? ZusassColorTiles.BACK_COLOR : ZusassColorTiles.BACK_COLOR_DARK);
+				this.setTile(i, j, Z_TILES - 1, (i % 2 == 0) == (j % 2 == 0) ? ZusassColorTiles.BACK_COLOR : ZusassColorTiles.BACK_COLOR_DARK);
+			}
+		}
+		
+		// Make north/south walls
+		for(int i = 0; i < Z_TILES; i++){
+			for(int j = 0; j < Y_TILES; j++){
+				this.setTile(0, j, i, (i % 2 == 0) != (j % 2 == 0) ? ZusassColorTiles.BACK_COLOR : ZusassColorTiles.BACK_COLOR_DARK);
+				this.setTile(X_TILES - 1, j, i, (i % 2 == 0) == (j % 2 == 0) ? ZusassColorTiles.BACK_COLOR : ZusassColorTiles.BACK_COLOR_DARK);
 			}
 		}
 		
 		// Add the door
-		// TODO figure out what the level door location should be
-		this.addThing(new LevelDoor(3, 1, 3, this.getLevel() + 1, this));
+		var levelDoor = new LevelDoor(X_TILES - 3, 1, Z_TILES - 1.25, this.getLevel() + 1, this);
+		this.addThing(levelDoor);
 		
 		// TODO add the actual enemy
 //		// issue#25 if this is changed to add hundreds of enemies, the TPS tanks while not using all the computer's resources. Probably need to make tick looper account for time spent rendering
@@ -115,9 +129,6 @@ public class LevelRoom extends ZusassRoom{
 	/** @param level See {@link #level} */
 	private void setLevel(int level){
 		this.level = Math.max(1, level);
-		
-		// Represent the level number as a boolean array
-		this.levelDisp = ZMath.intToBoolArr(this.level);
 	}
 	
 	@Override
@@ -133,20 +144,11 @@ public class LevelRoom extends ZusassRoom{
 		// Draw the main rendering
 		super.render(game, r);
 		
-		// Draw the actual level counter
-		r.setColor(.8, .8, .8);
-		r.setFontSize(32);
-		r.drawText(0, -2, Integer.toString(this.getLevel()));
-		
-		// Draw a level counter using a boolean way
-		for(int i = 0; i < this.levelDisp.length; i++){
-			r.setColor(new ZColor(0));
-			r.drawRectangle(10 + 12 * i, 150, 10, 20);
-			if(this.levelDisp[i]){
-				r.setColor(new ZColor(1));
-				r.drawRectangle(12 + 12 * i, 152, 6, 16);
-			}
-		}
+		// TODO properly draw some text on the wall for the level counter
+		// Draw a numerical level counter
+//		r.setColor(.8, .8, .8);
+//		r.setFontSize(32);
+//		r.drawText(0, -2, Integer.toString(this.getLevel()));
 	}
 	
 }
