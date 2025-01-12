@@ -131,7 +131,7 @@ public class ZusassPlayer extends ZusassMob{
 			if(clickables != null){
 				for(var c : clickables){
 					var mobilityData = this.getMobilityData();
-					if(c.handlePress(zgame, zgame.getCurrentRoom(), this.getBounds(),
+					if(c.handlePress(zgame, zgame.getCurrentRoom(), this,
 							mobilityData.getFacingHorizontalAngle(), mobilityData.getFacingVerticalAngle())){
 						return true;
 					}

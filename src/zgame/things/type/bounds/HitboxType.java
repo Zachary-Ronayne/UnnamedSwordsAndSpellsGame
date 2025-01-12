@@ -7,5 +7,7 @@ public enum HitboxType{
 	/** A circle hitbox */
 	CIRCLE,
 	/** A non rotating upwards facing cylinder */
-	CYLINDER
+	CYLINDER,
+	/** An axis aligned rectangular prism */
+	RECT_PRISM
 }

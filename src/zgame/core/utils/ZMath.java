@@ -133,6 +133,7 @@ public final class ZMath{
 	
 	/**
 	 * Returns the same value as {@link Math#atan2(double, double)}, with the result normalized to be in the range [0, 2pi)
+	 *
 	 * @param a The y component given to atan2
 	 * @param b The x component given to atan2
 	 * @return The angle in the range [2, 2pi)
@@ -143,6 +144,7 @@ public final class ZMath{
 	
 	/**
 	 * Get the normalized version of the given angle in the range [0, 2pi)
+	 *
 	 * @param a The angle to normalize
 	 * @return The normalized angle
 	 */
@@ -152,6 +154,7 @@ public final class ZMath{
 	
 	/**
 	 * Determine the difference between the two angles
+	 *
 	 * @param a1 The first angle, in radians
 	 * @param a2 The second angle, in radians
 	 * @return The difference as a positive value, in radians, in the range [0, pi)
@@ -277,16 +280,16 @@ public final class ZMath{
 		if(tld <= r || trd <= r || bld <= r || brd <= r) return true;
 		
 		// Check if we are touching any lines
-		if(touchLeft) {
+		if(touchLeft){
 			var touch = circleIntersectsLine(cx, cy, r, tl.getX(), tl.getY(), bl.getX(), bl.getY());
 			if(touch) return true;
 		}
-		if(touchRight) {
-			var touch =  circleIntersectsLine(cx, cy, r, tr.getX(), tr.getY(), br.getX(), br.getY());
+		if(touchRight){
+			var touch = circleIntersectsLine(cx, cy, r, tr.getX(), tr.getY(), br.getX(), br.getY());
 			if(touch) return true;
 		}
-		if(touchTop) {
-			var touch =  circleIntersectsLine(cx, cy, r, tl.getX(), tl.getY(), tr.getX(), tr.getY());
+		if(touchTop){
+			var touch = circleIntersectsLine(cx, cy, r, tl.getX(), tl.getY(), tr.getX(), tr.getY());
 			if(touch) return true;
 		}
 		// Must be touching the bottom at this point
@@ -321,6 +324,108 @@ public final class ZMath{
 		}
 		// If not horizontal or vertical, just return false, this method does not handle those cases
 		return false;
+	}
+	
+	/**
+	 * Determine the distance the given ray is from the given rectangular prism
+	 *
+	 * @param rx The x coordinate of the ray
+	 * @param ry The y coordinate of the ray
+	 * @param rz The z coordinate of the ray
+	 * @param dx The x normalized component of the direction of the ray
+	 * @param dy The y normalized component of the direction of the ray
+	 * @param dz The z normalized component of the direction of the ray
+	 * @param minX The minimum x coordinate of the prism
+	 * @param minY The minimum y coordinate of the prism
+	 * @param minZ The minimum z coordinate of the prism
+	 * @param maxX The maximum x coordinate of the prism
+	 * @param maxY The maximum y coordinate of the prism
+	 * @param maxZ The maximum z coordinate of the prism
+	 * @return The distance to the prism, or a negative number if there is no intersection
+	 */
+	public static double rayDistanceToRectPrism(double rx, double ry, double rz,
+										 double dx, double dy, double dz,
+										 double minX, double minY, double minZ,
+										 double maxX, double maxY, double maxZ){
+		double minT = -1;
+		double maxT = -1;
+		boolean found = false;
+		
+		// TODO maybe abstract this axis stuff out?
+		
+		// Check x axis
+		if(dx == 0){
+			if(!in(minX, rx, maxX)) return -1;
+		}
+		else{
+			double minTX = rayIntersectionInterval(minX, rx, dx);
+			double maxTX = rayIntersectionInterval(maxX, rx, dx);
+			if(minTX > maxTX){
+				double temp = minTX;
+				minTX = maxTX;
+				maxTX = temp;
+			}
+			minT = minTX;
+			maxT = maxTX;
+			
+			found = true;
+		}
+		
+		// Check y axis
+		if(dy == 0){
+			if(!in(minY, ry, maxY)) return -1;
+		}
+		else{
+			double minTY = rayIntersectionInterval(minY, ry, dy);
+			double maxTY = rayIntersectionInterval(maxY, ry, dy);
+			if(minTY > maxTY){
+				double temp = minTY;
+				minTY = maxTY;
+				maxTY = temp;
+			}
+			if(!found || minTY > minT) minT = minTY;
+			if(!found || maxTY < maxT) maxT = maxTY;
+			
+			found = true;
+		}
+		
+		// Check z axis
+		if(dz == 0){
+			if(!in(minZ, rz, maxZ)) return -1;
+		}
+		else{
+			double minTZ = rayIntersectionInterval(minZ, rz, dz);
+			double maxTZ = rayIntersectionInterval(maxZ, rz, dz);
+			if(minTZ > maxTZ){
+				double temp = minTZ;
+				minTZ = maxTZ;
+				maxTZ = temp;
+			}
+			if(!found || minTZ > minT) minT = minTZ;
+			if(!found || maxTZ < maxT) maxT = maxTZ;
+			
+			found = true;
+		}
+		
+		// If no mins or maxes were found, no intersection
+		if(!found) return -1;
+		
+		// If no intersection, return negative
+		if(minT > maxT || maxT < 0) return -1;
+		
+		// Otherwise return the distance
+		return minT;
+	}
+	
+	/**
+	 * Calculate the ray intersection interval for the given values
+	 * @param b The min or max value for the interval to find
+	 * @param origin The axis position of the ray
+	 * @param direction The direction of the ray on that axis
+	 * @return The interval
+	 */
+	public static double rayIntersectionInterval(double b, double origin, double direction){
+		return (b - origin) / direction;
 	}
 	
 	/** Cannot instantiate {@link ZMath} */

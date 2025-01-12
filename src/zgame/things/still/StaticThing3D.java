@@ -1,9 +1,12 @@
 package zgame.things.still;
 
-import zgame.things.type.bounds.Bounds3D;
+import zgame.physics.collision.CollisionResult3D;
+import zgame.physics.material.Material;
+import zgame.physics.material.Materials;
+import zgame.things.type.bounds.HitBox3D;
 
 /** A 3D thing which does not move as an entity would, and generally doesn't move, but can be at an arbitrary position */
-public abstract class StaticThing3D extends StaticThing implements Bounds3D{
+public abstract class StaticThing3D extends StaticThing implements HitBox3D{
 	
 	/** The bottom middle x coordinate of this thing */
 	private double x;
@@ -43,7 +46,13 @@ public abstract class StaticThing3D extends StaticThing implements Bounds3D{
 		return this.x;
 	}
 	
+	@Override
+	public double getPX(){
+		return this.getX();
+	}
+	
 	/** @param x See {@link #x} */
+	@Override
 	public void setX(double x){
 		this.x = x;
 	}
@@ -54,7 +63,13 @@ public abstract class StaticThing3D extends StaticThing implements Bounds3D{
 		return this.y;
 	}
 	
+	@Override
+	public double getPY(){
+		return this.getY();
+	}
+	
 	/** @param y See {@link #y} */
+	@Override
 	public void setY(double y){
 		this.y = y;
 	}
@@ -65,12 +80,19 @@ public abstract class StaticThing3D extends StaticThing implements Bounds3D{
 		return this.z;
 	}
 	
+	@Override
+	public double getPZ(){
+		return this.getZ();
+	}
+	
 	/** @param z See {@link #z} */
+	@Override
 	public void setZ(double z){
 		this.z = z;
 	}
 	
 	/** @return See {@link #width} */
+	@Override
 	public double getWidth(){
 		return this.width;
 	}
@@ -81,6 +103,7 @@ public abstract class StaticThing3D extends StaticThing implements Bounds3D{
 	}
 	
 	/** @return See {@link #height} */
+	@Override
 	public double getHeight(){
 		return this.height;
 	}
@@ -99,6 +122,64 @@ public abstract class StaticThing3D extends StaticThing implements Bounds3D{
 	/** @param length See {@link #length} */
 	public void setLength(double length){
 		this.length = length;
+	}
+	
+	// TODO figure out if these hitbox methods should be needed for these static things, or if these should be avoided. Maybe clickable and hitbox should be two separate interfaces
+	
+	@Override
+	public Material getMaterial(){
+		return Materials.NONE;
+	}
+	
+	@Override
+	public void collide(CollisionResult3D r){}
+	
+	@Override
+	public void touchFloor(CollisionResult3D collision){}
+	
+	@Override
+	public void leaveFloor(){}
+	
+	@Override
+	public void touchCeiling(CollisionResult3D collision){}
+	
+	@Override
+	public void leaveCeiling(){}
+	
+	@Override
+	public void touchWall(CollisionResult3D collision){}
+	
+	@Override
+	public void leaveWall(){}
+	
+	@Override
+	public boolean isOnGround(){
+		return false;
+	}
+	
+	@Override
+	public boolean isOnCeiling(){
+		return false;
+	}
+	
+	@Override
+	public boolean isOnWall(){
+		return false;
+	}
+	
+	@Override
+	public Material getFloorMaterial(){
+		return Materials.NONE;
+	}
+	
+	@Override
+	public Material getCeilingMaterial(){
+		return Materials.NONE;
+	}
+	
+	@Override
+	public Material getWallMaterial(){
+		return Materials.NONE;
 	}
 	
 }

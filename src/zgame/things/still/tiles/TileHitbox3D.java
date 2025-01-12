@@ -11,6 +11,8 @@ public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResu
 	/** See {@link Full} */
 	Full FULL = new Full();
 	
+	// TODO implement rays checking if a tile is touched
+	
 	/** For tiles with no collision */
 	class None implements TileHitbox3D{
 		@Override

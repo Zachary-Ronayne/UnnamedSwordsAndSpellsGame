@@ -1,9 +1,9 @@
 package zusass.game.things;
 
 import zgame.core.Game;
-import zgame.core.utils.ZRect3D;
 import zgame.things.ThingClickDetector2D;
 import zgame.things.ThingClickDetector3D;
+import zgame.things.type.bounds.HitBox3D;
 import zgame.world.Room3D;
 import zusass.ZusassGame;
 
@@ -11,7 +11,7 @@ import zusass.ZusassGame;
 public interface ZThingClickDetector extends ThingClickDetector3D{
 	
 	@Override
-	default boolean handlePress(Game game, Room3D room, ZRect3D clickerBounds, double clickAngleH, double clickAngleV){
+	default boolean handlePress(Game game, Room3D room, HitBox3D clickerBounds, double clickAngleH, double clickAngleV){
 		var zgame = (ZusassGame)game;
 		if(!ThingClickDetector3D.super.handlePress(zgame, room, clickerBounds, clickAngleH, clickAngleV)) return false;
 		return this.handleZusassPress(zgame, room);

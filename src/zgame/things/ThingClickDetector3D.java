@@ -1,12 +1,12 @@
 package zgame.things;
 
 import zgame.core.Game;
-import zgame.core.utils.ZRect3D;
-import zgame.things.type.bounds.Bounds3D;
+import zgame.physics.ZVector3D;
+import zgame.things.type.bounds.HitBox3D;
 import zgame.world.Room3D;
 
 /** A utility interface for handling clicking on a game thing when a click happens on it */
-public interface ThingClickDetector3D extends Bounds3D{
+public interface ThingClickDetector3D extends HitBox3D{
 	
 	/** @return The maximum distance from the clicker to this thing. Based on the bottom center of the things */
 	double getMaxClickRange();
@@ -23,19 +23,14 @@ public interface ThingClickDetector3D extends Bounds3D{
 	 *
 	 * @return true if the object was activated, false otherwise
 	 */
-	default boolean handlePress(Game game, Room3D room, ZRect3D clickerBounds, double clickAngleH, double clickAngleV){
-		
-		// Find the bounds of this thing
-		var thisBounds = this.getBounds();
-		if(thisBounds == null) return false;
-		
-		// Determine if the player is in range of the thing to click
-		var dist = thisBounds.distance(clickerBounds);
-		if(dist > this.getMaxClickRange()) return false;
-		
-		// TODO Determine if a ray from the player to this object could be clicked
-		
+	// TODO are all of these parameters needed?
+	default boolean handlePress(Game game, Room3D room, HitBox3D clickerBounds, double clickAngleH, double clickAngleV){
 		// TODO account for other objects being in the way, preventing this click
-		return true;
+		// Determine if the clicker is in range of the thing to click
+		var clickDirection = new ZVector3D(clickAngleH, clickAngleV, 1, false);
+		// TODO maybe make a separate thing for getting the eye position for where the click would happen?
+		var dist = this.rayDistance(clickerBounds.getX(), clickerBounds.getY() + clickerBounds.getHeight(), clickerBounds.getZ(),
+				clickDirection.getX(), clickDirection.getY(), clickDirection.getZ());
+		return dist <= this.getMaxClickRange() && dist >= 0;
 	}
 }

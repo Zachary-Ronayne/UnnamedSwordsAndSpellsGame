@@ -57,6 +57,7 @@ public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	
 	@Override
 	default boolean intersects(HitBox3D hitBox){
+		// TODO make sure both hitbox types are implemented here
 		if(hitBox.getHitboxType() == HitboxType.CYLINDER){
 			return this.intersectsRect(hitBox.getX(), hitBox.getY(), hitBox.getZ(), hitBox.getWidth(), hitBox.getHeight(), hitBox.getLength());
 		}
@@ -92,6 +93,18 @@ public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	CollisionResult3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m);
 	
 	/** @return The surface area of this hitbox */
+	
 	double getSurfaceArea();
+	/**
+	 * Determine the distance the given ray is from this hitbox
+	 * @param rx The x coordinate of the ray
+	 * @param ry The y coordinate of the ray
+	 * @param rz The z coordinate of the ray
+	 * @param dx The x component of the direction of the ray
+	 * @param dy The y component of the direction of the ray
+	 * @param dz The z component of the direction of the ray
+	 * @return the distance from the ray to this hitbox, or a negative number when the ray doesn't intersect
+	 */
+	double rayDistance(double rx, double ry, double rz, double dx, double dy, double dz);
 	
 }
