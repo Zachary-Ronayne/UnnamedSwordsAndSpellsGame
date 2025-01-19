@@ -344,73 +344,24 @@ public final class ZMath{
 	 * @return The distance to the prism, or a negative number if there is no intersection
 	 */
 	public static double rayDistanceToRectPrism(double rx, double ry, double rz,
-										 double dx, double dy, double dz,
-										 double minX, double minY, double minZ,
-										 double maxX, double maxY, double maxZ){
-		double minT = -1;
-		double maxT = -1;
-		boolean found = false;
-		
-		// TODO maybe abstract this axis stuff out?
-		
+												double dx, double dy, double dz,
+												double minX, double minY, double minZ,
+												double maxX, double maxY, double maxZ){
 		// Check x axis
-		if(dx == 0){
-			if(!in(minX, rx, maxX)) return -1;
-		}
-		else{
-			double minTX = rayIntersectionInterval(minX, rx, dx);
-			double maxTX = rayIntersectionInterval(maxX, rx, dx);
-			if(minTX > maxTX){
-				double temp = minTX;
-				minTX = maxTX;
-				maxTX = temp;
-			}
-			minT = minTX;
-			maxT = maxTX;
-			
-			found = true;
-		}
+		var minMax = rayIntersectionRectPrismMinMax(rx, dx, minX, maxX, null);
 		
 		// Check y axis
-		if(dy == 0){
-			if(!in(minY, ry, maxY)) return -1;
-		}
-		else{
-			double minTY = rayIntersectionInterval(minY, ry, dy);
-			double maxTY = rayIntersectionInterval(maxY, ry, dy);
-			if(minTY > maxTY){
-				double temp = minTY;
-				minTY = maxTY;
-				maxTY = temp;
-			}
-			if(!found || minTY > minT) minT = minTY;
-			if(!found || maxTY < maxT) maxT = maxTY;
-			
-			found = true;
-		}
+		minMax = rayIntersectionRectPrismMinMax(ry, dy, minY, maxY, minMax);
 		
 		// Check z axis
-		if(dz == 0){
-			if(!in(minZ, rz, maxZ)) return -1;
-		}
-		else{
-			double minTZ = rayIntersectionInterval(minZ, rz, dz);
-			double maxTZ = rayIntersectionInterval(maxZ, rz, dz);
-			if(minTZ > maxTZ){
-				double temp = minTZ;
-				minTZ = maxTZ;
-				maxTZ = temp;
-			}
-			if(!found || minTZ > minT) minT = minTZ;
-			if(!found || maxTZ < maxT) maxT = maxTZ;
-			
-			found = true;
-		}
+		minMax = rayIntersectionRectPrismMinMax(rz, dz, minZ, maxZ, minMax);
 		
 		// If no mins or maxes were found, no intersection
-		if(!found) return -1;
+		if(minMax == null) return -1;
 		
 		// If no intersection, return negative
+		double minT = minMax[0];
+		double maxT = minMax[1];
 		if(minT > maxT || maxT < 0) return -1;
 		
 		// Otherwise return the distance
@@ -419,6 +370,7 @@ public final class ZMath{
 	
 	/**
 	 * Calculate the ray intersection interval for the given values
+	 *
 	 * @param b The min or max value for the interval to find
 	 * @param origin The axis position of the ray
 	 * @param direction The direction of the ray on that axis
@@ -426,6 +378,36 @@ public final class ZMath{
 	 */
 	public static double rayIntersectionInterval(double b, double origin, double direction){
 		return (b - origin) / direction;
+	}
+	
+	/**
+	 * Find the min and max values for an axis for a ray intersection
+	 *
+	 * @param r The ray position on the axis
+	 * @param d The normalized component of the direction of the ray on the axis
+	 * @param min The minimum position on the axis of the rectangular prism
+	 * @param max The maximum position on the axis of the rectangular prism
+	 * @param currentMinMax The current returned value of this function from the previous axis checks, or null if this is the first check
+	 * @return The min and max values for the ray intersection, indexed as 0 for min and 1 for max, or null if no intersection exists
+	 */
+	public static double[] rayIntersectionRectPrismMinMax(double r, double d, double min, double max, double[] currentMinMax){
+		if(d == 0){
+			if(!in(min, r, max)) return null;
+		}
+		else{
+			double minT = rayIntersectionInterval(min, r, d);
+			double maxT = rayIntersectionInterval(max, r, d);
+			double[] minMax;
+			if(minT > maxT) minMax = new double[]{maxT, minT};
+			else minMax = new double[]{minT, maxT};
+			
+			if(currentMinMax == null) return minMax;
+			
+			if(minMax[0] > currentMinMax[0]) currentMinMax[0] = minMax[0];
+			if(minMax[1] < currentMinMax[1]) currentMinMax[1] = minMax[1];
+			return currentMinMax;
+		}
+		return null;
 	}
 	
 	/** Cannot instantiate {@link ZMath} */
