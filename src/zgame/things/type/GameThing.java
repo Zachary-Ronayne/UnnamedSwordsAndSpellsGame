@@ -57,6 +57,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 		return true;
 	}
 	
+	// TODO does render priority make sense outside of 2D?
 	/**
 	 * @return The number which determines how soon this object should render.
 	 * 		Lower numbers are rendered first, higher numbers are rendered last

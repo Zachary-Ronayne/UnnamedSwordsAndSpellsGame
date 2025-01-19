@@ -2,7 +2,9 @@ package zusass.game.things;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
+import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
 import zgame.core.state.MenuNode;
 import zgame.things.still.StaticThing3D;
 import zgame.things.type.GameThing;
@@ -43,18 +45,9 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	
 	@Override
 	protected void render(Game game, Renderer r){
-		// TODO figure out rendering
-//		var b = this.getBounds();
-//		r.setColor(.6, 0, .8);
-//		r.drawRectangle(b);
-//		r.setColor(.1, 0, .1);
-//		r.setFontSize(32);
-//		r.drawText(b.getX() + 4, b.getY() + 40, "SPELLS");
-	}
-	
-	@Override
-	public int getRenderPriority(){
-		return -100;
+		var b = this.getBounds();
+		var c = new ZColor(.6, 0, .8);
+		r.drawRectPrism(new RectRender3D(b), c, c, c, c, c, c);
 	}
 	
 	@Override

@@ -7,9 +7,9 @@ import zgame.things.type.GameThing;
 import zgame.world.Room;
 import zusass.ZusassGame;
 import zusass.game.things.LevelDoor;
+import zusass.game.things.SpellMakerThing;
 import zusass.game.things.ZusassTags;
 import zusass.game.things.entities.mobs.ZusassMob;
-import zusass.game.things.entities.mobs.ZusassPlayer;
 
 /** The {@link Room} which represents the main hub of the game, i.e. where the player can enter levels, make items, etc. */
 public class Hub extends ZusassRoom{
@@ -52,11 +52,9 @@ public class Hub extends ZusassRoom{
 		var levelDoor = new LevelDoor(t.getX(), 1, t.getZ(), 0, this);
 		this.addThing(levelDoor);
 		
-		// TODO add the spell maker
-//		// Add the spell maker
-//		var spellMaker = new SpellMakerThing(zgame, 100, 0);
-//		spellMaker.setY(this.maxY() - spellMaker.getHeight());
-//		this.addThing(spellMaker);
+		// Add the spell maker
+		var spellMaker = new SpellMakerThing(zgame, 1, 1, 3);
+		this.addThing(spellMaker);
 	}
 	
 	/**
