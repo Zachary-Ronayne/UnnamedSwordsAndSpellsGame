@@ -8,9 +8,10 @@ import zgame.things.type.GameThing;
 import zgame.things.type.Materialable;
 import zgame.things.type.bounds.Bounds3D;
 import zgame.things.type.bounds.HitBox3D;
+import zgame.things.type.bounds.RectPrismBounds;
 
 /** A {@link GameThing} with a cube hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
-public class Tile3D extends GameThing implements Tile<HitBox3D, CollisionResult3D>, Bounds3D, Materialable{
+public class Tile3D extends GameThing implements Tile<HitBox3D, CollisionResult3D>, Bounds3D, RectPrismBounds, Materialable{
 	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 1;

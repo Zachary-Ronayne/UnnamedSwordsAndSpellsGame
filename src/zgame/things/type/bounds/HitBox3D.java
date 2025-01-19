@@ -16,24 +16,6 @@ public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	/** @param z The new z coordinate for this object */
 	void setZ(double z);
 	
-	/** @return The maximum x coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
-	double maxX();
-	
-	/** @return The minimum x coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
-	double minX();
-	
-	/** @return The maximum y coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
-	double maxY();
-	
-	/** @return The minimum y coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
-	double minY();
-	
-	/** @return The maximum z coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
-	double maxZ();
-	
-	/** @return The minimum z coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
-	double minZ();
-	
 	/**
 	 * Called when this {@link HitBox3D} is hit by a projectile. Does nothing by default, implement to provide custom behavior
 	 *
@@ -95,16 +77,5 @@ public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	/** @return The surface area of this hitbox */
 	
 	double getSurfaceArea();
-	/**
-	 * Determine the distance the given ray is from this hitbox
-	 * @param rx The x coordinate of the ray
-	 * @param ry The y coordinate of the ray
-	 * @param rz The z coordinate of the ray
-	 * @param dx The x component of the direction of the ray
-	 * @param dy The y component of the direction of the ray
-	 * @param dz The z component of the direction of the ray
-	 * @return the distance from the ray to this hitbox, or a negative number when the ray doesn't intersect
-	 */
-	double rayDistance(double rx, double ry, double rz, double dx, double dy, double dz);
 	
 }

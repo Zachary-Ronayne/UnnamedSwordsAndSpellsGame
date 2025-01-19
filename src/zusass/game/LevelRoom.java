@@ -62,7 +62,6 @@ public class LevelRoom extends ZusassRoom{
 			}
 		}
 		
-		// TODO make all 6 walls have a checkerboard tile pattern
 		// Make a floor and ceiling
 		for(int i = 0; i < X_TILES; i++){
 			for(int k = 0; k < Z_TILES; k++){

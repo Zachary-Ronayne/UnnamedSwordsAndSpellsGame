@@ -9,13 +9,13 @@ import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.still.tiles.*;
-import zgame.things.type.bounds.Bounds3D;
 import zgame.things.type.bounds.HitBox3D;
+import zgame.things.type.bounds.RectPrismBounds;
 
 import java.util.Arrays;
 
 /** A {@link Room} which is made of 3D tiles */
-public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D> implements Bounds3D{
+public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D> implements RectPrismBounds{
 	
 	/** An array of 6 elements representing which of the 6 boundary walls are enabled for collision */
 	private final boolean[] enabledBoundaries;

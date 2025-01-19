@@ -6,7 +6,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.state.MenuNode;
 import zgame.things.still.StaticThing3D;
 import zgame.things.type.GameThing;
-import zgame.things.type.bounds.RectPrismHitbox;
+import zgame.things.type.bounds.RectPrismClickable;
 import zgame.world.Room3D;
 import zusass.ZusassGame;
 import zusass.menu.spellmaker.SpellMakerMenu;
@@ -14,7 +14,7 @@ import zusass.menu.spellmaker.SpellMakerMenu;
 import java.util.UUID;
 
 /** A {@link GameThing} used as a station for the player to click on to open the spell making interface */
-public class SpellMakerThing extends StaticThing3D implements ZThingClickDetector, GameTickable, RectPrismHitbox{
+public class SpellMakerThing extends StaticThing3D implements ZThingClickDetector, GameTickable, RectPrismClickable{
 	
 	/** The uuid of this thing */
 	private final String uuid;

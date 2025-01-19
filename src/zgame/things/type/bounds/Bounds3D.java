@@ -7,6 +7,24 @@ import zgame.things.type.Position3D;
 /** An object which has a bounds that can be defined in a 3D space */
 public interface Bounds3D extends Position3D{
 	
+	/** @return The maximum x coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
+	double maxX();
+	
+	/** @return The minimum x coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
+	double minX();
+	
+	/** @return The maximum y coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
+	double maxY();
+	
+	/** @return The minimum y coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
+	double minY();
+	
+	/** @return The maximum z coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
+	double maxZ();
+	
+	/** @return The minimum z coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
+	double minZ();
+	
 	/** @return The width this bounds takes up */
 	double getWidth();
 	

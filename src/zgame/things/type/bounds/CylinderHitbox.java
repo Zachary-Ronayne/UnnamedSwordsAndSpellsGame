@@ -76,9 +76,4 @@ public interface CylinderHitbox extends HitBox3D{
 		return Math.PI * r * r;
 	}
 	
-	@Override
-	default double rayDistance(double rx, double ry, double rz, double dx, double dy, double dz){
-		// TODO implement
-		return 0;
-	}
 }
