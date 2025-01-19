@@ -1,10 +1,9 @@
 package zgame.things.still;
 
 import zgame.things.type.bounds.Bounds3D;
-import zgame.things.type.bounds.Clickable3D;
 
 /** A 3D thing which does not move as an entity would, and generally doesn't move, but can be at an arbitrary position */
-public abstract class StaticThing3D extends StaticThing implements Bounds3D, Clickable3D{
+public abstract class StaticThing3D extends StaticThing implements Bounds3D{
 	
 	/** The bottom middle x coordinate of this thing */
 	private double x;

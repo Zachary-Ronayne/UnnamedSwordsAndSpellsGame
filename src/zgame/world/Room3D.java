@@ -7,8 +7,10 @@ import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
+import zgame.things.ThingClickDetector3D;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.still.tiles.*;
+import zgame.things.type.bounds.Bounds3D;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.RectPrismBounds;
 
@@ -53,6 +55,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		this.boundarySizes = new double[6];
 		this.setAllBoundaries(4);
 		this.setBoundary(Directions3D.DOWN, 0);
+		this.getAllThings().addClass(ThingClickDetector3D.class);
 	}
 	
 	/**
@@ -399,6 +402,33 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		}
 		
 		return res;
+	}
+	
+	/**
+	 * Have the given thing attempt to click on this room. The closest thing to the given clicker will be clicked, or nothing if there is nothing within clicking range
+	 *
+	 * @param game The game containing this room
+	 * @param clicker The thing doing the clicking
+	 * @param clickAngleH The angle on the horizontal axis where the clicker clicked
+	 * @param clickAngleV The angle on the vertical axis where the clicker clicked
+	 * @return true if something was clicked, false otherwise
+	 */
+	public boolean attemptClick(Game game, Bounds3D clicker, double clickAngleH, double clickAngleV){
+		var clickables = this.getAllThings().get(ThingClickDetector3D.class);
+		if(clickables != null){
+			double closestDistance = -1;
+			ThingClickDetector3D closestClickable = null;
+			for(var c : clickables){
+				double distance = c.findClickDistance(clicker, clickAngleH, clickAngleV);
+				if(closestClickable == null && c.canClick(distance) || distance < closestDistance){
+					closestDistance = distance;
+					closestClickable = c;
+				}
+			}
+			if(closestClickable != null) closestClickable.handlePress(game, this);
+		}
+		// TODO account for clicking on tiles
+		return false;
 	}
 	
 	@Override

@@ -20,7 +20,6 @@ import zusass.game.magic.ProjectileSpell;
 import zusass.game.magic.Spell;
 import zusass.game.magic.effect.SpellEffectStatusEffect;
 import zusass.game.status.StatEffect;
-import zusass.game.things.ZThingClickDetector;
 import zusass.game.things.ZusassTags;
 
 import static zusass.game.stat.ZusassStat.*;
@@ -127,17 +126,8 @@ public class ZusassPlayer extends ZusassMob{
 		if(this.isInputDisabled()) return false;
 		// Left click to interact with something on click
 		if(!press && button == GLFW_MOUSE_BUTTON_LEFT){
-			var clickables = zgame.getCurrentRoom().getAllThings().get(ZThingClickDetector.class);
-			if(clickables != null){
-				for(var c : clickables){
-					var mobilityData = this.getMobilityData();
-					if(c.handlePress(zgame, zgame.getCurrentRoom(), this,
-							mobilityData.getFacingHorizontalAngle(), mobilityData.getFacingVerticalAngle())){
-						return true;
-					}
-				}
-			}
-			return false;
+			var mobilityData = this.getMobilityData();
+			return zgame.getCurrentRoom().attemptClick(zgame, this, mobilityData.getFacingHorizontalAngle(), mobilityData.getFacingVerticalAngle());
 		}
 		// Right click to attack in a direction
 		else if(press && button == GLFW_MOUSE_BUTTON_RIGHT){

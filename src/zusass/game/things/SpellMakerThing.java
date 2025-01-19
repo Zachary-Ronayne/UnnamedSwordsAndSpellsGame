@@ -7,8 +7,8 @@ import zgame.core.state.MenuNode;
 import zgame.things.still.StaticThing3D;
 import zgame.things.type.GameThing;
 import zgame.things.type.bounds.RectPrismClickable;
-import zgame.world.Room3D;
 import zusass.ZusassGame;
+import zusass.game.ZusassRoom;
 import zusass.menu.spellmaker.SpellMakerMenu;
 
 import java.util.UUID;
@@ -58,13 +58,12 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	}
 	
 	@Override
-	public boolean handleZusassPress(ZusassGame zgame, Room3D room){
+	public void handleZusassPress(ZusassGame zgame, ZusassRoom room){
 		var c = zgame.getCurrentState();
 		// Don't pop up this menu if it is already showing this menu
-		if(c.showingMenu(menu)) return false;
+		if(c.showingMenu(menu)) return;
 		
 		c.popupMenu(zgame, MenuNode.withAll(this.menu));
-		return true;
 	}
 	
 	@Override
