@@ -420,7 +420,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			ThingClickDetector3D closestClickable = null;
 			for(var c : clickables){
 				double distance = c.findClickDistance(clicker, clickAngleH, clickAngleV);
-				if(closestClickable == null && c.canClick(distance) || distance < closestDistance){
+				if((closestClickable == null || distance < closestDistance) && c.canClick(distance)){
 					closestDistance = distance;
 					closestClickable = c;
 				}
