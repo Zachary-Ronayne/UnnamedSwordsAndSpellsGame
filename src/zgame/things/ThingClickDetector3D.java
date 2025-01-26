@@ -9,9 +9,6 @@ import zgame.world.Room3D;
 /** A utility interface for handling clicking on a game thing when a click happens on it */
 public interface ThingClickDetector3D extends Clickable3D{
 	
-	/** @return The maximum distance from the clicker to this thing. Based on the bottom center of the things */
-	double getMaxClickRange();
-	
 	/**
 	 * Run when this thing is clicked
 	 *
@@ -42,7 +39,7 @@ public interface ThingClickDetector3D extends Clickable3D{
 	 * @return true if this thing can be clicked, false otherwise
 	 */
 	default boolean canClick(ClickerBounds clickerBounds){
-		return this.canClick(this.findClickDistance(clickerBounds));
+		return this.canClick(clickerBounds.getClickRange(), this.findClickDistance(clickerBounds));
 	}
 	
 	/**
@@ -50,11 +47,12 @@ public interface ThingClickDetector3D extends Clickable3D{
 	 * Utility method for determining if the thing clicking on this thing is able to click
 	 *
 	 * @param distance The distance the thing is away from this thing
+	 * @param clickRange The distance the clicker can be away from this thing
 	 *
 	 * @return true if this thing can be clicked, false otherwise
 	 */
-	default boolean canClick(double distance){
-		return distance <= this.getMaxClickRange() && distance >= 0;
+	default boolean canClick(double clickRange, double distance){
+		return distance <= clickRange && distance >= 0;
 	}
 	
 }

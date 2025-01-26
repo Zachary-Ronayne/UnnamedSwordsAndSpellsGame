@@ -10,7 +10,6 @@ import zgame.physics.material.Materials;
 import zgame.things.ThingClickDetector3D;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.still.tiles.*;
-import zgame.things.type.bounds.Bounds3D;
 import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.RectPrismBounds;
@@ -419,7 +418,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			ThingClickDetector3D closestClickable = null;
 			for(var c : clickables){
 				double distance = c.findClickDistance(clicker);
-				if((closestClickable == null || distance < closestDistance) && c.canClick(distance)){
+				if((closestClickable == null || distance < closestDistance) && c.canClick(clicker.getClickRange(), distance)){
 					closestDistance = distance;
 					closestClickable = c;
 				}

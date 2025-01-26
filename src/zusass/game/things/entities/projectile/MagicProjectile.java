@@ -102,7 +102,7 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	}
 	
 	@Override
-	public int getRenderPriority(){
+	public int getSortPriority(){
 		return 200;
 	}
 }

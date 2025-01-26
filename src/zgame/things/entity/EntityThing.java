@@ -570,7 +570,7 @@ public abstract class EntityThing<
 	 */
 	@SuppressWarnings("unchecked")
 	public void checkEntityCollisions(Game game, double dt){
-		// TODO avoid needing this type cast
+		// TODO avoid needing this type cast, probably should move this to the room class itself
 		var room = (Room<H, E, V, R, C>)game.getCurrentRoom();
 		
 		// issue#21 make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities

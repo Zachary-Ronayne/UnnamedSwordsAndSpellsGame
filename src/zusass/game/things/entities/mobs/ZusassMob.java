@@ -152,7 +152,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		this.stats.add(new Mana(this.stats));
 		
 		// Add misc stats
-		this.stats.add(new ValueStat(100, this.stats, ATTACK_RANGE));
+		this.stats.add(new ValueStat(1, this.stats, ATTACK_RANGE));
 		this.stats.add(new ValueStat(.5, this.stats, ATTACK_SPEED));
 		this.stats.add(new AttackDamage(this.stats));
 		
@@ -506,6 +506,11 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	@Override
 	public double getClickAngleV(){
 		return this.getMobilityData().getFacingVerticalAngle();
+	}
+	
+	@Override
+	public double getClickRange(){
+		return this.stat(ATTACK_RANGE) * 0.8;
 	}
 	
 	@Override

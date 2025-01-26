@@ -57,24 +57,27 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 		return true;
 	}
 	
-	// TODO does render priority make sense outside of 2D?
 	/**
-	 * @return The number which determines how soon this object should render.
-	 * 		Lower numbers are rendered first, higher numbers are rendered last
+	 * Determines the order that game things are stored in lists rooms. Primarily used in 2D when determining which thing should be rendered first.
+	 * Can also adjust how the elements are sorted by overriding {@link #compareTo(GameThing)}
+	 *
+	 * @return The number which determines how this thing is sorted relative to other game things.
+	 * 		Lower numbers are first, higher numbers are last
 	 * 		Override to make a custom value
 	 * 		Defaults to 0.
 	 */
-	public int getRenderPriority(){
+	public int getSortPriority(){
 		return 0;
 	}
 	
 	@Override
 	public int compareTo(GameThing gt){
-		return Integer.compare(this.getRenderPriority(), gt.getRenderPriority());
+		return Integer.compare(this.getSortPriority(), gt.getSortPriority());
 	}
 	
 	/**
 	 * Remove this thing from the given game
+	 *
 	 * @param game The game to remove it from
 	 */
 	public void removeFrom(Game game){
@@ -83,6 +86,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	
 	/**
 	 * Determine if this object has the given tag
+	 *
 	 * @param tag The tag to check for
 	 * @return true if it has the tag, false otherwise
 	 */
@@ -92,6 +96,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	
 	/**
 	 * Give a list of tags to this {@link GameThing}
+	 *
 	 * @param tags The tags
 	 */
 	public void addTags(Tag... tags){
@@ -100,6 +105,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	
 	/**
 	 * Remove tags from this {@link GameThing}
+	 *
 	 * @param tags The tags
 	 */
 	public void removeTags(Tag... tags){

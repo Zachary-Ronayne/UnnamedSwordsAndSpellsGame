@@ -67,7 +67,7 @@ public class LevelDoor extends ZusassDoor{
 	}
 	
 	@Override
-	public int getRenderPriority(){
+	public int getSortPriority(){
 		return -100;
 	}
 	

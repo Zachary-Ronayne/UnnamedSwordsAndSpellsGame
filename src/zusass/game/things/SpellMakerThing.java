@@ -60,14 +60,8 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	}
 	
 	@Override
-	public double getMaxClickRange(){
-		// TODO implement this based on the player or something
-		return 1;
-	}
-	
-	@Override
 	public void tick(Game game, double dt){
-		// TODO figure out how to handle intersections
+		// TODO figure out how to handle intersections in 3D
 //		var zgame = (ZusassGame)game;
 //		var p = zgame.getPlayer();
 //		var play = zgame.getPlayState();

@@ -38,12 +38,6 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 	}
 	
 	@Override
-	public double getMaxClickRange(){
-		// TODO implement this based on the player or something
-		return 1;
-	}
-	
-	@Override
 	public boolean enterRoom(Room3D r, EntityThing3D thing, Game game){
 		return super.enterRoom(r, thing, game);
 	}

@@ -144,7 +144,7 @@ public class ZusassPlayer extends ZusassMob{
 	
 	@Override
 	public void render(Game game, Renderer r){
-		// TODO decide what to render for the player
+		// TODO decide what to render for the player, a hud and or the players hand or body?
 //		r.setColor(0, 0, .5);
 //		r.drawRectangle(this.getBounds());
 //		this.renderAttackTimer(game, r);
