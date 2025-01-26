@@ -15,6 +15,7 @@ import zgame.things.entity.*;
 import zgame.things.entity.mobility.Mobility3D;
 import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.projectile.Projectile;
+import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.CylinderHitbox;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
@@ -32,7 +33,7 @@ import zusass.game.status.StatEffect;
 import static zusass.game.stat.ZusassStat.*;
 
 /** A generic mob in the Zusass game. All mobs have a cylinder hitbox */
-public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitbox{
+public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitbox, ClickerBounds{
 	
 	/** The json key used to store the spellbook which this mob has */
 	public final static String SPELLBOOK_KEY = "spellbook";
@@ -480,6 +481,31 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	/** @param height See {@link #height} */
 	public void setHeight(double height){
 		this.height = height;
+	}
+	
+	@Override
+	public double getClickX(){
+		return this.getX();
+	}
+	
+	@Override
+	public double getClickY(){
+		return this.getY() + this.getHeight();
+	}
+	
+	@Override
+	public double getClickZ(){
+		return this.getZ();
+	}
+	
+	@Override
+	public double getClickAngleH(){
+		return this.getMobilityData().getFacingHorizontalAngle();
+	}
+	
+	@Override
+	public double getClickAngleV(){
+		return this.getMobilityData().getFacingVerticalAngle();
 	}
 	
 	@Override

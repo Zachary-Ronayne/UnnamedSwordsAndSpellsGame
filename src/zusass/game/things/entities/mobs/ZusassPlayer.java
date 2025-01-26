@@ -126,8 +126,7 @@ public class ZusassPlayer extends ZusassMob{
 		if(this.isInputDisabled()) return false;
 		// Left click to interact with something on click
 		if(!press && button == GLFW_MOUSE_BUTTON_LEFT){
-			var mobilityData = this.getMobilityData();
-			return zgame.getCurrentRoom().attemptClick(zgame, this, mobilityData.getFacingHorizontalAngle(), mobilityData.getFacingVerticalAngle());
+			return zgame.getCurrentRoom().attemptClick(zgame, this);
 		}
 		// Right click to attack in a direction
 		else if(press && button == GLFW_MOUSE_BUTTON_RIGHT){

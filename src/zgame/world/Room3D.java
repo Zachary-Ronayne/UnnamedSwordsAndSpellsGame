@@ -11,6 +11,7 @@ import zgame.things.ThingClickDetector3D;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.still.tiles.*;
 import zgame.things.type.bounds.Bounds3D;
+import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.RectPrismBounds;
 
@@ -409,17 +410,15 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	 *
 	 * @param game The game containing this room
 	 * @param clicker The thing doing the clicking
-	 * @param clickAngleH The angle on the horizontal axis where the clicker clicked
-	 * @param clickAngleV The angle on the vertical axis where the clicker clicked
 	 * @return true if something was clicked, false otherwise
 	 */
-	public boolean attemptClick(Game game, Bounds3D clicker, double clickAngleH, double clickAngleV){
+	public boolean attemptClick(Game game, ClickerBounds clicker){
 		var clickables = this.getAllThings().get(ThingClickDetector3D.class);
 		if(clickables != null){
 			double closestDistance = -1;
 			ThingClickDetector3D closestClickable = null;
 			for(var c : clickables){
-				double distance = c.findClickDistance(clicker, clickAngleH, clickAngleV);
+				double distance = c.findClickDistance(clicker);
 				if((closestClickable == null || distance < closestDistance) && c.canClick(distance)){
 					closestDistance = distance;
 					closestClickable = c;

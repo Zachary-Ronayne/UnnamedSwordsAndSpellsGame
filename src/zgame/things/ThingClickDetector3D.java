@@ -2,9 +2,8 @@ package zgame.things;
 
 import zgame.core.Game;
 import zgame.physics.ZVector3D;
-import zgame.things.entity.mobility.MobilityEntity3D;
-import zgame.things.type.bounds.Bounds3D;
 import zgame.things.type.bounds.Clickable3D;
+import zgame.things.type.bounds.ClickerBounds;
 import zgame.world.Room3D;
 
 /** A utility interface for handling clicking on a game thing when a click happens on it */
@@ -25,16 +24,13 @@ public interface ThingClickDetector3D extends Clickable3D{
 	 * Utility method for finding the distance from a thing clicking on this thing
 	 *
 	 * @param clickerBounds The bounds of the thing that does the click
-	 * @param clickAngleH The angle on the horizontal axis where the clicker clicked
-	 * @param clickAngleV The angle on the vertical axis where the clicker clicked
 	 *
 	 * @return The distance from this object
 	 */
-	default double findClickDistance(Bounds3D clickerBounds, double clickAngleH, double clickAngleV){
+	default double findClickDistance(ClickerBounds clickerBounds){
 		// Determine if the clicker is in range of the thing to click
-		var clickDirection = new ZVector3D(clickAngleH, clickAngleV, 1, false);
-		// TODO maybe make a separate thing for getting the eye position for where the click would happen?
-		return this.rayDistance(clickerBounds.getX(), clickerBounds.getY() + clickerBounds.getHeight(), clickerBounds.getZ(),
+		var clickDirection = new ZVector3D(clickerBounds.getClickAngleH(), clickerBounds.getClickAngleV(), 1, false);
+		return this.rayDistance(clickerBounds.getClickX(), clickerBounds.getClickY(), clickerBounds.getClickZ(),
 				clickDirection.getX(), clickDirection.getY(), clickDirection.getZ());
 	}
 	
@@ -42,27 +38,14 @@ public interface ThingClickDetector3D extends Clickable3D{
 	 * Utility method for determining if the thing clicking on this thing is able to click
 	 *
 	 * @param clickerBounds The bounds of the thing that does the click
-	 * @param clickAngleH The angle on the horizontal axis where the clicker clicked
-	 * @param clickAngleV The angle on the vertical axis where the clicker clicked
 	 *
 	 * @return true if this thing can be clicked, false otherwise
 	 */
-	default boolean canClick(Bounds3D clickerBounds, double clickAngleH, double clickAngleV){
-		return this.canClick(this.findClickDistance(clickerBounds, clickAngleH, clickAngleV));
+	default boolean canClick(ClickerBounds clickerBounds){
+		return this.canClick(this.findClickDistance(clickerBounds));
 	}
 	
 	/**
-	 * Utility method for determining if the thing clicking on this thing is able to click
-	 *
-	 * @param clicker The thing clicking
-	 *
-	 * @return true if this thing can be clicked, false otherwise
-	 */
-	default boolean canClick(MobilityEntity3D clicker){
-		var mobilityData = clicker.getMobilityData();
-		return this.canClick(this.findClickDistance(clicker, mobilityData.getFacingHorizontalAngle(), mobilityData.getFacingVerticalAngle()));
-	}
-	
 	/**
 	 * Utility method for determining if the thing clicking on this thing is able to click
 	 *
