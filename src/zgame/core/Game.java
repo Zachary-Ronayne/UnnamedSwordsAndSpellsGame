@@ -890,6 +890,11 @@ public class Game implements Saveable, Destroyable{
 		return this.getScreenTop() + this.getCamera().sizeScreenToGameY(this.getScreenHeight());
 	}
 	
+	/**
+	 * Called whenever the window size of the game changes. Does nothing by default
+	 */
+	public void onWindowSizeChange(int newW, int newH){}
+	
 	/** @return See {@link #renderLooper} */
 	public GameLooper getRenderLooper(){
 		return this.renderLooper;

@@ -5,7 +5,6 @@ import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZConfig;
-import zgame.core.window.GameWindow;
 import zgame.stat.Stats;
 import zusass.game.MainPlay;
 import zusass.game.ZusassRoom;
@@ -70,12 +69,13 @@ public class ZusassGame extends Game{
 		this.setTps(100);
 		this.setMaxFps(144);
 		this.setCurrentState(new MainMenuState(this));
-		GameWindow w = this.getWindow();
-		w.setUseVsync(true);
-		// TODO make the main menu take up the full screen after changing the window size
-		w.setSize(1920, 1020);
-		w.center();
 		this.setInitSoundOnStart(false);
+		// For some reason this has to happen on the next tick and not in the constructor to make sure the menu gets resized properly
+		this.onNextLoop(() -> {
+			var w = this.getWindow();
+			w.setSize(1920, 1020);
+			w.center();
+		});
 		
 		// Loading assets
 		this.getFonts().addAll();
@@ -185,7 +185,10 @@ public class ZusassGame extends Game{
 			protected void render(Game game, Renderer r){}
 		};
 		
-		if(zgame != null) return;
+		if(zgame != null) {
+			ZConfig.error("An instance of ZusassGame already exists, will not create another");
+			return;
+		}
 		zgame = new ZusassGame();
 	}
 	
@@ -212,5 +215,20 @@ public class ZusassGame extends Game{
 	@Override
 	public String getGlobalSettingsLocation(){
 		return ZusassConfig.getGlobalSettingsPath();
+	}
+	
+	@Override
+	public void onWindowSizeChange(int newW, int newH){
+		super.onWindowSizeChange(newW, newH);
+		
+		// If the game is not in the play state, set menu size to the window size
+		var currentState = this.getCurrentState();
+		if(this.getPlayState() != currentState){
+			var menu = currentState.getMenu();
+			if(menu != null) {
+				menu.setWidth(newW);
+				menu.setHeight(newH);
+			}
+		}
 	}
 }

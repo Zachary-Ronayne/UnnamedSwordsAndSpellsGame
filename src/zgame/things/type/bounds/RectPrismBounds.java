@@ -1,6 +1,6 @@
 package zgame.things.type.bounds;
 
-/** An object with the bounds of an axis aligned rectangular pirsm */
+/** An object with the bounds of an axis aligned rectangular prism */
 public interface RectPrismBounds extends Bounds3D{
 	
 	/** @return The bottom center x coordinate of this bounds */

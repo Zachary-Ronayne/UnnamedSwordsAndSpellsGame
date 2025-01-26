@@ -442,6 +442,9 @@ public abstract class GameWindow implements Destroyable{
 		Dimension s = this.getWindowSize();
 		this.setWidth(s.width);
 		this.setHeight(s.height);
+		
+		var game = this.getGame();
+		if(game != null) game.onWindowSizeChange(s.width, s.height);
 	}
 	
 	/**
@@ -661,6 +664,8 @@ public abstract class GameWindow implements Destroyable{
 	private void updateInternalValues(){
 		this.updateRatios();
 		this.updateViewportValues();
+		var game = this.getGame();
+		if(game != null) game.onWindowSizeChange(this.getWidth(), this.getHeight());
 	}
 	
 	/** @return See {@link #windowRatio} */
