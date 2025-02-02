@@ -282,7 +282,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 					mx += res.x();
 					my += res.y();
 					mz += res.z();
-					if(res.wall()) {
+					if(res.wall()){
 						wall = true;
 						wallAngle = res.wallAngle();
 					}
@@ -412,21 +412,170 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	 * @return true if something was clicked, false otherwise
 	 */
 	public boolean attemptClick(Game game, ClickerBounds clicker){
+		// If no clickable things, do nothing
 		var clickables = this.getAllThings().get(ThingClickDetector3D.class);
-		if(clickables != null){
-			double closestDistance = -1;
-			ThingClickDetector3D closestClickable = null;
-			for(var c : clickables){
-				double distance = c.findClickDistance(clicker);
-				if((closestClickable == null || distance < closestDistance) && c.canClick(clicker.getClickRange(), distance)){
-					closestDistance = distance;
-					closestClickable = c;
+		if(clickables == null) return false;
+		
+		// Find the closest clickable
+		double closestDistance = -1;
+		ThingClickDetector3D closestClickable = null;
+		for(var c : clickables){
+			double distance = c.findClickDistance(clicker);
+			if((closestClickable == null || distance < closestDistance) && c.canClick(clicker.getClickRange(), distance)){
+				closestDistance = distance;
+				closestClickable = c;
+			}
+		}
+		// If nothing was clicked, do nothing
+		if(closestClickable == null) return false;
+		
+		// If something was clicked, find the closest tile that could be clicked by the clicker, and if it's closer than the clickable, then do nothing
+		double tileDistance = findTileClickDistance(clicker);
+		if(tileDistance >= 0 && tileDistance < closestDistance) return false;
+		
+		// Perform the actual click
+		closestClickable.handlePress(game, this);
+		return true;
+	}
+	
+	/**
+	 * Find the distance from the nearest tile that the given clicker will be able to click on
+	 *
+	 * @param clicker The clicker to check
+	 * @return The distance, or a negative number if nothing can be clicked on
+	 */
+	public double findTileClickDistance(ClickerBounds clicker){
+		// TODO consider optimizing some of these potentially repeated calculations
+		
+		// If max distance is zero or negative for some reason, then there is no click
+		double maxDistance = clicker.getClickRange();
+		if(maxDistance <= 0) return -1;
+		
+		// Track the current position on the ray
+		double rx = clicker.getClickX();
+		double ry = clicker.getClickY();
+		double rz = clicker.getClickZ();
+		
+		// Find the current tile
+		int tx = Tile3D.tileIndex(rx);
+		int ty = Tile3D.tileIndex(ry);
+		int tz = Tile3D.tileIndex(rz);
+		
+		// Find the direction the ray is going
+		var clickDirection = new ZVector3D(clicker.getClickAngleH(), clicker.getClickAngleV(), 1, false);
+		double dx = clickDirection.getX();
+		double dy = clickDirection.getY();
+		double dz = clickDirection.getZ();
+		boolean xPositive = dx > 0;
+		boolean yPositive = dy > 0;
+		boolean zPositive = dz > 0;
+		
+		// Continue to go through tiles until the max click range is hit
+		double distanceTravelled = 0;
+		while(distanceTravelled < maxDistance){
+			double tileDistance;
+			// If all indexes are inside the range of the tiles, then find the intersection distance to the tile
+			if(
+					ZMath.in(0, tx, this.getTilesX() - 1) &&
+					ZMath.in(0, ty, this.getTilesY() - 1) &&
+					ZMath.in(0, tz, this.getTilesZ() - 1)
+			){
+				var t = this.tiles[tx][ty][tz];
+				tileDistance = t.getType().getHitbox().clickDistance(t, clicker);
+			}
+			else tileDistance = -1;
+			
+			// If the distance to the tile is more than the max distance, then there is no click
+			if(tileDistance > maxDistance) return -1;
+			
+			// If a tile is hit, return that distance
+			if(tileDistance >= 0) return tileDistance;
+			
+			// Otherwise, move onto the next tile
+			
+			// Find which axis needs to be moved for the next tile
+			boolean xTileMove = false;
+			boolean yTileMove = false;
+			boolean zTileMove = false;
+			
+			double txMin = tx * Tile3D.size();
+			double txMax = (tx + 1) * Tile3D.size();
+			double tyMin = ty * Tile3D.size();
+			double tyMax = (ty + 1) * Tile3D.size();
+			double tzMin = tz * Tile3D.size();
+			double tzMax = (tz + 1) * Tile3D.size();
+			
+			// Find the closest exit point for each axis
+			// Check x axis
+			var minMax = ZMath.rayIntersectionRectPrismMinMax(rx, dx, txMin, txMax, null);
+			double xDist = minMax == null ? -1 : minMax[1];
+			
+			// Check y axis
+			minMax = ZMath.rayIntersectionRectPrismMinMax(ry, dy, tyMin, tyMax, null);
+			double yDist = minMax == null ? -1 : minMax[1];
+			
+			// Check z axis
+			minMax = ZMath.rayIntersectionRectPrismMinMax(rz, dz, tzMin, tzMax, null);
+			double zDist = minMax == null ? -1 : minMax[1];
+			
+			// Whichever distance is smallest is the axis to move on, as long as the distance was not negative
+			if(xDist >= 0 && xDist < yDist && xDist < zDist) xTileMove = true;
+			else if(yDist >= 0 && yDist < zDist) yTileMove = true;
+			else if(zDist >= 0) zTileMove = true;
+			
+			// The smallest distance will be the tile axis that changes
+			/*
+			 If moving out of bounds for tiles, i.e. no more tiles can ever be clicked, then quit early,
+			 i.e. if negative or greater than max, and already moving in that direction, quit early, there is no intersection
+			*/
+			if(xTileMove){
+				if(xPositive) {
+					tx++;
+					if(tx >= this.getTilesX()) return -1;
+				}
+				else {
+					tx--;
+					if(tx < 0) return -1;
 				}
 			}
-			if(closestClickable != null) closestClickable.handlePress(game, this);
+			else if(yTileMove){
+				if(yPositive) {
+					ty++;
+					if(ty >= this.getTilesY()) return -1;
+				}
+				else {
+					ty--;
+					if(ty < 0) return -1;
+				}
+			}
+			else if(zTileMove){
+				if(zPositive){
+					tz++;
+					if(tz >= this.getTilesZ()) return -1;
+				}
+				else {
+					tz--;
+					if(tz < 0) return -1;
+				}
+			}
+			// Should be impossible, but being safe
+			else break;
+			
+			txMin = tx * Tile3D.size();
+			txMax = (tx + 1) * Tile3D.size();
+			tyMin = ty * Tile3D.size();
+			tyMax = (ty + 1) * Tile3D.size();
+			tzMin = tz * Tile3D.size();
+			tzMax = (tz + 1) * Tile3D.size();
+			
+			// Find the new total distance moved from the original ray to the next tile
+			distanceTravelled = ZMath.rayDistanceToRectPrism(rx, ry, rz, dx, dy, dz, txMin, tyMin, tzMin, txMax, tyMax, tzMax);
+			// Technically it should be impossible for this to return negative, but just in case
+			if(distanceTravelled < 0) break;
 		}
-		// TODO account for clicking on tiles
-		return false;
+		
+		// If no tile was hit and max distance was reached, then nothing was clicked
+		return -1;
 	}
 	
 	@Override

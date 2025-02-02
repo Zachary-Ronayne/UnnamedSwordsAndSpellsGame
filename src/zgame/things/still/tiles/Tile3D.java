@@ -117,6 +117,14 @@ public class Tile3D extends GameThing implements Tile<HitBox3D, CollisionResult3
 		return TILE_SIZE_INVERSE;
 	}
 	
+	/**
+	 * @param pos The position to get the index for
+	 * @return The index in the tile array that the position represents, can be outside the valid tile range of the position is outside the tile range
+	 */
+	public static int tileIndex(double pos){
+		return (int)Math.floor(pos / inverseSize());
+	}
+	
 	@Override
 	public double getX(){
 		return this.x;

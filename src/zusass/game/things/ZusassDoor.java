@@ -49,7 +49,19 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 	
 	@Override
 	public void render(Game game, Renderer r){
-		var c = this.canClick(((ZusassGame)game).getPlayer()) ? new ZColor(0.2, 0.14, 0) : new ZColor(0.35, 0.22, 0);
+		var zgame = (ZusassGame)game;
+		double clickDistance = this.findClickDistance(zgame.getPlayer());
+		double maxClickRange = zgame.getPlayer().getClickRange();
+		
+		// Check for tiles
+		double tileDistance = -1;
+		if(clickDistance >= 0){
+			var room = zgame.getCurrentRoom();
+			if(room != null) tileDistance = room.findTileClickDistance(zgame.getPlayer());
+		}
+		
+		boolean canClick = clickDistance <= maxClickRange && clickDistance >= 0 && (tileDistance < 0 || tileDistance > clickDistance);
+		var c = canClick ? new ZColor(0.2, 0.14, 0) : new ZColor(0.35, 0.22, 0);
 		r.drawRectPrism(new RectRender3D(this.getBounds()), c, c, c, c, c, c);
 	}
 	

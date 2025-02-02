@@ -327,6 +327,37 @@ public final class ZMath{
 	}
 	
 	/**
+	 * Determine the entry and exit distances the given ray is from the given rectangular prism
+	 *
+	 * @param rx The x coordinate of the ray
+	 * @param ry The y coordinate of the ray
+	 * @param rz The z coordinate of the ray
+	 * @param dx The x normalized component of the direction of the ray
+	 * @param dy The y normalized component of the direction of the ray
+	 * @param dz The z normalized component of the direction of the ray
+	 * @param minX The minimum x coordinate of the prism
+	 * @param minY The minimum y coordinate of the prism
+	 * @param minZ The minimum z coordinate of the prism
+	 * @param maxX The maximum x coordinate of the prism
+	 * @param maxY The maximum y coordinate of the prism
+	 * @param maxZ The maximum z coordinate of the prism
+	 * @return An array with the entry and exit point on the prism indexed as 0 and 1 respectively, or null if there is no intersection
+	 */
+	public static double[] rayMinMaxToRectPrism(double rx, double ry, double rz,
+												double dx, double dy, double dz,
+												double minX, double minY, double minZ,
+												double maxX, double maxY, double maxZ){
+		// Check x axis
+		var minMax = rayIntersectionRectPrismMinMax(rx, dx, minX, maxX, null);
+		
+		// Check y axis
+		minMax = rayIntersectionRectPrismMinMax(ry, dy, minY, maxY, minMax);
+		
+		// Check z axis
+		return rayIntersectionRectPrismMinMax(rz, dz, minZ, maxZ, minMax);
+	}
+	
+	/**
 	 * Determine the distance the given ray is from the given rectangular prism
 	 *
 	 * @param rx The x coordinate of the ray
@@ -347,14 +378,7 @@ public final class ZMath{
 												double dx, double dy, double dz,
 												double minX, double minY, double minZ,
 												double maxX, double maxY, double maxZ){
-		// Check x axis
-		var minMax = rayIntersectionRectPrismMinMax(rx, dx, minX, maxX, null);
-		
-		// Check y axis
-		minMax = rayIntersectionRectPrismMinMax(ry, dy, minY, maxY, minMax);
-		
-		// Check z axis
-		minMax = rayIntersectionRectPrismMinMax(rz, dz, minZ, maxZ, minMax);
+		var minMax = rayMinMaxToRectPrism(rx, ry, rz, dx, dy, dz, minX, minY, minZ, maxX, maxY, maxZ);
 		
 		// If no mins or maxes were found, no intersection
 		if(minMax == null) return -1;
@@ -393,6 +417,7 @@ public final class ZMath{
 	public static double[] rayIntersectionRectPrismMinMax(double r, double d, double min, double max, double[] currentMinMax){
 		if(d == 0){
 			if(!in(min, r, max)) return null;
+			else return new double[]{Math.abs(r - min), Math.abs(r - max)};
 		}
 		else{
 			double minT = rayIntersectionInterval(min, r, d);
@@ -407,7 +432,6 @@ public final class ZMath{
 			if(minMax[1] < currentMinMax[1]) currentMinMax[1] = minMax[1];
 			return currentMinMax;
 		}
-		return null;
 	}
 	
 	/** Cannot instantiate {@link ZMath} */

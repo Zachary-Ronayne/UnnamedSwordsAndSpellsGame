@@ -90,6 +90,9 @@ public class LevelRoom extends ZusassRoom{
 		var levelDoor = new LevelDoor(X_TILES - 3, 1, Z_TILES - 1.25, this.getLevel() + 1, this);
 		this.addThing(levelDoor);
 		
+		// Put a tile in front of the door, mostly for testing
+		this.setTile(X_TILES - 3, 1, Z_TILES - 3, BaseTiles3D.SOLID_DARK);
+		
 		// TODO add the actual enemy
 //		// issue#25 if this is changed to add hundreds of enemies, the TPS tanks while not using all the computer's resources. Probably need to make tick looper account for time spent rendering
 //		// Add enemies
