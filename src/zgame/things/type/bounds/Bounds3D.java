@@ -59,4 +59,17 @@ public interface Bounds3D extends Position3D{
 		return new ZRect3D(this.getX(), this.getY(), this.getZ(), this.getWidth(), this.getHeight(), this.getLength());
 	}
 	
+	/**
+	 * Find the distance from this bounds to the given bounds, based on their center bottom coordinates
+	 *
+	 * @param b The other bounds to compare
+	 * @return The distance
+	 */
+	default double distance(Bounds3D b){
+		double x = this.getX() - b.getX();
+		double y = this.getY() - b.getY();
+		double z = this.getZ() - b.getZ();
+		return Math.sqrt(x * x + y + y + z * z);
+	}
+	
 }

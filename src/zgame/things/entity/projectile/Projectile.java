@@ -12,7 +12,7 @@ import zgame.things.type.bounds.HitBox2D;
 
 import java.util.function.Consumer;
 
-// TODO abstract this to 2D and 3D
+// TODO abstract this to 2D and 3D, probably need a sphere type of hitbox
 /** An {@link EntityThing} which represents a thing flying through the air */
 public abstract class Projectile extends EntityThing2D{
 	

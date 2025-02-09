@@ -13,12 +13,14 @@ import zgame.physics.material.Materials;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
+import zgame.things.entity.EntityThing3D;
 import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.mobility.MobilityType;
 import zgame.things.still.tiles.BaseTiles3D;
 import zgame.things.still.tiles.CubeTexTile;
 import zgame.things.still.tiles.TileHitbox3D;
 import zgame.things.type.bounds.CylinderHitbox;
+import zgame.things.type.bounds.RectPrismHitbox;
 import zgame.world.Directions3D;
 import zgame.world.Room3D;
 
@@ -85,6 +87,49 @@ public class GameDemo3D extends Game{
 		player.setZ(2);
 		dummyRoom.addThing(player);
 		
+		var movingRect = new Rect(2){
+			@Override
+			public void tick(Game game, double dt){
+				super.tick(game, dt);
+			}
+		};
+		movingRect.setY(2);
+		movingRect.setX(-1.9);
+		var movingCylinder = new Cylinder(2);
+		dummyRoom.addThing(movingRect);
+		movingCylinder.setY(3);
+		movingCylinder.setX(1.9);
+		dummyRoom.addThing(movingCylinder);
+		
+		var staticRect = new Rect(0);
+		staticRect.setX(0.75);
+		staticRect.setY(2.85);
+		var staticCylinder = new Cylinder(0);
+		staticCylinder.setX(-0.75);
+		staticCylinder.setY(2.85);
+		dummyRoom.addThing(staticRect);
+		dummyRoom.addThing(staticCylinder);
+		
+		staticRect = new Rect(0);
+		staticRect.setX(0.75);
+		staticRect.setY(2.3);
+		staticCylinder = new Cylinder(0);
+		staticCylinder.setX(-0.75);
+		staticCylinder.setY(2.3);
+		dummyRoom.addThing(staticRect);
+		dummyRoom.addThing(staticCylinder);
+		
+		staticRect = new Rect(0);
+		staticRect.setX(-2);
+		staticRect.setY(1);
+		staticRect.setZ(-2);
+		staticCylinder = new Cylinder(0);
+		staticCylinder.setX(-2);
+		staticCylinder.setY(1);
+		staticCylinder.setZ(-3);
+		dummyRoom.addThing(staticRect);
+		dummyRoom.addThing(staticCylinder);
+				
 		game.start();
 	}
 	
@@ -395,6 +440,114 @@ public class GameDemo3D extends Game{
 			// Forward, north, negative z, cyan
 			c = new ZColor(0, 0.5, 0.5, 1);
 			r.drawRectPrism(new RectRender3D(0, 0, -.75, 0.1, 0.1, 0.1), c, c, c, c, c, c);
+		}
+	}
+	
+	private static abstract class MovingThing extends EntityThing3D {
+		
+		private boolean movingLeft;
+		private final double speed;
+		private boolean intersecting;
+		
+		public MovingThing(double speed){
+			super(1);
+			this.speed = speed;
+			this.movingLeft = false;
+			this.setGravityLevel(0);
+			this.intersecting = false;
+		}
+		
+		/** @return See {@link #intersecting} */
+		public boolean isIntersecting(){
+			return this.intersecting;
+		}
+		
+		@Override
+		public double getSurfaceArea(){
+			return 1;
+		}
+		
+		@Override
+		public double getFrictionConstant(){
+			return 0;
+		}
+		
+		@Override
+		public double getWidth(){
+			return 0.5;
+		}
+		
+		@Override
+		public double getHeight(){
+			return 0.5;
+		}
+		
+		@Override
+		public double getLength(){
+			return 0.5;
+		}
+		
+		@Override
+		public void tick(Game game, double dt){
+			super.tick(game, dt);
+			double dx = dt * speed;
+			
+			if(this.getX() < -1.5) movingLeft = false;
+			else if(this.getX() > 1.5) movingLeft = true;
+			
+			if(movingLeft) this.addX(-dx);
+			else this.addX(dx);
+			
+			boolean foundIntersection = false;
+			var things = dummyRoom.getHitBoxThings();
+			if(things != null){
+				for(var t : things){
+					if(t != this && t.intersects(this)){
+						foundIntersection = true;
+						break;
+					}
+				}
+			}
+			this.intersecting = foundIntersection;
+		}
+	}
+	
+	private static class Rect extends MovingThing implements RectPrismHitbox{
+		public Rect(double speed){
+			super(speed);
+		}
+		
+		@Override
+		protected void render(Game game, Renderer r){
+			ZColor c;
+			if(this.isIntersecting()) c = new ZColor(1, 1, 0);
+			else c = new ZColor(1, 0, 0);
+			r.drawRectPrism(new RectRender3D(this.getBounds()), c, c, c, c, c, c);
+		}
+	}
+	
+	private static class Cylinder extends MovingThing implements CylinderHitbox{
+		public Cylinder(double speed){
+			super(speed);
+		}
+		
+		@Override
+		public double getRadius(){
+			return 0.25;
+		}
+		
+		@Override
+		protected void render(Game game, Renderer r){
+			ZColor c;
+			if(this.isIntersecting()) c = new ZColor(0, 1, 1);
+			else c = new ZColor(0, 0, 1);
+			r.setColor(c);
+			r.drawEllipse3D(this.getX(), this.getY(), this.getZ(), this.getWidth(), this.getHeight());
+			r.drawEllipse3D(this.getX(), this.getY() + this.getHeight(), this.getZ(), this.getWidth(), this.getLength());
+			var renderBounds = new RectRender3D(this.getBounds());
+			renderBounds.setWidth(0.1);
+			renderBounds.setLength(0.1);
+			r.drawRectPrism(renderBounds, c, c, c, c, c, c);
 		}
 	}
 	

@@ -1,5 +1,6 @@
 package zgame.things.type.bounds;
 
+import zgame.core.utils.ZMath;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
@@ -68,6 +69,18 @@ public interface CylinderHitbox extends HitBox3D{
 	@Override
 	default boolean intersectsRect(double x, double y, double z, double width, double height, double length){
 		return ZCollision.rectIntersectsCylinder(x, y, z, width, height, length, this.getX(), this.getY(), this.getZ(), this.getRadius(), this.getHeight());
+	}
+	
+	@Override
+	default boolean intersectsCylinder(double x, double y, double z, double radius, double height){
+		double tHeight = this.getHeight();
+		double ty = this.getY();
+		
+		double dx = x - this.getX();
+		double dz = z - this.getZ();
+		return
+				ZMath.linesSameAxisIntersect(y, y + height, ty, ty + tHeight) &&
+				(Math.sqrt(dx * dx + dz * dz) < radius + this.getRadius());
 	}
 	
 	@Override

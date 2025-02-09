@@ -39,9 +39,11 @@ public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	
 	@Override
 	default boolean intersects(HitBox3D hitBox){
-		// TODO make sure both hitbox types are implemented here
-		if(hitBox.getHitboxType() == HitboxType.CYLINDER){
+		if(hitBox.getHitboxType() == HitboxType.RECT_PRISM){
 			return this.intersectsRect(hitBox.getX(), hitBox.getY(), hitBox.getZ(), hitBox.getWidth(), hitBox.getHeight(), hitBox.getLength());
+		}
+		else if(hitBox.getHitboxType() == HitboxType.CYLINDER){
+			return this.intersectsCylinder(hitBox.getX(), hitBox.getY(), hitBox.getZ(), hitBox.getWidth() * 0.5, hitBox.getHeight());
 		}
 		return false;
 	}
@@ -58,6 +60,18 @@ public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	 * @return true if the hitboxes intersect, false otherwise
 	 */
 	boolean intersectsRect(double x, double y, double z, double width, double height, double length);
+	
+	/**
+	 * Determine if this hitbox intersects the given cylinder
+	 *
+	 * @param x The bottom center x coordinate of the cylinder
+	 * @param y The bottom center y coordinate of the cylinder
+	 * @param z The bottom center z coordinate of the cylinder
+	 * @param radius The radius of the cylinder
+	 * @param height The height of the cylinder
+	 * @return true if the hotboxes intersect, false otherwise
+	 */
+	boolean intersectsCylinder(double x, double y, double z, double radius, double height);
 	
 	/**
 	 * Determine a {@link CollisionResult3D} from colliding this object with the given rectangular prism bounds. Essentially, move this object so that it no longer

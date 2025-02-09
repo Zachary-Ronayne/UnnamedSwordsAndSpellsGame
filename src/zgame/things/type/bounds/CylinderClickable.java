@@ -4,7 +4,7 @@ package zgame.things.type.bounds;
 public interface CylinderClickable extends Clickable3D{
 	@Override
 	default double rayDistance(double rx, double ry, double rz, double dx, double dy, double dz){
-		// TODO implement
+		// issue#59 implement
 		return 0;
 	}
 }

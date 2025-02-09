@@ -48,7 +48,7 @@ public abstract class Room<
 	public Room(){
 		this.thingsMap = new ClassMappedList();
 		this.thingsMap.addClass(GameThing.class);
-		this.thingsMap.addClass(HitBox.class);
+		this.thingsMap.addClass(this.getHitBoxType());
 		this.thingsMap.addClass(GameTickable.class);
 		this.thingsMap.addClass(this.getEntityClass());
 		

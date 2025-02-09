@@ -61,13 +61,13 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	
 	@Override
 	public void tick(Game game, double dt){
-		// TODO figure out how to handle intersections in 3D
-//		var zgame = (ZusassGame)game;
-//		var p = zgame.getPlayer();
-//		var play = zgame.getPlayState();
-//		if(play.showingMenu(this.menu) && !p.getBounds().intersects(this.getBounds())){
-//			zgame.onNextLoop(() -> play.removeMenu(game, this.menu));
-//		}
+		var zgame = (ZusassGame)game;
+		var p = zgame.getPlayer();
+		var play = zgame.getPlayState();
+		// If the player is too far away from the spell maker, then make them leave the menu
+		if(play.showingMenu(this.menu) && p.distance(this) > p.getClickRange() + this.getWidth()){
+			zgame.onNextLoop(() -> play.removeMenu(game, this.menu));
+		}
 	}
 	
 	/** @return See {@link #uuid} */

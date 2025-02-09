@@ -434,6 +434,22 @@ public final class ZMath{
 		}
 	}
 	
+	/**
+	 * Determine if two line segments intersect, assuming they lie on the same axis
+	 * @param a1 The smaller coordinate of the first line
+	 * @param a2 The larger coordinate of the first line
+	 * @param b1 The smaller coordinate of the second line
+	 * @param b2 The larger coordinate of the second line
+	 * @return true if the lines intersect, false otherwise
+	 */
+	public static boolean linesSameAxisIntersect(double a1, double a2, double b1, double b2){
+		return
+				in(a1, b1, a2) ||
+				in(a1, b2, a2) ||
+				in(b1, a1, b2) ||
+				in(b1, a2, b2);
+	}
+	
 	/** Cannot instantiate {@link ZMath} */
 	private ZMath(){}
 	
