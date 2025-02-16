@@ -1,18 +1,21 @@
 package zusass.game.things.entities.projectile;
 
 import zgame.core.Game;
+import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
 import zgame.core.utils.NotNullList;
-import zgame.physics.ZVector2D;
+import zgame.physics.ZVector3D;
 import zgame.things.BaseTags;
-import zgame.things.entity.projectile.UsedProjectile;
-import zgame.things.type.bounds.CircleHitBox;
-import zgame.things.type.bounds.HitBox2D;
+import zgame.things.entity.projectile.Projectile2D;
+import zgame.things.entity.projectile.Projectile3D;
+import zgame.things.type.bounds.HitBox3D;
+import zgame.things.type.bounds.SphereHitBox;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
 
-/** A {@link UsedProjectile} which applies a magic effect when it hits something other than its caster */
-public class MagicProjectile extends UsedProjectile implements CircleHitBox{
+/** A {@link Projectile2D} which applies a magic effect when it hits something other than its caster */
+public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	
 	/** The radius of the projectile */
 	private double radius;
@@ -25,12 +28,13 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	 *
 	 * @param x The initial x position of the projectile
 	 * @param y The initial y position of the projectile
+	 * @param z The initial z position of the projectile
 	 * @param sourceId See {@link #sourceId}, i.e. the uuid of the caster of this magic projectile
 	 * @param launchVelocity The initial velocity of the projectile
 	 * @param effects See {@link #effects}
 	 */
-	public MagicProjectile(double x, double y, String sourceId, ZVector2D launchVelocity, NotNullList<SpellEffect> effects){
-		this(x, y, 10, sourceId, launchVelocity, effects);
+	public MagicProjectile(double x, double y, double z, String sourceId, ZVector3D launchVelocity, NotNullList<SpellEffect> effects){
+		this(x, y, z, 0.2, sourceId, launchVelocity, effects);
 	}
 	
 	/**
@@ -38,13 +42,14 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	 *
 	 * @param x The initial x position of the projectile
 	 * @param y The initial y position of the projectile
+	 * @param z The initial z position of the projectile
 	 * @param radius See {@link #radius}
 	 * @param sourceId See {@link #sourceId}, i.e. the uuid of the caster of this magic projectile
 	 * @param launchVelocity The initial velocity of the projectile
 	 * @param effects See {@link #effects}
 	 */
-	public MagicProjectile(double x, double y, double radius, String sourceId, ZVector2D launchVelocity, NotNullList<SpellEffect> effects){
-		this(x, y, radius, -1, sourceId, launchVelocity, effects);
+	public MagicProjectile(double x, double y, double z, double radius, String sourceId, ZVector3D launchVelocity, NotNullList<SpellEffect> effects){
+		this(x, y, z, radius, -1, sourceId, launchVelocity, effects);
 	}
 	
 	/**
@@ -52,14 +57,16 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	 *
 	 * @param x The initial x position of the projectile
 	 * @param y The initial y position of the projectile
+	 * @param z The initial z position of the projectile
 	 * @param radius See {@link #radius}
 	 * @param range See {@link #range}
 	 * @param sourceId See {@link #sourceId}, i.e. the uuid of the caster of this magic projectile
 	 * @param launchVelocity The initial velocity of the projectile
 	 * @param effects See {@link #effects}
 	 */
-	public MagicProjectile(double x, double y, double radius, double range, String sourceId, ZVector2D launchVelocity, NotNullList<SpellEffect> effects){
-		super(x, y, sourceId, launchVelocity);
+	public MagicProjectile(double x, double y, double z, double radius, double range, String sourceId, ZVector3D launchVelocity, NotNullList<SpellEffect> effects){
+		super(x, y, z, launchVelocity);
+		this.setSourceId(sourceId);
 		this.setRadius(radius);
 		this.setRange(range);
 		this.effects = effects;
@@ -76,14 +83,15 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	}
 	
 	@Override
-	public void hit(Game game, HitBox2D thing){
+	public void hit(Game game, HitBox3D thing){
 		thing.hitBy(this);
 	}
 	
 	@Override
 	protected void render(Game game, Renderer r){
-		r.setColor(.6, .6, 1, .8);
-		r.drawEllipse(this.getBounds());
+		// TODO implement sphere rendering or something closer than a cube, also make sure the coordinates are aligned
+		var c = new ZColor(.6, .6, 1, .8);
+		r.drawRectPrism(new RectRender3D(this.getBounds()), c, c, c, c, c, c);
 	}
 	
 	@Override

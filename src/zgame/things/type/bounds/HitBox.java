@@ -4,7 +4,7 @@ import zgame.core.utils.Uuidable;
 import zgame.physics.collision.CollisionResult;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
-import zgame.things.entity.projectile.Projectile;
+import zgame.things.entity.projectile.Projectile2D;
 import zgame.things.type.Materialable;
 
 /**
@@ -34,7 +34,7 @@ public interface HitBox<H extends HitBox<H, C>, C extends CollisionResult<C>> ex
 	 *
 	 * @param p The projectile which hit this {@link HitBox}
 	 */
-	default void hitBy(Projectile p){}
+	default void hitBy(Projectile2D p){}
 	
 	/**
 	 * A method that defines what this object does when it touches a floor
@@ -93,4 +93,7 @@ public interface HitBox<H extends HitBox<H, C>, C extends CollisionResult<C>> ex
 	 */
 	H get();
 	
+	// TODO consider renaming this as it's about the surface area when falling down
+	/** @return The surface area of this hitbox as it moves down */
+	double getSurfaceArea();
 }

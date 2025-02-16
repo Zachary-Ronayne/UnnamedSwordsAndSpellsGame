@@ -9,5 +9,7 @@ public enum HitboxType{
 	/** A non rotating upwards facing cylinder */
 	CYLINDER,
 	/** An axis aligned rectangular prism */
-	RECT_PRISM
+	RECT_PRISM,
+	/** A sphere hitbox */
+	SPHERE
 }

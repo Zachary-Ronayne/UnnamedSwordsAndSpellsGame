@@ -1,170 +1,162 @@
 package zgame.things.entity.projectile;
 
 import zgame.core.Game;
+import zgame.core.GameTickable;
 import zgame.core.utils.FunctionMap;
-import zgame.physics.ZVector2D;
-import zgame.physics.collision.CollisionResult2D;
+import zgame.physics.ZVector;
+import zgame.physics.collision.CollisionResult;
 import zgame.things.BaseTags;
 import zgame.things.entity.EntityThing;
-import zgame.things.entity.EntityThing2D;
 import zgame.things.type.bounds.HitBox;
-import zgame.things.type.bounds.HitBox2D;
+import zgame.world.Room;
 
 import java.util.function.Consumer;
 
-// TODO abstract this to 2D and 3D, probably need a sphere type of hitbox
-/** An {@link EntityThing} which represents a thing flying through the air */
-public abstract class Projectile extends EntityThing2D{
+/**
+ * An interface for abstracting common functionality for projectile entities
+ *
+ * @param <H> The type of hitbox of the projectile
+ * @param <E> The type of entity of the projectile
+ * @param <V> The type of vector used by the projectile
+ * @param <R> The type of room which the projectile can exist in
+ * @param <C> The type of collision results used by the projectile
+ */
+public interface Projectile<H extends HitBox<H, C>,
+		E extends EntityThing<H, E, V, R, C>,
+		V extends ZVector<V>,
+		R extends Room<H, E, V, R, C>,
+		C extends CollisionResult<C>
+		> extends GameTickable, HitBox<H, C>{
 	
 	/**
-	 * A mapping of the functions to call when certain object types are hit. This essentially replaces manually defining abstract functions in this class, allowing a specific
-	 * function to be called for a specific type
+	 * Called to check this projectile's collision with the given entity
+	 * @param game The game where the collision took place
+	 * @param entity The entity being potentially collided with
+	 * @param dt The amount of time passed in a tick
 	 */
-	private final FunctionMap mappedFuncs;
-	
-	/** The amount of distance this projectile can travel before being deleted, negative value to never be deleted */
-	private double range;
-	
-	/** The total distance this projectile has traveled since creation */
-	private double totalDistance;
-	
-	/** true if the projectile should be removed in the next tick, false otherwise */
-	private boolean willRemove;
-	
-	/** true if this is a {@link Projectile} which destroys itself when it hits anything, false otherwise */
-	private boolean onHit;
-	
-	/**
-	 * Create a projectile at the specified location, moving at the given velocity
-	 *
-	 * @param x The initial x position of the projectile
-	 * @param y The initial y position of the projectile
-	 * @param launchVelocity The initial velocity of the projectile
-	 */
-	public Projectile(double x, double y, ZVector2D launchVelocity){
-		super(x, y);
-		this.addVelocity(launchVelocity);
-		this.mappedFuncs = new FunctionMap();
-		this.range = -1;
-		this.totalDistance = 0;
-		this.willRemove = false;
-		this.onHit = false;
-	}
-	
-	@Override
-	public void checkEntityCollision(Game game, EntityThing2D entity, double dt){
-		super.checkEntityCollision(game, entity, dt);
+	default void checkEntityCollision(Game game, E entity, double dt){
 		// Ignore the current thing if the projectile will not hit it, or if the entity should not collide with projectiles
-		if(!willHit(entity.get()) || entity.hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
-		hit(game, entity.get());
-		if(isOnHit()) removeNext();
+		if(!this.willHit(entity.get()) || entity.hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
+		this.hit(game, entity.get());
+		if(this.isOnHit()) this.removeNext();
 	}
 	
 	/**
-	 * Add a new function for {@link #mappedFuncs}
+	 * @return A non-null mapping of the functions to call when certain object types are hit. This essentially replaces manually defining abstract functions in this class,
+	 * 		allowing a specific function to be called for a specific type
+	 */
+	FunctionMap getMappedFuncs();
+	
+	/**
+	 * Add a new function for {@link #getMappedFuncs()}
+	 *
 	 * @param clazz The class of the type of the object accepted by the function
 	 * @param func The function
 	 * @param <T> The type of clazz
 	 */
-	public <T> void addHitFunc(Class<T> clazz, Consumer<T> func){
-		this.mappedFuncs.addFunc(clazz, func);
+	default <T> void addHitFunc(Class<T> clazz, Consumer<T> func){
+		this.getMappedFuncs().addFunc(clazz, func);
 	}
 	
 	/**
-	 * Call a function from {@link #mappedFuncs}.
+	 * Call a function from {@link #getMappedFuncs()}
 	 * Does nothing if no function exists
 	 *
 	 * @param clazz The class of the type of the object accepted by the function
 	 * @param thing The object to pass to the function
 	 * @param <T> The type of clazz
 	 */
-	public <T> void hit(Class<T> clazz, T thing){
-		this.mappedFuncs.func(clazz, thing);
+	default <T> void hit(Class<T> clazz, T thing){
+		this.getMappedFuncs().func(clazz, thing);
 	}
 	
 	@Override
-	public void touchFloor(CollisionResult2D collision){
+	default void touchFloor(C collision){
+		if(this.isOnHit()) this.removeNext();
+	}
+	
+	// Projectiles do nothing on leaving a floor by default
+	@Override
+	default void leaveFloor(){}
+	
+	@Override
+	default void touchCeiling(C collision){
 		if(this.isOnHit()) this.removeNext();
 	}
 	
 	@Override
-	public void leaveFloor(){}
-	
-	@Override
-	public void touchCeiling(CollisionResult2D collision){
+	default void touchWall(C result){
 		if(this.isOnHit()) this.removeNext();
 	}
 	
+	// Projectiles do nothing on leaving a wall by default
 	@Override
-	public void touchWall(CollisionResult2D result){
-		if(this.isOnHit()) this.removeNext();
-	}
+	default void leaveWall(){}
 	
 	@Override
-	public void leaveWall(){}
-	
-	@Override
-	public void collide(CollisionResult2D r){
+	default void collide(C r){
 		// OnHit projectiles are removed on collision
 		if(this.isOnHit() && r.isCollided()) this.removeNext();
 	}
 	
 	/**
-	 * Called when this {@link Projectile} hits the given {@link HitBox}
+	 * Called when this {@link Projectile2D} hits the given {@link HitBox}
 	 *
 	 * @param game The game where thing was hit
 	 * @param thing The {@link HitBox} which was hit
 	 */
-	public abstract void hit(Game game, HitBox2D thing);
+	void hit(Game game, H thing);
 	
 	/**
-	 * Determine if this {@link Projectile} will hit the given {@link HitBox} thing when their hitboxes intersect
+	 * Determine if this {@link Projectile2D} will hit the given {@link HitBox} thing when their hitboxes intersect
 	 *
 	 * @param thing The hitbox to check
 	 * @return true thing will hit this, false otherwise
 	 */
-	public boolean willHit(HitBox2D thing){
-		return this != thing && this.intersects(thing);
+	default boolean willHit(H thing){
+		// A projectile should not hit itself
+		if(this == thing) return false;
+		
+		// If thing is the source of this projectile, then it will not hit
+		var sourceId = this.getSourceId();
+		if(sourceId != null && sourceId.equals(thing.getUuid())) return false;
+		
+		// Otherwise it will hit as long as they intersect
+		return this.intersects(thing);
 	}
 	
-	/** @return See {@link #onHit} */
-	public boolean isOnHit(){
-		return this.onHit;
-	}
+	/** @return true if this projectile should be deleted when it hits something, false otherwise */
+	boolean isOnHit();
 	
-	/** @param onHit See {@link #onHit} */
-	public void setOnHit(boolean onHit){
-		this.onHit = onHit;
-	}
+	/** @return The total distance that this projectile has travelled */
+	double getTotalDistance();
 	
-	/** @return See {@link #totalDistance} */
-	public double getTotalDistance(){
-		return this.totalDistance;
-	}
+	/** @param distance Set the value returned by {@link #getTotalDistance()} */
+	void setTotalDistance(double distance);
 	
-	/** @return See {@link #range} */
-	public double getRange(){
-		return this.range;
-	}
+	/** @return The maximum range this projectile can travel before being deleted, or negative to never be deleted by range */
+	double getRange();
 	
-	/** @param range See {@link #range} */
-	public void setRange(double range){
-		this.range = range;
-	}
+	/** @return The uuid of a thing that created this projectile, or null if nothing created it. If the creator of this thing touches this, then this will not hit its creator */
+	String getSourceId();
 	
 	/** Tell this projectile to be removed on the next tick */
-	public void removeNext(){
-		this.willRemove = true;
-	}
+	void removeNext();
+	
+	/** @return true if this thing should be removed on the next tick, false otherwise. Should return true any time {@link #removeNext()} has been called */
+	boolean willRemove();
 	
 	@Override
-	public void tick(Game game, double dt){
-		if(this.willRemove) this.removeFrom(game);
+	default void tick(Game game, double dt){
+		if(this.willRemove()) this.getEntity().removeFrom(game);
 		
 		var r = this.getRange();
-		if(r >= 0 && this.totalDistance >= r) this.removeNext();
+		if(r >= 0 && this.getTotalDistance() >= r) this.removeNext();
 		
-		super.tick(game, dt);
-		this.totalDistance += this.getVelocity().getMagnitude() * dt;
+		this.setTotalDistance(this.getTotalDistance() + this.getEntity().getVelocity().getMagnitude() * dt);
 	}
+	
+	/** @return The entity thing which is this projectile, all projectiles should be an entity. Must never return null, should always return this */
+	E getEntity();
+	
 }

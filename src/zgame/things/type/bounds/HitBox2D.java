@@ -2,7 +2,7 @@ package zgame.things.type.bounds;
 
 import zgame.physics.collision.CollisionResult2D;
 import zgame.physics.material.Material;
-import zgame.things.entity.projectile.Projectile;
+import zgame.things.entity.projectile.Projectile2D;
 
 /**
  * An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds
@@ -90,7 +90,7 @@ public interface HitBox2D extends HitBox<HitBox2D, CollisionResult2D>, Bounds2D{
 	 *
 	 * @param p The projectile which hit this {@link HitBox2D}
 	 */
-	default void hitBy(Projectile p){}
+	default void hitBy(Projectile2D p){}
 	
 	/**
 	 * Reposition this object so that it is to the left of the given x coordinate.

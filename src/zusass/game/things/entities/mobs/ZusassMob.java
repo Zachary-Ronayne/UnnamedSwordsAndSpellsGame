@@ -14,7 +14,7 @@ import zgame.stat.status.StatusEffects;
 import zgame.things.entity.*;
 import zgame.things.entity.mobility.Mobility3D;
 import zgame.things.entity.mobility.MobilityEntity3D;
-import zgame.things.entity.projectile.Projectile;
+import zgame.things.entity.projectile.Projectile2D;
 import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.CylinderHitbox;
 import zusass.ZusassGame;
@@ -239,7 +239,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	}
 	
 	@Override
-	public void hitBy(Projectile p){
+	public void hitBy(Projectile2D p){
 		p.hit(ZusassMob.class, this);
 	}
 	
@@ -511,12 +511,6 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	@Override
 	public double getClickRange(){
 		return this.stat(ATTACK_RANGE) * 0.8;
-	}
-	
-	@Override
-	public double getSurfaceArea(){
-		double r = this.getRadius();
-		return Math.PI * r * r;
 	}
 	
 	@Override

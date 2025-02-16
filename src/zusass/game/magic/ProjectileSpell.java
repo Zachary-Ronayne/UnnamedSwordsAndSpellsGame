@@ -3,7 +3,7 @@ package zusass.game.magic;
 import com.google.gson.JsonElement;
 import zgame.core.file.Saveable;
 import zgame.core.utils.NotNullList;
-import zgame.physics.ZVector2D;
+import zgame.physics.ZVector3D;
 import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
@@ -77,12 +77,13 @@ public class ProjectileSpell extends Spell{
 	@Override
 	protected void cast(ZusassGame zgame, ZusassMob caster){
 		var r = zgame.getCurrentRoom();
-		var vel = new ZVector2D(caster.getAttackDirection(), this.getSpeed(), false);
-		var p = new MagicProjectile(caster.centerX(), caster.centerY(), caster.getUuid(), vel, this.getEffects());
+		// TODO remove attack direction? Or have it be separate from facing
+		var mobilityData = caster.getMobilityData();
+		var vel = new ZVector3D(mobilityData.getFacingHorizontalAngle(), mobilityData.getFacingVerticalAngle(), this.getSpeed(), false);
+		// TODO figure out the best way to make the spell come from the caster's "hands"
+		var p = new MagicProjectile(caster.centerX(), caster.centerY() + caster.getHeight() * 0.5, caster.centerZ(), caster.getUuid(), vel, this.getEffects());
 		p.setRange(this.range);
 		p.setRadius(this.radius);
-		p.addX(-p.getWidth() * .5);
-		p.addY(-p.getHeight() * .5);
 		r.addThing(p);
 	}
 	
@@ -105,6 +106,7 @@ public class ProjectileSpell extends Spell{
 	public double getCost(){
 		// This is a very arbitrary calculation for now, basically, the more powerful the spell, the higher the cost
 		var range = this.getRange();
+		// TODO rebalance the cost of a spell based on the scale of 3D objects
 		return super.getCost() + ((range < 0 ? 1000 : range) * 0.02) * (this.getSpeed() * 0.1) + this.getRadius() * 0.1;
 	}
 	

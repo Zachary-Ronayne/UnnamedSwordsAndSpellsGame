@@ -364,9 +364,6 @@ public abstract class EntityThing<
 		return Math.sqrt(Math.abs((2.0 * this.getMass() * this.getGravityAcceleration()) / (m.getFriction() * surfaceArea * 0.01)));
 	}
 	
-	/** @return The surface area of this {@link EntityThing} */
-	public abstract double getSurfaceArea();
-	
 	/**
 	 * @return The number determining how much friction applies to this {@link EntityThing}.
 	 * 		Higher values mean more friction, lower values mean less friction, 0 means no friction.

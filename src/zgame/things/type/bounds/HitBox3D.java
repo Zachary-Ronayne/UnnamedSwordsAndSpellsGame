@@ -2,7 +2,7 @@ package zgame.things.type.bounds;
 
 import zgame.physics.collision.CollisionResult3D;
 import zgame.physics.material.Material;
-import zgame.things.entity.projectile.Projectile;
+import zgame.things.entity.projectile.Projectile3D;
 
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
 public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
@@ -21,7 +21,7 @@ public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	 *
 	 * @param p The projectile which hit this {@link HitBox3D}
 	 */
-	default void hitBy(Projectile p){}
+	default void hitBy(Projectile3D p){}
 	
 	/** @return The previous value of {@link #getX()} before the last time it was moved with velocity */
 	double getPX();
@@ -87,9 +87,5 @@ public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	 * @return The information about the collision
 	 */
 	CollisionResult3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m);
-	
-	/** @return The surface area of this hitbox */
-	
-	double getSurfaceArea();
 	
 }
