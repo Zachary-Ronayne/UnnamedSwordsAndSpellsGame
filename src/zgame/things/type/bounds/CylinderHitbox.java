@@ -89,7 +89,7 @@ public interface CylinderHitbox extends HitBox3D{
 	}
 	
 	@Override
-	default double getSurfaceArea(){
+	default double getGravityDragReferenceArea(){
 		double r = this.getRadius();
 		return Math.PI * r * r;
 	}

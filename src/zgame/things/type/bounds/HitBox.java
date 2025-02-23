@@ -93,7 +93,6 @@ public interface HitBox<H extends HitBox<H, C>, C extends CollisionResult<C>> ex
 	 */
 	H get();
 	
-	// TODO consider renaming this as it's about the surface area when falling down
 	/** @return The surface area of this hitbox as it moves down */
-	double getSurfaceArea();
+	double getGravityDragReferenceArea();
 }

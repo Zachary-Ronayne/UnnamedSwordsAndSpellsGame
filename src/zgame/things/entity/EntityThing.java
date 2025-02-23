@@ -344,17 +344,17 @@ public abstract class EntityThing<
 	}
 	
 	/**
-	 * @return The terminal velocity of this {@link EntityThing}. By default, based on the mass, the acceleration of gravity, the value of {@link #getSurfaceArea()},
+	 * @return The terminal velocity of this {@link EntityThing}. By default, based on the mass, the acceleration of gravity, the value of {@link #getGravityDragReferenceArea()},
 	 * 		and the friction of the ground material, which is also the air material when this {@link EntityThing} is not on the ground.
 	 * 		Returns 0 if this {@link EntityThing} is on the ground.
-	 * 		If {@link #getSurfaceArea()} returns 0, or is negative, then the value is ignored in the calculation.
+	 * 		If {@link #getGravityDragReferenceArea()} returns 0, or is negative, then the value is ignored in the calculation.
 	 * 		If this method is made to return a negative value, terminal velocity is removed, i.e. the force of gravity will continue to accelerate
 	 */
 	public double getTerminalVelocity(){
 		if(this.isOnGround()) return 0;
 		
 		Material m = this.getFloorMaterial();
-		double s = this.getSurfaceArea();
+		double s = this.getGravityDragReferenceArea();
 		double surfaceArea = (s <= 0) ? 1 : s;
 		
 		// Multiplied by 2.0 because the internet says that constant is there for the equation is for terminal velocity

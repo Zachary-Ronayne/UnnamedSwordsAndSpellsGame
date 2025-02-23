@@ -60,7 +60,7 @@ public interface RectPrismHitbox extends HitBox3D, RectPrismBounds{
 	}
 	
 	@Override
-	default double getSurfaceArea(){
+	default double getGravityDragReferenceArea(){
 		return this.getWidth() * this.getHeight();
 	}
 	

@@ -463,7 +463,7 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public double getSurfaceArea(){
+		public double getGravityDragReferenceArea(){
 			return 1;
 		}
 		
@@ -600,8 +600,8 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public double getSurfaceArea(){
-			return CylinderHitbox.super.getSurfaceArea();
+		public double getGravityDragReferenceArea(){
+			return CylinderHitbox.super.getGravityDragReferenceArea();
 		}
 		
 		private GameCamera3D getCamera(){

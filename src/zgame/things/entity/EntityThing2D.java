@@ -181,7 +181,7 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	}
 	
 	@Override
-	public double getSurfaceArea(){
+	public double getGravityDragReferenceArea(){
 		return this.getWidth();
 	}
 	

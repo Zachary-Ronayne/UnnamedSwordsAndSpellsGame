@@ -95,10 +95,9 @@ public interface SphereHitBox extends HitBox3D{
 	}
 	
 	@Override
-	default double getSurfaceArea(){
+	default double getGravityDragReferenceArea(){
 		double r = this.getRadius();
-		// Times 2 not 4 because this is the surface area when falling down
-		return 2 * Math.PI * r * r;
+		return Math.PI * r * r;
 	}
 	
 }
