@@ -128,6 +128,92 @@ public abstract class Room<
 	public abstract C collide(H obj);
 	
 	/**
+	 * Collide the given {@link EntityThing} with the entities in the given room
+	 *
+	 * @param game The game with the current room to collide with
+	 * @param checkEntity The entity to check collision for
+	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
+	 */
+	public void checkEntityCollisions(Game game, E checkEntity, double dt){
+		// issue#21 make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
+		// Probably just rewrite the actual entity collision outside of on intersection, the commented out code is copied and modified from the EntityThing class, which was originally just for 2D
+		
+		// Check any stored entities, and remove them if they are not intersecting or are not in the room
+//		ArrayList<String> toRemove = new ArrayList<>(checkEntity.collidingUuids.size());
+//		for(String eUuid : checkEntity.collidingUuids){
+//			var e = room.getEntity(eUuid);
+//			if(e == null || !checkEntity,get().intersects(e.get())) toRemove.add(eUuid);
+//		}
+//		for(String uuid : toRemove){
+//			checkEntity.collidingUuids.remove(uuid);
+//
+//			// Set the velocity so that it will move the entity an amount to cancel out the current force applied on the next tick, then remove the force on the next tick
+//			var removed = checkEntity.removeForce(uuid);
+//			if(removed != null) checkEntity.addVelocity(removed.scale(-dt / checkEntity.getMass()));
+//		}
+		// Get all entities
+		var entities = this.getEntities();
+		
+		// Iterate through all entities, ignoring the given entity, and find the ones intersecting the given entity
+		for(int i = 0; i < entities.size(); i++){
+			var e = entities.get(i);
+			if(e == checkEntity || !checkEntity.get().intersects(e.get())) continue;
+			checkEntity.checkEntityCollision(game, e, dt);
+
+//			// If they intersect, determine the force they should have against each other, and apply it to both entities
+//			String eUuid = e.getUuid();
+//			ZPoint checkEntityP = new ZPoint(checkEntity.centerX(), checkEntity.maxY());
+//			ZPoint eP = new ZPoint(e.centerX(), e.maxY());
+//			// Find the distance between the center bottom of the entities, to determine how much force should be applied
+//			double dist = checkEntityP.distance(eP);
+//
+//			// Find a distance where, if the bottom centers of the entities are further than checkEntity distance, they are definitely not intersecting
+//			double maxDist = (checkEntity.getWidth() + checkEntity.getHeight() + e.getWidth() + e.getHeight()) * .5;
+//			// The maximum amount of force that can be applied
+//			double maxMag = (checkEntity.getForce().getMagnitude() + e.getForce().getMagnitude());
+//
+//			// In the equation f(x) = mx^2 + b, so that f(x) = 0 is the maximum amount of force, and 0 = mx^2 + b is the maximum distance to use
+//			double b = maxMag;
+//			double m = b / (maxDist * maxDist);
+//
+//			// Use that equation to find the force
+//			double mag = m * dist * dist + b;
+//			double angle = ZMath.lineAngle(eP.getX(), eP.getY(), checkEntityP.getX(), checkEntityP.getY());
+//
+//			// Find the initial amount of force to set
+//			ZVector newForce = new ZVector(angle, mag, false);
+//
+//			// Apply most of the force as the x component, and less as the y component
+//			newForce = new ZVector(newForce.getX(), newForce.getY() * 0.1);
+//
+//			//issue#21
+//
+//			// Try keeping track of the total velocity an entity collision has added to another entity, and then remove that much velocity when the entities stop colliding
+//
+//			// If that amount of force would move the entity too far away, set it so that the entities will only be touching on the next tick
+//			// double xForce = newForce.getX();
+//			// double xMoved = xForce / checkEntity.getMass() * dt * dt;
+//			// double xDiff;
+//			// if(checkEntity.getX() < e.getX()) xDiff = Math.abs(checkEntity.getX() + checkEntity.getWidth() - e.getX());
+//			// else xDiff = Math.abs(e.getX() + e.getWidth() - checkEntity.getX());
+//			// if(ZMath.sameSign(xMoved, xDiff) && Math.abs(xMoved) > xDiff){
+//			// 	double newMoved = xMoved < 0 ? -xDiff : xDiff;
+//			// 	newForce = new ZVector(newMoved / (dt * dt) * checkEntity.getMass(), newForce.getY());
+//			// }
+//
+//			double limit = 10000;
+//			if(newForce.getX() > limit) newForce = new ZVector(limit, newForce.getY());
+//			else if(newForce.getX() < -limit) newForce = new ZVector(-limit, newForce.getY());
+//
+//			// Apply the force to both entities, not just the given entity
+//			checkEntity.setForce(eUuid, newForce);
+//			checkEntity.collidingUuids.add(eUuid);
+//			e.setForce(checkEntity.getUuid(), newForce.scale(-1));
+//			e.collidingUuids.add(checkEntity.getUuid());
+		}
+	}
+	
+	/**
 	 * Make something happen to this {@link GameThing} the next time it is ticked
 	 *
 	 * @param r The function to run
@@ -158,7 +244,11 @@ public abstract class Room<
 		for(int i = 0; i < entities.size(); i++){
 			var e = entities.get(i);
 			if(e.isNoClip()) continue;
+			// Check for tile collisions
 			this.collide(e.get());
+			
+			// Check for entity collision, and apply appropriate forces based on what is currently colliding
+			this.checkEntityCollisions(game, e, dt);
 		}
 		
 		// Remove all things that need to be removed

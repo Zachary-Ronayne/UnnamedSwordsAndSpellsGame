@@ -152,9 +152,6 @@ public abstract class EntityThing<
 		
 		// Account for sliding down walls
 		this.updateWallSideForce(dt);
-		
-		// Check for entity collision, and apply appropriate forces based on what is currently colliding
-		this.checkEntityCollisions(game, dt);
 	}
 	
 	/**
@@ -558,94 +555,6 @@ public abstract class EntityThing<
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
 	public void checkEntityCollision(Game game, E entity, double dt){}
-	
-	/**
-	 * Collide this {@link EntityThing} with the entities in the given room. Can override this to perform custom collision
-	 *
-	 * @param game The game with the current room to collide with
-	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
-	 */
-	@SuppressWarnings("unchecked")
-	public void checkEntityCollisions(Game game, double dt){
-		// TODO avoid needing this type cast, probably should move this to the room class itself
-		var room = (Room<H, E, V, R, C>)game.getCurrentRoom();
-		
-		// issue#21 make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
-		
-		// Check any stored entities, and remove them if they are not intersecting or are not in the room
-		ArrayList<String> toRemove = new ArrayList<>(this.collidingUuids.size());
-		for(String eUuid : this.collidingUuids){
-			var e = room.getEntity(eUuid);
-			if(e == null || !this.intersects(e.get())) toRemove.add(eUuid);
-		}
-		for(String uuid : toRemove){
-			this.collidingUuids.remove(uuid);
-			
-			// Set the velocity so that it will move this entity an amount to cancel out the current force applied on the next tick, then remove the force on the next tick
-			var removed = this.removeForce(uuid);
-			if(removed != null) this.addVelocity(removed.scale(-dt / this.getMass()));
-		}
-		// Get all entities
-		var entities = room.getEntities();
-		
-		// Iterate through all entities, ignoring this entity, and find the ones intersecting this entity
-		for(int i = 0; i < entities.size(); i++){
-			var e = entities.get(i);
-			if(e == this || !this.intersects(e.get())) continue;
-			this.checkEntityCollision(game, e, dt);
-
-//			// If they intersect, determine the force they should have against each other, and apply it to both entities
-//			String eUuid = e.getUuid();
-//			ZPoint thisP = new ZPoint(this.centerX(), this.maxY());
-//			ZPoint eP = new ZPoint(e.centerX(), e.maxY());
-//			// Find the distance between the center bottom of the entities, to determine how much force should be applied
-//			double dist = thisP.distance(eP);
-//
-//			// Find a distance where, if the bottom centers of the entities are further than this distance, they are definitely not intersecting
-//			double maxDist = (this.getWidth() + this.getHeight() + e.getWidth() + e.getHeight()) * .5;
-//			// The maximum amount of force that can be applied
-//			double maxMag = (this.getForce().getMagnitude() + e.getForce().getMagnitude());
-//
-//			// In the equation f(x) = mx^2 + b, so that f(x) = 0 is the maximum amount of force, and 0 = mx^2 + b is the maximum distance to use
-//			double b = maxMag;
-//			double m = b / (maxDist * maxDist);
-//
-//			// Use that equation to find the force
-//			double mag = m * dist * dist + b;
-//			double angle = ZMath.lineAngle(eP.getX(), eP.getY(), thisP.getX(), thisP.getY());
-//
-//			// Find the initial amount of force to set
-//			ZVector newForce = new ZVector(angle, mag, false);
-//
-//			// Apply most of the force as the x component, and less as the y component
-//			newForce = new ZVector(newForce.getX(), newForce.getY() * 0.1);
-//
-//			//issue#21
-//
-//			// Try keeping track of the total velocity an entity collision has added to another entity, and then remove that much velocity when the entities stop colliding
-//
-//			// If that amount of force would move the entity too far away, set it so that the entities will only be touching on the next tick
-//			// double xForce = newForce.getX();
-//			// double xMoved = xForce / this.getMass() * dt * dt;
-//			// double xDiff;
-//			// if(this.getX() < e.getX()) xDiff = Math.abs(this.getX() + this.getWidth() - e.getX());
-//			// else xDiff = Math.abs(e.getX() + e.getWidth() - this.getX());
-//			// if(ZMath.sameSign(xMoved, xDiff) && Math.abs(xMoved) > xDiff){
-//			// 	double newMoved = xMoved < 0 ? -xDiff : xDiff;
-//			// 	newForce = new ZVector(newMoved / (dt * dt) * this.getMass(), newForce.getY());
-//			// }
-//
-//			double limit = 10000;
-//			if(newForce.getX() > limit) newForce = new ZVector(limit, newForce.getY());
-//			else if(newForce.getX() < -limit) newForce = new ZVector(-limit, newForce.getY());
-//
-//			// Apply the force to both entities, not just this entity
-//			this.setForce(eUuid, newForce);
-//			this.collidingUuids.add(eUuid);
-//			e.setForce(this.getUuid(), newForce.scale(-1));
-//			e.collidingUuids.add(this.getUuid());
-		}
-	}
 	
 	/** @param velocity The new current velocity of this {@link EntityThing} */
 	public void setVelocity(V velocity){
