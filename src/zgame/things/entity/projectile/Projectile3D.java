@@ -122,4 +122,34 @@ public abstract class Projectile3D extends EntityThing3D implements Projectile<H
 		super.tick(game, dt);
 		Projectile.super.tick(game, dt);
 	}
+	
+	@Override
+	public void checkEntityCollision(Game game, EntityThing3D entity, double dt){
+		super.checkEntityCollision(game, entity, dt);
+		Projectile.super.checkEntityCollision(game, entity, dt);
+	}
+	
+	@Override
+	public void touchFloor(CollisionResult3D result){
+		super.touchFloor(result);
+		Projectile.super.touchFloor(result);
+	}
+	
+	@Override
+	public void touchCeiling(CollisionResult3D result){
+		super.touchCeiling(result);
+		Projectile.super.touchCeiling(result);
+	}
+	
+	@Override
+	public void touchWall(CollisionResult3D result){
+		super.touchWall(result);
+		Projectile.super.touchWall(result);
+	}
+	
+	@Override
+	public void collide(CollisionResult3D result){
+		super.collide(result);
+		Projectile.super.collide(result);
+	}
 }

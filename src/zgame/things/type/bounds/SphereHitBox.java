@@ -1,8 +1,7 @@
 package zgame.things.type.bounds;
 
-// TODO add this hitbox to the other 3D handler methods
-
 import zgame.physics.collision.CollisionResult3D;
+import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
 
 /** An object representing a circle  */
@@ -69,25 +68,31 @@ public interface SphereHitBox extends HitBox3D{
 	default double centerZ(){
 		return this.getZ();
 	}
+	
 	@Override
 	default CollisionResult3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m){
-		// TODO implement
+		// TODO implement for real
+		// issue#60 implement
 		return new CollisionResult3D();
 	}
 	
 	@Override
 	default boolean intersectsRect(double x, double y, double z, double width, double height, double length){
-		// TODO implement
-		return false;
+		return ZCollision.rectIntersectsSphere(x, y, z, width, height, length, this.getX(), this.getY(), this.getZ(), this.getRadius());
 	}
 	
 	@Override
 	default boolean intersectsCylinder(double x, double y, double z, double radius, double height){
-		// TODO implement
-		return false;
+		return ZCollision.cylinderIntersectsSphere(x, y, z, radius, height, this.getX(), this.getY(), this.getZ(), this.getRadius());
 	}
 	
-	// TODO add a method for intersects circle
+	@Override
+	default boolean intersectsSphere(double x, double y, double z, double radius){
+		double dx = x - this.getX();
+		double dy = y - this.getY();
+		double dz = z - this.getZ();
+		return Math.sqrt(dx * dx + dy * dy + dz * dz) < radius + this.getRadius();
+	}
 	
 	@Override
 	default double getSurfaceArea(){

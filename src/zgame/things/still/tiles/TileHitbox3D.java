@@ -54,7 +54,6 @@ public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResu
 				return 0;
 			}
 			
-			// TODO may want an optimization to calculate click direction only when needed in clicker bounds? Just don't keep recalculating this
 			var clickDirection = new ZVector3D(clicker.getClickAngleH(), clicker.getClickAngleV(), 1, false);
 			return ZMath.rayDistanceToRectPrism(clicker.getClickX(), clicker.getClickY(), clicker.getClickZ(),
 					clickDirection.getX(), clickDirection.getY(), clickDirection.getZ(),

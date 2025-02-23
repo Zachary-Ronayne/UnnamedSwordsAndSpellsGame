@@ -811,8 +811,8 @@ public final class ZCollision{
 	 * @param cx The bottom middle x coordinate of the cylinder
 	 * @param cy The bottom middle y coordinate of the cylinder
 	 * @param cz The bottom middle z coordinate of the cylinder
-	 * @param cr The radius of the rectangular prism
-	 * @param ch The total height of the rectangular prism
+	 * @param cr The radius of the cylinder
+	 * @param ch The total height of the cylinder
 	 * @return true if they intersect, false otherwise
 	 */
 	public static boolean rectIntersectsCylinder(double rx, double ry, double rz, double rw, double rh, double rl, double cx, double cy, double cz, double cr, double ch){
@@ -826,6 +826,87 @@ public final class ZCollision{
 		
 		// If the circular bounds doesn't intersect the rectangle, there will be no collision
 		return ZMath.circleIntersectsRect(cx, cz, cr, rx - rw * 0.5, rz - rl * 0.5, rw, rl);
+	}
+	
+	/**
+	 * Determine if the rectangular prism and the bounds of a sphere intersect
+	 *
+	 * @param rx The bottom middle x coordinate of the rectangular prism
+	 * @param ry The bottom middle y coordinate of the rectangular prism
+	 * @param rz The bottom middle z coordinate of the rectangular prism
+	 * @param rw The total width of the rectangular prism
+	 * @param rh The total height of the rectangular prism
+	 * @param rl The total length of the rectangular prism
+	 * @param sx The center x coordinate of the sphere
+	 * @param sy The center y coordinate of the sphere
+	 * @param sz The center z coordinate of the sphere
+	 * @param sr The radius of the sphere
+	 * @return true if they intersect, false otherwise
+	 */
+	public static boolean rectIntersectsSphere(double rx, double ry, double rz, double rw, double rh, double rl, double sx, double sy, double sz, double sr){
+		double hw = rw * 0.5;
+		double hl = rl * 0.5;
+		double closeX = axisClosestPoint(rx - hw, rx + hw, sx);
+		double closeY = axisClosestPoint(ry, ry + rh, sy);
+		double closeZ = axisClosestPoint(rz - hl, rz + hl, sz);
+		double dx = closeX - sx;
+		double dy = closeY - sy;
+		double dz = closeZ - sz;
+		return (dx * dx + dy * dy + dz * dz) < (sr * sr);
+	}
+	
+	/**
+	 * A helper for {@link #rectIntersectsSphere(double, double, double, double, double, double, double, double, double, double)}
+	 * Determines the closest point on an axis within the given range
+	 * @param min The minimum value on the axis, should be < max
+	 * @param max The maximum value on the axis, should be > min
+	 * @param s The point on the axis to check
+	 * @return The closest point in the given range, should be in the range [min, max]
+	 */
+	public static double axisClosestPoint(double min, double max, double s){
+		if(s < min) return min;
+		return Math.min(s, max);
+	}
+	
+	/**
+	 * Determine if the cylinder and the bounds of a sphere intersect
+	 *
+	 * @param cx The bottom middle x coordinate of the cylinder
+	 * @param cy The bottom middle y coordinate of the cylinder
+	 * @param cz The bottom middle z coordinate of the cylinder
+	 * @param cr The radius of the cylinder
+	 * @param ch The total height of the cylinder
+	 * @param sx The center x coordinate of the sphere
+	 * @param sy The center y coordinate of the sphere
+	 * @param sz The center z coordinate of the sphere
+	 * @param sr The radius of the sphere
+	 * @return true if they intersect, false otherwise
+	 */
+	public static boolean cylinderIntersectsSphere(double cx, double cy, double cz, double cr, double ch, double sx, double sy, double sz, double sr){
+		double closeX;
+		double closeY = axisClosestPoint(cy, cy + ch, sy);
+		double closeZ;
+		double sdx = sx - cx;
+		double sdz = sz - cz;
+		double circleDistSquared = sdx * sdx + sdz * sdz;
+		// The sphere's center is outside the cylinder's circle, the closest is the edges of the cylinder
+		if(circleDistSquared > cr * cr){
+			// Ratio of cylinder's circle radius and the distance to the sphere's center
+			double scale = cr / Math.sqrt(circleDistSquared);
+			closeX = sx + sdx * scale;
+			closeZ = sz + sdz * scale;
+		}
+		// The sphere's center is inside the cylinder's circle, the closest will be the sphere itself
+		else{
+			closeX = sx;
+			closeZ = sz;
+		}
+		
+		double dx = sx - closeX;
+		double dy = sy - closeY;
+		double dz = sz - closeZ;
+		
+		return (dx * dx + dy * dy + dz * dz) < (sr * sr);
 	}
 	
 	/** Cannot instantiate {@link ZCollision} */

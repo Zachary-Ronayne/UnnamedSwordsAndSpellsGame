@@ -49,6 +49,11 @@ public interface RectPrismHitbox extends HitBox3D, RectPrismBounds{
 	}
 	
 	@Override
+	default boolean intersectsSphere(double x, double y, double z, double radius){
+		return ZCollision.rectIntersectsSphere(this.getX(), this.getY(), this.getZ(), this.getWidth(), this.getHeight(), this.getLength(), x, y, z, radius);
+	}
+	
+	@Override
 	default CollisionResult3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m){
 		// issue#58 implement
 		return new CollisionResult3D();

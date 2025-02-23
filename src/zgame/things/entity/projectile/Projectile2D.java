@@ -121,4 +121,34 @@ public abstract class Projectile2D extends EntityThing2D implements Projectile<H
 		super.tick(game, dt);
 		Projectile.super.tick(game, dt);
 	}
+	
+	@Override
+	public void checkEntityCollision(Game game, EntityThing2D entity, double dt){
+		super.checkEntityCollision(game, entity, dt);
+		Projectile.super.checkEntityCollision(game, entity, dt);
+	}
+	
+	@Override
+	public void touchFloor(CollisionResult2D result){
+		super.touchFloor(result);
+		Projectile.super.touchFloor(result);
+	}
+	
+	@Override
+	public void touchCeiling(CollisionResult2D result){
+		super.touchCeiling(result);
+		Projectile.super.touchCeiling(result);
+	}
+	
+	@Override
+	public void touchWall(CollisionResult2D result){
+		super.touchWall(result);
+		Projectile.super.touchWall(result);
+	}
+	
+	@Override
+	public void collide(CollisionResult2D result){
+		super.collide(result);
+		Projectile.super.collide(result);
+	}
 }

@@ -39,13 +39,12 @@ public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	
 	@Override
 	default boolean intersects(HitBox3D hitBox){
-		if(hitBox.getHitboxType() == HitboxType.RECT_PRISM){
-			return this.intersectsRect(hitBox.getX(), hitBox.getY(), hitBox.getZ(), hitBox.getWidth(), hitBox.getHeight(), hitBox.getLength());
-		}
-		else if(hitBox.getHitboxType() == HitboxType.CYLINDER){
-			return this.intersectsCylinder(hitBox.getX(), hitBox.getY(), hitBox.getZ(), hitBox.getWidth() * 0.5, hitBox.getHeight());
-		}
-		return false;
+		return switch(hitBox.getHitboxType()){
+			case RECT_PRISM -> this.intersectsRect(hitBox.getX(), hitBox.getY(), hitBox.getZ(), hitBox.getWidth(), hitBox.getHeight(), hitBox.getLength());
+			case CYLINDER -> this.intersectsCylinder(hitBox.getX(), hitBox.getY(), hitBox.getZ(), hitBox.getWidth() * 0.5, hitBox.getHeight());
+			case SPHERE -> this.intersectsSphere(hitBox.getX(), hitBox.getY(), hitBox.getZ(), hitBox.getWidth() * 0.5);
+			default -> false;
+		};
 	}
 	
 	/**
@@ -72,6 +71,17 @@ public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	 * @return true if the hotboxes intersect, false otherwise
 	 */
 	boolean intersectsCylinder(double x, double y, double z, double radius, double height);
+	
+	/**
+	 * Determine if this hitbox intersects the given sphere
+	 *
+	 * @param x The center x coordinate of the sphere
+	 * @param y The center y coordinate of the sphere
+	 * @param z The center z coordinate of the sphere
+	 * @param radius The radius of the sphere
+	 * @return true if the hotboxes intersect, false otherwise
+	 */
+	boolean intersectsSphere(double x, double y, double z, double radius);
 	
 	/**
 	 * Determine a {@link CollisionResult3D} from colliding this object with the given rectangular prism bounds. Essentially, move this object so that it no longer

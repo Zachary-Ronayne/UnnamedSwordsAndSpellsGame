@@ -445,8 +445,6 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	 * @return The distance, or a negative number if nothing can be clicked on
 	 */
 	public double findTileClickDistance(ClickerBounds clicker){
-		// TODO consider optimizing some of these potentially repeated calculations
-		
 		// If max distance is zero or negative for some reason, then there is no click
 		double maxDistance = clicker.getClickRange();
 		if(maxDistance <= 0) return -1;

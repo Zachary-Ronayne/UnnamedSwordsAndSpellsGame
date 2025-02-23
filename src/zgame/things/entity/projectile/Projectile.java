@@ -71,7 +71,7 @@ public interface Projectile<H extends HitBox<H, C>,
 	}
 	
 	@Override
-	default void touchFloor(C collision){
+	default void touchFloor(C result){
 		if(this.isOnHit()) this.removeNext();
 	}
 	
@@ -80,7 +80,7 @@ public interface Projectile<H extends HitBox<H, C>,
 	default void leaveFloor(){}
 	
 	@Override
-	default void touchCeiling(C collision){
+	default void touchCeiling(C result){
 		if(this.isOnHit()) this.removeNext();
 	}
 	
@@ -94,9 +94,9 @@ public interface Projectile<H extends HitBox<H, C>,
 	default void leaveWall(){}
 	
 	@Override
-	default void collide(C r){
+	default void collide(C result){
 		// OnHit projectiles are removed on collision
-		if(this.isOnHit() && r.isCollided()) this.removeNext();
+		if(this.isOnHit() && result.isCollided()) this.removeNext();
 	}
 	
 	/**

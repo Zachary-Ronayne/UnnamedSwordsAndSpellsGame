@@ -91,7 +91,9 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	protected void render(Game game, Renderer r){
 		// TODO implement sphere rendering or something closer than a cube, also make sure the coordinates are aligned
 		var c = new ZColor(.6, .6, 1, .8);
-		r.drawRectPrism(new RectRender3D(this.getBounds()), c, c, c, c, c, c);
+		var rect = new RectRender3D(this.getBounds());
+		rect.setY(rect.getY() - rect.getHeight() * 0.5);
+		r.drawRectPrism(rect, c, c, c, c, c, c);
 	}
 	
 	@Override

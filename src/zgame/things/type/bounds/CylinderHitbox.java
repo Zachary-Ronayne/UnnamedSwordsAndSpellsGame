@@ -84,6 +84,11 @@ public interface CylinderHitbox extends HitBox3D{
 	}
 	
 	@Override
+	default boolean intersectsSphere(double x, double y, double z, double radius){
+		return ZCollision.cylinderIntersectsSphere(this.getX(), this.getY(), this.getZ(), this.getRadius(), this.getHeight(), x, y, z, radius);
+	}
+	
+	@Override
 	default double getSurfaceArea(){
 		double r = this.getRadius();
 		return Math.PI * r * r;
