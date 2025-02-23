@@ -101,9 +101,7 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D, Col
 	}
 	
 	@Override
-	public CollisionResult2D collide(HitBox2D h){
-		var obj = h.get();
-		
+	public CollisionResult2D collide(HitBox2D obj){
 		// Find touching tiles and collide with them
 		int minX = this.tileX(obj.getX());
 		int minY = this.tileY(obj.getY());

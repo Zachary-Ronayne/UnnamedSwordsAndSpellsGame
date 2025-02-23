@@ -68,12 +68,11 @@ public interface HitBox2D extends HitBox<HitBox2D, CollisionResult2D>, Bounds2D{
 	boolean intersectsCircle(double x, double y, double r);
 	
 	/**
-	 * @param hitbox The hitbox to check, must be 2D
+	 * @param h The hitbox to check, must be 2D
 	 * @return true if this hitbox intersects the given hitbox, false otherwise
 	 */
 	@Override
-	default boolean intersects(HitBox2D hitbox){
-		var h = hitbox.get();
+	default boolean intersects(HitBox2D h){
 		switch(h.getHitboxType()){
 			case CIRCLE -> {
 				return this.intersectsCircle(h.centerX(), h.centerY(), h.getWidth() * 0.5);
