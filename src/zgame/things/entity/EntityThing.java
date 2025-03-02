@@ -65,9 +65,6 @@ public abstract class EntityThing<
 	/** Every force currently acting on this {@link EntityThing}, mapped by a name */
 	private final Map<String, V> forces;
 	
-	/** A set of all the uuids which are currently colliding with this entity */
-	private final HashSet<String> collidingUuids;
-	
 	/** A {@link ZVector} representing the total force acting on this {@link EntityThing} */
 	private V totalForce;
 	
@@ -109,7 +106,6 @@ public abstract class EntityThing<
 		this.velocity = this.zeroVector();
 		this.velocityCleared = false;
 		
-		this.collidingUuids = new HashSet<>();
 		this.forces = new HashMap<>();
 		this.totalForce = this.zeroVector();
 		

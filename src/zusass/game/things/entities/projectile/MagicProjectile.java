@@ -6,6 +6,8 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector3D;
+import zgame.physics.material.Material;
+import zgame.physics.material.Materials;
 import zgame.things.BaseTags;
 import zgame.things.entity.projectile.Projectile2D;
 import zgame.things.entity.projectile.Projectile3D;

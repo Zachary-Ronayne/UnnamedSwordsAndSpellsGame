@@ -119,6 +119,24 @@ public final class ZMath{
 	}
 	
 	/**
+	 * Modify an array so that at most one value is non-zero, which will be the value with the smallest absolute value
+	 * @param values The values to select from
+	 */
+	public static void selectSmallestNonZero(double[] values){
+		int smallestIndex = 0;
+		double smallestNonZero = 0;
+		for(int i = 0; i < values.length; i++){
+			if(values[i] != 0 && (smallestNonZero == 0 || Math.abs(values[i]) < Math.abs(smallestNonZero))){
+				smallestNonZero = values[i];
+				smallestIndex = i;
+			}
+		}
+		for(int i = 0; i < values.length; i++){
+			if(i != smallestIndex) values[i] = 0;
+		}
+	}
+	
+	/**
 	 * Find the angle from the point (x, y) to the point (px, py)
 	 *
 	 * @param x The x coordinate of the base of the angle

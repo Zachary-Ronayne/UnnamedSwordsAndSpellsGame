@@ -625,8 +625,8 @@ public final class ZCollision{
 	 * @param cx The bottom middle x coordinate of the cylinder
 	 * @param cy The bottom middle y coordinate of the cylinder
 	 * @param cz The bottom middle z coordinate of the cylinder
-	 * @param cr The radius of the rectangular prism
-	 * @param ch The total height of the rectangular prism
+	 * @param cr The radius of the cylinder
+	 * @param ch The total height of the cylinder
 	 * @param m The material of the rectangular prism
 	 * @return A collision result representing how the cylinder should move
 	 */
@@ -800,6 +800,96 @@ public final class ZCollision{
 	}
 	
 	/**
+	 * Given the rectangular prism bounds of an unmoving object, and the bounds of a sphere, determine how the later should move colliding with the former
+	 *
+	 * @param rx The bottom middle x coordinate of the rectangular prism
+	 * @param ry The bottom middle y coordinate of the rectangular prism
+	 * @param rz The bottom middle z coordinate of the rectangular prism
+	 * @param rw The total width of the rectangular prism
+	 * @param rh The total height of the rectangular prism
+	 * @param rl The total length of the rectangular prism
+	 * @param sx The center x coordinate of the sphere
+	 * @param sy The center y coordinate of the sphere
+	 * @param sz The center z coordinate of the sphere
+	 * @param sr The radius of the sphere
+	 * @param m The material of the rectangular prism
+	 * @return A collision result representing how the sphere should move
+	 */
+	public static CollisionResult3D rectToSphereBasic(double rx, double ry, double rz, double rw, double rh, double rl, double sx, double sy, double sz, double sr, Material m){
+		// TODO implement for real
+		// issue#60 implement
+		
+		// With no intersection, there is no collision
+		if(!rectIntersectsSphere(rx, ry, rz, rw, rh, rl, sx, sy, sz, sr)){
+			return new CollisionResult3D();
+		}
+		
+		// Set up variables for how long they need to move
+		final int X = 0;
+		final int Y = 1;
+		final int Z = 2;
+		// Indexed as 0, 1, 2 to x, y, z
+		double[] move = new double[]{0, 0, 0};
+		
+		double hw = rw * 0.5;
+		double hl = rl * 0.5;
+		double minRX = rx - hw;
+		double maxRX = rx + hw;
+		double maxRY = ry + rh;
+		double minRZ = rz - hl;
+		double maxRZ = rz + hl;
+		
+		boolean hitWall = false;
+		boolean hitCeiling = false;
+		boolean hitFloor = false;
+		double wallAngle = 0;
+		
+		// Find how long each axis needs to move to stop the collision on just that axis
+		// If the center of the sphere is in the bounds of the other two axes, then moving it away will be based on basic subtraction
+		// Otherwise, find the distance to move based on TODO what?
+		boolean inX = ZMath.in(minRX, sx, maxRX);
+		boolean inY = ZMath.in(ry, sy, maxRY);
+		boolean inZ = ZMath.in(minRZ, sz, maxRZ);
+		if(inY && inZ){
+			if(sx < rx) move[X] = minRX - sx - sr;
+			else move[X] = maxRX - sx + sr;
+		}
+		else{
+
+		}
+		if(inX && inZ){
+			if(sy < ry) move[Y] = ry - sy - sr;
+			else move[Y] = maxRY - sy + sr;
+		}
+		else{
+		
+		}
+		if(inY && inX){
+			if(sz < rz) move[Z] = minRZ - sz - sr;
+			else move[Z] = maxRZ - sz + sr;
+		}
+		else{
+
+		}
+		
+		// If more than one move value is non-zero, set the others to zero
+		ZMath.selectSmallestNonZero(move);
+		
+		// Determine which directions were hit
+		if(move[X] != 0 || move[Z] != 0){
+			hitWall = true;
+			if(move[X] != 0) wallAngle = ZMath.PI_BY_2;
+		}
+		else if(move[Y] != 0){
+			if(sy < ry) hitCeiling = true;
+			else hitFloor = true;
+		}
+		
+		// Build the final collision result
+		return new CollisionResult3D(move[X], move[Y], move[Z], hitWall, hitCeiling, hitFloor, m, wallAngle);
+	}
+	
+	/**
 	 * Determine if the rectangular prism and the bounds of a cylinder intersect
 	 *
 	 * @param rx The bottom middle x coordinate of the rectangular prism
@@ -846,26 +936,13 @@ public final class ZCollision{
 	public static boolean rectIntersectsSphere(double rx, double ry, double rz, double rw, double rh, double rl, double sx, double sy, double sz, double sr){
 		double hw = rw * 0.5;
 		double hl = rl * 0.5;
-		double closeX = axisClosestPoint(rx - hw, rx + hw, sx);
-		double closeY = axisClosestPoint(ry, ry + rh, sy);
-		double closeZ = axisClosestPoint(rz - hl, rz + hl, sz);
+		double closeX = ZMath.minMax(rx - hw, rx + hw, sx);
+		double closeY = ZMath.minMax(ry, ry + rh, sy);
+		double closeZ = ZMath.minMax(rz - hl, rz + hl, sz);
 		double dx = closeX - sx;
 		double dy = closeY - sy;
 		double dz = closeZ - sz;
 		return (dx * dx + dy * dy + dz * dz) < (sr * sr);
-	}
-	
-	/**
-	 * A helper for {@link #rectIntersectsSphere(double, double, double, double, double, double, double, double, double, double)}
-	 * Determines the closest point on an axis within the given range
-	 * @param min The minimum value on the axis, should be < max
-	 * @param max The maximum value on the axis, should be > min
-	 * @param s The point on the axis to check
-	 * @return The closest point in the given range, should be in the range [min, max]
-	 */
-	public static double axisClosestPoint(double min, double max, double s){
-		if(s < min) return min;
-		return Math.min(s, max);
 	}
 	
 	/**
@@ -884,7 +961,7 @@ public final class ZCollision{
 	 */
 	public static boolean cylinderIntersectsSphere(double cx, double cy, double cz, double cr, double ch, double sx, double sy, double sz, double sr){
 		double closeX;
-		double closeY = axisClosestPoint(cy, cy + ch, sy);
+		double closeY = ZMath.minMax(cy, cy + ch, sy);
 		double closeZ;
 		double sdx = sx - cx;
 		double sdz = sz - cz;

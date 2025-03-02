@@ -71,9 +71,7 @@ public interface SphereHitBox extends HitBox3D{
 	
 	@Override
 	default CollisionResult3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m){
-		// TODO implement for real
-		// issue#60 implement
-		return new CollisionResult3D();
+		return ZCollision.rectToSphereBasic(x, y, z, width, height, length, this.getX(), this.getY(), this.getZ(), this.getRadius(), m);
 	}
 	
 	@Override
