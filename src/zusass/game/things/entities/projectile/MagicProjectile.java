@@ -72,11 +72,13 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 		this.setRadius(radius);
 		this.setRange(range);
 		this.effects = effects;
-		this.setOnHit(true);
+		// TODO put back to true
+		this.setOnHit(false);
 		this.addTags(BaseTags.PROJECTILE_NOT_COLLIDE);
 		
 		// Turn off gravity
-		this.setGravityLevel(0);
+		// TODO put back to 0
+		this.setGravityLevel(.3);
 		
 		// Add a function to effect a hit mob with magic
 		this.addHitFunc(ZusassMob.class, m -> {
@@ -116,5 +118,11 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	@Override
 	public int getSortPriority(){
 		return 200;
+	}
+
+	// TODO remove
+	@Override
+	public Material getMaterial(){
+		return Materials.BOUNCE;
 	}
 }

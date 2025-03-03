@@ -850,27 +850,31 @@ public final class ZCollision{
 		boolean inX = ZMath.in(minRX, sx, maxRX);
 		boolean inY = ZMath.in(ry, sy, maxRY);
 		boolean inZ = ZMath.in(minRZ, sz, maxRZ);
-		if(inY && inZ){
-			if(sx < rx) move[X] = minRX - sx - sr;
-			else move[X] = maxRX - sx + sr;
-		}
-		else{
+//		if(inY && inZ){
+//			if(sx < rx) move[X] = minRX - sx - sr;
+//			else move[X] = maxRX - sx + sr;
+//		}
+//		else if(inY) move[X] = circleDistanceLineSegment();
+//		else if(inZ) move[X] = circleDistanceLineSegment();
+//		else move[X] = ;
 
-		}
-		if(inX && inZ){
-			if(sy < ry) move[Y] = ry - sy - sr;
-			else move[Y] = maxRY - sy + sr;
-		}
-		else{
-		
-		}
-		if(inY && inX){
-			if(sz < rz) move[Z] = minRZ - sz - sr;
-			else move[Z] = maxRZ - sz + sr;
-		}
-		else{
-
-		}
+//		if(inX && inZ){
+//			if(sy < ry) move[Y] = ry - sy - sr;
+//			else move[Y] = maxRY - sy + sr;
+//		}
+//		else{
+//
+//		}
+//		if(inY && inX){
+//			if(sz < rz) move[Z] = minRZ - sz - sr;
+//			else move[Z] = maxRZ - sz + sr;
+//		}
+//		else{
+//
+//		}
+		move[X] = distanceSphereToRectPlane(sy, sz, sx, sr, ry, rz, rx, rh, rl, rw);
+		move[Y] = distanceSphereToRectPlane(sx, sy, sz, sr, rx, ry, rz, rw, rh, rl);
+		move[Z] = distanceSphereToRectPlane(sz, sx, sy, sr, rz, rx, ry, rl, rw, rh);
 		
 		// If more than one move value is non-zero, set the others to zero
 		ZMath.selectSmallestNonZero(move);
@@ -887,6 +891,48 @@ public final class ZCollision{
 		
 		// Build the final collision result
 		return new CollisionResult3D(move[X], move[Y], move[Z], hitWall, hitCeiling, hitFloor, m, wallAngle);
+	}
+	
+	/**
+	 * Determine the distance to move a sphere up off of the given xz rectangular plane. Can represent other planes by changing coordinates
+	 *
+	 * @param sx The center x coordinate of the sphere
+	 * @param sy The center y coordinate of the sphere
+	 * @param sz The center z coordinate of the sphere
+	 * @param sr The radius of the sphere
+	 * @param rx The bottom middle x coordinate of the rectangular prism
+	 * @param ry The bottom middle y coordinate of the rectangular prism
+	 * @param rz The bottom middle z coordinate of the rectangular prism
+	 * @param rw The total width of the rectangular prism
+	 * @param rh The total height of the rectangular prism
+	 * @param rl The total length of the rectangular prism
+	 * @return The total distance to move the sphere
+	 */
+	private static double distanceSphereToRectPlane(double sx, double sy, double sz, double sr, double rx, double ry, double rz, double rw, double rl, double rh){
+		// TODO how should the direction here work?
+		
+		// Find the closest point on the plane to the sphere
+		double hrw = rw * 0.5;
+		double hrl = rl * 0.5;
+		double px = ZMath.minMax(rx - hrw, rx + hrw, sx);
+		double py = ZMath.minMax(ry, ry + rh, sy);
+		double pz = ZMath.minMax(rz - hrl, rz + hrl, sz);
+		
+		// Find the difference between the sphere center and the nearest point on the plane
+		double dx = sx - px;
+		double dy = sy - py;
+		double dz = sz - pz;
+		// Find the distance from the sphere on the plane axes to the plane
+		double planeDist = dx * dx + dz * dz;
+		// Find the total distance from the sphere center to the nearest point on the plane
+		double totalDist = dy * dy + planeDist;
+		// If the total distance to the plane is less than the radius distance, then find the vertical distance to move
+		double srSquared = sr * sr;
+		if(totalDist < srSquared){
+			return Math.sqrt(srSquared - planeDist) - dy;
+		}
+		// Otherwise there is no intersection
+		return 0;
 	}
 	
 	/**

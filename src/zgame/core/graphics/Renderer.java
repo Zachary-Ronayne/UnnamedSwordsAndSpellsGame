@@ -7,10 +7,7 @@ import org.joml.Vector4d;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
 
-import zgame.core.graphics.buffer.GameBuffer;
-import zgame.core.graphics.buffer.IndexBuffer;
-import zgame.core.graphics.buffer.VertexArray;
-import zgame.core.graphics.buffer.VertexBuffer;
+import zgame.core.graphics.buffer.*;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.GameFont;
@@ -139,6 +136,15 @@ public class Renderer implements Destroyable{
 	private VertexBuffer rect3DTexCoordBuff;
 	/** The {@link VertexArray} for drawing a rectangular prism with a texture */
 	private VertexArray rect3DTexVertArr;
+	
+	/** The number of iterations for breaking up a sphere when drawing */
+	public static final int NUM_SPHERE_ITERATIONS = 16;
+	/** The {@link IndexBuffer} that tracks indexes for drawing a sphere */
+	private IndexIntBuffer sphereIndexBuff;
+	/** The {@link VertexBuffer} that tracks the coordinates for drawing a sphere */
+	private VertexBuffer sphereCoordBuff;
+	/** The {@link VertexArray} for drawing a sphere */
+	private VertexArray sphereVertArr;
 	
 	/** The currently bound vertex array for rendering */
 	private VertexArray boundVertexArray;
@@ -339,6 +345,26 @@ public class Renderer implements Destroyable{
 		
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
+		// TODO explain why this makes sense as indexes
+		// Generate the indexes for the sphere
+		var sphereIndices = new int[NUM_SPHERE_ITERATIONS * NUM_SPHERE_ITERATIONS * 6];
+		int sphereIndex = 0;
+		for (int i = 0; i < NUM_SPHERE_ITERATIONS; i++) {
+			for (int j = 0; j < NUM_SPHERE_ITERATIONS; j++) {
+				int first = i * (NUM_SPHERE_ITERATIONS + 1) + j;
+				int second = first + NUM_SPHERE_ITERATIONS + 1;
+				sphereIndices[sphereIndex++] = first;
+				sphereIndices[sphereIndex++] = second;
+				sphereIndices[sphereIndex++] = first + 1;
+				sphereIndices[sphereIndex++] = second;
+				sphereIndices[sphereIndex++] = second + 1;
+				sphereIndices[sphereIndex++] = first + 1;
+			}
+		}
+		this.sphereIndexBuff = new IndexIntBuffer(sphereIndices);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 		// Generate in index buffer for rendering 3D ellipses
 		
 		// Make indexes for the number of triangles minus 1
@@ -490,6 +516,26 @@ public class Renderer implements Destroyable{
 		
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
+		// Generate a vertex buffer for a sphere
+		// TODO explain why this makes sense
+		var sphereVertices = new float[(NUM_SPHERE_ITERATIONS + 1) * (NUM_SPHERE_ITERATIONS + 1) * 3];
+		var sphereIndex = 0;
+		for (int i = 0; i <= NUM_SPHERE_ITERATIONS; i++) {
+			float phi = (float) (Math.PI * i / NUM_SPHERE_ITERATIONS);
+			for (int j = 0; j <= NUM_SPHERE_ITERATIONS; j++) {
+				float theta = (float) (2 * Math.PI * j / NUM_SPHERE_ITERATIONS);
+				float x = (float) (Math.sin(phi) * Math.cos(theta));
+				float y = (float) (Math.cos(phi));
+				float z = (float) (Math.sin(phi) * Math.sin(theta));
+				sphereVertices[sphereIndex++] = x;
+				sphereVertices[sphereIndex++] = y;
+				sphereVertices[sphereIndex++] = z;
+			}
+		}
+		this.sphereCoordBuff = new VertexBuffer(VERTEX_POS_INDEX, 3, sphereVertices);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 		// Vertex buffer for an ellipse in 3D, aligned to the xz plane
 		var ellipsePoints3D = new float[NUM_ELLIPSE_POINTS * 3];
 		// Go through each point
@@ -554,6 +600,9 @@ public class Renderer implements Destroyable{
 		
 		// Create and bind the vertex array for the finite 3D plane
 		this.planeVertArr = new VertexArray(this.planeCoordBuff);
+		
+		// Create and bind the vertex array for the sphere
+		this.sphereVertArr = new VertexArray(this.sphereCoordBuff);
 		
 		// Generate a vertex array for rendering 3D ellipses
 		this.ellipse3DVertArr = new VertexArray(this.ellipse3DPosBuff);
@@ -1738,6 +1787,34 @@ public class Renderer implements Destroyable{
 		
 		// Draw the rect
 		glDrawElements(GL_QUADS, this.rect3DIndexBuff.getBuff());
+		this.popMatrix();
+		
+		return true;
+	}
+	
+	/**
+	 * Draw a sphere of the current color
+	 * @param x The center x coordinate of the sphere
+	 * @param y The center y coordinate of the sphere
+	 * @param z The center z coordinate of the sphere
+	 * @param radius The radius of the sphere
+	 * @return true if anything was drawn, false otherwise
+	 */
+	public boolean drawSphere(double x, double y, double z, double radius){
+		// Use the 3D color shader
+		this.renderModeShapes();
+		this.bindVertexArray(sphereVertArr);
+		
+		// Position the plane
+		this.pushMatrix();
+		this.positionObject(x, y, z, radius, radius, radius, 0, 0, 0, 0, 0, 0);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
+		// Draw the rect
+		glDrawElements(GL_TRIANGLES, sphereIndexBuff.getBuff());
 		this.popMatrix();
 		
 		return true;

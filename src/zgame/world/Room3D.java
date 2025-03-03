@@ -275,9 +275,6 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			for(int z = minZ; z <= maxZ; z++){
 				for(int y = minY; y <= maxY; y++){
 					var t = this.tiles[x][y][z];
-					
-					// TODO make it that when colliding, the bounciness of the hitbox colliding will also be accounted
-					
 					var res = t.collide(obj);
 					// Keep track of if a tile was touched
 					boolean currentCollided = res.x() != 0 || res.y() != 0;

@@ -573,7 +573,7 @@ public class GameDemo3D extends Game{
 		else game.getCurrentState().removeTopMenu(game);
 	}
 	
-	private static class Player3D extends MobilityEntity3D implements CylinderHitbox{
+	public static class Player3D extends MobilityEntity3D implements CylinderHitbox{
 		private final Game game;
 		
 		public Player3D(Game game){
