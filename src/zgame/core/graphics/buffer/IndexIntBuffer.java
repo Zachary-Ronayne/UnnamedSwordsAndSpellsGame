@@ -6,9 +6,10 @@ import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL30.*;
 
-// TODO abstract this with the normal byte index buffer
-
-/** An object that represents a single index buffer in OpenGL, using integers */
+/**
+ * An object that represents a single index buffer in OpenGL, using integers.
+ * This is almost an exact duplicate of {@link IndexByteBuffer}, however there's no good way of abstracting them out without introducing a lot of overhead when copying buffers
+ */
 public class IndexIntBuffer{
 	
 	/** The number OpenGL uses to track this index buffer */

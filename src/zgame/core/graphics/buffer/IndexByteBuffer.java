@@ -6,13 +6,16 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
 
-/** An object that represents a single index buffer in OpenGL */
-public class IndexBuffer{
+/**
+ * An object that represents a single index buffer in OpenGL.
+ * This is almost an exact duplicate of {@link IndexIntBuffer}, however there's no good way of abstracting them out without introducing a lot of overhead when copying buffers
+ */
+public class IndexByteBuffer{
 	
 	/** The number OpenGL uses to track this index buffer */
 	private final int id;
 	
-	/** The index data used by this {@link IndexBuffer} */
+	/** The index data used by this {@link IndexByteBuffer} */
 	private final byte[] data;
 	
 	/** The buffer holding {@link #data} */
@@ -22,21 +25,21 @@ public class IndexBuffer{
 	private final int drawMode;
 	
 	/**
-	 * Create a new {@link IndexBuffer} with the given data and buffer the indexes
+	 * Create a new {@link IndexByteBuffer} with the given data and buffer the indexes
 	 *
 	 * @param data See {@link #data}
 	 */
-	public IndexBuffer(byte[] data){
+	public IndexByteBuffer(byte[] data){
 		this(GL_STATIC_DRAW, data);
 	}
 	
 	/**
-	 * Create a new {@link IndexBuffer} with the given values and buffer the indexes
+	 * Create a new {@link IndexByteBuffer} with the given values and buffer the indexes
 	 *
 	 * @param drawMode See {@link #drawMode}
 	 * @param data See {@link #data}
 	 */
-	public IndexBuffer(int drawMode, byte[] data){
+	public IndexByteBuffer(int drawMode, byte[] data){
 		this.drawMode = drawMode;
 		this.data = data;
 		this.buff = BufferUtils.createByteBuffer(this.data.length);
@@ -50,7 +53,7 @@ public class IndexBuffer{
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, buff, this.drawMode);
 	}
 	
-	/** Bind this {@link IndexBuffer} for using indexes */
+	/** Bind this {@link IndexByteBuffer} for using indexes */
 	public void bind(){
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this.id);
 	}

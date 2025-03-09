@@ -87,7 +87,7 @@ public class Renderer implements Destroyable{
 	/** A {@link VertexBuffer} which represents positional values that fill the entire OpenGL screen from (-1, -1) to (1, 1) */
 	private VertexBuffer fillScreenPosBuff;
 	/** The index buffer that tracks the indexes for drawing a rectangle */
-	private IndexBuffer rectIndexBuff;
+	private IndexByteBuffer rectIndexBuff;
 	
 	/** The number of points used to draw an ellipse */
 	public static final int NUM_ELLIPSE_POINTS = 36;
@@ -96,7 +96,7 @@ public class Renderer implements Destroyable{
 	/** The {@link VertexBuffer} which represents positional values that generate an ellipse */
 	private VertexBuffer ellipsePosBuff;
 	/** The index buffer that tracks the indexes for drawing an ellipse */
-	private IndexBuffer ellipseIndexBuff;
+	private IndexByteBuffer ellipseIndexBuff;
 	
 	/** A {@link VertexArray} for drawing text */
 	private VertexArray textVertArr;
@@ -110,8 +110,8 @@ public class Renderer implements Destroyable{
 	/** The {@link VertexBuffer} used to track the texture coordinates for drawing the entirety of a texture, i.e. from (0, 0) to (1, 1) */
 	private VertexBuffer texCoordBuff;
 	
-	/** The {@link IndexBuffer} that tracks indexes for drawing a 3D rectangular prism */
-	private IndexBuffer rect3DIndexBuff;
+	/** The {@link IndexByteBuffer} that tracks indexes for drawing a 3D rectangular prism */
+	private IndexByteBuffer rect3DIndexBuff;
 	/** The {@link VertexBuffer} that tracks the coordinates for drawing a 3D rectangular prism */
 	private VertexBuffer rect3DCoordBuff;
 	/** The {@link VertexBuffer} that tracks the colors for drawing a 3D rectangular prism */
@@ -123,10 +123,10 @@ public class Renderer implements Destroyable{
 	/** The {@link VertexBuffer} which represents positional values that generate a 3D ellipse */
 	private VertexBuffer ellipse3DPosBuff;
 	/** The index buffer that tracks the indexes for drawing a 3D ellipse */
-	private IndexBuffer ellipse3DIndexBuff;
+	private IndexByteBuffer ellipse3DIndexBuff;
 	
-	/** The {@link IndexBuffer} that tracks indexes for drawing a finite plane from a quad */
-	private IndexBuffer planeIndexBuff;
+	/** The {@link IndexByteBuffer} that tracks indexes for drawing a finite plane from a quad */
+	private IndexByteBuffer planeIndexBuff;
 	/** The {@link VertexBuffer} that tracks the coordinates for drawing a finite plane from a quad */
 	private VertexBuffer planeCoordBuff;
 	/** The {@link VertexArray} for drawing a finite plane from a quad */
@@ -139,7 +139,7 @@ public class Renderer implements Destroyable{
 	
 	/** The number of iterations for breaking up a sphere when drawing */
 	public static final int NUM_SPHERE_ITERATIONS = 16;
-	/** The {@link IndexBuffer} that tracks indexes for drawing a sphere */
+	/** The {@link IndexByteBuffer} that tracks indexes for drawing a sphere */
 	private IndexIntBuffer sphereIndexBuff;
 	/** The {@link VertexBuffer} that tracks the coordinates for drawing a sphere */
 	private VertexBuffer sphereCoordBuff;
@@ -308,7 +308,7 @@ public class Renderer implements Destroyable{
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		// Generate an index buffer for drawing rectangles
-		this.rectIndexBuff = new IndexBuffer(new byte[]{
+		this.rectIndexBuff = new IndexByteBuffer(new byte[]{
 				0, 1, 2,
 				0, 3, 2
 		});
@@ -327,7 +327,7 @@ public class Renderer implements Destroyable{
 			ellipseIndexes[i * 3 + 1] = (byte)(i);
 			ellipseIndexes[i * 3 + 2] = (byte)(i + 1);
 		}
-		this.ellipseIndexBuff = new IndexBuffer(ellipseIndexes);
+		this.ellipseIndexBuff = new IndexByteBuffer(ellipseIndexes);
 		
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// 3D index buffers
@@ -336,26 +336,31 @@ public class Renderer implements Destroyable{
 		// Generate the indexes for the 3D rect
 		var cubeIndices = new byte[24];
 		for(int i = 0; i < cubeIndices.length; i++) cubeIndices[i] = (byte)i;
-		this.rect3DIndexBuff = new IndexBuffer(cubeIndices);
+		this.rect3DIndexBuff = new IndexByteBuffer(cubeIndices);
 		
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		// Generate the indexes for the finite 3D plane
-		this.planeIndexBuff = new IndexBuffer(new byte[]{0, 1, 2, 3});
+		this.planeIndexBuff = new IndexByteBuffer(new byte[]{0, 1, 2, 3});
 		
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
-		// TODO explain why this makes sense as indexes
 		// Generate the indexes for the sphere
+		// 6 indexes for each pair of two triangles, the number of iterations essentially forms a square of triangles mapped to the sphere
 		var sphereIndices = new int[NUM_SPHERE_ITERATIONS * NUM_SPHERE_ITERATIONS * 6];
 		int sphereIndex = 0;
-		for (int i = 0; i < NUM_SPHERE_ITERATIONS; i++) {
-			for (int j = 0; j < NUM_SPHERE_ITERATIONS; j++) {
+		// Only iterating up to the iteration count, fence post problem
+		for(int i = 0; i < NUM_SPHERE_ITERATIONS; i++){
+			for(int j = 0; j < NUM_SPHERE_ITERATIONS; j++){
+				// Magic index math to find the correct vertexes of the triangles
 				int first = i * (NUM_SPHERE_ITERATIONS + 1) + j;
 				int second = first + NUM_SPHERE_ITERATIONS + 1;
+				// Triangle 1
 				sphereIndices[sphereIndex++] = first;
 				sphereIndices[sphereIndex++] = second;
 				sphereIndices[sphereIndex++] = first + 1;
+				
+				// Triangle 2
 				sphereIndices[sphereIndex++] = second;
 				sphereIndices[sphereIndex++] = second + 1;
 				sphereIndices[sphereIndex++] = first + 1;
@@ -376,7 +381,7 @@ public class Renderer implements Destroyable{
 			ellipseIndexes[i * 3 + 1] = (byte)(i);
 			ellipseIndexes[i * 3 + 2] = (byte)(i + 1);
 		}
-		this.ellipse3DIndexBuff = new IndexBuffer(ellipseIndexes);
+		this.ellipse3DIndexBuff = new IndexByteBuffer(ellipseIndexes);
 		
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	}
@@ -517,16 +522,19 @@ public class Renderer implements Destroyable{
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		// Generate a vertex buffer for a sphere
-		// TODO explain why this makes sense
+		// 3 vertexes per triangle, the number of iterations will be the same for longitude and latitude, need one extra iteration to connect the lines together, fence post problem
 		var sphereVertices = new float[(NUM_SPHERE_ITERATIONS + 1) * (NUM_SPHERE_ITERATIONS + 1) * 3];
 		var sphereIndex = 0;
-		for (int i = 0; i <= NUM_SPHERE_ITERATIONS; i++) {
-			float phi = (float) (Math.PI * i / NUM_SPHERE_ITERATIONS);
-			for (int j = 0; j <= NUM_SPHERE_ITERATIONS; j++) {
-				float theta = (float) (2 * Math.PI * j / NUM_SPHERE_ITERATIONS);
-				float x = (float) (Math.sin(phi) * Math.cos(theta));
-				float y = (float) (Math.cos(phi));
-				float z = (float) (Math.sin(phi) * Math.sin(theta));
+		for(int i = 0; i <= NUM_SPHERE_ITERATIONS; i++){
+			// phi is the degrees around the sphere for latitude, it will be a percent of the north to south pole
+			float phi = (float)(Math.PI * i / NUM_SPHERE_ITERATIONS);
+			for(int j = 0; j <= NUM_SPHERE_ITERATIONS; j++){
+				// theta is the degrees around the sphere for latitude, it will be a percent of the equator
+				float theta = (float)(ZMath.TAU * j / NUM_SPHERE_ITERATIONS);
+				float x = (float)(Math.sin(phi) * Math.cos(theta));
+				float y = (float)(Math.cos(phi));
+				float z = (float)(Math.sin(phi) * Math.sin(theta));
+				// Each set of vertexes will be the next 3 indexes
 				sphereVertices[sphereIndex++] = x;
 				sphereVertices[sphereIndex++] = y;
 				sphereVertices[sphereIndex++] = z;
@@ -879,6 +887,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Set the model view to be the base matrix for a perspective projection using the given camera's perspective
+	 *
 	 * @param camera The camera to use
 	 */
 	public void camera3DPerspective(GameCamera3D camera){
@@ -1794,6 +1803,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a sphere of the current color
+	 *
 	 * @param x The center x coordinate of the sphere
 	 * @param y The center y coordinate of the sphere
 	 * @param z The center z coordinate of the sphere
@@ -1997,6 +2007,7 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Update the OpenGL frustum to the given camera
+	 *
 	 * @param camera The camera to use
 	 */
 	public void updateFrustum(GameCamera3D camera){

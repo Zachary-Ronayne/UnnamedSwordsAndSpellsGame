@@ -5,7 +5,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import zgame.core.graphics.ZColor;
-import zgame.core.graphics.buffer.IndexBuffer;
+import zgame.core.graphics.buffer.IndexByteBuffer;
 import zgame.core.graphics.buffer.VertexArray;
 import zgame.core.graphics.buffer.VertexBuffer;
 import zgame.core.graphics.shader.ShaderProgram;
@@ -66,7 +66,7 @@ public class Demo3D{
 			{1.0f, 0.0f, 1.0f, 1.0f,},
 	};
 	
-	private static IndexBuffer cubeIndexBuffer;
+	private static IndexByteBuffer cubeIndexBuffer;
 	private static VertexBuffer cubeVertexBuffer;
 	private static VertexArray cubeVertexArray;
 	
@@ -200,7 +200,7 @@ public class Demo3D{
 	private static void initCube(){
 		var cubeIndices = new byte[24];
 		for(var i = 0; i < cubeIndices.length; i++) cubeIndices[i] = (byte)i;
-		cubeIndexBuffer = new IndexBuffer(cubeIndices);
+		cubeIndexBuffer = new IndexByteBuffer(cubeIndices);
 		cubeIndexBuffer.bind();
 		
 		cubeVertexArray = new VertexArray();
