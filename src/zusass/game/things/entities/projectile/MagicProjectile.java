@@ -1,13 +1,10 @@
 package zusass.game.things.entities.projectile;
 
 import zgame.core.Game;
-import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector3D;
-import zgame.physics.material.Material;
-import zgame.physics.material.Materials;
 import zgame.things.BaseTags;
 import zgame.things.entity.projectile.Projectile2D;
 import zgame.things.entity.projectile.Projectile3D;
@@ -24,6 +21,9 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	
 	/** The effects to apply when this projectile hits a mob */
 	private final NotNullList<SpellEffect> effects;
+	
+	/** The base color to use for this projectile, for now it's random */
+	private final ZColor color;
 	
 	/**
 	 * Create a projectile at the specified location, moving at the given velocity
@@ -68,17 +68,17 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	 */
 	public MagicProjectile(double x, double y, double z, double radius, double range, String sourceId, ZVector3D launchVelocity, NotNullList<SpellEffect> effects){
 		super(x, y, z, launchVelocity);
+		this.color = new ZColor(Math.random(), Math.random(), Math.random(), 0.4 * Math.random() + 0.4);
+		
 		this.setSourceId(sourceId);
 		this.setRadius(radius);
 		this.setRange(range);
 		this.effects = effects;
-		// TODO put back to true
 		this.setOnHit(false);
 		this.addTags(BaseTags.PROJECTILE_NOT_COLLIDE);
 		
 		// Turn off gravity
-		// TODO put back to 0
-		this.setGravityLevel(.3);
+		this.setGravityLevel(0);
 		
 		// Add a function to effect a hit mob with magic
 		this.addHitFunc(ZusassMob.class, m -> {
@@ -93,11 +93,8 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	
 	@Override
 	protected void render(Game game, Renderer r){
-		// TODO implement sphere rendering or something closer than a cube, also make sure the coordinates are aligned
-		var c = new ZColor(.6, .6, 1, .8);
-		var rect = new RectRender3D(this.getBounds());
-		rect.setY(rect.getY() - rect.getHeight() * 0.5);
-		r.drawRectPrism(rect, c, c, c, c, c, c);
+		r.setColor(this.color);
+		r.drawSphere(this.getX(), this.getY(), this.getZ(), this.getRadius());
 	}
 	
 	@Override
@@ -119,10 +116,5 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	public int getSortPriority(){
 		return 200;
 	}
-
-	// TODO remove
-	@Override
-	public Material getMaterial(){
-		return Materials.BOUNCE;
-	}
+	
 }

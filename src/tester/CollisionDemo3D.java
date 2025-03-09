@@ -1,6 +1,7 @@
 package tester;
 
 import static org.lwjgl.glfw.GLFW.*;
+
 import zgame.core.Game;
 import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
@@ -22,12 +23,14 @@ public class CollisionDemo3D extends Game{
 	private static final ZPoint3D sphere = new ZPoint3D(0, 1, 0);
 	private static final double sRadius = 0.3;
 	private static final double sSpeed = 0.05;
-	private static final RectRender3D RECT = new RectRender3D(0, -0.5, 0, 1, 1, 1);
+	private static final RectRender3D RECT = new RectRender3D(0, -0.5, 0, 1.2, 1, 0.8);
 	
 	public static void main(String[] args){
 		
 		game = new CollisionDemo3D();
 		game.setInitSoundOnStart(false);
+		game.setPrintTps(false);
+		game.setPrintFps(false);
 		
 		game.getWindow().center();
 		
@@ -188,20 +191,31 @@ public class CollisionDemo3D extends Game{
 				boolean back = button == GLFW_KEY_I;
 				boolean forward = button == GLFW_KEY_K;
 				double camA = game.getCamera3D().getRotY();
-//				boolean invert = ZMath.angleNormalized(camA) < Math.PI;
-				boolean invert = true;
+				double camANorm = ZMath.angleNormalized(camA);
 				
-				if(invert){
-					if(left) sphere.setX(sphere.getX() - sSpeed);
-					else if(right) sphere.setX(sphere.getX() + sSpeed);
-					else if(forward) sphere.setZ(sphere.getZ() - sSpeed);
+				if(camANorm < ZMath.PI_BY_2){
+					if(forward) sphere.setZ(sphere.getZ() + sSpeed);
+					else if(back) sphere.setZ(sphere.getZ() - sSpeed);
+					else if(left) sphere.setX(sphere.getX() + sSpeed);
+					else if(right) sphere.setX(sphere.getX() - sSpeed);
+				}
+				else if(camANorm < Math.PI){
+					if(left) sphere.setZ(sphere.getZ() + sSpeed);
+					else if(right) sphere.setZ(sphere.getZ() - sSpeed);
+					else if(forward) sphere.setX(sphere.getX() - sSpeed);
+					else if(back) sphere.setX(sphere.getX() + sSpeed);
+				}
+				else if(camANorm < Math.PI + ZMath.PI_BY_2){
+					if(forward) sphere.setZ(sphere.getZ() - sSpeed);
 					else if(back) sphere.setZ(sphere.getZ() + sSpeed);
+					else if(left) sphere.setX(sphere.getX() - sSpeed);
+					else if(right) sphere.setX(sphere.getX() + sSpeed);
 				}
 				else{
-					if(forward) sphere.setX(sphere.getX() + sSpeed);
+					if(left) sphere.setZ(sphere.getZ() - sSpeed);
+					else if(right) sphere.setZ(sphere.getZ() + sSpeed);
+					else if(forward) sphere.setX(sphere.getX() + sSpeed);
 					else if(back) sphere.setX(sphere.getX() - sSpeed);
-					else if(left) sphere.setZ(sphere.getZ() + sSpeed);
-					else if(right) sphere.setZ(sphere.getZ() - sSpeed);
 				}
 				
 				if(button == GLFW_KEY_M) sphere.setY(sphere.getY() - sSpeed);
@@ -218,20 +232,19 @@ public class CollisionDemo3D extends Game{
 			
 			var sphereB = new RectRender3D(sphere.getX(), sphere.getY(), sphere.getZ(), sRadius * 2, sRadius * 2, sRadius * 2);
 			var collision = ZCollision.rectToSphereBasic(
-					RECT.getX(), RECT.getY(), RECT.getZ(), RECT.getWidth(), RECT.getHeight(), RECT.getLength(),
+					RECT.getX(), RECT.getY() + RECT.getHeight() * 0.5, RECT.getZ(), RECT.getWidth(), RECT.getHeight(), RECT.getLength(),
 					sphere.getX(), sphere.getY(), sphere.getZ(), sRadius, Materials.NONE
 			);
 			
-			r.setColor(new ZColor(collision.hit() ? 1 : 0, 0, 0.5));
-			r.drawSphere(sphereB.getX(), sphereB.getY(), sphereB.getZ(), sRadius);
-			
-			
-			sphereB = new RectRender3D(sphereB);
-			sphereB.setX(sphereB.getX() + collision.x());
-			sphereB.setY(sphereB.getY() + collision.y());
-			sphereB.setZ(sphereB.getZ() + collision.z());
+			var moveSphereB = new RectRender3D(sphereB);
+			moveSphereB.setX(sphereB.getX() + collision.x());
+			moveSphereB.setY(sphereB.getY() + collision.y());
+			moveSphereB.setZ(sphereB.getZ() + collision.z());
 			
 			r.setColor(new ZColor(0, 1, 0, 0.5));
+			r.drawSphere(moveSphereB.getX(), moveSphereB.getY(), moveSphereB.getZ(), sRadius);
+			
+			r.setColor(new ZColor(collision.hit() ? 1 : 0, 0, 0.5, 0.5));
 			r.drawSphere(sphereB.getX(), sphereB.getY(), sphereB.getZ(), sRadius);
 			
 			drawSampleCube(r, true, true, true);

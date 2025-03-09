@@ -270,7 +270,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		int minZ = (int)ZMath.minMax(0, tilesZ, Math.floor(obj.minZ() / tileSize));
 		int maxZ = (int)ZMath.minMax(0, tilesZ, Math.floor(obj.maxZ() / tileSize));
 		
-		// TODO fix glitchy walking when walking on top off and between tiles
+		// TODO fix glitchy walking when walking on top off and between tiles, this is an issue with sphere and cylinder hitboxes
 		for(int x = minX; x <= maxX; x++){
 			for(int z = minZ; z <= maxZ; z++){
 				for(int y = minY; y <= maxY; y++){

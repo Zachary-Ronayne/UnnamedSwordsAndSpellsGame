@@ -160,7 +160,6 @@ public final class ZMath{
 		return angleNormalized(Math.atan2(a, b) + ZMath.TAU);
 	}
 	
-	// TODO fix this not returning positive numbers when given a negative number
 	/**
 	 * Get the normalized version of the given angle in the range [0, 2pi)
 	 *
@@ -168,7 +167,8 @@ public final class ZMath{
 	 * @return The normalized angle
 	 */
 	public static double angleNormalized(double a){
-		return a % ZMath.TAU;
+		var mod = a % ZMath.TAU;
+		return mod < 0 ? mod + ZMath.TAU : mod;
 	}
 	
 	/**
