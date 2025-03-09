@@ -74,7 +74,7 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 		this.setRadius(radius);
 		this.setRange(range);
 		this.effects = effects;
-		this.setOnHit(false);
+		this.setOnHit(true);
 		this.addTags(BaseTags.PROJECTILE_NOT_COLLIDE);
 		
 		// Turn off gravity
