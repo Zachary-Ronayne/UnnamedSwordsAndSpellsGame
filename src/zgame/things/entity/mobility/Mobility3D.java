@@ -56,6 +56,8 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	 * @param down true if this object is moving down, false otherwise. Only does anything if flying is true
 	 */
 	default void handleMobilityControls(double dt, double angleH, double angleV, boolean left, boolean right, boolean forward, boolean backward, boolean up, boolean down){
+		// TODO fix glitchy occasional movement
+		
 		var mobilityData = this.getMobilityData();
 		double adjustedAngleH = angleH - ZMath.PI_BY_2;
 		double adjustedAngleV = -angleV;

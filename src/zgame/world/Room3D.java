@@ -270,21 +270,28 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		int minZ = (int)ZMath.minMax(0, tilesZ, Math.floor(obj.minZ() / tileSize));
 		int maxZ = (int)ZMath.minMax(0, tilesZ, Math.floor(obj.maxZ() / tileSize));
 		
-		// TODO fix glitchy walking when walking on top off and between tiles, this is an issue with sphere and cylinder hitboxes
-		for(int x = minX; x <= maxX; x++){
-			for(int z = minZ; z <= maxZ; z++){
-				for(int y = minY; y <= maxY; y++){
+		// Go through each horizontal layer, and if any y movement happens on that layer, it should override any xz plane movement
+		for(int y = minY; y <= maxY; y++){
+			double layerMx = 0;
+			double layerMy = 0;
+			double layerMz = 0;
+			boolean layerHitWall = false;
+			double layerWallAngle = 0;
+			
+			for(int x = minX; x <= maxX; x++){
+				for(int z = minZ; z <= maxZ; z++){
 					var t = this.tiles[x][y][z];
 					var res = t.collide(obj);
+					
 					// Keep track of if a tile was touched
 					boolean currentCollided = res.x() != 0 || res.y() != 0;
 					
-					mx += res.x();
-					my += res.y();
-					mz += res.z();
+					layerMx += res.x();
+					layerMy += res.y();
+					layerMz += res.z();
 					if(res.wall()){
-						wall = true;
-						wallAngle = res.wallAngle();
+						layerHitWall = true;
+						layerWallAngle = res.wallAngle();
 					}
 					if(res.ceiling()) top = true;
 					if(res.floor()) bot = true;
@@ -298,6 +305,19 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 					}
 				}
 			}
+			// If there has been a collision on this layer with y movement, then throw away wall collisions
+			if(layerMy != 0){
+				layerMx = 0;
+				layerMz = 0;
+				layerHitWall = false;
+			}
+			if(layerHitWall) {
+				wall = true;
+				wallAngle = layerWallAngle;
+			}
+			mx += layerMx;
+			my += layerMy;
+			mz += layerMz;
 		}
 		// If no material was selected, and the thing was on the ground, us the ground material, same goes for walls and then ceilings
 		if(material == null){
