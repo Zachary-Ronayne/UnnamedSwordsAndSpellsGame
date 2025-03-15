@@ -64,6 +64,7 @@ public class ZusassGame extends Game{
 	private ZusassGame(){
 		super();
 		this.make3D();
+		this.getWindow().setWindowTitle("ZUSASS");
 		
 		// Window and performance settings
 		this.setTps(100);

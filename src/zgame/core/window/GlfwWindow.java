@@ -449,6 +449,13 @@ public class GlfwWindow extends GameWindow{
 		else return this.getWindowID();
 	}
 	
+	@Override
+	public void setWindowTitle(String windowTitle){
+		super.setWindowTitle(windowTitle);
+		if(this.getWindowID() != NULL) glfwSetWindowTitle(this.getWindowID(), windowTitle);
+		else if(this.getFullScreenID() != NULL) glfwSetWindowTitle(this.getFullScreenID(), windowTitle);
+	}
+	
 	/** @return See {@link #mouseInput} */
 	public GLFWMouseInput getMouseInput(){
 		return this.mouseInput;
