@@ -33,12 +33,12 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 		var thing = this.getThing();
 		var totalVel = thing.getVelocity();
 		double threshold = thing.getClampVelocity();
-		double currentH = (totalVel.getHorizontal() > threshold) ? totalVel.getAngleH() + ZMath.PI_BY_2 : movingH;
-		double currentV = (totalVel.getVertical() > threshold) ? totalVel.getAngleV() : movingV;
+		double currentH = (totalVel.getHorizontal() > threshold) ? totalVel.getAngleH() : movingH;
+		double currentV = (mobilityData.isTryingToMoveVertical() && totalVel.getVertical() > threshold) ? totalVel.getAngleV() : movingV;
 		
 		double diffH = ZMath.angleDiff(movingH, currentH);
 		double diffV = ZMath.angleDiff(movingV, currentV);
-		
+
 		return (ZMath.PI_BY_2 - diffH) * (ZMath.PI_BY_2 - diffV) / (ZMath.PI_BY_2 * ZMath.PI_BY_2);
 	}
 	
@@ -56,7 +56,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	 * @param down true if this object is moving down, false otherwise. Only does anything if flying is true
 	 */
 	default void handleMobilityControls(double dt, double angleH, double angleV, boolean left, boolean right, boolean forward, boolean backward, boolean up, boolean down){
-		// TODO fix glitchy occasional movement
+		// TODO fix glitchy jolt of movement when initially starting movement
 		
 		var mobilityData = this.getMobilityData();
 		double adjustedAngleH = angleH - ZMath.PI_BY_2;
@@ -80,7 +80,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 			}
 			else{
 				verticalAngle = adjustedAngleV;
-
+				
 				// Account for strafing up and down
 				if(up || down){
 					double modifier = up ? ZMath.PI_BY_2 : -ZMath.PI_BY_2;
@@ -89,7 +89,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 			}
 			// Account for strafing
 			horizontalAngle += this.calculateStrafeModifier(left, right, forward, backward);
-
+			
 			// Only the vertical axis needs to be inverted here because only one axis needs to be inverted
 			if(backward && !forward) verticalAngle = verticalAngle + Math.PI;
 			
@@ -98,9 +98,9 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 		}
 		else if(mobilityType == MobilityType.WALKING){
 			mobilityData.setTryingToMove(left != right || forward != backward);
-			double horizontalAngle = adjustedAngleH;
 			
 			if(mobilityData.isTryingToMove()){
+				double horizontalAngle = adjustedAngleH;
 				// Account for moving backwards
 				if(backward && !forward) horizontalAngle = ZMath.angleNormalized(horizontalAngle + Math.PI);
 				
@@ -110,7 +110,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 			}
 			
 			// Jump if holding the jump button
-			if(up) {
+			if(up){
 				this.jump(dt);
 			}
 			// For not holding the button
@@ -122,6 +122,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	
 	/**
 	 * Determine the modifier value to use when strafing, depending on which directions are being moved in
+	 *
 	 * @param left True if moving left, false otherwise
 	 * @param right True if moving right, false otherwise
 	 * @param forward True if moving forward, false otherwise
@@ -129,7 +130,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	 * @return The modifier, can be 0 if there is no strafing
 	 */
 	default double calculateStrafeModifier(boolean left, boolean right, boolean forward, boolean backward){
-		if(left || right){
+		if(left != right){
 			double modifier = (forward || backward) ? ZMath.PI_BY_4 : ZMath.PI_BY_2;
 			if(left && !backward || right && backward) modifier = -modifier;
 			return modifier;

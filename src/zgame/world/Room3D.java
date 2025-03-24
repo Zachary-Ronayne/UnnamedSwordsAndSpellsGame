@@ -270,6 +270,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		int minZ = (int)ZMath.minMax(0, tilesZ, Math.floor(obj.minZ() / tileSize));
 		int maxZ = (int)ZMath.minMax(0, tilesZ, Math.floor(obj.maxZ() / tileSize));
 		
+		// TODO fix being able to walk through walls at the edges of tiles, especially when the player is small?
 		// Go through each horizontal layer, and if any y movement happens on that layer, it should override any xz plane movement
 		for(int y = minY; y <= maxY; y++){
 			double layerMx = 0;

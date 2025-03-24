@@ -45,6 +45,7 @@ public class GameDemo3D extends Game{
 	private static double currentTilt = 0;
 	
 	private static Player3D player;
+	private static boolean tinyPlayer = false;
 	private static DummyRoom dummyRoom;
 	
 	// Custom tiles for this demo
@@ -252,7 +253,10 @@ public class GameDemo3D extends Game{
 			else if(button == GLFW_KEY_RIGHT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) + .1, false);
 			
 			// Toggle no clip for the player
-			if(button == GLFW_KEY_N) player.setNoClip(!player.isNoClip());
+			else if(button == GLFW_KEY_N) player.setNoClip(!player.isNoClip());
+			
+			// Toggle tiny mode
+			else if(button == GLFW_KEY_T) tinyPlayer = !tinyPlayer;
 			
 			// Numerical button related controls
 			
@@ -712,12 +716,12 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getHeight(){
-			return 0.95;
+			return tinyPlayer ? 0.1 : 0.95;
 		}
 		
 		@Override
 		public double getRadius(){
-			return 0.25;
+			return tinyPlayer ? 0.01 : 0.25;
 		}
 	}
 	

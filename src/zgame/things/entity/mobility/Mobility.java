@@ -79,6 +79,9 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		var entity = this.getThing();
 		double mass = entity.getMass();
 		double walkForce = this.getWalkPower() / dt;
+		// See if trying to walk before doing any modifications to the walk force
+		boolean walking = walkForce != 0;
+		
 		double maxSpeed = this.getWalkSpeedMax();
 		// If the thing is walking, its max speed should be reduced by the ratio
 		if(this.isWalking()) maxSpeed *= this.getWalkingRatio();
@@ -87,11 +90,9 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		var currentVel = entity.getVelocity();
 		var currentVelMag = currentVel.getHorizontal();
 		double tryRatio = this.getMobilityTryingRatio();
-		if(currentVelMag > 0 && walkForce > 0 && currentVelMag > maxSpeed && tryRatio > 0) {
-			walkForce = mass * maxSpeed * dt;
+		if(currentVelMag > maxSpeed && walkForce > 0 && tryRatio > 0) {
+			walkForce = mass * maxSpeed / dt;
 		}
-		
-		boolean walking = walkForce != 0;
 		
 		// If the entity is not on the ground, it's movement force is modified by the air control
 		if(!entity.isOnGround()) walkForce *= this.getWalkAirControl();
@@ -104,7 +105,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			// If at or above max speed, just set the angle, and apply no force
 			if(currentVelMag >= maxSpeed){
 				walkForce = 0;
-				entity.setVelocity(createTryingToMoveVectorHorizontal(currentVelMag).modifyVerticalValue(currentVel.getVerticalValue()));
+				entity.setVelocity(this.createTryingToMoveVectorHorizontal(currentVelMag).modifyVerticalValue(currentVel.getVerticalValue()));
 			}
 			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
 			else if(Math.abs(newVel) >= maxSpeed){
@@ -192,7 +193,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		double facingRatio = (ratio + 1.0) / 2.0;
 		
 		// Calculate the new velocity for the horizontal axis
-		var newVel = currentVel.modifyHorizontalMagnitude(1).scale(desiredVel * (1 - facingRatio)).add(this.createTryingToMoveVectorHorizontal(desiredVel).scale(facingRatio));
+		var newVel = currentVel.modifyHorizontalMagnitude(1).scale(desiredVel * facingRatio).add(this.createTryingToMoveVectorHorizontal(desiredVel).scale((1 - facingRatio)));
 		if(newVel.getHorizontal() > desiredVel) newVel = newVel.modifyHorizontalMagnitude(desiredVel);
 		
 		// Keep the same vertical velocity as the original
@@ -465,6 +466,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	/** @return The amount of time, in seconds, after touching a wall that this entity has to jump. -1 to make jumping only allowed while touching a wall */
 	double getWallJumpTime();
 	
+	// TODO should this really be called "isWalking", probably should be a better name
 	/** @return true if this is currently walking, false for running */
 	boolean isWalking();
 	

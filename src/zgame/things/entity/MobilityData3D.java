@@ -3,6 +3,7 @@ package zgame.things.entity;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.things.entity.mobility.Mobility3D;
+import zgame.things.entity.mobility.MobilityType;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.world.Room3D;
 
@@ -82,6 +83,11 @@ public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVecto
 	/** @return See {@link #tryingToMove} */
 	public boolean isTryingToMove(){
 		return this.tryingToMove;
+	}
+	
+	/** @return true if {@link #getEntity()} is trying to move vertically, false otherwise */
+	public boolean isTryingToMoveVertical(){
+		return this.tryingToMove && this.getType() != MobilityType.WALKING;
 	}
 	
 	/** @param tryingToMove See {@link #tryingToMove} */

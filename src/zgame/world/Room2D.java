@@ -132,7 +132,6 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D, Col
 				if(res.right()) right = true;
 				if(res.ceiling()) top = true;
 				if(res.floor()) bot = true;
-				// issue#15 try making it do only one final collision operation at the end
 				obj.collide(res);
 				
 				// Record the material collided with, only if this tile was collided with

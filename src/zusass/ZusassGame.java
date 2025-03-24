@@ -111,7 +111,6 @@ public class ZusassGame extends Game{
 		data.checkAutoSave(zgame);
 	}
 	
-	
 	@Override
 	public boolean save(JsonElement e){
 		Saveable.save(DATA_KEY, e, this.getData());
@@ -164,7 +163,7 @@ public class ZusassGame extends Game{
 		super.keyAction(button, press, shift, alt, ctrl);
 		if(press) return;
 		
-		if(button == GLFW_KEY_F9) {
+		if(button == GLFW_KEY_F9){
 			this.setPrintFps(!this.isPrintFps());
 			this.setPrintTps(!this.isPrintTps());
 		}
@@ -186,7 +185,7 @@ public class ZusassGame extends Game{
 			protected void render(Game game, Renderer r){}
 		};
 		
-		if(zgame != null) {
+		if(zgame != null){
 			ZConfig.error("An instance of ZusassGame already exists, will not create another");
 			return;
 		}
@@ -226,7 +225,7 @@ public class ZusassGame extends Game{
 		var currentState = this.getCurrentState();
 		if(this.getPlayState() != currentState){
 			var menu = currentState.getMenu();
-			if(menu != null) {
+			if(menu != null){
 				menu.setWidth(newW);
 				menu.setHeight(newH);
 			}
