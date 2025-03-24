@@ -917,7 +917,7 @@ public class Game implements Saveable, Destroyable{
 	
 	/** @param print See {@link #isPrintFps()} */
 	public void setPrintFps(boolean print){
-		this.renderLooper.setPrintRate(print);
+		this.set(BooleanTypeSetting.PRINT_FPS, print, this.isSaveLoaded());
 	}
 	
 	/** @return The number of times each second that this {@link Game} runs a game tick */
@@ -953,7 +953,7 @@ public class Game implements Saveable, Destroyable{
 	
 	/** @param print See {@link #isPrintTps()} */
 	public void setPrintTps(boolean print){
-		this.tickLooper.setPrintRate(print);
+		this.set(BooleanTypeSetting.PRINT_TPS, print, this.isSaveLoaded());
 	}
 	
 	/** @return The number of times each second that the sound will update */
