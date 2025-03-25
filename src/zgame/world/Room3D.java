@@ -271,14 +271,9 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		int maxZ = (int)ZMath.minMax(0, tilesZ, Math.floor(obj.maxZ() / tileSize));
 		
 		// TODO fix being able to walk through walls at the edges of tiles, especially when the player is small?
+		// TODO fix hitting the edges of tiles when moving slowly
 		// Go through each horizontal layer, and if any y movement happens on that layer, it should override any xz plane movement
 		for(int y = minY; y <= maxY; y++){
-			double layerMx = 0;
-			double layerMy = 0;
-			double layerMz = 0;
-			boolean layerHitWall = false;
-			double layerWallAngle = 0;
-			
 			for(int x = minX; x <= maxX; x++){
 				for(int z = minZ; z <= maxZ; z++){
 					var t = this.tiles[x][y][z];
@@ -291,8 +286,6 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 					my += res.y();
 					mz += res.z();
 					if(res.wall()){
-						layerHitWall = true;
-						layerWallAngle = res.wallAngle();
 						wall = true;
 						wallAngle = res.wallAngle();
 					}
@@ -307,19 +300,6 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 					}
 				}
 			}
-			// If there has been a collision on this layer with y movement, then throw away wall collisions
-//			if(layerMy != 0){
-//				layerMx = 0;
-//				layerMz = 0;
-//				layerHitWall = false;
-//			}
-//			if(layerHitWall) {
-//				wall = true;
-//				wallAngle = layerWallAngle;
-//			}
-//			mx += layerMx;
-//			my += layerMy;
-//			mz += layerMz;
 		}
 		// If no material was selected, and the thing was on the ground, us the ground material, same goes for walls and then ceilings
 		if(material == null){
