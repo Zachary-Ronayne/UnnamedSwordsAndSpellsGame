@@ -285,18 +285,19 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 					var res = t.collide(obj);
 					
 					// Keep track of if a tile was touched
-					boolean currentCollided = res.x() != 0 || res.y() != 0;
+					boolean currentCollided = res.x() != 0 || res.y() != 0 || res.z() != 0;
 					
-					layerMx += res.x();
-					layerMy += res.y();
-					layerMz += res.z();
+					mx += res.x();
+					my += res.y();
+					mz += res.z();
 					if(res.wall()){
 						layerHitWall = true;
 						layerWallAngle = res.wallAngle();
+						wall = true;
+						wallAngle = res.wallAngle();
 					}
 					if(res.ceiling()) top = true;
 					if(res.floor()) bot = true;
-					// issue#15 try making it do only one final collision operation at the end
 					obj.collide(res);
 					
 					// Record the material collided with, only if this tile was collided with
@@ -307,18 +308,18 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 				}
 			}
 			// If there has been a collision on this layer with y movement, then throw away wall collisions
-			if(layerMy != 0){
-				layerMx = 0;
-				layerMz = 0;
-				layerHitWall = false;
-			}
-			if(layerHitWall) {
-				wall = true;
-				wallAngle = layerWallAngle;
-			}
-			mx += layerMx;
-			my += layerMy;
-			mz += layerMz;
+//			if(layerMy != 0){
+//				layerMx = 0;
+//				layerMz = 0;
+//				layerHitWall = false;
+//			}
+//			if(layerHitWall) {
+//				wall = true;
+//				wallAngle = layerWallAngle;
+//			}
+//			mx += layerMx;
+//			my += layerMy;
+//			mz += layerMz;
 		}
 		// If no material was selected, and the thing was on the ground, us the ground material, same goes for walls and then ceilings
 		if(material == null){

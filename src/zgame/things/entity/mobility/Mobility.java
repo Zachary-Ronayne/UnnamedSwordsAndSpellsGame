@@ -91,7 +91,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		var currentVelMag = currentVel.getHorizontal();
 		double tryRatio = this.getMobilityTryingRatio();
 		if(currentVelMag > maxSpeed && walkForce > 0 && tryRatio > 0) {
-			walkForce = mass * maxSpeed / dt;
+			walkForce = 0;
 		}
 		
 		// If the entity is not on the ground, it's movement force is modified by the air control
@@ -110,7 +110,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
 			else if(Math.abs(newVel) >= maxSpeed){
 				walkForce = 0;
-				this.moveVelocityHorizontalToDesired(tryRatio, maxSpeed, entity.getVelocity());
+				entity.setVelocity(this.createTryingToMoveVectorHorizontal(maxSpeed).modifyVerticalValue(currentVel.getVerticalValue()));
 			}
 		}
 		
@@ -178,29 +178,6 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		
 		// Apply the force
 		this.applyFlyForce(newFlyForce, tryingToMove);
-	}
-	
-	/**
-	 * Set the velocity of {@link #getThing()} to a velocity not exceeding the desired velocity, but combined with a vector of the current velocity, exclusively on the
-	 * horizontal axis
-	 *
-	 * @param ratio The precomputed value of {@link #getMobilityTryingRatio()}
-	 * @param desiredVel The magnitude of the desired velocity the entity wants to be at
-	 * @param currentVel The current velocity vector
-	 */
-	default void moveVelocityHorizontalToDesired(double ratio, double desiredVel, V currentVel){
-		// If the desired angle is different from actual angle, then the speed needs to be a combination of the current velocity and the desired velocity
-		double facingRatio = (ratio + 1.0) / 2.0;
-		
-		// Calculate the new velocity for the horizontal axis
-		var newVel = currentVel.modifyHorizontalMagnitude(1).scale(desiredVel * facingRatio).add(this.createTryingToMoveVectorHorizontal(desiredVel).scale((1 - facingRatio)));
-		if(newVel.getHorizontal() > desiredVel) newVel = newVel.modifyHorizontalMagnitude(desiredVel);
-		
-		// Keep the same vertical velocity as the original
-		newVel = newVel.modifyVerticalValue(currentVel.getVerticalValue());
-		
-		// Update the velocity
-		this.getThing().setVelocity(newVel);
 	}
 	
 	/**
