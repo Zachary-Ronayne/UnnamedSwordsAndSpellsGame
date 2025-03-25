@@ -534,7 +534,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	@Override
 	public double getWalkPower(){
 		// For now just making this a hard coded number based on the move speed stat
-		return this.stat(MOVE_SPEED) * 7;
+		return (1 + this.stat(MOVE_SPEED)) * 0.003 * (1 + this.stat(AGILITY));
 	}
 	
 	@Override
