@@ -110,8 +110,8 @@ public class ZusassPlayer extends ZusassMob{
 		var cam = game.getCamera3D();
 		this.handleMobilityControls(dt, cam.getRotY(), cam.getRotX(), left, right, forward, backward, up, down);
 		
-		// Toggle walking
-		if(this.inputHandlers.tick(game, GLFW_KEY_E)) this.toggleWalking();
+		// Turn sprinting on or off
+		this.setSprinting(ki.buttonDown(GLFW_KEY_E));
 		
 		// Toggle casting or attacking
 		if(this.inputHandlers.tick(game, GLFW_KEY_R)) this.toggleCasting();

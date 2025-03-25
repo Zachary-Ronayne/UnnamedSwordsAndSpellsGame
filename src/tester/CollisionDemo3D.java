@@ -118,7 +118,7 @@ public class CollisionDemo3D extends Game{
 		}
 		
 		@Override
-		public double getWalkingRatio(){
+		public double getSprintingRatio(){
 			return 1;
 		}
 		
@@ -138,7 +138,7 @@ public class CollisionDemo3D extends Game{
 		}
 		
 		@Override
-		public boolean isWalking(){
+		public boolean isSprinting(){
 			return false;
 		}
 		

@@ -103,8 +103,8 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	/** See {@link Mobility3D#isCanWallJump()} */
 	private boolean canWallJump;
 	
-	/** See {@link Mobility3D#isWalking()} */
-	private boolean walking;
+	/** See {@link Mobility3D#isSprinting()} */
+	private boolean sprinting;
 	
 	/**
 	 * Create a new mob with the given bounds
@@ -122,7 +122,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		this.jumpAfterBuildUp = DEFAULT_JUMP_AFTER_BUILD_UP;
 		this.walkFriction = DEFAULT_WALK_FRICTION;
 		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
-		this.walking = false;
+		this.sprinting = false;
 		this.mobilityData = new MobilityData3D(this, 0);
 		
 		this.stopWalking();
@@ -191,7 +191,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		}
 		
 		// If running and moving, need to drain stamina
-		this.staminaRunDrain.setValue(!this.isWalking() && this.isTryingToMove() ? -35 : 0);
+		this.staminaRunDrain.setValue(this.isSprinting() && this.isTryingToMove() ? -35 : 0);
 		
 		// Do the normal game update
 		super.tick(game, dt);
@@ -531,9 +531,11 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		return this.stat(MOVE_SPEED);
 	}
 	
+	// TODO fix position going to NaN when agility is really low
+	
 	@Override
 	public double getWalkPower(){
-		// For now just making this a hard coded number based on the move speed stat
+		// Both movement speed and agility make acceleration faster
 		return (1 + this.stat(MOVE_SPEED)) * 0.003 * (1 + this.stat(AGILITY));
 	}
 	
@@ -597,8 +599,14 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	}
 	
 	@Override
-	public double getWalkingRatio(){
-		return 1 - 9.0 / (this.stat(AGILITY) + 10);
+	public double getSprintingRatio(){
+		double agility = this.stat(AGILITY);
+		double divisor = -10 - agility * 0.5;
+		// If agility is too low, no sprinting bonus
+		if(divisor >= 0) return 1;
+		
+		// Approach a sprinting bonus of double
+		return 2 + 10 / divisor;
 	}
 	
 	/** @return See {@link #canWallJump} */
@@ -623,18 +631,18 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	}
 	
 	@Override
-	public boolean isWalking(){
-		return this.walking;
+	public boolean isSprinting(){
+		return this.sprinting;
 	}
 	
-	/** @param walking See {@link #walking} */
-	public void setWalking(boolean walking){
-		this.walking = walking;
+	/** @param sprinting See {@link #sprinting} */
+	public void setSprinting(boolean sprinting){
+		this.sprinting = sprinting;
 	}
 	
-	/** toggle the state of {@link #walking} */
-	public void toggleWalking(){
-		this.setWalking(!this.isWalking());
+	/** toggle the state of {@link #sprinting} */
+	public void toggleSprinting(){
+		this.setSprinting(!this.isSprinting());
 	}
 	
 	@Override

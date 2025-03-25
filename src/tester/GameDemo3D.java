@@ -644,7 +644,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getWalkSpeedMax(){
-			return 2.6;
+			return 1.8;
 		}
 		
 		@Override
@@ -663,8 +663,8 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public double getWalkingRatio(){
-			return 0.5;
+		public double getSprintingRatio(){
+			return 1.5;
 		}
 		
 		@Override
@@ -698,8 +698,8 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public boolean isWalking(){
-			return !this.game.getKeyInput().shift();
+		public boolean isSprinting(){
+			return this.game.getKeyInput().shift();
 		}
 		
 		@Override

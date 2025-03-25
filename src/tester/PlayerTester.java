@@ -44,8 +44,8 @@ public abstract class PlayerTester extends MobilityEntity2D{
 	/** See {@link Mobility2D#getWalkFriction()} */
 	private double walkFriction;
 	
-	/** See {@link Mobility2D#getWalkingRatio()} */
-	private double walkingRatio;
+	/** See {@link Mobility2D#getSprintingRatio()} */
+	private double sprintingRatio;
 	
 	/** See {@link Mobility2D#isCanWallJump()} */
 	private boolean canWallJump;
@@ -56,8 +56,8 @@ public abstract class PlayerTester extends MobilityEntity2D{
 	/** See {@link Mobility2D#getWallJumpTime()} */
 	private double wallJumpTime;
 	
-	/** See {@link Mobility2D#isWalking()} */
-	private boolean walking;
+	/** See {@link Mobility2D#isSprinting()} */
+	private boolean sprinting;
 	
 	/**
 	 * Create a new {@link PlayerTester} of the given size
@@ -79,11 +79,11 @@ public abstract class PlayerTester extends MobilityEntity2D{
 		this.jumpAfterBuildUp = true;
 		this.walkAirControl = .5;
 		this.walkFriction = 1;
-		this.walkingRatio = .5;
+		this.sprintingRatio = 1.5;
 		this.canWallJump = true;
 		this.normalJumpTime = .1;
 		this.wallJumpTime = .25;
-		this.walking = false;
+		this.sprinting = true;
 		
 		this.lockCamera = false;
 		this.width = width;
@@ -258,15 +258,15 @@ public abstract class PlayerTester extends MobilityEntity2D{
 		this.walkFriction = walkFriction;
 	}
 	
-	/** @return See {@link #walkingRatio} */
+	/** @return See {@link #sprintingRatio} */
 	@Override
-	public double getWalkingRatio(){
-		return this.walkingRatio;
+	public double getSprintingRatio(){
+		return this.sprintingRatio;
 	}
 	
-	/** @param walkingRatio See {@link #walkingRatio} */
-	public void setWalkingRatio(double walkingRatio){
-		this.walkingRatio = walkingRatio;
+	/** @param sprintingRatio See {@link #sprintingRatio} */
+	public void setSprintingRatio(double sprintingRatio){
+		this.sprintingRatio = sprintingRatio;
 	}
 	
 	/** @return See {@link #canWallJump} */
@@ -303,18 +303,18 @@ public abstract class PlayerTester extends MobilityEntity2D{
 	}
 	
 	@Override
-	public boolean isWalking(){
-		return this.walking;
+	public boolean isSprinting(){
+		return this.sprinting;
 	}
 	
-	/** @param walking See {@link #walking} */
-	public void setWalking(boolean walking){
-		this.walking = walking;
+	/** @param sprinting See {@link #sprinting} */
+	public void setSprinting(boolean sprinting){
+		this.sprinting = sprinting;
 	}
 	
-	/** toggle the state of {@link #walking} */
+	/** toggle the state of {@link #sprinting} */
 	public void toggleWalking(){
-		this.setWalking(!this.isWalking());
+		this.setSprinting(!this.isSprinting());
 	}
 	
 	@Override

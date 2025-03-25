@@ -83,8 +83,8 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		boolean walking = walkForce != 0;
 		
 		double maxSpeed = this.getWalkSpeedMax();
-		// If the thing is walking, its max speed should be reduced by the ratio
-		if(this.isWalking()) maxSpeed *= this.getWalkingRatio();
+		// If the thing is walking, its max speed should be multiplied by the ratio
+		if(this.isSprinting()) maxSpeed *= this.getSprintingRatio();
 		
 		// If the current velocity is greater than the max speed, and entity is trying to walk in the same direction as the current velocity, walk force will always be zero
 		var currentVel = entity.getVelocity();
@@ -431,8 +431,8 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	 */
 	double getWalkStopFriction();
 	
-	/** @return The percentage speed this should move at while walking instead of running. i.e. 0.5 = 50% */
-	double getWalkingRatio();
+	/** @return The percentage speed this should move at while sprinting instead of normal walking, i.e. 1.5 = 150% of normal speed */
+	double getSprintingRatio();
 	
 	/** @return true if this can jump off walls while touching one, otherwise, false */
 	boolean isCanWallJump();
@@ -443,9 +443,8 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	/** @return The amount of time, in seconds, after touching a wall that this entity has to jump. -1 to make jumping only allowed while touching a wall */
 	double getWallJumpTime();
 	
-	// TODO should this really be called "isWalking", probably should be a better name
-	/** @return true if this is currently walking, false for running */
-	boolean isWalking();
+	/** @return true if this is currently sprinting, false for normal movement speed */
+	boolean isSprinting();
 	
 	/** @return The acceleration of this while flying, i.e., how fast it gets to {@link #getFlySpeedMax()}, defaults to {@link #getWalkPower()} */
 	default double getFlyPower(){
