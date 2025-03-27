@@ -48,9 +48,9 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	 */
 	public Room3D(int tilesX, int tilesY, int tilesZ){
 		super();
+		this.enabledBoundaries = new boolean[6];
 		this.initTiles(tilesX, tilesY, tilesZ, BaseTiles3D.AIR);
 		
-		this.enabledBoundaries = new boolean[6];
 		this.setAllBoundaries(true);
 		this.boundarySizes = new double[6];
 		this.setAllBoundaries(4);
@@ -75,7 +75,15 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		for(int x = 0; x < xTiles; x++){
 			for(int y = 0; y < yTiles; y++){
 				for(int z = 0; z < zTiles; z++){
-					this.setTile(x, y, z, t);
+					this.setTile(x, y, z, t, true);
+				}
+			}
+		}
+		// Now compute all tile data once per tile
+		for(int x = 0; x < xTiles; x++){
+			for(int y = 0; y < yTiles; y++){
+				for(int z = 0; z < zTiles; z++){
+					this.computeTileData(x, y, z);
 				}
 			}
 		}
@@ -270,8 +278,6 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		int minZ = (int)ZMath.minMax(0, tilesZ, Math.floor(obj.minZ() / tileSize));
 		int maxZ = (int)ZMath.minMax(0, tilesZ, Math.floor(obj.maxZ() / tileSize));
 		
-		// TODO fix being able to walk through walls at the edges of tiles, especially when the player is small?
-		// TODO fix hitting the edges of tiles when moving slowly
 		// Go through each horizontal layer, and if any y movement happens on that layer, it should override any xz plane movement
 		for(int y = minY; y <= maxY; y++){
 			for(int x = minX; x <= maxX; x++){
@@ -620,11 +626,58 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	 *
 	 * @param x The x index
 	 * @param y The y index
-	 * @param z The x index
+	 * @param z The z index
 	 * @param t The new tile type
 	 */
 	public void setTile(int x, int y, int z, TileType3D t){
+		this.setTile(x, y, z, t, false);
+	}
+	
+	/**
+	 * Set the tile at the given indexes
+	 *
+	 * @param x The x index
+	 * @param y The y index
+	 * @param z The z index
+	 * @param t The new tile type
+	 * @param skipRecompute true to skip recomputing the {@link Tile3D#getCollisionFaces()} values, false for default behavior
+	 */
+	public void setTile(int x, int y, int z, TileType3D t, boolean skipRecompute){
 		this.tiles[x][y][z] = new Tile3D(x, y, z, t);
+		
+		if(!skipRecompute) {
+			this.computeTileData(x, y, z);
+			this.computeTileData(x - 1, y, z);
+			this.computeTileData(x + 1, y, z);
+			this.computeTileData(x, y - 1, z);
+			this.computeTileData(x, y + 1, z);
+			this.computeTileData(x, y, z - 1);
+			this.computeTileData(x, y, z + 1);
+		}
+	}
+	
+	/**
+	 * Compute any associated data with the given tile
+	 *
+	 * @param x The x index
+	 * @param y The y index
+	 * @param z The z index
+	 */
+	public void computeTileData(int x, int y, int z){
+		// TODO this can be made more efficient by not doing redundant checks, also make it less messy
+		// TODO this will need to be updated when the boundaries change
+		if(x < 0 || x >= this.getTilesX() || y < 0 || y >= this.getTilesY() || z < 0 || z >= this.getTilesZ()) return;
+		
+		var collisionFaces = this.tiles[x][y][z].getCollisionFaces();
+		// Collision will be enabled if either the next tile would be out of bounds and the boundary is disabled, or if the adjacent tile is not already collideable
+		collisionFaces[Directions3D.EAST] = (x - 1 <= 0) ? !this.boundaryEnabled(Directions3D.EAST) : !this.tiles[x - 1][y][z].canCollide(Directions3D.EAST);
+		collisionFaces[Directions3D.WEST] = (x + 1 >= this.getTilesX()) ? !this.boundaryEnabled(Directions3D.WEST) : !this.tiles[x + 1][y][z].canCollide(Directions3D.WEST);
+		
+		collisionFaces[Directions3D.UP] = (y - 1 <= 0) ? !this.boundaryEnabled(Directions3D.UP) : !this.tiles[x][y - 1][z].canCollide(Directions3D.UP);
+		collisionFaces[Directions3D.DOWN] = (y + 1 >= this.getTilesY()) ? !this.boundaryEnabled(Directions3D.DOWN) : !this.tiles[x][y + 1][z].canCollide(Directions3D.DOWN);
+		
+		collisionFaces[Directions3D.NORTH] = (z - 1 <= 0) ? !this.boundaryEnabled(Directions3D.NORTH) : !this.tiles[x][y][z - 1].canCollide(Directions3D.NORTH);
+		collisionFaces[Directions3D.SOUTH] = (z + 1 >= this.getTilesZ()) ? !this.boundaryEnabled(Directions3D.SOUTH) : !this.tiles[x][y][z + 1].canCollide(Directions3D.SOUTH);
 	}
 	
 	/** @return See {@link #tilesX} */

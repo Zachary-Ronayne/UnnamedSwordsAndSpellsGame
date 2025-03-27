@@ -62,8 +62,8 @@ public interface CylinderHitbox extends HitBox3D{
 	}
 	
 	@Override
-	default CollisionResult3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m){
-		return ZCollision.rectToCylinderBasic(x, y, z, width, height, length, this.getX(), this.getY(), this.getZ(), this.getRadius(), this.getHeight(), m);
+	default CollisionResult3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m, boolean[] collisionFaces){
+		return ZCollision.rectToCylinderBasic(x, y, z, width, height, length, this.getX(), this.getY(), this.getZ(), this.getRadius(), this.getHeight(), m, collisionFaces);
 	}
 	
 	@Override

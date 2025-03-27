@@ -54,7 +54,7 @@ public interface RectPrismHitbox extends HitBox3D, RectPrismBounds{
 	}
 	
 	@Override
-	default CollisionResult3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m){
+	default CollisionResult3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m, boolean[] collisionFaces){
 		// issue#58 implement
 		return new CollisionResult3D();
 	}

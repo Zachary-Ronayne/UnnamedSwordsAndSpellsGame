@@ -6,6 +6,7 @@ import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint2D;
 import zgame.core.utils.ZRect2D;
 import zgame.physics.material.Material;
+import zgame.world.Directions3D;
 
 /** A class containing methods for calculating where objects should move when colliding */
 public final class ZCollision{
@@ -630,105 +631,114 @@ public final class ZCollision{
 	 * @param m The material of the rectangular prism
 	 * @return A collision result representing how the cylinder should move
 	 */
-	public static CollisionResult3D rectToCylinderBasic(double rx, double ry, double rz, double rw, double rh, double rl, double cx, double cy, double cz, double cr, double ch, Material m){
+	public static CollisionResult3D rectToCylinderBasic(double rx, double ry, double rz, double rw, double rh, double rl, double cx, double cy, double cz, double cr, double ch,
+														Material m, boolean[] collisionFaces){
 		// With no intersection, there is no collision
 		if(!rectIntersectsCylinder(rx, ry, rz, rw, rh, rl, cx, cy, cz, cr, ch)) return new CollisionResult3D();
 		
-		double minDist = -1;
-		double moveDist = 0;
-		
-		boolean moveX = false;
-		boolean moveY = false;
-		boolean moveZ = false;
-		
-		boolean touchWall = false;
-		boolean touchFloor = false;
-		boolean touchCeiling = false;
+		double moveX = 0;
+		double moveY = 0;
+		double moveZ = 0;
 		
 		double hrw = rw * 0.5;
 		double hrl = rl * 0.5;
 		
 		// Check for collision with all 6 sides of the rectangular prism, and find the distance to move on each side, or a negative number if it is too far
 		
+		// TODO do a similar thing with collision faces for the sphere to rect hitbox
+		// TODO fix glitchy collision when walking into a tile corner, does circleDistanceLineSegment have a problem?
+		
 		// Check the x axis, left and right
 		double rxl = rx - hrw;
-		double leftDist = circleDistanceLineSegment(rz - hrl, rz + hrl, rxl, cz, rxl + (rxl - cx), cr, true);
-		if(leftDist > 0 && leftDist < rw){
-			moveDist = -leftDist;
-			minDist = leftDist;
-			moveX = true;
-			touchWall = true;
+		double leftDist = -1;
+		if(collisionFaces[Directions3D.EAST]){
+			leftDist = circleDistanceLineSegment(rz - hrl, rz + hrl, rxl, cz, rxl + (rxl - cx), cr, true);
+			if(leftDist > 0 && leftDist < rw){
+				moveX = -leftDist;
+			}
 		}
-		double rxr = rx + hrw;
-		double rightDist = circleDistanceLineSegment(rz + hrl, rz + hrl, rxr, cz, cx, cr, true);
-		if(rightDist > 0 && rightDist < rw && (minDist < 0 || rightDist < minDist)){
-			moveDist = rightDist;
-			minDist = rightDist;
-			moveX = true;
-			touchWall = true;
+		if(collisionFaces[Directions3D.WEST]){
+			double rxr = rx + hrw;
+			double rightDist = circleDistanceLineSegment(rz + hrl, rz + hrl, rxr, cz, cx, cr, true);
+			if(rightDist > 0 && rightDist < rw && (rightDist < leftDist || leftDist < 0)){
+				moveX = rightDist;
+			}
 		}
 		
 		// Check the z axis, front and back
 		double rzb = rz + hrl;
-		double backDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzb, cx, rzb + (cz - rzb), cr, true);
-		if(backDist > 0 && backDist < rl && (minDist < 0 || backDist < minDist)){
-			moveDist = backDist;
-			minDist = backDist;
-			moveZ = true;
-			moveX = false;
-			touchWall = true;
+		double backDist = -1;
+		if(collisionFaces[Directions3D.SOUTH]){
+			backDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzb, cx, rzb + (cz - rzb), cr, true);
+			if(backDist > 0 && backDist < rl){
+				moveZ = backDist;
+			}
 		}
-		double rzf = rz - hrl;
-		double frontDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzf, cx, cz, cr, false);
-		if(frontDist > 0 && frontDist < rl && (minDist < 0 || frontDist < minDist)){
-			moveDist = -frontDist;
-			minDist = frontDist;
-			moveZ = true;
-			moveX = false;
-			touchWall = true;
+		if(collisionFaces[Directions3D.NORTH]){
+			double rzf = rz - hrl;
+			double frontDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzf, cx, cz, cr, false);
+			if(frontDist > 0 && frontDist < rl && (frontDist < backDist || backDist < 0)){
+				moveZ = -frontDist;
+			}
 		}
 		
 		// Check the y axis, top and bottom
+		boolean touchFloor = false;
+		boolean touchCeiling = false;
 		double topDist = (ry + rh) - cy;
-		if(topDist > 0 && topDist < rh && (minDist < 0 || topDist < minDist)){
-			moveDist = topDist;
-			minDist = topDist;
-			moveY = true;
-			moveX = false;
-			moveZ = false;
-			touchFloor = true;
-			touchWall = false;
-		}
 		double bottomDist = (cy + ch) - ry;
-		if(bottomDist > 0 && bottomDist < rh && (minDist < 0 || bottomDist < minDist)){
-			moveDist = -bottomDist;
-			minDist = bottomDist;
-			moveY = true;
-			moveX = false;
-			moveZ = false;
-			touchCeiling = true;
-			touchFloor = false;
-			touchWall = false;
+		if(collisionFaces[Directions3D.DOWN]){
+			if(topDist > 0 && topDist < rh){
+				moveY = topDist;
+				touchFloor = true;
+			}
+		}
+		if(collisionFaces[Directions3D.UP]){
+			if(bottomDist > 0 && bottomDist < rh && (bottomDist < topDist || topDist < 0)){
+				moveY = -bottomDist;
+				touchCeiling = true;
+			}
 		}
 		
 		// If no movement is needed, there is no collision, though this should always be false at this point
-		if(minDist < 0) return new CollisionResult3D();
+		if(moveX == 0 && moveY == 0 && moveZ == 0) return new CollisionResult3D();
 		
-		// Otherwise, the result will be only for the side with the smallest change
-		double dx = moveX ? moveDist : 0;
-		double dy = moveY ? moveDist : 0;
-		double dz = moveZ ? moveDist : 0;
+		double dx = moveX;
+		double dy = moveY;
+		double dz = moveZ;
+		
+		// Movement will prefer vertical if there is a smaller vertical collision
+		if(Math.abs(dy) < Math.sqrt(dx * dx + dz * dz)){
+			if(dy != 0){
+				dx = 0;
+				dz = 0;
+			}
+		}
+		else{
+			// If moving horizontal, prefer the smaller movement
+			if(dx != 0 || dz != 0){
+				dy = 0;
+				touchCeiling = false;
+				touchFloor = false;
+				if(Math.abs(dx) < Math.abs(dz)){
+					if(dx != 0) dz = 0;
+				}
+				else{
+					if(dz != 0) dx = 0;
+				}
+			}
+		}
 		
 		double wallAngle;
 		// x axis wall
-		if(moveX) wallAngle = ZMath.PI_BY_2;
+		if(moveX != 0) wallAngle = ZMath.PI_BY_2;
 		// z axis wall
-		else if(moveZ) wallAngle = 0;
+		else if(moveZ != 0) wallAngle = 0;
 		// No wall hit
 		else wallAngle = 0;
 		
 		// Set the flags appropriately for which sides were touched and return the result
-		return new CollisionResult3D(dx, dy, dz, touchWall, touchCeiling, touchFloor, m, wallAngle);
+		return new CollisionResult3D(dx, dy, dz, dx != 0 || dz != 0, touchCeiling, touchFloor, m, wallAngle);
 	}
 	
 	/**

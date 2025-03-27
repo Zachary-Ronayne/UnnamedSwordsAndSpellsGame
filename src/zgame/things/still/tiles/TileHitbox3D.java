@@ -5,6 +5,7 @@ import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.HitBox3D;
+import zgame.world.Directions3D;
 
 /** An object that represents the hitbox of a tile, i.e., what parts of the tile have collision */
 public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResult3D>{
@@ -22,6 +23,14 @@ public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResu
 	 */
 	double clickDistance(Tile3D t, ClickerBounds clicker);
 	
+	/**
+	 * Used to determine which faces of the tile should be checked for collision
+	 *
+	 * @param face The face which is being checked, indexed by {@link Directions3D}
+	 * @return true if this tile hitbox can collide with things, false otherwise.
+	 */
+	boolean canCollide(int face);
+	
 	/** For tiles with no collision */
 	class None implements TileHitbox3D{
 		@Override
@@ -34,13 +43,18 @@ public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResu
 			// With no hitbox, there will never be a distance
 			return -1;
 		}
+		
+		@Override
+		public boolean canCollide(int face){
+			return false;
+		}
 	}
 	
 	/** For tiles whose hitbox takes up the entire tile */
 	class Full implements TileHitbox3D{
 		@Override
 		public CollisionResult3D collide(Tile3D t, HitBox3D obj){
-			return obj.calculateRectCollision(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength(), t.getMaterial());
+			return obj.calculateRectCollision(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength(), t.getMaterial(), t.getCollisionFaces());
 		}
 		
 		@Override
@@ -58,6 +72,11 @@ public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResu
 			return ZMath.rayDistanceToRectPrism(clicker.getClickX(), clicker.getClickY(), clicker.getClickZ(),
 					clickDirection.getX(), clickDirection.getY(), clickDirection.getZ(),
 					t.minX(), t.minY(), t.minZ(), t.maxX(), t.maxY(), t.maxZ());
+		}
+		
+		@Override
+		public boolean canCollide(int face){
+			return true;
 		}
 	}
 	
