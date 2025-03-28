@@ -5,6 +5,7 @@ import java.awt.geom.Line2D;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint2D;
 import zgame.core.utils.ZRect2D;
+import zgame.core.utils.ZStringUtils;
 import zgame.physics.material.Material;
 import zgame.world.Directions3D;
 
@@ -646,7 +647,6 @@ public final class ZCollision{
 		// Check for collision with all 6 sides of the rectangular prism, and find the distance to move on each side, or a negative number if it is too far
 		
 		// TODO do a similar thing with collision faces for the sphere to rect hitbox
-		// TODO fix glitchy collision when walking into a tile corner, does circleDistanceLineSegment have a problem?
 		
 		// Check the x axis, left and right
 		double rxl = rx - hrw;
@@ -720,14 +720,17 @@ public final class ZCollision{
 				dy = 0;
 				touchCeiling = false;
 				touchFloor = false;
-				if(Math.abs(dx) < Math.abs(dz)){
-					if(dx != 0) dz = 0;
-				}
-				else{
-					if(dz != 0) dx = 0;
-				}
 			}
 		}
+		
+		// Only move on one horizontal axis, always the smaller one
+		if(Math.abs(dx) < Math.abs(dz)){
+			if(dx != 0) dz = 0;
+		}
+		else{
+			if(dz != 0) dx = 0;
+		}
+		
 		
 		double wallAngle;
 		// x axis wall
