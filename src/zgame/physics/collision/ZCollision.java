@@ -846,20 +846,38 @@ public final class ZCollision{
 		double wallAngle = 0;
 		
 		// Find the distances per face of the rect from the sphere, using the one that requires the least movement on that axis
-		double leftDist = collisionFaces[Directions3D.EAST] ? distanceSphereToRectPlane(sy, sx, sz, sr, ry, rx, rz, rh, rw, rl, true) : 0;
-		double rightDist = collisionFaces[Directions3D.WEST] ? distanceSphereToRectPlane(sy, sx, sz, sr, ry, rx, rz, rh, rw, rl, false) : 0;
-		if(Math.abs(leftDist) < Math.abs(rightDist)) move[X] = leftDist;
-		else move[X] = rightDist;
+		if(collisionFaces[Directions3D.EAST] || collisionFaces[Directions3D.WEST]){
+			double leftDist = distanceSphereToRectPlane(sy, sx, sz, sr, ry, rx, rz, rh, rw, rl, true);
+			double rightDist = distanceSphereToRectPlane(sy, sx, sz, sr, ry, rx, rz, rh, rw, rl, false);
+			if(Math.abs(leftDist) < Math.abs(rightDist)) {
+				if(collisionFaces[Directions3D.WEST]) move[X] = leftDist;
+			}
+			else {
+				if(collisionFaces[Directions3D.EAST]) move[X] = rightDist;
+			}
+		}
 		
-		double topDist = collisionFaces[Directions3D.UP] ? distanceSphereToRectPlane(sx, sy, sz, sr, rx, ry, rz, rw, rh, rl, true) : 0;
-		double botDist = collisionFaces[Directions3D.DOWN] ? distanceSphereToRectPlane(sx, sy, sz, sr, rx, ry, rz, rw, rh, rl, false) : 0;
-		if(Math.abs(topDist) < Math.abs(botDist)) move[Y] = topDist;
-		else move[Y] = botDist;
+		if(collisionFaces[Directions3D.DOWN] || collisionFaces[Directions3D.UP]){
+			double topDist = distanceSphereToRectPlane(sx, sy, sz, sr, rx, ry, rz, rw, rh, rl, true);
+			double botDist = distanceSphereToRectPlane(sx, sy, sz, sr, rx, ry, rz, rw, rh, rl, false);
+			if(Math.abs(topDist) < Math.abs(botDist)){
+				if(collisionFaces[Directions3D.DOWN]) move[Y] = topDist;
+			}
+			else{
+				if(collisionFaces[Directions3D.UP]) move[Y] = botDist;
+			}
+		}
 		
-		double frontDist = collisionFaces[Directions3D.NORTH] ? distanceSphereToRectPlane(sy, sz, sx, sr, ry, rz, rx, rh, rl, rw, true) : 0;
-		double backDist = collisionFaces[Directions3D.SOUTH] ? distanceSphereToRectPlane(sy, sz, sx, sr, ry, rz, rx, rh, rl, rw, false) : 0;
-		if(Math.abs(frontDist) < Math.abs(backDist)) move[Z] = frontDist;
-		else move[Z] = backDist;
+		if(collisionFaces[Directions3D.NORTH] || collisionFaces[Directions3D.SOUTH]){
+			double frontDist = distanceSphereToRectPlane(sy, sz, sx, sr, ry, rz, rx, rh, rl, rw, true);
+			double backDist = distanceSphereToRectPlane(sy, sz, sx, sr, ry, rz, rx, rh, rl, rw, false);
+			if(Math.abs(frontDist) < Math.abs(backDist)) {
+				if(collisionFaces[Directions3D.SOUTH]) move[Z] = frontDist;
+			}
+			else {
+				if(collisionFaces[Directions3D.NORTH]) move[Z] = backDist;
+			}
+		}
 		
 		// If more than one move value is non-zero, set the others to zero
 		ZMath.selectSmallestNonZero(move);

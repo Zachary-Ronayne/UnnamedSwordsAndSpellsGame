@@ -646,6 +646,10 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		this.tiles[x][y][z] = new Tile3D(x, y, z, t);
 		
 		if(!skipRecompute) {
+			/*
+			 There is a lot of room for optimization here, for example only the touching faces of updated tiles need to be recomputed, not the whole tile,
+			 but this is fine for now
+			 */
 			this.computeTileData(x, y, z);
 			this.computeTileData(x - 1, y, z);
 			this.computeTileData(x + 1, y, z);
@@ -664,20 +668,19 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	 * @param z The z index
 	 */
 	public void computeTileData(int x, int y, int z){
-		// TODO this can be made more efficient by not doing redundant checks, also make it less messy
 		// TODO this will need to be updated when the boundaries change
 		if(x < 0 || x >= this.getTilesX() || y < 0 || y >= this.getTilesY() || z < 0 || z >= this.getTilesZ()) return;
 		
 		var collisionFaces = this.tiles[x][y][z].getCollisionFaces();
 		// Collision will be enabled if either the next tile would be out of bounds and the boundary is disabled, or if the adjacent tile is not already collideable
-		collisionFaces[Directions3D.EAST] = (x - 1 <= 0) ? this.boundaryEnabled(Directions3D.EAST) : !this.tiles[x - 1][y][z].canCollide(Directions3D.EAST);
-		collisionFaces[Directions3D.WEST] = (x + 1 >= this.getTilesX()) ? this.boundaryEnabled(Directions3D.WEST) : !this.tiles[x + 1][y][z].canCollide(Directions3D.WEST);
+		collisionFaces[Directions3D.EAST] = (x - 1 <= 0) ? !this.boundaryEnabled(Directions3D.EAST) : !this.tiles[x - 1][y][z].canCollide(Directions3D.EAST);
+		collisionFaces[Directions3D.WEST] = (x + 1 >= this.getTilesX()) ? !this.boundaryEnabled(Directions3D.WEST) : !this.tiles[x + 1][y][z].canCollide(Directions3D.WEST);
 		
-		collisionFaces[Directions3D.UP] = (y - 1 <= 0) ? this.boundaryEnabled(Directions3D.UP) : !this.tiles[x][y - 1][z].canCollide(Directions3D.UP);
-		collisionFaces[Directions3D.DOWN] = (y + 1 >= this.getTilesY()) ? this.boundaryEnabled(Directions3D.DOWN) : !this.tiles[x][y + 1][z].canCollide(Directions3D.DOWN);
+		collisionFaces[Directions3D.UP] = (y - 1 <= 0) ? !this.boundaryEnabled(Directions3D.UP) : !this.tiles[x][y - 1][z].canCollide(Directions3D.UP);
+		collisionFaces[Directions3D.DOWN] = (y + 1 >= this.getTilesY()) ? !this.boundaryEnabled(Directions3D.DOWN) : !this.tiles[x][y + 1][z].canCollide(Directions3D.DOWN);
 		
-		collisionFaces[Directions3D.NORTH] = (z - 1 <= 0) ? this.boundaryEnabled(Directions3D.NORTH) : !this.tiles[x][y][z - 1].canCollide(Directions3D.NORTH);
-		collisionFaces[Directions3D.SOUTH] = (z + 1 >= this.getTilesZ()) ? this.boundaryEnabled(Directions3D.SOUTH) : !this.tiles[x][y][z + 1].canCollide(Directions3D.SOUTH);
+		collisionFaces[Directions3D.NORTH] = (z - 1 <= 0) ? !this.boundaryEnabled(Directions3D.NORTH) : !this.tiles[x][y][z - 1].canCollide(Directions3D.NORTH);
+		collisionFaces[Directions3D.SOUTH] = (z + 1 >= this.getTilesZ()) ? !this.boundaryEnabled(Directions3D.SOUTH) : !this.tiles[x][y][z + 1].canCollide(Directions3D.SOUTH);
 	}
 	
 	/** @return See {@link #tilesX} */
