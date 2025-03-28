@@ -5,7 +5,6 @@ import java.awt.geom.Line2D;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint2D;
 import zgame.core.utils.ZRect2D;
-import zgame.core.utils.ZStringUtils;
 import zgame.physics.material.Material;
 import zgame.world.Directions3D;
 
@@ -630,6 +629,7 @@ public final class ZCollision{
 	 * @param cr The radius of the cylinder
 	 * @param ch The total height of the cylinder
 	 * @param m The material of the rectangular prism
+	 * @param collisionFaces The faces of the rect which should be enabled for collision checks
 	 * @return A collision result representing how the cylinder should move
 	 */
 	public static CollisionResult3D rectToCylinderBasic(double rx, double ry, double rz, double rw, double rh, double rl, double cx, double cy, double cz, double cr, double ch,
@@ -645,8 +645,6 @@ public final class ZCollision{
 		double hrl = rl * 0.5;
 		
 		// Check for collision with all 6 sides of the rectangular prism, and find the distance to move on each side, or a negative number if it is too far
-		
-		// TODO do a similar thing with collision faces for the sphere to rect hitbox
 		
 		// Check the x axis, left and right
 		double rxl = rx - hrw;
@@ -828,7 +826,8 @@ public final class ZCollision{
 	 * @param m The material of the rectangular prism
 	 * @return A collision result representing how the sphere should move
 	 */
-	public static CollisionResult3D rectToSphereBasic(double rx, double ry, double rz, double rw, double rh, double rl, double sx, double sy, double sz, double sr, Material m){
+	public static CollisionResult3D rectToSphereBasic(double rx, double ry, double rz, double rw, double rh, double rl, double sx, double sy, double sz, double sr,
+													  Material m, boolean[] collisionFaces){
 		// With no intersection, there is no collision
 		if(!rectIntersectsSphere(rx, ry - rh * 0.5, rz, rw, rh, rl, sx, sy, sz, sr)){
 			return new CollisionResult3D();
@@ -847,18 +846,18 @@ public final class ZCollision{
 		double wallAngle = 0;
 		
 		// Find the distances per face of the rect from the sphere, using the one that requires the least movement on that axis
-		double leftDist = distanceSphereToRectPlane(sy, sx, sz, sr, ry, rx, rz, rh, rw, rl, true);
-		double rightDist = distanceSphereToRectPlane(sy, sx, sz, sr, ry, rx, rz, rh, rw, rl, false);
+		double leftDist = collisionFaces[Directions3D.EAST] ? distanceSphereToRectPlane(sy, sx, sz, sr, ry, rx, rz, rh, rw, rl, true) : 0;
+		double rightDist = collisionFaces[Directions3D.WEST] ? distanceSphereToRectPlane(sy, sx, sz, sr, ry, rx, rz, rh, rw, rl, false) : 0;
 		if(Math.abs(leftDist) < Math.abs(rightDist)) move[X] = leftDist;
 		else move[X] = rightDist;
 		
-		double topDist = distanceSphereToRectPlane(sx, sy, sz, sr, rx, ry, rz, rw, rh, rl, true);
-		double botDist = distanceSphereToRectPlane(sx, sy, sz, sr, rx, ry, rz, rw, rh, rl, false);
+		double topDist = collisionFaces[Directions3D.UP] ? distanceSphereToRectPlane(sx, sy, sz, sr, rx, ry, rz, rw, rh, rl, true) : 0;
+		double botDist = collisionFaces[Directions3D.DOWN] ? distanceSphereToRectPlane(sx, sy, sz, sr, rx, ry, rz, rw, rh, rl, false) : 0;
 		if(Math.abs(topDist) < Math.abs(botDist)) move[Y] = topDist;
 		else move[Y] = botDist;
 		
-		double frontDist = distanceSphereToRectPlane(sy, sz, sx, sr, ry, rz, rx, rh, rl, rw, true);
-		double backDist = distanceSphereToRectPlane(sy, sz, sx, sr, ry, rz, rx, rh, rl, rw, false);
+		double frontDist = collisionFaces[Directions3D.NORTH] ? distanceSphereToRectPlane(sy, sz, sx, sr, ry, rz, rx, rh, rl, rw, true) : 0;
+		double backDist = collisionFaces[Directions3D.SOUTH] ? distanceSphereToRectPlane(sy, sz, sx, sr, ry, rz, rx, rh, rl, rw, false) : 0;
 		if(Math.abs(frontDist) < Math.abs(backDist)) move[Z] = frontDist;
 		else move[Z] = backDist;
 		

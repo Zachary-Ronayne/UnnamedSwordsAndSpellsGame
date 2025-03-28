@@ -233,7 +233,7 @@ public class CollisionDemo3D extends Game{
 			var sphereB = new RectRender3D(sphere.getX(), sphere.getY(), sphere.getZ(), sRadius * 2, sRadius * 2, sRadius * 2);
 			var collision = ZCollision.rectToSphereBasic(
 					RECT.getX(), RECT.getY() + RECT.getHeight() * 0.5, RECT.getZ(), RECT.getWidth(), RECT.getHeight(), RECT.getLength(),
-					sphere.getX(), sphere.getY(), sphere.getZ(), sRadius, Materials.NONE
+					sphere.getX(), sphere.getY(), sphere.getZ(), sRadius, Materials.NONE, new boolean[]{true, true, true, true, true, true}
 			);
 			
 			var moveSphereB = new RectRender3D(sphereB);
