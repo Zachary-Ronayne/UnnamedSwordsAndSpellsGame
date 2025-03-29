@@ -19,6 +19,7 @@ public class ZusassRoom extends Room3D{
 	 *
 	 * @param xTiles The number of tiles on the x axis
 	 * @param yTiles The number of tiles on the y axis
+	 * @param zTiles The number of tiles on the z axis
 	 */
 	public ZusassRoom(int xTiles, int yTiles, int zTiles){
 		super(xTiles, yTiles, zTiles);
