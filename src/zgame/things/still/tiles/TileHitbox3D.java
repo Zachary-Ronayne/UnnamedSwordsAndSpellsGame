@@ -68,7 +68,7 @@ public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResu
 				return 0;
 			}
 			
-			var clickDirection = new ZVector3D(clicker.getClickAngleH(), clicker.getClickAngleV(), 1, false);
+			var clickDirection = new ZVector3D(clicker.getClickYaw(), clicker.getClickPitch(), 1, false);
 			return ZMath.rayDistanceToRectPrism(clicker.getClickX(), clicker.getClickY(), clicker.getClickZ(),
 					clickDirection.getX(), clickDirection.getY(), clickDirection.getZ(),
 					t.minX(), t.minY(), t.minZ(), t.maxX(), t.maxY(), t.maxZ());

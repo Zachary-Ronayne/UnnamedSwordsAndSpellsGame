@@ -27,14 +27,14 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	@Override
 	default double getMobilityTryingRatio(){
 		var mobilityData = this.getMobilityData();
-		double movingH = mobilityData.getMovingHorizontalAngle();
-		double movingV = mobilityData.getMovingVerticalAngle();
+		double movingH = mobilityData.getMovingYaw();
+		double movingV = mobilityData.getMovingPitch();
 		
 		var thing = this.getThing();
 		var totalVel = thing.getVelocity();
 		double threshold = thing.getClampVelocity();
-		double currentH = (totalVel.getHorizontal() > threshold) ? totalVel.getAngleH() : movingH;
-		double currentV = (mobilityData.isTryingToMoveVertical() && totalVel.getVertical() > threshold) ? totalVel.getAngleV() : movingV;
+		double currentH = (totalVel.getHorizontal() > threshold) ? totalVel.getYaw() : movingH;
+		double currentV = (mobilityData.isTryingToMoveVertical() && totalVel.getVertical() > threshold) ? totalVel.getPitch() : movingV;
 		
 		double diffH = ZMath.angleDiff(movingH, currentH);
 		double diffV = ZMath.angleDiff(movingV, currentV);
@@ -46,8 +46,8 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	 * Move this object based on the given parameters
 	 *
 	 * @param dt The amount of time, in seconds, that passed
-	 * @param angleH The angle this thing is looking at on the horizontal axis, i.e. x z plane
-	 * @param angleV The angle this thing is looking at on the vertical axis
+	 * @param yaw The angle this thing is looking at on the horizontal axis, i.e. x z plane
+	 * @param pitch The angle this thing is looking at on the vertical axis
 	 * @param left true if this object is moving to its left, false otherwise
 	 * @param right true if this object is moving to its right, false otherwise
 	 * @param forward true if this object is moving forward, false otherwise
@@ -55,56 +55,56 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	 * @param up true if this object is moving up, false otherwise. Only does anything if flying is true
 	 * @param down true if this object is moving down, false otherwise. Only does anything if flying is true
 	 */
-	default void handleMobilityControls(double dt, double angleH, double angleV, boolean left, boolean right, boolean forward, boolean backward, boolean up, boolean down){
+	default void handleMobilityControls(double dt, double yaw, double pitch, boolean left, boolean right, boolean forward, boolean backward, boolean up, boolean down){
 		var mobilityData = this.getMobilityData();
-		double adjustedAngleH = angleH - ZMath.PI_BY_2;
-		double adjustedAngleV = -angleV;
-		mobilityData.setFacingHorizontalAngle(adjustedAngleH);
-		mobilityData.setFacingVerticalAngle(adjustedAngleV);
+		double adjustedYaw = yaw - ZMath.PI_BY_2;
+		double adjustedPitch = -pitch;
+		mobilityData.setFacingYaw(adjustedYaw);
+		mobilityData.setFacingPitch(adjustedPitch);
 		
 		var mobilityType = mobilityData.getType();
 		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){
 			// issue#37 fix flying feeling borked when trying to move in more than one direction at once, i.e. left, up, and back
 			mobilityData.setTryingToMove(left != right || up != down || forward != backward);
-			double verticalAngle;
-			double horizontalAngle = adjustedAngleH;
+			double movingPitch;
+			double movingYaw = adjustedYaw;
 			
 			if(mobilityType == MobilityType.FLYING_AXIS){
 				// Go straight up and down
-				if(up) verticalAngle = ZMath.PI_BY_2;
-				else if(down) verticalAngle = ZMath.PI_BY_2 + Math.PI;
-				else verticalAngle = 0;
-				if(backward) horizontalAngle += Math.PI;
+				if(up) movingPitch = ZMath.PI_BY_2;
+				else if(down) movingPitch = ZMath.PI_BY_2 + Math.PI;
+				else movingPitch = 0;
+				if(backward) movingYaw += Math.PI;
 			}
 			else{
-				verticalAngle = adjustedAngleV;
+				movingPitch = adjustedPitch;
 				
 				// Account for strafing up and down
 				if(up || down){
 					double modifier = up ? ZMath.PI_BY_2 : -ZMath.PI_BY_2;
-					verticalAngle = verticalAngle + modifier;
+					movingPitch = movingPitch + modifier;
 				}
 			}
 			// Account for strafing
-			horizontalAngle += this.calculateStrafeModifier(left, right, forward, backward);
+			movingYaw += this.calculateStrafeModifier(left, right, forward, backward);
 			
 			// Only the vertical axis needs to be inverted here because only one axis needs to be inverted
-			if(backward && !forward) verticalAngle = verticalAngle + Math.PI;
+			if(backward && !forward) movingPitch = movingPitch + Math.PI;
 			
-			mobilityData.setMovingHorizontalAngle(ZMath.angleNormalized(horizontalAngle));
-			mobilityData.setMovingVerticalAngle(ZMath.angleNormalized(verticalAngle));
+			mobilityData.setMovingYaw(ZMath.angleNormalized(movingYaw));
+			mobilityData.setMovingPitch(ZMath.angleNormalized(movingPitch));
 		}
 		else if(mobilityType == MobilityType.WALKING){
 			mobilityData.setTryingToMove(left != right || forward != backward);
 			
 			if(mobilityData.isTryingToMove()){
-				double horizontalAngle = adjustedAngleH;
+				double movingYaw = adjustedYaw;
 				// Account for moving backwards
-				if(backward && !forward) horizontalAngle = ZMath.angleNormalized(horizontalAngle + Math.PI);
+				if(backward && !forward) movingYaw = ZMath.angleNormalized(movingYaw + Math.PI);
 				
 				// Account for strafing
-				horizontalAngle += this.calculateStrafeModifier(left, right, forward, backward);
-				mobilityData.setMovingHorizontalAngle(horizontalAngle);
+				movingYaw += this.calculateStrafeModifier(left, right, forward, backward);
+				mobilityData.setMovingYaw(movingYaw);
 			}
 			
 			// Jump if holding the jump button
@@ -153,13 +153,13 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	@Override
 	default ZVector3D createTryingToMoveVector(double magnitude){
 		var data = this.getMobilityData();
-		return new ZVector3D(data.getMovingHorizontalAngle(), data.getMovingVerticalAngle(), magnitude, false);
+		return new ZVector3D(data.getMovingYaw(), data.getMovingPitch(), magnitude, false);
 	}
 	
 	@Override
 	default ZVector3D createTryingToMoveVectorHorizontal(double magnitude){
 		var data = this.getMobilityData();
-		double movingAngle = data.getMovingHorizontalAngle();
+		double movingAngle = data.getMovingYaw();
 		return new ZVector3D(Math.cos(movingAngle) * magnitude, 0, Math.sin(movingAngle) * magnitude);
 	}
 }

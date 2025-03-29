@@ -12,11 +12,11 @@ public interface ClickerBounds{
 	/** @return The z coordinate where the click of this thing will originate */
 	double getClickZ();
 	
-	/** @return The current horizontal angle which this thing is looking */
-	double getClickAngleH();
+	/** @return The current yaw which this thing is looking */
+	double getClickYaw();
 	
-	/** @return The current vertical angle which this thing is looking */
-	double getClickAngleV();
+	/** @return The current pitch which this thing is looking */
+	double getClickPitch();
 	
 	/** @return The distance this thing can be away from {@link Clickable3D} things while being able to click on them */
 	double getClickRange();

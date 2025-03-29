@@ -15,10 +15,10 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	private double z;
 	
 	/** The angle, in radians, of this {@link ZVector3D}, along the horizontal axis, i.e. the x z plane */
-	private double angleH;
+	private double yaw;
 	
 	/** The angle, in radians, of this {@link ZVector3D}, along the vertical axis, i.e. the y axis */
-	private double angleV;
+	private double pitch;
 	
 	/** The magnitude on the horizontal axis, i.e. x z plane */
 	private double horizontalMag;
@@ -42,8 +42,8 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	/**
 	 * Create a new ZVector with the given component values
 	 *
-	 * @param a If comps is true, see {@link #x}, otherwise see {@link #angleH}
-	 * @param b If comps is true, See {@link #y}, otherwise see {@link #angleV}
+	 * @param a If comps is true, see {@link #x}, otherwise see {@link #yaw}
+	 * @param b If comps is true, See {@link #y}, otherwise see {@link #pitch}
 	 * @param c If comps is true, See {@link #z}, otherwise see {@link #magnitude}
 	 * @param comps true if a, b, and c represent the x, y, and z components of this {@link ZVector2D}, otherwise, they represent the angles and magnitude
 	 */
@@ -56,14 +56,14 @@ public class ZVector3D extends ZVector<ZVector3D>{
 			this.calcAngleMag();
 		}
 		else{
-			this.angleH = a;
-			this.angleV = b;
+			this.yaw = a;
+			this.pitch = b;
 			this.setMagnitude(c);
 			this.calcComponents();
 		}
 	}
 	
-	/** Update the internal x, y, and z values based on the current values of {@link #angleH}, {@link #angleV} */
+	/** Update the internal x, y, and z values based on the current values of {@link #yaw}, {@link #pitch} */
 	@Override
 	public void calcComponents(){
 		// Ensure magnitude is positive
@@ -71,14 +71,14 @@ public class ZVector3D extends ZVector<ZVector3D>{
 		boolean inverted = mag < 0;
 		if(inverted) this.setMagnitude(-mag);
 		
-		// Horizontal magnitude will be the cos, i.e. horizontal, value of the vertical angle and the total magnitude
-		this.horizontalMag = Math.abs(Math.cos(this.angleV) * this.getMagnitude());
+		// Horizontal magnitude will be the cos, i.e. horizontal, value of the pitch and the total magnitude
+		this.horizontalMag = Math.abs(Math.cos(this.pitch) * this.getMagnitude());
 		// The x component will be the cos value on the horizontal axis with the total horizontal magnitude
-		this.x = Math.cos(this.angleH) * this.horizontalMag;
-		// The vertical magnitude will be the sin value of the vertical angle and the total magnitude
-		this.y = Math.sin(this.angleV) * this.getMagnitude();
+		this.x = Math.cos(this.yaw) * this.horizontalMag;
+		// The vertical magnitude will be the sin value of the pitch and the total magnitude
+		this.y = Math.sin(this.pitch) * this.getMagnitude();
 		// The z component will be the sin value on the horizontal axis with the total horizontal magnitude
-		this.z = Math.sin(this.angleH) * this.horizontalMag;
+		this.z = Math.sin(this.yaw) * this.horizontalMag;
 		if(inverted) {
 			this.x = -this.x;
 			this.y = -this.y;
@@ -91,12 +91,12 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	public void calcAngleMag(){
 		// The horizontal magnitude is just the distance formula for the 2 horizontal axes
 		this.horizontalMag = ZMath.hypot(this.x, this.z);
-		// The horizontal angle is the angle between the two horizontal axes, modded to be between [0, 2PI]
-		this.angleH = ZMath.atan2Normalized(this.z, this.x);
-		if(Double.isNaN(this.angleH)) this.angleH = 0;
-		// The vertical angle is the angle angleH the horizontal magnitude and the y magnitude, modded to be between [0, 2PI]
-		this.angleV = ZMath.atan2Normalized(this.y, this.horizontalMag);
-		if(Double.isNaN(this.angleV)) this.angleV = 0;
+		// The yaw is the angle between the two horizontal axes, modded to be between [0, 2PI]
+		this.yaw = ZMath.atan2Normalized(this.z, this.x);
+		if(Double.isNaN(this.yaw)) this.yaw = 0;
+		// The pitch angle is the angle between the horizontal magnitude and the y magnitude, modded to be between [0, 2PI]
+		this.pitch = ZMath.atan2Normalized(this.y, this.horizontalMag);
+		if(Double.isNaN(this.pitch)) this.pitch = 0;
 		// The total magnitude is just the distance formula for the vertical and horizontal axes
 		this.setMagnitude(ZMath.hypot(this.y, this.horizontalMag));
 	}
@@ -131,14 +131,14 @@ public class ZVector3D extends ZVector<ZVector3D>{
 		return this.z;
 	}
 	
-	/** @return See {@link #angleH} */
-	public double getAngleH(){
-		return this.angleH;
+	/** @return See {@link #yaw} */
+	public double getYaw(){
+		return this.yaw;
 	}
 	
-	/** @return See {@link #angleV} */
-	public double getAngleV(){
-		return this.angleV;
+	/** @return See {@link #pitch} */
+	public double getPitch(){
+		return this.pitch;
 	}
 	
 	/**
@@ -167,12 +167,12 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	
 	@Override
 	public ZVector3D modifyMagnitude(double magnitude){
-		return new ZVector3D(this.getAngleH(), this.getAngleV(), magnitude, false);
+		return new ZVector3D(this.getYaw(), this.getPitch(), magnitude, false);
 	}
 	
 	@Override
 	public ZVector3D modifyHorizontalMagnitude(double magnitude){
-		return new ZVector3D(Math.cos(this.getAngleH()) * magnitude, this.getY(), Math.sin(this.getAngleH()) * magnitude);
+		return new ZVector3D(Math.cos(this.getYaw()) * magnitude, this.getY(), Math.sin(this.getYaw()) * magnitude);
 	}
 	
 	@Override
@@ -187,7 +187,7 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	
 	@Override
 	public boolean isOpposite(ZVector3D vector){
-		return ZVector.isOpposite(this.getAngleH(), vector.getAngleH()) || ZVector.isOpposite(this.getAngleV(), vector.getAngleV());
+		return ZVector.isOpposite(this.getYaw(), vector.getYaw()) || ZVector.isOpposite(this.getPitch(), vector.getPitch());
 	}
 	
 	@Override
@@ -198,10 +198,10 @@ public class ZVector3D extends ZVector<ZVector3D>{
 		sb.append(this.getY());
 		sb.append(", z: ");
 		sb.append(this.getZ());
-		sb.append(", angleH: ");
-		sb.append(this.getAngleH());
-		sb.append(", angleV: ");
-		sb.append(this.getAngleV());
+		sb.append(", yaw: ");
+		sb.append(this.getYaw());
+		sb.append(", pitch: ");
+		sb.append(this.getPitch());
 		sb.append(", horizontal: ");
 		sb.append(this.getHorizontal());
 		sb.append(", mag: ");

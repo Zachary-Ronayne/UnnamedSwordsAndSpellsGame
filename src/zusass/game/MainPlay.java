@@ -189,7 +189,7 @@ public class MainPlay extends PlayState{
 			r.setFontSize(22);
 			var mobilityData = p.getMobilityData();
 			double ty = game.getWindow().getHeight() - 5;
-			var yaw = Math.toDegrees(ZMath.angleNormalized(mobilityData.getFacingHorizontalAngle()));
+			var yaw = Math.toDegrees(ZMath.angleNormalized(mobilityData.getFacingYaw()));
 			String direction;
 			if(yaw >= 45 && yaw < 135) direction = "SOUTH";
 			else if(yaw >= 135 && yaw < 225) direction = "WEST";
@@ -204,7 +204,7 @@ public class MainPlay extends PlayState{
 					"VY: " + this.debugNumberFormat.format(velocity.getY()),
 					"VZ: " + this.debugNumberFormat.format(velocity.getZ()),
 					"YAW: " + this.debugNumberFormat.format(yaw),
-					"PIT: " + this.debugNumberFormat.format(Math.toDegrees(ZMath.angleNormalized(mobilityData.getFacingVerticalAngle()))),
+					"PIT: " + this.debugNumberFormat.format(Math.toDegrees(ZMath.angleNormalized(mobilityData.getFacingPitch()))),
 					"FAC: " + direction
 			);
 			double border = 1;

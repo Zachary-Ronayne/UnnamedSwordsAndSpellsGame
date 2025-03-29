@@ -30,7 +30,7 @@ public abstract class MobilityEntity3D extends EntityThing3D implements Mobility
 	public MobilityEntity3D(double x, double y, double z, double mass){
 		super(x, y, z, mass);
 		
-		this.mobilityData = new MobilityData3D(this, 0);
+		this.mobilityData = new MobilityData3D(this);
 	}
 	
 	@Override

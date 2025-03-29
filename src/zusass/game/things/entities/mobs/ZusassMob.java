@@ -123,7 +123,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		this.walkFriction = DEFAULT_WALK_FRICTION;
 		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
 		this.sprinting = false;
-		this.mobilityData = new MobilityData3D(this, 0);
+		this.mobilityData = new MobilityData3D(this);
 		
 		this.stopWalking();
 		
@@ -499,13 +499,13 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	}
 	
 	@Override
-	public double getClickAngleH(){
-		return this.getMobilityData().getFacingHorizontalAngle();
+	public double getClickYaw(){
+		return this.getMobilityData().getFacingYaw();
 	}
 	
 	@Override
-	public double getClickAngleV(){
-		return this.getMobilityData().getFacingVerticalAngle();
+	public double getClickPitch(){
+		return this.getMobilityData().getFacingPitch();
 	}
 	
 	@Override

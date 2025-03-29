@@ -89,7 +89,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	@Override
 	public void setHorizontalVel(double v){
 		var oldVel = this.getVelocity();
-		var oldAngle = oldVel.getAngleH();
+		var oldAngle = oldVel.getYaw();
 		var newVel = new ZVector3D(Math.cos(oldAngle) * v, oldVel.getY(), Math.sin(oldAngle) * v, true);
 		
 		this.setVelocity(newVel);
@@ -121,7 +121,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 		
 		// Determine the amount of velocity on each axis
 		double wallAngle = result.wallAngle();
-		double currentAngle = currentVel.getAngleH();
+		double currentAngle = currentVel.getYaw();
 		/*
 		I don't really understand how to explain in an intuitive way why this works for finding the bounce angle,
 		but see the bottom of this file for the working out I did by looking for patterns in the 8 scenarios of hitting axis aligned walls

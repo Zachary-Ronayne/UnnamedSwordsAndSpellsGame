@@ -26,7 +26,7 @@ public interface ThingClickDetector3D extends Clickable3D{
 	 */
 	default double findClickDistance(ClickerBounds clickerBounds){
 		// Determine if the clicker is in range of the thing to click
-		var clickDirection = new ZVector3D(clickerBounds.getClickAngleH(), clickerBounds.getClickAngleV(), 1, false);
+		var clickDirection = new ZVector3D(clickerBounds.getClickYaw(), clickerBounds.getClickPitch(), 1, false);
 		return this.rayDistance(clickerBounds.getClickX(), clickerBounds.getClickY(), clickerBounds.getClickZ(),
 				clickDirection.getX(), clickDirection.getY(), clickDirection.getZ());
 	}

@@ -11,16 +11,16 @@ import zgame.world.Room3D;
 public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D>{
 	
 	/** The angle, in radians, on the x z plane that {@link #entity} is attempting to move in, i.e. trying to move on the horizontal axis */
-	private double movingHorizontalAngle;
+	private double movingYaw;
 	
 	/** The angle on the y axis where {@link #entity} is trying to move */
-	private double movingVerticalAngle;
+	private double movingPitch;
 	
 	/** The angle, in radians, on the x z plane that {@link #entity} is facing in, i.e. facing on the horizontal axis */
-	private double facingHorizontalAngle;
+	private double facingYaw;
 	
 	/** The angle on the y axis where {@link #entity} is facing */
-	private double facingVerticalAngle;
+	private double facingPitch;
 	
 	/** true if {@link #entity} wants to walk, false otherwise */
 	private boolean tryingToMove;
@@ -30,54 +30,54 @@ public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVecto
 	 *
 	 * @param entity The entity which this walk object will hold data for
 	 */
-	public MobilityData3D(EntityThing3D entity, double movingHorizontalAngle){
+	public MobilityData3D(EntityThing3D entity){
 		super(entity);
 		
-		this.movingHorizontalAngle = movingHorizontalAngle;
-		this.movingVerticalAngle = 0;
-		this.facingHorizontalAngle = this.movingHorizontalAngle;
-		this.facingVerticalAngle = this.movingVerticalAngle;
+		this.movingYaw = 0;
+		this.movingPitch = 0;
+		this.facingYaw = this.movingYaw;
+		this.facingPitch = this.movingPitch;
 		this.tryingToMove = false;
 	}
 	
-	/** @return See {@link #movingHorizontalAngle} */
-	public double getMovingHorizontalAngle(){
-		return this.movingHorizontalAngle;
+	/** @return See {@link #movingYaw} */
+	public double getMovingYaw(){
+		return this.movingYaw;
 	}
 	
-	/** @param movingHorizontalAngle See {@link #movingHorizontalAngle} */
-	public void setMovingHorizontalAngle(double movingHorizontalAngle){
-		this.movingHorizontalAngle = movingHorizontalAngle;
+	/** @param movingYaw See {@link #movingYaw} */
+	public void setMovingYaw(double movingYaw){
+		this.movingYaw = movingYaw;
 	}
 	
-	/** @return See {@link #movingVerticalAngle} */
-	public double getMovingVerticalAngle(){
-		return this.movingVerticalAngle;
+	/** @return See {@link #movingPitch} */
+	public double getMovingPitch(){
+		return this.movingPitch;
 	}
 	
-	/** @param movingVerticalAngle See {@link #movingVerticalAngle} */
-	public void setMovingVerticalAngle(double movingVerticalAngle){
-		this.movingVerticalAngle = movingVerticalAngle;
+	/** @param movingPitch See {@link #movingPitch} */
+	public void setMovingPitch(double movingPitch){
+		this.movingPitch = movingPitch;
 	}
 	
-	/** @return See {@link #facingHorizontalAngle} */
-	public double getFacingHorizontalAngle(){
-		return this.facingHorizontalAngle;
+	/** @return See {@link #facingYaw} */
+	public double getFacingYaw(){
+		return this.facingYaw;
 	}
 	
-	/** @param facingHorizontalAngle See {@link #facingHorizontalAngle} */
-	public void setFacingHorizontalAngle(double facingHorizontalAngle){
-		this.facingHorizontalAngle = facingHorizontalAngle;
+	/** @param facingYaw See {@link #facingYaw} */
+	public void setFacingYaw(double facingYaw){
+		this.facingYaw = facingYaw;
 	}
 	
-	/** @return See {@link #facingVerticalAngle} */
-	public double getFacingVerticalAngle(){
-		return this.facingVerticalAngle;
+	/** @return See {@link #facingPitch} */
+	public double getFacingPitch(){
+		return this.facingPitch;
 	}
 	
-	/** @param facingVerticalAngle See {@link #facingVerticalAngle} */
-	public void setFacingVerticalAngle(double facingVerticalAngle){
-		this.facingVerticalAngle = facingVerticalAngle;
+	/** @param facingPitch See {@link #facingPitch} */
+	public void setFacingPitch(double facingPitch){
+		this.facingPitch = facingPitch;
 	}
 	
 	/** @return See {@link #tryingToMove} */
@@ -97,25 +97,25 @@ public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVecto
 	
 	@Override
 	public void updateWalkingForce(double force){
-		this.setWalkingForce(this.getEntity().setForce(FORCE_NAME_WALKING, new ZVector3D(this.movingHorizontalAngle, 0, this.tryingToMove ? force : 0, false)));
+		this.setWalkingForce(this.getEntity().setForce(FORCE_NAME_WALKING, new ZVector3D(this.movingYaw, 0, this.tryingToMove ? force : 0, false)));
 	}
 	
 	@Override
 	public void updateFlyingForce(double force, boolean applyFacing){
-		double angleH;
-		double angleV;
+		double yaw;
+		double pitch;
 		// When trying to move, go in the direction that movement is trying to happen in
 		if(applyFacing){
-			angleH = this.movingHorizontalAngle;
-			angleV = this.movingVerticalAngle;
+			yaw = this.movingYaw;
+			pitch = this.movingPitch;
 		}
 		// When not trying to move, go based on the direction that movement is happening in
 		else{
 			var currentVel = this.getEntity().getVelocity();
-			angleH = currentVel.getAngleH();
-			angleV = currentVel.getAngleV();
+			yaw = currentVel.getYaw();
+			pitch = currentVel.getPitch();
 		}
 		
-		this.setFlyingForce(new ZVector3D(angleH, angleV, force, false));
+		this.setFlyingForce(new ZVector3D(yaw, pitch, force, false));
 	}
 }
