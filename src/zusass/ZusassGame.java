@@ -50,8 +50,8 @@ public class ZusassGame extends Game{
 	/** @param player See player. Note that this will not account for adding the player or removing the player from a room */
 	public void setPlayer(ZusassPlayer player){
 		this.player = player;
+		this.player.initSounds(zgame);
 	}
-	
 	
 	/*
 	 * issue#16 make the infinite levels have the same seed for each level based on the save's seed. You can input a seed when you make the save, or randomly generate one
@@ -121,7 +121,7 @@ public class ZusassGame extends Game{
 	@Override
 	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		this.data = Saveable.obj(DATA_KEY, e, ZusassData.class, ZusassData::new);
-		this.player = Saveable.obj(PLAYER_KEY, e, ZusassPlayer.class, ZusassPlayer::new);
+		this.setPlayer(Saveable.obj(PLAYER_KEY, e, ZusassPlayer.class, ZusassPlayer::new));
 		return true;
 	}
 	
@@ -170,12 +170,28 @@ public class ZusassGame extends Game{
 		else if(button == GLFW_KEY_F11) zgame.toggleFullscreen();
 	}
 	
-	/** Initialize the object {@link #zgame} */
+	/** Initialize any static needed values, as well as the object {@link #zgame} */
 	public static void init(){
+		if(zgame != null){
+			ZConfig.error("An instance of ZusassGame already exists, will not create another");
+			return;
+		}
+		
 		ZusassSetting.init();
 		
 		ZusassStat.init();
 		Stats.init();
+		
+		zgame = new ZusassGame();
+		
+		// Load sounds into the game
+		zgame.initSound();
+		var sm = zgame.getSounds();
+		sm.addAllSounds();
+		sm.setDistanceScalar(10);
+		sm.getEffectsPlayer().setPaused(false);
+		sm.getEffectsPlayer().setMuted(true);
+		
 		/*
 		 Init all the static stat dependencies by making a new mob, because the stats are all added when the mob is created.
 		 This is kind of stupid, but whatever, it ensures they are initialized on startup
@@ -184,12 +200,6 @@ public class ZusassGame extends Game{
 			@Override
 			protected void render(Game game, Renderer r){}
 		};
-		
-		if(zgame != null){
-			ZConfig.error("An instance of ZusassGame already exists, will not create another");
-			return;
-		}
-		zgame = new ZusassGame();
 	}
 	
 	/** @return See {@link #data} */

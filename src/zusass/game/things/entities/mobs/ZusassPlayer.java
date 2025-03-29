@@ -10,6 +10,7 @@ import zgame.core.input.InputHandler;
 import zgame.core.input.InputHandlers;
 import zgame.core.input.InputType;
 import zgame.core.utils.ZMath;
+import zgame.physics.ZVector3D;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.modifier.TypedModifier;
@@ -91,6 +92,14 @@ public class ZusassPlayer extends ZusassMob{
 		
 		// Move the camera to the player after repositioning the player
 		this.updateCameraPos(game.getCamera3D());
+		
+		//issue#61
+		// Update the sound listener to the player
+		var sm = game.getSounds();
+		sm.updateListenerPos(this.getX(), this.getY(), this.getZ());
+		var mobilityData = this.getMobilityData();
+		var soundVec = new ZVector3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), 1, false);
+		sm.updateListenerDirection(soundVec.getX(), soundVec.getY(), soundVec.getZ());
 	}
 	
 	/**

@@ -16,7 +16,15 @@ public abstract class SoundLocation{
 	 *
 	 * @param x The x coordinate of the sound location
 	 * @param y The y coordinate of the sound location
+	 * @param z The z coordinate of the sound location
 	 */
-	public abstract void updatePosition(double x, double y);
+	public abstract void updatePosition(double x, double y, double z);
 	
+	/**
+	 * Update the direction which this sound is produced
+	 * @param x The x vector component of the direction
+	 * @param y The y vector component of the direction
+	 * @param z The z vector component of the direction
+	 */
+	public abstract void updateDirection(double x, double y, double z);
 }

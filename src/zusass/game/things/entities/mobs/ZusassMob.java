@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
+import zgame.core.sound.SoundSource;
 import zgame.stat.Stat;
 import zgame.stat.ValueStat;
 import zgame.stat.modifier.ModifierType;
@@ -85,6 +86,10 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	
 	/** The sourceId of the modifier which drains stamina */
 	private static final String ID_STAMINA_DRAIN = "staminaDrain";
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/** The source of the sound for this mob casting a spell */
+	private SoundSource castSoundSource;
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -172,6 +177,15 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		
 		// Init the spellbook to empty
 		this.spells = new Spellbook();
+	}
+	
+	// issue#62, also make sure to destroy all sound resources once they are not needed anymore
+	/**
+	 * Initialize this mob for creating sounds, otherwise sounds will not play
+	 * @param zgame The game the sound will be played in
+	 */
+	public void initSounds(ZusassGame zgame){
+		if(this.castSoundSource == null) this.castSoundSource = zgame.getSounds().createSource(this.getX(), this.getY(), this.getZ());
 	}
 	
 	@Override
@@ -348,7 +362,15 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	 * @return true if the spell could be cast, false otherwise i.e. the caster doesn't have enough mana
 	 */
 	public boolean castSpell(ZusassGame zgame){
-		return this.getSelectedSpell().castAttempt(zgame, this);
+		var success = this.getSelectedSpell().castAttempt(zgame, this);
+		if(this.castSoundSource != null) {
+			var sm = zgame.getSounds();
+			sm.updateSourcePos(this.castSoundSource, this.getX(), this.getY(), this.getZ());
+			sm.updateSourceDirection(this.castSoundSource, 0, 0, 0);
+			this.castSoundSource.setBaseVolume(0.2);
+			zgame.playEffect(this.castSoundSource, "win");
+		}
+		return success;
 	}
 	
 	/** @return See {@link #effects} */

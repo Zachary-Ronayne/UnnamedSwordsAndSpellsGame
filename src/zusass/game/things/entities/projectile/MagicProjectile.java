@@ -3,6 +3,7 @@ package zusass.game.things.entities.projectile;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.sound.SoundSource;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector3D;
 import zgame.things.BaseTags;
@@ -10,6 +11,7 @@ import zgame.things.entity.projectile.Projectile2D;
 import zgame.things.entity.projectile.Projectile3D;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.SphereHitBox;
+import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
 
@@ -24,6 +26,9 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	
 	/** The base color to use for this projectile, for now it's random */
 	private final ZColor color;
+	
+	/** The source of the sound for this projectile being removed from the game */
+	private SoundSource removedSoundSource;
 	
 	/**
 	 * Create a projectile at the specified location, moving at the given velocity
@@ -84,6 +89,35 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 		this.addHitFunc(ZusassMob.class, m -> {
 			for(var ef : this.effects) ef.apply(sourceId, m);
 		});
+	}
+	
+	// issue#62
+	/**
+	 * Initialize this mob for creating sounds, otherwise sounds will not play
+	 * @param zgame The game the sound will be played in
+	 */
+	public void initSounds(ZusassGame zgame){
+		this.removedSoundSource = zgame.getSounds().createSource(this.getX(), this.getY(), this.getZ());
+	}
+	
+	@Override
+	public void tick(Game game, double dt){
+		super.tick(game, dt);
+		// issue#61, Does updating the sound position here cause lag?
+		if(this.removedSoundSource != null) {
+			var sm = game.getSounds();
+			sm.updateSourcePos(this.removedSoundSource, this.getX(), this.getY(), this.getZ());
+			sm.updateSourceDirection(this.removedSoundSource, 0, 0, 0);
+		}
+	}
+	
+	@Override
+	public void onRoomRemove(Game game){
+		super.onRoomRemove(game);
+		if(this.removedSoundSource != null) {
+			this.removedSoundSource.setBaseVolume(10);
+			game.playEffect(this.removedSoundSource, "lose");
+		}
 	}
 	
 	@Override

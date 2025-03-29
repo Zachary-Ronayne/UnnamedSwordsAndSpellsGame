@@ -100,7 +100,7 @@ public interface Projectile<H extends HitBox<H, C>,
 	}
 	
 	/**
-	 * Called when this {@link Projectile2D} hits the given {@link HitBox}
+	 * Called when this {@link Projectile} hits the given {@link HitBox}
 	 *
 	 * @param game The game where thing was hit
 	 * @param thing The {@link HitBox} which was hit
@@ -108,7 +108,7 @@ public interface Projectile<H extends HitBox<H, C>,
 	void hit(Game game, H thing);
 	
 	/**
-	 * Determine if this {@link Projectile2D} will hit the given {@link HitBox} thing when their hitboxes intersect
+	 * Determine if this {@link Projectile} will hit the given {@link HitBox} thing when their hitboxes intersect
 	 *
 	 * @param thing The hitbox to check
 	 * @return true thing will hit this, false otherwise

@@ -84,6 +84,7 @@ public class ProjectileSpell extends Spell{
 		var p = new MagicProjectile(caster.centerX(), caster.centerY() + caster.getHeight() * 0.5, caster.centerZ(), caster.getUuid(), vel, this.getEffects());
 		p.setRange(this.range);
 		p.setRadius(this.radius);
+		p.initSounds(zgame);
 		r.addThing(p);
 	}
 	

@@ -195,8 +195,8 @@ public class MainTest extends Game{
 		if(winSource != null) winSource.destroy();
 		if(loseSource != null) loseSource.destroy();
 		SoundManager sm = testerGame.getSounds();
-		winSource = sm.createSource(playerX, playerY);
-		loseSource = sm.createSource(0, 200);
+		winSource = sm.createSource(playerX, playerY, 0);
+		loseSource = sm.createSource(0, 200, 0);
 	}
 	
 	@Override
@@ -766,7 +766,7 @@ public class MainTest extends Game{
 				red = 0;
 			}
 			// Update sound positions
-			game.getSounds().updateListenerPos(playerX, playerY);
+			game.getSounds().updateListenerPos(playerX, playerY, 0);
 		}
 	}
 	

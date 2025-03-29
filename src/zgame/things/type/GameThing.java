@@ -58,6 +58,12 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	}
 	
 	/**
+	 * Called any time this game thing is removed from a room, does nothing by default, override to provide custom behavior
+	 * @param game The game where the removal took place, the room will be the current room of the game's play state
+	 */
+	public void onRoomRemove(Game game){}
+	
+	/**
 	 * Determines the order that game things are stored in lists rooms. Primarily used in 2D when determining which thing should be rendered first.
 	 * Can also adjust how the elements are sorted by overriding {@link #compareTo(GameThing)}
 	 *

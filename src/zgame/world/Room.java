@@ -252,7 +252,7 @@ public abstract class Room<
 		}
 		
 		// Remove all things that need to be removed
-		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(thing);
+		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(game, thing);
 		this.thingsToRemove.clear();
 		
 		// Run any functions which need to happen
@@ -263,10 +263,12 @@ public abstract class Room<
 	/**
 	 * Called each time a thing is removed via {@link #tick(Game, double)}, i.e. the thing was added to {@link #thingsToRemove}, and now it's being removed
 	 *
+	 * @param game The game where the removal took place
 	 * @param thing The thing to remove
 	 */
-	public void tickRemoveThing(GameThing thing){
+	private void tickRemoveThing(Game game, GameThing thing){
 		this.thingsMap.remove(thing);
+		thing.onRoomRemove(game);
 	}
 	
 	/**
