@@ -154,7 +154,7 @@ public final class ZMath{
 	 *
 	 * @param a The y component given to atan2
 	 * @param b The x component given to atan2
-	 * @return The angle in the range [2, 2pi)
+	 * @return The angle in the range [0, 2pi)
 	 */
 	public static double atan2Normalized(double a, double b){
 		return angleNormalized(Math.atan2(a, b) + ZMath.TAU);

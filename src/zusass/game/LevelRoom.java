@@ -3,6 +3,7 @@ package zusass.game;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.stat.modifier.ModifierType;
 import zgame.things.still.tiles.BaseTiles3D;
 import zgame.things.type.GameThing;
 import zgame.world.Room;
@@ -10,6 +11,8 @@ import zusass.game.things.LevelDoor;
 import zusass.game.things.ZusassTags;
 import zusass.game.things.entities.mobs.Npc;
 import zusass.game.things.tiles.ZusassColorTiles;
+
+import static zusass.game.stat.ZusassStat.*;
 
 /** A {@link Room} which represents a randomly generated level for the infinite dungeons */
 public class LevelRoom extends ZusassRoom{
@@ -94,15 +97,15 @@ public class LevelRoom extends ZusassRoom{
 		this.setTile(X_TILES - 3, 1, Z_TILES - 3, BaseTiles3D.SOLID_DARK);
 		this.setTile(X_TILES - 3, 2, Z_TILES - 4, BaseTiles3D.SOLID_LIGHT);
 		
-		// TODO add the actual enemy
-//		// issue#25 if this is changed to add hundreds of enemies, the TPS tanks while not using all the computer's resources. Probably need to make tick looper account for time spent rendering
-//		// Add enemies
-//		Npc enemy = new Npc(400, 400, 60, 80);
-//		enemy.setStat(ENDURANCE, 2 + 6 * (1 - (10 / (this.level + 10.0))));
-//		enemy.setStat(STRENGTH, 10);
-//		enemy.getStat(STRENGTH).addModifier(enemy.getUuid(), this.level, ModifierType.ADD);
-//		enemy.setResourcesMax();
-//		this.addThing(enemy);
+		// issue#25 if this is changed to add hundreds of enemies, the TPS tanks while not using all the computer's resources. Probably need to make tick looper account for time spent rendering
+		// Add enemies
+		var enemy = new Npc(4, 1, 3, 0.15, 0.6);
+		enemy.setStat(ENDURANCE, 2 + 6 * (1 - (10 / (this.level + 10.0))));
+		enemy.setStat(STRENGTH, 10);
+		enemy.getStat(STRENGTH).addModifier(enemy.getUuid(), this.level, ModifierType.ADD);
+		enemy.setResourcesMax();
+		
+		this.addThing(enemy);
 	}
 	
 	/** @return true if this room is cleared and can be exited, false otherwise */
