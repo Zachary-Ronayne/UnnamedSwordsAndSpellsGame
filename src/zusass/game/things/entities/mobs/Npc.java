@@ -38,7 +38,7 @@ public class Npc extends ZusassMob{
 		
 		// Set a default spell as speed
 		this.getSpells().addSpell(Spell.selfEffect(MOVE_SPEED, 1.5, 1, ModifierType.MULT_MULT).named("Small Speed"));
-		var hurtSpell = new ProjectileSpell(new NotNullList<>(new SpellEffectStatAdd(HEALTH, 0)), 0.2, 1.5, 0.6).named("hurt");
+		var hurtSpell = new ProjectileSpell(new NotNullList<>(new SpellEffectStatAdd(HEALTH, -10)), 0.2, 1.5, 0.6).named("hurt");
 		this.getSpells().addSpell(hurtSpell);
 		this.getSpells().setSelectedSpellIndex(0);
 		
