@@ -67,7 +67,7 @@ public class Npc extends ZusassMob{
 		// If the AI has an attack available, and stamina is at least 75%, begin attacking
 		var staminaPerc = this.currentStaminaPerc();
 		if(this.getAttackTime() <= 0 && inRange && staminaPerc > .75){
-			this.beginAttackOrSpell(zgame, 0);
+			this.beginAttack(zgame);
 		}
 		
 		// If not in range, use the speed spell, otherwise use the damage spell

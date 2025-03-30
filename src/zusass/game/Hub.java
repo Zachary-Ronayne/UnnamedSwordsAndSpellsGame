@@ -31,7 +31,7 @@ public class Hub extends ZusassRoom{
 		this.initTiles(X_TILES, Y_TILES, Z_TILES, BaseTiles3D.AIR);
 		this.setTileBoundaries();
 		this.setAllBoundaries(true);
-		// TODO make the tiles not just air and use the textured tile
+		// issue#63 make the tiles not just air and use the textured tile
 		// Make a floor
 		for(int i = 0; i < X_TILES; i++){
 			for(int k = 0; k < Z_TILES; k++){

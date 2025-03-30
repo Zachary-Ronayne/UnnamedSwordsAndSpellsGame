@@ -5,6 +5,7 @@ import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
 import zgame.core.sound.SoundSource;
+import zgame.core.utils.ZPoint3D;
 import zgame.stat.Stat;
 import zgame.stat.ValueStat;
 import zgame.stat.modifier.ModifierType;
@@ -63,12 +64,6 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	
 	/** The amount of time, in seconds, until this mob will perform an attack, or a negative value if this mob is not preparing for an attack */
 	private double attackTime;
-	
-	/** The direction, an angle in radians, where the mob will attack */
-	private double attackDirection;
-	
-	/** true if this {@link ZusassMob} is in spell casting mode, false for weapon mode */
-	private boolean casting;
 	
 	/** The spells known to this mob */
 	private Spellbook spells;
@@ -138,8 +133,6 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		this.height = height;
 		
 		this.attackTime = -1;
-		this.attackDirection = 0;
-		this.casting = false;
 		
 		// Create stats
 		this.stats = new Stats();
@@ -222,7 +215,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	public void renderAttackTimer(Game game, Renderer r){
 		// issue#23 potentially need some way of ensuring this also gets rendered with the should render thing, or maybe this is just a temporary placeholder
 		if(this.getAttackTime() <= 0) return;
-		double directionX = Math.cos(this.attackDirection);
+		double directionX = Math.cos(0);
 		double time = this.getAttackTime();
 		double speed = getAttacksPerSecond();
 		double attackSize = this.stat(ATTACK_RANGE) * (1 - time * speed);
@@ -269,44 +262,16 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		return this.stat(ATTACK_SPEED);
 	}
 	
-	/** @return See {@link #attackDirection} */
-	public double getAttackDirection(){
-		return this.attackDirection;
-	}
-	
-	/** @return See {@link #casting} */
-	public boolean isCasting(){
-		return this.casting;
-	}
-	
-	/** @param casting See {@link #casting} */
-	public void setCasting(boolean casting){
-		this.casting = casting;
-	}
-	
-	/** Toggle the state of {@link #casting} */
-	public void toggleCasting(){
-		this.setCasting(!this.isCasting());
-	}
-	
 	/**
-	 * Cause this mob to begin performing an attack or casting a spell depending on which mode is selected
+	 * Cause this mob to begin performing an attack in the direction it is facing
 	 *
-	 * @param zgame The game where the attack or spell took place
-	 * @param direction The direction to attack or cast in
+	 * @param zgame The game where the attack took place
 	 */
-	public void beginAttackOrSpell(ZusassGame zgame, double direction){
-		this.attackDirection = direction;
-		// TODO move the casting variable to the player, not the generic mob
-		if(casting){
-			this.castSpell(zgame);
-		}
-		else{
-			this.attackTime = 1.0 / this.getAttacksPerSecond();
-			
-			// Also drain stamina from the thing
-			this.getStat(STAMINA).addValue(-20);
-		}
+	public void beginAttack(ZusassGame zgame){
+		this.attackTime = 1.0 / this.getAttacksPerSecond();
+		
+		// Also drain stamina from the thing
+		this.getStat(STAMINA).addValue(-20);
 	}
 	
 	/**
@@ -319,7 +284,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	}
 	
 	/**
-	 * Attack the nearest mob, in {@link #attackDirection}, in the game which is not this mob
+	 * Attack the nearest mob, in the direction the mob is facing, in the game which is not this mob
 	 *
 	 * @param game The game where the attack should happen
 	 */
@@ -375,6 +340,11 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 			zgame.playEffect(this.castSoundSource, "win");
 		}
 		return success;
+	}
+	
+	/** @return The point where this mob should cast a spell at when a spell is positional, defaults the middle top of the hitbox */
+	public ZPoint3D getSpellCastPont(){
+		return new ZPoint3D(this.centerX(), this.centerY() + this.getHeight() * 0.5, this.centerZ());
 	}
 	
 	/** @return See {@link #effects} */

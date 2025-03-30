@@ -77,11 +77,10 @@ public class ProjectileSpell extends Spell{
 	@Override
 	protected void cast(ZusassGame zgame, ZusassMob caster){
 		var r = zgame.getCurrentRoom();
-		// TODO remove attack direction? Or have it be separate from facing
 		var mobilityData = caster.getMobilityData();
 		var vel = new ZVector3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), this.getSpeed(), false);
-		// TODO figure out the best way to make the spell come from the caster's "hands"
-		var p = new MagicProjectile(caster.centerX(), caster.centerY() + caster.getHeight() * 0.5, caster.centerZ(), caster.getUuid(), vel, this.getEffects());
+		var castPoint = caster.getSpellCastPont();
+		var p = new MagicProjectile(castPoint.getX(), castPoint.getY(), castPoint.getZ(), caster.getUuid(), vel, this.getEffects());
 		p.setRange(this.range);
 		p.setRadius(this.radius);
 		p.initSounds(zgame);

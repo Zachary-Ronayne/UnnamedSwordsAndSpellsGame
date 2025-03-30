@@ -34,6 +34,9 @@ public class ZusassPlayer extends ZusassMob{
 	/** true if player input is disabled, false otherwise */
 	private boolean inputDisabled;
 	
+	/** true if this {@link ZusassPlayer} is in spell casting mode, false for weapon mode */
+	private boolean casting;
+	
 	/**
 	 * Create a new object from json
 	 *
@@ -47,6 +50,8 @@ public class ZusassPlayer extends ZusassMob{
 	/** Create a new default {@link ZusassPlayer} */
 	public ZusassPlayer(){
 		super(0, 0, 0, 0.15, 0.5);
+		this.casting = false;
+		
 		this.inputDisabled = false;
 		this.addTags(ZusassTags.CAN_ENTER_LEVEL_DOOR, ZusassTags.MUST_CLEAR_LEVEL_ROOM, ZusassTags.HUB_ENTER_RESTORE);
 		
@@ -139,7 +144,8 @@ public class ZusassPlayer extends ZusassMob{
 		}
 		// Right click to attack in a direction
 		else if(press && button == GLFW_MOUSE_BUTTON_RIGHT){
-			this.beginAttackOrSpell(zgame, ZMath.lineAngle(this.centerX(), this.centerY(), zgame.mouseGX(), zgame.mouseGY()));
+			if(casting) this.castSpell(zgame);
+			else this.beginAttack(zgame);
 			return true;
 		}
 		return false;
@@ -205,4 +211,20 @@ public class ZusassPlayer extends ZusassMob{
 	public void setInputDisabled(boolean inputDisabled){
 		this.inputDisabled = inputDisabled;
 	}
+	
+	/** @return See {@link #casting} */
+	public boolean isCasting(){
+		return this.casting;
+	}
+	
+	/** @param casting See {@link #casting} */
+	public void setCasting(boolean casting){
+		this.casting = casting;
+	}
+	
+	/** Toggle the state of {@link #casting} */
+	public void toggleCasting(){
+		this.setCasting(!this.isCasting());
+	}
+	
 }
