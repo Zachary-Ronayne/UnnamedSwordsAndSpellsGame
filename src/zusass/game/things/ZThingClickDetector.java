@@ -1,13 +1,12 @@
 package zusass.game.things;
 
 import zgame.core.Game;
-import zgame.things.ThingClickDetector2D;
 import zgame.things.ThingClickDetector3D;
 import zgame.world.Room3D;
 import zusass.ZusassGame;
 import zusass.game.ZusassRoom;
 
-/** A {@link ThingClickDetector2D} used for the Zusass game */
+/** A {@link ThingClickDetector3D} used for the Zusass game */
 public interface ZThingClickDetector extends ThingClickDetector3D{
 	
 	@Override

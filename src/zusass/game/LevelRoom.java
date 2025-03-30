@@ -102,6 +102,7 @@ public class LevelRoom extends ZusassRoom{
 		var enemy = new Npc(4, 1, 3, 0.15, 0.6);
 		enemy.setStat(ENDURANCE, 2 + 6 * (1 - (10 / (this.level + 10.0))));
 		enemy.setStat(STRENGTH, 10);
+		enemy.setStat(INTELLIGENCE, 5 + 30 * (1 - (10 / (this.level + 10.0))));
 		enemy.getStat(STRENGTH).addModifier(enemy.getUuid(), this.level, ModifierType.ADD);
 		enemy.setResourcesMax();
 		

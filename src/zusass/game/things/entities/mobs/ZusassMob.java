@@ -15,7 +15,7 @@ import zgame.stat.status.StatusEffects;
 import zgame.things.entity.*;
 import zgame.things.entity.mobility.Mobility3D;
 import zgame.things.entity.mobility.MobilityEntity3D;
-import zgame.things.entity.projectile.Projectile2D;
+import zgame.things.entity.projectile.Projectile3D;
 import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.CylinderHitbox;
 import zusass.ZusassGame;
@@ -253,7 +253,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	}
 	
 	@Override
-	public void hitBy(Projectile2D p){
+	public void hitBy(Projectile3D p){
 		p.hit(ZusassMob.class, this);
 	}
 	

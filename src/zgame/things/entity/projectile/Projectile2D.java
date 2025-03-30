@@ -151,4 +151,9 @@ public abstract class Projectile2D extends EntityThing2D implements Projectile<H
 		super.collide(result);
 		Projectile.super.collide(result);
 	}
+	
+	@Override
+	public <T> void hit(Class<T> clazz, T thing){
+		Projectile.super.hit(clazz, thing);
+	}
 }

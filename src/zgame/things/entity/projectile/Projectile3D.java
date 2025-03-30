@@ -152,4 +152,9 @@ public abstract class Projectile3D extends EntityThing3D implements Projectile<H
 		super.collide(result);
 		Projectile.super.collide(result);
 	}
+	
+	@Override
+	public <T> void hit(Class<T> clazz, T thing){
+		Projectile.super.hit(clazz, thing);
+	}
 }

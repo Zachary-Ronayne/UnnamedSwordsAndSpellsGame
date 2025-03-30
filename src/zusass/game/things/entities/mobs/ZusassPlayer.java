@@ -156,7 +156,7 @@ public class ZusassPlayer extends ZusassMob{
 		// TODO decide what to render for the player, a hud and or the players hand or body?
 		// Temporary simple rendering
 		r.setColor(0, 0.2, 0.5);
-		r.drawSidePlaneX(this.getX(), this.getY(), this.getZ(), this.getWidth(), this.getHeight() * 0.5, this.getMobilityData().getFacingYaw() - ZMath.PI_BY_2);
+		r.drawSidePlaneX(this.getX(), this.getY(), this.getZ(), this.getWidth(), this.getHeight(), this.getMobilityData().getFacingYaw() - ZMath.PI_BY_2);
 		
 //		r.setColor(0, 0, .5);
 //		r.drawRectangle(this.getBounds());

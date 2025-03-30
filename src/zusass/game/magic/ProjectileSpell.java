@@ -57,7 +57,7 @@ public class ProjectileSpell extends Spell{
 	 * @param effects See {@link #effects}
 	 */
 	public ProjectileSpell(NotNullList<SpellEffect> effects){
-		this(effects, 10, -1, 400);
+		this(effects, 0.1, 1, 0.5);
 	}
 	
 	/**

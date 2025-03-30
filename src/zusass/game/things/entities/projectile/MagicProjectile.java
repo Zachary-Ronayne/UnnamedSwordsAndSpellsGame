@@ -7,7 +7,6 @@ import zgame.core.sound.SoundSource;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector3D;
 import zgame.things.BaseTags;
-import zgame.things.entity.projectile.Projectile2D;
 import zgame.things.entity.projectile.Projectile3D;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.SphereHitBox;
@@ -15,7 +14,7 @@ import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
 
-/** A {@link Projectile2D} which applies a magic effect when it hits something other than its caster */
+/** A {@link Projectile3D} which applies a magic effect when it hits something other than its caster */
 public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	
 	/** The radius of the projectile */
@@ -122,6 +121,7 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	
 	@Override
 	public void hit(Game game, HitBox3D thing){
+		if(this.willRemove()) return;
 		thing.hitBy(this);
 	}
 	
