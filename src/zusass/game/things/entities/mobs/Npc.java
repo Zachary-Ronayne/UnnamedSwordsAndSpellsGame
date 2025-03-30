@@ -38,7 +38,7 @@ public class Npc extends ZusassMob{
 		
 		// Set a default spell as speed
 		this.getSpells().addSpell(Spell.selfEffect(MOVE_SPEED, 1.5, 1, ModifierType.MULT_MULT).named("Small Speed"));
-		var hurtSpell = new ProjectileSpell(new NotNullList<>(new SpellEffectStatAdd(HEALTH, -10)), 0.2, 1.5, 0.6).named("hurt");
+		var hurtSpell = new ProjectileSpell(new NotNullList<>(new SpellEffectStatAdd(HEALTH, 0)), 0.2, 1.5, 0.6).named("hurt");
 		this.getSpells().addSpell(hurtSpell);
 		this.getSpells().setSelectedSpellIndex(0);
 		
@@ -67,7 +67,7 @@ public class Npc extends ZusassMob{
 		// If the AI has an attack available, and stamina is at least 75%, begin attacking
 		var staminaPerc = this.currentStaminaPerc();
 		if(this.getAttackTime() <= 0 && inRange && staminaPerc > .75){
-			this.beginAttackOrSpell(zgame, playerYaw);
+			this.beginAttackOrSpell(zgame, 0);
 		}
 		
 		// If not in range, use the speed spell, otherwise use the damage spell

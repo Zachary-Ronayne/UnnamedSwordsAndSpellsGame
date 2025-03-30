@@ -17,6 +17,7 @@ import zgame.things.entity.mobility.Mobility3D;
 import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.projectile.Projectile3D;
 import zgame.things.type.bounds.ClickerBounds;
+import zgame.things.type.bounds.CylinderClickable;
 import zgame.things.type.bounds.CylinderHitbox;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
@@ -30,11 +31,12 @@ import zusass.game.stat.resources.Health;
 import zusass.game.stat.resources.Mana;
 import zusass.game.stat.resources.Stamina;
 import zusass.game.status.StatEffect;
+import zusass.game.things.ZThingClickDetector;
 
 import static zusass.game.stat.ZusassStat.*;
 
 /** A generic mob in the Zusass game. All mobs have a cylinder hitbox */
-public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitbox, ClickerBounds{
+public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitbox, ClickerBounds, ZThingClickDetector, CylinderClickable{
 	
 	/** The json key used to store the spellbook which this mob has */
 	public final static String SPELLBOOK_KEY = "spellbook";
@@ -295,6 +297,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	 */
 	public void beginAttackOrSpell(ZusassGame zgame, double direction){
 		this.attackDirection = direction;
+		// TODO move the casting variable to the player, not the generic mob
 		if(casting){
 			this.castSpell(zgame);
 		}
@@ -321,18 +324,19 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	 * @param game The game where the attack should happen
 	 */
 	public void attackNearest(ZusassGame game){
-		// TODO implement attacking
-//		List<ZusassMob> mobs = game.getCurrentRoom().getMobs();
-//		for(var m : mobs){
-//			// Skip the current mob if it is this mob or the mob is out of the attack range
-//			if(m == this || this.center().distance(m.center()) >= this.stat(ATTACK_RANGE)) continue;
-//			// Also skip the current mob if it is not in the attack direction
-//			double directionX = Math.cos(this.attackDirection);
-//			if(this.centerX() < m.centerX() == directionX < 0) continue;
-//			// Perform the attack
-//			this.attack(m);
-//			return;
-//		}
+		var mobs = game.getCurrentRoom().getMobs();
+		for(var m : mobs){
+			// Skip the current mob if it is this mob or the mob is out of the attack range
+			if(m == this) continue;
+			double mobDist = this.distance(m);
+			double attackRange = this.stat(ATTACK_RANGE);
+			if(mobDist >= attackRange) continue;
+			// Also skip the current mob if it cannot be "clicked" on
+			if(!this.canClick(attackRange, this.findClickDistance(m))) continue;
+			// Perform the attack
+			this.attack(m);
+			return;
+		}
 	}
 	
 	/**

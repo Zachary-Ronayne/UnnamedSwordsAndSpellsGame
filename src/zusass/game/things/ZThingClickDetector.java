@@ -20,5 +20,5 @@ public interface ZThingClickDetector extends ThingClickDetector3D{
 	 * @param zgame The game where the click happened
 	 * @param room The room where the click happened
 	 */
-	void handleZusassPress(ZusassGame zgame, ZusassRoom room);
+	default void handleZusassPress(ZusassGame zgame, ZusassRoom room){}
 }
