@@ -159,13 +159,11 @@ public class ZusassPlayer extends ZusassMob{
 	
 	@Override
 	public void render(Game game, Renderer r){
-		// TODO decide what to render for the player, a hud and or the players hand or body?
 		// Temporary simple rendering
 		r.setColor(0, 0.2, 0.5);
 		r.drawSidePlaneX(this.getX(), this.getY(), this.getZ(), this.getWidth(), this.getHeight(), this.getMobilityData().getFacingYaw() - ZMath.PI_BY_2);
 		
-//		r.setColor(0, 0, .5);
-//		r.drawRectangle(this.getBounds());
+		// TODO use the same attack timer as generic mobs for rendering
 //		this.renderAttackTimer(game, r);
 	}
 	

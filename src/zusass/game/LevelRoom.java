@@ -151,7 +151,7 @@ public class LevelRoom extends ZusassRoom{
 		// Draw the main rendering
 		super.render(game, r);
 		
-		// TODO properly draw some text on the wall for the level counter
+		// TODO properly draw some text on the wall for the level counter, also the level a level door is going to go to
 		// Draw a numerical level counter
 //		r.setColor(.8, .8, .8);
 //		r.setFontSize(32);

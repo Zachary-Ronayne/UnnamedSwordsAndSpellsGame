@@ -527,18 +527,22 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		return this.stat(MOVE_SPEED);
 	}
 	
-	// TODO fix position going to NaN when agility is really low
-	
 	@Override
 	public double getWalkPower(){
+		double agilityModifier = 1 + this.stat(AGILITY);
+		if(agilityModifier < 0) agilityModifier = 0;
+		
 		// Both movement speed and agility make acceleration faster
-		return (1 + this.stat(MOVE_SPEED)) * 0.003 * (1 + this.stat(AGILITY));
+		return (1 + this.stat(MOVE_SPEED)) * 0.003 * agilityModifier;
 	}
 	
 	@Override
 	public double getWalkStopFriction(){
 		// For now just making this a hard coded number based on the move speed stat
-		return this.stat(MOVE_SPEED) * 2 + this.stat(AGILITY) / 6.0;
+		double agilityModifier = this.stat(AGILITY) / 6.0;
+		if(agilityModifier < 0) agilityModifier = 0;
+		
+		return this.stat(MOVE_SPEED) * 2 + agilityModifier;
 	}
 
 	@Override
@@ -548,12 +552,18 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	
 	@Override
 	public double getJumpPower(){
-		return Math.pow(this.stat(AGILITY), 0.3) * 1.5;
+		double agility = this.stat(AGILITY);
+		if(agility <= 0) return -1;
+		
+		return Math.pow(agility, 0.3) * 1.5;
 	}
 	
 	@Override
 	public double getJumpStopPower(){
-		return Math.pow(this.stat(AGILITY), 0.3) * 0.1;
+		double agility = this.stat(AGILITY);
+		if(agility <= 0) return -1;
+		
+		return Math.pow(agility, 0.3) * 0.1;
 	}
 	
 	/** @return See {@link #jumpBuildTime} */
@@ -580,7 +590,9 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	
 	@Override
 	public double getWalkAirControl(){
-		return 1.0 - 10.0 / (this.stat(AGILITY) + 10);
+		double agility = this.stat(AGILITY);
+		if(agility <= -10) return 0;
+		return 1.0 - 10.0 / (agility + 10);
 	}
 	
 	/** @return See {@link #walkFriction} */
@@ -618,12 +630,18 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	
 	@Override
 	public double getNormalJumpTime(){
-		return 0.1 + .75 * (1.0 - (50.0 / (this.stat(AGILITY) + 50)));
+		double agility = this.stat(AGILITY);
+		if(agility <= -50) return -1;
+		
+		return 0.1 + .75 * (1.0 - (50.0 / (agility + 50)));
 	}
 	
 	@Override
 	public double getWallJumpTime(){
-		return 0.15 + .75 * (1.0 - (50.0 / (this.stat(AGILITY) + 50)));
+		double agility = this.stat(AGILITY);
+		if(agility <= -50) return -1;
+		
+		return 0.15 + .75 * (1.0 - (50.0 / (agility + 50)));
 	}
 	
 	@Override
