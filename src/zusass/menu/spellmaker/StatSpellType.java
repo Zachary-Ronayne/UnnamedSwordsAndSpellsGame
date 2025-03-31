@@ -19,7 +19,7 @@ public enum StatSpellType{
 	ENDURANCE(ZusassStat.ENDURANCE, "Modify Endurance"),
 	RESTORE_ENDURANCE(ZusassStat.ENDURANCE, ZusassStat.ENDURANCE_REGEN, "Regen Endurance"),
 	
-	INTELLIGENCE(ZusassStat.ENDURANCE, "Modify Intelligence"),
+	INTELLIGENCE(ZusassStat.INTELLIGENCE, "Modify Intelligence"),
 	RESTORE_INTELLIGENCE(ZusassStat.INTELLIGENCE, ZusassStat.INTELLIGENCE_REGEN, "Regen Intelligence"),
 	
 	AGILITY(ZusassStat.AGILITY, "Modify agility"),
