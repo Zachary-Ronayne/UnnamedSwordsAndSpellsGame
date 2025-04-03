@@ -136,7 +136,7 @@ public class StatsMenu extends DraggableMenu{
 		double y = Math.max(0, my - h);
 		if(y + h > sh) y = sh - h;
 		
-		this.statPopup.drawToRenderer(x, y, r);
+		this.statPopup.drawOnRenderer(x, y, r);
 	}
 	
 	/** @return See {@link #displayDecimals} */

@@ -64,6 +64,7 @@ public class LevelRoom extends ZusassRoom{
 				}
 			}
 		}
+		ZusassColorTiles.setColors(this.checker1, this.checker2);
 		
 		// Make a floor and ceiling
 		for(int i = 0; i < X_TILES; i++){
@@ -118,16 +119,6 @@ public class LevelRoom extends ZusassRoom{
 		return this.getAllThings().get(Npc.class).size();
 	}
 	
-	/** @return See {@link #checker1} */
-	public ZColor getChecker1(){
-		return this.checker1;
-	}
-	
-	/** @return See {@link #checker2} */
-	public ZColor getChecker2(){
-		return this.checker2;
-	}
-	
 	/** @return See {@link #level} */
 	public int getLevel(){
 		return this.level;
@@ -146,8 +137,6 @@ public class LevelRoom extends ZusassRoom{
 	
 	@Override
 	public void render(Game game, Renderer r){
-		ZusassColorTiles.setColors(this.checker1, this.checker2);
-		
 		// Draw the main rendering
 		super.render(game, r);
 		

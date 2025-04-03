@@ -131,6 +131,10 @@ public class Renderer implements Destroyable{
 	private VertexBuffer planeCoordBuff;
 	/** The {@link VertexArray} for drawing a finite plane from a quad */
 	private VertexArray planeVertArr;
+	/** The {@link VertexBuffer} that tracks the texture coordinates for drawing a textured finite plane from a quad */
+	private VertexBuffer planeTexCoordBuff;
+	/** The {@link VertexArray} for drawing a finite plane from a quad with a texture */
+	private VertexArray planeTexVertArr;
 	
 	/** The {@link VertexBuffer} that tracks the texture coordinates for drawing a rectangular prism with a texture */
 	private VertexBuffer rect3DTexCoordBuff;
@@ -519,6 +523,14 @@ public class Renderer implements Destroyable{
 				-0.5f, 0.0f, -0.5f
 		});
 		
+		// Vertex buffer for texture coordinates of a plane
+		this.planeTexCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, new float[]{
+				1.0f, 0.0f,
+				1.0f, 1.0f,
+				0.0f, 1.0f,
+				0.0f, 0.0f
+		});
+		
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		// Generate a vertex buffer for a sphere
@@ -608,6 +620,9 @@ public class Renderer implements Destroyable{
 		
 		// Create and bind the vertex array for the finite 3D plane
 		this.planeVertArr = new VertexArray(this.planeCoordBuff);
+		
+		// Create and bind the vertex array for the textured finite 3D plane
+		this.planeTexVertArr = new VertexArray(this.planeCoordBuff, this.planeTexCoordBuff);
 		
 		// Create and bind the vertex array for the sphere
 		this.sphereVertArr = new VertexArray(this.sphereCoordBuff);
@@ -955,7 +970,7 @@ public class Renderer implements Destroyable{
 	 */
 	public void initToDraw(){
 		// Bind the screen as the frame buffer
-		this.getBuffer().drawToBuffer();
+		this.getBuffer().drawWithBuffer();
 		this.getBuffer().setViewport();
 		// Load the identity matrix before setting a default shader
 		this.identityMatrix();
@@ -1971,6 +1986,46 @@ public class Renderer implements Destroyable{
 		return true;
 	}
 	
+	/**
+	 * Draw a plane with a buffer on it based on the given values
+	 *
+	 * @param x The x coordinate center of the initially horizontal plane
+	 * @param y The y coordinate of the initially horizontal plane
+	 * @param z The z coordinate center of the initially horizontal plane
+	 * @param w The width of the plane
+	 * @param l The length of the plane
+	 * @param xRot The rotation on the x axis
+	 * @param yRot The rotation on the y axis
+	 * @param zRot The rotation on the z axis
+	 * @param xA The point, relative to the point to position this object, to rotate on the x axis
+	 * @param yA The point, relative to the point to position this object, to rotate on the y axis
+	 * @param zA The point, relative to the point to position this object, to rotate on the z axis
+	 * @param buff The buffer id to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawPlaneBuffer(double x, double y, double z, double w, double l, double xRot, double yRot, double zRot, double xA, double yA, double zA, int buff){
+		// Use the 3D buffer shader and the 3D plate vertex array
+		this.renderModeBuffer();
+		this.bindVertexArray(planeTexVertArr);
+		
+		glBindTexture(GL_TEXTURE_2D, buff);
+		updateAlphaMode(AlphaMode.NORMAL);
+		
+		// Position the plane
+		this.pushMatrix();
+		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, xA, yA, zA);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
+		// Draw the rect
+		glDrawElements(GL_QUADS, planeIndexBuff.getBuff());
+		this.popMatrix();
+		
+		return true;
+	}
+	
 	
 	/**
 	 * Draw an ellipse in 3D, of the current color of this Renderer, at the specified location. All values are in game coordinates
@@ -2197,7 +2252,8 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
-	 * Set the buffer that this Renderer should draw to by pushing the given buffer onto {@link #bufferStack}
+	 * Set the buffer that this Renderer should draw to by pushing the given buffer onto {@link #bufferStack}.
+	 * Also calls {@link #updateBuffer()} to assign further rendering operations to the given buffer
 	 *
 	 * @param buffer The top of {@link #bufferStack}
 	 * @return The buffer that was being used
@@ -2236,7 +2292,7 @@ public class Renderer implements Destroyable{
 	/** Update the current state of OpenGL to use the buffer at the top of {@link #bufferStack} for rendering */
 	private void updateBuffer(){
 		GameBuffer b = this.getBuffer();
-		b.drawToBuffer();
+		b.drawWithBuffer();
 		b.setViewport();
 		// Changing the buffer and or viewport does something weird with OpenGL, so update the limited bounds after changing the buffer
 		this.updateLimitedBounds();

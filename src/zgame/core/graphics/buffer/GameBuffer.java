@@ -18,6 +18,7 @@ import zgame.core.utils.ZRect2D;
  * A class that manages an OpenGL Framebuffer for a Renderer to draw to
  */
 public class GameBuffer implements Destroyable{
+	// TODO add some better documentation for how this works
 	
 	/** The OpenGL texture ID used to track texture used by this GameBuffer's Framebuffer */
 	private int textureID;
@@ -108,6 +109,8 @@ public class GameBuffer implements Destroyable{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.getWidth(), this.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buff);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		
+		// TODO there seems to be a problem with how buffers are generated, or swapped between, may be an issue with drawable buffer and or text buffer
+		
 		// Make the frame buffer
 		this.frameID = glGenFramebuffers();
 		int oldBuffer = glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING);
@@ -157,19 +160,19 @@ public class GameBuffer implements Destroyable{
 	}
 	
 	/**
-	 * Draw the currently drawn content of this buffer to the given {@link Renderer}
+	 * Draw the currently drawn content of this buffer on to the given {@link Renderer}, in 2D.
 	 * Coordinates are in game coordinates
 	 *
 	 * @param x The x coordinate to draw the upper left hand corner of the buffer
 	 * @param y The y coordinate to draw the upper left hand corner of the buffer
 	 * @param r The {@link Renderer} to use
 	 */
-	public void drawToRenderer(double x, double y, Renderer r){
+	public void drawOnRenderer(double x, double y, Renderer r){
 		r.drawBuffer(x, y, this.getWidth(), this.getHeight(), this, this.getAlphaMode());
 	}
 	
 	/** After calling this method, all further OpenGL rendering operations will draw to this GameBuffer */
-	public void drawToBuffer(){
+	public void drawWithBuffer(){
 		glBindFramebuffer(GL_FRAMEBUFFER, this.getFrameID());
 	}
 	
@@ -178,7 +181,7 @@ public class GameBuffer implements Destroyable{
 		glViewport(0, 0, this.getWidth(), this.getHeight());
 	}
 	
-	/** Set the OpenGL clear color to fully transparent, then clear the currently bound buffer. Generally should call {@link #drawToBuffer()} before calling this method */
+	/** Set the OpenGL clear color to fully transparent, then clear the currently bound buffer. Generally should call {@link #drawWithBuffer()} before calling this method */
 	public void clear(){
 		glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

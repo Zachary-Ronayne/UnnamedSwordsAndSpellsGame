@@ -1,6 +1,9 @@
 package zusass.game.things;
 
 import zgame.core.Game;
+import zgame.core.graphics.Renderer;
+import zgame.core.graphics.buffer.GameBuffer;
+import zgame.core.utils.ZMath;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.still.Door;
 import zusass.ZusassData;
@@ -11,11 +14,16 @@ import zusass.game.ZusassRoom;
 /** A {@link Door} used by the infinitely generating levels */
 public class LevelDoor extends ZusassDoor{
 	
+	// TODO add a facing direction, just north, south, east, west
+	
 	/** The level of the room that this door will lead to */
 	private final int level;
 	
 	/** The room which contains this {@link LevelDoor} */
 	private final ZusassRoom room;
+	
+	/** A buffer holding the text to display the level of this door, initialized on the first frame of rendering */
+	private GameBuffer levelTextBuffer;
 	
 	/**
 	 * Create a new LevelDoor at the given location
@@ -30,6 +38,12 @@ public class LevelDoor extends ZusassDoor{
 		super(x, y, z);
 		this.level = level;
 		this.room = room;
+	}
+	
+	@Override
+	public void destroy(){
+		super.destroy();
+		if(this.levelTextBuffer != null) this.levelTextBuffer.destroy();
 	}
 	
 	@Override
@@ -71,4 +85,31 @@ public class LevelDoor extends ZusassDoor{
 		return -100;
 	}
 	
+	@Override
+	public void render(Game game, Renderer r){
+		super.render(game, r);
+		
+		// TODO why do these buffers not initially load until you go into the hub a second time
+		// TODO why do the buffers sometimes seem to load data from another buffer?
+		if(this.levelTextBuffer == null){
+			// TODO use a text buffer instead?
+			this.levelTextBuffer = new GameBuffer(300, 300, true);
+//			this.levelTextBuffer.regenerateBuffer();
+			
+			r.pushBuffer(this.levelTextBuffer);
+			r.pushMatrix();
+			r.identityMatrix();
+			this.levelTextBuffer.clear();
+
+			r.setFont(game.getDefaultFont());
+			r.setColor(0, 0, 0);
+			r.setFontSize(40);
+			r.drawText(0, 30, "Level: " + this.getLevel());
+			r.popMatrix();
+			r.popBuffer();
+		}
+		
+		r.drawPlaneBuffer(this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ() + this.getLength() * 0.5 + 0.001, 0.4, 0.4,
+				ZMath.PI_BY_2 * 3, 0, 0, 0, 0, 0, this.levelTextBuffer.getFrameID());
+	}
 }

@@ -4,6 +4,7 @@ import static org.lwjgl.opengl.GL30.*;
 
 /** Represents which glBlendFunc configuration should be used */
 public enum AlphaMode{
+	// TODO give proper documentation for how these modes should are defined, i.e. what all the values mean
 	/** For standard rendering */
 	NORMAL(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA),
 	/** For rendering a buffer to another buffer */

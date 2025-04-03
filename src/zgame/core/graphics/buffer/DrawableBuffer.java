@@ -36,14 +36,14 @@ public class DrawableBuffer extends GameBuffer{
 	 * @param y The y coordinate to draw the upper left hand corner of the buffer
 	 * @param r The renderer to draw this buffer to
 	 */
-	public void drawToRenderer(double x, double y, Renderer r){
+	public void drawOnRenderer(double x, double y, Renderer r){
 		if(this.needRedraw) this.redraw(r);
 		// Make sure the color is reset to opaque
 		r.pushColor();
 		r.makeOpaque();
 		
 		// Draw the actual buffer
-		super.drawToRenderer(x, y, r);
+		super.drawOnRenderer(x, y, r);
 		
 		// Put the color back
 		r.popColor();

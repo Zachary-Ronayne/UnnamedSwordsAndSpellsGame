@@ -299,7 +299,7 @@ public class MenuText extends MenuThing{
 			if(this.isLimitIntersectionBounds()) r.pushLimitedBoundsIntersection(b);
 			else r.pushLimitedBounds(b);
 		}
-		this.textBuffer.drawToRenderer(bounds.getX(), bounds.getY(), r);
+		this.textBuffer.drawOnRenderer(bounds.getX(), bounds.getY(), r);
 		if(limit) r.popLimitedBounds();
 	}
 	
