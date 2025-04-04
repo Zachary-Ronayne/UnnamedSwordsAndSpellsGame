@@ -2,7 +2,10 @@ package zusass.game.things;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.core.graphics.buffer.GameBuffer;
+import zgame.core.graphics.TextOption;
+import zgame.core.graphics.ZColor;
+import zgame.core.graphics.font.TextBuffer;
+import zgame.core.utils.ZArrayUtils;
 import zgame.core.utils.ZMath;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.still.Door;
@@ -23,7 +26,7 @@ public class LevelDoor extends ZusassDoor{
 	private final ZusassRoom room;
 	
 	/** A buffer holding the text to display the level of this door, initialized on the first frame of rendering */
-	private GameBuffer levelTextBuffer;
+	private TextBuffer levelTextBuffer;
 	
 	/**
 	 * Create a new LevelDoor at the given location
@@ -92,24 +95,16 @@ public class LevelDoor extends ZusassDoor{
 		// TODO why do these buffers not initially load until you go into the hub a second time
 		// TODO why do the buffers sometimes seem to load data from another buffer?
 		if(this.levelTextBuffer == null){
-			// TODO use a text buffer instead?
-			this.levelTextBuffer = new GameBuffer(300, 300, true);
-//			this.levelTextBuffer.regenerateBuffer();
-			
-			r.pushBuffer(this.levelTextBuffer);
-			r.pushMatrix();
-			r.identityMatrix();
-			this.levelTextBuffer.clear();
-
-			r.setFont(game.getDefaultFont());
-			r.setColor(0, 0, 0);
-			r.setFontSize(40);
-			r.drawText(0, 30, "Level: " + this.getLevel());
-			r.popMatrix();
-			r.popBuffer();
+			// TODO make an easier way of doing this centering without needing a menu?
+			// TODO make an abstracted way of doing this for drawing text on a 3D face easily
+			var levelText = "Level: " + this.getLevel();
+			var font = r.getFont().size(50);
+			this.levelTextBuffer = new TextBuffer(500, 500, ZArrayUtils.singleList(new TextOption(levelText, new ZColor(0.8))), font);
+			this.levelTextBuffer.setTextX(this.levelTextBuffer.getWidth() * 0.5 - font.stringWidth(levelText) * 0.5);
+			this.levelTextBuffer.redraw(r);
 		}
 		
-		r.drawPlaneBuffer(this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ() + this.getLength() * 0.5 + 0.001, 0.4, 0.4,
+		r.drawPlaneBuffer(this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ() + this.getLength() * 0.5 + 0.001, 0.9, 0.9,
 				ZMath.PI_BY_2 * 3, 0, 0, 0, 0, 0, this.levelTextBuffer.getFrameID());
 	}
 }

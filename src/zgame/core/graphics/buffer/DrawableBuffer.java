@@ -68,7 +68,7 @@ public class DrawableBuffer extends GameBuffer{
 	 *
 	 * @param r The {@link Renderer} to use for drawing the buffer
 	 */
-	private void redraw(Renderer r){
+	public void redraw(Renderer r){
 		this.redraw(r, (rr, d) -> {
 			var unlimited = this.isForceUnlimit();
 			if(unlimited) rr.pushUnlimitedBounds();
