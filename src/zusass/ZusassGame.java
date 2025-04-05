@@ -241,4 +241,10 @@ public class ZusassGame extends Game{
 			}
 		}
 	}
+	
+	/** @return The global instance of the game, only should be used for testing, normal operation should pass an instance of ZusassGame where needed */
+	public static ZusassGame instance(){
+		return zgame;
+	}
+	
 }

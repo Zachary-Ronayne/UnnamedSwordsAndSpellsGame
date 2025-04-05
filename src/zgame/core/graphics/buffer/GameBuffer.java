@@ -18,7 +18,6 @@ import zgame.core.utils.ZRect2D;
  * A class that manages an OpenGL Framebuffer for a Renderer to draw to
  */
 public class GameBuffer implements Destroyable{
-	// TODO add some better documentation for how this works
 	
 	/** The OpenGL texture ID used to track texture used by this GameBuffer's Framebuffer */
 	private int textureID;
@@ -61,6 +60,7 @@ public class GameBuffer implements Destroyable{
 	 * @param height See {@link #height}
 	 * @param generate true if the buffer should generate right away, false to not generate it
 	 */
+	// TODO consider making buffers never generate in the constructor, only when explicitly called
 	public GameBuffer(int width, int height, boolean generate){
 		this.alphaMode = AlphaMode.NORMAL;
 		this.bufferGenerated = false;
@@ -108,8 +108,6 @@ public class GameBuffer implements Destroyable{
 		ByteBuffer buff = BufferUtils.createByteBuffer(this.getWidth() * this.getHeight() * 4);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.getWidth(), this.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buff);
 		glBindTexture(GL_TEXTURE_2D, 0);
-		
-		// TODO there seems to be a problem with how buffers are generated, or swapped between, may be an issue with drawable buffer and or text buffer
 		
 		// Make the frame buffer
 		this.frameID = glGenFramebuffers();

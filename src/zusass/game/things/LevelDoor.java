@@ -22,9 +22,6 @@ public class LevelDoor extends ZusassDoor{
 	/** The level of the room that this door will lead to */
 	private final int level;
 	
-	/** The room which contains this {@link LevelDoor} */
-	private final ZusassRoom room;
-	
 	/** A buffer holding the text to display the level of this door, initialized on the first frame of rendering */
 	private TextBuffer levelTextBuffer;
 	
@@ -35,12 +32,10 @@ public class LevelDoor extends ZusassDoor{
 	 * @param y See {@link #y}
 	 * @param z See {@link #z}
 	 * @param level See {@link #level}
-	 * @param room The room which contains this {@link LevelDoor}
 	 */
-	public LevelDoor(double x, double y, double z, int level, ZusassRoom room){
+	public LevelDoor(double x, double y, double z, int level){
 		super(x, y, z);
 		this.level = level;
-		this.room = room;
 	}
 	
 	@Override
@@ -78,11 +73,6 @@ public class LevelDoor extends ZusassDoor{
 		return this.level;
 	}
 	
-	/** @return See {@link #room} */
-	public ZusassRoom getRoom(){
-		return this.room;
-	}
-	
 	@Override
 	public int getSortPriority(){
 		return -100;
@@ -92,19 +82,18 @@ public class LevelDoor extends ZusassDoor{
 	public void render(Game game, Renderer r){
 		super.render(game, r);
 		
-		// TODO why do these buffers not initially load until you go into the hub a second time
-		// TODO why do the buffers sometimes seem to load data from another buffer?
 		if(this.levelTextBuffer == null){
 			// TODO make an easier way of doing this centering without needing a menu?
 			// TODO make an abstracted way of doing this for drawing text on a 3D face easily
 			var levelText = "Level: " + this.getLevel();
-			var font = r.getFont().size(50);
+			var font = r.getFont().size(90);
 			this.levelTextBuffer = new TextBuffer(500, 500, ZArrayUtils.singleList(new TextOption(levelText, new ZColor(0.8))), font);
 			this.levelTextBuffer.setTextX(this.levelTextBuffer.getWidth() * 0.5 - font.stringWidth(levelText) * 0.5);
 			this.levelTextBuffer.redraw(r);
 		}
 		
-		r.drawPlaneBuffer(this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ() + this.getLength() * 0.5 + 0.001, 0.9, 0.9,
-				ZMath.PI_BY_2 * 3, 0, 0, 0, 0, 0, this.levelTextBuffer.getFrameID());
+		r.drawPlaneBuffer(this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ() + this.getLength() * 0.5 + 0.001,
+				this.getWidth() * 0.95, this.getWidth() * 0.95,
+				ZMath.PI_BY_2 * 3, 0, 0, 0, 0, 0, this.levelTextBuffer.getTextureID());
 	}
 }

@@ -42,12 +42,12 @@ public class Hub extends ZusassRoom{
 		// The door to start at the highest level gotten to
 		var t = this.getTile(1, 1, 1);
 		var data = zgame.getData();
-		var highDoor = new LevelDoor(t.getX(), 1, t.getZ(), data.getHighestRoomLevel(), this);
+		var highDoor = new LevelDoor(t.getX(), 1, t.getZ(), data.getHighestRoomLevel());
 		this.addThing(highDoor);
 		
 		// The door to start from level 1
 		t = this.getTile(3, 1, 1);
-		var levelDoor = new LevelDoor(t.getX(), 1, t.getZ(), 0, this);
+		var levelDoor = new LevelDoor(t.getX(), 1, t.getZ(), 1);
 		this.addThing(levelDoor);
 		
 		// Add the spell maker

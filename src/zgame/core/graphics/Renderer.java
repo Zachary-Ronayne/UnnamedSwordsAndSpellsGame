@@ -2000,15 +2000,15 @@ public class Renderer implements Destroyable{
 	 * @param xA The point, relative to the point to position this object, to rotate on the x axis
 	 * @param yA The point, relative to the point to position this object, to rotate on the y axis
 	 * @param zA The point, relative to the point to position this object, to rotate on the z axis
-	 * @param buff The buffer id to draw
+	 * @param tex The texture id used by the buffer to draw
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawPlaneBuffer(double x, double y, double z, double w, double l, double xRot, double yRot, double zRot, double xA, double yA, double zA, int buff){
+	public boolean drawPlaneBuffer(double x, double y, double z, double w, double l, double xRot, double yRot, double zRot, double xA, double yA, double zA, int tex){
 		// Use the 3D buffer shader and the 3D plate vertex array
 		this.renderModeBuffer();
 		this.bindVertexArray(planeTexVertArr);
 		
-		glBindTexture(GL_TEXTURE_2D, buff);
+		glBindTexture(GL_TEXTURE_2D, tex);
 		updateAlphaMode(AlphaMode.NORMAL);
 		
 		// Position the plane
