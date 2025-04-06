@@ -384,6 +384,7 @@ public class MainTest extends Game{
 			this.textBuffer.setTextX(10);
 			this.textBuffer.setTextY(75);
 			this.textBuffer.setFont(this.textBuffer.getFont().size(40));
+			this.textBuffer.regenerateBuffer();
 		}
 		
 		@Override

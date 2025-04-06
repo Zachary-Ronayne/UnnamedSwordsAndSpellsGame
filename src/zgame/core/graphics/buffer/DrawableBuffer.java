@@ -24,7 +24,7 @@ public class DrawableBuffer extends GameBuffer{
 	 * @param height See {@link #getHeight()}
 	 */
 	public DrawableBuffer(int width, int height){
-		super(width, height, false);
+		super(width, height);
 		this.needRedraw = true;
 		this.forceUnlimit = true;
 	}

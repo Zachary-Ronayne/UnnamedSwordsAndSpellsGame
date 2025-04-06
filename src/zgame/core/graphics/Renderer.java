@@ -232,7 +232,9 @@ public class Renderer implements Destroyable{
 		this.attributeStacks = new ArrayList<>();
 		
 		// Buffer stack
-		this.bufferStack = new LimitedStack<>(new GameBuffer(width, height, true), false);
+		var coreBuffer = new GameBuffer(width, height);
+		coreBuffer.regenerateBuffer();
+		this.bufferStack = new LimitedStack<>(coreBuffer, false);
 		this.stacks.add(this.bufferStack);
 		
 		// Camera stack

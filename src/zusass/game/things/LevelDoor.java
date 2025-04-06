@@ -89,6 +89,7 @@ public class LevelDoor extends ZusassDoor{
 			var font = r.getFont().size(90);
 			this.levelTextBuffer = new TextBuffer(500, 500, ZArrayUtils.singleList(new TextOption(levelText, new ZColor(0.8))), font);
 			this.levelTextBuffer.setTextX(this.levelTextBuffer.getWidth() * 0.5 - font.stringWidth(levelText) * 0.5);
+			this.levelTextBuffer.regenerateBuffer();
 			this.levelTextBuffer.redraw(r);
 		}
 		

@@ -123,6 +123,7 @@ public class BufferDemo extends Game{
 		 */
 		public BufferTester(int width, int height){
 			super(width, height);
+			this.regenerateBuffer();
 		}
 		
 		@Override

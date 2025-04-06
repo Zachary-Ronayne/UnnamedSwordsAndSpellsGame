@@ -312,6 +312,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	private void initBuffer(){
 		this.destroyBuffer();
 		this.buffer = new MenuBuffer(this);
+		this.buffer.regenerateBuffer();
 	}
 	
 	/** Regenerate {@link #buffer} to the current size of this menu thing, does nothing if {@link #buffer} is already null */

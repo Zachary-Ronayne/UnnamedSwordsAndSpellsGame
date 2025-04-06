@@ -15,7 +15,8 @@ import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZRect2D;
 
 /**
- * A class that manages an OpenGL Framebuffer for a Renderer to draw to
+ * A class that manages an OpenGL Framebuffer for a Renderer to draw to.
+ * To use a GameBuffer, after the constructor initializes the object, explicitly call {@link #regenerateBuffer()} for the buffer to be usable
  */
 public class GameBuffer implements Destroyable{
 	
@@ -25,10 +26,10 @@ public class GameBuffer implements Destroyable{
 	/** The OpenGL Framebuffer ID used to track this GameBuffer's Framebuffer */
 	private int frameID;
 	
-	/** The width, in pixels, of this GameBuffer */
+	/** The width, in pixels, of this GameBuffer, should always be greater than 0 */
 	private int width;
 	
-	/** The height, in pixels, of this GameBuffer */
+	/** The height, in pixels, of this GameBuffer, should always be greater than 0 */
 	private int height;
 	
 	/** Stores the inverse of {@link #width} */
@@ -54,22 +55,18 @@ public class GameBuffer implements Destroyable{
 	private boolean depthBufferEnabled;
 	
 	/**
-	 * Create a GameBuffer of the given size
+	 * Create a GameBuffer of the given size.
+	 * The buffer will not be usable until {@link #regenerateBuffer()} is called
 	 *
 	 * @param width See {@link #width}
 	 * @param height See {@link #height}
-	 * @param generate true if the buffer should generate right away, false to not generate it
 	 */
-	// TODO consider making buffers never generate in the constructor, only when explicitly called
-	public GameBuffer(int width, int height, boolean generate){
+	public GameBuffer(int width, int height){
 		this.alphaMode = AlphaMode.NORMAL;
 		this.bufferGenerated = false;
 		this.depthBufferEnabled = false;
-		if(generate) this.regenerateBuffer(width, height);
-		else{
-			this.width = width;
-			this.height = height;
-		}
+		this.width = width;
+		this.height = height;
 	}
 	
 	/**
@@ -92,10 +89,7 @@ public class GameBuffer implements Destroyable{
 	public boolean regenerateBuffer(int width, int height){
 		this.destroy();
 		
-		this.width = 1;
-		this.height = 1;
-		this.setWidth(width);
-		this.setHeight(height);
+		this.setSize(width, height);
 		
 		// Create the texture
 		this.textureID = glGenTextures();
@@ -142,7 +136,7 @@ public class GameBuffer implements Destroyable{
 	 * @param game The game to get the window's width from
 	 */
 	public void widthToWindow(Game game){
-		this.setWidth(Math.round(game.getScreenWidth()));
+		this.setSize(game.getScreenWidth(), this.getHeight());
 	}
 	
 	/** Erase all resources associated with this GameBuffer. After calling this method, this object should not be used */
@@ -231,15 +225,16 @@ public class GameBuffer implements Destroyable{
 	}
 	
 	/**
-	 * Update the currently stored values for the buffer width, but do not update the buffer itself, should not be called without updating the buffer afterwards
+	 * Update the currently stored values for the buffer width and height, but do not update the buffer itself.
+	 * The buffer will not render correctly unless {@link #regenerateBuffer()} is explicitly called later
 	 *
 	 * @param width {@link #width}
+	 * @param height {@link #height}
 	 */
-	public void setWidth(int width){
+	public void setSize(int width, int height){
 		this.width = width;
-		this.inverseWidth = 1.0 / width;
-		this.inverseHalfWidth = 1.0 / (width * 0.5);
-		this.updateRatio();
+		this.height = height;
+		this.recompute();
 	}
 	
 	/** @return See {@link #height} */
@@ -257,20 +252,12 @@ public class GameBuffer implements Destroyable{
 		return this.inverseHalfHeight;
 	}
 	
-	/**
-	 * Update the currently stored values for the buffer height, but do not update the buffer itself, should not be called without updating the buffer afterwards
-	 *
-	 * @param height {@link #height}
-	 */
-	public void setHeight(int height){
-		this.height = height;
+	/** Updates the internal cached values associated with this buffer */
+	private void recompute(){
+		this.inverseWidth = 1.0 / width;
+		this.inverseHalfWidth = 1.0 / (width * 0.5);
 		this.inverseHeight = 1.0 / height;
 		this.inverseHalfHeight = 1.0 / (height * 0.5);
-		this.updateRatio();
-	}
-	
-	/** Updates the internal values of {@link #ratioWH} and {@link #ratioHW} */
-	private void updateRatio(){
 		this.ratioWH = (double)this.width / this.height;
 		this.ratioHW = (double)this.height / this.width;
 	}

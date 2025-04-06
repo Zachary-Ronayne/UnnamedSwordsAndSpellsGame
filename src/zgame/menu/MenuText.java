@@ -186,8 +186,7 @@ public class MenuText extends MenuThing{
 	 * @param game The game to get the window's width from
 	 */
 	public void bufferWidthToWindow(Game game){
-		var w = game.getScreenWidth();
-		this.textBuffer.setWidth(w);
+		this.textBuffer.widthToWindow(game);
 	}
 	
 	/** @param fontColor Set the color used to draw text, this will override anything in this thing's buffer's {@link TextBuffer#options} */
@@ -278,6 +277,9 @@ public class MenuText extends MenuThing{
 	
 	@Override
 	public void render(Game game, Renderer r, ZRect2D bounds){
+		// If the buffer has not been generated yet, generate it now
+		if(!this.textBuffer.isBufferGenerated()) this.textBuffer.regenerateBuffer();
+		
 		super.render(game, r, bounds);
 		
 		if(this.getFont() != null) r.setFont(this.getFont());
