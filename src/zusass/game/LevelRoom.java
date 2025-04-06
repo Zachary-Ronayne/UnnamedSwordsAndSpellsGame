@@ -6,6 +6,7 @@ import zgame.core.graphics.ZColor;
 import zgame.stat.modifier.ModifierType;
 import zgame.things.still.tiles.BaseTiles3D;
 import zgame.things.type.GameThing;
+import static zgame.world.Direction3D.*;
 import zgame.world.Room;
 import zusass.game.things.LevelDoor;
 import zusass.game.things.ZusassTags;
@@ -91,7 +92,7 @@ public class LevelRoom extends ZusassRoom{
 		}
 		
 		// Add the door
-		var levelDoor = new LevelDoor(X_TILES - 3, 1, Z_TILES - 1.25, this.getLevel() + 1);
+		var levelDoor = new LevelDoor(X_TILES - 1.25, 1, Z_TILES - 3, this.getLevel() + 1, WEST);
 		this.addThing(levelDoor);
 		
 		// Put tiles in front of the door, mostly for testing

@@ -14,6 +14,8 @@ import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.RectPrismBounds;
 
+import static zgame.world.Direction3D.*;
+
 import java.util.Arrays;
 
 /** A {@link Room} which is made of 3D tiles */
@@ -54,7 +56,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		this.setAllBoundaries(true);
 		this.boundarySizes = new double[6];
 		this.setAllBoundaries(4);
-		this.setBoundary(Directions3D.DOWN, 0);
+		this.setBoundary(DOWN, 0);
 		this.getAllThings().addClass(ThingClickDetector3D.class);
 	}
 	
@@ -109,44 +111,44 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	
 	@Override
 	public double getWidth(){
-		return this.boundarySizes[Directions3D.EAST] + this.boundarySizes[Directions3D.WEST];
+		return this.boundarySizes[EAST.i()] + this.boundarySizes[WEST.i()];
 	}
 	
 	@Override
 	public double getHeight(){
-		return this.boundarySizes[Directions3D.UP] + this.boundarySizes[Directions3D.DOWN];
+		return this.boundarySizes[UP.i()] + this.boundarySizes[DOWN.i()];
 	}
 	
 	@Override
 	public double getLength(){
-		return this.boundarySizes[Directions3D.NORTH] + this.boundarySizes[Directions3D.SOUTH];
+		return this.boundarySizes[Direction3D.NORTH.i()] + this.boundarySizes[SOUTH.i()];
 	}
 	
 	/**
 	 * Enable the given boundary if it is disabled, otherwise disable it
 	 *
-	 * @param direction The boundary to modify, defined in {@link Directions3D}
+	 * @param direction The boundary to modify
 	 */
-	public void toggleBoundary(int direction){
+	public void toggleBoundary(Direction3D direction){
 		this.setBoundary(direction, !this.boundaryEnabled(direction));
 	}
 	
 	/**
 	 * Enable or disable the given boundary
 	 *
-	 * @param direction The boundary to modify, defined in {@link Directions3D}
+	 * @param direction The boundary to modify
 	 * @param enabled true to enable the boundary, false to disable it
 	 */
-	public void setBoundary(int direction, boolean enabled){
-		this.enabledBoundaries[direction] = enabled;
+	public void setBoundary(Direction3D direction, boolean enabled){
+		this.enabledBoundaries[direction.i()] = enabled;
 	}
 	
 	/**
-	 * @param direction The boundary to check for, defined in {@link Directions3D}
+	 * @param direction The boundary to check for, defined in {@link Direction3D}
 	 * @return true if the boundary is enabled, false otherwise
 	 */
-	public boolean boundaryEnabled(int direction){
-		return this.enabledBoundaries[direction];
+	public boolean boundaryEnabled(Direction3D direction){
+		return this.enabledBoundaries[direction.index];
 	}
 	
 	/**
@@ -170,19 +172,19 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	/**
 	 * Update the size of the given boundary
 	 *
-	 * @param direction The boundary to modify, defined in {@link Directions3D}
+	 * @param direction The boundary to modify
 	 * @param size The new size for the boundary
 	 */
-	public void setBoundary(int direction, double size){
-		this.boundarySizes[direction] = size;
+	public void setBoundary(Direction3D direction, double size){
+		this.boundarySizes[direction.i()] = size;
 	}
 	
 	/**
-	 * @param direction The boundary to find, defined in {@link Directions3D}
+	 * @param direction The boundary to find
 	 * @return The size of the given boundary
 	 */
-	public double getBoundary(int direction){
-		return this.boundarySizes[direction];
+	public double getBoundary(Direction3D direction){
+		return this.boundarySizes[direction.i()];
 	}
 	
 	/**
@@ -192,7 +194,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	 * @param neg The negative direction
 	 * @param totalSize The new size to be split
 	 */
-	private void setEqualSize(int pos, int neg, double totalSize){
+	private void setEqualSize(Direction3D pos, Direction3D neg, double totalSize){
 		double size = totalSize * 0.5;
 		this.setBoundary(pos, size);
 		this.setBoundary(neg, size);
@@ -202,14 +204,14 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	public void setTileBoundaries(){
 		double tileSize = Tile3D.size();
 		
-		this.setBoundary(Directions3D.EAST, tileSize * this.getTilesX());
-		this.setBoundary(Directions3D.WEST, 0);
+		this.setBoundary(EAST, tileSize * this.getTilesX());
+		this.setBoundary(WEST, 0);
 		
-		this.setBoundary(Directions3D.NORTH, tileSize * this.getTilesZ());
-		this.setBoundary(Directions3D.SOUTH, 0);
+		this.setBoundary(NORTH, tileSize * this.getTilesZ());
+		this.setBoundary(SOUTH, 0);
 		
-		this.setBoundary(Directions3D.UP, tileSize * this.getTilesY());
-		this.setBoundary(Directions3D.DOWN, 0);
+		this.setBoundary(UP, tileSize * this.getTilesY());
+		this.setBoundary(DOWN, 0);
 	}
 	
 	/**
@@ -218,7 +220,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	 * @param width The new width of the room, width/2 will be the boundary size on both axes
 	 */
 	public void setEqualWidth(double width){
-		this.setEqualSize(Directions3D.EAST, Directions3D.WEST, width);
+		this.setEqualSize(EAST, WEST, width);
 	}
 	
 	/**
@@ -227,7 +229,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	 * @param height The new height of the room, height/2 will be the boundary size on both axes
 	 */
 	public void setEqualHeight(double height){
-		this.setEqualSize(Directions3D.UP, Directions3D.DOWN, height);
+		this.setEqualSize(UP, DOWN, height);
 	}
 	
 	/**
@@ -236,7 +238,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	 * @param length The new length of the room, length/2 will be the boundary size on both axes
 	 */
 	public void setEqualLength(double length){
-		this.setEqualSize(Directions3D.NORTH, Directions3D.SOUTH, length);
+		this.setEqualSize(NORTH, SOUTH, length);
 	}
 	
 	@Override
@@ -323,8 +325,8 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		
 		// x axis, i.e. east west
 		boolean touchedAxisX = false;
-		if(this.boundaryEnabled(Directions3D.EAST)){
-			double boundary = this.getBoundary(Directions3D.EAST) - (obj.getWidth() * 0.5);
+		if(this.boundaryEnabled(EAST)){
+			double boundary = this.getBoundary(EAST) - (obj.getWidth() * 0.5);
 			double objX = obj.getX();
 			if(objX > boundary){
 				obj.setX(boundary);
@@ -332,8 +334,8 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 				touchedAxisX = true;
 			}
 		}
-		if(this.boundaryEnabled(Directions3D.WEST) && !touchedAxisX){
-			double boundary = -this.getBoundary(Directions3D.WEST) + (obj.getWidth() * 0.5);
+		if(this.boundaryEnabled(WEST) && !touchedAxisX){
+			double boundary = -this.getBoundary(WEST) + (obj.getWidth() * 0.5);
 			double objX = obj.getX();
 			if(objX < boundary){
 				obj.setX(boundary);
@@ -345,8 +347,8 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		
 		// z axis, i.e. north south
 		boolean touchedAxisZ = false;
-		if(this.boundaryEnabled(Directions3D.NORTH)){
-			double boundary = this.getBoundary(Directions3D.NORTH) - (obj.getLength() * 0.5);
+		if(this.boundaryEnabled(NORTH)){
+			double boundary = this.getBoundary(NORTH) - (obj.getLength() * 0.5);
 			double objZ = obj.getZ();
 			if(objZ > boundary){
 				obj.setZ(boundary);
@@ -354,8 +356,8 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 				touchedAxisZ = true;
 			}
 		}
-		if(this.boundaryEnabled(Directions3D.SOUTH) && !touchedAxisZ){
-			double boundary = -this.getBoundary(Directions3D.SOUTH) + (obj.getLength() * 0.5);
+		if(this.boundaryEnabled(SOUTH) && !touchedAxisZ){
+			double boundary = -this.getBoundary(SOUTH) + (obj.getLength() * 0.5);
 			double objZ = obj.getZ();
 			if(objZ < boundary){
 				obj.setZ(boundary);
@@ -366,8 +368,8 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		if(touchedAxisZ) touchedWall = true;
 		
 		// y axis, i.e. up down
-		if(this.boundaryEnabled(Directions3D.UP)){
-			double boundary = this.getBoundary(Directions3D.UP) - obj.getHeight();
+		if(this.boundaryEnabled(Direction3D.UP)){
+			double boundary = this.getBoundary(Direction3D.UP) - obj.getHeight();
 			double objY = obj.getY();
 			if(objY > boundary){
 				obj.setY(boundary);
@@ -375,8 +377,8 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 				touchedCeiling = true;
 			}
 		}
-		if(this.boundaryEnabled(Directions3D.DOWN) && obj.getY() < -this.getBoundary(Directions3D.DOWN)){
-			double boundary = -this.getBoundary(Directions3D.DOWN);
+		if(this.boundaryEnabled(Direction3D.DOWN) && obj.getY() < -this.getBoundary(Direction3D.DOWN)){
+			double boundary = -this.getBoundary(Direction3D.DOWN);
 			double objY = obj.getY();
 			if(objY < boundary){
 				obj.setY(boundary);
@@ -674,14 +676,14 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		
 		var collisionFaces = this.tiles[x][y][z].getCollisionFaces();
 		// Collision will be enabled if either the next tile would be out of bounds and the boundary is disabled, or if the adjacent tile is not already collideable
-		collisionFaces[Directions3D.WEST] = x - 1 <= 0 || !this.tiles[x - 1][y][z].canCollide(Directions3D.WEST);
-		collisionFaces[Directions3D.EAST] = (x + 1 >= this.getTilesX()) || !this.tiles[x + 1][y][z].canCollide(Directions3D.EAST);
+		collisionFaces[WEST.i()] = x - 1 <= 0 || !this.tiles[x - 1][y][z].canCollide(WEST);
+		collisionFaces[EAST.i()] = (x + 1 >= this.getTilesX()) || !this.tiles[x + 1][y][z].canCollide(EAST);
 		
-		collisionFaces[Directions3D.DOWN] = (y - 1 <= 0) || !this.tiles[x][y - 1][z].canCollide(Directions3D.DOWN);
-		collisionFaces[Directions3D.UP] = (y + 1 >= this.getTilesY()) || !this.tiles[x][y + 1][z].canCollide(Directions3D.UP);
+		collisionFaces[DOWN.i()] = (y - 1 <= 0) || !this.tiles[x][y - 1][z].canCollide(DOWN);
+		collisionFaces[UP.i()] = (y + 1 >= this.getTilesY()) || !this.tiles[x][y + 1][z].canCollide(UP);
 		
-		collisionFaces[Directions3D.SOUTH] = (z - 1 <= 0) || !this.tiles[x][y][z - 1].canCollide(Directions3D.SOUTH);
-		collisionFaces[Directions3D.NORTH] = (z + 1 >= this.getTilesZ()) || !this.tiles[x][y][z + 1].canCollide(Directions3D.NORTH);
+		collisionFaces[SOUTH.i()] = (z - 1 <= 0) || !this.tiles[x][y][z - 1].canCollide(SOUTH);
+		collisionFaces[NORTH.i()] = (z + 1 >= this.getTilesZ()) || !this.tiles[x][y][z + 1].canCollide(NORTH);
 	}
 	
 	/** @return See {@link #tilesX} */

@@ -3,7 +3,7 @@ package zgame.things.type.bounds;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.physics.material.Material;
 import zgame.things.entity.projectile.Projectile3D;
-import zgame.world.Directions3D;
+import zgame.world.Direction3D;
 
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
 public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
@@ -96,7 +96,7 @@ public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	 * @param height The total height of the rectangular prism
 	 * @param length The total length of the rectangular prism
 	 * @param m The material which was collided with
-	 * @param collisionFaces The faces of the rectangular prism which can cause collisions, indexed using {@link Directions3D}, true for allowing collision, false for no collision.
+	 * @param collisionFaces The faces of the rectangular prism which can cause collisions, indexed using {@link Direction3D}, true for allowing collision, false for no collision.
 	 * @return The information about the collision
 	 */
 	CollisionResult3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m, boolean[] collisionFaces);

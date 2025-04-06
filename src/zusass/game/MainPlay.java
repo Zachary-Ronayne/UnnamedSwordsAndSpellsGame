@@ -6,6 +6,7 @@ import zgame.core.graphics.ZColor;
 import zgame.core.state.MenuNode;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZMath;
+import zgame.world.Direction3D;
 import zgame.world.Room3D;
 import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
@@ -189,12 +190,7 @@ public class MainPlay extends PlayState{
 			r.setFontSize(22);
 			var mobilityData = p.getMobilityData();
 			double ty = game.getWindow().getHeight() - 5;
-			var yaw = Math.toDegrees(ZMath.angleNormalized(mobilityData.getFacingYaw()));
-			String direction;
-			if(yaw >= 45 && yaw < 135) direction = "SOUTH";
-			else if(yaw >= 135 && yaw < 225) direction = "WEST";
-			else if(yaw >= 225 && yaw < 315) direction = "NORTH";
-			else direction = "EAST";
+			var yaw = mobilityData.getFacingYaw();
 			var velocity = p.getVelocity();
 			var debugTextList = List.of(
 					"X: " + this.debugNumberFormat.format(p.getX()),
@@ -203,9 +199,9 @@ public class MainPlay extends PlayState{
 					"VX: " + this.debugNumberFormat.format(velocity.getX()),
 					"VY: " + this.debugNumberFormat.format(velocity.getY()),
 					"VZ: " + this.debugNumberFormat.format(velocity.getZ()),
-					"YAW: " + this.debugNumberFormat.format(yaw),
+					"YAW: " + this.debugNumberFormat.format(Math.toDegrees(ZMath.angleNormalized(yaw))),
 					"PIT: " + this.debugNumberFormat.format(Math.toDegrees(ZMath.angleNormalized(mobilityData.getFacingPitch()))),
-					"FAC: " + direction
+					"FAC: " + Direction3D.findCardinal(yaw).name()
 			);
 			double border = 1;
 			for(int i = debugTextList.size() - 1; i >= 0; i--){

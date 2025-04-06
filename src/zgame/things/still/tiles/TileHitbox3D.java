@@ -5,7 +5,7 @@ import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.HitBox3D;
-import zgame.world.Directions3D;
+import zgame.world.Direction3D;
 
 /** An object that represents the hitbox of a tile, i.e., what parts of the tile have collision */
 public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResult3D>{
@@ -26,10 +26,10 @@ public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResu
 	/**
 	 * Used to determine which faces of the tile should be checked for collision
 	 *
-	 * @param face The face which is being checked, indexed by {@link Directions3D}
+	 * @param face The face which is being checked
 	 * @return true if this tile hitbox can collide with things, false otherwise.
 	 */
-	boolean canCollide(int face);
+	boolean canCollide(Direction3D face);
 	
 	/** For tiles with no collision */
 	class None implements TileHitbox3D{
@@ -45,7 +45,7 @@ public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResu
 		}
 		
 		@Override
-		public boolean canCollide(int face){
+		public boolean canCollide(Direction3D face){
 			return false;
 		}
 	}
@@ -75,7 +75,7 @@ public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResu
 		}
 		
 		@Override
-		public boolean canCollide(int face){
+		public boolean canCollide(Direction3D face){
 			return true;
 		}
 	}

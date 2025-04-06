@@ -21,7 +21,7 @@ import zgame.things.still.tiles.CubeTexTile;
 import zgame.things.still.tiles.TileHitbox3D;
 import zgame.things.type.bounds.CylinderHitbox;
 import zgame.things.type.bounds.RectPrismHitbox;
-import zgame.world.Directions3D;
+import static zgame.world.Direction3D.*;
 import zgame.world.Room3D;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -263,12 +263,12 @@ public class GameDemo3D extends Game{
 			// Toggle the boundaries
 			if(shift){
 				var r = getCurrentRoom();
-				if(button == GLFW_KEY_1) r.toggleBoundary(Directions3D.EAST);
-				else if(button == GLFW_KEY_2) r.toggleBoundary(Directions3D.WEST);
-				else if(button == GLFW_KEY_3) r.toggleBoundary(Directions3D.NORTH);
-				else if(button == GLFW_KEY_4) r.toggleBoundary(Directions3D.SOUTH);
-				else if(button == GLFW_KEY_5) r.toggleBoundary(Directions3D.UP);
-				else if(button == GLFW_KEY_6) r.toggleBoundary(Directions3D.DOWN);
+				if(button == GLFW_KEY_1) r.toggleBoundary(EAST);
+				else if(button == GLFW_KEY_2) r.toggleBoundary(WEST);
+				else if(button == GLFW_KEY_3) r.toggleBoundary(NORTH);
+				else if(button == GLFW_KEY_4) r.toggleBoundary(SOUTH);
+				else if(button == GLFW_KEY_5) r.toggleBoundary(UP);
+				else if(button == GLFW_KEY_6) r.toggleBoundary(DOWN);
 				else if(button == GLFW_KEY_7) dummyRoom.toggleUsingTileBoundary();
 			}
 			else{
@@ -332,9 +332,9 @@ public class GameDemo3D extends Game{
 			this.setEqualWidth(10);
 			this.setEqualLength(12);
 			
-			this.setBoundary(Directions3D.DOWN, 0);
-			this.setBoundary(Directions3D.UP, 4);
-			this.setBoundary(Directions3D.UP, false);
+			this.setBoundary(DOWN, 0);
+			this.setBoundary(UP, 4);
+			this.setBoundary(UP, false);
 		}
 		
 		@Override

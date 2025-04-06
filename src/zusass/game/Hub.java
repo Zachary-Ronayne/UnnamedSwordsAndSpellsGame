@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.things.still.tiles.BaseTiles3D;
 import zgame.things.type.GameThing;
+import static zgame.world.Direction3D.*;
 import zgame.world.Room;
 import zusass.ZusassGame;
 import zusass.game.things.LevelDoor;
@@ -42,12 +43,12 @@ public class Hub extends ZusassRoom{
 		// The door to start at the highest level gotten to
 		var t = this.getTile(1, 1, 1);
 		var data = zgame.getData();
-		var highDoor = new LevelDoor(t.getX(), 1, t.getZ(), data.getHighestRoomLevel());
+		var highDoor = new LevelDoor(t.getX(), 1, t.getZ(), data.getHighestRoomLevel(), NORTH);
 		this.addThing(highDoor);
 		
 		// The door to start from level 1
 		t = this.getTile(3, 1, 1);
-		var levelDoor = new LevelDoor(t.getX(), 1, t.getZ(), 1);
+		var levelDoor = new LevelDoor(t.getX(), 1, t.getZ(), 1, NORTH);
 		this.addThing(levelDoor);
 		
 		// Add the spell maker

@@ -9,6 +9,7 @@ import zgame.core.utils.ZArrayUtils;
 import zgame.core.utils.ZMath;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.still.Door;
+import zgame.world.Direction3D;
 import zusass.ZusassData;
 import zusass.ZusassGame;
 import zusass.game.LevelRoom;
@@ -16,8 +17,6 @@ import zusass.game.ZusassRoom;
 
 /** A {@link Door} used by the infinitely generating levels */
 public class LevelDoor extends ZusassDoor{
-	
-	// TODO add a facing direction, just north, south, east, west
 	
 	/** The level of the room that this door will lead to */
 	private final int level;
@@ -32,9 +31,10 @@ public class LevelDoor extends ZusassDoor{
 	 * @param y See {@link #y}
 	 * @param z See {@link #z}
 	 * @param level See {@link #level}
+	 * @param direction See {@link #getFacingDirection()}
 	 */
-	public LevelDoor(double x, double y, double z, int level){
-		super(x, y, z);
+	public LevelDoor(double x, double y, double z, int level, Direction3D direction){
+		super(x, y, z, direction);
 		this.level = level;
 	}
 	
@@ -92,8 +92,28 @@ public class LevelDoor extends ZusassDoor{
 			this.levelTextBuffer.redraw(r);
 		}
 		
-		r.drawPlaneBuffer(this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ() + this.getLength() * 0.5 + 0.001,
-				this.getWidth() * 0.95, this.getWidth() * 0.95,
-				ZMath.PI_BY_2 * 3, 0, 0, 0, 0, 0, this.levelTextBuffer.getTextureID());
+		var direction = this.getFacingDirection();
+		double xOffset = 0;
+		double zOffset = 0;
+		double longSide;
+		double shortSide;
+		boolean zAxis = direction == Direction3D.NORTH || direction == Direction3D.SOUTH;
+		if(zAxis){
+			longSide = this.getWidth();
+			shortSide = this.getLength();
+		}
+		else{
+			longSide = this.getLength();
+			shortSide = this.getWidth();
+		}
+		double sideOffset = shortSide * 0.5 + 0.001;
+		if(direction.isNegative()) sideOffset = -sideOffset;
+		if(zAxis) zOffset = sideOffset;
+		else xOffset = sideOffset;
+		
+		r.drawPlaneBuffer(this.getX() + xOffset, this.getY() + this.getHeight() * 0.5, this.getZ() + zOffset,
+				longSide * 0.95, longSide * 0.95,
+				ZMath.PI_BY_2 * 3, 0, direction.getYaw() + (zAxis ? -ZMath.PI_BY_2 : ZMath.PI_BY_2),
+				0, 0, 0, this.levelTextBuffer.getTextureID());
 	}
 }

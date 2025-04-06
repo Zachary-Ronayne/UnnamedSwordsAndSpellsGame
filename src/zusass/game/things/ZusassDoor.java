@@ -4,9 +4,11 @@ import zgame.core.Game;
 import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.utils.ZConfig;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.still.Door;
 import zgame.things.still.Door3D;
+import zgame.world.Direction3D;
 import zgame.world.Room3D;
 import zusass.ZusassGame;
 import zusass.game.ZusassRoom;
@@ -14,15 +16,35 @@ import zusass.game.ZusassRoom;
 /** A {@link Door} specifically used by the Zusass game */
 public class ZusassDoor extends Door3D implements ZThingClickDetector{
 	
+	/** The direction this door should be facing towards */
+	private final Direction3D facingDirection;
+	
 	/**
 	 * Create a new door at the given position
 	 *
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 * @param z See {@link #z}
+	 * @param direction The facing direction of the door, must be one of the cardinal directions
 	 */
-	public ZusassDoor(double x, double y, double z){
-		super(x, y, z, 0.5, 1, 0.1);
+	public ZusassDoor(double x, double y, double z, Direction3D direction){
+		super(x, y, z, 1, 1, 1);
+		if(!direction.isCardinal()){
+			direction = Direction3D.NORTH;
+			ZConfig.error("ZusassDoor cannot use non cardinal direction ", direction.name(), " defaulting to ", direction.name());
+		}
+		this.facingDirection = direction;
+		// Set width and height based on direction
+		double longSide = 0.5;
+		double shortSide = 0.1;
+		if(direction == Direction3D.NORTH || direction == Direction3D.SOUTH){
+			this.setWidth(longSide);
+			this.setLength(shortSide);
+		}
+		else{
+			this.setWidth(shortSide);
+			this.setLength(longSide);
+		}
 	}
 	
 	/**
@@ -45,6 +67,11 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 	/** Convenience method that calls {@link #enterRoom(Room3D, EntityThing3D, Game)} without a need to type cast */
 	public boolean enterRoom(ZusassRoom r, EntityThing3D thing, Game game){
 		return this.enterRoom((Room3D)r, thing, game);
+	}
+	
+	/** @return See {@link #facingDirection} */
+	public Direction3D getFacingDirection(){
+		return this.facingDirection;
 	}
 	
 	@Override

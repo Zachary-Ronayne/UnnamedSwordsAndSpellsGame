@@ -9,7 +9,7 @@ import zgame.things.type.Materialable;
 import zgame.things.type.bounds.Bounds3D;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.RectPrismBounds;
-import zgame.world.Directions3D;
+import zgame.world.Direction3D;
 import zgame.world.Room3D;
 
 /** A {@link GameThing} with a cube hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
@@ -39,7 +39,7 @@ public class Tile3D extends GameThing implements Tile<HitBox3D, CollisionResult3
 	private final double z;
 	
 	/**
-	 * The faces of this tile can cause collisions, indexed using {@link Directions3D}, true for allowing collision, false for no collision.
+	 * The faces of this tile can cause collisions, indexed using {@link Direction3D}, true for allowing collision, false for no collision.
 	 * Should be set by a {@link Room3D} when a tile is set
 	 */
 	private final boolean[] collisionFaces;
@@ -140,10 +140,10 @@ public class Tile3D extends GameThing implements Tile<HitBox3D, CollisionResult3
 	}
 	
 	/**
-	 * @param face The face which is being checked, indexed by {@link Directions3D}
+	 * @param face The face which is being checked
 	 * @return true if this tile can collide with things on the given face, false otherwise
 	 */
-	public boolean canCollide(int face){
+	public boolean canCollide(Direction3D face){
 		return this.getType().getHitbox().canCollide(face);
 	}
 	

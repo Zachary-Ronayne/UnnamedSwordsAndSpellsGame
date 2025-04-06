@@ -6,7 +6,7 @@ import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint2D;
 import zgame.core.utils.ZRect2D;
 import zgame.physics.material.Material;
-import zgame.world.Directions3D;
+import static zgame.world.Direction3D.*;
 
 /** A class containing methods for calculating where objects should move when colliding */
 public final class ZCollision{
@@ -649,13 +649,13 @@ public final class ZCollision{
 		// Check the x axis, left and right
 		double rxl = rx - hrw;
 		double westDist = -1;
-		if(collisionFaces[Directions3D.WEST]){
+		if(collisionFaces[WEST.i()]){
 			westDist = circleDistanceLineSegment(rz - hrl, rz + hrl, rxl, cz, rxl + (rxl - cx), cr, true);
 			if(westDist > 0 && westDist < rw){
 				moveX = -westDist;
 			}
 		}
-		if(collisionFaces[Directions3D.EAST]){
+		if(collisionFaces[EAST.i()]){
 			double rxr = rx + hrw;
 			double eastDist = circleDistanceLineSegment(rz + hrl, rz + hrl, rxr, cz, cx, cr, true);
 			if(eastDist > 0 && eastDist < rw && (eastDist < westDist || westDist < 0)){
@@ -666,13 +666,13 @@ public final class ZCollision{
 		// Check the z axis, front and back
 		double rzb = rz + hrl;
 		double northDist = -1;
-		if(collisionFaces[Directions3D.NORTH]){
+		if(collisionFaces[NORTH.i()]){
 			northDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzb, cx, rzb + (cz - rzb), cr, true);
 			if(northDist > 0 && northDist < rl){
 				moveZ = northDist;
 			}
 		}
-		if(collisionFaces[Directions3D.SOUTH]){
+		if(collisionFaces[SOUTH.i()]){
 			double rzf = rz - hrl;
 			double frontDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzf, cx, cz, cr, false);
 			if(frontDist > 0 && frontDist < rl && (frontDist < northDist || northDist < 0)){
@@ -685,13 +685,13 @@ public final class ZCollision{
 		boolean touchCeiling = false;
 		double upDist = (ry + rh) - cy;
 		double downDist = (cy + ch) - ry;
-		if(collisionFaces[Directions3D.UP]){
+		if(collisionFaces[UP.i()]){
 			if(upDist > 0 && upDist < rh){
 				moveY = upDist;
 				touchFloor = true;
 			}
 		}
-		if(collisionFaces[Directions3D.DOWN]){
+		if(collisionFaces[DOWN.i()]){
 			if(downDist > 0 && downDist < rh && (downDist < upDist || upDist < 0)){
 				moveY = -downDist;
 				touchCeiling = true;
@@ -846,36 +846,36 @@ public final class ZCollision{
 		double wallAngle = 0;
 		
 		// Find the distances per face of the rect from the sphere, using the one that requires the least movement on that axis
-		if(collisionFaces[Directions3D.EAST] || collisionFaces[Directions3D.WEST]){
+		if(collisionFaces[EAST.i()] || collisionFaces[WEST.i()]){
 			double eastDist = distanceSphereToRectPlane(sy, sx, sz, sr, ry, rx, rz, rh, rw, rl, true);
 			double westDist = distanceSphereToRectPlane(sy, sx, sz, sr, ry, rx, rz, rh, rw, rl, false);
 			if(Math.abs(eastDist) < Math.abs(westDist)) {
-				if(collisionFaces[Directions3D.EAST]) move[X] = eastDist;
+				if(collisionFaces[EAST.i()]) move[X] = eastDist;
 			}
 			else {
-				if(collisionFaces[Directions3D.WEST]) move[X] = westDist;
+				if(collisionFaces[WEST.i()]) move[X] = westDist;
 			}
 		}
 		
-		if(collisionFaces[Directions3D.DOWN] || collisionFaces[Directions3D.UP]){
+		if(collisionFaces[DOWN.i()] || collisionFaces[UP.i()]){
 			double uupDist = distanceSphereToRectPlane(sx, sy, sz, sr, rx, ry, rz, rw, rh, rl, true);
 			double upDist = distanceSphereToRectPlane(sx, sy, sz, sr, rx, ry, rz, rw, rh, rl, false);
 			if(Math.abs(uupDist) < Math.abs(upDist)){
-				if(collisionFaces[Directions3D.UP]) move[Y] = uupDist;
+				if(collisionFaces[UP.i()]) move[Y] = uupDist;
 			}
 			else{
-				if(collisionFaces[Directions3D.DOWN]) move[Y] = upDist;
+				if(collisionFaces[DOWN.i()]) move[Y] = upDist;
 			}
 		}
 		
-		if(collisionFaces[Directions3D.NORTH] || collisionFaces[Directions3D.SOUTH]){
+		if(collisionFaces[NORTH.i()] || collisionFaces[SOUTH.i()]){
 			double northDist = distanceSphereToRectPlane(sy, sz, sx, sr, ry, rz, rx, rh, rl, rw, true);
 			double southDist = distanceSphereToRectPlane(sy, sz, sx, sr, ry, rz, rx, rh, rl, rw, false);
 			if(Math.abs(northDist) < Math.abs(southDist)) {
-				if(collisionFaces[Directions3D.NORTH]) move[Z] = northDist;
+				if(collisionFaces[NORTH.i()]) move[Z] = northDist;
 			}
 			else {
-				if(collisionFaces[Directions3D.SOUTH]) move[Z] = southDist;
+				if(collisionFaces[SOUTH.i()]) move[Z] = southDist;
 			}
 		}
 		
