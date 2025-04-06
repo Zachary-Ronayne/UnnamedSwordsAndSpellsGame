@@ -3,6 +3,7 @@ package zgame.core.graphics;
 import static org.lwjgl.opengl.GL30.*;
 
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector4d;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
@@ -903,6 +904,27 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
+	 * Rotate the transformation matrix by the given quaternion
+	 *
+	 * @param yaw The yaw to rotate
+	 * @param pitch The pitch to rotate
+	 * @param roll The roll to rotate
+	 */
+	public void rotate(double yaw, double pitch, double roll){
+		this.rotate(new Quaternionf().rotateY((float)yaw).rotateX((float)pitch).rotateZ((float)roll));
+	}
+	
+	/**
+	 * Rotate the transformation matrix by the given quaternion
+	 *
+	 * @param q The quaternion representing the angle
+	 */
+	public void rotate(Quaternionf q){
+		this.modelView().rotate(q);
+		this.markModelViewChanged();
+	}
+	
+	/**
 	 * Set the model view to be the base matrix for a perspective projection using the given camera's perspective
 	 *
 	 * @param camera The camera to use
@@ -1160,6 +1182,32 @@ public class Renderer implements Destroyable{
 		this.positionObject(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
 	
+	
+	/**
+	 * Call OpenGL operations that transform to draw to a location in game coordinates.
+	 * This method does not push or pop the matrix stack
+	 *
+	 * @param r The position to rotate to
+	 */
+	public void positionObject(RectRender3D r){
+		if(r.isCoordinateRotation()) {
+			this.positionObject(
+					r.getX(), r.getY(), r.getZ(),
+					r.getWidth(), r.getHeight(), r.getLength(),
+					r.xRot(), r.yRot(), r.zRot(),
+					r.xA(), r.yA(), r.zA(),
+					true);
+		}
+		else{
+			this.positionObject(
+					r.getX(), r.getY(), r.getZ(),
+					r.getWidth(), r.getHeight(), r.getLength(),
+					r.yaw(), r.pitch(), r.roll(),
+					r.xA(), r.yA(), r.zA(),
+					false);
+		}
+	}
+	
 	/**
 	 * Call OpenGL operations that transform to draw to a location in game coordinates.
 	 * This method assumes the coordinates to translate are centered in the given rectangular bounding box in game coordinates
@@ -1211,23 +1259,27 @@ public class Renderer implements Destroyable{
 	 * @param xRot The rotation on the x axis
 	 * @param yRot The rotation on the y axis
 	 * @param zRot The rotation on the z axis
-	 * @param xA The point, relative to the point to position this object, to rotate on the x axis
-	 * @param yA The point, relative to the point to position this object, to rotate on the y axis
-	 * @param zA The point, relative to the point to position this object, to rotate on the z axis
+	 * @param xA The point, relative to the point to position this object, to rotate on the x axis, or yaw depending on axisRotation
+	 * @param yA The point, relative to the point to position this object, to rotate on the y axis, or pitch depending on axisRotation
+	 * @param zA The point, relative to the point to position this object, to rotate on the z axis, or roll depending on axisRotation
+	 * @param axisRotation true if xA, yA, and zA represent rotations on their axes, false if they represent yaw, pitch, and roll respectively
 	 */
-	public void positionObject(double x, double y, double z,
+	private void positionObject(double x, double y, double z,
 							   double w, double h, double l,
 							   double xRot, double yRot, double zRot,
-							   double xA, double yA, double zA){
+							   double xA, double yA, double zA, boolean axisRotation){
 		// Transformations happen in reverse order
 		
 		// Move the object to its final position
 		this.translate(x - xA, y - yA, z - zA);
 		
 		// Rotate around the center for each axis
-		if(xRot != 0) this.rotate(xRot, 1.0f, 0.0f, 0.0f);
-		if(yRot != 0) this.rotate(yRot, 0.0f, 1.0f, 0.0f);
-		if(zRot != 0) this.rotate(zRot, 0.0f, 0.0f, 1.0f);
+		if(axisRotation){
+			if(xRot != 0) this.rotate(xRot, 1.0f, 0.0f, 0.0f);
+			if(yRot != 0) this.rotate(yRot, 0.0f, 1.0f, 0.0f);
+			if(zRot != 0) this.rotate(zRot, 0.0f, 0.0f, 1.0f);
+		}
+		else this.rotate(xRot, yRot, zRot);
 		
 		// Translate to the axis of rotation
 		this.translate(xA, yA, zA);
@@ -1761,7 +1813,7 @@ public class Renderer implements Destroyable{
 		
 		// Position the 3D rect
 		this.pushMatrix();
-		this.positionObject(r.getX(), r.getY(), r.getZ(), r.getWidth(), r.getHeight(), r.getLength(), r.xRot(), r.yRot(), r.zRot(), r.xA(), r.yA(), r.zA());
+		this.positionObject(r);
 		
 		// Update the color on the cube
 		// 6 faces, 4 vertices per face, 4 color channels per color
@@ -1805,7 +1857,7 @@ public class Renderer implements Destroyable{
 		
 		// Position the 3D rect
 		this.pushMatrix();
-		this.positionObject(r.getX(), r.getY(), r.getZ(), r.getWidth(), r.getHeight(), r.getLength(), r.xRot(), r.yRot(), r.zRot(), r.xA(), r.yA(), r.zA());
+		this.positionObject(r);
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuModelView();
@@ -1834,7 +1886,7 @@ public class Renderer implements Destroyable{
 		
 		// Position the plane
 		this.pushMatrix();
-		this.positionObject(x, y, z, radius, radius, radius, 0, 0, 0, 0, 0, 0);
+		this.positionObject(x, y, z, radius, radius, radius, 0, 0, 0, 0, 0, 0, true);
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuColor();
@@ -1975,7 +2027,7 @@ public class Renderer implements Destroyable{
 		
 		// Position the plane
 		this.pushMatrix();
-		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, xA, yA, zA);
+		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, xA, yA, zA, true);
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuColor();
@@ -2015,7 +2067,7 @@ public class Renderer implements Destroyable{
 		
 		// Position the plane
 		this.pushMatrix();
-		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, xA, yA, zA);
+		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, xA, yA, zA, true);
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuColor();
@@ -2048,7 +2100,7 @@ public class Renderer implements Destroyable{
 		this.bindVertexArray(ellipse3DVertArr);
 		
 		this.pushMatrix();
-		this.positionObject(x, y, z, w, 1, l, 0, 0, 0, 0, 0, 0);
+		this.positionObject(x, y, z, w, 1, l, 0, 0, 0, 0, 0, 0, true);
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuColor();

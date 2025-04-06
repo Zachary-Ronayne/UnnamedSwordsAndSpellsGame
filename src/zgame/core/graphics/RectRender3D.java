@@ -12,6 +12,16 @@ public class RectRender3D extends ZRect3D{
 	/** The rotation on the z axis */
 	private double rotZ;
 	
+	/** The yaw rotation angle */
+	private double yaw;
+	/** The pitch rotation angle */
+	private double pitch;
+	/** The roll rotation angle */
+	private double roll;
+	
+	/** true to use {@link #rotX}, {@link #rotY}, and {@link #rotZ} for applying rotations, false for {@link #yaw}, {@link #pitch}, and {@link #roll} */
+	private boolean coordinateRotation;
+	
 	/** The point, relative to the point to draw this object, to rotate on the x axis */
 	private double xa;
 	/** The point, relative to the point to draw this object, to rotate on the y axis */
@@ -43,6 +53,11 @@ public class RectRender3D extends ZRect3D{
 		this.xa = xa;
 		this.ya = ya;
 		this.za = za;
+		
+		this.yaw = 0;
+		this.pitch = 0;
+		this.roll = 0;
+		this.coordinateRotation = true;
 	}
 	
 	/**
@@ -143,5 +158,45 @@ public class RectRender3D extends ZRect3D{
 	/** @param za See {@link #za} */
 	public void setZa(double za){
 		this.za = za;
+	}
+	
+	/** @return See {@link #yaw} */
+	public double yaw(){
+		return this.yaw;
+	}
+	
+	/** @param yaw See {@link #yaw} */
+	public void setYaw(double yaw){
+		this.yaw = yaw;
+	}
+	
+	/** @return See {@link #pitch} */
+	public double pitch(){
+		return this.pitch;
+	}
+	
+	/** @param pitch See {@link #pitch} */
+	public void setPitch(double pitch){
+		this.pitch = pitch;
+	}
+	
+	/** @return See {@link #roll} */
+	public double roll(){
+		return this.roll;
+	}
+	
+	/** @param roll See {@link #roll} */
+	public void setRoll(double roll){
+		this.roll = roll;
+	}
+	
+	/** @return See {@link #coordinateRotation} */
+	public boolean isCoordinateRotation(){
+		return this.coordinateRotation;
+	}
+	
+	/** @param coordinateRotation See {@link #coordinateRotation} */
+	public void setCoordinateRotation(boolean coordinateRotation){
+		this.coordinateRotation = coordinateRotation;
 	}
 }

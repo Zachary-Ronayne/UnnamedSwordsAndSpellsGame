@@ -159,12 +159,13 @@ public class ZusassPlayer extends ZusassMob{
 	
 	@Override
 	public void render(Game game, Renderer r){
+		// TODO add a third person POV
+		
 		// Temporary simple rendering
 		r.setColor(0, 0.2, 0.5);
 		r.drawSidePlaneX(this.getX(), this.getY(), this.getZ(), this.getWidth(), this.getHeight(), this.getMobilityData().getFacingYaw() - ZMath.PI_BY_2);
 		
-		// TODO use the same attack timer as generic mobs for rendering
-//		this.renderAttackTimer(game, r);
+		this.renderAttackTimer(game, r);
 	}
 	
 	@Override

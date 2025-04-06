@@ -3,9 +3,12 @@ package zusass.game.things.entities.mobs;
 import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.file.Saveable;
+import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
 import zgame.core.sound.SoundSource;
+import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint3D;
+import zgame.physics.ZVector3D;
 import zgame.stat.Stat;
 import zgame.stat.ValueStat;
 import zgame.stat.modifier.ModifierType;
@@ -213,15 +216,39 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	 * @param r The renderer to draw the attack with
 	 */
 	public void renderAttackTimer(Game game, Renderer r){
-		// issue#23 potentially need some way of ensuring this also gets rendered with the should render thing, or maybe this is just a temporary placeholder
 		if(this.getAttackTime() <= 0) return;
-		double directionX = Math.cos(0);
+		// TODO abstract this stuff out into a general usable utility
 		double time = this.getAttackTime();
-		double speed = getAttacksPerSecond();
-		double attackSize = this.stat(ATTACK_RANGE) * (1 - time * speed);
+		double speed = this.getAttacksPerSecond();
+		double attackPercent = 1 - time * speed;
+		double anglePerc = Math.pow(1 - time * speed, 7);
+		double attackSize = this.stat(ATTACK_RANGE) * 0.5 * attackPercent + 0.5;
+		double attackYaw = this.getMobilityData().getFacingYaw();
+		var attackDirectionVec = new ZVector3D(attackYaw, 0, attackSize, false);
+		var armBaseVec = new ZVector3D(this.getMobilityData().getFacingYaw() + ZMath.PI_BY_2, 0, this.getWidth() * 0.5, false);
 		
-		if(directionX < 0) r.drawRectangle(this.centerX() - attackSize, this.centerY(), attackSize, 20);
-		else r.drawRectangle(this.centerX(), this.centerY(), attackSize, 20);
+		var basePoint = this.center();
+		basePoint.setX(basePoint.getX() + armBaseVec.getX());
+		basePoint.setZ(basePoint.getZ() + armBaseVec.getZ());
+		var attackPoint = basePoint.copy();
+		attackPoint.setX(attackPoint.getX() + attackDirectionVec.getX());
+		attackPoint.setZ(attackPoint.getZ() + attackDirectionVec.getZ());
+		
+		var c = r.getColor();
+		var armSize = this.getWidth() * 0.1;
+		
+		double dx = attackPoint.getX() - basePoint.getX();
+		double dy = attackPoint.getY() - (basePoint.getY());
+		double dz = attackPoint.getZ() - basePoint.getZ();
+		double yaw = ZMath.atan2Normalized(dx, dz);
+		double pitch = ZMath.atan2Normalized(dy, Math.sqrt(dx * dx + dz * dz)) + ZMath.atan2Normalized(armSize, 0) * anglePerc;
+		
+		var rect = new RectRender3D(basePoint.getX(), basePoint.getY(), basePoint.getZ(), armSize, attackSize, armSize);
+		rect.setCoordinateRotation(false);
+		rect.setYaw(yaw);
+		rect.setPitch(pitch);
+		rect.setRoll(0);
+		r.drawRectPrism(rect, c, c, c, c, c, c);
 	}
 	
 	/**
@@ -268,6 +295,9 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	 * @param zgame The game where the attack took place
 	 */
 	public void beginAttack(ZusassGame zgame){
+		// Do not allow attacking if an attack is taking place
+		if(this.attackTime > 0) return;
+		
 		this.attackTime = 1.0 / this.getAttacksPerSecond();
 		
 		// Also drain stamina from the thing

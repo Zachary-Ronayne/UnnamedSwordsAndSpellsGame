@@ -63,7 +63,7 @@ public class Npc extends ZusassMob{
 		this.handleMobilityControls(dt, playerYaw, playerPitch, false, false, !inRange, false, false, false);
 		// Stop moving once close enough
 		if(inRange) this.stopWalking();
-
+		
 		// If the AI has an attack available, and stamina is at least 75%, begin attacking
 		var staminaPerc = this.currentStaminaPerc();
 		if(this.getAttackTime() <= 0 && inRange && staminaPerc > .75){
@@ -73,13 +73,13 @@ public class Npc extends ZusassMob{
 		// If not in range, use the speed spell, otherwise use the damage spell
 		if(!inRange) this.getSpells().setSelectedSpellIndex(0);
 		else this.getSpells().setSelectedSpellIndex(1);
-
+		
 		this.spellTime += dt;
 		
 		// Try to cast a spell if enough time has passed
 		double intelligence = this.stat(INTELLIGENCE);
-		if(intelligence> 0 && this.spellTime > 10 / intelligence) this.castSpell(zgame);
-
+		if(intelligence > 0 && this.spellTime > 10 / intelligence) this.castSpell(zgame);
+		
 		// If sprinting and stamina is low, stop sprinting
 		var sprinting = this.isSprinting();
 		if(staminaPerc < .25 && sprinting || inRange) this.setSprinting(false);
@@ -101,9 +101,9 @@ public class Npc extends ZusassMob{
 		// Temporary simple rendering
 		r.setColor(0.5, 0, 0);
 		r.drawSidePlaneX(this.getX(), this.getY(), this.getZ(), this.getWidth(), this.getHeight(), facingAngle);
-
+		
 		// issue#23 make a way of drawing a health bar above the mob, accounting for how this health bar will not be a part of the mob itself, but above it
-
+		
 		// Draw bars to represent its remaining health, stamina, and mana
 		var x = this.getX() + 4;
 		var y = this.getY() + 4;
@@ -117,11 +117,9 @@ public class Npc extends ZusassMob{
 		r.setColor(0, 0, 1);
 		r.drawSidePlaneX(this.getX(), this.getY() + this.getHeight() + 0.01, this.getZ(), this.getWidth() * 1.2 * this.currentManaPerc(), 0.03, facingAngle);
 		
-		// TODO draw something to show the mob is attacking
-//
-//		// Draw an attack timer
-//		r.setColor(.7, 0, 0);
-//		this.renderAttackTimer(game, r);
+		// Draw an attack timer
+		r.setColor(.7, 0, 0);
+		this.renderAttackTimer(game, r);
 	}
 	
 }
