@@ -989,7 +989,7 @@ public class Renderer implements Destroyable{
 	public void drawToWindow(GameWindow window){
 		// Set the current shader for drawing a frame buffer
 		this.renderModeBuffer();
-		AlphaMode.NORMAL.apply();
+		AlphaMode.NORMAL.use();
 		this.pushColor(this.getColor().solid());
 		this.pushMatrix();
 		this.identityMatrix();
@@ -1334,7 +1334,7 @@ public class Renderer implements Destroyable{
 		if(mode == null) mode = AlphaMode.NORMAL;
 		if(mode == this.alphaMode) return;
 		this.alphaMode = mode;
-		this.alphaMode.apply();
+		this.alphaMode.use();
 	}
 	
 	/**

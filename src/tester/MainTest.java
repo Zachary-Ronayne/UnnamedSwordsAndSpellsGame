@@ -593,12 +593,12 @@ public class MainTest extends Game{
 			
 			var options = new ArrayList<TextOption>();
 			options.add(new TextOption("ABCDEFGHIJKLM", new ZColor(1, 0, 0), AlphaMode.NORMAL));
-			options.add(new TextOption("NOPQRSTUVWXYZ\n", new ZColor(1, 1, 0), AlphaMode.BUFFER));
+			options.add(new TextOption("NOPQRSTUVWXYZ\n", new ZColor(1, 1, 0), AlphaMode.NONE));
 			options.add(new TextOption("abcdefghijklm", new ZColor(0, 1, 0), null));
 			options.add(new TextOption("nopqrstuvwxyz\n", new ZColor(0, 1, 1), AlphaMode.NORMAL));
 			options.add(new TextOption(" 0123456789.,", new ZColor(0, 0, 1), null));
 			options.add(new TextOption("“”‘’\"'?!@_*#$\n", new ZColor(1, 0, 1), null));
-			options.add(new TextOption("%&()+-/:;<=>", new ZColor(1, 1, 1), AlphaMode.BUFFER));
+			options.add(new TextOption("%&()+-/:;<=>", new ZColor(1, 1, 1), AlphaMode.NONE));
 			options.add(new TextOption("[/]^`{|}~", new ZColor(0, 0, 0), null));
 			
 			r.pushAttributes();
