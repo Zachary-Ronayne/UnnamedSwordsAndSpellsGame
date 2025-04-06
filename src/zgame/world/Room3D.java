@@ -111,7 +111,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	
 	@Override
 	public double getWidth(){
-		return this.boundarySizes[EAST.i()] + this.boundarySizes[WEST.i()];
+		return this.boundarySizes[WEST.i()] + this.boundarySizes[EAST.i()];
 	}
 	
 	@Override
@@ -204,8 +204,8 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	public void setTileBoundaries(){
 		double tileSize = Tile3D.size();
 		
-		this.setBoundary(EAST, tileSize * this.getTilesX());
-		this.setBoundary(WEST, 0);
+		this.setBoundary(WEST, tileSize * this.getTilesX());
+		this.setBoundary(EAST, 0);
 		
 		this.setBoundary(NORTH, tileSize * this.getTilesZ());
 		this.setBoundary(SOUTH, 0);
@@ -220,7 +220,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	 * @param width The new width of the room, width/2 will be the boundary size on both axes
 	 */
 	public void setEqualWidth(double width){
-		this.setEqualSize(EAST, WEST, width);
+		this.setEqualSize(WEST, EAST, width);
 	}
 	
 	/**
@@ -325,8 +325,8 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		
 		// x axis, i.e. east west
 		boolean touchedAxisX = false;
-		if(this.boundaryEnabled(EAST)){
-			double boundary = this.getBoundary(EAST) - (obj.getWidth() * 0.5);
+		if(this.boundaryEnabled(WEST)){
+			double boundary = this.getBoundary(WEST) - (obj.getWidth() * 0.5);
 			double objX = obj.getX();
 			if(objX > boundary){
 				obj.setX(boundary);
@@ -334,8 +334,8 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 				touchedAxisX = true;
 			}
 		}
-		if(this.boundaryEnabled(WEST) && !touchedAxisX){
-			double boundary = -this.getBoundary(WEST) + (obj.getWidth() * 0.5);
+		if(this.boundaryEnabled(EAST) && !touchedAxisX){
+			double boundary = -this.getBoundary(EAST) + (obj.getWidth() * 0.5);
 			double objX = obj.getX();
 			if(objX < boundary){
 				obj.setX(boundary);
@@ -676,8 +676,8 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		
 		var collisionFaces = this.tiles[x][y][z].getCollisionFaces();
 		// Collision will be enabled if either the next tile would be out of bounds and the boundary is disabled, or if the adjacent tile is not already collideable
-		collisionFaces[WEST.i()] = x - 1 <= 0 || !this.tiles[x - 1][y][z].canCollide(WEST);
-		collisionFaces[EAST.i()] = (x + 1 >= this.getTilesX()) || !this.tiles[x + 1][y][z].canCollide(EAST);
+		collisionFaces[EAST.i()] = x - 1 <= 0 || !this.tiles[x - 1][y][z].canCollide(EAST);
+		collisionFaces[WEST.i()] = (x + 1 >= this.getTilesX()) || !this.tiles[x + 1][y][z].canCollide(WEST);
 		
 		collisionFaces[DOWN.i()] = (y - 1 <= 0) || !this.tiles[x][y - 1][z].canCollide(DOWN);
 		collisionFaces[UP.i()] = (y + 1 >= this.getTilesY()) || !this.tiles[x][y + 1][z].canCollide(UP);

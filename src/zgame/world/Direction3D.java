@@ -8,10 +8,12 @@ import zgame.core.utils.ZMath;
  */
 public enum Direction3D{
 	
-	/** The index representing the east, i.e. positive x axis direction */
-	EAST(0, true, false, 0, 0),
-	/** The index representing the west, i.e. negative x axis direction */
-	WEST(1, true, true, Math.PI, 0),
+	// TODO when facing north, west should be to the left, east to the right, this is reversed currently
+	
+	/** The index representing the west, i.e. positive x axis direction */
+	WEST(0, true, false, 0, 0),
+	/** The index representing the east, i.e. negative x axis direction */
+	EAST(1, true, true, Math.PI, 0),
 	/** The index representing the north, i.e. positive z axis direction */
 	NORTH(2, true, false, ZMath.PI_BY_2, 0),
 	/** The index representing the south, i.e. negative z axis direction */
@@ -83,9 +85,9 @@ public enum Direction3D{
 		double downRight = ZMath.PI_BY_4 + ZMath.PI_BY_2 + Math.PI;
 		
 		if(yaw >= upRight && yaw < upLeft) return NORTH;
-		else if(yaw >= upLeft && yaw < downLeft) return WEST;
+		else if(yaw >= upLeft && yaw < downLeft) return EAST;
 		else if(yaw >= downLeft && yaw < downRight) return SOUTH;
-		else return EAST;
+		else return WEST;
 	}
 	
 }

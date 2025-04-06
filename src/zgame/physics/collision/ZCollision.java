@@ -648,18 +648,18 @@ public final class ZCollision{
 		
 		// Check the x axis, left and right
 		double rxl = rx - hrw;
-		double westDist = -1;
-		if(collisionFaces[WEST.i()]){
-			westDist = circleDistanceLineSegment(rz - hrl, rz + hrl, rxl, cz, rxl + (rxl - cx), cr, true);
-			if(westDist > 0 && westDist < rw){
-				moveX = -westDist;
+		double eastDist = -1;
+		if(collisionFaces[EAST.i()]){
+			eastDist = circleDistanceLineSegment(rz - hrl, rz + hrl, rxl, cz, rxl + (rxl - cx), cr, true);
+			if(eastDist > 0 && eastDist < rw){
+				moveX = -eastDist;
 			}
 		}
-		if(collisionFaces[EAST.i()]){
+		if(collisionFaces[WEST.i()]){
 			double rxr = rx + hrw;
-			double eastDist = circleDistanceLineSegment(rz + hrl, rz + hrl, rxr, cz, cx, cr, true);
-			if(eastDist > 0 && eastDist < rw && (eastDist < westDist || westDist < 0)){
-				moveX = eastDist;
+			double westDist = circleDistanceLineSegment(rz + hrl, rz + hrl, rxr, cz, cx, cr, true);
+			if(westDist > 0 && westDist < rw && (westDist < eastDist || eastDist < 0)){
+				moveX = westDist;
 			}
 		}
 		
@@ -846,14 +846,14 @@ public final class ZCollision{
 		double wallAngle = 0;
 		
 		// Find the distances per face of the rect from the sphere, using the one that requires the least movement on that axis
-		if(collisionFaces[EAST.i()] || collisionFaces[WEST.i()]){
+		if(collisionFaces[WEST.i()] || collisionFaces[EAST.i()]){
 			double eastDist = distanceSphereToRectPlane(sy, sx, sz, sr, ry, rx, rz, rh, rw, rl, true);
 			double westDist = distanceSphereToRectPlane(sy, sx, sz, sr, ry, rx, rz, rh, rw, rl, false);
 			if(Math.abs(eastDist) < Math.abs(westDist)) {
-				if(collisionFaces[EAST.i()]) move[X] = eastDist;
+				if(collisionFaces[WEST.i()]) move[X] = eastDist;
 			}
 			else {
-				if(collisionFaces[WEST.i()]) move[X] = westDist;
+				if(collisionFaces[EAST.i()]) move[X] = westDist;
 			}
 		}
 		

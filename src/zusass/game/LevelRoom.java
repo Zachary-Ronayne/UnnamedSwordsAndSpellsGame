@@ -92,7 +92,7 @@ public class LevelRoom extends ZusassRoom{
 		}
 		
 		// Add the door
-		var levelDoor = new LevelDoor(X_TILES - 1.25, 1, Z_TILES - 3, this.getLevel() + 1, WEST);
+		var levelDoor = new LevelDoor(X_TILES - 1.25, 1, Z_TILES - 3, this.getLevel() + 1, EAST);
 		this.addThing(levelDoor);
 		
 		// Put tiles in front of the door, mostly for testing

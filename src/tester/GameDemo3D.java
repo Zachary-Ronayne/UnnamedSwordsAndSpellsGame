@@ -263,8 +263,8 @@ public class GameDemo3D extends Game{
 			// Toggle the boundaries
 			if(shift){
 				var r = getCurrentRoom();
-				if(button == GLFW_KEY_1) r.toggleBoundary(EAST);
-				else if(button == GLFW_KEY_2) r.toggleBoundary(WEST);
+				if(button == GLFW_KEY_1) r.toggleBoundary(WEST);
+				else if(button == GLFW_KEY_2) r.toggleBoundary(EAST);
 				else if(button == GLFW_KEY_3) r.toggleBoundary(NORTH);
 				else if(button == GLFW_KEY_4) r.toggleBoundary(SOUTH);
 				else if(button == GLFW_KEY_5) r.toggleBoundary(UP);
