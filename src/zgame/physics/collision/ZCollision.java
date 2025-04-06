@@ -634,7 +634,6 @@ public final class ZCollision{
 	 */
 	public static CollisionResult3D rectToCylinderBasic(double rx, double ry, double rz, double rw, double rh, double rl, double cx, double cy, double cz, double cr, double ch,
 														Material m, boolean[] collisionFaces){
-		// TODO fix collision with concave corners
 		// With no intersection, there is no collision
 		if(!rectIntersectsCylinder(rx, ry, rz, rw, rh, rl, cx, cy, cz, cr, ch)) return new CollisionResult3D();
 		

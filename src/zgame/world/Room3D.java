@@ -676,13 +676,13 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		
 		var collisionFaces = this.tiles[x][y][z].getCollisionFaces();
 		// Collision will be enabled if either the next tile would be out of bounds and the boundary is disabled, or if the adjacent tile is not already collideable
-		collisionFaces[EAST.i()] = x - 1 <= 0 || !this.tiles[x - 1][y][z].canCollide(EAST);
+		collisionFaces[EAST.i()] = x - 1 < 0 || !this.tiles[x - 1][y][z].canCollide(EAST);
 		collisionFaces[WEST.i()] = (x + 1 >= this.getTilesX()) || !this.tiles[x + 1][y][z].canCollide(WEST);
 		
-		collisionFaces[DOWN.i()] = (y - 1 <= 0) || !this.tiles[x][y - 1][z].canCollide(DOWN);
+		collisionFaces[DOWN.i()] = (y - 1 < 0) || !this.tiles[x][y - 1][z].canCollide(DOWN);
 		collisionFaces[UP.i()] = (y + 1 >= this.getTilesY()) || !this.tiles[x][y + 1][z].canCollide(UP);
 		
-		collisionFaces[SOUTH.i()] = (z - 1 <= 0) || !this.tiles[x][y][z - 1].canCollide(SOUTH);
+		collisionFaces[SOUTH.i()] = (z - 1 < 0) || !this.tiles[x][y][z - 1].canCollide(SOUTH);
 		collisionFaces[NORTH.i()] = (z + 1 >= this.getTilesZ()) || !this.tiles[x][y][z + 1].canCollide(NORTH);
 	}
 	
