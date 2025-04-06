@@ -8,8 +8,6 @@ import zgame.core.utils.ZMath;
  */
 public enum Direction3D{
 	
-	// TODO when facing north, west should be to the left, east to the right, this is reversed currently
-	
 	/** The index representing the west, i.e. positive x axis direction */
 	WEST(0, true, false, 0, 0),
 	/** The index representing the east, i.e. negative x axis direction */
