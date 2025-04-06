@@ -1,12 +1,19 @@
 package zusass.game;
 
 import zgame.core.Game;
+import zgame.core.graphics.AlphaMode;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.TextOption;
 import zgame.core.graphics.ZColor;
+import zgame.core.graphics.buffer.DrawableBuffer3D;
+import zgame.core.graphics.font.TextBuffer;
+import zgame.core.utils.ZArrayUtils;
+import zgame.core.utils.ZMath;
 import zgame.stat.modifier.ModifierType;
 import zgame.things.still.tiles.BaseTiles3D;
 import zgame.things.type.GameThing;
 import static zgame.world.Direction3D.*;
+
 import zgame.world.Room;
 import zusass.game.things.LevelDoor;
 import zusass.game.things.ZusassTags;
@@ -25,6 +32,13 @@ public class LevelRoom extends ZusassRoom{
 	/** The number of tiles in a {@link LevelRoom} on the z axis */
 	private static final int Z_TILES = 7;
 	
+	/** The size in pixels of the width of {@link #levelTextBuffer} */
+	private static final int LEVEL_TEXT_BUFFER_WIDTH = 600;
+	/** The size in pixels of the length of {@link #levelTextBuffer} */
+	private static final int LEVEL_TEXT_BUFFER_LENGTH = 80;
+	/** The size in game units of the width to display {@link #levelTextBuffer} */
+	private static final int LEVEL_TEXT_DISPLAY_WIDTH = 2;
+	
 	/**
 	 * The numerical value of the level, i.e. level 1 is the easiest, level 2 is harder, etc.
 	 * If this value is less than 1, it is set to 1
@@ -35,6 +49,9 @@ public class LevelRoom extends ZusassRoom{
 	private ZColor checker1;
 	/** The second color of the checkerboard pattern of this room */
 	private ZColor checker2;
+	
+	/** A buffer used for drawing the level of this room */
+	private DrawableBuffer3D levelTextBuffer;
 	
 	/**
 	 * Create a new empty level
@@ -47,6 +64,12 @@ public class LevelRoom extends ZusassRoom{
 		this.setLevel(level);
 		this.getAllThings().addClass(Npc.class);
 		this.setTileBoundaries();
+	}
+	
+	@Override
+	public void destroy(){
+		super.destroy();
+		this.levelTextBuffer.destroy();
 	}
 	
 	/**
@@ -109,6 +132,16 @@ public class LevelRoom extends ZusassRoom{
 		enemy.setResourcesMax();
 		
 		this.addThing(enemy);
+		
+		// Make and position a buffer for drawing some text for the level
+		this.levelTextBuffer = new DrawableBuffer3D(null);
+		this.levelTextBuffer.setX(1.25 + LEVEL_TEXT_DISPLAY_WIDTH * 0.5);
+		this.levelTextBuffer.setY(1.5);
+		this.levelTextBuffer.setZ(1.0001);
+		this.levelTextBuffer.setWidth(LEVEL_TEXT_DISPLAY_WIDTH);
+		this.levelTextBuffer.setLength(LEVEL_TEXT_DISPLAY_WIDTH * (double)LEVEL_TEXT_BUFFER_LENGTH / (double)LEVEL_TEXT_BUFFER_WIDTH);
+		this.levelTextBuffer.setRotX(ZMath.PI_BY_2 * 3);
+		this.levelTextBuffer.setRotZ(NORTH.getYaw());
 	}
 	
 	/** @return true if this room is cleared and can be exited, false otherwise */
@@ -141,11 +174,25 @@ public class LevelRoom extends ZusassRoom{
 		// Draw the main rendering
 		super.render(game, r);
 		
-		// TODO properly draw some text on the wall for the level counter, also the level a level door is going to go to
 		// Draw a numerical level counter
-//		r.setColor(.8, .8, .8);
-//		r.setFontSize(32);
-//		r.drawText(0, -2, Integer.toString(this.getLevel()));
+		if(this.levelTextBuffer != null){
+			if(this.levelTextBuffer.getBuffer() == null){
+				var textB = new TextBuffer(LEVEL_TEXT_BUFFER_WIDTH, LEVEL_TEXT_BUFFER_LENGTH){
+					@Override
+					public void draw(Renderer r){
+						r.setColor(new ZColor(0.3, 0.5));
+						r.fill();
+						super.draw(r);
+					}
+				};
+				textB.setFont(r.getFont().size(60));
+				textB.setOptions(ZArrayUtils.singleList(new TextOption("Current Level: " + this.getLevel(), new ZColor(0.8), AlphaMode.NORMAL)));
+				textB.setTextX(15);
+				textB.centerTextY();
+				this.levelTextBuffer.setBuffer(textB);
+			}
+			this.levelTextBuffer.render(r);
+		}
 	}
 	
 }

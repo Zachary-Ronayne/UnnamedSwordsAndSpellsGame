@@ -150,6 +150,16 @@ public class TextBuffer extends DrawableBuffer{
 		this.textX = textX;
 	}
 	
+	/** Reposition the text so that it is at the center of the buffer on the x axis */
+	public void centerTextX(){
+		this.setTextX(this.getWidth() * 0.5 - this.getFont().stringWidth(this.getText()) * 0.5);
+	}
+	
+	/** Reposition the text so that it is at the center of the buffer on the y axis */
+	public void centerTextY(){
+		this.setTextY(this.getHeight() * 0.5 + this.getFont().getMaxHeight() * 0.5);
+	}
+	
 	/** @return See {@link #textY} */
 	public double getTextY(){
 		return this.textY;
