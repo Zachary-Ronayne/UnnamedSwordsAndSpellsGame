@@ -37,6 +37,9 @@ public class ZusassPlayer extends ZusassMob{
 	/** true if this {@link ZusassPlayer} is in spell casting mode, false for weapon mode */
 	private boolean casting;
 	
+	/** true if first-person perspective is enabled, false for third-person */
+	private boolean firstPerson;
+	
 	/**
 	 * Create a new object from json
 	 *
@@ -51,6 +54,7 @@ public class ZusassPlayer extends ZusassMob{
 	public ZusassPlayer(){
 		super(0, 0, 0, 0.15, 0.5);
 		this.casting = false;
+		this.firstPerson = true;
 		
 		this.inputDisabled = false;
 		this.addTags(ZusassTags.CAN_ENTER_LEVEL_DOOR, ZusassTags.MUST_CLEAR_LEVEL_ROOM, ZusassTags.HUB_ENTER_RESTORE);
@@ -83,6 +87,7 @@ public class ZusassPlayer extends ZusassMob{
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_F10),
 				new InputHandler(InputType.MOUSE_BUTTONS, GLFW_MOUSE_BUTTON_RIGHT),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_E),
+				new InputHandler(InputType.KEYBOARD, GLFW_KEY_F),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_R),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_LEFT_BRACKET),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_RIGHT_BRACKET)
@@ -95,14 +100,26 @@ public class ZusassPlayer extends ZusassMob{
 		
 		if(!this.isInputDisabled()) this.checkInput(game, dt);
 		
+		// TODO add a proper configurable third person POV as a toggle in the base game
+		// TODO fix the flickering when moving in third person
+		
+		var mobilityData = this.getMobilityData();
 		// Move the camera to the player after repositioning the player
-		this.updateCameraPos(game.getCamera3D());
+		if(this.firstPerson){
+			this.updateCameraPos(game.getCamera3D());
+		}
+		else{
+			var cam = game.getCamera3D();
+			var faceVec = new ZVector3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), 1.3, false);
+			cam.setX(this.getX() - faceVec.getX());
+			cam.setY(this.getY() + this.getHeight() - faceVec.getY());
+			cam.setZ(this.getZ() - faceVec.getZ());
+		}
 		
 		//issue#61
 		// Update the sound listener to the player
 		var sm = game.getSounds();
 		sm.updateListenerPos(this.getX(), this.getY(), this.getZ());
-		var mobilityData = this.getMobilityData();
 		var soundVec = new ZVector3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), 1, false);
 		sm.updateListenerDirection(soundVec.getX(), soundVec.getY(), soundVec.getZ());
 	}
@@ -129,6 +146,9 @@ public class ZusassPlayer extends ZusassMob{
 		
 		// Toggle casting or attacking
 		if(this.inputHandlers.tick(game, GLFW_KEY_R)) this.toggleCasting();
+		
+		// Toggle first person or third person
+		if(this.inputHandlers.tick(game, GLFW_KEY_F)) this.firstPerson = !this.firstPerson;
 		
 		// Go to next or previous spell
 		if(this.inputHandlers.tick(game, GLFW_KEY_RIGHT_BRACKET)) this.getSpells().previousSpell();
@@ -159,8 +179,6 @@ public class ZusassPlayer extends ZusassMob{
 	
 	@Override
 	public void render(Game game, Renderer r){
-		// TODO add a third person POV
-		
 		// Temporary simple rendering
 		r.setColor(0, 0.2, 0.5);
 		r.drawSidePlaneX(this.getX(), this.getY(), this.getZ(), this.getWidth(), this.getHeight(), this.getMobilityData().getFacingYaw() - ZMath.PI_BY_2);
