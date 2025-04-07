@@ -62,4 +62,10 @@ public class TypedModifier implements Saveable{
 		this.modifier = Saveable.obj(MOD_KEY, e, StatModifier.class, () -> new StatModifier(0, ModifierType.ADD));
 		return true;
 	}
+	
+	/** @return An object with the same values, but as a different object */
+	public TypedModifier copy(){
+		return new TypedModifier(this.modifier.copy(), this.stat);
+	}
+	
 }

@@ -7,8 +7,6 @@ import zusass.game.things.entities.mobs.ZusassMob;
 /** Keeps track of an effect that does something to a thing, potentially for a set amount of time */
 public abstract class StatusEffect implements Saveable{
 	
-	// TODO fix issue with the same status effect not resetting the duration
-	
 	/** The number of seconds this effect should last for. Negative values means the effect lasts forever */
 	private double duration;
 	
@@ -40,7 +38,7 @@ public abstract class StatusEffect implements Saveable{
 	
 	/** @return The same effect as a different object, but with {@link #remaining} set to {@link #duration} */
 	public final StatusEffect resetCopy(){
-		var effect = copy();
+		var effect = this.copy();
 		effect.remaining = this.duration;
 		effect.duration = this.duration;
 		return effect;

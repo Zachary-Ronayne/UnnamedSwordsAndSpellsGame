@@ -68,17 +68,19 @@ public class StatEffect extends StatusEffect{
 	
 	@Override
 	public void apply(String sourceId, ZusassMob mob){
-		for(var m : modifiers) mob.getStats().get(m.getId()).addModifier(sourceId, m.modifier());
+		for(var m : this.modifiers) mob.getStats().get(m.getId()).addModifier(sourceId, m.modifier());
 	}
 	
 	@Override
 	public void clear(String sourceId, ZusassMob mob){
-		for(var m : modifiers) mob.getStats().get(m.getId()).removeModifier(sourceId, m.modifier());
+		for(var m : this.modifiers) mob.getStats().get(m.getId()).removeModifier(sourceId, m.modifier());
 	}
 	
 	@Override
 	public StatusEffect copy(){
-		return new StatEffect(this.getDuration(), this.modifiers);
+		var modifiersCopy = new NotNullList<TypedModifier>();
+		for(var m : this.modifiers) modifiersCopy.add(m.copy());
+		return new StatEffect(this.getDuration(), modifiersCopy);
 	}
 	
 	@Override

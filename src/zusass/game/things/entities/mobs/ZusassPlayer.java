@@ -65,9 +65,8 @@ public class ZusassPlayer extends ZusassMob{
 		this.setStat(ENDURANCE, 10);
 		this.setStat(INTELLIGENCE, 30);
 		this.setStat(ATTACK_SPEED, 3);
+		this.setStat(STAMINA_REGEN, 5);
 		this.setResourcesMax();
-		
-		this.addStatEffect(this.getUuid(), -1, 5, ModifierType.ADD, STAMINA_REGEN);
 		
 		// Set the default spell to a damage spell
 		var spells = this.getSpells();
@@ -194,8 +193,13 @@ public class ZusassPlayer extends ZusassMob{
 		var statArr = this.getStats().getArr();
 		for(var s : statArr) s.reset();
 		
+		// Reset all constant modifiers
+		this.initMobStatModifiers();
+		
+		// Put resources back to max
 		this.setResourcesMax();
 		
+		// Put the player back in the hub
 		zgame.getPlayState().enterHub(zgame);
 		zgame.getData().checkAutoSave(zgame);
 	}

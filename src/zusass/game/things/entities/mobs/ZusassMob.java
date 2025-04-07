@@ -82,7 +82,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/** A modifier used to drain stamina while running */
-	private final StatModTracker staminaRunDrain;
+	private StatModTracker staminaRunDrain;
 	
 	/** The sourceId of the modifier which drains stamina */
 	private static final String ID_STAMINA_DRAIN = "staminaDrain";
@@ -162,7 +162,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		this.stats.add(new MoveSpeed(this.stats));
 		
 		// Add other modifiers
-		this.staminaRunDrain = new StatModTracker(0, ModifierType.ADD, this.getStat(STAMINA_REGEN), ID_STAMINA_DRAIN);
+		this.initMobStatModifiers();
 		
 		// Ensure this thing stats at full resources
 		this.setResourcesMax();
@@ -175,6 +175,13 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		
 		// Init the spellbook to empty
 		this.spells = new Spellbook();
+	}
+	
+	/** Reinitialize the state of all base stat modifiers used by mobs */
+	public void initMobStatModifiers(){
+		// This could use a better way of doing this, basically, remove the modifier if it's already there, or do nothing if it's not there, then recreate it
+		if(this.staminaRunDrain != null) this.getStat(STAMINA_REGEN).removeModifier(ID_STAMINA_DRAIN, this.staminaRunDrain.getMod());
+		this.staminaRunDrain = new StatModTracker(0, ModifierType.ADD, this.getStat(STAMINA_REGEN), ID_STAMINA_DRAIN);
 	}
 	
 	// issue#62, also make sure to destroy all sound resources once they are not needed anymore
