@@ -13,6 +13,9 @@ public class GameCamera3D{
 	/** The z coordinate of the camera */
 	private double z;
 	
+	/** The distance from the camera's root position to where the camera will actually be displayed */
+	private double positionOffset;
+	
 	// Rotation values
 	/** The yaw angle in radians */
 	private double yaw;
@@ -44,13 +47,6 @@ public class GameCamera3D{
 	/** true to limit the camera to only looking at most straight up and straight down, false for no limit */
 	private boolean enableLookLimit;
 	
-	/*
-	 issue#42 this also account for a camera distance from where it rotates around?
-	  Like imagine the (x, y, z) point is where the camera's swivel point is,
-	  but the actual point where the camera shows stuff is determined by this distance.
-	  Also, this probably is where third person should be handled
-	 */
-	
 	/** Create a base camera at (0, 0, 0), with no rotation on any axis */
 	public GameCamera3D(){
 		this.setX(0);
@@ -59,6 +55,7 @@ public class GameCamera3D{
 		this.setYaw(0);
 		this.setPitch(0);
 		this.setRoll(0);
+		this.setPositionOffset(0);
 		
 		this.setFov(1);
 		this.setNearZ(0.1);
@@ -111,6 +108,16 @@ public class GameCamera3D{
 	/** @param z See {@link #z} */
 	public void setZ(double z){
 		this.z = z;
+	}
+	
+	/** @return See {@link #positionOffset} */
+	public double getPositionOffset(){
+		return this.positionOffset;
+	}
+	
+	/** @param positionOffset See {@link #positionOffset} */
+	public void setPositionOffset(double positionOffset){
+		this.positionOffset = positionOffset;
 	}
 	
 	/** @param z The amount to add to {@link #z} */

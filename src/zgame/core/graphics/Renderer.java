@@ -20,6 +20,7 @@ import zgame.core.utils.ZMath;
 import zgame.core.utils.ZRect2D;
 import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
+import zgame.physics.ZVector3D;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -930,6 +931,11 @@ public class Renderer implements Destroyable{
 	 * @param camera The camera to use
 	 */
 	public void camera3DPerspective(GameCamera3D camera){
+		// TODO figure out why this needs to be rotated by half pi
+		var offsetVec = new ZVector3D(camera.getYaw() + ZMath.PI_BY_2, camera.getPitch(), camera.getPositionOffset(), false);
+		double x = offsetVec.getX();
+		double y = offsetVec.getY();
+		double z = offsetVec.getZ();
 		this.setMatrix(new Matrix4f()
 				.perspective((float)camera.getFov(), (float)this.getBuffer().getRatioWH(), (float)camera.getNearZ(), (float)camera.getFarZ())
 				.rotate(new Quaternionf()
@@ -937,8 +943,8 @@ public class Renderer implements Destroyable{
 						.rotateY((float)camera.getYaw())
 						.rotateZ((float)camera.getRoll())
 				)
+				.translate((float)(x -camera.getX()), (float)(y - camera.getY()), (float)(z - camera.getZ()))
 		);
-		this.translate(-camera.getX(), -camera.getY(), -camera.getZ());
 	}
 	
 	/** @return The top of {@link #positioningEnabledStack} */
@@ -1194,7 +1200,7 @@ public class Renderer implements Destroyable{
 	 * @param r The position to rotate to
 	 */
 	public void positionObject(RectRender3D r){
-		if(r.isCoordinateRotation()) {
+		if(r.isCoordinateRotation()){
 			this.positionObject(
 					r.getX(), r.getY(), r.getZ(),
 					r.getWidth(), r.getHeight(), r.getLength(),
@@ -1269,9 +1275,9 @@ public class Renderer implements Destroyable{
 	 * @param axisRotation true if xA, yA, and zA represent rotations on their axes, false if they represent yaw, pitch, and roll respectively
 	 */
 	private void positionObject(double x, double y, double z,
-							   double w, double h, double l,
-							   double xRot, double yRot, double zRot,
-							   double xA, double yA, double zA, boolean axisRotation){
+								double w, double h, double l,
+								double xRot, double yRot, double zRot,
+								double xA, double yA, double zA, boolean axisRotation){
 		// Transformations happen in reverse order
 		
 		// Move the object to its final position

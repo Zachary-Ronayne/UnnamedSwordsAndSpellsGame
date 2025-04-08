@@ -343,7 +343,7 @@ public class GameDemo3D extends Game{
 			
 			var camera = game.getCamera3D();
 			
-			// issue#40 add tiling to Mobility3D and make it relative to the position looked at
+			// TODO issue#40 add tiling to Mobility3D and make it relative to the position looked at
 			// Tilting the camera to the side
 			var tiltLeft = ki.pressed(GLFW_KEY_COMMA);
 			var tiltRight = ki.pressed(GLFW_KEY_PERIOD);

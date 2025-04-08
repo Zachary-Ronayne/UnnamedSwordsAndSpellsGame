@@ -37,9 +37,6 @@ public class ZusassPlayer extends ZusassMob{
 	/** true if this {@link ZusassPlayer} is in spell casting mode, false for weapon mode */
 	private boolean casting;
 	
-	/** true if first-person perspective is enabled, false for third-person */
-	private boolean firstPerson;
-	
 	/**
 	 * Create a new object from json
 	 *
@@ -54,7 +51,6 @@ public class ZusassPlayer extends ZusassMob{
 	public ZusassPlayer(){
 		super(0, 0, 0, 0.15, 0.5);
 		this.casting = false;
-		this.firstPerson = true;
 		
 		this.inputDisabled = false;
 		this.addTags(ZusassTags.CAN_ENTER_LEVEL_DOOR, ZusassTags.MUST_CLEAR_LEVEL_ROOM, ZusassTags.HUB_ENTER_RESTORE);
@@ -99,21 +95,11 @@ public class ZusassPlayer extends ZusassMob{
 		
 		if(!this.isInputDisabled()) this.checkInput(game, dt);
 		
-		// TODO add a proper configurable third person POV as a toggle in the base game
-		// TODO fix the flickering when moving in third person
-		
 		var mobilityData = this.getMobilityData();
+		
+		// TODO try repositioning the camera at the beginning of each frame being drawn, not during ticks or whenever the player is rendered
 		// Move the camera to the player after repositioning the player
-		if(this.firstPerson){
-			this.updateCameraPos(game.getCamera3D());
-		}
-		else{
-			var cam = game.getCamera3D();
-			var faceVec = new ZVector3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), 1.3, false);
-			cam.setX(this.getX() - faceVec.getX());
-			cam.setY(this.getY() + this.getHeight() - faceVec.getY());
-			cam.setZ(this.getZ() - faceVec.getZ());
-		}
+		this.updateCameraPos(game.getCamera3D());
 		
 		//issue#61
 		// Update the sound listener to the player
@@ -147,7 +133,11 @@ public class ZusassPlayer extends ZusassMob{
 		if(this.inputHandlers.tick(game, GLFW_KEY_R)) this.toggleCasting();
 		
 		// Toggle first person or third person
-		if(this.inputHandlers.tick(game, GLFW_KEY_F)) this.firstPerson = !this.firstPerson;
+		if(this.inputHandlers.tick(game, GLFW_KEY_F)) {
+			// TODO make this set the cam position offset by default, i.e. when the player is loaded, or maybe make it a part of Mobility3D
+			if(cam.getPositionOffset() != 0.03) cam.setPositionOffset(0.03);
+			else cam.setPositionOffset(-1.3);
+		}
 		
 		// Go to next or previous spell
 		if(this.inputHandlers.tick(game, GLFW_KEY_RIGHT_BRACKET)) this.getSpells().previousSpell();
@@ -178,20 +168,6 @@ public class ZusassPlayer extends ZusassMob{
 	
 	@Override
 	public void render(Game game, Renderer r){
-		
-		var mobilityData = this.getMobilityData();
-		// Move the camera to the player after repositioning the player
-		if(this.firstPerson){
-			this.updateCameraPos(game.getCamera3D());
-		}
-		else{
-			var cam = game.getCamera3D();
-			var faceVec = new ZVector3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), 1.3, false);
-			cam.setX(this.getX() - faceVec.getX());
-			cam.setY(this.getY() + this.getHeight() - faceVec.getY());
-			cam.setZ(this.getZ() - faceVec.getZ());
-		}
-		
 		// Temporary simple rendering
 		r.setColor(0, 0.2, 0.5);
 		r.drawSidePlaneX(this.getX(), this.getY(), this.getZ(), this.getWidth(), this.getHeight(), this.getMobilityData().getFacingYaw() - ZMath.PI_BY_2);
