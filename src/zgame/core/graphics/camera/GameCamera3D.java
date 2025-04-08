@@ -14,12 +14,12 @@ public class GameCamera3D{
 	private double z;
 	
 	// Rotation values
-	/** The rotation of the camera on the x axis in radians */
-	private double rotX;
-	/** The rotation of the camera on the y axis in radians */
-	private double rotY;
-	/** The rotation of the camera on the z axis in radians */
-	private double rotZ;
+	/** The yaw angle in radians */
+	private double yaw;
+	/** The pitch angle in radians */
+	private double pitch;
+	/** The roll angle in radians */
+	private double roll;
 	
 	// Perspective settings
 	/** The current field of view of this camera */
@@ -56,9 +56,9 @@ public class GameCamera3D{
 		this.setX(0);
 		this.setY(0);
 		this.setZ(0);
-		this.setRotX(0);
-		this.setRotY(0);
-		this.setRotZ(0);
+		this.setYaw(0);
+		this.setPitch(0);
+		this.setRoll(0);
 		
 		this.setFov(1);
 		this.setNearZ(0.1);
@@ -118,49 +118,49 @@ public class GameCamera3D{
 		this.setZ(this.z + z);
 	}
 	
-	/** @return See {@link #rotX} */
-	public double getRotX(){
-		return this.rotX;
+	/** @return See {@link #yaw} */
+	public double getYaw(){
+		return this.yaw;
 	}
 	
-	/** @param rotX See {@link #rotX} */
-	public void setRotX(double rotX){
-		this.rotX = this.isEnableLookLimit() ? ZMath.minMax(-Math.PI * 0.5, Math.PI * 0.5, rotX) : rotX;
+	/** @param yaw See {@link #yaw} */
+	public void setYaw(double yaw){
+		this.yaw = yaw;
 	}
 	
-	/** @param rotX The amount to add to {@link #rotX} */
-	public void addRotX(double rotX){
-		this.setRotX(this.rotX + rotX);
+	/** @param yaw The amount to add to {@link #yaw} */
+	public void addYaw(double yaw){
+		this.setYaw(this.yaw + yaw);
 	}
 	
-	/** @return See {@link #rotY} */
-	public double getRotY(){
-		return this.rotY;
+	/** @return See {@link #pitch} */
+	public double getPitch(){
+		return this.pitch;
 	}
 	
-	/** @param rotY See {@link #rotY} */
-	public void setRotY(double rotY){
-		this.rotY = rotY;
+	/** @param pitch See {@link #pitch} */
+	public void setPitch(double pitch){
+		this.pitch = this.isEnableLookLimit() ? ZMath.minMax(-Math.PI * 0.5, Math.PI * 0.5, pitch) : pitch;
 	}
 	
-	/** @param rotY The amount to add to {@link #rotY} */
-	public void addRotY(double rotY){
-		this.setRotY(this.rotY + rotY);
+	/** @param pitch The amount to add to {@link #pitch} */
+	public void addPitch(double pitch){
+		this.setPitch(this.pitch + pitch);
 	}
 	
-	/** @return See {@link #rotZ} */
-	public double getRotZ(){
-		return this.rotZ;
+	/** @return See {@link #roll} */
+	public double getRoll(){
+		return this.roll;
 	}
 	
-	/** @param rotZ See {@link #rotZ} */
-	public void setRotZ(double rotZ){
-		this.rotZ = rotZ;
+	/** @param roll See {@link #roll} */
+	public void setRoll(double roll){
+		this.roll = roll;
 	}
 	
-	/** @param rotZ The amount to add to {@link #rotZ} */
-	public void addRotZ(double rotZ){
-		this.setRotZ(this.rotZ + rotZ);
+	/** @param roll The amount to add to {@link #roll} */
+	public void addRoll(double roll){
+		this.setRoll(this.roll + roll);
 	}
 	
 	/** @return See {@link #enableLookLimit} */

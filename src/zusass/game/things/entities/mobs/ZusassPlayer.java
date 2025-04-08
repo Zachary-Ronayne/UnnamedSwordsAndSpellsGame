@@ -138,7 +138,7 @@ public class ZusassPlayer extends ZusassMob{
 		var up = ki.buttonDown(GLFW_KEY_Q);
 		var down = ki.buttonDown(GLFW_KEY_Z);
 		var cam = game.getCamera3D();
-		this.handleMobilityControls(dt, cam.getRotY(), cam.getRotX(), left, right, forward, backward, up, down);
+		this.handleMobilityControls(dt, cam.getYaw(), cam.getPitch(), left, right, forward, backward, up, down);
 		
 		// Turn sprinting on or off
 		this.setSprinting(ki.buttonDown(GLFW_KEY_E));
@@ -178,6 +178,20 @@ public class ZusassPlayer extends ZusassMob{
 	
 	@Override
 	public void render(Game game, Renderer r){
+		
+		var mobilityData = this.getMobilityData();
+		// Move the camera to the player after repositioning the player
+		if(this.firstPerson){
+			this.updateCameraPos(game.getCamera3D());
+		}
+		else{
+			var cam = game.getCamera3D();
+			var faceVec = new ZVector3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), 1.3, false);
+			cam.setX(this.getX() - faceVec.getX());
+			cam.setY(this.getY() + this.getHeight() - faceVec.getY());
+			cam.setZ(this.getZ() - faceVec.getZ());
+		}
+		
 		// Temporary simple rendering
 		r.setColor(0, 0.2, 0.5);
 		r.drawSidePlaneX(this.getX(), this.getY(), this.getZ(), this.getWidth(), this.getHeight(), this.getMobilityData().getFacingYaw() - ZMath.PI_BY_2);

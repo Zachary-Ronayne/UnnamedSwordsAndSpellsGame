@@ -42,7 +42,6 @@ public class GameDemo3D extends Game{
 	private static double pillarAngle = 0;
 	
 	private static final double tiltSpeed = 3;
-	private static double currentTilt = 0;
 	
 	private static Player3D player;
 	private static boolean tinyPlayer = false;
@@ -350,36 +349,17 @@ public class GameDemo3D extends Game{
 			var tiltRight = ki.pressed(GLFW_KEY_PERIOD);
 			var tiltAmount = tiltSpeed * dt;
 			
-			double changedTilt = 0;
 			// Move back to zero while not tilting
-			var rotZ = camera.getRotZ();
-			if(rotZ != 0 && !tiltLeft && !tiltRight){
-				// issue#40 make untilting also move the x rotation axis
-				if(Math.abs(rotZ) < tiltAmount){
-					camera.setRotZ(0);
-					currentTilt = 0;
-				}
-				else if(rotZ < 0){
-					camera.addRotZ(tiltAmount);
-					currentTilt += tiltAmount;
-				}
-				else{
-					camera.addRotZ(-tiltAmount);
-					currentTilt -= tiltAmount;
-				}
+			var roll = camera.getRoll();
+			if(roll != 0 && !tiltLeft && !tiltRight){
+				if(Math.abs(roll) < tiltAmount) camera.setRoll(0);
+				else if(roll < 0) camera.addRoll(tiltAmount);
+				else camera.addRoll(-tiltAmount);
 			}
 			else{
-				// issue#40 to do this properly, need to offset angles by 90 degrees?
 				// Tilt left or right
-				if(tiltLeft){
-					if(currentTilt > -Math.PI * 0.5) changedTilt -= tiltAmount;
-				}
-				if(tiltRight){
-					if(currentTilt < Math.PI * 0.5) changedTilt += tiltAmount;
-				}
-				currentTilt += changedTilt;
-				camera.addRotX(changedTilt * -Math.sin(camera.getRotY()));
-				camera.addRotZ(changedTilt * Math.cos(camera.getRotY()));
+				if(tiltLeft) if(camera.getRoll() > -Math.PI * 0.5) camera.addRoll(-tiltAmount);
+				if(tiltRight) if(camera.getRoll() < Math.PI * 0.5) camera.addRoll(tiltAmount);
 			}
 			
 			// Misc logic for random objects
@@ -414,6 +394,12 @@ public class GameDemo3D extends Game{
 				player.setZ(2);
 				
 				player.clearMotion();
+				var m = player.getMobilityData();
+				m.setFacingYaw(0);
+				m.setFacingPitch(0);
+				var cam = game.getCamera3D();
+				cam.setYaw(0);
+				cam.setPitch(0);
 			}
 			
 			xRot += xRotSpeed * dt;
@@ -597,7 +583,7 @@ public class GameDemo3D extends Game{
 			var up = ki.buttonDown(GLFW_KEY_Q);
 			var down = ki.buttonDown(GLFW_KEY_Z);
 			var cam = this.getCamera();
-			this.handleMobilityControls(dt, cam.getRotY(), cam.getRotX(), left, right, forward, backward, up, down);
+			this.handleMobilityControls(dt, cam.getYaw(), cam.getPitch(), left, right, forward, backward, up, down);
 			
 			// Move the camera to the player
 			this.updateCameraPos(cam);
@@ -707,7 +693,7 @@ public class GameDemo3D extends Game{
 			// issue#41 make some way of rendering this differently when it's the selected thing to control?
 			r.setColor(new ZColor(.5, 0, 0));
 			double diameter = this.getRadius() * 2.0;
-			r.drawSidePlaneZ(this.getX(), this.getY(), this.getZ(), diameter, this.getHeight(), ZMath.PI_BY_2 - this.getCamera().getRotY());
+			r.drawSidePlaneZ(this.getX(), this.getY(), this.getZ(), diameter, this.getHeight(), ZMath.PI_BY_2 - this.getCamera().getYaw());
 			
 			// Pseudo shadow
 			r.setColor(new ZColor(0, 0, 0, 0.5));

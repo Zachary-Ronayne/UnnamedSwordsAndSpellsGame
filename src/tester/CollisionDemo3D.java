@@ -62,7 +62,7 @@ public class CollisionDemo3D extends Game{
 			var up = ki.buttonDown(GLFW_KEY_Q);
 			var down = ki.buttonDown(GLFW_KEY_Z);
 			var cam = game.getCamera3D();
-			this.handleMobilityControls(dt, cam.getRotY(), cam.getRotX(), left, right, forward, backward, up, down);
+			this.handleMobilityControls(dt, cam.getYaw(), cam.getPitch(), left, right, forward, backward, up, down);
 			
 			this.updateCameraPos(game.getCamera3D());
 		}
@@ -171,7 +171,7 @@ public class CollisionDemo3D extends Game{
 			player.setZ(1.5);
 			room.addThing(player);
 			room.setAllBoundaries(false);
-			game.getCamera3D().setRotY(Math.PI * 1.75);
+			game.getCamera3D().setYaw(Math.PI * 1.75);
 			setCurrentRoom(room);
 		}
 		
@@ -190,7 +190,7 @@ public class CollisionDemo3D extends Game{
 				boolean right = button == GLFW_KEY_J;
 				boolean back = button == GLFW_KEY_I;
 				boolean forward = button == GLFW_KEY_K;
-				double camA = game.getCamera3D().getRotY();
+				double camA = game.getCamera3D().getYaw();
 				double camANorm = ZMath.angleNormalized(camA);
 				
 				if(camANorm < ZMath.PI_BY_2){

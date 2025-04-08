@@ -1133,8 +1133,8 @@ public class Game implements Saveable, Destroyable{
 		if(this.get(BooleanTypeSetting.CAMERA_LOOK_INVERT_Y)) dy = -dy;
 		
 		var camera = this.getCamera3D();
-		camera.addRotX(dx);
-		camera.addRotY(dy);
+		camera.addPitch(dx);
+		camera.addYaw(dy);
 	}
 	
 	/** @return See {@link #settings} */

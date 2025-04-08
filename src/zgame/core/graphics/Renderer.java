@@ -930,10 +930,14 @@ public class Renderer implements Destroyable{
 	 * @param camera The camera to use
 	 */
 	public void camera3DPerspective(GameCamera3D camera){
-		this.setMatrix(new Matrix4f().perspective((float)camera.getFov(), (float)this.getBuffer().getRatioWH(), (float)camera.getNearZ(), (float)camera.getFarZ()));
-		this.rotate(camera.getRotX(), 1, 0, 0);
-		this.rotate(camera.getRotY(), 0, 1, 0);
-		this.rotate(camera.getRotZ(), 0, 0, 1);
+		this.setMatrix(new Matrix4f()
+				.perspective((float)camera.getFov(), (float)this.getBuffer().getRatioWH(), (float)camera.getNearZ(), (float)camera.getFarZ())
+				.rotate(new Quaternionf()
+						.rotateX((float)camera.getPitch())
+						.rotateY((float)camera.getYaw())
+						.rotateZ((float)camera.getRoll())
+				)
+		);
 		this.translate(-camera.getX(), -camera.getY(), -camera.getZ());
 	}
 	
