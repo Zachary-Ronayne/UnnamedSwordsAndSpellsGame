@@ -341,25 +341,24 @@ public class GameDemo3D extends Game{
 			super.tick(game, dt);
 			var ki = game.getKeyInput();
 			
-			var camera = game.getCamera3D();
+			var mobilityData = player.getMobilityData();
 			
-			// TODO issue#40 add tiling to Mobility3D and make it relative to the position looked at
 			// Tilting the camera to the side
 			var tiltLeft = ki.pressed(GLFW_KEY_COMMA);
 			var tiltRight = ki.pressed(GLFW_KEY_PERIOD);
 			var tiltAmount = tiltSpeed * dt;
 			
 			// Move back to zero while not tilting
-			var roll = camera.getRoll();
+			var roll = mobilityData.getFacingRoll();
 			if(roll != 0 && !tiltLeft && !tiltRight){
-				if(Math.abs(roll) < tiltAmount) camera.setRoll(0);
-				else if(roll < 0) camera.addRoll(tiltAmount);
-				else camera.addRoll(-tiltAmount);
+				if(Math.abs(roll) < tiltAmount) mobilityData.setFacingRoll(0);
+				else if(roll < 0) mobilityData.addFacingRoll(tiltAmount);
+				else mobilityData.addFacingRoll(-tiltAmount);
 			}
 			else{
 				// Tilt left or right
-				if(tiltLeft) if(camera.getRoll() > -Math.PI * 0.5) camera.addRoll(-tiltAmount);
-				if(tiltRight) if(camera.getRoll() < Math.PI * 0.5) camera.addRoll(tiltAmount);
+				if(tiltLeft) if(mobilityData.getFacingRoll() > -Math.PI * 0.5) mobilityData.addFacingRoll(-tiltAmount);
+				if(tiltRight) if(mobilityData.getFacingRoll() < Math.PI * 0.5) mobilityData.addFacingRoll(tiltAmount);
 			}
 			
 			// Misc logic for random objects
@@ -397,9 +396,7 @@ public class GameDemo3D extends Game{
 				var m = player.getMobilityData();
 				m.setFacingYaw(0);
 				m.setFacingPitch(0);
-				var cam = game.getCamera3D();
-				cam.setYaw(0);
-				cam.setPitch(0);
+				m.setFacingRoll(0);
 			}
 			
 			xRot += xRotSpeed * dt;

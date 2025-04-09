@@ -939,9 +939,9 @@ public class Renderer implements Destroyable{
 		this.setMatrix(new Matrix4f()
 				.perspective((float)camera.getFov(), (float)this.getBuffer().getRatioWH(), (float)camera.getNearZ(), (float)camera.getFarZ())
 				.rotate(new Quaternionf()
+						.rotateZ((float)camera.getRoll())
 						.rotateX((float)camera.getPitch())
 						.rotateY((float)camera.getYaw())
-						.rotateZ((float)camera.getRoll())
 				)
 				.translate((float)(x -camera.getX()), (float)(y - camera.getY()), (float)(z - camera.getZ()))
 		);

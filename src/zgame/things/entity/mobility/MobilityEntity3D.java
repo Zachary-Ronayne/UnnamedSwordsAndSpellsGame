@@ -1,6 +1,7 @@
 package zgame.things.entity.mobility;
 
 import zgame.core.Game;
+import zgame.core.graphics.camera.GameCamera3D;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.things.entity.*;
 
@@ -61,5 +62,16 @@ public abstract class MobilityEntity3D extends EntityThing3D implements Mobility
 	public void leaveWall(){
 		super.leaveWall();
 		this.mobilityLeaveWall();
+	}
+	
+	@Override
+	public void updateCameraPos(GameCamera3D camera){
+		super.updateCameraPos(camera);
+		/*
+		 issue#64
+		 It is a little weird that roll is updated here but pitch and yaw are updated directly by the look method.
+		 The look method in the Game class maybe shouldn't directly affect the camera, but call a method the game can use to update some
+		 */
+		camera.setRoll(this.getMobilityData().getFacingRoll());
 	}
 }

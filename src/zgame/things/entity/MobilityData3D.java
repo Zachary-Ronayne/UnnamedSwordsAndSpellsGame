@@ -22,6 +22,9 @@ public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVecto
 	/** The angle on the y axis where {@link #entity} is facing */
 	private double facingPitch;
 	
+	/** The angle {@link #entity} has been rolled at with its perspective */
+	private double facingRoll;
+	
 	/** true if {@link #entity} wants to walk, false otherwise */
 	private boolean tryingToMove;
 	
@@ -35,8 +38,9 @@ public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVecto
 		
 		this.movingYaw = 0;
 		this.movingPitch = 0;
-		this.facingYaw = this.movingYaw;
-		this.facingPitch = this.movingPitch;
+		this.facingYaw = 0;
+		this.facingPitch = 0;
+		this.facingRoll = 0;
 		this.tryingToMove = false;
 	}
 	
@@ -78,6 +82,21 @@ public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVecto
 	/** @param facingPitch See {@link #facingPitch} */
 	public void setFacingPitch(double facingPitch){
 		this.facingPitch = facingPitch;
+	}
+	
+	/** @return See {@link #facingRoll} */
+	public double getFacingRoll(){
+		return this.facingRoll;
+	}
+	
+	/** @param facingRoll See {@link #facingRoll} */
+	public void setFacingRoll(double facingRoll){
+		this.facingRoll = facingRoll;
+	}
+	
+	/** @param facingRoll The value to add to {@link #facingRoll} */
+	public void addFacingRoll(double facingRoll){
+		this.setFacingRoll(this.getFacingRoll() + facingRoll);
 	}
 	
 	/** @return See {@link #tryingToMove} */
