@@ -102,8 +102,11 @@ public class ZusassPlayer extends ZusassMob{
 		
 		var mobilityData = this.getMobilityData();
 		
-		// TODO try repositioning the camera at the beginning of each frame being drawn, not during ticks or whenever the player is rendered
 		// Move the camera to the player after repositioning the player
+		/*
+		 Doing this does leave a small amount of delay from frame to frame for the camera catching up,
+		 rather than setting the camera before any drawing operations happen, but it somehow looks glitchier doing it the latter way
+		 */
 		this.updateCameraPos(game.getCamera3D());
 		
 		//issue#61
