@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.GameInteractable;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.input.InputHandler;
 import zgame.core.input.InputHandlers;
 import zgame.core.input.InputType;
@@ -37,6 +38,9 @@ public class ZusassPlayer extends ZusassMob{
 	/** true if this {@link ZusassPlayer} is in spell casting mode, false for weapon mode */
 	private boolean casting;
 	
+	/** true if the camera should be in first person, false for third person */
+	private boolean firstPerson;
+	
 	/**
 	 * Create a new object from json
 	 *
@@ -51,6 +55,7 @@ public class ZusassPlayer extends ZusassMob{
 	public ZusassPlayer(){
 		super(0, 0, 0, 0.15, 0.5);
 		this.casting = false;
+		this.firstPerson = true;
 		
 		this.inputDisabled = false;
 		this.addTags(ZusassTags.CAN_ENTER_LEVEL_DOOR, ZusassTags.MUST_CLEAR_LEVEL_ROOM, ZusassTags.HUB_ENTER_RESTORE);
@@ -133,11 +138,7 @@ public class ZusassPlayer extends ZusassMob{
 		if(this.inputHandlers.tick(game, GLFW_KEY_R)) this.toggleCasting();
 		
 		// Toggle first person or third person
-		if(this.inputHandlers.tick(game, GLFW_KEY_F)) {
-			// TODO make this set the cam position offset by default, i.e. when the player is loaded, or maybe make it a part of Mobility3D
-			if(cam.getPositionOffset() != 0.03) cam.setPositionOffset(0.03);
-			else cam.setPositionOffset(-1.3);
-		}
+		if(this.inputHandlers.tick(game, GLFW_KEY_F)) this.firstPerson = !firstPerson;
 		
 		// Go to next or previous spell
 		if(this.inputHandlers.tick(game, GLFW_KEY_RIGHT_BRACKET)) this.getSpells().previousSpell();
@@ -210,6 +211,19 @@ public class ZusassPlayer extends ZusassMob{
 				this.setResourcesMax();
 				this.getEffects().removeAllTemporary(this);
 			}
+		}
+	}
+	
+	@Override
+	public void updateCameraPos(GameCamera3D camera){
+		super.updateCameraPos(camera);
+		if(this.firstPerson) {
+			camera.setPositionOffset(0.03);
+			this.setVisionForwardDistance(0.02);
+		}
+		else {
+			camera.setPositionOffset(-1.3);
+			this.setVisionForwardDistance(0);
 		}
 	}
 	
