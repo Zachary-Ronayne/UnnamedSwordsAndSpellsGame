@@ -57,6 +57,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	 */
 	default void handleMobilityControls(double dt, double yaw, double pitch, boolean left, boolean right, boolean forward, boolean backward, boolean up, boolean down){
 		var mobilityData = this.getMobilityData();
+		// TODO figure out why this needs to be rotated by half pi
 		double adjustedYaw = yaw - ZMath.PI_BY_2;
 		double adjustedPitch = -pitch;
 		mobilityData.setFacingYaw(adjustedYaw);

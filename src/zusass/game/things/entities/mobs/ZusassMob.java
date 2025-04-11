@@ -223,17 +223,22 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	 * @param r The renderer to draw the attack with
 	 */
 	public void renderAttackTimer(Game game, Renderer r){
-		if(this.getAttackTime() <= 0) return;
-		// TODO abstract this stuff out into a general usable utility
+		// Do nothing if not attacking
+		if(this.getAttackTime() < 0) return;
+		
 		double time = this.getAttackTime();
 		double speed = this.getAttacksPerSecond();
 		double attackPercent = 1 - time * speed;
+		// Scale the time until attacking to make the arm move slowly at first, then quick at the end
 		double anglePerc = Math.pow(1 - time * speed, 7);
 		double attackSize = this.stat(ATTACK_RANGE) * 0.5 * attackPercent + 0.5;
 		double attackYaw = this.getMobilityData().getFacingYaw();
+		
+		// Find the position where the arm will start
 		var attackDirectionVec = new ZVector3D(attackYaw, 0, attackSize, false);
 		var armBaseVec = new ZVector3D(this.getMobilityData().getFacingYaw() + ZMath.PI_BY_2, 0, this.getWidth() * 0.5, false);
 		
+		// Find the position where the arm will attack to
 		var basePoint = this.center();
 		basePoint.setX(basePoint.getX() + armBaseVec.getX());
 		basePoint.setZ(basePoint.getZ() + armBaseVec.getZ());
@@ -241,20 +246,21 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		attackPoint.setX(attackPoint.getX() + attackDirectionVec.getX());
 		attackPoint.setZ(attackPoint.getZ() + attackDirectionVec.getZ());
 		
-		var c = r.getColor();
-		var armSize = this.getWidth() * 0.1;
-		
+		// Find the correct pitch and yaw to rotate the arm from the base to the attack point
+		double armSize = this.getWidth() * 0.1;
 		double dx = attackPoint.getX() - basePoint.getX();
-		double dy = attackPoint.getY() - (basePoint.getY());
+		double dy = attackPoint.getY() - basePoint.getY();
 		double dz = attackPoint.getZ() - basePoint.getZ();
 		double yaw = ZMath.atan2Normalized(dx, dz);
 		double pitch = ZMath.atan2Normalized(dy, Math.sqrt(dx * dx + dz * dz)) + ZMath.atan2Normalized(armSize, 0) * anglePerc;
 		
+		// Draw the final rotated rect
 		var rect = new RectRender3D(basePoint.getX(), basePoint.getY(), basePoint.getZ(), armSize, attackSize, armSize);
 		rect.setCoordinateRotation(false);
 		rect.setYaw(yaw);
 		rect.setPitch(pitch);
 		rect.setRoll(0);
+		var c = r.getColor();
 		r.drawRectPrism(rect, c, c, c, c, c, c);
 	}
 	

@@ -931,6 +931,7 @@ public class Renderer implements Destroyable{
 	 * @param camera The camera to use
 	 */
 	public void camera3DPerspective(GameCamera3D camera){
+		// The yaw has to be rotated by 90 degrees because the offset is on a different axis from how OpenGL's default camera is positioned, I think
 		// TODO figure out why this needs to be rotated by half pi
 		var offsetVec = new ZVector3D(camera.getYaw() + ZMath.PI_BY_2, camera.getPitch(), camera.getPositionOffset(), false);
 		double x = offsetVec.getX();
