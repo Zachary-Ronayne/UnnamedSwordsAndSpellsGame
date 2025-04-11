@@ -37,12 +37,27 @@ public class SpeakerDevice implements Destroyable{
 	/** The {@link ALCCapabilities} used by this device. Can be null if none have been set yet */
 	private ALCCapabilities alcCapabilities;
 	
+	/** An enum for the current state of this device for what it is allowed to do */
+	private enum DeviceState{
+		/** The device is new and has not been initialized with OpenAL */
+		NOT_INITIALIZED,
+		/** The device has been initialized and is usable by OpenAL */
+		INITIALIZED,
+		/** The device is no longer usable by OpenAL */
+		DESTROYED
+	}
+	
+	/** The current state of this device */
+	private DeviceState state;
+	
 	/**
 	 * Create a new SpeakerDevice based on the given name
 	 *
 	 * @param name The name of the device, this should not be a made up name, this is the actual name of the device on the machine
 	 */
 	public SpeakerDevice(String name){
+		this.setState(DeviceState.NOT_INITIALIZED);
+		
 		this.name = name;
 		this.context = NULL;
 		this.alCapabilities = null;
@@ -50,6 +65,7 @@ public class SpeakerDevice implements Destroyable{
 		
 		// Find the id
 		this.id = alcOpenDevice(this.getName());
+		this.setState(DeviceState.INITIALIZED);
 		
 		// Error check
 		if(this.id == NULL){
@@ -62,6 +78,11 @@ public class SpeakerDevice implements Destroyable{
 	
 	/** Use this device for audio */
 	public void use(){
+		if(this.getState() != DeviceState.INITIALIZED){
+			ZConfig.error("Cannot use SpeakerDevice: ", this.getName(), ", in state: ", this.getState().name());
+			return;
+		}
+		
 		if(this.alcCapabilities == null) this.alcCapabilities = ALC.createCapabilities(this.getId());
 		if(this.context == NULL){
 			this.context = alcCreateContext(this.getId(), (IntBuffer)null);
@@ -74,12 +95,18 @@ public class SpeakerDevice implements Destroyable{
 	
 	/** Free any resources used by this SpeakerDevice */
 	@Override
-	public void destroy(){
+	public synchronized void destroy(){
+		if(this.getState() != DeviceState.INITIALIZED) {
+			ZConfig.error("Cannot destroy SpeakerDevice: ", this.getName(), ", in state: ", this.getState().name());
+			return;
+		}
+		
 		alcMakeContextCurrent(MemoryUtil.NULL);
 		if(this.getContext() != NULL) alcDestroyContext(this.getContext());
 		boolean success = alcCloseDevice(this.getId());
 		if(success) ZConfig.success("Device '", this.getName(), "' successfully closed");
 		else ZConfig.error("Device '", this.getName(), "' failed to close");
+		this.setState(DeviceState.DESTROYED);
 	}
 	
 	/** @return See {@link #id} */
@@ -107,4 +134,14 @@ public class SpeakerDevice implements Destroyable{
 		return this.alcCapabilities;
 	}
 	
+	/** @return See {@link #state} */
+	private DeviceState getState(){
+		return this.state;
+	}
+	
+	/** @param state See {@link #state} */
+	private void setState(DeviceState state){
+		if(state == null) return;
+		this.state = state;
+	}
 }

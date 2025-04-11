@@ -5,7 +5,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 import zgame.menu.MenuHolder;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
@@ -75,7 +75,7 @@ public class SavesMenu extends ZusassMenu{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect bounds){
+	public void render(Game game, Renderer r, ZRect2D bounds){
 		super.render(game, r, bounds);
 		if(this.messageTimer < 0) return;
 		

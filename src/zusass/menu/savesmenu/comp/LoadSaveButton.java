@@ -3,7 +3,7 @@ package zusass.menu.savesmenu.comp;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 import zgame.core.utils.ZStringUtils;
 import zusass.ZusassGame;
 import zusass.game.MainPlay;
@@ -50,7 +50,7 @@ public class LoadSaveButton extends SavesMenuButton{
 	 */
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect bounds){
+	public void render(Game game, Renderer r, ZRect2D bounds){
 		super.render(game, r, bounds);
 		// If this button is selected, draw an additional highlight
 		if(this.getMenu().getLoadButtons().getSelected() == this){

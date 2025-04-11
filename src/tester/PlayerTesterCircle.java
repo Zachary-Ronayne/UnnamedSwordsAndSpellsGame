@@ -2,7 +2,7 @@ package tester;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.things.type.CircleHitBox;
+import zgame.things.type.bounds.CircleHitBox;
 
 public class PlayerTesterCircle extends PlayerTester implements CircleHitBox{
 	

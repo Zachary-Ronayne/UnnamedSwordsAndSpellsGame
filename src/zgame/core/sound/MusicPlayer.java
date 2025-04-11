@@ -5,6 +5,7 @@ import static org.lwjgl.openal.AL11.*;
 import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
+import zgame.core.utils.ZConfig;
 
 /**
  * A {@link SoundPlayer} designed around playing music, i.e. long audio files
@@ -35,6 +36,11 @@ public class MusicPlayer extends SoundPlayer<MusicSound>{
 	
 	@Override
 	protected void runSound(SoundSource source, MusicSound sound){
+		if(sound == null){
+			ZConfig.error("Attempted to play an unloaded sound, abandoning MusicPlayer.runSound");
+			return;
+		}
+		
 		this.currentSong = new SoundPair<>(source, sound);
 		int sourceID = source.getId();
 		

@@ -5,6 +5,9 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.state.MenuNode;
 import zgame.core.state.PlayState;
+import zgame.core.utils.ZMath;
+import zgame.world.Direction3D;
+import zgame.world.Room3D;
 import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassPlayer;
@@ -12,6 +15,9 @@ import zusass.menu.player.SpellListMenu;
 import zusass.menu.player.StatsMenu;
 import zusass.menu.mainmenu.MainMenuState;
 import zusass.menu.pause.PauseMenu;
+
+import java.text.DecimalFormat;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -31,12 +37,23 @@ public class MainPlay extends PlayState{
 	/** true if the player menus, i.e. stats, spells, etc, should be open, false otherwise */
 	private boolean playerMenusOpen;
 	
+	/** true to display debug data on screen, false otherwise */
+	private boolean debugInfo;
+	
+	/** A formatter for displaying numbers for debug information */
+	private final DecimalFormat debugNumberFormat;
+	
 	/**
 	 * Initialize the main play state for the Zusass game
 	 *
 	 * @param zgame The {@link Game} using this state
 	 */
 	public MainPlay(ZusassGame zgame){
+		// issue#53 maybe make this go to a hub initially right away instead of a separate method call
+		super(new Room3D(0, 0, 0));
+		this.debugInfo = false;
+		this.debugNumberFormat = new DecimalFormat("0.0#####");
+		
 		this.enterHub(zgame);
 		
 		this.playerMenusOpen = false;
@@ -57,14 +74,7 @@ public class MainPlay extends PlayState{
 			this.setCurrentRoom(hub);
 			
 			// Place the player on the next tick
-			hub.onNextTick(() -> {
-				ZusassPlayer player = zgame.getPlayer();
-				player.setX(20);
-				player.setY(hub.maxY() - player.getHeight());
-				player.setLockCamera(true);
-				hub.addThing(player);
-				player.centerCamera(zgame);
-			});
+			hub.onNextTick(() -> hub.placePlayer(zgame));
 		});
 	}
 	
@@ -112,11 +122,11 @@ public class MainPlay extends PlayState{
 			}
 			// Otherwise close the top menu
 			var c = zgame.getCurrentState();
-			if(c.getStackSize() > 0) {
+			if(c.getStackSize() > 0){
 				c.removeTopMenu(game);
 			}
 			// Otherwise, open the pause menu
-			else {
+			else{
 				this.openPauseMenu(zgame);
 			}
 		}
@@ -125,6 +135,8 @@ public class MainPlay extends PlayState{
 			if(this.playerMenusOpen) this.closePlayerMenus((ZusassGame)game);
 			else this.openPlayerMenus((ZusassGame)game);
 		}
+		// Use F3 to toggle debug
+		else if(button == GLFW_KEY_F3) this.debugInfo = !this.debugInfo;
 	}
 	
 	@Override
@@ -170,11 +182,35 @@ public class MainPlay extends PlayState{
 		else text = "Attack";
 		
 		// Draw the name of the selected spell or that the player is in attack mode
-		var w = r.getFont().stringWidth(text);
-		r.setColor(0, 0, 0, .5);
-		r.drawRectangle(10, 85, w, 20);
-		r.setColor(1, 1, 1, 1);
-		r.drawText(10, 100, text);
+		r.setFontSize(20);
+		drawTextBox(r, 10, 85, text, 1);
+		
+		// Draw the debug info of the player
+		if(debugInfo){
+			r.setFontSize(22);
+			var mobilityData = p.getMobilityData();
+			double ty = game.getWindow().getHeight() - 5;
+			var yaw = mobilityData.getFacingYaw();
+			var velocity = p.getVelocity();
+			var debugTextList = List.of(
+					"X: " + this.debugNumberFormat.format(p.getX()),
+					"Y: " + this.debugNumberFormat.format(p.getY()),
+					"Z: " + this.debugNumberFormat.format(p.getZ()),
+					"VX: " + this.debugNumberFormat.format(velocity.getX()),
+					"VY: " + this.debugNumberFormat.format(velocity.getY()),
+					"VZ: " + this.debugNumberFormat.format(velocity.getZ()),
+					"YAW: " + this.debugNumberFormat.format(Math.toDegrees(ZMath.angleNormalized(yaw))),
+					"PIT: " + this.debugNumberFormat.format(Math.toDegrees(ZMath.angleNormalized(mobilityData.getFacingPitch()))),
+					"FAC: " + Direction3D.findCardinal(yaw).name()
+			);
+			double border = 1;
+			for(int i = debugTextList.size() - 1; i >= 0; i--){
+				drawTextBox(r, 5, ty -= (r.getFontSize() + border * 2), debugTextList.get(i), border);
+			}
+		}
+		
+		// Draw a cross-hair on the center
+		this.drawCrossHair(r);
 		
 		// Now draw the rest of the menus
 		super.renderHud(game, r);
@@ -194,6 +230,41 @@ public class MainPlay extends PlayState{
 		r.setColor(textColor);
 		r.setFontSize(20);
 		r.drawText(10, 28 + space, Math.round(Math.max(0, c)) + " / " + Math.round(m));
+	}
+	
+	/** @param r The renderer to use to draw the cross-hair */
+	private void drawCrossHair(Renderer r){
+		double size = 8;
+		double thick = 2;
+		double border = 1;
+		double centerX = r.getWidth() * 0.5;
+		double centerY = r.getHeight() * 0.5;
+		
+		r.setColor(0, 0, 0);
+		r.drawRectangle(centerX - size, centerY - thick, size + size, thick + thick);
+		r.drawRectangle(centerX - thick, centerY - size, thick + thick, size + size);
+		r.setColor(0.7, 0.7, 0.7);
+		r.drawRectangle(centerX - size + border, centerY - thick + border, size + size - border - border, thick + thick - border - border);
+		r.drawRectangle(centerX - thick + border, centerY - size + border, thick + thick - border - border, size + size - border - border);
+	}
+	
+	/**
+	 * Drw a basic text box for showing info in the hud
+	 *
+	 * @param x The x position to draw the text
+	 * @param y The y position to draw the text
+	 * @param r The renderer to draw with
+	 * @param border The number of pixes to add on every side of the text
+	 * @param text The text to display
+	 */
+	private void drawTextBox(Renderer r, double x, double y, String text, double border){
+		double fontSize = r.getFontSize();
+		r.setFontSize(fontSize);
+		var w = r.getFont().stringWidth(text);
+		r.setColor(0, 0, 0, .25);
+		r.drawRectangle(x, y, w + border * 2, fontSize + border * 2);
+		r.setColor(1, 1, 1, 1);
+		r.drawText(x + border, y + border + fontSize * 0.75, text);
 	}
 	
 	/**

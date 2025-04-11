@@ -5,7 +5,6 @@ import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZConfig;
-import zgame.core.window.GameWindow;
 import zgame.stat.Stats;
 import zusass.game.MainPlay;
 import zusass.game.ZusassRoom;
@@ -51,8 +50,8 @@ public class ZusassGame extends Game{
 	/** @param player See player. Note that this will not account for adding the player or removing the player from a room */
 	public void setPlayer(ZusassPlayer player){
 		this.player = player;
+		this.player.initSounds(zgame);
 	}
-	
 	
 	/*
 	 * issue#16 make the infinite levels have the same seed for each level based on the save's seed. You can input a seed when you make the save, or randomly generate one
@@ -64,13 +63,20 @@ public class ZusassGame extends Game{
 	/** Create the only instance of ZusassGame from this class. This constructor will place the game in the main menu */
 	private ZusassGame(){
 		super();
+		this.make3D();
+		this.getWindow().setWindowTitle("ZUSASS");
+		
 		// Window and performance settings
 		this.setTps(100);
-		this.setMaxFps(100);
+		this.setMaxFps(144);
 		this.setCurrentState(new MainMenuState(this));
-		GameWindow w = this.getWindow();
-		w.setUseVsync(true);
-		w.center();
+		this.setInitSoundOnStart(false);
+		// For some reason this has to happen on the next tick and not in the constructor to make sure the menu gets resized properly
+		this.onNextLoop(() -> {
+			var w = this.getWindow();
+			w.setSize(1920, 1020);
+			w.center();
+		});
 		
 		// Loading assets
 		this.getFonts().addAll();
@@ -105,7 +111,6 @@ public class ZusassGame extends Game{
 		data.checkAutoSave(zgame);
 	}
 	
-	
 	@Override
 	public boolean save(JsonElement e){
 		Saveable.save(DATA_KEY, e, this.getData());
@@ -116,7 +121,7 @@ public class ZusassGame extends Game{
 	@Override
 	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		this.data = Saveable.obj(DATA_KEY, e, ZusassData.class, ZusassData::new);
-		this.player = Saveable.obj(PLAYER_KEY, e, ZusassPlayer.class, ZusassPlayer::new);
+		this.setPlayer(Saveable.obj(PLAYER_KEY, e, ZusassPlayer.class, ZusassPlayer::new));
 		return true;
 	}
 	
@@ -156,33 +161,45 @@ public class ZusassGame extends Game{
 	@Override
 	protected void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyAction(button, press, shift, alt, ctrl);
-		GameWindow w = zgame.getWindow();
 		if(press) return;
 		
-		if(button == GLFW_KEY_F9) {
+		if(button == GLFW_KEY_F9){
 			this.setPrintFps(!this.isPrintFps());
 			this.setPrintTps(!this.isPrintTps());
 		}
-		else if(button == GLFW_KEY_F11) w.toggleFullscreen();
+		else if(button == GLFW_KEY_F11) zgame.toggleFullscreen();
 	}
 	
-	/** Initialize the object {@link #zgame} */
+	/** Initialize any static needed values, as well as the object {@link #zgame} */
 	public static void init(){
+		if(zgame != null){
+			ZConfig.error("An instance of ZusassGame already exists, will not create another");
+			return;
+		}
+		
 		ZusassSetting.init();
 		
 		ZusassStat.init();
 		Stats.init();
+		
+		zgame = new ZusassGame();
+		
+		// Load sounds into the game
+		zgame.initSound();
+		var sm = zgame.getSounds();
+		sm.addAllSounds();
+		sm.setDistanceScalar(10);
+		sm.getEffectsPlayer().setPaused(false);
+		sm.getEffectsPlayer().setMuted(true);
+		
 		/*
 		 Init all the static stat dependencies by making a new mob, because the stats are all added when the mob is created.
 		 This is kind of stupid, but whatever, it ensures they are initialized on startup
 		 */
-		new ZusassMob(0, 0, 0, 0){
+		new ZusassMob(0, 0, 0, 0, 0){
 			@Override
 			protected void render(Game game, Renderer r){}
 		};
-		
-		if(zgame != null) return;
-		zgame = new ZusassGame();
 	}
 	
 	/** @return See {@link #data} */
@@ -209,4 +226,25 @@ public class ZusassGame extends Game{
 	public String getGlobalSettingsLocation(){
 		return ZusassConfig.getGlobalSettingsPath();
 	}
+	
+	@Override
+	public void onWindowSizeChange(int newW, int newH){
+		super.onWindowSizeChange(newW, newH);
+		
+		// If the game is not in the play state, set menu size to the window size
+		var currentState = this.getCurrentState();
+		if(this.getPlayState() != currentState){
+			var menu = currentState.getMenu();
+			if(menu != null){
+				menu.setWidth(newW);
+				menu.setHeight(newH);
+			}
+		}
+	}
+	
+	/** @return The global instance of the game, only should be used for testing, normal operation should pass an instance of ZusassGame where needed */
+	public static ZusassGame instance(){
+		return zgame;
+	}
+	
 }

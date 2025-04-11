@@ -21,6 +21,6 @@ public class MainSettingsButton extends MainMenuButton{
 	@Override
 	public void click(Game game){
 		ZusassGame zgame = (ZusassGame)game;
-		zgame.getCurrentState().setMenu(new SettingsMenu(zgame, z -> z.getCurrentState().setMenu(new MainMenu(z))));
+		zgame.getCurrentState().setMenu(zgame, new SettingsMenu(zgame, z -> z.getCurrentState().setMenu(z, new MainMenu(z))));
 	}
 }

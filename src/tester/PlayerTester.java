@@ -1,14 +1,13 @@
 package tester;
 
 import zgame.core.Game;
-import zgame.physics.material.Material;
-import zgame.things.entity.EntityThing;
-import zgame.things.entity.Walk;
-import zgame.world.Room;
+import zgame.things.entity.mobility.Mobility2D;
+import zgame.things.entity.mobility.MobilityEntity2D;
+import zgame.world.Room2D;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public abstract class PlayerTester extends EntityThing {
+public abstract class PlayerTester extends MobilityEntity2D{
 	
 	/** The width of this mob */
 	private double width;
@@ -18,8 +17,47 @@ public abstract class PlayerTester extends EntityThing {
 	/** true to lock the camera to the center of the player, false otherwise */
 	private boolean lockCamera;
 	
-	/** The {@link Walk} object used by this player */
-	private final Walk walk;
+	/** See {@link Mobility2D#getWalkSpeedMax()} */
+	private double walkSpeedMax;
+	
+	/** See {@link Mobility2D#getWalkPower()} */
+	private double walkPower;
+	
+	/** See {@link Mobility2D#getWalkStopFriction()} */
+	private double walkStopFriction;
+	
+	/** See {@link Mobility2D#getJumpPower()} */
+	private double jumpPower;
+	
+	/** See {@link Mobility2D#getJumpStopPower()} */
+	private double jumpStopPower;
+	
+	/** See {@link Mobility2D#getJumpBuildTime()} */
+	private double jumpBuildTime;
+	
+	/** See {@link Mobility2D#isJumpAfterBuildUp()} */
+	private boolean jumpAfterBuildUp;
+	
+	/** See {@link Mobility2D#getWalkAirControl()} */
+	private double walkAirControl;
+	
+	/** See {@link Mobility2D#getWalkFriction()} */
+	private double walkFriction;
+	
+	/** See {@link Mobility2D#getSprintingRatio()} */
+	private double sprintingRatio;
+	
+	/** See {@link Mobility2D#isCanWallJump()} */
+	private boolean canWallJump;
+	
+	/** See {@link Mobility2D#getNormalJumpTime()} */
+	private double normalJumpTime;
+	
+	/** See {@link Mobility2D#getWallJumpTime()} */
+	private double wallJumpTime;
+	
+	/** See {@link Mobility2D#isSprinting()} */
+	private boolean sprinting;
 	
 	/**
 	 * Create a new {@link PlayerTester} of the given size
@@ -31,7 +69,21 @@ public abstract class PlayerTester extends EntityThing {
 	 */
 	public PlayerTester(double x, double y, double width, double height){
 		super(x, y);
-		this.walk = new Walk(this);
+		
+		this.walkSpeedMax = 300;
+		this.walkPower = 2000;
+		this.walkStopFriction = 100;
+		this.jumpPower = 60000;
+		this.jumpStopPower = 3000;
+		this.jumpBuildTime = 0;
+		this.jumpAfterBuildUp = true;
+		this.walkAirControl = .5;
+		this.walkFriction = 1;
+		this.sprintingRatio = 1.5;
+		this.canWallJump = true;
+		this.normalJumpTime = .1;
+		this.wallJumpTime = .25;
+		this.sprinting = true;
 		
 		this.lockCamera = false;
 		this.width = width;
@@ -40,24 +92,16 @@ public abstract class PlayerTester extends EntityThing {
 	
 	@Override
 	public void tick(Game game, double dt){
-		var walk = this.getWalk();
-		
-		walk.updatePosition(game, dt);
-		walk.tick(game, dt);
-		
-		var ki = game.getKeyInput();
-		walk.handleMovementControls(ki.pressed(GLFW_KEY_LEFT), ki.pressed(GLFW_KEY_RIGHT), ki.pressed(GLFW_KEY_UP), dt);
-		
-		// Lastly, perform the normal game tick on the player
+		// Perform the normal game tick on the player
 		super.tick(game, dt);
+		
+		// Now handle movement controls
+		var ki = game.getKeyInput();
+		boolean up = ki.pressed(GLFW_KEY_UP);
+		this.handleMobilityControls(ki.pressed(GLFW_KEY_LEFT), ki.pressed(GLFW_KEY_RIGHT), up, ki.pressed(GLFW_KEY_DOWN), up, dt);
 		
 		// Now the camera to the player after repositioning the player
 		this.checkCenterCamera(game);
-	}
-	
-	/** @return See {@link #walk} */
-	public Walk getWalk(){
-		return this.walk;
 	}
 	
 	/**
@@ -80,7 +124,7 @@ public abstract class PlayerTester extends EntityThing {
 	}
 	
 	@Override
-	public void enterRoom(Room from, Room to, Game game){
+	public void enterRoom(Room2D from, Room2D to, Game game){
 		super.enterRoom(from, to, game);
 		if(to != null) game.getPlayState().setCurrentRoom(to);
 		
@@ -110,26 +154,171 @@ public abstract class PlayerTester extends EntityThing {
 		this.height = height;
 	}
 	
+	/** @return See {@link #walkSpeedMax} */
+	@Override
+	public double getWalkSpeedMax(){
+		return this.walkSpeedMax;
+	}
+	
+	/** @param walkSpeedMax See {@link #walkSpeedMax} */
+	public void setWalkSpeedMax(double walkSpeedMax){
+		this.walkSpeedMax = walkSpeedMax;
+	}
+	
+	/** @return See {@link #walkPower} */
+	@Override
+	public double getWalkPower(){
+		return this.walkPower;
+	}
+	
+	/** @param walkPower See {@link #walkPower} */
+	public void setWalkPower(double walkPower){
+		this.walkPower = walkPower;
+	}
+	
+	/** @return See {@link #walkStopFriction} */
+	@Override
+	public double getWalkStopFriction(){
+		return this.walkStopFriction;
+	}
+	
+	/** @param walkStopFriction See {@link #walkStopFriction} */
+	public void setWalkStopFriction(double walkStopFriction){
+		this.walkStopFriction = walkStopFriction;
+	}
+	
 	@Override
 	public double getFrictionConstant(){
-		return this.getWalk().getFrictionConstant();
+		return this.getWalkFrictionConstant();
+	}
+	
+	/** @return See {@link #jumpPower} */
+	@Override
+	public double getJumpPower(){
+		return this.jumpPower;
+	}
+	
+	/** @param jumpPower See {@link #jumpPower} */
+	public void setJumpPower(double jumpPower){
+		this.jumpPower = jumpPower;
+	}
+	
+	/** @return See {@link #jumpStopPower} */
+	@Override
+	public double getJumpStopPower(){
+		return this.jumpStopPower;
+	}
+	
+	/** @param jumpStopPower See {@link #jumpStopPower} */
+	public void setJumpStopPower(double jumpStopPower){
+		this.jumpStopPower = jumpStopPower;
+	}
+	
+	/** @return See {@link #jumpBuildTime} */
+	@Override
+	public double getJumpBuildTime(){
+		return this.jumpBuildTime;
+	}
+	
+	/** @param jumpBuildTime See {@link #jumpBuildTime} */
+	public void setJumpBuildTime(double jumpBuildTime){
+		this.jumpBuildTime = jumpBuildTime;
+	}
+	
+	/** @return See {@link #jumpAfterBuildUp} */
+	@Override
+	public boolean isJumpAfterBuildUp(){
+		return this.jumpAfterBuildUp;
+	}
+	
+	/** @param jumpAfterBuildUp See {@link #jumpAfterBuildUp} */
+	public void setJumpAfterBuildUp(boolean jumpAfterBuildUp){
+		this.jumpAfterBuildUp = jumpAfterBuildUp;
+	}
+	
+	/** @return See {@link #walkAirControl} */
+	@Override
+	public double getWalkAirControl(){
+		return this.walkAirControl;
+	}
+	
+	/** @param walkAirControl See {@link #walkAirControl} */
+	public void setWalkAirControl(double walkAirControl){
+		this.walkAirControl = walkAirControl;
+	}
+	
+	/** @return See {@link #walkFriction} */
+	@Override
+	public double getWalkFriction(){
+		return this.walkFriction;
+	}
+	
+	/** @param walkFriction See {@link #walkFriction} */
+	public void setWalkFriction(double walkFriction){
+		this.walkFriction = walkFriction;
+	}
+	
+	/** @return See {@link #sprintingRatio} */
+	@Override
+	public double getSprintingRatio(){
+		return this.sprintingRatio;
+	}
+	
+	/** @param sprintingRatio See {@link #sprintingRatio} */
+	public void setSprintingRatio(double sprintingRatio){
+		this.sprintingRatio = sprintingRatio;
+	}
+	
+	/** @return See {@link #canWallJump} */
+	@Override
+	public boolean isCanWallJump(){
+		return this.canWallJump;
+	}
+	
+	/** @param canWallJump See {@link #canWallJump} */
+	public void setCanWallJump(boolean canWallJump){
+		this.canWallJump = canWallJump;
+	}
+	
+	/** @return See {@link #normalJumpTime} */
+	@Override
+	public double getNormalJumpTime(){
+		return this.normalJumpTime;
+	}
+	
+	/** @param normalJumpTime See {@link #normalJumpTime} */
+	public void setNormalJumpTime(double normalJumpTime){
+		this.normalJumpTime = normalJumpTime;
+	}
+	
+	/** @return See {@link #wallJumpTime} */
+	@Override
+	public double getWallJumpTime(){
+		return this.wallJumpTime;
+	}
+	
+	/** @param wallJumpTime See {@link #wallJumpTime} */
+	public void setWallJumpTime(double wallJumpTime){
+		this.wallJumpTime = wallJumpTime;
 	}
 	
 	@Override
-	public void leaveFloor(){
-		super.leaveFloor();
-		this.getWalk().leaveFloor();
+	public boolean isSprinting(){
+		return this.sprinting;
+	}
+	
+	/** @param sprinting See {@link #sprinting} */
+	public void setSprinting(boolean sprinting){
+		this.sprinting = sprinting;
+	}
+	
+	/** toggle the state of {@link #sprinting} */
+	public void toggleWalking(){
+		this.setSprinting(!this.isSprinting());
 	}
 	
 	@Override
-	public void leaveWall(){
-		super.leaveWall();
-		this.getWalk().leaveWall();
-	}
-	
-	@Override
-	public void touchFloor(Material touched){
-		super.touchFloor(touched);
-		this.getWalk().touchFloor(touched);
+	public double getFlyStopPower(){
+		return this.getWalkPower() * 100;
 	}
 }

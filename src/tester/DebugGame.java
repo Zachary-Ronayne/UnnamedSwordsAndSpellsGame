@@ -4,17 +4,17 @@ import org.lwjgl.glfw.GLFW;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZMath;
-import zgame.core.utils.ZPoint;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZPoint2D;
+import zgame.core.utils.ZRect2D;
 import zgame.physics.collision.ZCollision;
 
 /** A class purely for making and testing random specific bits of code */
 public class DebugGame extends Game{
 	
-	static ZRect rect = new ZRect(300, 100, 600, 300);
-	static ZPoint circle = new ZPoint(500, 300);
+	static ZRect2D rect = new ZRect2D(300, 100, 600, 300);
+	static ZPoint2D circle = new ZPoint2D(500, 300);
 	static double radius = 100;
-	static ZPoint circle2 = new ZPoint(800, 600);
+	static ZPoint2D circle2 = new ZPoint2D(800, 600);
 	static double radius2 = 100;
 	static boolean shift = false;
 	static boolean ctrl = false;

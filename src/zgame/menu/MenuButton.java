@@ -4,7 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.input.mouse.ZMouseInput;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 
 /** A {@link MenuText} which can be clicked to perform an action */
 public class MenuButton extends MenuText{
@@ -64,7 +64,7 @@ public class MenuButton extends MenuText{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect bounds){
+	public void render(Game game, Renderer r, ZRect2D bounds){
 		super.render(game, r, bounds);
 		if(this.isDisabled()){
 			r.setColor(this.getDisableOverlay());

@@ -2,17 +2,20 @@ package zusass.game.things.entities.projectile;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
+import zgame.core.sound.SoundSource;
 import zgame.core.utils.NotNullList;
-import zgame.physics.ZVector;
+import zgame.physics.ZVector3D;
 import zgame.things.BaseTags;
-import zgame.things.entity.projectile.UsedProjectile;
-import zgame.things.type.CircleHitBox;
-import zgame.things.type.HitBox;
+import zgame.things.entity.projectile.Projectile3D;
+import zgame.things.type.bounds.HitBox3D;
+import zgame.things.type.bounds.SphereHitBox;
+import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
 
-/** A {@link UsedProjectile} which applies a magic effect when it hits something other than its caster */
-public class MagicProjectile extends UsedProjectile implements CircleHitBox{
+/** A {@link Projectile3D} which applies a magic effect when it hits something other than its caster */
+public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	
 	/** The radius of the projectile */
 	private double radius;
@@ -20,17 +23,24 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	/** The effects to apply when this projectile hits a mob */
 	private final NotNullList<SpellEffect> effects;
 	
+	/** The base color to use for this projectile, for now it's random */
+	private final ZColor color;
+	
+	/** The source of the sound for this projectile being removed from the game */
+	private SoundSource removedSoundSource;
+	
 	/**
 	 * Create a projectile at the specified location, moving at the given velocity
 	 *
 	 * @param x The initial x position of the projectile
 	 * @param y The initial y position of the projectile
+	 * @param z The initial z position of the projectile
 	 * @param sourceId See {@link #sourceId}, i.e. the uuid of the caster of this magic projectile
 	 * @param launchVelocity The initial velocity of the projectile
 	 * @param effects See {@link #effects}
 	 */
-	public MagicProjectile(double x, double y, String sourceId, ZVector launchVelocity, NotNullList<SpellEffect> effects){
-		this(x, y, 10, sourceId, launchVelocity, effects);
+	public MagicProjectile(double x, double y, double z, String sourceId, ZVector3D launchVelocity, NotNullList<SpellEffect> effects){
+		this(x, y, z, 0.2, sourceId, launchVelocity, effects);
 	}
 	
 	/**
@@ -38,13 +48,14 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	 *
 	 * @param x The initial x position of the projectile
 	 * @param y The initial y position of the projectile
+	 * @param z The initial z position of the projectile
 	 * @param radius See {@link #radius}
 	 * @param sourceId See {@link #sourceId}, i.e. the uuid of the caster of this magic projectile
 	 * @param launchVelocity The initial velocity of the projectile
 	 * @param effects See {@link #effects}
 	 */
-	public MagicProjectile(double x, double y, double radius, String sourceId, ZVector launchVelocity, NotNullList<SpellEffect> effects){
-		this(x, y, radius, -1, sourceId, launchVelocity, effects);
+	public MagicProjectile(double x, double y, double z, double radius, String sourceId, ZVector3D launchVelocity, NotNullList<SpellEffect> effects){
+		this(x, y, z, radius, -1, sourceId, launchVelocity, effects);
 	}
 	
 	/**
@@ -52,14 +63,18 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	 *
 	 * @param x The initial x position of the projectile
 	 * @param y The initial y position of the projectile
+	 * @param z The initial z position of the projectile
 	 * @param radius See {@link #radius}
 	 * @param range See {@link #range}
 	 * @param sourceId See {@link #sourceId}, i.e. the uuid of the caster of this magic projectile
 	 * @param launchVelocity The initial velocity of the projectile
 	 * @param effects See {@link #effects}
 	 */
-	public MagicProjectile(double x, double y, double radius, double range, String sourceId, ZVector launchVelocity, NotNullList<SpellEffect> effects){
-		super(x, y, sourceId, launchVelocity);
+	public MagicProjectile(double x, double y, double z, double radius, double range, String sourceId, ZVector3D launchVelocity, NotNullList<SpellEffect> effects){
+		super(x, y, z, launchVelocity);
+		this.color = new ZColor(Math.random(), Math.random(), Math.random(), 0.4 * Math.random() + 0.4);
+		
+		this.setSourceId(sourceId);
 		this.setRadius(radius);
 		this.setRange(range);
 		this.effects = effects;
@@ -75,15 +90,45 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 		});
 	}
 	
+	// issue#62
+	/**
+	 * Initialize this mob for creating sounds, otherwise sounds will not play
+	 * @param zgame The game the sound will be played in
+	 */
+	public void initSounds(ZusassGame zgame){
+		this.removedSoundSource = zgame.getSounds().createSource(this.getX(), this.getY(), this.getZ());
+	}
+	
 	@Override
-	public void hit(Game game, HitBox thing){
+	public void tick(Game game, double dt){
+		super.tick(game, dt);
+		// issue#61, Does updating the sound position here cause lag?
+		if(this.removedSoundSource != null) {
+			var sm = game.getSounds();
+			sm.updateSourcePos(this.removedSoundSource, this.getX(), this.getY(), this.getZ());
+			sm.updateSourceDirection(this.removedSoundSource, 0, 0, 0);
+		}
+	}
+	
+	@Override
+	public void onRoomRemove(Game game){
+		super.onRoomRemove(game);
+		if(this.removedSoundSource != null) {
+			this.removedSoundSource.setBaseVolume(10);
+			game.playEffect(this.removedSoundSource, "lose");
+		}
+	}
+	
+	@Override
+	public void hit(Game game, HitBox3D thing){
+		if(this.willRemove()) return;
 		thing.hitBy(this);
 	}
 	
 	@Override
 	protected void render(Game game, Renderer r){
-		r.setColor(.6, .6, 1, .8);
-		r.drawEllipse(this.getBounds());
+		r.setColor(this.color);
+		r.drawSphere(this.getX(), this.getY(), this.getZ(), this.getRadius());
 	}
 	
 	@Override
@@ -102,7 +147,8 @@ public class MagicProjectile extends UsedProjectile implements CircleHitBox{
 	}
 	
 	@Override
-	public int getRenderPriority(){
+	public int getSortPriority(){
 		return 200;
 	}
+	
 }

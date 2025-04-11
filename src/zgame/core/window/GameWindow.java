@@ -24,6 +24,9 @@ import java.nio.IntBuffer;
  */
 public abstract class GameWindow implements Destroyable{
 	
+	/** The game associated with this window, or null if no association exists */
+	private Game game;
+	
 	/** The title displayed on the window */
 	private String windowTitle;
 	
@@ -86,6 +89,12 @@ public abstract class GameWindow implements Destroyable{
 	/** The inverse of {@link #viewportH} */
 	private double viewportHInverse;
 	
+	/** true if the mouse moves normally, false otherwise */
+	private boolean mouseNormally;
+	
+	/** true if the internal buffer should be resized any time the window changes size, to match the window, false otherwise */
+	private boolean resizeScreenOnResizeWindow;
+	
 	/** An interface for a lambda method which is called each time a key or mouse button is pressed or released */
 	public interface ButtonAction{
 		/**
@@ -147,6 +156,7 @@ public abstract class GameWindow implements Destroyable{
 		this.mouseActionMethod = null;
 		this.mouseMoveMethod = null;
 		this.mouseWheelMoveMethod = null;
+		this.resizeScreenOnResizeWindow = false;
 		
 		// Ensure window context is set up
 		this.createContext();
@@ -180,6 +190,10 @@ public abstract class GameWindow implements Destroyable{
 		
 		// Set up texture settings for drawing with an alpha channel
 		initTextureSettings();
+		
+		// Init mouse movement, use normal movement by default
+		this.mouseNormally = true;
+		this.updateMouseNormally(true);
 	}
 	
 	/** Called during object initialization. Must establish window context with OpenGL before further initialization can occur */
@@ -279,6 +293,8 @@ public abstract class GameWindow implements Destroyable{
 	protected void windowSizeChanged(int w, int h){
 		this.setWidth(w);
 		this.setHeight(h);
+		if(this.isResizeScreenOnResizeWindow()) this.resizeScreen(w, h);
+		
 		this.updateWindowSize();
 	}
 	
@@ -309,9 +325,22 @@ public abstract class GameWindow implements Destroyable{
 	 */
 	public void setSize(int w, int h){
 		if(this.isInFullScreen()) return;
+		if(this.isResizeScreenOnResizeWindow()) this.resizeScreen(w, h);
 		
 		this.setWidth(w);
 		this.setHeight(h);
+	}
+	
+	/**
+	 * Set the size of this window and the internal buffer used to render to the screen and perform needed updates to recalculate any necessary values.
+	 * This is an expensive operation and should only be used during initialization or with things like changing a setting
+	 * @param w The new width
+	 * @param h The new height
+	 */
+	public void setSizeUniform(int w, int h){
+		this.setSize(w, h);
+		this.resizeScreen(w, h);
+		this.updateWindowSize();
 	}
 	
 	/**
@@ -349,6 +378,9 @@ public abstract class GameWindow implements Destroyable{
 			// Store the old position of the window
 			this.oldPosition = this.getWindowPos();
 			this.enterFullScreen();
+			
+			// Apply any needed states from the game's type
+			if(this.game != null) game.getRenderStyle().setupCore(this.game, this.getRenderer());
 		}
 		else{
 			this.exitFullScreen();
@@ -369,10 +401,11 @@ public abstract class GameWindow implements Destroyable{
 		
 		// Update screen width and height
 		this.updateWindowSize();
-		this.resizeScreen(this.getScreenWidth(), this.getScreenHeight());
+		if(this.isResizeScreenOnResizeWindow()) this.resizeScreen(this.getWidth(), this.getHeight());
+		else this.resizeScreen(this.getScreenWidth(), this.getScreenHeight());
 		
 		// Ensure the window has appropriate texture settings
-		initTextureSettings();
+		this.initTextureSettings();
 		
 		// Make sure no buttons are pressed
 		this.getMouseInput().clear();
@@ -409,6 +442,9 @@ public abstract class GameWindow implements Destroyable{
 		Dimension s = this.getWindowSize();
 		this.setWidth(s.width);
 		this.setHeight(s.height);
+		
+		var game = this.getGame();
+		if(game != null) game.onWindowSizeChange(s.width, s.height);
 	}
 	
 	/**
@@ -445,20 +481,24 @@ public abstract class GameWindow implements Destroyable{
 	 */
 	public abstract long center();
 	
+	/** @param game See {@link #game} */
+	public void setGame(Game game){
+		this.game = game;
+	}
+	
+	/** @return See {@link #game} */
+	public Game getGame(){
+		return this.game;
+	}
+	
 	/**
 	 * Call to change the fullscreen state on the next OpenGL loop. If the window is already in the desired state, nothing happens
+	 * When using this window with a {@link Game}, the setting {@link zgame.settings.BooleanTypeSetting#FULLSCREEN} should be set instead of calling this method
 	 *
 	 * @param fullscreen true to enter fullscreen, false to exist.
 	 */
 	public void setFullscreen(boolean fullscreen){
 		this.updateFullscreen = OnOffState.state(fullscreen);
-	}
-	
-	/**
-	 * Call to change the fullscreen state on the next OpenGL loop to the opposite of its current state
-	 */
-	public void toggleFullscreen(){
-		this.setFullscreen(!this.inFullScreen);
 	}
 	
 	/** @return See {@link #useVsync} */
@@ -526,6 +566,31 @@ public abstract class GameWindow implements Destroyable{
 	
 	/** @return The {@link ZMouseInput} object which controls mouse input for the window */
 	public abstract ZMouseInput getMouseInput();
+	
+	/** @return See {@link #mouseNormally} */
+	public boolean isMouseNormally(){
+		return this.mouseNormally;
+	}
+	
+	/** @param normal See {@link #mouseNormally} */
+	public final void setMouseNormally(boolean normal){
+		if(this.mouseNormally == normal) return;
+		this.mouseNormally = normal;
+		updateMouseNormally(this.mouseNormally);
+	}
+	
+	/**
+	 * Set the mouse to act normally or to be invisible and stuck to the center of the window
+	 * @param normal true for normal, false otherwise
+	 */
+	public abstract void updateMouseNormally(boolean normal);
+	
+	/**
+	 * Update the mouse to act normally or to be invisible and stuck to the center of the window depending on the current value of {@link #isMouseNormally()}
+	 */
+	public void updateMouseNormally(){
+		this.updateMouseNormally(this.isMouseNormally());
+	}
 	
 	/** @return The {@link ZKeyInput} object which controls keyboard input for the window */
 	public abstract ZKeyInput getKeyInput();
@@ -599,6 +664,8 @@ public abstract class GameWindow implements Destroyable{
 	private void updateInternalValues(){
 		this.updateRatios();
 		this.updateViewportValues();
+		var game = this.getGame();
+		if(game != null) game.onWindowSizeChange(this.getWidth(), this.getHeight());
 	}
 	
 	/** @return See {@link #windowRatio} */
@@ -676,6 +743,16 @@ public abstract class GameWindow implements Destroyable{
 		}
 		this.viewportWInverse = 1.0 / this.viewportW;
 		this.viewportHInverse = 1.0 / this.viewportH;
+	}
+	
+	/** @return See {@link #resizeScreenOnResizeWindow} */
+	public boolean isResizeScreenOnResizeWindow(){
+		return this.resizeScreenOnResizeWindow;
+	}
+	
+	/** @param resizeScreenOnResizeWindow See {@link #resizeScreenOnResizeWindow} */
+	public void setResizeScreenOnResizeWindow(boolean resizeScreenOnResizeWindow){
+		this.resizeScreenOnResizeWindow = resizeScreenOnResizeWindow;
 	}
 	
 	/**

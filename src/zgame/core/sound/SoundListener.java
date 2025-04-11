@@ -18,8 +18,12 @@ public class SoundListener extends SoundLocation{
 	}
 	
 	@Override
-	public void updatePosition(double x, double y){
-		alListener3f(AL_POSITION, (float)x, (float)y, 0);
+	public void updatePosition(double x, double y, double z){
+		alListener3f(AL_POSITION, (float)x, (float)y, (float)z);
 	}
 	
+	@Override
+	public void updateDirection(double x, double y, double z){
+		alListener3f(AL_DIRECTION, (float)x, (float)y, (float)z);
+	}
 }

@@ -1,38 +1,24 @@
 package zusass.game.things;
 
 import zgame.core.Game;
-import zgame.core.utils.ZRect;
-import zgame.things.ThingClickDetector;
-import zgame.things.type.Bounds;
+import zgame.things.ThingClickDetector3D;
+import zgame.world.Room3D;
 import zusass.ZusassGame;
+import zusass.game.ZusassRoom;
 
-/** A {@link ThingClickDetector} used for the Zusass game */
-public interface ZThingClickDetector extends ThingClickDetector, Bounds{
+/** A {@link ThingClickDetector3D} used for the Zusass game */
+public interface ZThingClickDetector extends ThingClickDetector3D{
 	
 	@Override
-	default ZRect getThingBounds(){
-		return this.getBounds();
-	}
-	
-	@Override
-	default ZRect getPlayerBounds(Game game){
-		var zgame = (ZusassGame)game;
-		var player = zgame.getPlayer();
-		if(player == null) return null;
-		return player.getBounds();
-	}
-	
-	@Override
-	default boolean handlePress(Game game){
-		var zgame = (ZusassGame)game;
-		if(!ThingClickDetector.super.handlePress(zgame)) return false;
-		return handleZPress(zgame);
+	default void handlePress(Game game, Room3D room){
+		this.handleZusassPress((ZusassGame)game, (ZusassRoom)room);
 	}
 	
 	/**
 	 * Called when this thing in the Zusass game is clicked
+	 *
 	 * @param zgame The game where the click happened
-	 * @return true if this was activated, false otherwise
+	 * @param room The room where the click happened
 	 */
-	boolean handleZPress(ZusassGame zgame);
+	default void handleZusassPress(ZusassGame zgame, ZusassRoom room){}
 }

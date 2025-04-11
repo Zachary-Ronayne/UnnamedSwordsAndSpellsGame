@@ -20,6 +20,6 @@ public class MoveSpeed extends Stat{
 	
 	@Override
 	public double calculateValue(){
-		return this.getOther(ENDURANCE) * 40;
+		return this.getOther(ENDURANCE) * 0.075;
 	}
 }

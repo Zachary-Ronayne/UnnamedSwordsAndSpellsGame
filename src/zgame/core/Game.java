@@ -8,6 +8,7 @@ import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.CameraAxis;
 import zgame.core.graphics.camera.GameCamera;
+import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.FontAsset;
@@ -22,6 +23,7 @@ import zgame.core.sound.SoundSource;
 import zgame.core.state.DefaultState;
 import zgame.core.state.GameState;
 import zgame.core.state.PlayState;
+import zgame.core.type.RenderStyle;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
@@ -29,6 +31,8 @@ import zgame.settings.*;
 import zgame.stat.DefaultStatType;
 import zgame.world.Room;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,8 +51,14 @@ public class Game implements Saveable, Destroyable{
 	/** The {@link GlfwWindow} used by this {@link Game} as the core interaction */
 	private final GameWindow window;
 	
+	/** The way the core game is rendered, defaults to 2D */
+	private RenderStyle renderStyle;
+	
 	/** The {@link SoundManager} used by this {@link Game} to create sounds */
-	private final SoundManager sounds;
+	private SoundManager sounds;
+	
+	/** true to initialize the sound engine on game {@link #start()}, false otherwise, it will have to be started later using {@link #initSound()} */
+	private boolean initSoundOnStart;
 	
 	/** The {@link ImageManager} used by this {@link Game} to load images for ease of use in rendering */
 	private final ImageManager images;
@@ -61,6 +71,9 @@ public class Game implements Saveable, Destroyable{
 	
 	/** The Camera which determines the relative location and scale of objects drawn in the game */
 	private final GameCamera camera;
+	
+	/** The camera used for 3D graphics */
+	private final GameCamera3D camera3D;
 	
 	/** The {@link GameState} which this game is currently in */
 	private GameState currentState;
@@ -223,11 +236,12 @@ public class Game implements Saveable, Destroyable{
 		// On initialization, load the global settings
 		this.loadGlobalSettings();
 		
-		// Init sound
-		this.sounds = new SoundManager();
+		// Init sound on start by default
+		this.setInitSoundOnStart(true);
 		
 		// Init window
 		this.window = new GlfwWindow(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
+		this.window.setGame(this);
 		this.focusedMenuThing = null;
 		
 		// Init images
@@ -240,6 +254,9 @@ public class Game implements Saveable, Destroyable{
 		
 		// Init camera
 		this.camera = new GameCamera();
+		
+		// 3D camera
+		this.camera3D = new GameCamera3D();
 		
 		// Set up lambda calls for input
 		this.window.setKeyActionMethod(this::keyAction);
@@ -259,6 +276,9 @@ public class Game implements Saveable, Destroyable{
 		
 		// Go to fullscreen if applicable
 		this.window.setInFullScreenNow(enterFullScreen);
+		
+		// Init the type
+		this.make2D();
 	}
 	
 	/**
@@ -272,16 +292,28 @@ public class Game implements Saveable, Destroyable{
 		this.tickThread = new Thread(this.tickTask);
 		this.tickThread.start();
 		
-		// Run the audio loop
-		this.soundTask = new SoundLoopTask();
-		this.soundThread = new Thread(this.soundTask);
-		this.soundThread.start();
+		if(this.isInitSoundOnStart()) this.initSound();
 		
 		// Run the render loop in the main thread
 		this.renderLooper.loop();
 		
 		// End the program
 		this.end();
+	}
+	
+	/** Call all necessary methods for initializing sound processes */
+	public void initSound(){
+		if(this.sounds != null) {
+			this.sounds.scanDevices();
+			return;
+		}
+		this.sounds = new SoundManager();
+		this.sounds.scanDevices();
+		
+		// Run the audio loop
+		this.soundTask = new SoundLoopTask();
+		this.soundThread = new Thread(this.soundTask);
+		this.soundThread.start();
 	}
 	
 	/** Force the game to stop, but ensure the game closes without errors */
@@ -314,7 +346,7 @@ public class Game implements Saveable, Destroyable{
 		this.getWindow().destroy();
 		
 		// Free sounds
-		this.sounds.destroy();
+		if(this.sounds != null) this.sounds.destroy();
 		
 		// Free images
 		this.images.destroy();
@@ -413,21 +445,18 @@ public class Game implements Saveable, Destroyable{
 				r.initToDraw();
 				
 				// Draw the background
+				RenderStyle.S_2D.setupFrame(this, r);
 				r.setCamera(null);
 				r.identityMatrix();
 				this.renderBackground(r);
 				
 				// Draw the foreground, i.e. main objects
-				// Set the camera
-				boolean useCam = this.getCurrentState().isUseCamera();
-				if(useCam) r.setCamera(this.getCamera());
-				else r.setCamera(null);
-				// Move based on the camera, if applicable, and draw the objects
-				r.identityMatrix();
-				if(useCam) this.getCamera().transform(this.getWindow());
+				// Perform any needed operations based on the type
+				this.getRenderStyle().setupFrame(this, r);
 				this.render(r);
 				
 				// Draw the hud
+				RenderStyle.S_2D.setupFrame(this, r);
 				r.setCamera(null);
 				r.identityMatrix();
 				this.renderHud(r);
@@ -661,6 +690,13 @@ public class Game implements Saveable, Destroyable{
 	}
 	
 	/**
+	 * Toggle full screen by changing the setting
+	 */
+	public void toggleFullscreen(){
+		this.toggle(BooleanTypeSetting.FULLSCREEN, false);
+	}
+	
+	/**
 	 * Load the necessary contents of this {@link Game} from a json file at the given path
 	 *
 	 * @param path The path to load from, including file extension
@@ -713,11 +749,25 @@ public class Game implements Saveable, Destroyable{
 	public boolean loadGlobalSettings(){
 		this.globalSettings.setDefaults();
 		
-		var path = this.getGlobalSettingsFilePath();
-		var success = ZJsonFile.loadJsonFile(path, this.globalSettings::load);
+		var pathFile = this.getGlobalSettingsFilePath();
+		
+		// If the file path doesn't exist, create it first
+		var file = new File(pathFile);
+		var pathName = file.getParent();
+		var path = new File(pathName);
+		if(!path.exists()){
+			path.mkdirs();
+			try{
+				file.createNewFile();
+			}catch(IOException e){
+				e.printStackTrace();
+			}
+		}
+		
+		var success = ZJsonFile.loadJsonFile(pathFile, this.globalSettings::load);
 		// If the settings fail to load, save the default settings
-		if(!success) {
-			ZConfig.error("Failed to load global settings at path ", path, " saving defaults");
+		if(!success){
+			ZConfig.error("Failed to load global settings at path ", pathFile, " saving defaults");
 			this.saveGlobalSettings();
 		}
 		return success;
@@ -734,7 +784,19 @@ public class Game implements Saveable, Destroyable{
 	
 	/** @return See {@link #sounds} */
 	public SoundManager getSounds(){
-		return sounds;
+		// Ensure sounds are initialized if they don't exist yet
+		if(this.sounds == null) this.initSound();
+		return this.sounds;
+	}
+	
+	/** @return See {@link #initSoundOnStart} */
+	public boolean isInitSoundOnStart(){
+		return this.initSoundOnStart;
+	}
+	
+	/** @param initSoundOnStart See {@link #initSoundOnStart} */
+	public void setInitSoundOnStart(boolean initSoundOnStart){
+		this.initSoundOnStart = initSoundOnStart;
 	}
 	
 	/**
@@ -828,9 +890,19 @@ public class Game implements Saveable, Destroyable{
 		return this.getScreenTop() + this.getCamera().sizeScreenToGameY(this.getScreenHeight());
 	}
 	
+	/**
+	 * Called whenever the window size of the game changes. Does nothing by default
+	 */
+	public void onWindowSizeChange(int newW, int newH){}
+	
 	/** @return See {@link #renderLooper} */
 	public GameLooper getRenderLooper(){
 		return this.renderLooper;
+	}
+	
+	/** @return The current FPS based on the last second */
+	public int getFps(){
+		return this.getRenderLooper().getLastFuncCalls();
 	}
 	
 	/** @return See {@link #tickLooper} */
@@ -845,7 +917,7 @@ public class Game implements Saveable, Destroyable{
 	
 	/** @param print See {@link #isPrintFps()} */
 	public void setPrintFps(boolean print){
-		this.renderLooper.setPrintRate(print);
+		this.set(BooleanTypeSetting.PRINT_FPS, print, this.isSaveLoaded());
 	}
 	
 	/** @return The number of times each second that this {@link Game} runs a game tick */
@@ -881,7 +953,7 @@ public class Game implements Saveable, Destroyable{
 	
 	/** @param print See {@link #isPrintTps()} */
 	public void setPrintTps(boolean print){
-		this.tickLooper.setPrintRate(print);
+		this.set(BooleanTypeSetting.PRINT_TPS, print, this.isSaveLoaded());
 	}
 	
 	/** @return The number of times each second that the sound will update */
@@ -961,9 +1033,12 @@ public class Game implements Saveable, Destroyable{
 		return this.playState;
 	}
 	
-	/** @return The {@link Room} that the current {@link #playState} is using, or null if there is no play state */
-	public Room getCurrentRoom(){
-		PlayState p = this.getPlayState();
+	/**
+	 * @return The {@link Room} that the current {@link #playState} is using, or null if there is no play state. The system assumes the room will always be an appropriate
+	 * 		type for the game
+	 */
+	public Room<?, ?, ?, ?, ?> getCurrentRoom(){
+		var p = this.getPlayState();
 		if(p == null) return null;
 		return p.getCurrentRoom();
 	}
@@ -1019,6 +1094,47 @@ public class Game implements Saveable, Destroyable{
 	/** @return The current y coordinate of the mouse in game coordinates. Should use for things that move with the camera */
 	public double mouseGY(){
 		return this.getCamera().screenToGameY(this.mouseSY());
+	}
+	
+	/** Set the model view to be the base matrix for a perspective projection using the current {@link #camera3D} perspective */
+	public void camera3DPerspective(){
+		this.getWindow().getRenderer().camera3DPerspective(this.getCamera3D());
+	}
+	
+	/** @return See {@link #camera3D} */
+	public GameCamera3D getCamera3D(){
+		return this.camera3D;
+	}
+	
+	/** @return The fov of {@link #camera3D} */
+	public double getFov(){
+		return this.getCamera3D().getFov();
+	}
+	
+	/** @param fov The new fov for {@link #camera3D} */
+	public void setFov(double fov){
+		this.getCamera3D().setFov(fov);
+	}
+	
+	/**
+	 * Update the 3D camera in this game based on the last amount of distance the camera moved since the last mouse movement.
+	 * Should be called on mouse movement
+	 */
+	public void look3D(){
+		// issue#43 fix sudden camera jolts when switching between normal and not normal mouse modes
+		
+		// Axes swapped because of the way that it feels like it should be when moving a mouse around
+		var mi = this.getMouseInput();
+		var dx = mi.dy() * this.get(DoubleTypeSetting.CAMERA_LOOK_SPEED_X);
+		var dy = mi.dx() * this.get(DoubleTypeSetting.CAMERA_LOOK_SPEED_Y);
+		
+		// Invert if applicable
+		if(this.get(BooleanTypeSetting.CAMERA_LOOK_INVERT_X)) dx = -dx;
+		if(this.get(BooleanTypeSetting.CAMERA_LOOK_INVERT_Y)) dy = -dy;
+		
+		var camera = this.getCamera3D();
+		camera.addPitch(dx);
+		camera.addYaw(dy);
 	}
 	
 	/** @return See {@link #settings} */
@@ -1080,6 +1196,16 @@ public class Game implements Saveable, Destroyable{
 	 */
 	public void set(BooleanTypeSetting setting, boolean value, boolean local){
 		this.setAny(setting, value, local);
+	}
+	
+	/**
+	 * Toggle the current value of a boolean setting in {@link #settings}
+	 *
+	 * @param setting The name of the setting to toggle
+	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
+	 */
+	public void toggle(BooleanTypeSetting setting, boolean local){
+		this.set(setting, !this.get(setting), local);
 	}
 	
 	/**
@@ -1177,4 +1303,26 @@ public class Game implements Saveable, Destroyable{
 	public void setFocusedMenuThing(Integer focusedMenuThing){
 		this.focusedMenuThing = focusedMenuThing;
 	}
+	
+	/** @return See {@link #renderStyle} */
+	public RenderStyle getRenderStyle(){
+		return this.renderStyle;
+	}
+	
+	/** @param renderStyle See {@link #renderStyle} */
+	public void setRenderStyle(RenderStyle renderStyle){
+		this.renderStyle = renderStyle;
+		this.renderStyle.setupCore(this, this.getWindow().getRenderer());
+	}
+	
+	/** Assign this game as a 2D game */
+	public void make2D(){
+		this.setRenderStyle(RenderStyle.S_2D);
+	}
+	
+	/** Assign this game as a 3D game */
+	public void make3D(){
+		this.setRenderStyle(RenderStyle.S_3D);
+	}
+	
 }

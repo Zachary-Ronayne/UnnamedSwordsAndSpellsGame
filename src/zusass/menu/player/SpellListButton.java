@@ -2,7 +2,7 @@ package zusass.menu.player;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 import zgame.menu.format.PercentFormatter;
 import zusass.ZusassGame;
 import zusass.game.magic.Spell;
@@ -67,13 +67,13 @@ public class SpellListButton extends ZusassButton{
 	}
 	
 	@Override
-	public ZRect getTextLimitBounds(){
+	public ZRect2D getTextLimitBounds(){
 		var b = super.getTextLimitBounds();
 		return b == null ? null : b.pad(-this.getBorderWidth());
 	}
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect bounds){
+	public void render(Game game, Renderer r, ZRect2D bounds){
 		super.render(game, r, bounds);
 		
 		// Draw a highlight if this button is the currently selected spell

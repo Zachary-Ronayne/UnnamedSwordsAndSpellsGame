@@ -58,7 +58,7 @@ public class StatModifier implements Comparable<StatModifier>, Saveable{
 	@Override
 	public int compareTo(StatModifier o){
 		// Sort descending
-		return (int)(o.getValue() - this.getValue());
+		return Double.compare(o.getValue(), this.getValue());
 	}
 	
 	@Override
@@ -75,4 +75,10 @@ public class StatModifier implements Comparable<StatModifier>, Saveable{
 		this.value = Saveable.d(VALUE_KEY, e, this.type == ModifierType.MULT_MULT ? 1 : 0);
 		return true;
 	}
+	
+	/** @return An object with the same values, but as a different object */
+	public StatModifier copy(){
+		return new StatModifier(this.value, this.type);
+	}
+	
 }

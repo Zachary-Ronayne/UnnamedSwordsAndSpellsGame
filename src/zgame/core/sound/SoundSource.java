@@ -41,10 +41,10 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	private Sound current;
 	
 	/**
-	 * Create and initialize a new {@link SoundSource} at (0, 0)
+	 * Create and initialize a new {@link SoundSource} at (0, 0, 0)
 	 */
 	public SoundSource(){
-		this(0, 0);
+		this(0, 0, 0);
 	}
 	
 	/**
@@ -53,8 +53,8 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	 * @param x The current x position of the sound
 	 * @param y The current y position of the sound
 	 */
-	public SoundSource(double x, double y){
-		this(x, y, 1);
+	public SoundSource(double x, double y, double z){
+		this(x, y, z, 0);
 	}
 	
 	/**
@@ -62,9 +62,10 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	 *
 	 * @param x The current x position of the sound
 	 * @param y The current y position of the sound
+	 * @param z The current z position of the sound
 	 * @param baseVolume See {@link #baseVolume}
 	 */
-	public SoundSource(double x, double y, double baseVolume){
+	public SoundSource(double x, double y, double z, double baseVolume){
 		super();
 		this.id = alGenSources();
 		this.muted = false;
@@ -74,13 +75,22 @@ public class SoundSource extends SoundLocation implements Destroyable{
 		this.setVolume(1);
 		this.pausedSample = -1;
 		alSourcef(this.getId(), AL_PITCH, 1);
-		this.updatePosition(x, y);
+		this.updatePosition(x, y, z);
 		this.current = null;
 	}
 	
 	@Override
-	public void updatePosition(double x, double y){
-		alSource3f(this.getId(), AL_POSITION, (float)x, (float)y, 0);
+	public void updatePosition(double x, double y, double z){
+		alSource3f(this.getId(), AL_POSITION, (float)x, (float)y, (float)z);
+	}
+	
+	@Override
+	public void updateDirection(double x, double y, double z){
+		alSource3f(this.getId(), AL_DIRECTION, (float)x, (float)y, (float)z);
+		// issue#61 these values need a better way of being set up
+		alSourcef(this.getId(), AL_CONE_INNER_ANGLE, 1);
+		alSourcef(this.getId(), AL_CONE_OUTER_ANGLE, 1);
+		alSourcef(this.getId(), AL_CONE_OUTER_GAIN, 0.2f);
 	}
 	
 	/** Should call this method when the state of a sound needs to be updated, i.e. each game loop */

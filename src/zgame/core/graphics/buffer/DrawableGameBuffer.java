@@ -24,9 +24,9 @@ public class DrawableGameBuffer extends DrawableBuffer{
 	public final void draw(Renderer r){
 	}
 	
-	/** {@link #drawToRenderer(double, double, Renderer)} is not used by this class, use {@link #drawToRenderer(double, double, Renderer, Game)} instead */
+	/** {@link #drawOnRenderer(double, double, Renderer)} is not used by this class, use {@link #drawToRenderer(double, double, Renderer, Game)} instead */
 	@Override
-	public final void drawToRenderer(double x, double y, Renderer r){
+	public final void drawOnRenderer(double x, double y, Renderer r){
 	}
 	
 	/**
@@ -39,7 +39,7 @@ public class DrawableGameBuffer extends DrawableBuffer{
 	 */
 	public void drawToRenderer(double x, double y, Renderer r, Game game){
 		if(!this.skipRedraw()) this.redraw(r, (ren, g) -> draw(game, ren), game);
-		super.drawToRenderer(x, y, r);
+		super.drawOnRenderer(x, y, r);
 	}
 	
 	/**

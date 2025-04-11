@@ -3,14 +3,13 @@ package zgame.core.graphics;
 import static org.lwjgl.opengl.GL30.*;
 
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector4d;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBTTAlignedQuad;
 
-import zgame.core.graphics.buffer.GameBuffer;
-import zgame.core.graphics.buffer.IndexBuffer;
-import zgame.core.graphics.buffer.VertexArray;
-import zgame.core.graphics.buffer.VertexBuffer;
+import zgame.core.graphics.buffer.*;
+import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.TextBuffer;
@@ -18,9 +17,10 @@ import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.shader.ShaderProgram;
 import zgame.core.utils.LimitedStack;
 import zgame.core.utils.ZMath;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
+import zgame.physics.ZVector3D;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class Renderer implements Destroyable{
 	/** Default value for {@link #renderOnlyInsideStack} */
 	public static final Boolean DEFAULT_RENDER_ONLY_INSIDE = true;
 	/** Default value for {@link #limitedBoundsStack}. null means no limit */
-	public static final ZRect DEFAULT_LIMITED_BOUNDS = null;
+	public static final ZRect2D DEFAULT_LIMITED_BOUNDS = null;
 	
 	/** true if the bounds should never be limited, false otherwise. Should always be false, unless debugging graphics */
 	public static final boolean DISABLE_LIMITING_BOUNDS = false;
@@ -61,6 +61,8 @@ public class Renderer implements Destroyable{
 	public static final int VERTEX_POS_INDEX = 0;
 	/** The vertex buffer index for texture coordinates */
 	public static final int VERTEX_TEX_INDEX = 1;
+	/** The vertex buffer index for color coordinates */
+	public static final int VERTEX_COLOR_INDEX = 2;
 	
 	/** The buffer for the x coordinate when rendering text */
 	private final FloatBuffer xTextBuff;
@@ -77,6 +79,8 @@ public class Renderer implements Destroyable{
 	private final ShaderProgram fontShader;
 	/** The shader used to draw the frame buffer to the screen, as a texture */
 	private final ShaderProgram framebufferShader;
+	/** The shader used to draw 3D rectangles with colors */
+	private final ShaderProgram rect3DShader;
 	/** The shader which is currently used */
 	private ShaderProgram shader;
 	
@@ -85,7 +89,7 @@ public class Renderer implements Destroyable{
 	/** A {@link VertexBuffer} which represents positional values that fill the entire OpenGL screen from (-1, -1) to (1, 1) */
 	private VertexBuffer fillScreenPosBuff;
 	/** The index buffer that tracks the indexes for drawing a rectangle */
-	private IndexBuffer rectIndexBuff;
+	private IndexByteBuffer rectIndexBuff;
 	
 	/** The number of points used to draw an ellipse */
 	public static final int NUM_ELLIPSE_POINTS = 36;
@@ -94,12 +98,12 @@ public class Renderer implements Destroyable{
 	/** The {@link VertexBuffer} which represents positional values that generate an ellipse */
 	private VertexBuffer ellipsePosBuff;
 	/** The index buffer that tracks the indexes for drawing an ellipse */
-	private IndexBuffer ellipseIndexBuff;
+	private IndexByteBuffer ellipseIndexBuff;
 	
 	/** A {@link VertexArray} for drawing text */
 	private VertexArray textVertArr;
 	/** A {@link VertexBuffer} which represents positional values for a texture whose positional values will regularly change */
-	private VertexBuffer posBuff;
+	private VertexBuffer posBuff2D;
 	/** A {@link VertexBuffer} which represents texture coordinates for a texture whose texture coordinates will regularly change */
 	private VertexBuffer changeTexCoordBuff;
 	
@@ -107,6 +111,49 @@ public class Renderer implements Destroyable{
 	private VertexArray imgVertArr;
 	/** The {@link VertexBuffer} used to track the texture coordinates for drawing the entirety of a texture, i.e. from (0, 0) to (1, 1) */
 	private VertexBuffer texCoordBuff;
+	
+	/** The {@link IndexByteBuffer} that tracks indexes for drawing a 3D rectangular prism */
+	private IndexByteBuffer rect3DIndexBuff;
+	/** The {@link VertexBuffer} that tracks the coordinates for drawing a 3D rectangular prism */
+	private VertexBuffer rect3DCoordBuff;
+	/** The {@link VertexBuffer} that tracks the colors for drawing a 3D rectangular prism */
+	private VertexBuffer rect3DColorBuff;
+	/** The {@link VertexArray} for drawing a 3D rectangular prism */
+	private VertexArray rect3DVertArr;
+	/** The {@link VertexArray} for drawing an ellipse in 3D on the xz plane */
+	private VertexArray ellipse3DVertArr;
+	/** The {@link VertexBuffer} which represents positional values that generate a 3D ellipse */
+	private VertexBuffer ellipse3DPosBuff;
+	/** The index buffer that tracks the indexes for drawing a 3D ellipse */
+	private IndexByteBuffer ellipse3DIndexBuff;
+	
+	/** The {@link IndexByteBuffer} that tracks indexes for drawing a finite plane from a quad */
+	private IndexByteBuffer planeIndexBuff;
+	/** The {@link VertexBuffer} that tracks the coordinates for drawing a finite plane from a quad */
+	private VertexBuffer planeCoordBuff;
+	/** The {@link VertexArray} for drawing a finite plane from a quad */
+	private VertexArray planeVertArr;
+	/** The {@link VertexBuffer} that tracks the texture coordinates for drawing a textured finite plane from a quad */
+	private VertexBuffer planeTexCoordBuff;
+	/** The {@link VertexArray} for drawing a finite plane from a quad with a texture */
+	private VertexArray planeTexVertArr;
+	
+	/** The {@link VertexBuffer} that tracks the texture coordinates for drawing a rectangular prism with a texture */
+	private VertexBuffer rect3DTexCoordBuff;
+	/** The {@link VertexArray} for drawing a rectangular prism with a texture */
+	private VertexArray rect3DTexVertArr;
+	
+	/** The number of iterations for breaking up a sphere when drawing */
+	public static final int NUM_SPHERE_ITERATIONS = 16;
+	/** The {@link IndexByteBuffer} that tracks indexes for drawing a sphere */
+	private IndexIntBuffer sphereIndexBuff;
+	/** The {@link VertexBuffer} that tracks the coordinates for drawing a sphere */
+	private VertexBuffer sphereCoordBuff;
+	/** The {@link VertexArray} for drawing a sphere */
+	private VertexArray sphereVertArr;
+	
+	/** The currently bound vertex array for rendering */
+	private VertexArray boundVertexArray;
 	
 	/** The list of all the stacks of this {@link Renderer} keeping track of the state of this {@link Renderer} */
 	private final ArrayList<LimitedStack<?>> stacks;
@@ -119,7 +166,7 @@ public class Renderer implements Destroyable{
 	/** The buffer used to track {@link #modelView} */
 	private final FloatBuffer modelViewBuff;
 	/** The current bounds of the renderer, transformed based on {@link #modelView()}, or null if it needs to be recalculated */
-	private ZRect transformedRenderBounds;
+	private ZRect2D transformedRenderBounds;
 	/** true if {@link #modelView()} has changed since last being sent to the current shader, and must be resent before any rendering operations take place, false otherwise */
 	private boolean sendModelView;
 	/** true if {@link #getColor()} has changed since last being sent to the current shader */
@@ -130,6 +177,9 @@ public class Renderer implements Destroyable{
 	
 	/** The stack keeping track of the current color used by this {@link Renderer} */
 	private final LimitedStack<ZColor> colorStack;
+	
+	/** The last color sent to the GPU, or null if it needs to be resent */
+	private ZColor lastColor;
 	
 	/** The stack keeping track of the current font of this {@link Renderer}. If the top of the stack is null, no text can be drawn. No font is set by default */
 	private final LimitedStack<GameFont> fontStack;
@@ -147,7 +197,7 @@ public class Renderer implements Destroyable{
 	 * The stack keeping track of the {@link GameCamera} which determines the relative location and scale of objects drawn in this renderer.
 	 * If the top of the stack is null, no transformations will be applied
 	 */
-	private LimitedStack<GameCamera> cameraStack;
+	private final LimitedStack<GameCamera> cameraStack;
 	
 	/**
 	 * A stack keeping track of the attribute of if positioning should be used.
@@ -164,7 +214,11 @@ public class Renderer implements Destroyable{
 	private final LimitedStack<Boolean> renderOnlyInsideStack;
 	
 	/** The stack keeping track of the current bounds which rendering is limited to, in game coordinates, or null if no bounds is limited */
-	private final LimitedStack<ZRect> limitedBoundsStack;
+	private final LimitedStack<ZRect2D> limitedBoundsStack;
+	
+	/** true if the OpenGL depth test is enabled, false otherwise */
+	private boolean depthTestEnabled;
+	
 	
 	/**
 	 * Create a new empty renderer
@@ -180,7 +234,9 @@ public class Renderer implements Destroyable{
 		this.attributeStacks = new ArrayList<>();
 		
 		// Buffer stack
-		this.bufferStack = new LimitedStack<>(new GameBuffer(width, height, true), false);
+		var coreBuffer = new GameBuffer(width, height);
+		coreBuffer.regenerateBuffer();
+		this.bufferStack = new LimitedStack<>(coreBuffer, false);
 		this.stacks.add(this.bufferStack);
 		
 		// Camera stack
@@ -206,10 +262,7 @@ public class Renderer implements Destroyable{
 		this.stacks.add(this.colorStack);
 		this.attributeStacks.add(this.colorStack);
 		this.sendColor = true;
-		
-		// Camera stack
-		this.cameraStack = new LimitedStack<>(null);
-		this.stacks.add(cameraStack);
+		this.lastColor = null;
 		
 		// Positioning enabled stack
 		this.positioningEnabledStack = new LimitedStack<>(DEFAULT_POSITIONING_ENABLED);
@@ -236,24 +289,118 @@ public class Renderer implements Destroyable{
 		this.textureShader = new ShaderProgram("texture");
 		this.fontShader = new ShaderProgram("font");
 		this.framebufferShader = new ShaderProgram("framebuffer");
+		this.rect3DShader = new ShaderProgram("default3D");
 		this.renderModeImage();
 		
 		// Vertex arrays and vertex buffers
 		this.initVertexes();
+		
+		// Init depth test, setting it to false, matching the OpenGL default
+		this.depthTestEnabled = false;
+		glDisable(GL_DEPTH_TEST);
+		this.setDepthTestEnabled(false);
 	}
 	
-	/** Initialize all resources used by the vertex arrays and vertex buffers */
+	/** Initialize all resources used by index buffers, vertex arrays, and vertex buffers */
 	public void initVertexes(){
-		// Generate an index buffer for drawing rectangles
-		this.rectIndexBuff = new IndexBuffer(new byte[]{
-				/////////
-				0, 1, 2,
-				/////////
-				0, 3, 2});
+		this.initIndexBuffers();
+		this.initVertexBuffers();
+		this.initVertexArrays();
+	}
+	
+	/** Initialize the constant values for all index buffers */
+	private void initIndexBuffers(){
 		
-		// Generate a vertex array for drawing solid colored rectangles
-		this.rectVertArr = new VertexArray();
-		this.rectVertArr.bind();
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// 2D index buffers
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate an index buffer for drawing rectangles
+		this.rectIndexBuff = new IndexByteBuffer(new byte[]{
+				0, 1, 2,
+				0, 3, 2
+		});
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate an index buffer for drawing a 2D ellipse
+		
+		// Make indexes for the number of triangles minus 1
+		var ellipseIndexes = new byte[(NUM_ELLIPSE_POINTS - 1) * 3];
+		
+		// Go through each point
+		// Don't add the last index, that would cause the last triangle to overlap
+		for(int i = 0; i < NUM_ELLIPSE_POINTS - 1; i++){
+			ellipseIndexes[i * 3] = (byte)(0);
+			ellipseIndexes[i * 3 + 1] = (byte)(i);
+			ellipseIndexes[i * 3 + 2] = (byte)(i + 1);
+		}
+		this.ellipseIndexBuff = new IndexByteBuffer(ellipseIndexes);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// 3D index buffers
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate the indexes for the 3D rect
+		var cubeIndices = new byte[24];
+		for(int i = 0; i < cubeIndices.length; i++) cubeIndices[i] = (byte)i;
+		this.rect3DIndexBuff = new IndexByteBuffer(cubeIndices);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate the indexes for the finite 3D plane
+		this.planeIndexBuff = new IndexByteBuffer(new byte[]{0, 1, 2, 3});
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate the indexes for the sphere
+		// 6 indexes for each pair of two triangles, the number of iterations essentially forms a square of triangles mapped to the sphere
+		var sphereIndices = new int[NUM_SPHERE_ITERATIONS * NUM_SPHERE_ITERATIONS * 6];
+		int sphereIndex = 0;
+		// Only iterating up to the iteration count, fence post problem
+		for(int i = 0; i < NUM_SPHERE_ITERATIONS; i++){
+			for(int j = 0; j < NUM_SPHERE_ITERATIONS; j++){
+				// Magic index math to find the correct vertexes of the triangles
+				int first = i * (NUM_SPHERE_ITERATIONS + 1) + j;
+				int second = first + NUM_SPHERE_ITERATIONS + 1;
+				// Triangle 1
+				sphereIndices[sphereIndex++] = first;
+				sphereIndices[sphereIndex++] = second;
+				sphereIndices[sphereIndex++] = first + 1;
+				
+				// Triangle 2
+				sphereIndices[sphereIndex++] = second;
+				sphereIndices[sphereIndex++] = second + 1;
+				sphereIndices[sphereIndex++] = first + 1;
+			}
+		}
+		this.sphereIndexBuff = new IndexIntBuffer(sphereIndices);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate in index buffer for rendering 3D ellipses
+		
+		// Make indexes for the number of triangles minus 1
+		ellipseIndexes = new byte[(NUM_ELLIPSE_POINTS - 1) * 3];
+		// Go through each point
+		// Don't add the last index, that would cause the last triangle to overlap
+		for(int i = 0; i < NUM_ELLIPSE_POINTS - 1; i++){
+			ellipseIndexes[i * 3] = (byte)(0);
+			ellipseIndexes[i * 3 + 1] = (byte)(i);
+			ellipseIndexes[i * 3 + 2] = (byte)(i + 1);
+		}
+		this.ellipse3DIndexBuff = new IndexByteBuffer(ellipseIndexes);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	}
+	
+	/** Initialize the constant values for all vertex buffers */
+	private void initVertexBuffers(){
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// 2D vertex buffers
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 		// Generate a vertex buffer for drawing rectangles that fill the entire screen and can be scaled
 		this.fillScreenPosBuff = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_STATIC_DRAW, new float[]{
 				// Low Left Corner
@@ -265,10 +412,9 @@ public class Renderer implements Destroyable{
 				// Up Left Corner
 				-1, 1});
 		
-		// Generate a vertex array for rendering images
-		this.imgVertArr = new VertexArray();
-		this.imgVertArr.bind();
-		// Generate a vertex buffer for texture coordinates for rendering images
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate a vertex buffer for texture coordinates for rendering images that renders the entire image
 		this.texCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_STATIC_DRAW, new float[]{
 				// Low Left Corner
 				0, 0,
@@ -278,23 +424,21 @@ public class Renderer implements Destroyable{
 				1, 1,
 				// Up Left Corner
 				0, 1});
-		// Add the positional data to the image rendering
-		this.fillScreenPosBuff.bind();
-		this.fillScreenPosBuff.applyToVertexArray();
 		
-		// Generate a vertex array for rendering text
-		this.textVertArr = new VertexArray();
-		this.textVertArr.bind();
-		// Generate a vertex buffer for positional coordinates that regularly change
-		this.posBuff = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_DYNAMIC_DRAW, 4);
-		this.posBuff.applyToVertexArray();
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
 		// Generate a vertex buffer for texture coordinates that regularly change
 		this.changeTexCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_DYNAMIC_DRAW, 4);
-		this.changeTexCoordBuff.applyToVertexArray();
 		
-		// Generate a vertex array for rendering ellipses
-		// Make indexes for the number of triangles minus 1
-		var ellipseIndexes = new byte[(NUM_ELLIPSE_POINTS - 1) * 3];
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate a vertex buffer for positional coordinates that regularly change
+		this.posBuff2D = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_DYNAMIC_DRAW, 4);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate a vertex buffer for drawing an ellipse
+		
 		// Make one point for each of the points on the circle
 		var ellipsePoints = new float[NUM_ELLIPSE_POINTS * 2];
 		// Go through each point
@@ -306,29 +450,225 @@ public class Renderer implements Destroyable{
 			// Apply the angle
 			ellipsePoints[i * 2] = (float)x;
 			ellipsePoints[i * 2 + 1] = (float)y;
-			// Don't add the last index, that would cause the last triangle to overlap
-			if(i >= NUM_ELLIPSE_POINTS - 1) continue;
-			ellipseIndexes[i * 3] = (byte)(0);
-			ellipseIndexes[i * 3 + 1] = (byte)(i);
-			ellipseIndexes[i * 3 + 2] = (byte)(i + 1);
 		}
-		this.ellipseVertArr = new VertexArray();
-		this.ellipseVertArr.bind();
-		this.ellipseIndexBuff = new IndexBuffer(ellipseIndexes);
 		this.ellipsePosBuff = new VertexBuffer(VERTEX_POS_INDEX, 2, GL_STATIC_DRAW, ellipsePoints);
-		this.ellipsePosBuff.applyToVertexArray();
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// 3D vertex buffers
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Create the vertex buffer for the coordinates and colors of a cube with 6 different colors per face
+		
+		// Values for defining the cube
+		// 6 faces, 4 vertices per face, 3 coordinates per position
+		var cubeCorners = new float[][]{
+				// left, bottom, back
+				{-0.5f, 0.0f, -0.5f},
+				// right, bottom, back
+				{0.5f, 0.0f, -0.5f},
+				// right, top, back
+				{0.5f, 1.0f, -0.5f},
+				// left, top, back
+				{-0.5f, 1.0f, -0.5f},
+				// left, bottom, front
+				{-0.5f, 0.0f, 0.5f},
+				// right, bottom, front
+				{0.5f, 0.0f, 0.5f},
+				// right, top, front
+				{0.5f, 1.0f, 0.5f},
+				// left, top, front
+				{-0.5f, 1.0f, 0.5f},
+		};
+		var cubeCornerIndices = new byte[][]{
+				// Front
+				{4, 5, 6, 7},
+				// Back
+				{0, 1, 2, 3},
+				// Left
+				{0, 4, 7, 3},
+				// Right
+				{1, 5, 6, 2},
+				// Top
+				{3, 2, 6, 7},
+				// Bottom
+				{0, 1, 5, 4},
+		};
+		
+		var cubePositions = new float[6 * 4 * 3];
+		int cubeIndex = 0;
+		for(int f = 0; f < 6; f++){
+			for(int v = 0; v < 4; v++){
+				for(int p = 0; p < 3; p++){
+					cubePositions[cubeIndex++] = cubeCorners[cubeCornerIndices[f][v]][p];
+				}
+			}
+		}
+		
+		// Create the vertex buffer for the colors, default to all white
+		// 6 faces, 4 vertices per face, 4 color channels per color
+		var colorVertices = new float[6 * 4 * 4];
+		for(int i = 0; i < colorVertices.length; i++){
+			colorVertices[i] = 1;
+		}
+		
+		// Buffer for the position vertices
+		this.rect3DCoordBuff = new VertexBuffer(VERTEX_POS_INDEX, 3, cubePositions);
+		
+		// Buffer for the color vertices
+		this.rect3DColorBuff = new VertexBuffer(VERTEX_COLOR_INDEX, 4, GL_DYNAMIC_DRAW, colorVertices);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Vertex buffer for a plane
+		this.planeCoordBuff = new VertexBuffer(VERTEX_POS_INDEX, 3, new float[]{
+				0.5f, 0.0f, -0.5f,
+				0.5f, 0.0f, 0.5f,
+				-0.5f, 0.0f, 0.5f,
+				-0.5f, 0.0f, -0.5f
+		});
+		
+		// Vertex buffer for texture coordinates of a plane
+		this.planeTexCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, new float[]{
+				1.0f, 0.0f,
+				1.0f, 1.0f,
+				0.0f, 1.0f,
+				0.0f, 0.0f
+		});
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate a vertex buffer for a sphere
+		// 3 vertexes per triangle, the number of iterations will be the same for longitude and latitude, need one extra iteration to connect the lines together, fence post problem
+		var sphereVertices = new float[(NUM_SPHERE_ITERATIONS + 1) * (NUM_SPHERE_ITERATIONS + 1) * 3];
+		var sphereIndex = 0;
+		for(int i = 0; i <= NUM_SPHERE_ITERATIONS; i++){
+			// phi is the degrees around the sphere for latitude, it will be a percent of the north to south pole
+			float phi = (float)(Math.PI * i / NUM_SPHERE_ITERATIONS);
+			for(int j = 0; j <= NUM_SPHERE_ITERATIONS; j++){
+				// theta is the degrees around the sphere for latitude, it will be a percent of the equator
+				float theta = (float)(ZMath.TAU * j / NUM_SPHERE_ITERATIONS);
+				float x = (float)(Math.sin(phi) * Math.cos(theta));
+				float y = (float)(Math.cos(phi));
+				float z = (float)(Math.sin(phi) * Math.sin(theta));
+				// Each set of vertexes will be the next 3 indexes
+				sphereVertices[sphereIndex++] = x;
+				sphereVertices[sphereIndex++] = y;
+				sphereVertices[sphereIndex++] = z;
+			}
+		}
+		this.sphereCoordBuff = new VertexBuffer(VERTEX_POS_INDEX, 3, sphereVertices);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Vertex buffer for an ellipse in 3D, aligned to the xz plane
+		var ellipsePoints3D = new float[NUM_ELLIPSE_POINTS * 3];
+		// Go through each point
+		for(int i = 0; i < NUM_ELLIPSE_POINTS; i++){
+			// Find the current angle based on the index
+			var a = ZMath.TAU * ((float)i / NUM_ELLIPSE_POINTS);
+			var x = Math.cos(a) * 0.5;
+			var z = Math.sin(a) * 0.5;
+			// Apply the angle
+			ellipsePoints3D[i * 3] = (float)x;
+			ellipsePoints3D[i * 3 + 1] = 0f;
+			ellipsePoints3D[i * 3 + 2] = (float)z;
+		}
+		this.ellipse3DPosBuff = new VertexBuffer(VERTEX_POS_INDEX, 3, GL_STATIC_DRAW, ellipsePoints3D);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Generate a vertex buffer for texture coordinates for rendering images
+		// 6 faces, 4 vertexes per face, 2 coordinates per vertex
+		var rect3DTexCoords = new float[6 * 4 * 2];
+		int rectIndex = 0;
+		for(int face = 0; face < 6; face++){
+			// Low Left Corner
+			rect3DTexCoords[rectIndex++] = 0;
+			rect3DTexCoords[rectIndex++] = 0;
+			// Low Right Corner
+			rect3DTexCoords[rectIndex++] = 1;
+			rect3DTexCoords[rectIndex++] = 0;
+			// Up Right Corner
+			rect3DTexCoords[rectIndex++] = 1;
+			rect3DTexCoords[rectIndex++] = 1;
+			// Up Left Corner
+			rect3DTexCoords[rectIndex++] = 0;
+			rect3DTexCoords[rectIndex++] = 1;
+		}
+		this.rect3DTexCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_STATIC_DRAW, rect3DTexCoords);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	}
+	
+	/** Initialize each type of vertex array core to the renderer */
+	private void initVertexArrays(){
+		
+		// 2D vertex arrays
+		
+		// Generate a vertex array for drawing solid colored rectangles
+		this.rectVertArr = new VertexArray(this.fillScreenPosBuff);
+		
+		// Generate a vertex array for rendering images
+		this.imgVertArr = new VertexArray(this.fillScreenPosBuff, this.texCoordBuff);
+		
+		// Generate a vertex array for rendering text
+		this.textVertArr = new VertexArray(this.posBuff2D, this.changeTexCoordBuff);
+		
+		// Generate a vertex array for rendering ellipses
+		this.ellipseVertArr = new VertexArray(this.ellipsePosBuff);
+		
+		// 3D vertex arrays
+		
+		// Create and bind the vertex array for the 3D rect
+		this.rect3DVertArr = new VertexArray(this.rect3DCoordBuff, this.rect3DColorBuff);
+		
+		// Create and bind the vertex array for the finite 3D plane
+		this.planeVertArr = new VertexArray(this.planeCoordBuff);
+		
+		// Create and bind the vertex array for the textured finite 3D plane
+		this.planeTexVertArr = new VertexArray(this.planeCoordBuff, this.planeTexCoordBuff);
+		
+		// Create and bind the vertex array for the sphere
+		this.sphereVertArr = new VertexArray(this.sphereCoordBuff);
+		
+		// Generate a vertex array for rendering 3D ellipses
+		this.ellipse3DVertArr = new VertexArray(this.ellipse3DPosBuff);
+		
+		// Create a vertex array for drawing a textured cube
+		this.rect3DTexVertArr = new VertexArray(this.rect3DCoordBuff, this.rect3DTexCoordBuff);
+		
+		// By default, no bound array
+		this.boundVertexArray = null;
 	}
 	
 	/** Free all resources used by the vertex arrays and vertex buffers */
 	public void destroyVertexes(){
 		this.fillScreenPosBuff.destroy();
 		this.texCoordBuff.destroy();
-		this.posBuff.destroy();
+		this.posBuff2D.destroy();
 		this.changeTexCoordBuff.destroy();
+		this.rect3DColorBuff.destroy();
 		
 		this.rectVertArr.destroy();
 		this.imgVertArr.destroy();
 		this.textVertArr.destroy();
+		this.rect3DVertArr.destroy();
+		
+		this.ellipse3DVertArr.destroy();
+		
+		this.rect3DTexVertArr.destroy();
+		this.rect3DTexCoordBuff.destroy();
+	}
+	
+	/**
+	 * Bind the given vertex array as the current one for rendering. Does nothing if it is already the one bounded
+	 *
+	 * @param vertexArray The array to bind
+	 */
+	public void bindVertexArray(VertexArray vertexArray){
+		if(this.boundVertexArray == vertexArray) return;
+		this.boundVertexArray = vertexArray;
+		this.boundVertexArray.bind();
 	}
 	
 	/** Delete any resources used by this Renderer */
@@ -383,6 +723,7 @@ public class Renderer implements Destroyable{
 	public void clear(){
 		glBindFramebuffer(GL_FRAMEBUFFER, this.getBuffer().getFrameID());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		if(this.isDepthTestEnabled()) glClearDepth(1);
 	}
 	
 	/** @return The {@link Matrix4f} of the model view, i.e. the current transformation status of the renderer */
@@ -390,7 +731,7 @@ public class Renderer implements Destroyable{
 		return this.modelViewStack.peek();
 	}
 	
-	public ZRect getTransformedRenderBounds(){
+	public ZRect2D getTransformedRenderBounds(){
 		if(this.transformedRenderBounds == null) this.recalculateRenderBounds();
 		return this.transformedRenderBounds;
 	}
@@ -405,7 +746,6 @@ public class Renderer implements Destroyable{
 		this.modelView().get(this.modelViewBuff);
 		int loc = glGetUniformLocation(this.shader.getId(), "modelView");
 		glUniformMatrix4fv(loc, false, this.modelViewBuff);
-		
 	}
 	
 	/** Update the uniform variable used to track the color, with the current value */
@@ -414,7 +754,11 @@ public class Renderer implements Destroyable{
 		if(!this.sendColor) return;
 		this.sendColor = false;
 		
-		float[] c = this.getColor().toFloat();
+		var col = this.getColor();
+		if(col.equals(this.lastColor)) return;
+		this.lastColor = col;
+		
+		float[] c = col.toFloat();
 		int loc = glGetUniformLocation(this.shader.getId(), "mainColor");
 		if(loc != -1) glUniform4fv(loc, c);
 	}
@@ -426,7 +770,7 @@ public class Renderer implements Destroyable{
 		
 		// This assumes only scaling and translation transformations have occurred
 		
-		ZRect renderBounds = this.getBounds();
+		ZRect2D renderBounds = this.getBounds();
 		
 		// issue#6 Transform the render bounds by the current model view matrix so that it aligns with the given draw bounds, figure out where this math is going wrong
 		
@@ -442,7 +786,7 @@ public class Renderer implements Destroyable{
 		lower.mul(transform);
 		
 		// Set the current transformed bounds based on the calculated corners
-		this.transformedRenderBounds = new ZRect(upper.x, upper.y, lower.x - upper.x, lower.y - upper.y);
+		this.transformedRenderBounds = new ZRect2D(upper.x, upper.y, lower.x - upper.x, lower.y - upper.y);
 	}
 	
 	// issue#6 remove, this is a testing method. If working correctly, it should always draw a transparent rectangle on top of the entire canvas, regardless of any kind of
@@ -457,6 +801,7 @@ public class Renderer implements Destroyable{
 	public void markGpuSend(){
 		this.sendModelView = true;
 		this.sendColor = true;
+		this.lastColor = null;
 	}
 	
 	/**
@@ -509,7 +854,18 @@ public class Renderer implements Destroyable{
 	 * @param y The amount on the y axis
 	 */
 	public void translate(double x, double y){
-		this.modelView().translate((float)x, (float)y, 0);
+		this.translate(x, y, 0);
+	}
+	
+	/**
+	 * Translate the transformation matrix by the given amount. The coordinates are based on OpenGL positions
+	 *
+	 * @param x The amount on the x axis
+	 * @param y The amount on the y axis
+	 * @param z The amount on the z axis
+	 */
+	public void translate(double x, double y, double z){
+		this.modelView().translate((float)x, (float)y, (float)z);
 		this.markModelViewChanged();
 	}
 	
@@ -520,8 +876,80 @@ public class Renderer implements Destroyable{
 	 * @param y The amount on the y axis
 	 */
 	public void scale(double x, double y){
-		this.modelView().scale((float)x, (float)y, 1);
+		this.scale(x, y, 1);
+	}
+	
+	/**
+	 * Scale the transformation matrix by the given amount
+	 *
+	 * @param x The amount on the x axis
+	 * @param y The amount on the y axis
+	 * @param z The amount on the z axis
+	 */
+	public void scale(double x, double y, double z){
+		this.modelView().scale((float)x, (float)y, (float)z);
 		this.markModelViewChanged();
+	}
+	
+	/**
+	 * Rotate the transformation matrix by the given amount
+	 *
+	 * @param ang The angle to rotate by, in radians
+	 * @param x The amount on the x axis, usually 1 or 0
+	 * @param y The amount on the x axis, usually 1 or 0
+	 * @param z The amount on the x axis, usually 1 or 0
+	 */
+	public void rotate(double ang, double x, double y, double z){
+		this.modelView().rotate((float)ang, (float)x, (float)y, (float)z);
+		this.markModelViewChanged();
+	}
+	
+	/**
+	 * Rotate the transformation matrix by the given quaternion
+	 *
+	 * @param yaw The yaw to rotate
+	 * @param pitch The pitch to rotate
+	 * @param roll The roll to rotate
+	 */
+	public void rotate(double yaw, double pitch, double roll){
+		this.rotate(new Quaternionf().rotateY((float)yaw).rotateX((float)pitch).rotateZ((float)roll));
+	}
+	
+	/**
+	 * Rotate the transformation matrix by the given quaternion
+	 *
+	 * @param q The quaternion representing the angle
+	 */
+	public void rotate(Quaternionf q){
+		this.modelView().rotate(q);
+		this.markModelViewChanged();
+	}
+	
+	/**
+	 * Set the model view to be the base matrix for a perspective projection using the given camera's perspective
+	 *
+	 * @param camera The camera to use
+	 */
+	public void camera3DPerspective(GameCamera3D camera){
+		/*
+		 The yaw has to be rotated by 90 degrees.
+		 My current understanding is that with OpenGL's default camera rotation, repositioning the camera by the offset of the way the
+		 camera is facing essentially moves the offset to the side instead of directly behind, so rotate the offset to be behind instead of to the side.
+		 There's probably a better explanation, and I could probably get rid of a lot of the seemingly random PI_BY_2 uses if I knew better how these angles work.
+		 */
+		var offsetVec = new ZVector3D(camera.getYaw() + ZMath.PI_BY_2, camera.getPitch(), camera.getPositionOffset(), false);
+		double x = offsetVec.getX();
+		double y = offsetVec.getY();
+		double z = offsetVec.getZ();
+		this.setMatrix(new Matrix4f()
+				.perspective((float)camera.getFov(), (float)this.getBuffer().getRatioWH(), (float)camera.getNearZ(), (float)camera.getFarZ())
+				.rotate(new Quaternionf()
+						.rotateZ((float)camera.getRoll())
+						.rotateX((float)camera.getPitch())
+						.rotateY((float)camera.getYaw())
+				)
+				.translate((float)(x - camera.getX()), (float)(y - camera.getY()), (float)(z - camera.getZ()))
+		);
 	}
 	
 	/** @return The top of {@link #positioningEnabledStack} */
@@ -559,6 +987,11 @@ public class Renderer implements Destroyable{
 		this.setShader(this.framebufferShader);
 	}
 	
+	/** Call this method before rendering a rect 3D object */
+	public void renderModeRect3D(){
+		this.setShader(this.rect3DShader);
+	}
+	
 	/**
 	 * Set the currently used shader
 	 *
@@ -576,7 +1009,7 @@ public class Renderer implements Destroyable{
 	 */
 	public void initToDraw(){
 		// Bind the screen as the frame buffer
-		this.getBuffer().drawToBuffer();
+		this.getBuffer().drawWithBuffer();
 		this.getBuffer().setViewport();
 		// Load the identity matrix before setting a default shader
 		this.identityMatrix();
@@ -595,7 +1028,7 @@ public class Renderer implements Destroyable{
 	public void drawToWindow(GameWindow window){
 		// Set the current shader for drawing a frame buffer
 		this.renderModeBuffer();
-		AlphaMode.NORMAL.apply();
+		AlphaMode.NORMAL.use();
 		this.pushColor(this.getColor().solid());
 		this.pushMatrix();
 		this.identityMatrix();
@@ -603,7 +1036,7 @@ public class Renderer implements Destroyable{
 		this.updateGpuModelView();
 		this.popColor();
 		// Bind the vertex array for drawing an image that fills the entire OpenGL space
-		this.imgVertArr.bind();
+		this.bindVertexArray(imgVertArr);
 		
 		// Position the image and the frame buffer to draw to the window
 		glViewport(window.viewportX(), window.viewportY(), window.viewportW(), window.viewportH());
@@ -618,7 +1051,7 @@ public class Renderer implements Destroyable{
 	}
 	
 	/** @return The top of {@link #limitedBoundsStack} */
-	public ZRect getLimitedBounds(){
+	public ZRect2D getLimitedBounds(){
 		return this.limitedBoundsStack.peek();
 	}
 	
@@ -633,7 +1066,7 @@ public class Renderer implements Destroyable{
 	 * @param h The height of the bounds
 	 */
 	public void limitBounds(double x, double y, double w, double h){
-		this.limitBounds(new ZRect(x, y, w, h));
+		this.limitBounds(new ZRect2D(x, y, w, h));
 	}
 	
 	/**
@@ -644,8 +1077,8 @@ public class Renderer implements Destroyable{
 	 * @param bounds The bounds to limit to, in game coordinates
 	 * @return true if the bounds were changed, false otherwise
 	 */
-	public boolean limitBounds(ZRect bounds){
-		ZRect limited = this.getLimitedBounds();
+	public boolean limitBounds(ZRect2D bounds){
+		ZRect2D limited = this.getLimitedBounds();
 		this.limitedBoundsStack.replaceTop(bounds);
 		
 		// If the new and old bounds are the same, don't change anything
@@ -655,7 +1088,7 @@ public class Renderer implements Destroyable{
 		return true;
 	}
 	
-	/** Allow this {@link Renderer} to render anywhere on the screen, i.e. disable {@link #limitBounds(ZRect)}. */
+	/** Allow this {@link Renderer} to render anywhere on the screen, i.e. disable {@link #limitBounds(ZRect2D)}. */
 	public void unlimitBounds(){
 		this.limitBounds(null);
 	}
@@ -665,36 +1098,36 @@ public class Renderer implements Destroyable{
 	 *
 	 * @param bounds The bounds to limit to, in game coordinates
 	 */
-	public void pushLimitedBounds(ZRect bounds){
+	public void pushLimitedBounds(ZRect2D bounds){
 		this.limitedBoundsStack.push();
 		this.limitBounds(bounds);
 	}
 	
 	/**
 	 * Push the current value of {@link #getLimitedBounds()} onto the stack, and limit the bounds to the union of the given bounds and the current limited bounds.
-	 * If the bounds are not currently limited, this call is equivalent to {@link #pushLimitedBounds(ZRect)}
+	 * If the bounds are not currently limited, this call is equivalent to {@link #pushLimitedBounds(ZRect2D)}
 	 *
 	 * @param bounds The bounds to limit to, in game coordinates
 	 */
-	public void pushLimitedBoundsUnion(ZRect bounds){
+	public void pushLimitedBoundsUnion(ZRect2D bounds){
 		var newBounds = this.getLimitedBounds();
 		if(newBounds == null) newBounds = bounds;
-		else newBounds = new ZRect(newBounds.createUnion(bounds));
+		else newBounds = new ZRect2D(newBounds.createUnion(bounds));
 		
 		this.pushLimitedBounds(newBounds);
 	}
 	
 	/**
 	 * Push the current value of {@link #getLimitedBounds()} onto the stack, and limit the bounds to the intersection of the given bounds and the current limited bounds.
-	 * If the bounds are not currently limited, this call is equivalent to {@link #pushLimitedBounds(ZRect)}
+	 * If the bounds are not currently limited, this call is equivalent to {@link #pushLimitedBounds(ZRect2D)}
 	 *
 	 * @param bounds The bounds to limit to, in game coordinates
 	 */
-	public void pushLimitedBoundsIntersection(ZRect bounds){
+	public void pushLimitedBoundsIntersection(ZRect2D bounds){
 		var newBounds = this.getLimitedBounds();
 		if(newBounds == null) newBounds = bounds;
-		else newBounds = new ZRect(newBounds.createIntersection(bounds));
-		if(newBounds.getWidth() <= 0 || newBounds.getHeight() <= 0) newBounds = new ZRect();
+		else newBounds = new ZRect2D(newBounds.createIntersection(bounds));
+		if(newBounds.getWidth() <= 0 || newBounds.getHeight() <= 0) newBounds = new ZRect2D();
 		
 		this.pushLimitedBounds(newBounds);
 	}
@@ -719,7 +1152,7 @@ public class Renderer implements Destroyable{
 			return;
 		}
 		
-		ZRect b = this.getLimitedBounds();
+		ZRect2D b = this.getLimitedBounds();
 		if(b == null){
 			glDisable(GL_SCISSOR_TEST);
 			return;
@@ -740,6 +1173,19 @@ public class Renderer implements Destroyable{
 		glScissor((int)Math.round(x), (int)Math.round(this.getHeight() - y), (int)Math.round(w), (int)Math.round(h));
 	}
 	
+	/** @param depthTestEnabled See {@link #depthTestEnabled} */
+	public void setDepthTestEnabled(boolean depthTestEnabled){
+		if(this.depthTestEnabled == depthTestEnabled) return;
+		this.depthTestEnabled = depthTestEnabled;
+		if(depthTestEnabled) glEnable(GL_DEPTH_TEST);
+		else glDisable(GL_DEPTH_TEST);
+	}
+	
+	/** @return See {@link #depthTestEnabled} */
+	public boolean isDepthTestEnabled(){
+		return this.depthTestEnabled;
+	}
+	
 	/**
 	 * Call OpenGL operations that transform to draw to a location in game coordinates.
 	 * This method assumes the coordinates to translate are centered in the given rectangular bounding box in game coordinates
@@ -747,8 +1193,34 @@ public class Renderer implements Destroyable{
 	 *
 	 * @param r The bounds
 	 */
-	public void positionObject(ZRect r){
+	public void positionObject(ZRect2D r){
 		this.positionObject(r.getX(), r.getY(), r.getWidth(), r.getHeight());
+	}
+	
+	
+	/**
+	 * Call OpenGL operations that transform to draw to a location in game coordinates.
+	 * This method does not push or pop the matrix stack
+	 *
+	 * @param r The position to rotate to
+	 */
+	public void positionObject(RectRender3D r){
+		if(r.isCoordinateRotation()){
+			this.positionObject(
+					r.getX(), r.getY(), r.getZ(),
+					r.getWidth(), r.getHeight(), r.getLength(),
+					r.xRot(), r.yRot(), r.zRot(),
+					r.xA(), r.yA(), r.zA(),
+					true);
+		}
+		else{
+			this.positionObject(
+					r.getX(), r.getY(), r.getZ(),
+					r.getWidth(), r.getHeight(), r.getLength(),
+					r.yaw(), r.pitch(), r.roll(),
+					r.xA(), r.yA(), r.zA(),
+					false);
+		}
 	}
 	
 	/**
@@ -790,13 +1262,55 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
+	 * Call OpenGL operations that transform to draw to a location in game coordinates.
+	 * This method does not push or pop the matrix stack
+	 *
+	 * @param x The bottom middle x coordinate of the rect
+	 * @param y The bottom middle y coordinate of the rect
+	 * @param z The bottom middle z coordinate of the rect
+	 * @param w The width, x axis, of the rect
+	 * @param h The height, y axis, of the rect
+	 * @param l The length, z axis, of the rect
+	 * @param xRot The rotation on the x axis
+	 * @param yRot The rotation on the y axis
+	 * @param zRot The rotation on the z axis
+	 * @param xA The point, relative to the point to position this object, to rotate on the x axis, or yaw depending on axisRotation
+	 * @param yA The point, relative to the point to position this object, to rotate on the y axis, or pitch depending on axisRotation
+	 * @param zA The point, relative to the point to position this object, to rotate on the z axis, or roll depending on axisRotation
+	 * @param axisRotation true if xA, yA, and zA represent rotations on their axes, false if they represent yaw, pitch, and roll respectively
+	 */
+	private void positionObject(double x, double y, double z,
+								double w, double h, double l,
+								double xRot, double yRot, double zRot,
+								double xA, double yA, double zA, boolean axisRotation){
+		// Transformations happen in reverse order
+		
+		// Move the object to its final position
+		this.translate(x - xA, y - yA, z - zA);
+		
+		// Rotate around the center for each axis
+		if(axisRotation){
+			if(xRot != 0) this.rotate(xRot, 1.0f, 0.0f, 0.0f);
+			if(yRot != 0) this.rotate(yRot, 0.0f, 1.0f, 0.0f);
+			if(zRot != 0) this.rotate(zRot, 0.0f, 0.0f, 1.0f);
+		}
+		else this.rotate(xRot, yRot, zRot);
+		
+		// Translate to the axis of rotation
+		this.translate(xA, yA, zA);
+		
+		// Start by scaling appropriately
+		this.scale(w, h, l);
+	}
+	
+	/**
 	 * Draw a rectangle, of the current color of this Renderer, at the specified location. All values are in game coordinates
 	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 *
 	 * @param r The bounds
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawRectangle(ZRect r){
+	public boolean drawRectangle(ZRect2D r){
 		return this.drawRectangle(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
 	
@@ -815,7 +1329,7 @@ public class Renderer implements Destroyable{
 		
 		// Use the shape shader and the rectangle vertex array
 		this.renderModeShapes();
-		this.rectVertArr.bind();
+		this.bindVertexArray(rectVertArr);
 		
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
@@ -837,7 +1351,7 @@ public class Renderer implements Destroyable{
 	 * @param r The bounds
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawEllipse(ZRect r){
+	public boolean drawEllipse(ZRect2D r){
 		return this.drawEllipse(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 	}
 	
@@ -869,7 +1383,7 @@ public class Renderer implements Destroyable{
 		
 		// Use the shape shader and the rectangle vertex array
 		this.renderModeShapes();
-		this.ellipseVertArr.bind();
+		this.bindVertexArray(ellipseVertArr);
 		
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
@@ -889,7 +1403,7 @@ public class Renderer implements Destroyable{
 		if(mode == null) mode = AlphaMode.NORMAL;
 		if(mode == this.alphaMode) return;
 		this.alphaMode = mode;
-		this.alphaMode.apply();
+		this.alphaMode.use();
 	}
 	
 	/**
@@ -902,7 +1416,7 @@ public class Renderer implements Destroyable{
 	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawBuffer(ZRect r, GameBuffer b, AlphaMode mode){
+	public boolean drawBuffer(ZRect2D r, GameBuffer b, AlphaMode mode){
 		return this.drawBuffer(r.getX(), r.getY(), r.getWidth(), r.getHeight(), b, mode);
 	}
 	
@@ -936,7 +1450,7 @@ public class Renderer implements Destroyable{
 	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawImage(ZRect r, GameImage img, AlphaMode mode){
+	public boolean drawImage(ZRect2D r, GameImage img, AlphaMode mode){
 		return this.drawImage(r.getX(), r.getY(), r.getWidth(), r.getHeight(), img, mode);
 	}
 	
@@ -975,7 +1489,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	private boolean drawTexture(double x, double y, double w, double h, int img, AlphaMode mode){
-		this.imgVertArr.bind();
+		this.bindVertexArray(imgVertArr);
 		glBindTexture(GL_TEXTURE_2D, img);
 		updateAlphaMode(mode);
 		
@@ -1164,7 +1678,7 @@ public class Renderer implements Destroyable{
 		// Use the font shaders
 		this.renderModeFont();
 		// Use the font vertex array
-		this.textVertArr.bind();
+		this.bindVertexArray(textVertArr);
 		
 		// Use the font's bitmap
 		glBindTexture(GL_TEXTURE_2D, fa.getBitmapID());
@@ -1199,7 +1713,7 @@ public class Renderer implements Destroyable{
 				if(!this.shouldDraw(rects[i])) continue;
 				
 				// Buffer the new data
-				this.posBuff.updateData(new float[]{
+				this.posBuff2D.updateData(new float[]{
 						//////////////////////////////////////
 						this.textQuad.x0(), this.textQuad.y0(),
 						//////////////////////////////////////
@@ -1247,7 +1761,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the bounds should be drawn, false otherwise
 	 */
 	public boolean shouldDraw(double x, double y, double w, double h){
-		return shouldDraw(new ZRect(x, y, w, h));
+		return shouldDraw(new ZRect2D(x, y, w, h));
 	}
 	
 	/**
@@ -1258,7 +1772,7 @@ public class Renderer implements Destroyable{
 	 * @param drawBounds The bounds
 	 * @return true if the bounds should be drawn, false otherwise
 	 */
-	public boolean shouldDraw(ZRect drawBounds){
+	public boolean shouldDraw(ZRect2D drawBounds){
 		// If rendering only inside is not enabled, immediately return true
 		
 		// issue#6 put this method back. Render checking is currently broken. This method is here to improve performance, i.e., only render things that will appear on the screen
@@ -1281,7 +1795,7 @@ public class Renderer implements Destroyable{
 	/** Fill the screen with the current color, regardless of camera position */
 	public void fill(){
 		this.renderModeShapes();
-		this.rectVertArr.bind();
+		this.bindVertexArray(rectVertArr);
 		
 		this.pushMatrix();
 		this.identityMatrix();
@@ -1292,6 +1806,336 @@ public class Renderer implements Destroyable{
 		
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		this.popMatrix();
+	}
+	
+	
+	/**
+	 * Draw a rectangular prism based on the given values
+	 *
+	 * @param r The position, scaling, and rotation information for rendering
+	 * @param front The color of the front of the rect
+	 * @param back The color of the back of the rect
+	 * @param left The color of the left of the rect
+	 * @param right The color of the right of the rect
+	 * @param top The color of the top of the rect
+	 * @param bot The color of the bottom of the rect
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawRectPrism(RectRender3D r, ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
+		// Use the 3D color shader and the 3D rect vertex array
+		this.renderModeRect3D();
+		this.bindVertexArray(rect3DVertArr);
+		
+		// Position the 3D rect
+		this.pushMatrix();
+		this.positionObject(r);
+		
+		// Update the color on the cube
+		// 6 faces, 4 vertices per face, 4 color channels per color
+		var colorVertices = new float[6 * 4 * 4];
+		// issue#35 Make transparent colors work with multiple transparent faces happening at once, all transparent shapes must be added to a list that gets sorted by distance to the camera, and those are rendered last
+		var cubeColors = new ZColor[]{front, back, left, right, top, bot};
+		var i = 0;
+		for(int f = 0; f < 6; f++){
+			for(int v = 0; v < 4; v++){
+				colorVertices[i++] = (float)cubeColors[f].red();
+				colorVertices[i++] = (float)cubeColors[f].green();
+				colorVertices[i++] = (float)cubeColors[f].blue();
+				colorVertices[i++] = (float)cubeColors[f].alpha();
+			}
+		}
+		rect3DColorBuff.updateData(colorVertices);
+		
+		// Ensure the gpu has the current modelView
+		this.updateGpuModelView();
+		
+		// Draw the rect
+		glDrawElements(GL_QUADS, rect3DIndexBuff.getBuff());
+		this.popMatrix();
+		
+		return true;
+	}
+	
+	/**
+	 * Draw a rectangular prism based on the given values
+	 *
+	 * @param r The position, scaling, and rotation information for rendering
+	 * @param texture The image to use for the texture
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawRectPrismTex(RectRender3D r, GameImage texture){
+		// Use the 3D texture shader and the 3D rect vertex array
+		this.renderModeImage();
+		this.bindVertexArray(this.rect3DTexVertArr);
+		glBindTexture(GL_TEXTURE_2D, texture.getId());
+		updateAlphaMode(AlphaMode.NORMAL);
+		
+		// Position the 3D rect
+		this.pushMatrix();
+		this.positionObject(r);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuModelView();
+		this.updateGpuColor();
+		
+		// Draw the rect
+		glDrawElements(GL_QUADS, this.rect3DIndexBuff.getBuff());
+		this.popMatrix();
+		
+		return true;
+	}
+	
+	/**
+	 * Draw a sphere of the current color
+	 *
+	 * @param x The center x coordinate of the sphere
+	 * @param y The center y coordinate of the sphere
+	 * @param z The center z coordinate of the sphere
+	 * @param radius The radius of the sphere
+	 * @return true if anything was drawn, false otherwise
+	 */
+	public boolean drawSphere(double x, double y, double z, double radius){
+		// Use the 3D color shader
+		this.renderModeShapes();
+		this.bindVertexArray(sphereVertArr);
+		
+		// Position the plane
+		this.pushMatrix();
+		this.positionObject(x, y, z, radius, radius, radius, 0, 0, 0, 0, 0, 0, true);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
+		// Draw the rect
+		glDrawElements(GL_TRIANGLES, sphereIndexBuff.getBuff());
+		this.popMatrix();
+		
+		return true;
+	}
+	
+	/**
+	 * Draw a plane aligned to the y axis, i.e. a flat plane like the ground
+	 *
+	 * @param x The x coordinate of the center bottom of the plane
+	 * @param y The y coordinate of the center bottom of the plane
+	 * @param z The z coordinate of the center bottom of the plane
+	 * @param w The width of the plane on the x axis
+	 * @param l The length of the plane on the z axis
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawFlatPlane(double x, double y, double z, double w, double l){
+		return this.drawPlane(x, y, z, w, l, 0, 0, 0, 0, 0, 0);
+	}
+	
+	/**
+	 * Draw a plane aligned to the y axis, i.e. a flat plane like the ground
+	 *
+	 * @param x The x coordinate of the center bottom of the plane
+	 * @param y The y coordinate of the center bottom of the plane
+	 * @param z The z coordinate of the center bottom of the plane
+	 * @param w The width of the plane on the x axis
+	 * @param l The length of the plane on the z axis
+	 * @param angle The rotation on the y axis
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawFlatPlane(double x, double y, double z, double w, double l, double angle){
+		return this.drawPlane(x, y, z, w, l, 0, angle, 0, 0, 0, 0);
+	}
+	
+	/**
+	 * Draw a plane aligned to the x axis, i.e. the side of something like a wall
+	 *
+	 * @param x The x coordinate of the center bottom of the plane
+	 * @param y The y coordinate of the center bottom of the plane
+	 * @param z The z coordinate of the center bottom of the plane
+	 * @param s The size of the plane side to side
+	 * @param h The height of the plane
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawSidePlaneX(double x, double y, double z, double s, double h){
+		return this.drawSidePlaneX(x, y, z, s, h, 0);
+	}
+	
+	/**
+	 * Draw a plane aligned to the x axis, i.e. the side of something like a wall
+	 *
+	 * @param x The x coordinate of the center bottom of the plane
+	 * @param y The y coordinate of the center bottom of the plane
+	 * @param z The z coordinate of the center bottom of the plane
+	 * @param s The size of the plane side to side
+	 * @param h The height of the plane
+	 * @param angle The rotation on the y axis
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawSidePlaneX(double x, double y, double z, double s, double h, double angle){
+		return this.drawSidePlane(x, y, z, h, s, h, Math.PI * 0.5, 0, angle);
+	}
+	
+	/**
+	 * Draw a plane aligned to the z axis, i.e. the side of something like a wall
+	 *
+	 * @param x The x coordinate of the center bottom of the plane
+	 * @param y The y coordinate of the center bottom of the plane
+	 * @param z The z coordinate of the center bottom of the plane
+	 * @param s The size of the plane side to side
+	 * @param h The height of the plane
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawSidePlaneZ(double x, double y, double z, double s, double h){
+		return this.drawSidePlaneZ(x, y, z, h, s, 0);
+	}
+	
+	/**
+	 * Draw a plane aligned to the z axis, i.e. the side of something like a wall
+	 *
+	 * @param x The x coordinate of the center bottom of the plane
+	 * @param y The y coordinate of the center bottom of the plane
+	 * @param z The z coordinate of the center bottom of the plane
+	 * @param s The size of the plane side to side
+	 * @param h The height of the plane
+	 * @param angle The rotation on the y axis
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawSidePlaneZ(double x, double y, double z, double s, double h, double angle){
+		return this.drawSidePlane(x, y, z, h, s, s, 0, angle, Math.PI * 0.5);
+	}
+	
+	/**
+	 * Draw a plane, default aligned to the x axis, i.e. the side of something like a wall
+	 *
+	 * @param x The x coordinate of the center bottom of the plane
+	 * @param y The y coordinate of the center bottom of the plane
+	 * @param z The z coordinate of the center bottom of the plane
+	 * @param s The size of the plane side to side
+	 * @param h The height of the plane
+	 * @param hh The height to use for adjusting the plane so that the y coordinate is the bottom
+	 * @param xRot The rotation on the x axis
+	 * @param yRot The rotation on the y axis
+	 * @param zRot The rotation on the z axis
+	 * @return true if the object was drawn, false otherwise
+	 */
+	private boolean drawSidePlane(double x, double y, double z, double s, double h, double hh, double xRot, double yRot, double zRot){
+		return this.drawPlane(x, y + hh * 0.5, z, h, s, xRot, yRot, zRot, 0, 0, 0);
+	}
+	
+	/**
+	 * Draw a plane based on the given values
+	 *
+	 * @param x The x coordinate center of the initially horizontal plane
+	 * @param y The y coordinate of the initially horizontal plane
+	 * @param z The z coordinate center of the initially horizontal plane
+	 * @param w The width of the plane
+	 * @param l The length of the plane
+	 * @param xRot The rotation on the x axis
+	 * @param yRot The rotation on the y axis
+	 * @param zRot The rotation on the z axis
+	 * @param xA The point, relative to the point to position this object, to rotate on the x axis
+	 * @param yA The point, relative to the point to position this object, to rotate on the y axis
+	 * @param zA The point, relative to the point to position this object, to rotate on the z axis
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawPlane(double x, double y, double z, double w, double l, double xRot, double yRot, double zRot, double xA, double yA, double zA){
+		// Use the 3D color shader and the 3D rect vertex array
+		this.renderModeShapes();
+		this.bindVertexArray(planeVertArr);
+		
+		// Position the plane
+		this.pushMatrix();
+		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, xA, yA, zA, true);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
+		// Draw the rect
+		glDrawElements(GL_QUADS, planeIndexBuff.getBuff());
+		this.popMatrix();
+		
+		return true;
+	}
+	
+	/**
+	 * Draw a plane with a buffer on it based on the given values
+	 *
+	 * @param x The x coordinate center of the initially horizontal plane
+	 * @param y The y coordinate of the initially horizontal plane
+	 * @param z The z coordinate center of the initially horizontal plane
+	 * @param w The width of the plane
+	 * @param l The length of the plane
+	 * @param xRot The rotation on the x axis
+	 * @param yRot The rotation on the y axis
+	 * @param zRot The rotation on the z axis
+	 * @param xA The point, relative to the point to position this object, to rotate on the x axis
+	 * @param yA The point, relative to the point to position this object, to rotate on the y axis
+	 * @param zA The point, relative to the point to position this object, to rotate on the z axis
+	 * @param tex The texture id used by the buffer to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawPlaneBuffer(double x, double y, double z, double w, double l, double xRot, double yRot, double zRot, double xA, double yA, double zA, int tex){
+		// Use the 3D buffer shader and the 3D plate vertex array
+		this.renderModeBuffer();
+		this.bindVertexArray(planeTexVertArr);
+		
+		glBindTexture(GL_TEXTURE_2D, tex);
+		updateAlphaMode(AlphaMode.NORMAL);
+		
+		// Position the plane
+		this.pushMatrix();
+		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, xA, yA, zA, true);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
+		// Draw the rect
+		glDrawElements(GL_QUADS, planeIndexBuff.getBuff());
+		this.popMatrix();
+		
+		return true;
+	}
+	
+	
+	/**
+	 * Draw an ellipse in 3D, of the current color of this Renderer, at the specified location. All values are in game coordinates
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * <p>
+	 * This ellipse is flat on the xz plane
+	 *
+	 * @param x The x coordinate of the center of the ellipse
+	 * @param y The y coordinate of the center of the plane's location
+	 * @param z The z coordinate of the center of the ellipse
+	 * @param w The width of the ellipse
+	 * @param l The length of the ellipse
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawEllipse3D(double x, double y, double z, double w, double l){
+		// Use the shape shader and the rectangle vertex array
+		this.renderModeShapes();
+		this.bindVertexArray(ellipse3DVertArr);
+		
+		this.pushMatrix();
+		this.positionObject(x, y, z, w, 1, l, 0, 0, 0, 0, 0, 0, true);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuColor();
+		this.updateGpuModelView();
+		
+		glDrawElements(GL_TRIANGLE_FAN, this.ellipse3DIndexBuff.getBuff());
+		this.popMatrix();
+		
+		return true;
+	}
+	
+	// issue#44 implement interpolation
+	
+	/**
+	 * Update the OpenGL frustum to the given camera
+	 *
+	 * @param camera The camera to use
+	 */
+	public void updateFrustum(GameCamera3D camera){
+		glFrustum(camera.getLeftClip(), camera.getRightClip(), camera.getBottomClip(), camera.getTopClip(), camera.getNearClip(), camera.getFarClip());
 	}
 	
 	/** @return The top of {@link #colorStack} */
@@ -1452,7 +2296,7 @@ public class Renderer implements Destroyable{
 	}
 	
 	/** @return A rectangle of the bounds of this {@link Renderer}, i.e. the position will be (0, 0), width will be {@link #getWidth()} and height will be {@link #getHeight()} */
-	public ZRect getBounds(){
+	public ZRect2D getBounds(){
 		return this.getBuffer().getBounds();
 	}
 	
@@ -1477,7 +2321,8 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
-	 * Set the buffer that this Renderer should draw to by pushing the given buffer onto {@link #bufferStack}
+	 * Set the buffer that this Renderer should draw to by pushing the given buffer onto {@link #bufferStack}.
+	 * Also calls {@link #updateBuffer()} to assign further rendering operations to the given buffer
 	 *
 	 * @param buffer The top of {@link #bufferStack}
 	 * @return The buffer that was being used
@@ -1516,7 +2361,7 @@ public class Renderer implements Destroyable{
 	/** Update the current state of OpenGL to use the buffer at the top of {@link #bufferStack} for rendering */
 	private void updateBuffer(){
 		GameBuffer b = this.getBuffer();
-		b.drawToBuffer();
+		b.drawWithBuffer();
 		b.setViewport();
 		// Changing the buffer and or viewport does something weird with OpenGL, so update the limited bounds after changing the buffer
 		this.updateLimitedBounds();
@@ -1528,10 +2373,10 @@ public class Renderer implements Destroyable{
 	 * @param bounds The bounds to check, in game coordinates
 	 * @return true if they intersect, i.e. return true if any part of the given bounds is in this {@link Renderer}'s bounds, false otherwise
 	 */
-	public boolean gameBoundsInScreen(ZRect bounds){
-		ZRect rBounds = this.getBounds();
+	public boolean gameBoundsInScreen(ZRect2D bounds){
+		ZRect2D rBounds = this.getBounds();
 		GameCamera c = this.getCamera();
-		ZRect gBounds;
+		ZRect2D gBounds;
 		if(c == null) gBounds = rBounds;
 		else gBounds = c.boundsScreenToGame(rBounds.getX(), rBounds.getBounds().getY(), rBounds.getBounds().getWidth(), rBounds.getBounds().getHeight());
 		return gBounds.intersects(bounds);

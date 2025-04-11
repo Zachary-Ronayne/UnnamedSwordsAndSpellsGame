@@ -3,9 +3,10 @@ package zgame.physics.collision;
 import java.awt.geom.Line2D;
 
 import zgame.core.utils.ZMath;
-import zgame.core.utils.ZPoint;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZPoint2D;
+import zgame.core.utils.ZRect2D;
 import zgame.physics.material.Material;
+import static zgame.world.Direction3D.*;
 
 /** A class containing methods for calculating where objects should move when colliding */
 public final class ZCollision{
@@ -25,12 +26,12 @@ public final class ZCollision{
 	 * @param w The width of the bounds to collide
 	 * @param h The height of the bounds to collide
 	 * @param m The {@link Material} which was collided with
-	 * @return A {@link CollisionResponse} representing the collision
+	 * @return A {@link CollisionResult2D} representing the collision
 	 */
-	public static CollisionResponse rectToRectBasic(double cx, double cy, double cw, double ch, double x, double y, double w, double h, Material m){
+	public static CollisionResult2D rectToRectBasic(double cx, double cy, double cw, double ch, double x, double y, double w, double h, Material m){
 		// If the rectangles do not intersect, then there was no collision
-		ZRect unmoving = new ZRect(cx, cy, cw, ch);
-		if(!unmoving.intersects(x, y, w, h)) return new CollisionResponse();
+		ZRect2D unmoving = new ZRect2D(cx, cy, cw, ch);
+		if(!unmoving.intersects(x, y, w, h)) return new CollisionResult2D();
 		// Initial Variable values
 		double xDis;
 		double yDis;
@@ -114,7 +115,7 @@ public final class ZCollision{
 			left = false;
 			right = false;
 		}
-		return new CollisionResponse(xDis, yDis, left, right, top, bottom, m);
+		return new CollisionResult2D(xDis, yDis, left, right, top, bottom, m);
 	}
 	
 	/**
@@ -134,17 +135,17 @@ public final class ZCollision{
 	 * @param px The x coordinate of the location of the bounds in the previous instance of time
 	 * @param py The y coordinate of the location of the bounds in the previous instance of time
 	 * @param m The {@link Material} which was collided with
-	 * @return A {@link CollisionResponse} representing the collision
+	 * @return A {@link CollisionResult2D} representing the collision
 	 */
-	public static CollisionResponse rectToRect(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, Material m){
+	public static CollisionResult2D rectToRect(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, Material m){
 		// If the current and previous positions of the colliding bounds are the same, then use the basic algorithm
 		boolean onlyX = x == px;
 		boolean onlyY = y == py;
 		if(onlyX && onlyY) return rectToRectBasic(cx, cy, cw, ch, x, y, w, h, m);
 		
 		// If the rectangles do not intersect, then there was no collision
-		ZRect unmoving = new ZRect(cx, cy, cw, ch);
-		if(!unmoving.intersects(x, y, w, h)) return new CollisionResponse();
+		ZRect2D unmoving = new ZRect2D(cx, cy, cw, ch);
+		if(!unmoving.intersects(x, y, w, h)) return new CollisionResult2D();
 		// Initial Variable values
 		double xDis = 0;
 		double yDis = 0;
@@ -206,7 +207,7 @@ public final class ZCollision{
 			
 			// Using that line as a ray with the position (cornerX, cornerY) and moving in the opposite direction, find where that ray intersects the unmoving bounds
 			// That point is the new corner of the new bounds
-			ZPoint movePoint;
+			ZPoint2D movePoint;
 			// Left line
 			movePoint = rectToRectHelper(new Line2D.Double(cx, cy, cx, cy + h), moveLine, cornerX, cornerY, reverseAngle);
 			// Right line
@@ -216,14 +217,14 @@ public final class ZCollision{
 			// Bot line
 			if(movePoint == null) movePoint = rectToRectHelper(new Line2D.Double(cx, cy + h, cx + w, cy + h), moveLine, cornerX, cornerY, reverseAngle);
 			// Should never happen, but covering bases
-			if(movePoint == null) movePoint = new ZPoint(x, y);
+			if(movePoint == null) movePoint = new ZPoint2D(x, y);
 			
 			// Find the distance to move
 			xDis += movePoint.x - x;
 			yDis += movePoint.y - y;
 		}
 		// Return response
-		return new CollisionResponse(xDis, yDis, left, right, top, bottom, m);
+		return new CollisionResult2D(xDis, yDis, left, right, top, bottom, m);
 	}
 	
 	/**
@@ -237,9 +238,9 @@ public final class ZCollision{
 	 * @param reverseAngle The opposite angle of how the colliding object moved
 	 * @return The point to reposition the object if the line is a valid line for where the colliding object should be repositioned, otherwise null
 	 */
-	private static ZPoint rectToRectHelper(Line2D.Double line, Line2D.Double moveLine, double cornerX, double cornerY, double reverseAngle){
+	private static ZPoint2D rectToRectHelper(Line2D.Double line, Line2D.Double moveLine, double cornerX, double cornerY, double reverseAngle){
 		// Find the intersection point for each line
-		ZPoint intersection = ZMath.lineIntersection(line, moveLine);
+		ZPoint2D intersection = ZMath.lineIntersection(line, moveLine);
 		if(intersection == null) return null;
 		
 		// Determine which of those points is on the rectangle
@@ -252,7 +253,7 @@ public final class ZCollision{
 	}
 	
 	/** @return {@link #rectToRectAprox(double, double, double, double, double, double, double, double, double, double, int, Material)}  with a default of 5 iterations. */
-	public static CollisionResponse rectToRectAprox(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, Material m){
+	public static CollisionResult2D rectToRectAprox(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, Material m){
 		return rectToRectAprox(cx, cy, cw, ch, x, y, w, h, px, py, 5, m);
 	}
 	
@@ -277,19 +278,19 @@ public final class ZCollision{
 	 * @param py The y coordinate of the location of the bounds in the previous instance of time
 	 * @param iterations The number of times to apply the algorithm to approximate the new position
 	 * @param m The {@link Material} which was collided with
-	 * @return A {@link CollisionResponse} representing the collision
+	 * @return A {@link CollisionResult2D} representing the collision
 	 */
-	public static CollisionResponse rectToRectAprox(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, int iterations, Material m){
+	public static CollisionResult2D rectToRectAprox(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, int iterations, Material m){
 		// If the new and old positions are the same, use the basic collision
 		if(x == px && y == py) return rectToRectBasic(cx, cy, cw, ch, x, y, w, h, m);
 		
 		// Find the bounds
-		ZRect moving = new ZRect(x, y, w, h);
-		ZRect prevMoving = new ZRect(px, py, w, h);
-		ZRect colliding = new ZRect(cx, cy, cw, ch);
+		ZRect2D moving = new ZRect2D(x, y, w, h);
+		ZRect2D prevMoving = new ZRect2D(px, py, w, h);
+		ZRect2D colliding = new ZRect2D(cx, cy, cw, ch);
 		
 		// If the colliding and moving bounds do not touch, then return an empty response
-		if(!moving.intersects(colliding)) return new CollisionResponse();
+		if(!moving.intersects(colliding)) return new CollisionResult2D();
 		
 		// Initial Variable values
 		double xDis;
@@ -298,7 +299,7 @@ public final class ZCollision{
 		boolean right = false;
 		boolean top = false;
 		boolean bottom = false;
-		ZRect newMoving;
+		ZRect2D newMoving;
 		double dist;
 		double angle = ZMath.lineAngle(x, y, px, py);
 		double sinA = Math.sin(angle);
@@ -311,18 +312,18 @@ public final class ZCollision{
 				// Otherwise, base it on the moving bounds
 			else dist = ZMath.hypot(w, h);
 			// Find the new moving bounds
-			newMoving = new ZRect(x + cosA * dist, y + sinA * dist, w, h);
+			newMoving = new ZRect2D(x + cosA * dist, y + sinA * dist, w, h);
 		}
 		// Otherwise, use the previous bounds as the starting point
 		else newMoving = prevMoving;
 		// For the number of given iterations, move the new moving bounds closer to the colliding bounds, ensuring they don't touch at the end of the method
-		ZRect nearBounds = moving;
-		ZRect farBounds = newMoving;
-		ZRect newBounds;
+		ZRect2D nearBounds = moving;
+		ZRect2D farBounds = newMoving;
+		ZRect2D newBounds;
 		for(int i = 0; i < iterations; i++){
 			/// Finding half the distance between the bounds
 			dist = ZMath.hypot(nearBounds.x - farBounds.x, nearBounds.y - farBounds.y) * .5;
-			newBounds = new ZRect(nearBounds.x + cosA * dist, nearBounds.y + sinA * dist, w, h);
+			newBounds = new ZRect2D(nearBounds.x + cosA * dist, nearBounds.y + sinA * dist, w, h);
 			if(colliding.intersects(newBounds)) nearBounds = newBounds;
 			else farBounds = newBounds;
 		}
@@ -345,7 +346,7 @@ public final class ZCollision{
 			if(toRight) right = true;
 		}
 		// Return response
-		return new CollisionResponse(xDis, yDis, left, right, top, bottom, m);
+		return new CollisionResult2D(xDis, yDis, left, right, top, bottom, m);
 		
 	}
 	
@@ -433,11 +434,11 @@ public final class ZCollision{
 	 * @param circleY The center y coordinate of the circle to collide
 	 * @param radius The radius of the circle to collide
 	 * @param m The {@link Material} which was collided with
-	 * @return A {@link CollisionResponse} representing the collision
+	 * @return A {@link CollisionResult2D} representing the collision
 	 */
-	public static CollisionResponse rectToCircleBasic(double rx, double ry, double rw, double rh, double circleX, double circleY, double radius, Material m){
+	public static CollisionResult2D rectToCircleBasic(double rx, double ry, double rw, double rh, double circleX, double circleY, double radius, Material m){
 		// If the shapes do not intersect, then there was no collision
-		if(!ZMath.circleIntersectsRect(circleX, circleY, radius, rx, ry, rw, rh)) return new CollisionResponse();
+		if(!ZMath.circleIntersectsRect(circleX, circleY, radius, rx, ry, rw, rh)) return new CollisionResult2D();
 		
 		// Initial Variable values
 		double xDis;
@@ -540,7 +541,7 @@ public final class ZCollision{
 			left = false;
 			right = false;
 		}
-		return new CollisionResponse(xDis, yDis, left, right, top, bottom, m);
+		return new CollisionResult2D(xDis, yDis, left, right, top, bottom, m);
 	}
 	
 	/**
@@ -600,19 +601,445 @@ public final class ZCollision{
 	 * @param m The material of the object collided with
 	 * @return The response
 	 */
-	public static CollisionResponse circleToCircleBasic(double cx, double cy, double cr, double x, double y, double r, Material m){
+	public static CollisionResult2D circleToCircleBasic(double cx, double cy, double cr, double x, double y, double r, Material m){
 		var dist = Math.sqrt((cx - x) * (cx - x) + (cy - y) * (cy - y));
 		var radi = cr + r;
-		if(radi < dist) return new CollisionResponse();
+		if(radi < dist) return new CollisionResult2D();
 		
 		var offset = radi - dist;
 		var angle = ZMath.lineAngle(cx, cy, x, y);
 		var cos = Math.cos(angle);
 		var sin = Math.sin(angle);
 		
-		return new CollisionResponse(cos * offset, sin * offset, cos > 0, cos < 0, sin > 0, sin < 0, m);
+		return new CollisionResult2D(cos * offset, sin * offset, cos > 0, cos < 0, sin > 0, sin < 0, m);
 	}
 	
+	/**
+	 * Given the rectangular prism bounds of an unmoving object, and the bounds of a cylinder, determine how the later should move colliding with the former
+	 *
+	 * @param rx The bottom middle x coordinate of the rectangular prism
+	 * @param ry The bottom middle y coordinate of the rectangular prism
+	 * @param rz The bottom middle z coordinate of the rectangular prism
+	 * @param rw The total width of the rectangular prism
+	 * @param rh The total height of the rectangular prism
+	 * @param rl The total length of the rectangular prism
+	 * @param cx The bottom middle x coordinate of the cylinder
+	 * @param cy The bottom middle y coordinate of the cylinder
+	 * @param cz The bottom middle z coordinate of the cylinder
+	 * @param cr The radius of the cylinder
+	 * @param ch The total height of the cylinder
+	 * @param m The material of the rectangular prism
+	 * @param collisionFaces The faces of the rect which should be enabled for collision checks
+	 * @return A collision result representing how the cylinder should move
+	 */
+	public static CollisionResult3D rectToCylinderBasic(double rx, double ry, double rz, double rw, double rh, double rl, double cx, double cy, double cz, double cr, double ch,
+														Material m, boolean[] collisionFaces){
+		// With no intersection, there is no collision
+		if(!rectIntersectsCylinder(rx, ry, rz, rw, rh, rl, cx, cy, cz, cr, ch)) return new CollisionResult3D();
+		
+		double moveX = 0;
+		double moveY = 0;
+		double moveZ = 0;
+		
+		double hrw = rw * 0.5;
+		double hrl = rl * 0.5;
+		
+		// Check for collision with all 6 sides of the rectangular prism, and find the distance to move on each side, or a negative number if it is too far
+		
+		// Check the x axis, left and right
+		double rxl = rx - hrw;
+		double eastDist = -1;
+		if(collisionFaces[EAST.i()]){
+			eastDist = circleDistanceLineSegment(rz - hrl, rz + hrl, rxl, cz, rxl + (rxl - cx), cr, true);
+			if(eastDist > 0 && eastDist < rw){
+				moveX = -eastDist;
+			}
+		}
+		if(collisionFaces[WEST.i()]){
+			double rxr = rx + hrw;
+			double westDist = circleDistanceLineSegment(rz + hrl, rz + hrl, rxr, cz, cx, cr, true);
+			if(westDist > 0 && westDist < rw && (westDist < eastDist || eastDist < 0)){
+				moveX = westDist;
+			}
+		}
+		
+		// Check the z axis, front and back
+		double rzb = rz + hrl;
+		double northDist = -1;
+		if(collisionFaces[NORTH.i()]){
+			northDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzb, cx, rzb + (cz - rzb), cr, true);
+			if(northDist > 0 && northDist < rl){
+				moveZ = northDist;
+			}
+		}
+		if(collisionFaces[SOUTH.i()]){
+			double rzf = rz - hrl;
+			double frontDist = circleDistanceLineSegment(rx - hrw, rx + hrw, rzf, cx, cz, cr, false);
+			if(frontDist > 0 && frontDist < rl && (frontDist < northDist || northDist < 0)){
+				moveZ = -frontDist;
+			}
+		}
+		
+		// Check the y axis, top and bottom
+		boolean touchFloor = false;
+		boolean touchCeiling = false;
+		double upDist = (ry + rh) - cy;
+		double downDist = (cy + ch) - ry;
+		if(collisionFaces[UP.i()]){
+			if(upDist > 0 && upDist < rh){
+				moveY = upDist;
+				touchFloor = true;
+			}
+		}
+		if(collisionFaces[DOWN.i()]){
+			if(downDist > 0 && downDist < rh && (downDist < upDist || upDist < 0)){
+				moveY = -downDist;
+				touchCeiling = true;
+			}
+		}
+		
+		// If no movement is needed, there is no collision, though this should always be false at this point
+		if(moveX == 0 && moveY == 0 && moveZ == 0) return new CollisionResult3D();
+		
+		double dx = moveX;
+		double dy = moveY;
+		double dz = moveZ;
+		
+		// Movement will prefer vertical if there is a smaller vertical collision
+		if(Math.abs(dy) < Math.sqrt(dx * dx + dz * dz)){
+			if(dy != 0){
+				dx = 0;
+				dz = 0;
+			}
+		}
+		else{
+			// If moving horizontal, prefer the smaller movement
+			if(dx != 0 || dz != 0){
+				dy = 0;
+				touchCeiling = false;
+				touchFloor = false;
+			}
+		}
+		
+		// Only move on one horizontal axis, always the smaller one
+		if(Math.abs(dx) < Math.abs(dz)){
+			if(dx != 0) dz = 0;
+		}
+		else{
+			if(dz != 0) dx = 0;
+		}
+		
+		
+		double wallAngle;
+		// x axis wall
+		if(moveX != 0) wallAngle = ZMath.PI_BY_2;
+		// z axis wall
+		else if(moveZ != 0) wallAngle = 0;
+		// No wall hit
+		else wallAngle = 0;
+		
+		// Set the flags appropriately for which sides were touched and return the result
+		return new CollisionResult3D(dx, dy, dz, dx != 0 || dz != 0, touchCeiling, touchFloor, m, wallAngle);
+	}
+	
+	/**
+	 * Determine the distance that the given circle needs to move to no longer collide with the given line segment. This assumes the given values are for a line in 2D
+	 * aligned to the y axis where the circle would need to move down, i.e. increase y, to collide with the wall
+	 *
+	 * @param lx1 The smaller of the two x coordinates representing the line to collide with
+	 * @param lx2 The larger of the two x coordinates representing the line to collide with
+	 * @param ly The y coordinate of the line
+	 * @param cx The center x coordinate of the circle
+	 * @param cy The center y coordinate of the circle
+	 * @param cr The radius of the circle
+	 * @param invert true if the direction of the comparison will be inverted on the y axis, i.e. the circle needs to be moved in the opposite direction
+	 * @return The distance, as a magnitude, the circle needs to move down to align with the line, or a negative value if there's no intersection
+	 */
+	private static double circleDistanceLineSegment(double lx1, double lx2, double ly, double cx, double cy, double cr, boolean invert){
+		// Find the point on the line touching the circle
+		var intersectionX = circleLineIntersection(cx, cy, cr, ly, false, false);
+		// No intersection
+		if(Double.isNaN(intersectionX)) return -1;
+		
+		// Find the y coordinate on the circle where the endpoints of the line segment touch the circle, based on the x coordinate line segments
+		// y = +-sqrt(r^2 - (x - rx)^2) + ry
+		Double leftY = null;
+		Double rightY = null;
+		double radiusSquared = cr * cr;
+		double lx1Diff = cx - lx1;
+		double lx1DiffSquared = lx1Diff * lx1Diff;
+		double yDistSquared = (cy - ly) * (cy - ly);
+		// Only consider the endpoint if it is within the circle, and the center of the circle is outside the line
+		if(yDistSquared + lx1DiffSquared <= radiusSquared && cx < lx1){
+			double leftYToRoot = radiusSquared - lx1DiffSquared;
+			if(leftYToRoot >= 0){
+				double rootVal = Math.sqrt(leftYToRoot);
+				if(invert) leftY = cy - rootVal;
+				else leftY = cy + rootVal;
+			}
+		}
+		double lx2Diff = cx - lx2;
+		double lx2DiffSquared = lx2Diff * lx2Diff;
+		// Only consider the endpoint if it is within the circle
+		if(yDistSquared + lx2DiffSquared <= radiusSquared && lx2 < cx){
+			double rightYToRoot = radiusSquared - lx2DiffSquared;
+			if(rightYToRoot >= 0){
+				double rootVal = Math.sqrt(rightYToRoot);
+				if(invert) rightY = cy - rootVal;
+				else rightY = cy + rootVal;
+			}
+		}
+		
+		double circleCheckPosY;
+		
+		// If neither points touch, then use the y coordinate of the line
+		if(leftY == null && rightY == null){
+			if(invert) circleCheckPosY = cy - cr;
+			else circleCheckPosY = cy + cr;
+		}
+		// If one of those endpoints touch the circle, then move based on that position
+		else if(leftY != null && rightY == null) circleCheckPosY = leftY;
+		else if(leftY == null) circleCheckPosY = rightY;
+			// Otherwise, if both touch, use the smaller distance
+		else{
+			if(leftY > rightY) circleCheckPosY = rightY;
+			else circleCheckPosY = leftY;
+		}
+		
+		// Return the positive distance from the line to the top of the circle
+		return Math.abs(circleCheckPosY - ly);
+	}
+	
+	/**
+	 * Given the rectangular prism bounds of an unmoving object, and the bounds of a sphere, determine how the later should move colliding with the former
+	 *
+	 * @param rx The center x coordinate of the rectangular prism
+	 * @param ry The center y coordinate of the rectangular prism
+	 * @param rz The center z coordinate of the rectangular prism
+	 * @param rw The total width of the rectangular prism
+	 * @param rh The total height of the rectangular prism
+	 * @param rl The total length of the rectangular prism
+	 * @param sx The center x coordinate of the sphere
+	 * @param sy The center y coordinate of the sphere
+	 * @param sz The center z coordinate of the sphere
+	 * @param sr The radius of the sphere
+	 * @param m The material of the rectangular prism
+	 * @return A collision result representing how the sphere should move
+	 */
+	public static CollisionResult3D rectToSphereBasic(double rx, double ry, double rz, double rw, double rh, double rl, double sx, double sy, double sz, double sr,
+													  Material m, boolean[] collisionFaces){
+		// With no intersection, there is no collision
+		if(!rectIntersectsSphere(rx, ry - rh * 0.5, rz, rw, rh, rl, sx, sy, sz, sr)){
+			return new CollisionResult3D();
+		}
+		
+		// Set up variables for how long they need to move
+		final int X = 0;
+		final int Y = 1;
+		final int Z = 2;
+		// Indexed as 0, 1, 2 to x, y, z
+		double[] move = new double[]{0, 0, 0};
+		
+		boolean hitWall = false;
+		boolean hitCeiling = false;
+		boolean hitFloor = false;
+		double wallAngle = 0;
+		
+		// Find the distances per face of the rect from the sphere, using the one that requires the least movement on that axis
+		if(collisionFaces[WEST.i()] || collisionFaces[EAST.i()]){
+			double eastDist = distanceSphereToRectPlane(sy, sx, sz, sr, ry, rx, rz, rh, rw, rl, true);
+			double westDist = distanceSphereToRectPlane(sy, sx, sz, sr, ry, rx, rz, rh, rw, rl, false);
+			if(Math.abs(eastDist) < Math.abs(westDist)) {
+				if(collisionFaces[WEST.i()]) move[X] = eastDist;
+			}
+			else {
+				if(collisionFaces[EAST.i()]) move[X] = westDist;
+			}
+		}
+		
+		if(collisionFaces[DOWN.i()] || collisionFaces[UP.i()]){
+			double uupDist = distanceSphereToRectPlane(sx, sy, sz, sr, rx, ry, rz, rw, rh, rl, true);
+			double upDist = distanceSphereToRectPlane(sx, sy, sz, sr, rx, ry, rz, rw, rh, rl, false);
+			if(Math.abs(uupDist) < Math.abs(upDist)){
+				if(collisionFaces[UP.i()]) move[Y] = uupDist;
+			}
+			else{
+				if(collisionFaces[DOWN.i()]) move[Y] = upDist;
+			}
+		}
+		
+		if(collisionFaces[NORTH.i()] || collisionFaces[SOUTH.i()]){
+			double northDist = distanceSphereToRectPlane(sy, sz, sx, sr, ry, rz, rx, rh, rl, rw, true);
+			double southDist = distanceSphereToRectPlane(sy, sz, sx, sr, ry, rz, rx, rh, rl, rw, false);
+			if(Math.abs(northDist) < Math.abs(southDist)) {
+				if(collisionFaces[NORTH.i()]) move[Z] = northDist;
+			}
+			else {
+				if(collisionFaces[SOUTH.i()]) move[Z] = southDist;
+			}
+		}
+		
+		// If more than one move value is non-zero, set the others to zero
+		ZMath.selectSmallestNonZero(move);
+		
+		// Determine which directions were hit
+		if(move[X] != 0 || move[Z] != 0){
+			hitWall = true;
+			if(move[X] != 0) wallAngle = ZMath.PI_BY_2;
+		}
+		else if(move[Y] != 0){
+			if(sy < ry) hitCeiling = true;
+			else hitFloor = true;
+		}
+		
+		// Build the final collision result
+		return new CollisionResult3D(move[X], move[Y], move[Z], hitWall, hitCeiling, hitFloor, m, wallAngle);
+	}
+	
+	/**
+	 * Determine the distance to move a sphere up off of the given xz rectangular plane. Can represent other planes by changing coordinates
+	 *
+	 * @param sx The center x coordinate of the sphere
+	 * @param sy The center y coordinate of the sphere
+	 * @param sz The center z coordinate of the sphere
+	 * @param sr The radius of the sphere
+	 * @param rx The center x coordinate of the rectangular prism
+	 * @param ry The center y coordinate of the rectangular prism
+	 * @param rz The center z coordinate of the rectangular prism
+	 * @param rw The total width of the rectangular prism
+	 * @param rh The total height of the rectangular prism
+	 * @param rl The total length of the rectangular prism
+	 * @param top true if the direction of movement against the plane should from the top of the plane, false otherwise
+	 * @return The total distance to move the sphere
+	 */
+	private static double distanceSphereToRectPlane(double sx, double sy, double sz, double sr, double rx, double ry, double rz, double rw, double rh, double rl, boolean top){
+		// Find the closest point on the plane to the sphere
+		double hrw = rw * 0.5;
+		double hrh = rh * 0.5;
+		double hrl = rl * 0.5;
+		double px = ZMath.minMax(rx - hrw, rx + hrw, sx);
+		double py = ZMath.minMax(ry - hrh, ry + hrh, sy);
+		double pz = ZMath.minMax(rz - hrl, rz + hrl, sz);
+		
+		// Find the difference between the sphere center and the nearest point on the plane
+		double dx = sx - px;
+		double dy = sy - py;
+		double dz = sz - pz;
+		
+		// If below or above the plane when it shouldn't be, return the full distance to bring it to the desired orientation of the plane
+		if(top == dy < 0 || dy == 0){
+			if(top) return ry + hrh - (sy - sr);
+			else return ry - hrh - (sy + sr);
+		}
+		
+		// Find the distance from the sphere on the plane axes to the plane
+		double planeDist = dx * dx + dz * dz;
+		// Find the total distance from the sphere center to the nearest point on the plane
+		double totalDist = dy * dy + planeDist;
+		// If the total distance to the plane is less than the radius distance, then find the vertical distance to move
+		double srSquared = sr * sr;
+		if(totalDist < srSquared){
+			var d = Math.sqrt(srSquared - planeDist);
+			if(top) return d - dy;
+			else return -d - dy;
+		}
+		// Otherwise there is no intersection
+		return 0;
+	}
+	
+	/**
+	 * Determine if the rectangular prism and the bounds of a cylinder intersect
+	 *
+	 * @param rx The bottom middle x coordinate of the rectangular prism
+	 * @param ry The bottom middle y coordinate of the rectangular prism
+	 * @param rz The bottom middle z coordinate of the rectangular prism
+	 * @param rw The total width of the rectangular prism
+	 * @param rh The total height of the rectangular prism
+	 * @param rl The total length of the rectangular prism
+	 * @param cx The bottom middle x coordinate of the cylinder
+	 * @param cy The bottom middle y coordinate of the cylinder
+	 * @param cz The bottom middle z coordinate of the cylinder
+	 * @param cr The radius of the cylinder
+	 * @param ch The total height of the cylinder
+	 * @return true if they intersect, false otherwise
+	 */
+	public static boolean rectIntersectsCylinder(double rx, double ry, double rz, double rw, double rh, double rl, double cx, double cy, double cz, double cr, double ch){
+		// If neither of the y bounds of the rectangular prism are inside the cylinder, then there is no collision
+		if(// Check if the rectangular prism is inside the cylinder
+				!ZMath.inExclusive(cy, ry, cy + ch) && !ZMath.inExclusive(cy, ry + rh, cy + ch) &&
+				// Do the same check in reverse
+				!ZMath.inExclusive(ry, cy, ry + rh) && !ZMath.inExclusive(ry, cy + ch, ry + rh)
+			/////////////////////////////////////////////////////////////////////////
+		) return false;
+		
+		// If the circular bounds doesn't intersect the rectangle, there will be no collision
+		return ZMath.circleIntersectsRect(cx, cz, cr, rx - rw * 0.5, rz - rl * 0.5, rw, rl);
+	}
+	
+	/**
+	 * Determine if the rectangular prism and the bounds of a sphere intersect
+	 *
+	 * @param rx The bottom middle x coordinate of the rectangular prism
+	 * @param ry The bottom middle y coordinate of the rectangular prism
+	 * @param rz The bottom middle z coordinate of the rectangular prism
+	 * @param rw The total width of the rectangular prism
+	 * @param rh The total height of the rectangular prism
+	 * @param rl The total length of the rectangular prism
+	 * @param sx The center x coordinate of the sphere
+	 * @param sy The center y coordinate of the sphere
+	 * @param sz The center z coordinate of the sphere
+	 * @param sr The radius of the sphere
+	 * @return true if they intersect, false otherwise
+	 */
+	public static boolean rectIntersectsSphere(double rx, double ry, double rz, double rw, double rh, double rl, double sx, double sy, double sz, double sr){
+		double hw = rw * 0.5;
+		double hl = rl * 0.5;
+		double closeX = ZMath.minMax(rx - hw, rx + hw, sx);
+		double closeY = ZMath.minMax(ry, ry + rh, sy);
+		double closeZ = ZMath.minMax(rz - hl, rz + hl, sz);
+		double dx = closeX - sx;
+		double dy = closeY - sy;
+		double dz = closeZ - sz;
+		return (dx * dx + dy * dy + dz * dz) < (sr * sr);
+	}
+	
+	/**
+	 * Determine if the cylinder and the bounds of a sphere intersect
+	 *
+	 * @param cx The bottom middle x coordinate of the cylinder
+	 * @param cy The bottom middle y coordinate of the cylinder
+	 * @param cz The bottom middle z coordinate of the cylinder
+	 * @param cr The radius of the cylinder
+	 * @param ch The total height of the cylinder
+	 * @param sx The center x coordinate of the sphere
+	 * @param sy The center y coordinate of the sphere
+	 * @param sz The center z coordinate of the sphere
+	 * @param sr The radius of the sphere
+	 * @return true if they intersect, false otherwise
+	 */
+	public static boolean cylinderIntersectsSphere(double cx, double cy, double cz, double cr, double ch, double sx, double sy, double sz, double sr){
+		double closeY = ZMath.minMax(cy, cy + ch, sy);
+		
+		double dx = sx - cx;
+		double dz = sz - cz;
+		double horizontalDist = Math.sqrt(dx * dx + dz * dz);
+		double closeX;
+		double closeZ;
+		if(horizontalDist == 0){
+			closeX = cx;
+			closeZ = cz;
+		}
+		else{
+			double scale = cr / horizontalDist;
+			closeX = cx + dx * scale;
+			closeZ = cz + dz * scale;
+		}
+		dx = sx - closeX;
+		double dy = sy - closeY;
+		dz = sz - closeZ;
+		
+		return (dx * dx + dy * dy + dz * dz) < (sr * sr);
+	}
 	
 	/** Cannot instantiate {@link ZCollision} */
 	private ZCollision(){

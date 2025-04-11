@@ -38,7 +38,7 @@ public abstract class StatusEffect implements Saveable{
 	
 	/** @return The same effect as a different object, but with {@link #remaining} set to {@link #duration} */
 	public final StatusEffect resetCopy(){
-		var effect = copy();
+		var effect = this.copy();
 		effect.remaining = this.duration;
 		effect.duration = this.duration;
 		return effect;

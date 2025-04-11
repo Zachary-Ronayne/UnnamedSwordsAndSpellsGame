@@ -10,9 +10,9 @@ public class MaterialConst implements Material{
 	/** The default value of {@link #wallBounce} */
 	public static final double DEFAULT_WALL_BOUNCE = 0.5;
 	/** The default value of {@link #floorBounce} */
-	public static final double DEFAULT_FLOOR_BOUNCE = 0;
+	public static final double DEFAULT_FLOOR_BOUNCE = 0.1;
 	/** The default value of {@link #ceilingBounce} */
-	public static final double DEFAULT_CEILING_BOUNCE = 0;
+	public static final double DEFAULT_CEILING_BOUNCE = 0.1;
 	/** The default value of {@link #slipperinessSpeed} */
 	public static final double DEFAULT_SLIPPERINESS_SPEED = 100;
 	/** The default value of {@link #slipperinessAcceleration} */

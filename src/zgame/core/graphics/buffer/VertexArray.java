@@ -14,6 +14,18 @@ public class VertexArray{
 		this.bind();
 	}
 	
+	/**
+	 * Generate a new VertexArray and bind this {@link VertexArray} and the given vertex buffers
+	 * @param buffers The buffers to apply to this vertex array
+	 */
+	public VertexArray(VertexBuffer... buffers){
+		this();
+		for(var b : buffers) {
+			b.bind();
+			b.applyToVertexArray();
+		}
+	}
+	
 	/** Clear any resources used by this {@link VertexArray} */
 	public void destroy(){
 		glDeleteVertexArrays(this.id);

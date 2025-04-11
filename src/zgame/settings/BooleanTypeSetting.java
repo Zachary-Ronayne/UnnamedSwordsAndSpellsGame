@@ -11,6 +11,11 @@ public class BooleanTypeSetting extends SettingType<Boolean>{
 	
 	public static final BooleanTypeSetting V_SYNC = new BooleanTypeSetting("V_SYNC", true, (game, n) -> game.getWindow().setUseVsync(n));
 	public static final BooleanTypeSetting FULLSCREEN = new BooleanTypeSetting("FULLSCREEN", false, (game, n) -> game.getWindow().setFullscreen(n));
+	public static final BooleanTypeSetting PRINT_FPS = new BooleanTypeSetting("PRINT_FPS", true, (game, n) -> game.getRenderLooper().setPrintRate(n));
+	public static final BooleanTypeSetting PRINT_TPS = new BooleanTypeSetting("PRINT_TPS", true, (game, n) -> game.getTickLooper().setPrintRate(n));
+	
+	public static final BooleanTypeSetting CAMERA_LOOK_INVERT_X = new BooleanTypeSetting("CAMERA_INVERT_X", false);
+	public static final BooleanTypeSetting CAMERA_LOOK_INVERT_Y = new BooleanTypeSetting("CAMERA_INVERT_Y", false);
 	
 	/**
 	 * Initialize a new boolean setting.

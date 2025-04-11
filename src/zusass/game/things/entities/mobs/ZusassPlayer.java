@@ -6,21 +6,22 @@ import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.GameInteractable;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.input.InputHandler;
 import zgame.core.input.InputHandlers;
 import zgame.core.input.InputType;
 import zgame.core.utils.ZMath;
+import zgame.physics.ZVector3D;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.modifier.TypedModifier;
-import zgame.world.Room;
+import zgame.world.Room3D;
 import zusass.ZusassGame;
 import zusass.game.magic.MultiSpell;
 import zusass.game.magic.ProjectileSpell;
 import zusass.game.magic.Spell;
 import zusass.game.magic.effect.SpellEffectStatusEffect;
 import zusass.game.status.StatEffect;
-import zusass.game.things.ZThingClickDetector;
 import zusass.game.things.ZusassTags;
 
 import static zusass.game.stat.ZusassStat.*;
@@ -28,14 +29,17 @@ import static zusass.game.stat.ZusassStat.*;
 /** A player inside the {@link ZusassGame} */
 public class ZusassPlayer extends ZusassMob{
 	
-	/** true to lock the camera to the center of the player, false otherwise */
-	private boolean lockCamera;
-	
 	/** The object tracking what is input used by the player */
 	private InputHandlers inputHandlers;
 	
 	/** true if player input is disabled, false otherwise */
 	private boolean inputDisabled;
+	
+	/** true if this {@link ZusassPlayer} is in spell casting mode, false for weapon mode */
+	private boolean casting;
+	
+	/** true if the camera should be in first person, false for third person */
+	private boolean firstPerson;
 	
 	/**
 	 * Create a new object from json
@@ -49,7 +53,10 @@ public class ZusassPlayer extends ZusassMob{
 	
 	/** Create a new default {@link ZusassPlayer} */
 	public ZusassPlayer(){
-		super(0, 0, 75, 125);
+		super(0, 0, 0, 0.15, 0.5);
+		this.casting = false;
+		this.firstPerson = true;
+		
 		this.inputDisabled = false;
 		this.addTags(ZusassTags.CAN_ENTER_LEVEL_DOOR, ZusassTags.MUST_CLEAR_LEVEL_ROOM, ZusassTags.HUB_ENTER_RESTORE);
 		
@@ -59,9 +66,8 @@ public class ZusassPlayer extends ZusassMob{
 		this.setStat(ENDURANCE, 10);
 		this.setStat(INTELLIGENCE, 30);
 		this.setStat(ATTACK_SPEED, 3);
+		this.setStat(STAMINA_REGEN, 5);
 		this.setResourcesMax();
-		
-		this.addStatEffect(this.getUuid(), -1, 5, ModifierType.ADD, STAMINA_REGEN);
 		
 		// Set the default spell to a damage spell
 		var spells = this.getSpells();
@@ -71,8 +77,6 @@ public class ZusassPlayer extends ZusassMob{
 				new ProjectileSpell(new SpellEffectStatusEffect(new StatEffect(5, new TypedModifier(new StatModifier(-10, ModifierType.ADD), HEALTH_REGEN))))),
 				new MultiSpell(Spell.selfEffect(MOVE_SPEED, 2, 2, ModifierType.MULT_MULT))).named("Bruh"));
 		spells.setSelectedSpellIndex(0);
-		
-		this.lockCamera = false;
 	}
 	
 	/** Set the input buttons to be the default values */
@@ -82,8 +86,9 @@ public class ZusassPlayer extends ZusassMob{
 				new InputHandler(InputType.MOUSE_BUTTONS, GLFW_MOUSE_BUTTON_LEFT),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_F10),
 				new InputHandler(InputType.MOUSE_BUTTONS, GLFW_MOUSE_BUTTON_RIGHT),
-				new InputHandler(InputType.KEYBOARD, GLFW_KEY_SPACE),
-				new InputHandler(InputType.KEYBOARD, GLFW_KEY_Q),
+				new InputHandler(InputType.KEYBOARD, GLFW_KEY_E),
+				new InputHandler(InputType.KEYBOARD, GLFW_KEY_F),
+				new InputHandler(InputType.KEYBOARD, GLFW_KEY_R),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_LEFT_BRACKET),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_RIGHT_BRACKET)
 		);
@@ -95,26 +100,48 @@ public class ZusassPlayer extends ZusassMob{
 		
 		if(!this.isInputDisabled()) this.checkInput(game, dt);
 		
-		// Now the camera to the player after repositioning the player
-		this.checkCenterCamera(game);
+		var mobilityData = this.getMobilityData();
+		
+		// Move the camera to the player after repositioning the player
+		/*
+		 Doing this does leave a small amount of delay from frame to frame for the camera catching up,
+		 rather than setting the camera before any drawing operations happen, but it somehow looks glitchier doing it the latter way
+		 */
+		this.updateCameraPos(game.getCamera3D());
+		
+		//issue#61
+		// Update the sound listener to the player
+		var sm = game.getSounds();
+		sm.updateListenerPos(this.getX(), this.getY(), this.getZ());
+		var soundVec = new ZVector3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), 1, false);
+		sm.updateListenerDirection(soundVec.getX(), soundVec.getY(), soundVec.getZ());
 	}
 	
 	/**
 	 * Perform any actions needed for player input
+	 *
 	 * @param game The game the input took place in
 	 * @param dt The amount of time, in seconds, passed in the tick representing this input
 	 */
 	private void checkInput(Game game, double dt){
 		var ki = game.getKeyInput();
-		this.getWalk().handleMovementControls(ki.pressed(GLFW_KEY_A), ki.pressed(GLFW_KEY_D), ki.pressed(GLFW_KEY_W), dt);
+		var left = ki.buttonDown(GLFW_KEY_A);
+		var right = ki.buttonDown(GLFW_KEY_D);
+		var forward = ki.buttonDown(GLFW_KEY_W);
+		var backward = ki.buttonDown(GLFW_KEY_S);
+		var up = ki.buttonDown(GLFW_KEY_Q);
+		var down = ki.buttonDown(GLFW_KEY_Z);
+		var cam = game.getCamera3D();
+		this.handleMobilityControls(dt, cam.getYaw(), cam.getPitch(), left, right, forward, backward, up, down);
 		
-		if(this.inputHandlers.tick(game, GLFW_KEY_F10)) this.setLockCamera(!this.isLockCamera());
-		
-		// Toggle walking
-		if(this.inputHandlers.tick(game, GLFW_KEY_SPACE)) this.getWalk().toggleWalking();
+		// Turn sprinting on or off
+		this.setSprinting(ki.buttonDown(GLFW_KEY_E));
 		
 		// Toggle casting or attacking
-		if(this.inputHandlers.tick(game, GLFW_KEY_Q)) this.toggleCasting();
+		if(this.inputHandlers.tick(game, GLFW_KEY_R)) this.toggleCasting();
+		
+		// Toggle first person or third person
+		if(this.inputHandlers.tick(game, GLFW_KEY_F)) this.firstPerson = !firstPerson;
 		
 		// Go to next or previous spell
 		if(this.inputHandlers.tick(game, GLFW_KEY_RIGHT_BRACKET)) this.getSpells().previousSpell();
@@ -125,18 +152,13 @@ public class ZusassPlayer extends ZusassMob{
 	public boolean mouseAction(ZusassGame zgame, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		if(this.isInputDisabled()) return false;
 		// Left click to interact with something on click
-		if(!press && button == GLFW_MOUSE_BUTTON_LEFT) {
-			var clickables = zgame.getCurrentRoom().getAllThings().get(ZThingClickDetector.class);
-			if(clickables != null){
-				for(var c : clickables){
-					if(c.handlePress(zgame)) return true;
-				}
-			}
-			return false;
+		if(!press && button == GLFW_MOUSE_BUTTON_LEFT){
+			return zgame.getCurrentRoom().attemptClick(zgame, this);
 		}
 		// Right click to attack in a direction
-		else if(press && button == GLFW_MOUSE_BUTTON_RIGHT) {
-			this.beginAttackOrSpell(zgame, ZMath.lineAngle(this.centerX(), this.centerY(), zgame.mouseGX(), zgame.mouseGY()));
+		else if(press && button == GLFW_MOUSE_BUTTON_RIGHT){
+			if(casting) this.castSpell(zgame);
+			else this.beginAttack(zgame);
 			return true;
 		}
 		return false;
@@ -150,33 +172,11 @@ public class ZusassPlayer extends ZusassMob{
 	
 	@Override
 	public void render(Game game, Renderer r){
-		r.setColor(0, 0, .5);
-		r.drawRectangle(this.getBounds());
+		// Temporary simple rendering
+		r.setColor(0, 0.2, 0.5);
+		r.drawSidePlaneX(this.getX(), this.getY(), this.getZ(), this.getWidth(), this.getHeight(), this.getMobilityData().getFacingYaw() - ZMath.PI_BY_2);
+		
 		this.renderAttackTimer(game, r);
-	}
-	
-	/**
-	 * If the camera should be locked to this {@link ZusassPlayer}, then lock the camera, otherwise do nothing
-	 *
-	 * @param game The game to get the camera from
-	 */
-	public void checkCenterCamera(Game game){
-		if(this.isLockCamera()) this.centerCamera(game);
-	}
-	
-	/** @return See {@link #lockCamera} */
-	public boolean isLockCamera(){
-		return this.lockCamera;
-	}
-	
-	/** @param lockCamera See {@link #lockCamera} */
-	public void setLockCamera(boolean lockCamera){
-		this.lockCamera = lockCamera;
-	}
-	
-	/** If the camera is locked, unlock it, otherwise, lock it */
-	public void toggleLockCamera(){
-		this.setLockCamera(!this.isLockCamera());
 	}
 	
 	@Override
@@ -187,14 +187,19 @@ public class ZusassPlayer extends ZusassMob{
 		var statArr = this.getStats().getArr();
 		for(var s : statArr) s.reset();
 		
+		// Reset all constant modifiers
+		this.initMobStatModifiers();
+		
+		// Put resources back to max
 		this.setResourcesMax();
 		
+		// Put the player back in the hub
 		zgame.getPlayState().enterHub(zgame);
 		zgame.getData().checkAutoSave(zgame);
 	}
 	
 	@Override
-	public void enterRoom(Room from, Room to, Game game){
+	public void enterRoom(Room3D from, Room3D to, Game game){
 		ZusassGame zgame = (ZusassGame)game;
 		super.enterRoom(from, to, zgame);
 		if(to != null){
@@ -210,9 +215,19 @@ public class ZusassPlayer extends ZusassMob{
 				this.getEffects().removeAllTemporary(this);
 			}
 		}
-		
-		// Center the camera to the player
-		this.checkCenterCamera(zgame);
+	}
+	
+	@Override
+	public void updateCameraPos(GameCamera3D camera){
+		super.updateCameraPos(camera);
+		if(this.firstPerson) {
+			camera.setPositionOffset(0.03);
+			this.setVisionForwardDistance(0.02);
+		}
+		else {
+			camera.setPositionOffset(-1.3);
+			this.setVisionForwardDistance(0);
+		}
 	}
 	
 	/** @return See {@link #inputDisabled} */
@@ -224,4 +239,20 @@ public class ZusassPlayer extends ZusassMob{
 	public void setInputDisabled(boolean inputDisabled){
 		this.inputDisabled = inputDisabled;
 	}
+	
+	/** @return See {@link #casting} */
+	public boolean isCasting(){
+		return this.casting;
+	}
+	
+	/** @param casting See {@link #casting} */
+	public void setCasting(boolean casting){
+		this.casting = casting;
+	}
+	
+	/** Toggle the state of {@link #casting} */
+	public void toggleCasting(){
+		this.setCasting(!this.isCasting());
+	}
+	
 }

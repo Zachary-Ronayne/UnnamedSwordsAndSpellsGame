@@ -17,7 +17,7 @@ public class PauseSettingsButton extends PauseMenuButton{
 	@Override
 	public void click(Game game){
 		ZusassGame zgame = (ZusassGame)game;
-		zgame.getCurrentState().setMenu(new SettingsMenu(zgame, z -> {
+		zgame.getCurrentState().setMenu(zgame, new SettingsMenu(zgame, z -> {
 			var p = z.getPlayState();
 			p.removeTopMenu(z);
 			p.openPauseMenu(z);

@@ -3,7 +3,7 @@ package zgame.core.graphics.buffer;
 import java.util.function.BiConsumer;
 
 import zgame.core.graphics.Renderer;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 
 /** A {@link GameBuffer} that can easily be extended to draw on */
 public class DrawableBuffer extends GameBuffer{
@@ -12,7 +12,7 @@ public class DrawableBuffer extends GameBuffer{
 	private boolean needRedraw;
 	
 	/**
-	 * true if, before redrawing the contents of this buffer, if any bounds of the renderer are set through {@link Renderer#limitBounds(ZRect)},
+	 * true if, before redrawing the contents of this buffer, if any bounds of the renderer are set through {@link Renderer#limitBounds(ZRect2D)},
 	 * the bounds will be unlimited, false otherwise. true by default
 	 */
 	private boolean forceUnlimit;
@@ -24,7 +24,7 @@ public class DrawableBuffer extends GameBuffer{
 	 * @param height See {@link #getHeight()}
 	 */
 	public DrawableBuffer(int width, int height){
-		super(width, height, false);
+		super(width, height);
 		this.needRedraw = true;
 		this.forceUnlimit = true;
 	}
@@ -36,14 +36,14 @@ public class DrawableBuffer extends GameBuffer{
 	 * @param y The y coordinate to draw the upper left hand corner of the buffer
 	 * @param r The renderer to draw this buffer to
 	 */
-	public void drawToRenderer(double x, double y, Renderer r){
+	public void drawOnRenderer(double x, double y, Renderer r){
 		if(this.needRedraw) this.redraw(r);
 		// Make sure the color is reset to opaque
 		r.pushColor();
 		r.makeOpaque();
 		
 		// Draw the actual buffer
-		super.drawToRenderer(x, y, r);
+		super.drawOnRenderer(x, y, r);
 		
 		// Put the color back
 		r.popColor();
@@ -68,7 +68,7 @@ public class DrawableBuffer extends GameBuffer{
 	 *
 	 * @param r The {@link Renderer} to use for drawing the buffer
 	 */
-	private void redraw(Renderer r){
+	public void redraw(Renderer r){
 		this.redraw(r, (rr, d) -> {
 			var unlimited = this.isForceUnlimit();
 			if(unlimited) rr.pushUnlimitedBounds();

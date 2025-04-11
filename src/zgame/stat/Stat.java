@@ -183,7 +183,7 @@ public abstract class Stat{
 		var map = this.modifiers[mod.getType().getIndex()];
 		if(!map.containsKey(sourceId)) map.put(sourceId, new ModifierList(mod.getType()));
 		var list = map.get(sourceId);
-		if(list.contains(mod)) return;
+		// Can blindly add the same modifier over and over because the modifier list will only apply the most potent one
 		list.add(mod);
 		this.flagRecalculate();
 	}
@@ -198,6 +198,8 @@ public abstract class Stat{
 		
 		var list = map.get(sourceId);
 		list.remove(mod);
+		// If no elements in the list remain, clear out the mapping
+		if(list.isEmpty()) map.remove(sourceId);
 		this.flagRecalculate();
 	}
 	

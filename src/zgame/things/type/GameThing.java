@@ -1,12 +1,10 @@
 package zgame.things.type;
 
 import zgame.core.Game;
-import zgame.core.GameTickable;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.things.Tag;
-import zgame.things.entity.EntityThing;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -60,22 +58,32 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	}
 	
 	/**
-	 * @return The number which determines how soon this object should render.
-	 * 		Lower numbers are rendered first, higher numbers are rendered last
+	 * Called any time this game thing is removed from a room, does nothing by default, override to provide custom behavior
+	 * @param game The game where the removal took place, the room will be the current room of the game's play state
+	 */
+	public void onRoomRemove(Game game){}
+	
+	/**
+	 * Determines the order that game things are stored in lists rooms. Primarily used in 2D when determining which thing should be rendered first.
+	 * Can also adjust how the elements are sorted by overriding {@link #compareTo(GameThing)}
+	 *
+	 * @return The number which determines how this thing is sorted relative to other game things.
+	 * 		Lower numbers are first, higher numbers are last
 	 * 		Override to make a custom value
 	 * 		Defaults to 0.
 	 */
-	public int getRenderPriority(){
+	public int getSortPriority(){
 		return 0;
 	}
 	
 	@Override
 	public int compareTo(GameThing gt){
-		return Integer.compare(this.getRenderPriority(), gt.getRenderPriority());
+		return Integer.compare(this.getSortPriority(), gt.getSortPriority());
 	}
 	
 	/**
 	 * Remove this thing from the given game
+	 *
 	 * @param game The game to remove it from
 	 */
 	public void removeFrom(Game game){
@@ -83,31 +91,8 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	}
 	
 	/**
-	 * @return This object, as an {@link EntityThing}, or null if it cannot be an {@link EntityThing}
-	 * 		The return value of this method should equal this object, not another version or reference, i.e. (this == this.asEntity()) should evaluate to true
-	 */
-	public EntityThing asEntity(){
-		return null;
-	}
-	
-	/**
-	 * @return This object, as a {@link GameTickable}, or null if it cannot be a {@link GameTickable}
-	 * 		The return value of this method should equal this object, not another version or reference, i.e. (this == this.asTickable()) should evaluate to true
-	 */
-	public GameTickable asTickable(){
-		return null;
-	}
-	
-	/**
-	 * @return This object, as a {@link HitBox}, or null if it cannot be a {@link HitBox}
-	 * 		The return value of this method should equal this object, not another version or reference, i.e. (this == this.asHitbox()) should evaluate to true
-	 */
-	public HitBox asHitBox(){
-		return null;
-	}
-	
-	/**
 	 * Determine if this object has the given tag
+	 *
 	 * @param tag The tag to check for
 	 * @return true if it has the tag, false otherwise
 	 */
@@ -117,6 +102,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	
 	/**
 	 * Give a list of tags to this {@link GameThing}
+	 *
 	 * @param tags The tags
 	 */
 	public void addTags(Tag... tags){
@@ -125,6 +111,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	
 	/**
 	 * Remove tags from this {@link GameThing}
+	 *
 	 * @param tags The tags
 	 */
 	public void removeTags(Tag... tags){

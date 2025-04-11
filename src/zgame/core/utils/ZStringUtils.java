@@ -15,6 +15,15 @@ public final class ZStringUtils{
 	}
 	
 	/**
+	 * Print, to the main System.err, the string representation of a list of objects on one line using efficient string concatenation, as an error
+	 *
+	 * @param objs The list of objects to print together
+	 */
+	public static void error(Object... objs){
+		System.err.println(concat(objs));
+	}
+	
+	/**
 	 * Print, to the main System.out, the string representation of a list of objects on one line using efficient string concatenation, with a space between each element
 	 *
 	 * @param objs The list of objects to print together

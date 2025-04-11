@@ -7,7 +7,7 @@ import zgame.core.graphics.ZColor;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.TextBuffer;
 import zgame.core.utils.ZArrayUtils;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 
 import java.util.ArrayList;
 
@@ -186,8 +186,7 @@ public class MenuText extends MenuThing{
 	 * @param game The game to get the window's width from
 	 */
 	public void bufferWidthToWindow(Game game){
-		var w = game.getScreenWidth();
-		this.textBuffer.setWidth(w);
+		this.textBuffer.widthToWindow(game);
 	}
 	
 	/** @param fontColor Set the color used to draw text, this will override anything in this thing's buffer's {@link TextBuffer#options} */
@@ -220,7 +219,7 @@ public class MenuText extends MenuThing{
 	
 	/** Move the text of this {@link MenuText} so that it's in the center of its bounds */
 	public void centerText(){
-		ZRect b = this.getTextBounds();
+		ZRect2D b = this.getTextBounds();
 		this.centerTextHorizontal(b.width);
 		this.centerTextVertical(b.height);
 	}
@@ -272,12 +271,15 @@ public class MenuText extends MenuThing{
 	}
 	
 	/** @return The bounds of {@link #getText()} based on {@link #getFont()} */
-	public ZRect getTextBounds(){
+	public ZRect2D getTextBounds(){
 		return this.getFont().stringBounds(this.getText());
 	}
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect bounds){
+	public void render(Game game, Renderer r, ZRect2D bounds){
+		// If the buffer has not been generated yet, generate it now
+		if(!this.textBuffer.isBufferGenerated()) this.textBuffer.regenerateBuffer();
+		
 		super.render(game, r, bounds);
 		
 		if(this.getFont() != null) r.setFont(this.getFont());
@@ -292,19 +294,19 @@ public class MenuText extends MenuThing{
 	 * @param r The Renderer to use to draw the text
 	 * @param bounds The bounds of this thing as it's being drawn
 	 */
-	public void drawText(Renderer r, ZRect bounds){
+	public void drawText(Renderer r, ZRect2D bounds){
 		var b = this.getTextLimitBounds();
 		var limit = b != null;
 		if(limit){
 			if(this.isLimitIntersectionBounds()) r.pushLimitedBoundsIntersection(b);
 			else r.pushLimitedBounds(b);
 		}
-		this.textBuffer.drawToRenderer(bounds.getX(), bounds.getY(), r);
+		this.textBuffer.drawOnRenderer(bounds.getX(), bounds.getY(), r);
 		if(limit) r.popLimitedBounds();
 	}
 	
 	/** @return The bounds, in absolute coordinates, where text can be drawn. Text outside of this will be cut off */
-	public ZRect getTextLimitBounds(){
+	public ZRect2D getTextLimitBounds(){
 		// Must find the bounds relative to the first parent which uses a buffer
 		
 		// issue#30 Which of these is correct? Or does it need to be something else?

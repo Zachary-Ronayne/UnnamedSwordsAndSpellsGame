@@ -12,10 +12,11 @@ import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.utils.ZConfig;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 
 /**
- * A class that manages an OpenGL Framebuffer for a Renderer to draw to
+ * A class that manages an OpenGL Framebuffer for a Renderer to draw to.
+ * To use a GameBuffer, after the constructor initializes the object, explicitly call {@link #regenerateBuffer()} for the buffer to be usable
  */
 public class GameBuffer implements Destroyable{
 	
@@ -25,10 +26,10 @@ public class GameBuffer implements Destroyable{
 	/** The OpenGL Framebuffer ID used to track this GameBuffer's Framebuffer */
 	private int frameID;
 	
-	/** The width, in pixels, of this GameBuffer */
+	/** The width, in pixels, of this GameBuffer, should always be greater than 0 */
 	private int width;
 	
-	/** The height, in pixels, of this GameBuffer */
+	/** The height, in pixels, of this GameBuffer, should always be greater than 0 */
 	private int height;
 	
 	/** Stores the inverse of {@link #width} */
@@ -50,21 +51,22 @@ public class GameBuffer implements Destroyable{
 	/** The way this buffer should be rendered for the alpha channel */
 	private AlphaMode alphaMode;
 	
+	/** true if this buffer should use a depth buffer for the depth test when it is generated, false otherwise */
+	private boolean depthBufferEnabled;
+	
 	/**
-	 * Create a GameBuffer of the given size
+	 * Create a GameBuffer of the given size.
+	 * The buffer will not be usable until {@link #regenerateBuffer()} is called
 	 *
 	 * @param width See {@link #width}
 	 * @param height See {@link #height}
-	 * @param generate true if the buffer should generate right away, false to not generate it
 	 */
-	public GameBuffer(int width, int height, boolean generate){
+	public GameBuffer(int width, int height){
 		this.alphaMode = AlphaMode.NORMAL;
 		this.bufferGenerated = false;
-		if(generate) this.regenerateBuffer(width, height);
-		else{
-			this.width = width;
-			this.height = height;
-		}
+		this.depthBufferEnabled = false;
+		this.width = width;
+		this.height = height;
 	}
 	
 	/**
@@ -87,10 +89,7 @@ public class GameBuffer implements Destroyable{
 	public boolean regenerateBuffer(int width, int height){
 		this.destroy();
 		
-		this.width = 1;
-		this.height = 1;
-		this.setWidth(width);
-		this.setHeight(height);
+		this.setSize(width, height);
 		
 		// Create the texture
 		this.textureID = glGenTextures();
@@ -108,8 +107,15 @@ public class GameBuffer implements Destroyable{
 		this.frameID = glGenFramebuffers();
 		int oldBuffer = glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING);
 		glBindFramebuffer(GL_FRAMEBUFFER, this.frameID);
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this.textureID, 0);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		
+		if(this.depthBufferEnabled){
+			var depthBuffer = glGenRenderbuffers();
+			glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, this.getWidth(), this.getHeight());
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+		}
 		
 		// Error check
 		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -130,7 +136,7 @@ public class GameBuffer implements Destroyable{
 	 * @param game The game to get the window's width from
 	 */
 	public void widthToWindow(Game game){
-		this.setWidth(Math.round(game.getScreenWidth()));
+		this.setSize(game.getScreenWidth(), this.getHeight());
 	}
 	
 	/** Erase all resources associated with this GameBuffer. After calling this method, this object should not be used */
@@ -146,19 +152,19 @@ public class GameBuffer implements Destroyable{
 	}
 	
 	/**
-	 * Draw the currently drawn content of this buffer to the given {@link Renderer}
+	 * Draw the currently drawn content of this buffer on to the given {@link Renderer}, in 2D.
 	 * Coordinates are in game coordinates
 	 *
 	 * @param x The x coordinate to draw the upper left hand corner of the buffer
 	 * @param y The y coordinate to draw the upper left hand corner of the buffer
 	 * @param r The {@link Renderer} to use
 	 */
-	public void drawToRenderer(double x, double y, Renderer r){
+	public void drawOnRenderer(double x, double y, Renderer r){
 		r.drawBuffer(x, y, this.getWidth(), this.getHeight(), this, this.getAlphaMode());
 	}
 	
 	/** After calling this method, all further OpenGL rendering operations will draw to this GameBuffer */
-	public void drawToBuffer(){
+	public void drawWithBuffer(){
 		glBindFramebuffer(GL_FRAMEBUFFER, this.getFrameID());
 	}
 	
@@ -167,7 +173,7 @@ public class GameBuffer implements Destroyable{
 		glViewport(0, 0, this.getWidth(), this.getHeight());
 	}
 	
-	/** Set the OpenGL clear color to fully transparent, then clear the currently bound buffer. Generally should call {@link #drawToBuffer()} before calling this method */
+	/** Set the OpenGL clear color to fully transparent, then clear the currently bound buffer. Generally should call {@link #drawWithBuffer()} before calling this method */
 	public void clear(){
 		glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -181,6 +187,16 @@ public class GameBuffer implements Destroyable{
 	/** @param alphaMode See {@link #alphaMode} */
 	public void setAlphaMode(AlphaMode alphaMode){
 		this.alphaMode = alphaMode;
+	}
+	
+	/** @return See {@link #depthBufferEnabled} */
+	public boolean isDepthBufferEnabled(){
+		return this.depthBufferEnabled;
+	}
+	
+	/** @param depthBufferEnabled See {@link #depthBufferEnabled} */
+	public void setDepthBufferEnabled(boolean depthBufferEnabled){
+		this.depthBufferEnabled = depthBufferEnabled;
 	}
 	
 	/** @return See {@link #textureID} */
@@ -209,15 +225,16 @@ public class GameBuffer implements Destroyable{
 	}
 	
 	/**
-	 * Update the currently stored values for the buffer width, but do not update the buffer itself, should not be called without updating the buffer afterwards
+	 * Update the currently stored values for the buffer width and height, but do not update the buffer itself.
+	 * The buffer will not render correctly unless {@link #regenerateBuffer()} is explicitly called later
 	 *
 	 * @param width {@link #width}
+	 * @param height {@link #height}
 	 */
-	public void setWidth(int width){
+	public void setSize(int width, int height){
 		this.width = width;
-		this.inverseWidth = 1.0 / width;
-		this.inverseHalfWidth = 1.0 / (width * 0.5);
-		this.updateRatio();
+		this.height = height;
+		this.recompute();
 	}
 	
 	/** @return See {@link #height} */
@@ -235,20 +252,12 @@ public class GameBuffer implements Destroyable{
 		return this.inverseHalfHeight;
 	}
 	
-	/**
-	 * Update the currently stored values for the buffer height, but do not update the buffer itself, should not be called without updating the buffer afterwards
-	 *
-	 * @param height {@link #height}
-	 */
-	public void setHeight(int height){
-		this.height = height;
+	/** Updates the internal cached values associated with this buffer */
+	private void recompute(){
+		this.inverseWidth = 1.0 / width;
+		this.inverseHalfWidth = 1.0 / (width * 0.5);
 		this.inverseHeight = 1.0 / height;
 		this.inverseHalfHeight = 1.0 / (height * 0.5);
-		this.updateRatio();
-	}
-	
-	/** Updates the internal values of {@link #ratioWH} and {@link #ratioHW} */
-	private void updateRatio(){
 		this.ratioWH = (double)this.width / this.height;
 		this.ratioHW = (double)this.height / this.width;
 	}
@@ -264,8 +273,8 @@ public class GameBuffer implements Destroyable{
 	}
 	
 	/** @return The bounds of this {@link GameBuffer}, i.e., a rectangle positioned at (0, 0) with the dimensions of this buffer */
-	public ZRect getBounds(){
-		return new ZRect(0, 0, this.getWidth(), this.getHeight());
+	public ZRect2D getBounds(){
+		return new ZRect2D(0, 0, this.getWidth(), this.getHeight());
 	}
 	
 	/** @return See {@link #bufferGenerated} */

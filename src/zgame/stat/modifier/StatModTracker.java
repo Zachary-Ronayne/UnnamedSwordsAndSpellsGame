@@ -32,4 +32,8 @@ public class StatModTracker{
 		this.mod.setValue(v, this.stat, this.sourceId);
 	}
 	
+	/** @return See {@link #mod} */
+	public StatModifier getMod(){
+		return this.mod;
+	}
 }

@@ -3,14 +3,16 @@ package zgame.settings;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import zgame.core.Game;
-import zgame.core.utils.ZStringUtils;
 
 import java.util.function.BiConsumer;
 
 /** A {@link Setting} holding a double. See {@link SettingType} */
 public class DoubleTypeSetting extends SettingType<Double>{
 	
-	public static final DoubleTypeSetting TEST_D = new DoubleTypeSetting("TEST_D", 1.2, (game, n) -> ZStringUtils.prints("New value", n, game));
+	public static final DoubleTypeSetting FOV = new DoubleTypeSetting("FOV", 1, Game::setFov);
+	
+	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_X = new DoubleTypeSetting("CAMERA_LOOK_SPEED_X", 0.0009);
+	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_Y = new DoubleTypeSetting("CAMERA_LOOK_SPEED_Y", 0.0009);
 	
 	/**
 	 * Initialize a new double setting.

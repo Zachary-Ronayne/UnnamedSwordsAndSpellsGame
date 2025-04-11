@@ -1,28 +1,36 @@
 package zgame.things.entity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
-import zgame.physics.collision.CollisionResponse;
+import zgame.physics.collision.CollisionResult;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
-import zgame.things.type.PositionedHitboxThing;
-import zgame.things.type.PositionedThing;
+import zgame.things.type.GameThing;
+import zgame.things.type.bounds.HitBox;
+import zgame.world.Room;
 
 /**
- * A {@link PositionedThing} which keeps track of an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
+ * A thing is an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
  * This is for things like creatures, dropped items, projectiles, etc.
+ *
+ * @param <H> The hitbox implementation used by this entity
+ * @param <E> The entity implementation of this entity
+ * @param <V> The vector implementation used by this entity
+ * @param <R> The room implementation which this entity can exist in
+ * @param <C> The type of collisions used by this entity
  */
-public abstract class EntityThing extends PositionedHitboxThing implements GameTickable{
-	
-	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
+// issue#50 find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
+public abstract class EntityThing<
+		H extends HitBox<H, C>,
+		E extends EntityThing<H, E, V, R, C>,
+		V extends ZVector<V>,
+		R extends Room<H, E, V, R, C>,
+		C extends CollisionResult<C>
+		> extends GameThing implements GameTickable, HitBox<H, C>{
 	
 	/** The string used to identify the force of gravity in {@link #forces} */
 	public static final String FORCE_NAME_GRAVITY = "gravity";
@@ -33,41 +41,38 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	/** The string used to identify the force of sticking to a wall in {@link #forces} */
 	public static final String FORCE_NAME_WALL_SLIDE = "wallSlide";
 	
-	/** The acceleration of gravity */
-	public static final double GRAVITY_ACCELERATION = 800;
-	
 	/** The uuid of this entity */
 	private final String uuid;
 	
 	/** The current velocity of this {@link EntityThing} */
-	private ZVector velocity;
+	private V velocity;
+	
+	/** true if velocity has been reset in this tick before applying movement, and movement should not happen for that tick, false otherwise */
+	private boolean velocityCleared;
 	
 	/** The current force of gravity on this {@link EntityThing} */
-	private ZVector gravity;
+	private V gravity;
 	
 	/** The percentage of gravity that applies to this {@link EntityThing}, defaults to 1, i.e. 100% */
 	private double gravityLevel;
 	
 	/** The current force of friction on this {@link EntityThing}. */
-	private ZVector frictionForce;
+	private V frictionForce;
 	
-	/** The current force of drag acting against gravity on this {@link #EntityThing()} */
-	private ZVector gravityDragForce;
+	/** The current force of drag acting against gravity on this {@link EntityThing} */
+	private V gravityDragForce;
 	
 	/** Every force currently acting on this {@link EntityThing}, mapped by a name */
-	private final Map<String, ZVector> forces;
-	
-	/** A set of all the uuids which are currently colliding with this entity */
-	private final HashSet<String> collidingUuids;
+	private final Map<String, V> forces;
 	
 	/** A {@link ZVector} representing the total force acting on this {@link EntityThing} */
-	private ZVector totalForce;
+	private V totalForce;
 	
 	/** The amount of time in seconds since this {@link EntityThing} last touched the ground, or -1 if it is currently on the ground */
 	private double groundTime;
 	
 	/** The material which this {@link EntityThing} is standing on, or {@link Materials#NONE} if no material is being touched */
-	private Material groundMaterial;
+	private Material floorMaterial;
 	
 	/** The amount of time in seconds since this {@link EntityThing} last touched a ceiling, or -1 if it is currently touching a ceiling */
 	private double ceilingTime;
@@ -81,75 +86,55 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	/** The material which this {@link EntityThing} is holding on a wall, or {@link Materials#NONE} if no wall is touched */
 	private Material wallMaterial;
 	
-	/** The value of {@link #getX()} from the last tick */
-	private double px;
-	/** The value of {@link #getY()} from the last tick */
-	private double py;
-	
 	/** The mass, i.e. weight, of this {@link EntityThing} */
 	private double mass;
 	
 	/** The Material which this {@link EntityThing} is made of */
 	private Material material;
 	
-	/**
-	 * Create a new empty entity at (0, 0) with a mass of 1
-	 */
-	public EntityThing(){
-		this(0, 0);
-	}
+	/** true if collision should be disabled, false otherwise */
+	private boolean noClip;
 	
 	/**
-	 * Create a new empty entity with a mass of 100
+	 * Create a new empty entity with the given mass
 	 *
-	 * @param x The x coordinate of the entity
-	 * @param y The y coordinate of the entity
-	 */
-	public EntityThing(double x, double y){
-		this(x, y, 100);
-	}
-	
-	/**
-	 * Create a new empty entity
-	 *
-	 * @param x The x coordinate of the entity
-	 * @param y The y coordinate of the entity
 	 * @param mass See {@link #mass}
 	 */
-	public EntityThing(double x, double y, double mass){
-		super(x, y);
+	public EntityThing(double mass){
 		this.uuid = UUID.randomUUID().toString();
 		
-		this.velocity = new ZVector();
+		this.velocity = this.zeroVector();
+		this.velocityCleared = false;
 		
-		this.collidingUuids = new HashSet<>();
 		this.forces = new HashMap<>();
-		this.totalForce = new ZVector();
+		this.totalForce = this.zeroVector();
 		
-		this.gravity = new ZVector();
+		this.gravity = this.zeroVector();
 		this.setForce(FORCE_NAME_GRAVITY, gravity);
 		this.setGravityLevel(1);
 		this.setMass(mass);
 		this.material = Materials.DEFAULT_ENTITY;
 		
-		this.frictionForce = new ZVector();
-		this.setForce(FORCE_NAME_FRICTION, frictionForce);
+		this.frictionForce = this.zeroVector();
+		this.setForce(FORCE_NAME_FRICTION, this.frictionForce);
 		
-		this.gravityDragForce = new ZVector();
+		this.gravityDragForce = this.zeroVector();
 		this.setForce(FORCE_NAME_GRAVITY_DRAG, this.gravityDragForce);
 		
-		this.setForce(FORCE_NAME_WALL_SLIDE, new ZVector());
+		this.setForce(FORCE_NAME_WALL_SLIDE, this.zeroVector());
 		
-		this.groundMaterial = Materials.NONE;
+		this.floorMaterial = Materials.NONE;
 		this.groundTime = 0;
 		this.ceilingMaterial = Materials.NONE;
 		this.ceilingTime = 0;
 		this.wallMaterial = Materials.NONE;
 		this.wallTime = 0;
 		
-		this.px = this.getX();
-		this.py = this.getY();
+		this.noClip = false;
 	}
+	
+	/** @return A new empty vector, representing no motion, for use with this entity. Should always return a new instance */
+	public abstract V zeroVector();
 	
 	@Override
 	public void tick(Game game, double dt){
@@ -158,17 +143,11 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		if(this.ceilingTime != -1) this.ceilingTime += dt;
 		if(this.wallTime != -1) this.wallTime += dt;
 		
-		// Account for frictional force based on current ground material
-		this.updateFrictionForce(dt);
-		
 		// Account for drag going down for terminal velocity
 		this.updateGravityDragForce(dt);
 		
 		// Account for sliding down walls
 		this.updateWallSideForce(dt);
-		
-		// Check for entity collision, and apply appropriate forces based on what is currently colliding
-		 this.checkEntityCollisions(game, dt);
 	}
 	
 	/**
@@ -178,19 +157,30 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	 * @param dt The amount of time, in seconds, which passed in the tick where this update took place
 	 */
 	public void updatePosition(Game game, double dt){
+		// Account for frictional force based on current ground material, must be updated directly before applying any movement
+		this.updateFrictionForce(dt);
+		
 		// Find the current acceleration
-		ZVector acceleration = this.getForce().scale(1.0 / this.getMass());
+		var acceleration = this.getForce().scale(1.0 / this.getMass());
 		
 		// Add the acceleration to the current velocity
 		this.addVelocity(acceleration.scale(dt));
 		
-		// Move the entity based on the current velocity and acceleration
-		this.px = this.getX();
-		this.py = this.getY();
-		ZVector moveVec = this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5));
-		this.addX(moveVec.getX());
-		this.addY(moveVec.getY());
+		// Account for clamping the velocity
+		double velMag = this.getVelocity().getMagnitude();
+		if(velMag != 0 && velMag < this.getClampVelocity()) this.clearVelocity();
+		
+		// Apply the movement of the velocity
+		if(!this.velocityCleared) this.moveEntity(this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5)));
+		this.velocityCleared = false;
 	}
+	
+	/**
+	 * Move the entity by the given amount
+	 *
+	 * @param distance The distance to move this entity by
+	 */
+	public abstract void moveEntity(V distance);
 	
 	/**
 	 * Determine the current amount of friction on this {@link EntityThing} and update the force
@@ -198,32 +188,96 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	 * @param dt The amount of time, in seconds, that will pass the next time the frictional force is applied
 	 */
 	public void updateFrictionForce(double dt){
-		// Determining direction
-		double mass = this.getMass();
-		ZVector force = this.getForce();
-		double vx = this.getVX();
-		double fx = force.getX() - this.frictionForce.getX();
-		// Find the total constant for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
-		double newFrictionForce = (this.getFrictionConstant() * this.getGroundMaterial().getFriction()) * Math.abs(this.getGravity().getY());
+		// When not on a surface, there is no friction
+		boolean onSurface = this.isOnGround() || this.isOnWall() || this.isOnCeiling();
+		var currentFriction = this.getFriction();
+		if(!onSurface){
+			// Don't bother changing friction if it's already 0
+			if(currentFriction.getMagnitude() != 0) this.setFrictionForce(this.zeroVector());
+			return;
+		}
+		double clampVel = this.getClampVelocity();
 		
-		// If there is no velocity, then the force of friction is equal and opposite to the current total force without friction, and will not exceed the value based on gravity
-		if(vx == 0){
-			newFrictionForce = Math.min(newFrictionForce, Math.abs(fx));
-			if(fx > 0) newFrictionForce *= -1;
+		var currentForce = this.getForce();
+		var gravity = this.getGravity();
+		double gravityVert = gravity.getVerticalValue();
+		double forceNoGravityVert = currentForce.getVerticalValue() - gravityVert;
+
+		/*
+		 If the vertical component of force without gravity is greater than or equal to the force of gravity,
+		 and the forces are in opposite directions or equal,
+		 then there will be no friction
+		 */
+		if((!ZMath.sameSign(gravityVert, forceNoGravityVert) || gravityVert == forceNoGravityVert) && Math.abs(forceNoGravityVert) > clampVel){
+			this.setFrictionForce(this.zeroVector());
+			return;
 		}
-		else{
-			// Need to make the force of friction move in the opposite direction of movement, so make it negative if the direction is positive, otherwise leave it positive
-			if(vx > 0) newFrictionForce *= -1;
-			
-			// If applying the new force of friction would make the velocity go in the opposite direction, then the force should be such that it will bring the velocity to zero
-			double massTime = dt / mass;
-			// is this actually accounting for the amount of velocity added based on acceleration?
-			// or is it that it needs to account for a change in acceleration, like when the walk force changes?
-			double oldVel = vx + fx * massTime;
-			double newVel = vx + (fx + newFrictionForce) * massTime;
-			if(!ZMath.sameSign(oldVel, newVel)) newFrictionForce = -vx / massTime;
+		
+		// If velocity is in the opposite direction as gravity, apply no friction
+		var currentVel = this.getVelocity();
+		double velVert = currentVel.getVerticalValue();
+		if(Math.abs(velVert) > clampVel && !ZMath.sameSign(velVert, gravityVert)){
+			this.setFrictionForce(this.zeroVector());
+			return;
 		}
-		this.frictionForce = this.setForceX(FORCE_NAME_FRICTION, newFrictionForce);
+		
+		// Find the total force for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
+		double newFrictionForce = this.calculateFrictionForce();
+		
+		var hasHorizontalVel = currentVel.getHorizontal() >= clampVel;
+		boolean currentForceExceedsFriction = currentForce.getMagnitude() > newFrictionForce;
+		// When there is no horizontal velocity, or the current force applied to the entity is less than the base force of friction, the friction force may be zero
+		if(!hasHorizontalVel || currentForceExceedsFriction){
+			// If the frictional force exceeds the current force, and velocity is moving opposite of gravity, then there will be equal and opposite frictional force
+			if(!currentForceExceedsFriction && currentVel.isOpposite(gravity)){
+				this.setFrictionForce(currentForce.sub(currentFriction).inverse());
+				// When friction exceeds current force, and on a surface, velocity must also be set to zero
+				if(currentVel.getMagnitude() >= clampVel) this.clearVelocity();
+				else this.flagVelocityCleared();
+				return;
+			}
+			// With no horizontal velocity, there is no friction
+			else if(!hasHorizontalVel){
+				if(currentFriction.getMagnitude() != 0) this.setFrictionForce(this.zeroVector());
+				return;
+			}
+		}
+		
+		// The new frictional force will always be in the opposite direction of current movement
+		var newFriction = currentVel.inverse().modifyMagnitude(newFrictionForce);
+		
+		// Find the new force if friction is fully applied
+		var forceWithoutFriction = currentForce.sub(currentFriction);
+		var newForce = forceWithoutFriction.add(newFriction);
+		
+		/*
+		 If adding the new frictional force would result in moving in the opposite direction after accounting for the current velocity,
+		 stop movement entirely if no other forces are acting
+		 */
+		double mass = this.getMass();
+		if(currentVel.getMagnitude() < clampVel || currentVel.isOpposite(currentVel.add(newForce.scale(dt / mass)))){
+			this.setFrictionForce(this.zeroVector());
+			if(currentVel.getMagnitude() >= clampVel) this.clearVelocity();
+			else this.flagVelocityCleared();
+			return;
+		}
+		
+		// Otherwise, apply the full amount of friction
+		this.setFrictionForce(newFriction);
+	}
+	
+	/** @return The current magnitude which friction should have on this entity */
+	public double calculateFrictionForce(){
+		return this.getFrictionConstant() * this.getFloorMaterial().getFriction() * this.getForce().getVertical();
+	}
+	
+	/**
+	 * Set the current vector for friction
+	 *
+	 * @param newForce The vector
+	 */
+	private void setFrictionForce(V newForce){
+		this.frictionForce = this.setForce(FORCE_NAME_FRICTION, newForce);
 	}
 	
 	/**
@@ -236,15 +290,15 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		double terminalVelocity = this.getTerminalVelocity();
 		
 		// If downward velocity exceeds terminal velocity, and terminal velocity is not negative, set the vector to be equal and opposite to gravity
-		if(this.getVY() >= terminalVelocity && terminalVelocity > 0){
+		if(this.getVerticalVel() >= terminalVelocity && terminalVelocity > 0){
 			// Only set the value if it is not equal and opposite to gravity
-			double gravityForce = -this.getGravity().getY();
-			if(this.getGravityDragForce().getY() != gravityForce) this.gravityDragForce = this.setForceY(FORCE_NAME_GRAVITY_DRAG, gravityForce);
+			double gravityForce = -this.getGravity().getVerticalValue();
+			if(this.getGravityDragForce().getVertical() != gravityForce) this.gravityDragForce = this.setVerticalForce(FORCE_NAME_GRAVITY_DRAG, gravityForce);
 		}
 		// Otherwise, remove the force
 		else{
 			// Only remove the force if it is not already zero
-			if(this.getGravityDragForce().getY() != 0) this.gravityDragForce = this.setForceY(FORCE_NAME_GRAVITY_DRAG, 0);
+			if(this.getGravityDragForce().getVertical() != 0) this.gravityDragForce = this.setVerticalForce(FORCE_NAME_GRAVITY_DRAG, 0);
 		}
 	}
 	
@@ -264,13 +318,13 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		
 		// The slide force is always zero if the entity is not on a wall or is slower than the max slide velocity
 		// or the max slide velocity is negative or the slideStopForce is negative
-		double vy = this.getVY();
+		double vy = this.getVerticalVel();
 		if(maxSlideVel < 0 || slideStopForce < 0 || vy <= maxSlideVel || !this.isOnWall()){
-			this.setForceY(FORCE_NAME_WALL_SLIDE, 0);
+			this.setVerticalForce(FORCE_NAME_WALL_SLIDE, 0);
 			return;
 		}
 		// The base amount of force to apply for sliding is the opposite of gravity
-		double slideForce = -this.getGravity().getY();
+		double slideForce = -this.getGravity().getVerticalValue();
 		double mass = this.getMass();
 		// If we get to this point, then we are falling faster than the maximum sliding speed, increase the slide force to slow the falling (slideForce will be a negative number)
 		slideForce -= slideStopForce;
@@ -279,37 +333,34 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		double newVel = vy + slideForce / mass * dt;
 		if(newVel < maxSlideVel) slideForce = (maxSlideVel - vy) / dt * mass;
 		// Set the force
-		this.setForceY(FORCE_NAME_WALL_SLIDE, slideForce);
+		this.setVerticalForce(FORCE_NAME_WALL_SLIDE, slideForce);
 	}
 	
 	/**
-	 * @return The terminal velocity of this {@link EntityThing}. By default, based on the mass, the acceleration of gravity, the value of {@link #getSurfaceArea()},
-	 * and the friction of the ground material, which is also the air material when this {@link EntityThing} is not on the ground.
-	 * Returns 0 if this {@link EntityThing} is on the ground.
-	 * If {@link #getSurfaceArea()} returns 0, or is negative, then the value is ignored in the calculation.
-	 * If this method is made to return a negative value, terminal velocity is removed, i.e. the force of gravity will continue to accelerate
+	 * @return The terminal velocity of this {@link EntityThing}. By default, based on the mass, the acceleration of gravity, the value of {@link #getGravityDragReferenceArea()},
+	 * 		and the friction of the ground material, which is also the air material when this {@link EntityThing} is not on the ground.
+	 * 		Returns 0 if this {@link EntityThing} is on the ground.
+	 * 		If {@link #getGravityDragReferenceArea()} returns 0, or is negative, then the value is ignored in the calculation.
+	 * 		If this method is made to return a negative value, terminal velocity is removed, i.e. the force of gravity will continue to accelerate
 	 */
 	public double getTerminalVelocity(){
 		if(this.isOnGround()) return 0;
 		
-		Material m = this.getGroundMaterial();
-		double s = this.getSurfaceArea();
+		Material m = this.getFloorMaterial();
+		double s = this.getGravityDragReferenceArea();
 		double surfaceArea = (s <= 0) ? 1 : s;
 		
 		// Multiplied by 2.0 because the internet says that constant is there for the equation is for terminal velocity
 		// Multiplied by 0.01 as a placeholder for density. For now, everything entities fall through is considered to have that same constant density
-		return Math.sqrt(Math.abs((2.0 * this.getMass() * GRAVITY_ACCELERATION) / (m.getFriction() * surfaceArea * 0.01)));
-	}
-	
-	/** @return The surface area of this {@link EntityThing}, by default returns {@link #getWidth()}. Can override to create a custom surface area */
-	public double getSurfaceArea(){
-		return this.getWidth();
+		// issue#45 make a getDensity method, this would have to be a material the entities are current in
+		// issue#45 this should also be how swimming works, so you are swimming if you are denser than the density of the material you are in
+		return Math.sqrt(Math.abs((2.0 * this.getMass() * this.getGravityAcceleration()) / (m.getFriction() * surfaceArea * 0.01)));
 	}
 	
 	/**
 	 * @return The number determining how much friction applies to this {@link EntityThing}.
-	 * Higher values mean more friction, lower values mean less friction, 0 means no friction, 1 means no movement on a surface can occur.
-	 * Behavior is undefined for negative return values
+	 * 		Higher values mean more friction, lower values mean less friction, 0 means no friction.
+	 * 		Behavior is undefined for negative return values
 	 */
 	public abstract double getFrictionConstant();
 	
@@ -324,29 +375,40 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	}
 	
 	/** @return A {@link ZVector} representing the total of all forces on this object */
-	public ZVector getForce(){
+	public V getForce(){
 		return this.totalForce;
 	}
 	
+	/**
+	 * @param name The name of the force to get. This method assumes the force exists
+	 * @return The {@link ZVector} representing the force on this object with the given name, or null if none exists for that force
+	 */
+	public V getForce(String name){
+		return this.forces.get(name);
+	}
+	
 	/** @return See {@link #velocity} */
-	public ZVector getVelocity(){
+	public V getVelocity(){
 		return this.velocity;
 	}
 	
 	/** @return See {@link #gravity} */
-	public ZVector getGravity(){
+	public V getGravity(){
 		return this.gravity;
 	}
 	
 	/** Update the amount of gravitational force being applied to this {@link EntityThing} */
 	private void updateGravity(){
-		this.gravity = this.setForce(FORCE_NAME_GRAVITY, 0, GRAVITY_ACCELERATION * this.getMass() * this.getGravityLevel());
+		this.gravity = this.setVerticalForce(FORCE_NAME_GRAVITY, this.getGravityAcceleration() * this.getMass() * this.getGravityLevel());
 	}
 	
 	/** @return See {@link #gravityLevel} */
 	public double getGravityLevel(){
 		return this.gravityLevel;
 	}
+	
+	/** @return The acceleration of gravity */
+	public abstract double getGravityAcceleration();
 	
 	/** @param gravityLevel See {@link #gravityLevel} */
 	public void setGravityLevel(double gravityLevel){
@@ -355,12 +417,12 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	}
 	
 	/** @return See {@link #frictionForce} */
-	public ZVector getFriction(){
+	public V getFriction(){
 		return this.frictionForce;
 	}
 	
 	/** @return SEE {@link #gravityDragForce} */
-	public ZVector getGravityDragForce(){
+	public V getGravityDragForce(){
 		return this.gravityDragForce;
 	}
 	
@@ -375,17 +437,20 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		this.updateGravity();
 	}
 	
-	/** @return See {@link #groundMaterial} */
-	public Material getGroundMaterial(){
-		return this.groundMaterial;
+	/** @return See {@link #floorMaterial} */
+	@Override
+	public Material getFloorMaterial(){
+		return this.floorMaterial;
 	}
 	
 	/** @return See {@link #ceilingMaterial} */
+	@Override
 	public Material getCeilingMaterial(){
 		return this.ceilingMaterial;
 	}
 	
 	/** @return See {@link #wallMaterial} */
+	@Override
 	public Material getWallMaterial(){
 		return this.wallMaterial;
 	}
@@ -425,18 +490,19 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	
 	@Override
 	public void leaveFloor(){
-		this.groundMaterial = Materials.NONE;
+		this.floorMaterial = Materials.NONE;
 		this.groundTime = 0;
 	}
 	
 	@Override
-	public void touchFloor(Material touched){
+	public void touchFloor(C collision){
 		// Touching a floor means this entity is on the ground
-		this.groundMaterial = touched;
+		var touched = collision.material();
+		this.floorMaterial = touched;
 		this.groundTime = -1;
 		
 		// Bounce off the floor, or reset the y velocity to 0 if either material has no floor bounciness
-		this.setVY(-this.getVY() * touched.getFloorBounce() * this.getMaterial().getFloorBounce());
+		this.setVerticalVel(-this.getVerticalVel() * touched.getFloorBounce() * this.getMaterial().getFloorBounce());
 	}
 	
 	@Override
@@ -446,12 +512,13 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	}
 	
 	@Override
-	public void touchCeiling(Material touched){
+	public void touchCeiling(C collision){
+		var touched = collision.material();
 		this.ceilingMaterial = touched;
 		this.ceilingTime = -1;
 		
 		// Bounce off the ceiling, or reset the y velocity to 0 if either material has no ceiling bounciness
-		this.setVY(-this.getVY() * touched.getCeilingBounce() * this.getMaterial().getCeilingBounce());
+		this.setVerticalVel(-this.getVerticalVel() * touched.getCeilingBounce() * this.getMaterial().getCeilingBounce());
 	}
 	
 	@Override
@@ -459,16 +526,20 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		this.wallMaterial = Materials.NONE;
 		this.wallTime = 0;
 		
-		this.setForceY(FORCE_NAME_WALL_SLIDE, 0);
+		this.setVerticalForce(FORCE_NAME_WALL_SLIDE, 0);
 	}
 	
 	@Override
-	public void touchWall(Material touched){
-		this.wallMaterial = touched;
+	public void touchWall(C collision){
+		this.wallMaterial = collision.material();
 		this.wallTime = -1;
-		
-		// Bounce off the wall based on the touched material and this entity thing
-		this.setVX(-this.getVX() * touched.getWallBounce() * this.getMaterial().getWallBounce());
+	}
+	
+	@Override
+	public void collide(C r){
+		if(r.wall()) this.touchWall(r);
+		if(r.ceiling()) this.touchCeiling(r);
+		if(r.floor()) this.touchFloor(r);
 	}
 	
 	/**
@@ -479,134 +550,11 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	 * @param entity The entity that was collided with this entity
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
-	public void checkEntityCollision(Game game, EntityThing entity, double dt){}
-	
-	/**
-	 * Collide this {@link EntityThing} with the entities in the given room. Can override this to perform custom collision
-	 *
-	 * @param game The game with the current room to collide with
-	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
-	 */
-	public void checkEntityCollisions(Game game, double dt){
-		var room = game.getCurrentRoom();
-		
-		// issue#21 make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
-		
-		// Check any stored entities, and remove them if they are not intersecting or are not in the room
-		ArrayList<String> toRemove = new ArrayList<>(this.collidingUuids.size());
-		for(String eUuid : this.collidingUuids){
-			EntityThing e = room.getEntity(eUuid);
-			if(e == null || !this.intersects(e)) toRemove.add(eUuid);
-		}
-		for(String uuid : toRemove){
-			this.collidingUuids.remove(uuid);
-			
-			// Set the velocity so that it will move this entity an amount to cancel out the current force applied on the next tick, then remove the force on the next tick
-			ZVector removed = this.removeForce(uuid);
-			if(removed != null) this.addVelocity(removed.scale(-dt / this.getMass()));
-		}
-		// Get all entities
-		ArrayList<EntityThing> entities = room.getEntities();
-		
-		// Iterate through all entities, ignoring this entity, and find the ones intersecting this entity
-		for(int i = 0; i < entities.size(); i++){
-			var e = entities.get(i);
-			if(e == this || !e.intersects(this)) continue;
-			this.checkEntityCollision(game, e, dt);
-			
-//			// If they intersect, determine the force they should have against each other, and apply it to both entities
-//			String eUuid = e.getUuid();
-//			ZPoint thisP = new ZPoint(this.centerX(), this.maxY());
-//			ZPoint eP = new ZPoint(e.centerX(), e.maxY());
-//			// Find the distance between the center bottom of the entities, to determine how much force should be applied
-//			double dist = thisP.distance(eP);
-//
-//			// Find a distance where, if the bottom centers of the entities are further than this distance, they are definitely not intersecting
-//			double maxDist = (this.getWidth() + this.getHeight() + e.getWidth() + e.getHeight()) * .5;
-//			// The maximum amount of force that can be applied
-//			double maxMag = (this.getForce().getMagnitude() + e.getForce().getMagnitude());
-//
-//			// In the equation f(x) = mx^2 + b, so that f(x) = 0 is the maximum amount of force, and 0 = mx^2 + b is the maximum distance to use
-//			double b = maxMag;
-//			double m = b / (maxDist * maxDist);
-//
-//			// Use that equation to find the force
-//			double mag = m * dist * dist + b;
-//			double angle = ZMath.lineAngle(eP.getX(), eP.getY(), thisP.getX(), thisP.getY());
-//
-//			// Find the initial amount of force to set
-//			ZVector newForce = new ZVector(angle, mag, false);
-//
-//			// Apply most of the force as the x component, and less as the y component
-//			newForce = new ZVector(newForce.getX(), newForce.getY() * 0.1);
-//
-//			//issue#21
-//
-//			// Try keeping track of the total velocity an entity collision has added to another entity, and then remove that much velocity when the entities stop colliding
-//
-//			// If that amount of force would move the entity too far away, set it so that the entities will only be touching on the next tick
-//			// double xForce = newForce.getX();
-//			// double xMoved = xForce / this.getMass() * dt * dt;
-//			// double xDiff;
-//			// if(this.getX() < e.getX()) xDiff = Math.abs(this.getX() + this.getWidth() - e.getX());
-//			// else xDiff = Math.abs(e.getX() + e.getWidth() - this.getX());
-//			// if(ZMath.sameSign(xMoved, xDiff) && Math.abs(xMoved) > xDiff){
-//			// 	double newMoved = xMoved < 0 ? -xDiff : xDiff;
-//			// 	newForce = new ZVector(newMoved / (dt * dt) * this.getMass(), newForce.getY());
-//			// }
-//
-//			double limit = 10000;
-//			if(newForce.getX() > limit) newForce = new ZVector(limit, newForce.getY());
-//			else if(newForce.getX() < -limit) newForce = new ZVector(-limit, newForce.getY());
-//
-//			// Apply the force to both entities, not just this entity
-//			this.setForce(eUuid, newForce);
-//			this.collidingUuids.add(eUuid);
-//			e.setForce(this.getUuid(), newForce.scale(-1));
-//			e.collidingUuids.add(this.getUuid());
-		}
-	}
-	
-	@Override
-	public void collide(CollisionResponse r){
-		this.addX(r.x());
-		this.addY(r.y());
-		if(r.wall()) this.touchWall(r.material());
-		if(r.ceiling()) this.touchCeiling(r.material());
-		if(r.floor()) this.touchFloor(r.material());
-	}
+	public void checkEntityCollision(Game game, E entity, double dt){}
 	
 	/** @param velocity The new current velocity of this {@link EntityThing} */
-	public void setVelocity(ZVector velocity){
+	public void setVelocity(V velocity){
 		this.velocity = velocity;
-	}
-	
-	/**
-	 * @param x The new x velocity of this {@link EntityThing}
-	 * @param y The new y velocity of this {@link EntityThing}
-	 */
-	public void setVelocity(double x, double y){
-		this.setVelocity(new ZVector(x, y));
-	}
-	
-	/** @return The velocity of this {@link EntityThing} on the x axis */
-	public double getVX(){
-		return this.getVelocity().getX();
-	}
-	
-	/** @return The velocity of this {@link EntityThing} on the y axis */
-	public double getVY(){
-		return this.getVelocity().getY();
-	}
-	
-	/** @param x the new x velocity of this {@link EntityThing} */
-	public void setVX(double x){
-		this.setVelocity(x, this.getVY());
-	}
-	
-	/** @param y the new y velocity of this {@link EntityThing} */
-	public void setVY(double y){
-		this.setVelocity(this.getVX(), y);
 	}
 	
 	/**
@@ -614,26 +562,8 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	 *
 	 * @param vec The velocity to add
 	 */
-	public void addVelocity(ZVector vec){
+	public void addVelocity(V vec){
 		this.velocity = this.velocity.add(vec);
-	}
-	
-	/**
-	 * Add the given amount of velocity to the x component
-	 *
-	 * @param x The velocity to add
-	 */
-	public void addVX(double x){
-		this.addVelocity(new ZVector(x, 0));
-	}
-	
-	/**
-	 * Add the given amount of velocity to the y component
-	 *
-	 * @param y The velocity to add
-	 */
-	public void addVY(double y){
-		this.addVelocity(new ZVector(0, y));
 	}
 	
 	/**
@@ -647,29 +577,44 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	}
 	
 	/**
+	 * @return A list of all forces acting on this thing. This returned list does not reflect actual the collection of forces applied to this thing
+	 * 		and should be treated as read only
+	 */
+	public Collection<Map.Entry<String, V>> getForces(){
+		return this.forces.entrySet().stream().toList();
+	}
+	
+	/**
+	 * Set the velocity of this thing to zero on all axes and set the current applied for forces to 0
+	 */
+	public void clearMotion(){
+		this.clearVelocity();
+		for(var f : this.getForces()) this.setForce(f.getKey(), this.zeroVector());
+		this.updateGravity();
+	}
+	
+	/** Set the current velocity to nothing and flag {@link #velocityCleared} to true */
+	public void clearVelocity(){
+		this.flagVelocityCleared();
+		this.setVelocity(this.zeroVector());
+	}
+	
+	/** Set the {@link #velocityCleared} to true, indicating that movement should not be able to happen on the next tick */
+	public void flagVelocityCleared(){
+		this.velocityCleared = true;
+	}
+	
+	/**
 	 * Remove the {@link ZVector} with the specified name object from this {@link EntityThing}'s forces
 	 *
 	 * @param name The name of the force to remove
 	 * @return The removed force vector, or null if the given force was not found
 	 */
-	public ZVector removeForce(String name){
-		ZVector removed = this.forces.remove(name);
+	public V removeForce(String name){
+		var removed = this.forces.remove(name);
 		if(removed == null) return null;
 		this.totalForce = this.totalForce.add(removed.scale(-1));
 		return removed;
-	}
-	
-	/**
-	 * Set the given force name with a force built from the given components. If the given name doesn't have a force mapped to it yet, then this method automatically adds it to the
-	 * map
-	 *
-	 * @param name The name of the force to set
-	 * @param x The x component
-	 * @param y The y component
-	 * @return The newly set vector object
-	 */
-	public ZVector setForce(String name, double x, double y){
-		return setForce(name, new ZVector(x, y));
 	}
 	
 	/**
@@ -680,51 +625,50 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 	 * @param force The force object to set
 	 * @return force
 	 */
-	public ZVector setForce(String name, ZVector force){
+	public V setForce(String name, V force){
 		this.removeForce(name);
 		this.forces.put(name, force);
-		this.totalForce = totalForce.add(force);
+		this.totalForce = this.totalForce.add(force);
 		return force;
 	}
 	
 	/**
-	 * The same as see {@link #setForce(String, double, double)}, except only modify the x value, keep the y value the same.
-	 * If the force does not already exist, a force is created with the given name using a zero for the y value
+	 * Set a force on the vertical, i.e. gravitational, axis.
+	 *
+	 * @param name The string identifying the force
+	 * @param f The quantity of the force, positive means down and negative means up
+	 * @return The vector representing the added force
 	 */
-	public ZVector setForceX(String name, double x){
-		ZVector v = this.forces.get(name);
-		return this.setForce(name, x, (v == null) ? 0 : v.getY());
-	}
+	public abstract V setVerticalForce(String name, double f);
+	
+	/** @return The total magnitude of horizontal velocity of this entity */
+	public abstract double getHorizontalVel();
+	
+	/** @param v The new total magnitude horizontal velocity of this entity */
+	public abstract void setHorizontalVel(double v);
+	
+	/** @return The total vertical velocity of this entity */
+	public abstract double getVerticalVel();
+	
+	/** @param v The new total vertical velocity of this entity */
+	public abstract void setVerticalVel(double v);
 	
 	/**
-	 * The same as see {@link #setForce(String, double, double)}, except only modify the y coordinate, keep the x coordinate the same.
-	 * If the force does not already exist, a force is created with the given name using a zero for the x value
+	 * @return If the absolute value of the magnitude of velocity ever reaches a value greater than zero and less than this value,
+	 * 		velocity will be clamped to zero. Override if this value must be more restrictive
 	 */
-	public ZVector setForceY(String name, double y){
-		ZVector v = this.forces.get(name);
-		return this.setForce(name, (v == null) ? 0 : v.getX(), y);
+	public double getClampVelocity(){
+		return 1E-13;
 	}
 	
-	/** @return The x coordinate of this {@link EntityThing} where it was in the previous instance of time, based on its current velocity */
-	@Override
-	public double getPX(){
-		return px;
+	/** @return See {@link #noClip} */
+	public boolean isNoClip(){
+		return this.noClip;
 	}
 	
-	/** @return The y coordinate of this {@link EntityThing} where it was in the previous instance of time, based on its current velocity */
-	@Override
-	public double getPY(){
-		return py;
-	}
-	
-	@Override
-	public final EntityThing asEntity(){
-		return this;
-	}
-	
-	@Override
-	public final GameTickable asTickable(){
-		return this;
+	/** @param noClip See {@link #noClip} */
+	public void setNoClip(boolean noClip){
+		this.noClip = noClip;
 	}
 	
 	@Override
@@ -732,4 +676,20 @@ public abstract class EntityThing extends PositionedHitboxThing implements GameT
 		return this.uuid;
 	}
 	
+	/**
+	 * Take this {@link EntityThing} from the given room, and place it in the other given room
+	 *
+	 * @param from The room to move the thing from, i.e. the thing was in this room. Can be null if the thing didn't come from a room
+	 * @param to The room to move the thing to, i.e. the thing is now in this room. Can be null if the thing isn't going to a room
+	 * @param game The {@link Game} where this thing entered the room
+	 */
+	public void enterRoom(R from, R to, Game game){
+		if(from != null) from.removeThing(this);
+		if(to != null) to.addThing(this);
+	}
+	
+	/** @return true if this thing can enter a rom, false otherwise, always returns true by default */
+	public boolean canEnterRooms(){
+		return true;
+	}
 }

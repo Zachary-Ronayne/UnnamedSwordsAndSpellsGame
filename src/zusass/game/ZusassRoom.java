@@ -2,15 +2,16 @@ package zusass.game;
 
 import zgame.core.utils.NotNullList;
 import zgame.world.Room;
+import zgame.world.Room3D;
 import zusass.game.things.ZThingClickDetector;
 import zusass.game.things.entities.mobs.ZusassMob;
 
 /** A {@link Room} used by the Zusass game */
-public class ZusassRoom extends Room{
+public class ZusassRoom extends Room3D{
 	
 	/** Create a new room with nothing in it */
 	public ZusassRoom(){
-		this(0, 0);
+		this(0, 0, 0);
 	}
 	
 	/**
@@ -18,9 +19,10 @@ public class ZusassRoom extends Room{
 	 *
 	 * @param xTiles The number of tiles on the x axis
 	 * @param yTiles The number of tiles on the y axis
+	 * @param zTiles The number of tiles on the z axis
 	 */
-	public ZusassRoom(int xTiles, int yTiles){
-		super(xTiles, yTiles);
+	public ZusassRoom(int xTiles, int yTiles, int zTiles){
+		super(xTiles, yTiles, zTiles);
 		this.getAllThings().addClass(ZusassMob.class);
 		this.getAllThings().addClass(ZThingClickDetector.class);
 	}

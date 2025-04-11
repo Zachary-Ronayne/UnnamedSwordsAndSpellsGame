@@ -9,8 +9,8 @@ import zgame.world.Room;
  */
 public class PlayState extends GameState{
 	
-	/** The {@link Room} which is currently used by this {@link PlayState} */
-	private Room currentRoom;
+	/** The {@link Room} which is currently used by this {@link PlayState}. The system assumes this will always be an appropriate type of room for the game played */
+	private Room<?, ?, ?, ?, ?> currentRoom;
 	
 	/** true if this {@link PlayState} is paused and should not perform tick updates, false otherwise */
 	private boolean paused;
@@ -18,20 +18,13 @@ public class PlayState extends GameState{
 	private boolean inputPaused;
 	
 	/**
-	 * Create a basic empty play state with an empty default room
-	 */
-	public PlayState(){
-		this(true);
-	}
-	
-	/**
-	 * Create a basic empty play state
+	 * Create a basic empty play state with the given room
 	 *
-	 * @param createRoom true to give the {@link PlayState} an empty default room, otherwise use false and call {@link #setCurrentRoom(Room)}
+	 * @param room The room to use for the play state
 	 */
-	public PlayState(boolean createRoom){
+	public PlayState(Room<?, ?, ?, ?, ?> room){
 		super(true);
-		if(createRoom) this.currentRoom = new Room();
+		this.currentRoom = room;
 		this.paused = false;
 		this.inputPaused = false;
 	}
@@ -43,7 +36,7 @@ public class PlayState extends GameState{
 	}
 	
 	/** @return See {@link #currentRoom} */
-	public Room getCurrentRoom(){
+	public Room<?, ?, ?, ?, ?> getCurrentRoom(){
 		return this.currentRoom;
 	}
 	
@@ -53,7 +46,7 @@ public class PlayState extends GameState{
 	 * @param r See {@link #currentRoom}
 	 * @return true if the room was set, false otherwise
 	 */
-	public boolean setCurrentRoom(Room r){
+	public boolean setCurrentRoom(Room<?, ?, ?, ?, ?> r){
 		if(r == null) return false;
 		this.currentRoom = r;
 		return true;
@@ -89,6 +82,20 @@ public class PlayState extends GameState{
 	public void fullUnpause(){
 		this.setPaused(false);
 		this.setInputPaused(false);
+	}
+	
+	@Override
+	public void onSet(Game game){
+		super.onSet(game);
+		// When going into the play state, consider all menus as closed
+		game.getRenderStyle().onAllMenusClosed(game);
+	}
+	
+	@Override
+	public void onMenuChange(Game game, boolean added){
+		super.onMenuChange(game, added);
+		if(added) game.getRenderStyle().onMenuOpened(game);
+		else if(!this.hasMenu()) game.getRenderStyle().onAllMenusClosed(game);
 	}
 	
 	@Override
@@ -130,6 +137,8 @@ public class PlayState extends GameState{
 	public final boolean mouseMove(Game game, double x, double y){
 		boolean input = super.mouseMove(game, x, y);
 		if(this.isInputPaused()) return input;
+		
+		game.getRenderStyle().mouseMove(game, x, y);
 		
 		return this.playMouseMove(game, x, y);
 	}

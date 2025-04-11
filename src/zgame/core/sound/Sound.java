@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.PointerBuffer;
 
 import static org.lwjgl.openal.AL11.*;
 import static org.lwjgl.stb.STBVorbis.*;
@@ -12,6 +11,7 @@ import static org.lwjgl.stb.STBVorbis.*;
 import zgame.core.asset.Asset;
 import zgame.core.utils.ZAssetUtils;
 import zgame.core.utils.ZConfig;
+import zgame.core.utils.ZPointerBuffer;
 import zgame.core.utils.ZStringUtils;
 
 /** A class that represents much of the data needed to keep track of OpenAL sounds, but does not handle tracking an ID */
@@ -38,14 +38,14 @@ public abstract class Sound extends Asset{
 	 *
 	 * @param p The data to buffer
 	 */
-	protected abstract void bufferData(PointerBuffer p);
+	protected abstract void bufferData(ZPointerBuffer p);
 	
 	/**
 	 * Load this {@link Sound} from memory and associate that data with the id of this {@link Sound}
 	 *
 	 * @return The pointer is if is still open, or null if it is not open, also returns null if any load errors occurred
 	 */
-	public PointerBuffer load(){
+	public ZPointerBuffer load(){
 		return this.load(true);
 	}
 	
@@ -55,16 +55,16 @@ public abstract class Sound extends Asset{
 	 * @param freePointer true to free the pointer used to load the data, false to keep it open
 	 * @return The pointer is if is still open, or null if it is not open, also returns null if any load errors occurred
 	 */
-	public PointerBuffer load(boolean freePointer){
+	public ZPointerBuffer load(boolean freePointer){
 		// Load the bytes of the sound from the jar
 		ByteBuffer buff = ZAssetUtils.getJarBytes(this.getPath());
 		
 		// Load in the sound in with stb
 		IntBuffer channels = BufferUtils.createIntBuffer(1);
 		IntBuffer sampleRate = BufferUtils.createIntBuffer(1);
-		PointerBuffer pointer = BufferUtils.createPointerBuffer(1);
+		var pointer = new ZPointerBuffer(1);
 		// Returns the number of samples loaded
-		int samplesLoaded = stb_vorbis_decode_memory(buff, channels, sampleRate, pointer);
+		int samplesLoaded = stb_vorbis_decode_memory(buff, channels, sampleRate, pointer.getBuffer());
 		
 		// Determine metadata
 		int channelCount = channels.get(0);

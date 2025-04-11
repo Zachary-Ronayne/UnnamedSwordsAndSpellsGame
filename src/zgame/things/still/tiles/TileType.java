@@ -2,13 +2,16 @@ package zgame.things.still.tiles;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.physics.collision.CollisionResult;
+import zgame.physics.material.Material;
 import zgame.things.type.Materialable;
+import zgame.things.type.bounds.HitBox;
 
 /** An enum that defines tiles that can exist. Extend this enum to add new tile types */
-public abstract class TileType implements Materialable{
+public abstract class TileType<H extends HitBox<H, C>, T extends Tile<H, C>, TH extends TileHitbox<H, T, C>, C extends CollisionResult<C>> implements Materialable{
 	
 	/** The hitbox of this tile type */
-	private final TileHitbox hitbox;
+	private final TH hitbox;
 	
 	/** The unique string that identifies this {@link TileType} from others with the same {@link #origin} */
 	private final String id;
@@ -19,16 +22,20 @@ public abstract class TileType implements Materialable{
 	 */
 	private final String origin;
 	
+	/** The {@link Material} of this {@link TileType} */
+	private final Material material;
+	
 	/**
 	 * Create a new tile type
 	 *
 	 * @param id See {@link #id}
 	 * @param hitbox See {@link #hitbox}
 	 */
-	protected TileType(String id, String origin, TileHitbox hitbox){
+	protected TileType(String id, String origin, TH hitbox, Material material){
 		this.id = id;
 		this.origin = origin;
 		this.hitbox = hitbox;
+		this.material = material;
 	}
 	
 	/** @return The unique identifier for this {@link TileType} */
@@ -47,7 +54,7 @@ public abstract class TileType implements Materialable{
 	}
 	
 	/** @return See {@link TileHitbox} */
-	public TileHitbox getHitbox(){
+	public TH getHitbox(){
 		return this.hitbox;
 	}
 	
@@ -58,6 +65,11 @@ public abstract class TileType implements Materialable{
 	 * @param g The game where the tile is drawn
 	 * @param r The renderer to use for drawing
 	 */
-	public abstract void render(Tile t, Game g, Renderer r);
+	public abstract void render(T t, Game g, Renderer r);
+	
+	@Override
+	public Material getMaterial(){
+		return this.material;
+	}
 	
 }

@@ -11,6 +11,8 @@ public enum ZusassStat implements StatType<ZusassStat>{
 	ENDURANCE(1), ENDURANCE_BASE(1), ENDURANCE_LEVEL(1), ENDURANCE_REGEN(1),
 	/** For now, governs max mana and mana regen */
 	INTELLIGENCE(1.5), INTELLIGENCE_BASE(1.5), INTELLIGENCE_LEVEL(1.5), INTELLIGENCE_REGEN(1.5),
+	/** For now, governs jump height */
+	AGILITY(1), AGILITY_BASE(1), AGILITY_LEVEL(1), AGILITY_REGEN(1),
 	
 	/** The health resource of a thing before it dies */
 	HEALTH(2), HEALTH_MIN(2), HEALTH_MAX(2), HEALTH_REGEN(2),
@@ -22,7 +24,7 @@ public enum ZusassStat implements StatType<ZusassStat>{
 	/** The number of attacks per second */
 	ATTACK_SPEED(.5),
 	/** The number of units away a thing can attack from */
-	ATTACK_RANGE(.7),
+	ATTACK_RANGE(10),
 	/** The amount of damage dealt with a melee attack */
 	ATTACK_DAMAGE(1.3),
 	

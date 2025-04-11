@@ -50,7 +50,7 @@ public class SettingsMenu extends BaseSettingsMenu{
 	 * @param zgame The game using the button
 	 */
 	public void handleVideoSettingsClick(ZusassGame zgame){
-		zgame.getCurrentState().setMenu(new VideoSettingsMenu(zgame, this));
+		zgame.getCurrentState().setMenu(zgame, new VideoSettingsMenu(zgame, this));
 	}
 	
 	/**
@@ -58,7 +58,7 @@ public class SettingsMenu extends BaseSettingsMenu{
 	 * @param zgame The game using the button
 	 */
 	public void handleAllSettingsClick(ZusassGame zgame){
-		zgame.getCurrentState().setMenu(new AllSettingsMenu(zgame, this));
+		zgame.getCurrentState().setMenu(zgame, new AllSettingsMenu(zgame, this));
 	}
 	
 	/** @return See {@link #goBack} */

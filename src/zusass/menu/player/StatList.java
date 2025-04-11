@@ -66,6 +66,8 @@ public class StatList extends MenuHolder{
 				"Governs max stamina and stamina regen.");
 		y = this.addAttributeStat(zgame, "Intelligence", ZusassStat.INTELLIGENCE, y,
 				"Governs max mana and mana regen.");
+		y = this.addAttributeStat(zgame, "Agility", ZusassStat.AGILITY, y,
+				"Governs jump power and height.");
 		y = this.addTextSpaceThing(zgame, y);
 		
 		y = this.addTextThing(zgame, "Attack", HEADER_SPACE, y,

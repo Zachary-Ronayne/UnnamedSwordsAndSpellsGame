@@ -23,7 +23,7 @@ public class SoundManager implements Destroyable{
 	private final MusicPlayer musicPlayer;
 	
 	/** The single {@link SoundSource} which plays music. Will automatically always play relative to the OpenAL listener */
-	private final SoundSource musicSource;
+	private SoundSource musicSource;
 	
 	/** The single {@link SoundListener} which determines where sound is located */
 	private final SoundListener listener;
@@ -44,10 +44,10 @@ public class SoundManager implements Destroyable{
 	private final List<SpeakerDevice> devices;
 	
 	/** The object managing every {@link EffectSound} currently available through this {@link SoundManager} */
-	private final EffectsManager effectsManager;
+	private EffectsManager effectsManager;
 	
 	/** The object managing every piece of music currently available through this {@link SoundManager}. The key is a string representing the name of the sound */
-	private final MusicManager musicManager;
+	private MusicManager musicManager;
 	
 	/** Initialize the {@link SoundManager} to its default state */
 	public SoundManager(){
@@ -134,21 +134,35 @@ public class SoundManager implements Destroyable{
 		
 		// Use the current device
 		this.currentDevice.use();
-		ZConfig.success("Using sound device:", this.currentDevice.getName());
+		ZConfig.success("Using sound device: ", this.currentDevice.getName());
 	}
 	
 	/** Clear any resources used by this {@link SoundManager} */
 	@Override
-	public void destroy(){
+	public synchronized void destroy(){
 		this.closeDevices();
-		if(this.effectsManager != null) effectsManager.destroy();
-		if(this.musicManager != null) musicManager.destroy();
-		if(this.musicSource != null) this.musicSource.destroy();
+		if(this.effectsManager != null) {
+			this.effectsManager.destroy();
+			this.effectsManager = null;
+		}
+		if(this.musicManager != null) {
+			this.musicManager.destroy();
+			this.musicManager = null;
+		}
+		if(this.musicSource != null) {
+			this.musicSource.destroy();
+			this.musicSource = null;
+		}
 	}
 	
 	/** Free all resources used by audio devices sed by this {@link SoundManager} */
-	private void closeDevices(){
-		for(SpeakerDevice s : this.devices) s.destroy();
+	private synchronized void closeDevices(){
+		// Copy the list of devices
+		var deviceList = this.devices.stream().toList();
+		for(var s : deviceList) {
+			s.destroy();
+			this.devices.remove(s);
+		}
 	}
 	
 	/** Update the state of the effects and music player */
@@ -264,9 +278,10 @@ public class SoundManager implements Destroyable{
 	 *
 	 * @param x The new x coordinate in game coordinates
 	 * @param y The new y coordinate in game coordinates
+	 * @param z The new z coordinate in game coordinates
 	 */
-	public void updateListenerPos(double x, double y){
-		this.updateSoundPos(getListener(), x, y);
+	public void updateListenerPos(double x, double y, double z){
+		this.updateSoundPos(this.getListener(), x, y, z);
 	}
 	
 	/**
@@ -275,9 +290,33 @@ public class SoundManager implements Destroyable{
 	 * @param s The {@link SoundSource} to update
 	 * @param x The new x coordinate in game coordinates
 	 * @param y The new y coordinate in game coordinates
+	 * @param z The new z coordinate in game coordinates
 	 */
-	public void updateSourcePos(SoundSource s, double x, double y){
-		this.updateSoundPos(s, x, y);
+	public void updateSourcePos(SoundSource s, double x, double y, double z){
+		this.updateSoundPos(s, x, y, z);
+	}
+	
+	/**
+	 * Update the direction of the listener of this SoundManager
+	 *
+	 * @param x The new x vector direction component
+	 * @param y The new y vector direction component
+	 * @param z The new z vector direction component
+	 */
+	public void updateListenerDirection(double x, double y, double z){
+		this.updateSoundDirection(this.getListener(), x, y, z);
+	}
+	
+	/**
+	 * Update the direction of the given source based on this SoundManager
+	 *
+	 * @param s The {@link SoundSource} to update
+	 * @param x The new x vector direction component
+	 * @param y The new y vector direction component
+	 * @param z The new z vector direction component
+	 */
+	public void updateSourceDirection(SoundSource s, double x, double y, double z){
+		this.updateSoundDirection(s, x, y, z);
 	}
 	
 	/**
@@ -286,9 +325,22 @@ public class SoundManager implements Destroyable{
 	 * @param s The {@link SoundLocation} to update
 	 * @param x The new x coordinate in game coordinates
 	 * @param y The new y coordinate in game coordinates
+	 * @param z The new z coordinate in game coordinates
 	 */
-	private void updateSoundPos(SoundLocation s, double x, double y){
-		s.updatePosition(x * this.getDistanceScalar(), y * this.getDistanceScalar());
+	private void updateSoundPos(SoundLocation s, double x, double y, double z){
+		s.updatePosition(x * this.getDistanceScalar(), y * this.getDistanceScalar(), z * this.getDistanceScalar());
+	}
+	
+	/**
+	 * Update the position of the given {@link SoundLocation} based on the scaling of this sound manager
+	 *
+	 * @param s The {@link SoundLocation} to update
+	 * @param x The new x vector direction component
+	 * @param y The new y vector direction component
+	 * @param z The new z vector direction component
+	 */
+	private void updateSoundDirection(SoundLocation s, double x, double y, double z){
+		s.updateDirection(x, y, z);
 	}
 	
 	/**
@@ -296,11 +348,12 @@ public class SoundManager implements Destroyable{
 	 *
 	 * @param x The new x coordinate in game coordinates
 	 * @param y The new y coordinate in game coordinates
+	 * @param z The new y coordinate in game coordinates
 	 * @return The source
 	 */
-	public SoundSource createSource(double x, double y){
-		SoundSource s = new SoundSource(x, y);
-		this.updateSourcePos(s, x, y);
+	public SoundSource createSource(double x, double y, double z){
+		SoundSource s = new SoundSource(x, y, z);
+		this.updateSourcePos(s, x, y, z);
 		return s;
 	}
 	

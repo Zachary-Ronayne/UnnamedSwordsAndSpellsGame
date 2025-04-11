@@ -59,7 +59,7 @@ public class BaseSettingsMenu extends ZusassMenu{
 	 * @param zgame The game where it was told to go back in
 	 */
 	public void goBack(ZusassGame zgame){
-		zgame.getCurrentState().setMenu(new SettingsMenu(zgame, this.getSettingsMenu().getGoBack()));
+		zgame.getCurrentState().setMenu(zgame, new SettingsMenu(zgame, this.getSettingsMenu().getGoBack()));
 	}
 	
 	/** @return See {@link #confirmButton} */

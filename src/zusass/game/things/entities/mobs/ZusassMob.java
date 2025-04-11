@@ -3,8 +3,12 @@ package zusass.game.things.entities.mobs;
 import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.file.Saveable;
+import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
-import zgame.physics.material.Material;
+import zgame.core.sound.SoundSource;
+import zgame.core.utils.ZMath;
+import zgame.core.utils.ZPoint3D;
+import zgame.physics.ZVector3D;
 import zgame.stat.Stat;
 import zgame.stat.ValueStat;
 import zgame.stat.modifier.ModifierType;
@@ -12,14 +16,18 @@ import zgame.stat.modifier.StatModTracker;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.status.StatusEffect;
 import zgame.stat.status.StatusEffects;
-import zgame.things.entity.EntityThing;
-import zgame.things.entity.Walk;
-import zgame.things.entity.projectile.Projectile;
-import zgame.things.type.RectangleHitBox;
+import zgame.things.entity.*;
+import zgame.things.entity.mobility.Mobility3D;
+import zgame.things.entity.mobility.MobilityEntity3D;
+import zgame.things.entity.projectile.Projectile3D;
+import zgame.things.type.bounds.ClickerBounds;
+import zgame.things.type.bounds.CylinderClickable;
+import zgame.things.type.bounds.CylinderHitbox;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
 import zusass.game.magic.*;
 import zusass.game.stat.*;
+import zusass.game.stat.attributes.Agility;
 import zusass.game.stat.attributes.Endurance;
 import zusass.game.stat.attributes.Intelligence;
 import zusass.game.stat.attributes.Strength;
@@ -27,20 +35,31 @@ import zusass.game.stat.resources.Health;
 import zusass.game.stat.resources.Mana;
 import zusass.game.stat.resources.Stamina;
 import zusass.game.status.StatEffect;
-import zusass.game.things.MobWalk;
+import zusass.game.things.ZThingClickDetector;
 
 import static zusass.game.stat.ZusassStat.*;
 
-import java.util.List;
-
-/** A generic mob in the Zusass game */
-public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
+/** A generic mob in the Zusass game. All mobs have a cylinder hitbox */
+public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitbox, ClickerBounds, ZThingClickDetector, CylinderClickable{
 	
 	/** The json key used to store the spellbook which this mob has */
 	public final static String SPELLBOOK_KEY = "spellbook";
 	
-	/** The width of this mob */
-	private double width;
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/** The default value of {@link #jumpBuildTime} */
+	public static final double DEFAULT_JUMP_BUILD_TIME = 0;
+	/** The default value of {@link #jumpAfterBuildUp} */
+	public static final boolean DEFAULT_JUMP_AFTER_BUILD_UP = true;
+	/** The default value of {@link #walkFriction} */
+	public static final double DEFAULT_WALK_FRICTION = 1;
+	/** The default value of {@link #canWallJump} */
+	public static final boolean DEFAULT_CAN_WALL_JUMP = true;
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/** The radius of the center of this mob */
+	private double radius;
 	/** The height of this mob */
 	private double height;
 	
@@ -48,12 +67,6 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	
 	/** The amount of time, in seconds, until this mob will perform an attack, or a negative value if this mob is not preparing for an attack */
 	private double attackTime;
-	
-	/** The direction, an angle in radians, where the mob will attack */
-	private double attackDirection;
-	
-	/** true if this {@link ZusassMob} is in spell casting mode, false for weapon mode */
-	private boolean casting;
 	
 	/** The spells known to this mob */
 	private Spellbook spells;
@@ -68,33 +81,61 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	/** The {@link MobWalk} which this mob uses for movement */
-	private final MobWalk walk;
-	
 	/** A modifier used to drain stamina while running */
-	private final StatModTracker staminaRunDrain;
+	private StatModTracker staminaRunDrain;
 	
 	/** The sourceId of the modifier which drains stamina */
 	private static final String ID_STAMINA_DRAIN = "staminaDrain";
 	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/** The source of the sound for this mob casting a spell */
+	private SoundSource castSoundSource;
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/** The {@link MobilityData} object used by this object's implementation of {@link Mobility3D} */
+	private final MobilityData3D mobilityData;
+	
+	/** See {@link Mobility3D#getJumpBuildTime()} */
+	private double jumpBuildTime;
+	
+	/** See {@link Mobility3D#isJumpAfterBuildUp()} */
+	private boolean jumpAfterBuildUp;
+	
+	/** See {@link Mobility3D#getWalkFriction()} */
+	private double walkFriction;
+	
+	/** See {@link Mobility3D#isCanWallJump()} */
+	private boolean canWallJump;
+	
+	/** See {@link Mobility3D#isSprinting()} */
+	private boolean sprinting;
+	
 	/**
 	 * Create a new mob with the given bounds
 	 *
-	 * @param x The upper left hand x coordinate
-	 * @param y The upper left hand y coordinate
-	 * @param width The mob's width
-	 * @param height The mob's height
+	 * @param x See {@link #getX()}
+	 * @param y See {@link #getY()}
+	 * @param z See {@link #getZ()}
+	 * @param radius See {@link #radius}
+	 * @param height See {@link #height}
 	 */
-	public ZusassMob(double x, double y, double width, double height){
-		super(x, y);
-		this.walk = new MobWalk(this);
+	public ZusassMob(double x, double y, double z, double radius, double height){
+		super(x, y, z, 1);
 		
-		this.width = width;
+		this.jumpBuildTime = DEFAULT_JUMP_BUILD_TIME;
+		this.jumpAfterBuildUp = DEFAULT_JUMP_AFTER_BUILD_UP;
+		this.walkFriction = DEFAULT_WALK_FRICTION;
+		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
+		this.sprinting = false;
+		this.mobilityData = new MobilityData3D(this);
+		
+		this.stopWalking();
+		
+		this.radius = radius;
 		this.height = height;
 		
 		this.attackTime = -1;
-		this.attackDirection = 0;
-		this.casting = false;
 		
 		// Create stats
 		this.stats = new Stats();
@@ -106,6 +147,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.stats.add(new Strength(this.stats));
 		this.stats.add(new Endurance(this.stats));
 		this.stats.add(new Intelligence(this.stats));
+		this.stats.add(new Agility(this.stats));
 		
 		// Add resources
 		this.stats.add(new Health(this.stats));
@@ -113,14 +155,14 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.stats.add(new Mana(this.stats));
 		
 		// Add misc stats
-		this.stats.add(new ValueStat(100, this.stats, ATTACK_RANGE));
+		this.stats.add(new ValueStat(1, this.stats, ATTACK_RANGE));
 		this.stats.add(new ValueStat(.5, this.stats, ATTACK_SPEED));
 		this.stats.add(new AttackDamage(this.stats));
 		
 		this.stats.add(new MoveSpeed(this.stats));
 		
 		// Add other modifiers
-		this.staminaRunDrain = new StatModTracker(0, ModifierType.ADD, this.getStat(STAMINA_REGEN), ID_STAMINA_DRAIN);
+		this.initMobStatModifiers();
 		
 		// Ensure this thing stats at full resources
 		this.setResourcesMax();
@@ -129,9 +171,26 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.setStat(STRENGTH, 1);
 		this.setStat(ENDURANCE, 5);
 		this.setStat(INTELLIGENCE, 5);
+		this.setStat(AGILITY, 5);
 		
 		// Init the spellbook to empty
 		this.spells = new Spellbook();
+	}
+	
+	/** Reinitialize the state of all base stat modifiers used by mobs */
+	public void initMobStatModifiers(){
+		// This could use a better way of doing this, basically, remove the modifier if it's already there, or do nothing if it's not there, then recreate it
+		if(this.staminaRunDrain != null) this.getStat(STAMINA_REGEN).removeModifier(ID_STAMINA_DRAIN, this.staminaRunDrain.getMod());
+		this.staminaRunDrain = new StatModTracker(0, ModifierType.ADD, this.getStat(STAMINA_REGEN), ID_STAMINA_DRAIN);
+	}
+	
+	// issue#62, also make sure to destroy all sound resources once they are not needed anymore
+	/**
+	 * Initialize this mob for creating sounds, otherwise sounds will not play
+	 * @param zgame The game the sound will be played in
+	 */
+	public void initSounds(ZusassGame zgame){
+		if(this.castSoundSource == null) this.castSoundSource = zgame.getSounds().createSource(this.getX(), this.getY(), this.getZ());
 	}
 	
 	@Override
@@ -150,18 +209,8 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 			if(this.attackTime < 0) this.attackNearest(zgame);
 		}
 		
-		var walk = this.getWalk();
-		// Update the values for speed
-		var v = this.stat(MOVE_SPEED);
-		walk.setWalkSpeedMax(v);
-		walk.setWalkAcceleration(v * 7);
-		walk.setWalkStopFriction(v / 30);
-		
-		walk.updatePosition(game, dt);
-		walk.tick(game, dt);
-		
 		// If running and moving, need to drain stamina
-		this.staminaRunDrain.setValue(!this.getWalk().isWalking() && this.getWalk().isTryingToMove() ? -35 : 0);
+		this.staminaRunDrain.setValue(this.isSprinting() && this.isTryingToMove() ? -35 : 0);
 		
 		// Do the normal game update
 		super.tick(game, dt);
@@ -174,15 +223,45 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * @param r The renderer to draw the attack with
 	 */
 	public void renderAttackTimer(Game game, Renderer r){
-		// issue#23 potentially need some way of ensuring this also gets rendered with the should render thing, or maybe this is just a temporary placeholder
-		if(this.getAttackTime() <= 0) return;
-		double directionX = Math.cos(this.attackDirection);
-		double time = this.getAttackTime();
-		double speed = getAttacksPerSecond();
-		double attackSize = this.stat(ATTACK_RANGE) * (1 - time * speed);
+		// Do nothing if not attacking
+		if(this.getAttackTime() < 0) return;
 		
-		if(directionX < 0) r.drawRectangle(this.centerX() - attackSize, this.centerY(), attackSize, 20);
-		else r.drawRectangle(this.centerX(), this.centerY(), attackSize, 20);
+		double time = this.getAttackTime();
+		double speed = this.getAttacksPerSecond();
+		double attackPercent = 1 - time * speed;
+		// Scale the time until attacking to make the arm move slowly at first, then quick at the end
+		double anglePerc = Math.pow(1 - time * speed, 7);
+		double attackSize = this.stat(ATTACK_RANGE) * 0.5 * attackPercent + 0.5;
+		double attackYaw = this.getMobilityData().getFacingYaw();
+		
+		// Find the position where the arm will start
+		var attackDirectionVec = new ZVector3D(attackYaw, 0, attackSize, false);
+		var armBaseVec = new ZVector3D(this.getMobilityData().getFacingYaw() + ZMath.PI_BY_2, 0, this.getWidth() * 0.5, false);
+		
+		// Find the position where the arm will attack to
+		var basePoint = this.center();
+		basePoint.setX(basePoint.getX() + armBaseVec.getX());
+		basePoint.setZ(basePoint.getZ() + armBaseVec.getZ());
+		var attackPoint = basePoint.copy();
+		attackPoint.setX(attackPoint.getX() + attackDirectionVec.getX());
+		attackPoint.setZ(attackPoint.getZ() + attackDirectionVec.getZ());
+		
+		// Find the correct pitch and yaw to rotate the arm from the base to the attack point
+		double armSize = this.getWidth() * 0.1;
+		double dx = attackPoint.getX() - basePoint.getX();
+		double dy = attackPoint.getY() - basePoint.getY();
+		double dz = attackPoint.getZ() - basePoint.getZ();
+		double yaw = ZMath.atan2Normalized(dx, dz);
+		double pitch = ZMath.atan2Normalized(dy, Math.sqrt(dx * dx + dz * dz)) + ZMath.atan2Normalized(armSize, 0) * anglePerc;
+		
+		// Draw the final rotated rect
+		var rect = new RectRender3D(basePoint.getX(), basePoint.getY(), basePoint.getZ(), armSize, attackSize, armSize);
+		rect.setCoordinateRotation(false);
+		rect.setYaw(yaw);
+		rect.setPitch(pitch);
+		rect.setRoll(0);
+		var c = r.getColor();
+		r.drawRectPrism(rect, c, c, c, c, c, c);
 	}
 	
 	/**
@@ -209,7 +288,7 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	}
 	
 	@Override
-	public void hitBy(Projectile p){
+	public void hitBy(Projectile3D p){
 		p.hit(ZusassMob.class, this);
 	}
 	
@@ -223,43 +302,19 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		return this.stat(ATTACK_SPEED);
 	}
 	
-	/** @return See {@link #attackDirection} */
-	public double getAttackDirection(){
-		return this.attackDirection;
-	}
-	
-	/** @return See {@link #casting} */
-	public boolean isCasting(){
-		return this.casting;
-	}
-	
-	/** @param casting See {@link #casting} */
-	public void setCasting(boolean casting){
-		this.casting = casting;
-	}
-	
-	/** Toggle the state of {@link #casting} */
-	public void toggleCasting(){
-		this.setCasting(!this.isCasting());
-	}
-	
 	/**
-	 * Cause this mob to begin performing an attack or casting a spell depending on which mode is selected
+	 * Cause this mob to begin performing an attack in the direction it is facing
 	 *
-	 * @param zgame The game where the attack or spell took place
-	 * @param direction The direction to attack or cast in
+	 * @param zgame The game where the attack took place
 	 */
-	public void beginAttackOrSpell(ZusassGame zgame, double direction){
-		this.attackDirection = direction;
-		if(casting){
-			this.castSpell(zgame);
-		}
-		else{
-			this.attackTime = 1.0 / this.getAttacksPerSecond();
-			
-			// Also drain stamina from the thing
-			this.getStat(STAMINA).addValue(-20);
-		}
+	public void beginAttack(ZusassGame zgame){
+		// Do not allow attacking if an attack is taking place
+		if(this.attackTime > 0) return;
+		
+		this.attackTime = 1.0 / this.getAttacksPerSecond();
+		
+		// Also drain stamina from the thing
+		this.getStat(STAMINA).addValue(-20);
 	}
 	
 	/**
@@ -272,18 +327,20 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	}
 	
 	/**
-	 * Attack the nearest mob, in {@link #attackDirection}, in the game which is not this mob
+	 * Attack the nearest mob, in the direction the mob is facing, in the game which is not this mob
 	 *
 	 * @param game The game where the attack should happen
 	 */
 	public void attackNearest(ZusassGame game){
-		List<ZusassMob> mobs = game.getCurrentRoom().getMobs();
+		var mobs = game.getCurrentRoom().getMobs();
 		for(var m : mobs){
 			// Skip the current mob if it is this mob or the mob is out of the attack range
-			if(m == this || this.center().distance(m.center()) >= this.stat(ATTACK_RANGE)) continue;
-			// Also skip the current mob if it is not in the attack direction
-			double directionX = Math.cos(this.attackDirection);
-			if(this.centerX() < m.centerX() == directionX < 0) continue;
+			if(m == this) continue;
+			double mobDist = this.distance(m);
+			double attackRange = this.stat(ATTACK_RANGE);
+			if(mobDist >= attackRange) continue;
+			// Also skip the current mob if it cannot be "clicked" on
+			if(!this.canClick(attackRange, this.findClickDistance(m))) continue;
 			// Perform the attack
 			this.attack(m);
 			return;
@@ -317,7 +374,20 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 	 * @return true if the spell could be cast, false otherwise i.e. the caster doesn't have enough mana
 	 */
 	public boolean castSpell(ZusassGame zgame){
-		return this.getSelectedSpell().castAttempt(zgame, this);
+		var success = this.getSelectedSpell().castAttempt(zgame, this);
+		if(this.castSoundSource != null) {
+			var sm = zgame.getSounds();
+			sm.updateSourcePos(this.castSoundSource, this.getX(), this.getY(), this.getZ());
+			sm.updateSourceDirection(this.castSoundSource, 0, 0, 0);
+			this.castSoundSource.setBaseVolume(0.2);
+			zgame.playEffect(this.castSoundSource, "win");
+		}
+		return success;
+	}
+	
+	/** @return The point where this mob should cast a spell at when a spell is positional, defaults the middle top of the hitbox */
+	public ZPoint3D getSpellCastPont(){
+		return new ZPoint3D(this.centerX(), this.centerY() + this.getHeight() * 0.5, this.centerZ());
 	}
 	
 	/** @return See {@link #effects} */
@@ -430,15 +500,15 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		return Math.min(1, Math.max(0, perc));
 	}
 	
-	/** @return See {@link #width} */
+	/** @return See {@link #radius} */
 	@Override
-	public double getWidth(){
-		return this.width;
+	public double getRadius(){
+		return this.radius;
 	}
 	
-	/** @param width See {@link #width} */
-	public void setWidth(double width){
-		this.width = width;
+	/** @param radius See {@link #radius} */
+	public void setRadius(double radius){
+		this.radius = radius;
 	}
 	
 	/** @return See {@link #height} */
@@ -452,40 +522,184 @@ public abstract class ZusassMob extends EntityThing implements RectangleHitBox{
 		this.height = height;
 	}
 	
-	/**
-	 * @return This object, as an {@link Npc}, or null if it cannot be an {@link Npc}
-	 * 		The return value of this method should equal this object, not another version or reference, i.e. (this == this.asNpc()) should evaluate to true
-	 */
-	public Npc asNpc(){
-		return null;
+	@Override
+	public double getClickX(){
+		return this.getX();
 	}
 	
-	/** @return See {@link #walk} */
-	public Walk getWalk(){
-		return this.walk;
+	@Override
+	public double getClickY(){
+		return this.getY() + this.getHeight();
 	}
 	
+	@Override
+	public double getClickZ(){
+		return this.getZ();
+	}
+	
+	@Override
+	public double getClickYaw(){
+		return this.getMobilityData().getFacingYaw();
+	}
+	
+	@Override
+	public double getClickPitch(){
+		return this.getMobilityData().getFacingPitch();
+	}
+	
+	@Override
+	public double getClickRange(){
+		return this.stat(ATTACK_RANGE) * 0.8;
+	}
+	
+	@Override
+	public boolean jump(double dt){
+		var jumped = super.jump(dt);
+		if(jumped) this.getStat(STAMINA).addValue(-6);
+		return jumped;
+	}
+	
+	@Override
+	public MobilityData3D getMobilityData(){
+		return this.mobilityData;
+	}
+	
+	@Override
+	public double getWalkSpeedMax(){
+		// For now just making this a hard coded number based on the move speed stat
+		return this.stat(MOVE_SPEED);
+	}
+	
+	@Override
+	public double getWalkPower(){
+		double agilityModifier = 1 + this.stat(AGILITY);
+		if(agilityModifier < 0) agilityModifier = 0;
+		
+		// Both movement speed and agility make acceleration faster
+		return (1 + this.stat(MOVE_SPEED)) * 0.003 * agilityModifier;
+	}
+	
+	@Override
+	public double getWalkStopFriction(){
+		// For now just making this a hard coded number based on the move speed stat
+		double agilityModifier = this.stat(AGILITY) / 6.0;
+		if(agilityModifier < 0) agilityModifier = 0;
+		
+		return this.stat(MOVE_SPEED) * 2 + agilityModifier;
+	}
+
 	@Override
 	public double getFrictionConstant(){
-		return this.getWalk().getFrictionConstant();
+		return this.getWalkFrictionConstant();
 	}
 	
 	@Override
-	public void leaveFloor(){
-		super.leaveFloor();
-		this.getWalk().leaveFloor();
+	public double getJumpPower(){
+		double agility = this.stat(AGILITY);
+		if(agility <= 0) return -1;
+		
+		return Math.pow(agility, 0.3) * 1.5;
 	}
 	
 	@Override
-	public void leaveWall(){
-		super.leaveWall();
-		this.getWalk().leaveWall();
+	public double getJumpStopPower(){
+		double agility = this.stat(AGILITY);
+		if(agility <= 0) return -1;
+		
+		return Math.pow(agility, 0.3) * 0.1;
+	}
+	
+	/** @return See {@link #jumpBuildTime} */
+	@Override
+	public double getJumpBuildTime(){
+		return this.jumpBuildTime;
+	}
+	
+	/** @param jumpBuildTime See {@link #jumpBuildTime} */
+	public void setJumpBuildTime(double jumpBuildTime){
+		this.jumpBuildTime = jumpBuildTime;
+	}
+	
+	/** @return See {@link #jumpAfterBuildUp} */
+	@Override
+	public boolean isJumpAfterBuildUp(){
+		return this.jumpAfterBuildUp;
+	}
+	
+	/** @param jumpAfterBuildUp See {@link #jumpAfterBuildUp} */
+	public void setJumpAfterBuildUp(boolean jumpAfterBuildUp){
+		this.jumpAfterBuildUp = jumpAfterBuildUp;
 	}
 	
 	@Override
-	public void touchFloor(Material touched){
-		super.touchFloor(touched);
-		this.getWalk().touchFloor(touched);
+	public double getWalkAirControl(){
+		double agility = this.stat(AGILITY);
+		if(agility <= -10) return 0;
+		return 1.0 - 10.0 / (agility + 10);
+	}
+	
+	/** @return See {@link #walkFriction} */
+	@Override
+	public double getWalkFriction(){
+		return this.walkFriction;
+	}
+	
+	/** @param walkFriction See {@link #walkFriction} */
+	public void setWalkFriction(double walkFriction){
+		this.walkFriction = walkFriction;
+	}
+	
+	@Override
+	public double getSprintingRatio(){
+		double agility = this.stat(AGILITY);
+		double divisor = -10 - agility * 0.5;
+		// If agility is too low, no sprinting bonus
+		if(divisor >= 0) return 1;
+		
+		// Approach a sprinting bonus of double
+		return 2 + 10 / divisor;
+	}
+	
+	/** @return See {@link #canWallJump} */
+	@Override
+	public boolean isCanWallJump(){
+		return this.canWallJump;
+	}
+	
+	/** @param canWallJump See {@link #canWallJump} */
+	public void setCanWallJump(boolean canWallJump){
+		this.canWallJump = canWallJump;
+	}
+	
+	@Override
+	public double getNormalJumpTime(){
+		double agility = this.stat(AGILITY);
+		if(agility <= -50) return -1;
+		
+		return 0.1 + .75 * (1.0 - (50.0 / (agility + 50)));
+	}
+	
+	@Override
+	public double getWallJumpTime(){
+		double agility = this.stat(AGILITY);
+		if(agility <= -50) return -1;
+		
+		return 0.15 + .75 * (1.0 - (50.0 / (agility + 50)));
+	}
+	
+	@Override
+	public boolean isSprinting(){
+		return this.sprinting;
+	}
+	
+	/** @param sprinting See {@link #sprinting} */
+	public void setSprinting(boolean sprinting){
+		this.sprinting = sprinting;
+	}
+	
+	/** toggle the state of {@link #sprinting} */
+	public void toggleSprinting(){
+		this.setSprinting(!this.isSprinting());
 	}
 	
 	@Override

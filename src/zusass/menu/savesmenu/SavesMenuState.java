@@ -8,7 +8,7 @@ public class SavesMenuState extends MenuState{
 	
 	/** Initialize the menu */
 	public SavesMenuState(ZusassGame zgame){
-		super(new SavesMenu(zgame));
+		super(zgame, new SavesMenu(zgame));
 		this.setUseCamera(false);
 	}
 }

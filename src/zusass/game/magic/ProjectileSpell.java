@@ -3,7 +3,7 @@ package zusass.game.magic;
 import com.google.gson.JsonElement;
 import zgame.core.file.Saveable;
 import zgame.core.utils.NotNullList;
-import zgame.physics.ZVector;
+import zgame.physics.ZVector3D;
 import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
@@ -57,7 +57,7 @@ public class ProjectileSpell extends Spell{
 	 * @param effects See {@link #effects}
 	 */
 	public ProjectileSpell(NotNullList<SpellEffect> effects){
-		this(effects, 10, -1, 400);
+		this(effects, 0.1, 1, 0.5);
 	}
 	
 	/**
@@ -77,12 +77,13 @@ public class ProjectileSpell extends Spell{
 	@Override
 	protected void cast(ZusassGame zgame, ZusassMob caster){
 		var r = zgame.getCurrentRoom();
-		var vel = new ZVector(caster.getAttackDirection(), this.getSpeed(), false);
-		var p = new MagicProjectile(caster.centerX(), caster.centerY(), caster.getUuid(), vel, this.getEffects());
+		var mobilityData = caster.getMobilityData();
+		var vel = new ZVector3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), this.getSpeed(), false);
+		var castPoint = caster.getSpellCastPont();
+		var p = new MagicProjectile(castPoint.getX(), castPoint.getY(), castPoint.getZ(), caster.getUuid(), vel, this.getEffects());
 		p.setRange(this.range);
 		p.setRadius(this.radius);
-		p.addX(-p.getWidth() * .5);
-		p.addY(-p.getHeight() * .5);
+		p.initSounds(zgame);
 		r.addThing(p);
 	}
 	
@@ -105,7 +106,7 @@ public class ProjectileSpell extends Spell{
 	public double getCost(){
 		// This is a very arbitrary calculation for now, basically, the more powerful the spell, the higher the cost
 		var range = this.getRange();
-		return super.getCost() + ((range < 0 ? 1000 : range) * 0.02) * (this.getSpeed() * 0.1) + this.getRadius() * 0.1;
+		return super.getCost() + ((range < 0 ? 20 : range) * 1.2) + (this.getSpeed() * 5) + this.getRadius() * 0.8;
 	}
 	
 	@Override

@@ -18,16 +18,19 @@ import zgame.core.sound.SoundSource;
 import zgame.core.state.GameState;
 import zgame.core.state.MenuState;
 import zgame.core.state.PlayState;
-import zgame.core.utils.ZRect;
+import zgame.core.utils.ZRect2D;
 import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
 import zgame.menu.*;
 import zgame.menu.scroller.HorizontalScroller;
 import zgame.menu.scroller.MenuScroller;
 import zgame.menu.scroller.VerticalScroller;
-import zgame.things.still.Door;
-import zgame.things.still.tiles.BaseTiles;
-import zgame.world.Room;
+import zgame.physics.material.MaterialConst;
+import zgame.physics.material.Materials;
+import zgame.things.entity.mobility.MobilityType;
+import zgame.things.still.Door2D;
+import zgame.things.still.tiles.BaseTiles2D;
+import zgame.world.Room2D;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -114,13 +117,14 @@ import java.util.ArrayList;
  * minus = decrease jump height
  * shift + scroll wheel = zoom in or out
  * L = toggle lock camera to player
+ * m = toggle walking/running
  */
 public class MainTest extends Game{
 	
 	public static Game testerGame;
 	public static GameWindow window;
 	
-	public static final boolean CIRCLE_PLAYER = true;
+	public static final boolean CIRCLE_PLAYER = false;
 	
 	public static double camSpeed = 400;
 	public static boolean zoomOnlyX = false;
@@ -156,9 +160,9 @@ public class MainTest extends Game{
 	public static void main(String[] args){
 		// Set up game
 		testerGame = new MainTest();
-		testerGame.setCurrentState(new TesterGameState(testerGame));
+//		testerGame.setCurrentState(new TesterGameState(testerGame));
 //		testerGame.setCurrentState(new TesterMenuState(testerGame));
-//		testerGame.setCurrentState(new GameEngineState());
+		testerGame.setCurrentState(new GameEngineState());
 		
 		window = testerGame.getWindow();
 		window.center();
@@ -191,8 +195,8 @@ public class MainTest extends Game{
 		if(winSource != null) winSource.destroy();
 		if(loseSource != null) loseSource.destroy();
 		SoundManager sm = testerGame.getSounds();
-		winSource = sm.createSource(playerX, playerY);
-		loseSource = sm.createSource(0, 200);
+		winSource = sm.createSource(playerX, playerY, 0);
+		loseSource = sm.createSource(0, 200, 0);
 	}
 	
 	@Override
@@ -215,12 +219,12 @@ public class MainTest extends Game{
 		private final PlayerTester player;
 		
 		public GameEngineState(){
-			super(false);
-			Room firstRoom = makeRoom();
-			firstRoom.setTile(0, 4, BaseTiles.BOUNCY);
-			firstRoom.setTile(1, 4, BaseTiles.BOUNCY);
-			Room secondRoom = makeRoom();
-			for(int i = 0; i < 2; i++) secondRoom.setTile(i, 4, BaseTiles.HIGH_FRICTION);
+			super(new Room2D());
+			var firstRoom = makeRoom();
+			firstRoom.setTile(0, 4, BaseTiles2D.BOUNCY);
+			firstRoom.setTile(1, 4, BaseTiles2D.BOUNCY);
+			var secondRoom = makeRoom();
+			for(int i = 0; i < 2; i++) secondRoom.setTile(i, 4, BaseTiles2D.HIGH_FRICTION);
 			this.setCurrentRoom(firstRoom);
 			
 			if(CIRCLE_PLAYER) this.player = new PlayerTesterCircle(130, 430, 60);
@@ -228,14 +232,14 @@ public class MainTest extends Game{
 			
 			this.player.setMass(100);
 			this.player.setLockCamera(true);
-			this.player.getWalk().setCanWallJump(true);
+			this.player.setCanWallJump(true);
 			firstRoom.addThing(this.player);
 			
-			Door d = new Door(700, 400);
+			var d = new Door2D(700, 400);
 			d.setLeadRoom(secondRoom, 50, 100);
 			firstRoom.addThing(d);
 			
-			d = new Door(400, 500);
+			d = new Door2D(400, 500);
 			d.setLeadRoom(firstRoom, 100, 400);
 			secondRoom.addThing(d);
 		}
@@ -245,24 +249,24 @@ public class MainTest extends Game{
 			game.getCamera().setPos(50, 100);
 		}
 		
-		private Room makeRoom(){
-			Room r = new Room();
+		private Room2D makeRoom(){
+			var r = new Room2D();
 			r.makeWallsSolid();
-			r.initTiles(13, 9, BaseTiles.BACK_DARK);
+			r.initTiles(13, 9, BaseTiles2D.BACK_DARK);
 			for(int i = 0; i < r.getXTiles(); i++){
 				for(int j = 0; j < r.getYTiles(); j++){
 					boolean i0 = i % 2 == 0;
 					boolean j0 = j % 2 == 0;
-					if(i0 == j0) r.setTile(i, j, BaseTiles.BACK_LIGHT);
+					if(i0 == j0) r.setTile(i, j, BaseTiles2D.BACK_LIGHT);
 				}
 			}
-			for(int i = 0; i < 4; i++) r.setTile(4 + i, 6, BaseTiles.WALL_DARK);
-			r.setTile(7, 5, BaseTiles.WALL_DARK);
-			r.setTile(11, 3, BaseTiles.WALL_LIGHT);
+			for(int i = 0; i < 4; i++) r.setTile(4 + i, 6, BaseTiles2D.WALL_DARK);
+			r.setTile(7, 5, BaseTiles2D.WALL_DARK);
+			r.setTile(11, 3, BaseTiles2D.WALL_LIGHT);
 			
-			r.setFrontTile(7, 4, BaseTiles.WALL_CIRCLE);
+			r.setFrontTile(7, 4, BaseTiles2D.WALL_CIRCLE);
 			
-			r.setFrontTile(11, 2, BaseTiles.WALL_BOTTOM_SLAB);
+			r.setFrontTile(11, 2, BaseTiles2D.WALL_BOTTOM_SLAB);
 			
 			return r;
 		}
@@ -282,20 +286,36 @@ public class MainTest extends Game{
 		}
 		
 		@Override
+		public void renderHud(Game game, Renderer r){
+			super.renderHud(game, r);
+			if(this.isPaused()){
+				r.setColor(0.5, 0, 1);
+				r.setFontSize(40);
+				r.drawText(50, 100, "PAUSED");
+			}
+		}
+		
+		@Override
 		public void playKeyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 			super.playKeyAction(game, button, press, shift, alt, ctrl);
 			if(press) return;
 			
 			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState(game));
 			
-			var walk = player.getWalk();
-			Room r = getCurrentRoom();
-			if(button == GLFW_KEY_W) r.makeWallState(Room.WALL_CEILING, !r.isSolid(Room.WALL_CEILING));
-			else if(button == GLFW_KEY_A) r.makeWallState(Room.WALL_LEFT, !r.isSolid(Room.WALL_LEFT));
-			else if(button == GLFW_KEY_S) r.makeWallState(Room.WALL_FLOOR, !r.isSolid(Room.WALL_FLOOR));
-			else if(button == GLFW_KEY_D) r.makeWallState(Room.WALL_RIGHT, !r.isSolid(Room.WALL_RIGHT));
-			else if(button == GLFW_KEY_MINUS) walk.setJumpPower(walk.getJumpPower() - 10);
-			else if(button == GLFW_KEY_EQUAL) walk.setJumpPower(walk.getJumpPower() + 10);
+			var r = this.getCurrentRoom();
+			if(button == GLFW_KEY_W) r.makeWallState(Room2D.WALL_CEILING, !r.isSolid(Room2D.WALL_CEILING));
+			else if(button == GLFW_KEY_A) r.makeWallState(Room2D.WALL_LEFT, !r.isSolid(Room2D.WALL_LEFT));
+			else if(button == GLFW_KEY_S) r.makeWallState(Room2D.WALL_FLOOR, !r.isSolid(Room2D.WALL_FLOOR));
+			else if(button == GLFW_KEY_D) r.makeWallState(Room2D.WALL_RIGHT, !r.isSolid(Room2D.WALL_RIGHT));
+			else if(button == GLFW_KEY_F) {
+				var mobilityData = player.getMobilityData();
+				var mobilityType = mobilityData.getType();
+				if(mobilityType == MobilityType.WALKING) mobilityData.setType(shift ? MobilityType.FLYING_AXIS : MobilityType.FLYING);
+				else mobilityData.setType(MobilityType.WALKING);
+			}
+			else if(button == GLFW_KEY_N) player.setNoClip(!player.isNoClip());
+			else if(button == GLFW_KEY_MINUS) player.setJumpPower(player.getJumpPower() - 10);
+			else if(button == GLFW_KEY_EQUAL) player.setJumpPower(player.getJumpPower() + 10);
 			else if(shift && button == GLFW_KEY_L) player.setLockCamera(!player.isLockCamera());
 			else if(button == GLFW_KEY_9) game.getCamera().zoom(-.5);
 			else if(button == GLFW_KEY_0) game.getCamera().zoom(.5);
@@ -303,6 +323,34 @@ public class MainTest extends Game{
 			else if(button == GLFW_KEY_L) game.getCamera().getX().shift(50);
 			else if(button == GLFW_KEY_I) game.getCamera().getY().shift(-50);
 			else if(button == GLFW_KEY_K) game.getCamera().getY().shift(50);
+			else if(button == GLFW_KEY_F1) {
+				if(shift){
+					game.setPrintFps(true);
+					game.setPrintTps(true);
+					game.setPrintSoundUpdates(true);
+				}
+				else{
+					game.setPrintFps(false);
+					game.setPrintTps(false);
+					game.setPrintSoundUpdates(false);
+				}
+			}
+			else if(button == GLFW_KEY_M) player.toggleWalking();
+			else if(button == GLFW_KEY_ESCAPE){
+				this.setPaused(!this.isPaused());
+			}
+			
+			boolean addFriction = button == GLFW_KEY_1;
+			boolean subFriction = button == GLFW_KEY_2;
+			if(addFriction) {
+				this.getCurrentRoom().setWallMaterial(new MaterialConst(this.getCurrentRoom().getWallMaterial().getFriction() + (ctrl ? 0.01 : 0.05), 0));
+			}
+			else if(subFriction) {
+				this.getCurrentRoom().setWallMaterial(new MaterialConst(this.getCurrentRoom().getWallMaterial().getFriction() - (ctrl ? 0.01 : 0.05), 0));
+			}
+			if(addFriction || subFriction) {
+				if(shift) this.getCurrentRoom().setWallMaterial(Materials.BOUNDARY);
+			}
 		}
 		
 		@Override
@@ -314,13 +362,18 @@ public class MainTest extends Game{
 			}
 			return input;
 		}
+		
+		@Override
+		public Room2D getCurrentRoom(){
+			return (Room2D)super.getCurrentRoom();
+		}
 	}
 	
 	public static class TesterGameState extends GameState{
 		
 		private final TextBuffer textBuffer;
 		
-		private static final ZRect bufferBounds = new ZRect(0, 500, 500, 150);
+		private static final ZRect2D bufferBounds = new ZRect2D(0, 500, 500, 150);
 		
 		private static final String SAVES_PATH = "./saves";
 		private static final String FILE_PATH = SAVES_PATH + "/testGame.json";
@@ -331,6 +384,7 @@ public class MainTest extends Game{
 			this.textBuffer.setTextX(10);
 			this.textBuffer.setTextY(75);
 			this.textBuffer.setFont(this.textBuffer.getFont().size(40));
+			this.textBuffer.regenerateBuffer();
 		}
 		
 		@Override
@@ -462,7 +516,7 @@ public class MainTest extends Game{
 			r.setColor(1, 1, 1);
 			r.drawRectangle(bufferBounds);
 			r.setColor(1, 0, 0);
-			this.textBuffer.drawToRenderer(bufferBounds.x, bufferBounds.y, r);
+			this.textBuffer.drawOnRenderer(bufferBounds.x, bufferBounds.y, r);
 			
 			r.makeOpaque();
 			r.drawImage(playerX, playerY, 150, 150, game.getImage("player"), null);
@@ -477,7 +531,7 @@ public class MainTest extends Game{
 			r.setColor(new ZColor(0));
 			r.setFont(game.getFont("zfont"));
 			r.setFontSize(40);
-			r.limitBounds(new ZRect(0, -100, 250, 100));
+			r.limitBounds(new ZRect2D(0, -100, 250, 100));
 			r.drawText(0, -10, "a long string that should get cut off");
 			r.unlimitBounds();
 			
@@ -497,9 +551,9 @@ public class MainTest extends Game{
 			r.setColor(new ZColor(1, 0, 1));
 			r.drawText(600, -400, s);
 			
-			ZRect[] bs = r.getFont().stringBounds(600, -400, s, 0, true);
+			ZRect2D[] bs = r.getFont().stringBounds(600, -400, s, 0, true);
 			r.setColor(.25, .25, .25, .2);
-			r.drawRectangle(new ZRect(bs[s.length()], 10));
+			r.drawRectangle(new ZRect2D(bs[s.length()], 10));
 			r.setColor(.25, .25, .25, .4);
 			r.drawRectangle(bs[s.length()]);
 			r.setColor(.7, .7, .7, .1);
@@ -521,7 +575,7 @@ public class MainTest extends Game{
 			r.setColor(new ZColor(1, 0, 1));
 			r.drawText(1100, 0, s);
 			r.setColor(.25, .25, .25, .2);
-			r.drawRectangle(new ZRect(bs[s.length()], 10));
+			r.drawRectangle(new ZRect2D(bs[s.length()], 10));
 			r.setColor(.25, .25, .25, .4);
 			r.drawRectangle(bs[s.length()]);
 			r.setColor(.7, .7, .7, .1);
@@ -540,12 +594,12 @@ public class MainTest extends Game{
 			
 			var options = new ArrayList<TextOption>();
 			options.add(new TextOption("ABCDEFGHIJKLM", new ZColor(1, 0, 0), AlphaMode.NORMAL));
-			options.add(new TextOption("NOPQRSTUVWXYZ\n", new ZColor(1, 1, 0), AlphaMode.BUFFER));
+			options.add(new TextOption("NOPQRSTUVWXYZ\n", new ZColor(1, 1, 0), AlphaMode.NONE));
 			options.add(new TextOption("abcdefghijklm", new ZColor(0, 1, 0), null));
 			options.add(new TextOption("nopqrstuvwxyz\n", new ZColor(0, 1, 1), AlphaMode.NORMAL));
 			options.add(new TextOption(" 0123456789.,", new ZColor(0, 0, 1), null));
 			options.add(new TextOption("“”‘’\"'?!@_*#$\n", new ZColor(1, 0, 1), null));
-			options.add(new TextOption("%&()+-/:;<=>", new ZColor(1, 1, 1), AlphaMode.BUFFER));
+			options.add(new TextOption("%&()+-/:;<=>", new ZColor(1, 1, 1), AlphaMode.NONE));
 			options.add(new TextOption("[/]^`{|}~", new ZColor(0, 0, 0), null));
 			
 			r.pushAttributes();
@@ -609,7 +663,7 @@ public class MainTest extends Game{
 			if(keys.released(GLFW_KEY_1)){
 				if(down[ONE]){
 					down[ONE] = false;
-					window.toggleFullscreen();
+					game.toggleFullscreen();
 				}
 			}
 			else down[ONE] = true;
@@ -713,14 +767,14 @@ public class MainTest extends Game{
 				red = 0;
 			}
 			// Update sound positions
-			game.getSounds().updateListenerPos(playerX, playerY);
+			game.getSounds().updateListenerPos(playerX, playerY, 0);
 		}
 	}
 	
 	public static class TesterMenuState extends MenuState{
 		
 		public TesterMenuState(Game game){
-			super(new TesterMenu(game));
+			super(game, new TesterMenu(game));
 			((TesterMenu)this.getMenu()).state = this;
 		}
 		
@@ -867,7 +921,7 @@ public class MainTest extends Game{
 		public void createPopup(Game game){
 			Menu menu = new Menu(){
 				@Override
-				public void render(Game game, Renderer r, ZRect bounds){
+				public void render(Game game, Renderer r, ZRect2D bounds){
 					super.render(game, r, bounds);
 					r.setColor(.2, .2, .4, .3);
 					r.fill();
