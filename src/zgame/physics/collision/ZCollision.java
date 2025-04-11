@@ -1018,12 +1018,27 @@ public final class ZCollision{
 	 * @return true if they intersect, false otherwise
 	 */
 	public static boolean cylinderIntersectsSphere(double cx, double cy, double cz, double cr, double ch, double sx, double sy, double sz, double sr){
-		// If the sphere is outside the cylinder's height, there is no intersection
-		if(cy > sy + sr || cy + ch < sy - sr) return false;
+		double closeY = ZMath.minMax(cy, cy + ch, sy);
+		
 		double dx = sx - cx;
 		double dz = sz - cz;
+		double horizontalDist = Math.sqrt(dx * dx + dz * dz);
+		double closeX;
+		double closeZ;
+		if(horizontalDist == 0){
+			closeX = cx;
+			closeZ = cz;
+		}
+		else{
+			double scale = cr / horizontalDist;
+			closeX = cx + dx * scale;
+			closeZ = cz + dz * scale;
+		}
+		dx = sx - closeX;
+		double dy = sy - closeY;
+		dz = sz - closeZ;
 		
-		return (dx * dx + dz * dz) < (cr * sr);
+		return (dx * dx + dy * dy + dz * dz) < (sr * sr);
 	}
 	
 	/** Cannot instantiate {@link ZCollision} */
