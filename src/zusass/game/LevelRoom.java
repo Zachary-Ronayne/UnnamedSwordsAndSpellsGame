@@ -15,22 +15,18 @@ import zgame.things.type.GameThing;
 import static zgame.world.Direction3D.*;
 
 import zgame.world.Room;
+import zusass.ZusassGame;
 import zusass.game.things.LevelDoor;
 import zusass.game.things.ZusassTags;
 import zusass.game.things.entities.mobs.Npc;
 import zusass.game.things.tiles.ZusassTiles;
 
+import java.util.Random;
+
 import static zusass.game.stat.ZusassStat.*;
 
 /** A {@link Room} which represents a randomly generated level for the infinite dungeons */
 public class LevelRoom extends ZusassRoom{
-	
-	/** The number of tiles in a {@link LevelRoom} on the x axis */
-	private static final int X_TILES = 9;
-	/** The number of tiles in a {@link LevelRoom} on the y axis */
-	private static final int Y_TILES = 5;
-	/** The number of tiles in a {@link LevelRoom} on the z axis */
-	private static final int Z_TILES = 7;
 	
 	/** The size in pixels of the width of {@link #levelTextBuffer} */
 	private static final int LEVEL_TEXT_BUFFER_WIDTH = 600;
@@ -57,11 +53,10 @@ public class LevelRoom extends ZusassRoom{
 	 * @param level See {@link #level}
 	 */
 	public LevelRoom(int level){
-		super(X_TILES, Y_TILES, Z_TILES);
+		super(0, 0, 0);
 		this.addTags(ZusassTags.IS_LEVEL);
 		this.setLevel(level);
 		this.getAllThings().addClass(Npc.class);
-		this.setTileBoundaries();
 	}
 	
 	@Override
@@ -72,53 +67,57 @@ public class LevelRoom extends ZusassRoom{
 	
 	/**
 	 * Initialize the state of this level room by adding all the intended objects, i.e., tiles, mobs, etc.
+	 * @param zgame The game which this level is for
 	 */
-	public void initRandom(){
-		// Set up the tiles
+	public void initRandom(ZusassGame zgame){
+		// Grab this game's seed
+		long seed = zgame.getData().getSeed();
+		var random = new Random(seed * (1 + this.getLevel()));
 		
-		// TODO make the tint color random based on save file seed and level number
+		// Set up the tiles, slight room variation size for now, this will make the rooms up to 5 tiles longer on each axis, scaling up slowly
+		var sizeScale = 5 * (1 - (1 / Math.log(0.4 * this.getLevel() + Math.E)));
+		int xTiles = 7 + (int)(random.nextDouble() * sizeScale);
+		int yTiles = 4 + (int)(random.nextDouble() * sizeScale * 0.25);
+		int zTiles = 6 + (int)(random.nextDouble() * sizeScale);
+		
 		// Everything is air by default
-		this.levelTint = new ZColor(0.2 + Math.random() * 0.5, 0.2 + Math.random() * 0.5, 0.2 + Math.random() * 0.5);
-		for(int i = 0; i < X_TILES; i++){
-			for(int j = 0; j < Y_TILES; j++){
-				for(int k = 0; k < Z_TILES; k++){
-					this.setTile(i, j, k, BaseTiles3D.AIR);
-				}
-			}
-		}
+		this.initTiles(xTiles, yTiles, zTiles, BaseTiles3D.AIR);
+		this.setTileBoundaries();
+		
+		this.levelTint = new ZColor(0.2 + random.nextDouble() * 0.5, 0.2 + random.nextDouble() * 0.5, 0.2 + random.nextDouble() * 0.5);
 		ZusassTiles.setLevelTint(this.levelTint);
 		
 		// Make a floor and ceiling
-		for(int i = 0; i < X_TILES; i++){
-			for(int k = 0; k < Z_TILES; k++){
+		for(int i = 0; i < xTiles; i++){
+			for(int k = 0; k < zTiles; k++){
 				this.setTile(i, 0, k, ZusassTiles.LEVEL_FLOOR_COLOR);
-				this.setTile(i, Y_TILES - 1, k, ZusassTiles.LEVEL_CEILING_COLOR);
+				this.setTile(i, yTiles - 1, k, ZusassTiles.LEVEL_CEILING_COLOR);
 			}
 		}
 		
 		// Make east/west walls
-		for(int i = 0; i < X_TILES; i++){
-			for(int j = 0; j < Y_TILES; j++){
+		for(int i = 0; i < xTiles; i++){
+			for(int j = 0; j < yTiles; j++){
 				this.setTile(i, j, 0, ZusassTiles.LEVEL_WALL_COLOR);
-				this.setTile(i, j, Z_TILES - 1, ZusassTiles.LEVEL_WALL_COLOR);
+				this.setTile(i, j, zTiles - 1, ZusassTiles.LEVEL_WALL_COLOR);
 			}
 		}
 		
 		// Make north/south walls
-		for(int i = 0; i < Z_TILES; i++){
-			for(int j = 0; j < Y_TILES; j++){
+		for(int i = 0; i < zTiles; i++){
+			for(int j = 0; j < yTiles; j++){
 				this.setTile(0, j, i, ZusassTiles.LEVEL_WALL_COLOR);
-				this.setTile(X_TILES - 1, j, i, ZusassTiles.LEVEL_WALL_COLOR);
+				this.setTile(xTiles - 1, j, i, ZusassTiles.LEVEL_WALL_COLOR);
 			}
 		}
 		
 		// Add the door
-		var levelDoor = new LevelDoor(X_TILES - 1.25, 1, Z_TILES - 3, this.getLevel() + 1, EAST);
+		var levelDoor = new LevelDoor(xTiles - 1.25, 1, zTiles - 3, this.getLevel() + 1, EAST);
 		this.addThing(levelDoor);
 		
 		// Put tiles in front of the door, mostly for testing
-		this.setTile(X_TILES - 3, 1, Z_TILES - 3, ZusassTiles.GRAY_BRICK);
-		this.setTile(X_TILES - 3, 2, Z_TILES - 4, ZusassTiles.GRAY_BRICK);
+		this.setTile(xTiles - 3, 1, zTiles - 3, ZusassTiles.GRAY_BRICK);
+		this.setTile(xTiles - 3, 2, zTiles - 4, ZusassTiles.GRAY_BRICK);
 		
 		// issue#25 if this is changed to add hundreds of enemies, the TPS tanks while not using all the computer's resources. Probably need to make tick looper account for time spent rendering
 		// Add enemies

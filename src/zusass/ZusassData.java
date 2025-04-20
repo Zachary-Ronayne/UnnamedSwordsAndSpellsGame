@@ -4,6 +4,8 @@ import com.google.gson.JsonElement;
 
 import zgame.core.file.Saveable;
 
+import java.util.Random;
+
 /** A class to hold data representing the game state */
 public class ZusassData implements Saveable{
 	
@@ -12,9 +14,14 @@ public class ZusassData implements Saveable{
 	public static final String GENERAL_DATA_KEY = "generalData";
 	/** See {@link #highestRoomLevel} */
 	public static final String HIGHEST_ROOM_LEVEL_KEY = "highestRoomLevel";
+	/** See {@link #seed} */
+	public static final String SEED_KEY = "seed";
 	
 	/** The highest level the player has gotten to in the infinitely randomly generated rooms */
 	private int highestRoomLevel;
+	
+	/** The seed used to randomly generate levels for this save file */
+	private long seed;
 	
 	/** The path to the file which is currently loaded as the play state */
 	private String loadedFile;
@@ -30,9 +37,18 @@ public class ZusassData implements Saveable{
 		this.load(e);
 	}
 	
-	/** Initialize this {@link ZusassData} to its default state */
+	/** Initialize this {@link ZusassData} to its default state with a random seed */
 	public ZusassData(){
+		this(new Random().nextLong());
+	}
+	
+	/**
+	 * Initialize this {@link ZusassData} to its default state
+	 * @param seed The seed to use
+	 */
+	public ZusassData(long seed){
 		this.highestRoomLevel = 0;
+		this.seed = seed;
 		this.loadedFile = null;
 		this.autosave = true;
 	}
@@ -41,6 +57,7 @@ public class ZusassData implements Saveable{
 	public boolean save(JsonElement e){
 		var generalData = Saveable.newObj(GENERAL_DATA_KEY, e);
 		generalData.addProperty(HIGHEST_ROOM_LEVEL_KEY, highestRoomLevel);
+		generalData.addProperty(SEED_KEY, seed);
 		return true;
 	}
 	
@@ -48,6 +65,8 @@ public class ZusassData implements Saveable{
 	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
 		var generalData = Saveable.obj(GENERAL_DATA_KEY, e);
 		this.highestRoomLevel = Saveable.i(HIGHEST_ROOM_LEVEL_KEY, generalData, 1);
+		// Make a random seed if there is none saved
+		this.seed = Saveable.lo(SEED_KEY, generalData, new Random().nextLong());
 		return true;
 	}
 	
@@ -63,6 +82,11 @@ public class ZusassData implements Saveable{
 	 */
 	public void updatedHighestRoomLevel(int highestRoomLevel){
 		this.highestRoomLevel = Math.max(highestRoomLevel, this.getHighestRoomLevel());
+	}
+	
+	/** @return See {@link #seed} */
+	public long getSeed(){
+		return this.seed;
 	}
 	
 	/** @return See {@link #loadedFile} */

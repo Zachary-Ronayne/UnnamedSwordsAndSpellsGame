@@ -4,6 +4,8 @@ import zgame.core.Game;
 import zusass.ZusassGame;
 import zusass.menu.comp.ZusassButton;
 
+import java.util.Random;
+
 /** The button used to confirm to create a new game */
 public class CreateGameButton extends ZusassButton{
 	
@@ -25,7 +27,8 @@ public class CreateGameButton extends ZusassButton{
 		String text = this.textBox.getText();
 		if(text == null || text.isEmpty()) return;
 		ZusassGame zgame = (ZusassGame)game;
-		zgame.createNewGame(text);
+		// TODO give an option to manually enter a custom seed
+		zgame.createNewGame(text, new Random().nextLong());
 	}
 	
 }

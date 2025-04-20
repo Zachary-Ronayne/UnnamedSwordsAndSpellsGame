@@ -87,7 +87,7 @@ public class LevelDoor extends ZusassDoor{
 		// Generate the new room, then enter it
 		var levelRoom = new LevelRoom(this.getLevel());
 		this.setLeadRoom(levelRoom, 2, 1, 2);
-		levelRoom.initRandom();
+		levelRoom.initRandom(zgame);
 		boolean success = super.enterRoom(r, thing, game);
 		
 		// Update the highest level room the player has been in

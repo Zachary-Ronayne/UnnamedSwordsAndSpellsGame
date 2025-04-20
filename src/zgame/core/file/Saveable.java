@@ -155,6 +155,18 @@ public interface Saveable{
 	}
 	
 	/**
+	 * Load a long from the given json object
+	 *
+	 * @param key The name of the field in the json object
+	 * @param e The json element
+	 * @param d The default value to use if the value fails to load
+	 * @return The loaded value
+	 */
+	static long lo(String key, JsonElement e, long d){
+		return load(Long.class, key, e, d);
+	}
+	
+	/**
 	 * Load a boolean from the given json object
 	 *
 	 * @param key The name of the field in the json object
@@ -209,7 +221,7 @@ public interface Saveable{
 	 * @param clazz The type of object to load. This class must implement a constructor which accepts one JsonElement as it's parameter
 	 * @param key The name of the field in the json object
 	 * @param e The json element
-	 * @param d A function which provides the default value if the load fails. Can be null to return nul by default
+	 * @param d A function which provides the default value if the load fails. Can be null to return null by default
 	 * @return The loaded value, or the result of d if the load fails
 	 * @param <T> The type of clazz
 	 */

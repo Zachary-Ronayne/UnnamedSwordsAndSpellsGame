@@ -91,7 +91,7 @@ public class ZusassGame extends Game{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		// Initialize the base data object
-		this.setData(new ZusassData());
+		this.setData(new ZusassData(0));
 		
 		// TODO move sound management to a static singleton?
 		// Load sounds into the game
@@ -115,12 +115,13 @@ public class ZusassGame extends Game{
 	 * Make a new save file for a game
 	 *
 	 * @param name The name of the save file
+	 * @param seed The seed for the new game
 	 */
-	public void createNewGame(String name){
+	public void createNewGame(String name, long seed){
 		ZusassPlayer player = new ZusassPlayer();
 		this.setPlayer(player);
 		
-		ZusassData data = new ZusassData();
+		ZusassData data = new ZusassData(seed);
 		data.setLoadedFile(ZusassConfig.createSaveFilePath(name));
 		zgame.setData(data);
 		
