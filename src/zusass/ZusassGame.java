@@ -78,11 +78,22 @@ public class ZusassGame extends Game{
 		});
 		
 		// Loading assets
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Load fonts
 		this.getFonts().addAll();
+		
+		// Load textures
+		var im = this.getImages();
+		im.add("brickGrayscale");
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		// Initialize the base data object
 		this.setData(new ZusassData());
 		
+		// TODO move sound management to a static singleton?
 		// Load sounds into the game
 		this.initSound();
 		var sm = this.getSounds();

@@ -11,6 +11,7 @@ import zusass.game.things.LevelDoor;
 import zusass.game.things.SpellMakerThing;
 import zusass.game.things.ZusassTags;
 import zusass.game.things.entities.mobs.ZusassMob;
+import zusass.game.things.tiles.ZusassTiles;
 
 /** The {@link Room} which represents the main hub of the game, i.e. where the player can enter levels, make items, etc. */
 public class Hub extends ZusassRoom{
@@ -36,7 +37,7 @@ public class Hub extends ZusassRoom{
 		// Make a floor
 		for(int i = 0; i < X_TILES; i++){
 			for(int k = 0; k < Z_TILES; k++){
-				this.setTile(i, 0, k, (i % 2 == k % 2) ? BaseTiles3D.SOLID_DARK : BaseTiles3D.SOLID_LIGHT);
+				this.setTile(i, 0, k, ZusassTiles.GRAY_BRICK);
 			}
 		}
 		

@@ -72,15 +72,17 @@ public class Renderer implements Destroyable{
 	private final STBTTAlignedQuad textQuad;
 	
 	/** The shader used to draw basic shapes, i.e. solid colors */
-	private final ShaderProgram shapeShader;
+	private ShaderProgram shapeShader;
 	/** The shader used to draw textures, i.e. images */
-	private final ShaderProgram textureShader;
+	private ShaderProgram textureShader;
+	/** The shader used to draw textures, i.e. images, with a tint for the color. Textures sent to this shader are expected to be grayscale */
+	private ShaderProgram textureTintShader;
 	/** The shader used to draw font, i.e. text */
-	private final ShaderProgram fontShader;
+	private ShaderProgram fontShader;
 	/** The shader used to draw the frame buffer to the screen, as a texture */
-	private final ShaderProgram framebufferShader;
+	private ShaderProgram framebufferShader;
 	/** The shader used to draw 3D rectangles with colors */
-	private final ShaderProgram rect3DShader;
+	private ShaderProgram rect3DShader;
 	/** The shader which is currently used */
 	private ShaderProgram shader;
 	
@@ -285,12 +287,7 @@ public class Renderer implements Destroyable{
 		this.textQuad = STBTTAlignedQuad.create();
 		
 		// Load shaders
-		this.shapeShader = new ShaderProgram("default");
-		this.textureShader = new ShaderProgram("texture");
-		this.fontShader = new ShaderProgram("font");
-		this.framebufferShader = new ShaderProgram("framebuffer");
-		this.rect3DShader = new ShaderProgram("default3D");
-		this.renderModeImage();
+		this.initShaders();
 		
 		// Vertex arrays and vertex buffers
 		this.initVertexes();
@@ -299,6 +296,16 @@ public class Renderer implements Destroyable{
 		this.depthTestEnabled = false;
 		glDisable(GL_DEPTH_TEST);
 		this.setDepthTestEnabled(false);
+	}
+	
+	/** Initialize the state of all shaders, including loading them from a file */
+	public void initShaders(){
+		this.shapeShader = new ShaderProgram("default");
+		this.textureShader = new ShaderProgram("texture");
+		this.textureTintShader = new ShaderProgram("textureTint");
+		this.fontShader = new ShaderProgram("font");
+		this.framebufferShader = new ShaderProgram("framebuffer");
+		this.rect3DShader = new ShaderProgram("default3D");
 	}
 	
 	/** Initialize all resources used by index buffers, vertex arrays, and vertex buffers */
@@ -975,6 +982,11 @@ public class Renderer implements Destroyable{
 	/** Call this method before rendering images, i.e. textures */
 	public void renderModeImage(){
 		this.setShader(this.textureShader);
+	}
+	
+	/** Call this method before rendering images which will use {@link #getColor()} as a tint on a grayscale image */
+	public void renderModeImageTint(){
+		this.setShader(this.textureTintShader);
 	}
 	
 	/** Call this method before rendering font, i.e text */
@@ -1866,6 +1878,30 @@ public class Renderer implements Destroyable{
 	public boolean drawRectPrismTex(RectRender3D r, GameImage texture){
 		// Use the 3D texture shader and the 3D rect vertex array
 		this.renderModeImage();
+		return this.drawRectPrismTexWithoutShader(r, texture);
+	}
+	
+	/**
+	 * Draw a rectangular prism based on the given values with a tint from {@link #getColor()}
+	 *
+	 * @param r The position, scaling, and rotation information for rendering
+	 * @param texture The image to use for the texture
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawRectPrismTintedTex(RectRender3D r, GameImage texture){
+		// Use the 3D texture shader and the 3D rect vertex array
+		this.renderModeImageTint();
+		return this.drawRectPrismTexWithoutShader(r, texture);
+	}
+	
+	/**
+	 * Draw a rectangular prism based on the given values. This does not set the shader, the shader must be set before calling this method.
+	 *
+	 * @param r The position, scaling, and rotation information for rendering
+	 * @param texture The image to use for the texture
+	 * @return true if the object was drawn, false otherwise
+	 */
+	private boolean drawRectPrismTexWithoutShader(RectRender3D r, GameImage texture){
 		this.bindVertexArray(this.rect3DTexVertArr);
 		glBindTexture(GL_TEXTURE_2D, texture.getId());
 		updateAlphaMode(AlphaMode.NORMAL);

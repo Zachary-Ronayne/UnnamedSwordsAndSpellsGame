@@ -90,6 +90,15 @@ public class ZColor{
 		return new ZColor(this.red(), this.green(), this.blue(), a);
 	}
 	
+	/**
+	 * Make a new color multiplied by all color channels, but not alpha, of this color by the given factor
+	 * @param s The scale factor
+	 * @return The new color
+	 */
+	public ZColor scale(double s){
+		return new ZColor(this.red() * s, this.green() * s, this.blue() * s, this.alpha());
+	}
+	
 	/** @return An array of 4 elements containing the red, green, blue, and alpha values of this color, index 0, 1, 2, 3 respectively, as floats */
 	public float[] toFloat(){
 		return new float[]{(float)this.red(), (float)this.green(), (float)this.blue(), (float)this.alpha()};

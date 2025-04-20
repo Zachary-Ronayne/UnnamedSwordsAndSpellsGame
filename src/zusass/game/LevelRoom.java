@@ -18,7 +18,7 @@ import zgame.world.Room;
 import zusass.game.things.LevelDoor;
 import zusass.game.things.ZusassTags;
 import zusass.game.things.entities.mobs.Npc;
-import zusass.game.things.tiles.ZusassColorTiles;
+import zusass.game.things.tiles.ZusassTiles;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -45,10 +45,8 @@ public class LevelRoom extends ZusassRoom{
 	 */
 	private int level;
 	
-	/** The first color of the checkerboard pattern of this room */
-	private ZColor checker1;
-	/** The second color of the checkerboard pattern of this room */
-	private ZColor checker2;
+	/** The tint color for this room */
+	private ZColor levelTint;
 	
 	/** A buffer used for drawing the level of this room */
 	private DrawableBuffer3D levelTextBuffer;
@@ -78,9 +76,9 @@ public class LevelRoom extends ZusassRoom{
 	public void initRandom(){
 		// Set up the tiles
 		
+		// TODO make the tint color random based on save file seed and level number
 		// Everything is air by default
-		this.checker1 = new ZColor(0.2 + Math.random() * 0.5, 0.2 + Math.random() * 0.5, 0.2 + Math.random() * 0.5);
-		this.checker2 = new ZColor(checker1.red() * 0.5, checker1.green() * 0.5, checker1.blue() * 0.5);
+		this.levelTint = new ZColor(0.2 + Math.random() * 0.5, 0.2 + Math.random() * 0.5, 0.2 + Math.random() * 0.5);
 		for(int i = 0; i < X_TILES; i++){
 			for(int j = 0; j < Y_TILES; j++){
 				for(int k = 0; k < Z_TILES; k++){
@@ -88,29 +86,29 @@ public class LevelRoom extends ZusassRoom{
 				}
 			}
 		}
-		ZusassColorTiles.setColors(this.checker1, this.checker2);
+		ZusassTiles.setLevelTint(this.levelTint);
 		
 		// Make a floor and ceiling
 		for(int i = 0; i < X_TILES; i++){
 			for(int k = 0; k < Z_TILES; k++){
-				this.setTile(i, 0, k, (i % 2 == 0) == (k % 2 == 0) ? ZusassColorTiles.BACK_COLOR : ZusassColorTiles.BACK_COLOR_DARK);
-				this.setTile(i, Y_TILES - 1, k, (i % 2 == 0) != (k % 2 == 0) ? ZusassColorTiles.BACK_COLOR : ZusassColorTiles.BACK_COLOR_DARK);
+				this.setTile(i, 0, k, ZusassTiles.LEVEL_FLOOR_COLOR);
+				this.setTile(i, Y_TILES - 1, k, ZusassTiles.LEVEL_CEILING_COLOR);
 			}
 		}
 		
 		// Make east/west walls
 		for(int i = 0; i < X_TILES; i++){
 			for(int j = 0; j < Y_TILES; j++){
-				this.setTile(i, j, 0, (i % 2 == 0) != (j % 2 == 0) ? ZusassColorTiles.BACK_COLOR : ZusassColorTiles.BACK_COLOR_DARK);
-				this.setTile(i, j, Z_TILES - 1, (i % 2 == 0) == (j % 2 == 0) ? ZusassColorTiles.BACK_COLOR : ZusassColorTiles.BACK_COLOR_DARK);
+				this.setTile(i, j, 0, ZusassTiles.LEVEL_WALL_COLOR);
+				this.setTile(i, j, Z_TILES - 1, ZusassTiles.LEVEL_WALL_COLOR);
 			}
 		}
 		
 		// Make north/south walls
 		for(int i = 0; i < Z_TILES; i++){
 			for(int j = 0; j < Y_TILES; j++){
-				this.setTile(0, j, i, (i % 2 == 0) != (j % 2 == 0) ? ZusassColorTiles.BACK_COLOR : ZusassColorTiles.BACK_COLOR_DARK);
-				this.setTile(X_TILES - 1, j, i, (i % 2 == 0) == (j % 2 == 0) ? ZusassColorTiles.BACK_COLOR : ZusassColorTiles.BACK_COLOR_DARK);
+				this.setTile(0, j, i, ZusassTiles.LEVEL_WALL_COLOR);
+				this.setTile(X_TILES - 1, j, i, ZusassTiles.LEVEL_WALL_COLOR);
 			}
 		}
 		
@@ -119,8 +117,8 @@ public class LevelRoom extends ZusassRoom{
 		this.addThing(levelDoor);
 		
 		// Put tiles in front of the door, mostly for testing
-		this.setTile(X_TILES - 3, 1, Z_TILES - 3, BaseTiles3D.SOLID_DARK);
-		this.setTile(X_TILES - 3, 2, Z_TILES - 4, BaseTiles3D.SOLID_LIGHT);
+		this.setTile(X_TILES - 3, 1, Z_TILES - 3, ZusassTiles.GRAY_BRICK);
+		this.setTile(X_TILES - 3, 2, Z_TILES - 4, ZusassTiles.GRAY_BRICK);
 		
 		// issue#25 if this is changed to add hundreds of enemies, the TPS tanks while not using all the computer's resources. Probably need to make tick looper account for time spent rendering
 		// Add enemies

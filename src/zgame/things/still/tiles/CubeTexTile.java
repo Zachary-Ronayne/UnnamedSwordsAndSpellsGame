@@ -3,6 +3,8 @@ package zgame.things.still.tiles;
 import zgame.core.Game;
 import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
+import zgame.core.graphics.image.GameImage;
 import zgame.physics.material.Material;
 
 /** A simple tile which has a constant material */
@@ -13,6 +15,9 @@ public class CubeTexTile extends TileType3D{
 	
 	/** The file name where the texture of this tile comes from */
 	private final String fileName;
+	
+	/** The color used to render tiles be default, only opacity is relevant */
+	private static final ZColor DEFAULT_COLOR = new ZColor(1, 1, 1, 1);
 	
 	/**
 	 * Create a new {@link CubeTexTile} using the given data
@@ -39,13 +44,28 @@ public class CubeTexTile extends TileType3D{
 		return this.material;
 	}
 	
+	/** @return By default returns see {@link #DEFAULT_COLOR}, override to use a custom color */
+	public ZColor getColor(){
+		return DEFAULT_COLOR;
+	}
+	
 	@Override
 	public void render(Tile3D t, Game g, Renderer r){
+		r.setColor(this.getColor());
+		this.renderTile(new RectRender3D(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength()), g.getImage(this.getFileName()), r);
+	}
+	
+	/**
+	 * Draw the given bounds of a tile as a cube, can override for custom rendering
+	 * @param rect The bounds to render
+	 * @param image The image for rendering the bounds
+	 * @param r The renderer to use for drawing
+	 */
+	protected void renderTile(RectRender3D rect, GameImage image, Renderer r){
 		// issue#46 render tiles with transparency properly, in this scenario textured ones, maybe this as is, is good enough, just only render them if they are fully opaque
 		
 		// issue#47 render with ambient occlusion or at least some similar effect to make every face not the same color
 		// issue#48 only render the necessary faces
-		r.setColor(1, 1, 1, 1);
-		r.drawRectPrismTex(new RectRender3D(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength()), g.getImage(this.getFileName()));
+		r.drawRectPrismTex(rect, image);
 	}
 }

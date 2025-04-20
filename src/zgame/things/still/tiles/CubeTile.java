@@ -12,6 +12,7 @@ public class CubeTile extends TileType3D{
 	/** The {@link Material} of this {@link CubeTile} */
 	private final Material material;
 	
+	// TODO make this not need a color for all tiles, only color tiles should need a color
 	/** The initial color to use for rendering this tile before any modifications */
 	private ZColor baseColor;
 	
@@ -21,7 +22,6 @@ public class CubeTile extends TileType3D{
 	 * @param id See {@link #getId()}
 	 * @param origin See {@link #getOrigin()}
 	 * @param hitbox See {@link #getHitbox()}
-	 * @param baseColor See {@link #baseColor}
 	 * @param material See {@link #material}
 	 */
 	public CubeTile(String id, String origin, TileHitbox3D hitbox, ZColor baseColor, Material material){
@@ -55,6 +55,7 @@ public class CubeTile extends TileType3D{
 		
 		// issue#48 only render the necessary faces
 		
+		// TODO make this an abstract method where implementations decide how to render the tile
 		r.drawRectPrism(new RectRender3D(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength()), c, c, c, c, c, c);
 	}
 }
