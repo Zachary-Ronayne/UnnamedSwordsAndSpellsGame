@@ -53,6 +53,8 @@ public class Renderer implements Destroyable{
 	public static final Boolean DEFAULT_RENDER_ONLY_INSIDE = true;
 	/** Default value for {@link #limitedBoundsStack}. null means no limit */
 	public static final ZRect2D DEFAULT_LIMITED_BOUNDS = null;
+	/** Default value for {@link #shaderStack}. null means use the preferred shader of a method */
+	public static final ShaderProgram DEFAULT_SHADER = null;
 	
 	/** true if the bounds should never be limited, false otherwise. Should always be false, unless debugging graphics */
 	public static final boolean DISABLE_LIMITING_BOUNDS = false;
@@ -83,8 +85,10 @@ public class Renderer implements Destroyable{
 	private ShaderProgram framebufferShader;
 	/** The shader used to draw 3D rectangles with colors */
 	private ShaderProgram rect3DShader;
-	/** The shader which is currently used */
-	private ShaderProgram shader;
+	/** A stack holding which shader is currently in use. If no shader is set in the stack, respective methods will use their default shaders */
+	private final LimitedStack<ShaderProgram> shaderStack;
+	/** The shader which was last bound */
+	private ShaderProgram lastShader;
 	
 	/** The {@link VertexArray} for drawing plain rectangles */
 	private VertexArray rectVertArr;
@@ -279,6 +283,7 @@ public class Renderer implements Destroyable{
 		// Limited bounds stack, rendering is unbounded by default
 		this.limitedBoundsStack = new LimitedStack<>(DEFAULT_LIMITED_BOUNDS);
 		this.stacks.add(this.limitedBoundsStack);
+		this.attributeStacks.add(this.limitedBoundsStack);
 		this.updateLimitedBounds();
 		
 		// Text rendering buffers
@@ -288,6 +293,10 @@ public class Renderer implements Destroyable{
 		
 		// Load shaders
 		this.initShaders();
+		this.shaderStack = new LimitedStack<>(DEFAULT_SHADER);
+		this.stacks.add(this.shaderStack);
+		this.attributeStacks.add(this.shaderStack);
+		this.useShader(this.shapeShader);
 		
 		// Vertex arrays and vertex buffers
 		this.initVertexes();
@@ -751,7 +760,7 @@ public class Renderer implements Destroyable{
 		
 		// Send the model view to the GPU
 		this.modelView().get(this.modelViewBuff);
-		int loc = glGetUniformLocation(this.shader.getId(), "modelView");
+		int loc = glGetUniformLocation(this.lastShader.getId(), "modelView");
 		glUniformMatrix4fv(loc, false, this.modelViewBuff);
 	}
 	
@@ -766,7 +775,7 @@ public class Renderer implements Destroyable{
 		this.lastColor = col;
 		
 		float[] c = col.toFloat();
-		int loc = glGetUniformLocation(this.shader.getId(), "mainColor");
+		int loc = glGetUniformLocation(this.lastShader.getId(), "mainColor");
 		if(loc != -1) glUniform4fv(loc, c);
 	}
 	
@@ -974,46 +983,82 @@ public class Renderer implements Destroyable{
 		return this.positioningEnabledStack;
 	}
 	
-	/** Call this method before rendering normal shapes, i.e. solid rectangles */
-	public void renderModeShapes(){
-		this.setShader(this.shapeShader);
-	}
-	
-	/** Call this method before rendering images, i.e. textures */
-	public void renderModeImage(){
-		this.setShader(this.textureShader);
-	}
-	
-	/** Call this method before rendering images which will use {@link #getColor()} as a tint on a grayscale image */
-	public void renderModeImageTint(){
-		this.setShader(this.textureTintShader);
-	}
-	
-	/** Call this method before rendering font, i.e text */
-	public void renderModeFont(){
-		this.setShader(this.fontShader);
-	}
-	
-	/** Call this method before rendering a frame buffer in place of a texture */
-	public void renderModeBuffer(){
-		this.setShader(this.framebufferShader);
-	}
-	
-	/** Call this method before rendering a rect 3D object */
-	public void renderModeRect3D(){
-		this.setShader(this.rect3DShader);
+	/**
+	 * If no shader in the stack is currently overriding behavior, force the given shader to be used.
+	 * If there is a shader in the shader stack and it is not current in use, use it
+	 * Should call this before each rendering operation to ensure a default shader is used.
+	 *
+	 * @param shader The shader to use
+	 */
+	private void checkDefaultShader(ShaderProgram shader){
+		var currentShader = this.shaderStack.peek();
+		if(currentShader != null) {
+			if(currentShader != this.lastShader) this.useShader(currentShader);
+			return;
+		}
+		this.useShader(shader);
 	}
 	
 	/**
-	 * Set the currently used shader
+	 * Push the given shader on the top of the shader stack and assign it for use the currently used shader
 	 *
-	 * @param shader The shader to use.
+	 * @param shader The shader to use
 	 */
-	private void setShader(ShaderProgram shader){
-		if(this.shader == shader) return;
+	public void pushShader(ShaderProgram shader){
+		this.shaderStack.push(shader);
+		this.useShader(shader);
+	}
+	
+	/**
+	 * Force this renderer to use the given shader and do not interact with {@link #shaderStack}.
+	 * Does nothing if the given shader is already in use
+	 *
+	 * @param shader The shader to use
+	 */
+	private void useShader(ShaderProgram shader){
+		if(this.lastShader == shader) return;
 		this.markGpuSend();
+		this.lastShader = shader;
 		shader.use();
-		this.shader = shader;
+	}
+	
+	/** Override the default shader for all drawing operations with {@link #shapeShader}, must call {@link #popShader()} once rendering with the custom shader is done */
+	public void pushShapeShader(){
+		this.pushShader(this.shapeShader);
+	}
+	
+	/** Override the default shader for all drawing operations with {@link #textureShader}, must call {@link #popShader()} once rendering with the custom shader is done */
+	public void pushTextureShader(){
+		this.pushShader(this.textureShader);
+	}
+	
+	/** Override the default shader for all drawing operations with {@link #textureTintShader}, must call {@link #popShader()} once rendering with the custom shader is done */
+	public void pushTextureTintShader(){
+		this.pushShader(this.textureTintShader);
+	}
+	
+	/** Override the default shader for all drawing operations with {@link #fontShader}, must call {@link #popShader()} once rendering with the custom shader is done */
+	public void pushFontShader(){
+		this.pushShader(this.fontShader);
+	}
+	
+	/** Override the default shader for all drawing operations with {@link #framebufferShader}, must call {@link #popShader()} once rendering with the custom shader is done */
+	public void pushFramebufferShader(){
+		this.pushShader(this.framebufferShader);
+	}
+	
+	/** Override the default shader for all drawing operations with {@link #rect3DShader}, must call {@link #popShader()} once rendering with the custom shader is done */
+	public void pushRect3DShader(){
+		this.pushShader(this.rect3DShader);
+	}
+	
+	/**
+	 * Take the current shader off the stack
+	 *
+	 * @return The shader which was removed, or null if none could be removed
+	 */
+	public ShaderProgram popShader(){
+		return this.shaderStack.pop();
 	}
 	
 	/**
@@ -1025,21 +1070,17 @@ public class Renderer implements Destroyable{
 		this.getBuffer().setViewport();
 		// Load the identity matrix before setting a default shader
 		this.identityMatrix();
-		// Bind a default shader
-		this.shader = null;
-		this.setShader(this.shapeShader);
 	}
 	
 	/**
 	 * Draw the contents of {@link #bufferStack} to the given {@link GameWindow}.
-	 * This method will leave this {@link Renderer} in the state for drawing buffers, i.e. {@link #renderModeBuffer()} is called.
 	 * Additionally, this method will make all further drawing operations occur directly on the given {@link GameWindow}
 	 *
 	 * @param window The window to draw to
 	 */
 	public void drawToWindow(GameWindow window){
 		// Set the current shader for drawing a frame buffer
-		this.renderModeBuffer();
+		this.checkDefaultShader(this.framebufferShader);
 		AlphaMode.NORMAL.use();
 		this.pushColor(this.getColor().solid());
 		this.pushMatrix();
@@ -1340,7 +1381,7 @@ public class Renderer implements Destroyable{
 		if(!this.shouldDraw(x, y, w, h)) return false;
 		
 		// Use the shape shader and the rectangle vertex array
-		this.renderModeShapes();
+		this.checkDefaultShader(this.shapeShader);
 		this.bindVertexArray(rectVertArr);
 		
 		this.pushMatrix();
@@ -1394,7 +1435,7 @@ public class Renderer implements Destroyable{
 		if(!this.shouldDraw(x, y, w, h)) return false;
 		
 		// Use the shape shader and the rectangle vertex array
-		this.renderModeShapes();
+		this.checkDefaultShader(this.shapeShader);
 		this.bindVertexArray(ellipseVertArr);
 		
 		this.pushMatrix();
@@ -1447,7 +1488,7 @@ public class Renderer implements Destroyable{
 	 */
 	public boolean drawBuffer(double x, double y, double w, double h, GameBuffer b, AlphaMode mode){
 		if(!this.shouldDraw(x, y, w, h)) return false;
-		this.renderModeBuffer();
+		this.checkDefaultShader(this.framebufferShader);
 		return this.drawTexture(x, y, w, h, b.getTextureID(), mode);
 	}
 	
@@ -1481,7 +1522,8 @@ public class Renderer implements Destroyable{
 	 */
 	public boolean drawImage(double x, double y, double w, double h, GameImage img, AlphaMode mode){
 		if(!this.shouldDraw(x, y, w, h)) return false;
-		this.renderModeImage();
+		
+		this.checkDefaultShader(this.textureShader);
 		return this.drawTexture(x, y, w, h, img.getId(), mode);
 	}
 	
@@ -1688,7 +1730,7 @@ public class Renderer implements Destroyable{
 		
 		// Mark the drawing bounds
 		// Use the font shaders
-		this.renderModeFont();
+		this.checkDefaultShader(this.fontShader);
 		// Use the font vertex array
 		this.bindVertexArray(textVertArr);
 		
@@ -1806,7 +1848,7 @@ public class Renderer implements Destroyable{
 	
 	/** Fill the screen with the current color, regardless of camera position */
 	public void fill(){
-		this.renderModeShapes();
+		this.checkDefaultShader(this.shapeShader);
 		this.bindVertexArray(rectVertArr);
 		
 		this.pushMatrix();
@@ -1835,7 +1877,7 @@ public class Renderer implements Destroyable{
 	 */
 	public boolean drawRectPrism(RectRender3D r, ZColor front, ZColor back, ZColor left, ZColor right, ZColor top, ZColor bot){
 		// Use the 3D color shader and the 3D rect vertex array
-		this.renderModeRect3D();
+		this.checkDefaultShader(this.rect3DShader);
 		this.bindVertexArray(rect3DVertArr);
 		
 		// Position the 3D rect
@@ -1869,39 +1911,15 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
-	 * Draw a rectangular prism based on the given values
-	 *
-	 * @param r The position, scaling, and rotation information for rendering
-	 * @param texture The image to use for the texture
-	 * @return true if the object was drawn, false otherwise
-	 */
-	public boolean drawRectPrismTex(RectRender3D r, GameImage texture){
-		// Use the 3D texture shader and the 3D rect vertex array
-		this.renderModeImage();
-		return this.drawRectPrismTexWithoutShader(r, texture);
-	}
-	
-	/**
-	 * Draw a rectangular prism based on the given values with a tint from {@link #getColor()}
-	 *
-	 * @param r The position, scaling, and rotation information for rendering
-	 * @param texture The image to use for the texture
-	 * @return true if the object was drawn, false otherwise
-	 */
-	public boolean drawRectPrismTintedTex(RectRender3D r, GameImage texture){
-		// Use the 3D texture shader and the 3D rect vertex array
-		this.renderModeImageTint();
-		return this.drawRectPrismTexWithoutShader(r, texture);
-	}
-	
-	/**
 	 * Draw a rectangular prism based on the given values. This does not set the shader, the shader must be set before calling this method.
 	 *
 	 * @param r The position, scaling, and rotation information for rendering
 	 * @param texture The image to use for the texture
 	 * @return true if the object was drawn, false otherwise
 	 */
-	private boolean drawRectPrismTexWithoutShader(RectRender3D r, GameImage texture){
+	public boolean drawRectPrismTex(RectRender3D r, GameImage texture){
+		this.checkDefaultShader(this.textureShader);
+		
 		this.bindVertexArray(this.rect3DTexVertArr);
 		glBindTexture(GL_TEXTURE_2D, texture.getId());
 		updateAlphaMode(AlphaMode.NORMAL);
@@ -1932,7 +1950,7 @@ public class Renderer implements Destroyable{
 	 */
 	public boolean drawSphere(double x, double y, double z, double radius){
 		// Use the 3D color shader
-		this.renderModeShapes();
+		this.checkDefaultShader(this.shapeShader);
 		this.bindVertexArray(sphereVertArr);
 		
 		// Position the plane
@@ -2073,7 +2091,7 @@ public class Renderer implements Destroyable{
 	 */
 	public boolean drawPlane(double x, double y, double z, double w, double l, double xRot, double yRot, double zRot, double xA, double yA, double zA){
 		// Use the 3D color shader and the 3D rect vertex array
-		this.renderModeShapes();
+		this.checkDefaultShader(this.shapeShader);
 		this.bindVertexArray(planeVertArr);
 		
 		// Position the plane
@@ -2113,7 +2131,7 @@ public class Renderer implements Destroyable{
 								   double xRot, double yRot, double zRot, double xA, double yA, double zA, boolean axisRotation,
 								   int tex){
 		// Use the 3D buffer shader and the 3D plate vertex array
-		this.renderModeBuffer();
+		this.checkDefaultShader(this.framebufferShader);
 		this.bindVertexArray(planeTexVertArr);
 		
 		glBindTexture(GL_TEXTURE_2D, tex);
@@ -2134,7 +2152,6 @@ public class Renderer implements Destroyable{
 		return true;
 	}
 	
-	
 	/**
 	 * Draw an ellipse in 3D, of the current color of this Renderer, at the specified location. All values are in game coordinates
 	 * Coordinate types depend on {@link #positioningEnabledStack}
@@ -2150,7 +2167,7 @@ public class Renderer implements Destroyable{
 	 */
 	public boolean drawEllipse3D(double x, double y, double z, double w, double l){
 		// Use the shape shader and the rectangle vertex array
-		this.renderModeShapes();
+		this.checkDefaultShader(this.shapeShader);
 		this.bindVertexArray(ellipse3DVertArr);
 		
 		this.pushMatrix();

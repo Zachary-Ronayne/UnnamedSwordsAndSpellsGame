@@ -34,7 +34,9 @@ public class CubeTexTintTile extends CubeTexTile{
 	
 	@Override
 	protected void renderTile(RectRender3D rect, GameImage image, Renderer r){
-		r.drawRectPrismTintedTex(rect, image);
+		r.pushTextureTintShader();
+		r.drawRectPrismTex(rect, image);
+		r.popShader();
 	}
 	
 	/** @param tint See {@link #tint} */
