@@ -23,7 +23,7 @@ import zusass.game.status.StatEffect;
 import zusass.menu.ZusassMenu;
 import zusass.menu.comp.ZusassButton;
 import zusass.menu.comp.ZusassMenuText;
-import zusass.menu.mainmenu.comp.newgamemenu.ZusassTextBox;
+import zusass.menu.comp.ZusassTextBox;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -13,7 +13,7 @@ public class CancelGameButton extends ZusassButton{
 	 * @param zgame The Zusass game used by this thing
 	 */
 	public CancelGameButton(ZusassGame zgame){
-		super(720, 460, 200, 50, "Cancel", zgame);
+		super(0, 550, 200, 50, "Cancel", zgame);
 	}
 	
 	@Override

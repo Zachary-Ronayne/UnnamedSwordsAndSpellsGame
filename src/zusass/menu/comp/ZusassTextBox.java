@@ -1,8 +1,7 @@
-package zusass.menu.mainmenu.comp.newgamemenu;
+package zusass.menu.comp;
 
 import zgame.menu.MenuTextBox;
 import zusass.ZusassGame;
-import zusass.menu.comp.ZusassStyle;
 
 /** A {@link MenuTextBox} used by the Zusass game */
 public class ZusassTextBox extends MenuTextBox{

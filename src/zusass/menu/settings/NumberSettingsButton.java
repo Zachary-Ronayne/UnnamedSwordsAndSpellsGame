@@ -4,7 +4,7 @@ import zgame.core.Game;
 import zgame.menu.scroller.HorizontalSelectionScroller;
 import zgame.settings.SettingType;
 import zusass.ZusassGame;
-import zusass.menu.mainmenu.comp.newgamemenu.ZusassTextBox;
+import zusass.menu.comp.ZusassTextBox;
 
 /**
  * A button for selecting a number setting

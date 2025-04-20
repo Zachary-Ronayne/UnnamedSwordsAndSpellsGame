@@ -9,26 +9,43 @@ import java.util.Random;
 /** The button used to confirm to create a new game */
 public class CreateGameButton extends ZusassButton{
 	
-	/** The {@link NewGameTextBox} associated with this {@link CreateGameButton} */
-	private final NewGameTextBox textBox;
+	/** The {@link NewGamePopup} associated with this {@link CreateGameButton} */
+	private final NewGamePopup popup;
 	
 	/**
 	 * Initialize the {@link CreateGameButton}
-	 * 
+	 *
+	 * @param popup See {@link #popup}
 	 * @param zgame The Zusass game used by this thing
 	 */
-	public CreateGameButton(NewGameTextBox textBox, ZusassGame zgame){
-		super(500, 460, 200, 50, "Create", zgame);
-		this.textBox = textBox;
+	public CreateGameButton(NewGamePopup popup, ZusassGame zgame){
+		super(0, 550, 200, 50, "Create", zgame);
+		this.popup = popup;
 	}
 	
 	@Override
 	public void click(Game game){
-		String text = this.textBox.getText();
-		if(text == null || text.isEmpty()) return;
-		ZusassGame zgame = (ZusassGame)game;
-		// TODO give an option to manually enter a custom seed
-		zgame.createNewGame(text, new Random().nextLong());
+		var levelName = this.popup.getLevelNameText();
+		if(levelName == null || levelName.isEmpty()) return;
+		var zgame = (ZusassGame)game;
+		
+		var seedString = this.popup.getSeed();
+		long seed;
+		// Random seed if none is provided
+		if(seedString == null || seedString.isEmpty()) seed = new Random().nextLong();
+		else {
+			// If a parsable long value is input, use that, otherwise, make a seed based on the string's bytes
+			try{
+				seed = Long.parseLong(seedString);
+			}catch(NumberFormatException e){
+				seed = 1;
+				var bytes = seedString.getBytes();
+				// Arbitrary hash like function
+				for(int i = 0; i < bytes.length; i++) seed = seed * 31 + (257 + bytes[i]);
+			}
+		}
+		
+		zgame.createNewGame(levelName, seed);
 	}
 	
 }

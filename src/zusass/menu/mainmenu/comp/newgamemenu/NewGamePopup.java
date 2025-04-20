@@ -15,6 +15,12 @@ public class NewGamePopup extends Menu{
 	
 	/** The button used to create a new game */
 	private final ZusassButton createButton;
+	
+	/** The text box for entering the level name */
+	private final NewGameTextBox newGameTextBox;
+	
+	/** The text box for entering the seed */
+	private final SeedTextBox seedTextBox;
 
 	/**
 	 * Initialize the {@link NewGamePopup}
@@ -29,20 +35,35 @@ public class NewGamePopup extends Menu{
 		this.setFill(new ZColor(0, .7));
 		this.setBorder(new ZColor(0, 0));
 		
-		NewGameTextBox textBox = new NewGameTextBox(zgame, this);
-		this.addThing(textBox);
-		textBox.centerHorizontal();
+		this.newGameTextBox = new NewGameTextBox(zgame, this);
+		this.addThing(this.newGameTextBox);
+		this.newGameTextBox.centerHorizontal();
 		
-		this.createButton = new CreateGameButton(textBox, zgame);
-		this.createButton.centerHorizontal();
-		this.createButton.moveX(-(this.createButton.getWidth() * .5) + 20);
-		this.createButton.disable();
+		var seedLabel = new ZusassMenuText(100, 410, 430, 35, "Leave blank for random seed", zgame);
+		seedLabel.setFontSize(30);
+		this.addThing(seedLabel);
+		seedLabel.centerHorizontal();
+		seedLabel.setFullColor(seedLabel.getFill().alpha(0.2));
+		// TODO why does the font look transparent unless explicitly set here?
+		seedLabel.setFontColor(new ZColor(0.5));
+		seedLabel.setBorderWidth(0);
+		seedLabel.centerText();
+		seedLabel.setTextY(seedLabel.getTextY() - 6);
+		
+		this.seedTextBox = new SeedTextBox(zgame);
+		this.addThing(this.seedTextBox);
+		this.seedTextBox.centerHorizontal();
+		
+		this.createButton = new CreateGameButton(this, zgame);
 		this.addThing(this.createButton);
+		this.createButton.centerHorizontal();
+		this.createButton.moveX(-(this.createButton.getWidth() * .5) - 20);
+		this.createButton.disable();
 		
-		ZusassButton cancel = new CancelGameButton(zgame);
-		this.addThing(cancel);
-		cancel.centerHorizontal();
-		cancel.moveX(cancel.getWidth() * .5 + 10);
+		var cancelButton = new CancelGameButton(zgame);
+		this.addThing(cancelButton);
+		cancelButton.centerHorizontal();
+		cancelButton.moveX(cancelButton.getWidth() * .5 + 20);
 		
 		ZusassMenuText title = new ZusassMenuText(100, 100, 600, 100, "Create new Game", zgame);
 		this.addThing(title);
@@ -67,6 +88,16 @@ public class NewGamePopup extends Menu{
 		if(press) return;
 		if(button == GLFW_KEY_ESCAPE) game.getCurrentState().removeTopMenu(game);
 		else if(button == GLFW_KEY_ENTER) createButton.click(game);
+	}
+	
+	/** @return The text currently entered for the level name */
+	public String getLevelNameText(){
+		return this.newGameTextBox.getCurrentText();
+	}
+	
+	/** @return The text currently entered for the new seed, can be null or empty for a random seed */
+	public String getSeed(){
+		return this.seedTextBox.getCurrentText();
 	}
 	
 }

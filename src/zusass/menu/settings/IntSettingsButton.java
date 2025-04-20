@@ -2,7 +2,7 @@ package zusass.menu.settings;
 
 import zgame.settings.IntTypeSetting;
 import zusass.ZusassGame;
-import zusass.menu.mainmenu.comp.newgamemenu.ZusassTextBox;
+import zusass.menu.comp.ZusassTextBox;
 
 /** A button for selecting an integer setting */
 public class IntSettingsButton extends NumberSettingsButton<Integer>{

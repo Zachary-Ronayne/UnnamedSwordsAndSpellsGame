@@ -3,7 +3,7 @@ package zusass.menu.settings;
 import zgame.core.Game;
 import zgame.settings.StringTypeSetting;
 import zusass.ZusassGame;
-import zusass.menu.mainmenu.comp.newgamemenu.ZusassTextBox;
+import zusass.menu.comp.ZusassTextBox;
 
 /** A toggle button used for modifying boolean settings */
 public class StringSettingsButton extends ZusassTextBox implements ValueSettingsButton{
