@@ -211,13 +211,18 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 		this.setZ(this.getZ() + z);
 	}
 	
+	/** @return The height from the bottom of this entity where it should be able to "see" from, height of the entity by default */
+	public double getEyeHeight(){
+		return this.getHeight();
+	}
+	
 	/**
 	 * Set the position of this camera to the top center of this thing
 	 * @param camera The camera to set
 	 */
 	public void updateCameraPos(GameCamera3D camera){
 		camera.setX(this.getX());
-		camera.setY(this.getY() + this.getHeight());
+		camera.setY(this.getY() + this.getEyeHeight());
 		camera.setZ(this.getZ());
 	}
 	

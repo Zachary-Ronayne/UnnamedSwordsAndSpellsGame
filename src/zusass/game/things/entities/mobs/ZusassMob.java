@@ -523,6 +523,11 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	}
 	
 	@Override
+	public double getEyeHeight(){
+		return this.getHeight() * 0.8;
+	}
+	
+	@Override
 	public double getClickX(){
 		return this.getX();
 	}

@@ -53,7 +53,7 @@ public class ZusassPlayer extends ZusassMob{
 	
 	/** Create a new default {@link ZusassPlayer} */
 	public ZusassPlayer(){
-		super(0, 0, 0, 0.15, 0.5);
+		super(0, 0, 0, 0.2, 0.7);
 		this.casting = false;
 		this.firstPerson = true;
 		
