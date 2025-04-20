@@ -2106,9 +2106,12 @@ public class Renderer implements Destroyable{
 	 * @param yA The point, relative to the point to position this object, to rotate on the y axis
 	 * @param zA The point, relative to the point to position this object, to rotate on the z axis
 	 * @param tex The texture id used by the buffer to draw
+	 * @param axisRotation True if the rotations are axis rotations, false for yaw, pitch, roll
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawPlaneBuffer(double x, double y, double z, double w, double l, double xRot, double yRot, double zRot, double xA, double yA, double zA, int tex){
+	public boolean drawPlaneBuffer(double x, double y, double z, double w, double l,
+								   double xRot, double yRot, double zRot, double xA, double yA, double zA, boolean axisRotation,
+								   int tex){
 		// Use the 3D buffer shader and the 3D plate vertex array
 		this.renderModeBuffer();
 		this.bindVertexArray(planeTexVertArr);
@@ -2118,7 +2121,7 @@ public class Renderer implements Destroyable{
 		
 		// Position the plane
 		this.pushMatrix();
-		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, xA, yA, zA, true);
+		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, xA, yA, zA, axisRotation);
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuColor();

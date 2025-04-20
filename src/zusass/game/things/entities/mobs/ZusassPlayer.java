@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.GameInteractable;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.input.InputHandler;
 import zgame.core.input.InputHandlers;
@@ -172,11 +173,16 @@ public class ZusassPlayer extends ZusassMob{
 	
 	@Override
 	public void render(Game game, Renderer r){
-		// Temporary simple rendering
-		r.setColor(0, 0.2, 0.5);
-		r.drawSidePlaneX(this.getX(), this.getY(), this.getZ(), this.getWidth(), this.getHeight(), this.getMobilityData().getFacingYaw() - ZMath.PI_BY_2);
-		
+		r.setColor(new ZColor(0.5));
 		this.renderAttackTimer(game, r);
+		
+		// Billboard rendering of the player
+		// TODO make this rendering easier to define
+		r.drawPlaneBuffer(
+				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(),
+				this.getWidth(), this.getHeight(),
+				-this.getMobilityData().getFacingYaw() + ZMath.PI_BY_2, -ZMath.PI_BY_2, 0, 0, 0, 0, false,
+				game.getImage("zusassPlayer").getId());
 	}
 	
 	@Override

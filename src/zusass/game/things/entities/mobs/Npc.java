@@ -96,11 +96,19 @@ public class Npc extends ZusassMob{
 	
 	@Override
 	protected void render(Game game, Renderer r){
+		// Draw an attack timer
+		r.setColor(0, 0.7, 0);
+		this.renderAttackTimer(game, r);
+		
 		double facingAngle = this.getMobilityData().getFacingYaw() + ZMath.PI_BY_2;
 		
-		// Temporary simple rendering
-		r.setColor(0.5, 0, 0);
-		r.drawSidePlaneX(this.getX(), this.getY(), this.getZ(), this.getWidth(), this.getHeight(), facingAngle);
+		// Render a billboard texture
+		// TODO make this rendering easier to define
+		r.drawPlaneBuffer(
+				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(),
+				this.getWidth(), this.getHeight(),
+				-facingAngle, -ZMath.PI_BY_2, 0, 0, 0, 0, false,
+				game.getImage("goblin").getId());
 		
 		// issue#23 make a way of drawing a health bar above the mob, accounting for how this health bar will not be a part of the mob itself, but above it
 		
@@ -116,10 +124,6 @@ public class Npc extends ZusassMob{
 		r.drawSidePlaneX(this.getX(), this.getY() + this.getHeight() + 0.05, this.getZ(), this.getWidth() * 1.2 * this.currentStaminaPerc(), 0.03, facingAngle);
 		r.setColor(0, 0, 1);
 		r.drawSidePlaneX(this.getX(), this.getY() + this.getHeight() + 0.01, this.getZ(), this.getWidth() * 1.2 * this.currentManaPerc(), 0.03, facingAngle);
-		
-		// Draw an attack timer
-		r.setColor(.7, 0, 0);
-		this.renderAttackTimer(game, r);
 	}
 	
 }

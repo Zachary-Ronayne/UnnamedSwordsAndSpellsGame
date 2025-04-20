@@ -87,6 +87,8 @@ public class ZusassGame extends Game{
 		// Load textures
 		var im = this.getImages();
 		im.add("brickGrayscale");
+		im.add("goblin");
+		im.add("zusassPlayer");
 		
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		

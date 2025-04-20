@@ -68,11 +68,12 @@ public class DrawableBuffer3D implements Destroyable{
 		}
 		r.pushColor();
 		r.setColor(0, 0, 0, this.getOpacity());
+		// TODO make this not need to specify axis rotation every time
 		r.drawPlaneBuffer(
 				this.getX(), this.getY(), this.getZ(),
 				this.getWidth(), this.getLength(),
 				// Not sure why the z rotation needs to be modified like this to display correctly, probably the weird coordinate system I'm using
-				this.getRotX(), this.getRotY(), -this.getRotZ() + ZMath.PI_BY_2, 0, 0, 0,
+				this.getRotX(), this.getRotY(), -this.getRotZ() + ZMath.PI_BY_2, 0, 0, 0, true,
 				this.buffer.getTextureID());
 		r.popColor();
 	}
