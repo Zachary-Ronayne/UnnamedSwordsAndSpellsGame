@@ -168,9 +168,9 @@ public class MainPlay extends PlayState{
 		// Draw a basic health bar
 		ZusassPlayer p = zgame.getPlayer();
 		if(p == null) return;
-		this.drawResourceBar(r, p, ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, 0, new ZColor(1, 0, 0), new ZColor(1));
-		this.drawResourceBar(r, p, ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, 1, new ZColor(0, 1, 0), new ZColor(.2));
-		this.drawResourceBar(r, p, ZusassStat.MANA, ZusassStat.MANA_MAX, 2, new ZColor(0, 0, 1), new ZColor(1));
+		this.drawResourceBar(r, p, zgame, ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, 0, new ZColor(1.5, 0, 0), new ZColor(1));
+		this.drawResourceBar(r, p, zgame, ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, 1, new ZColor(0, 1, 0), new ZColor(1));
+		this.drawResourceBar(r, p, zgame, ZusassStat.MANA, ZusassStat.MANA_MAX, 2, new ZColor(0, 0, 1.5), new ZColor(1));
 		
 		// Using draw text like this is inefficient, but whatever, this is temp code
 		String text;
@@ -217,15 +217,23 @@ public class MainPlay extends PlayState{
 	}
 	
 	/** Temporary code for simplicity of testing */
-	private void drawResourceBar(Renderer r, ZusassPlayer p, ZusassStat current, ZusassStat max, int index, ZColor color, ZColor textColor){
+	private void drawResourceBar(Renderer r, ZusassPlayer p, ZusassGame zgame, ZusassStat current, ZusassStat max, int index, ZColor color, ZColor textColor){
 		var c = p.stat(current);
 		var m = p.stat(max);
-		var space = 25 * index;
+		var space = 26 * index;
 		
+		r.pushTextureTintShader();
+		// TODO probably abstract out some of this rendering to use with the npc class
 		r.setColor(.5, .5, .5);
-		r.drawRectangle(10, 10 + space, 200, 20);
+		double width = 200;
+		double height = 20;
+		double textureSize = 64;
+		double shiftX = -((System.currentTimeMillis() / 14.0) % width) / width + index * index * 0.5;
+		double shiftY = ((System.currentTimeMillis() / 300.0) % height) / height + index * index * 0.2;
+		r.drawRepeatingTexture(8, 8 + space, width + 4, 20 + 4, textureSize, textureSize, shiftX, shiftY, zgame.getImage("resourceBar"));
 		r.setColor(color);
-		r.drawRectangle(10, 10 + space, 200 * c / m, 20);
+		r.drawRepeatingTexture(10, 10 + space, width * c / m, height, textureSize, textureSize, shiftX, shiftY, zgame.getImage("resourceBar"));
+		r.popShader();
 		// Using draw text like this is inefficient, but whatever, this is temp code
 		r.setColor(textColor);
 		r.setFontSize(20);

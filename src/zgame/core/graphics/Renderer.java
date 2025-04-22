@@ -145,6 +145,8 @@ public class Renderer implements Destroyable{
 	private VertexBuffer planeTexCoordBuff;
 	/** The {@link VertexArray} for drawing a finite plane from a quad with a texture */
 	private VertexArray planeTexVertArr;
+	/** The {@link VertexArray} for drawing a finite plane from a quad with a texture that has changing texture coordinates */
+	private VertexArray planeTexChangeVertArr;
 	
 	/** The {@link VertexBuffer} that tracks the texture coordinates for drawing a rectangular prism with a texture */
 	private VertexBuffer rect3DTexCoordBuff;
@@ -652,6 +654,9 @@ public class Renderer implements Destroyable{
 		
 		// Create and bind the vertex array for the textured finite 3D plane
 		this.planeTexVertArr = new VertexArray(this.planeCoordBuff, this.planeTexCoordBuff);
+		
+		// Create and bind the vertex array for the textured finite 3D plane with changing texture coordinates
+		this.planeTexChangeVertArr = new VertexArray(this.planeCoordBuff, this.changeTexCoordBuff);
 		
 		// Create and bind the vertex array for the sphere
 		this.sphereVertArr = new VertexArray(this.sphereCoordBuff);
@@ -1544,7 +1549,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawRepeatingTexture(ZRect2D r, double textureW, double textureH, GameImage img){
-		return this.drawRepeatingTexture(r.getX(), r.getY(), r.getWidth(), r.getHeight(), textureW, textureH, img.getId());
+		return this.drawRepeatingTexture(r.getX(), r.getY(), r.getWidth(), r.getHeight(), textureW, textureH, img);
 	}
 	
 	/**
@@ -1598,20 +1603,56 @@ public class Renderer implements Destroyable{
 	 * @param img The OpenGL id of the texture to draw
 	 * @return true if the object was drawn, false otherwise
 	 */
-	private boolean drawRepeatingTexture(double x, double y, double w, double h, double textureW, double textureH, int img){
+	public boolean drawRepeatingTexture(double x, double y, double w, double h, double textureW, double textureH, GameImage img){
+		return this.drawRepeatingTexture(x, y, w, h, textureW, textureH, 0, 0, img);
+	}
+	
+	/**
+	 * Draw a rectangular texture at the specified location, repeating the texture
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * This method does not set the shader to use, and it does not check if the bounds should be rendered
+	 *
+	 * @param x The x coordinate of the upper left hand corner of the texture
+	 * @param y The y coordinate of the upper left hand corner of the texture
+	 * @param w The width of the bounds to render
+	 * @param h The height of the bounds to render
+	 * @param textureW The width of the texture to render
+	 * @param textureH The height of the texture to render
+	 * @param shiftX An amount to shift the texture over by on the x axis
+	 * @param shiftY An amount to shift the texture over by on the y axis
+	 * @param img The OpenGL id of the texture to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawRepeatingTexture(double x, double y, double w, double h, double textureW, double textureH, double shiftX, double shiftY, GameImage img){
 		this.bindVertexArray(changeImgVertArr);
+		this.bufferRepeatingTexture(w, h, textureW, textureH, shiftX, shiftY);
 		
+		return this.drawTextureWithoutVertexArray(x, y, w, h, img.getId());
+	}
+	
+	/**
+	 * Buffer data in {@link #changeTexCoordBuff} to use for rendering a repeating texture
+	 *
+	 * @param w The width of the bounds to render
+	 * @param h The height of the bounds to render
+	 * @param textureW The width of the texture to render
+	 * @param textureH The height of the texture to render
+	 * @param shiftX An amount to shift the texture over by on the x axis
+	 * @param shiftY An amount to shift the texture over by on the y axis
+	 */
+	private void bufferRepeatingTexture(double w, double h, double textureW, double textureH, double shiftX, double shiftY){
 		float wOffset = (float)(w / textureW);
 		float hOffset = (float)(h / textureH);
+		float sx = (float)shiftX;
+		float sy = (float)shiftY;
 		
 		this.changeTexCoordBuff.updateData(new float[]{
-				0, 0,
-				wOffset, 0,
-				wOffset, hOffset,
-				0, hOffset,
+				sx + 0, sy + 0,
+				sx + wOffset, sy + 0,
+				sx + wOffset, sy + hOffset,
+				sx + 0, sy + hOffset,
 		});
 		
-		return this.drawTextureWithoutVertexArray(x, y, w, h, img);
 	}
 	
 	/**
@@ -2192,15 +2233,70 @@ public class Renderer implements Destroyable{
 	 * @param yA The point, relative to the point to position this object, to rotate on the y axis
 	 * @param zA The point, relative to the point to position this object, to rotate on the z axis
 	 * @param tex The texture id used by the buffer to draw
+	 * @param textureW The width of the texture to render
+	 * @param textureH The height of the texture to render
+	 * @param shiftX An amount to shift the texture over by on the x axis
+	 * @param shiftY An amount to shift the texture over by on the y axis
+	 * @param axisRotation True if the rotations are axis rotations, false for yaw, pitch, roll
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawRepeatingPlaneBuffer(double x, double y, double z, double w, double l,
+											double xRot, double yRot, double zRot, double xA, double yA, double zA, boolean axisRotation,
+											double textureW, double textureH, double shiftX, double shiftY, int tex){
+		
+		this.bindVertexArray(planeTexChangeVertArr);
+		this.bufferRepeatingTexture(w, l, textureW, textureH, shiftX, shiftY);
+		return this.drawPlaneBufferWithoutVertexArray(x, y, z, w, l, xRot, yRot, zRot, xA, yA, zA, axisRotation, tex);
+	}
+	
+	/**
+	 * Draw a plane with a buffer on it based on the given values
+	 *
+	 * @param x The x coordinate center of the initially horizontal plane
+	 * @param y The y coordinate of the initially horizontal plane
+	 * @param z The z coordinate center of the initially horizontal plane
+	 * @param w The width of the plane
+	 * @param l The length of the plane
+	 * @param xRot The rotation on the x axis
+	 * @param yRot The rotation on the y axis
+	 * @param zRot The rotation on the z axis
+	 * @param xA The point, relative to the point to position this object, to rotate on the x axis
+	 * @param yA The point, relative to the point to position this object, to rotate on the y axis
+	 * @param zA The point, relative to the point to position this object, to rotate on the z axis
+	 * @param tex The texture id used by the buffer to draw
 	 * @param axisRotation True if the rotations are axis rotations, false for yaw, pitch, roll
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawPlaneBuffer(double x, double y, double z, double w, double l,
 								   double xRot, double yRot, double zRot, double xA, double yA, double zA, boolean axisRotation,
 								   int tex){
-		// Use the 3D buffer shader and the 3D plate vertex array
-		this.checkDefaultShader(this.framebufferShader);
 		this.bindVertexArray(planeTexVertArr);
+		return this.drawPlaneBufferWithoutVertexArray(x, y, z, w, l, xRot, yRot, zRot, xA, yA, zA, axisRotation, tex);
+	}
+	
+	/**
+	 * Draw a plane with a buffer on it based on the given values
+	 *
+	 * @param x The x coordinate center of the initially horizontal plane
+	 * @param y The y coordinate of the initially horizontal plane
+	 * @param z The z coordinate center of the initially horizontal plane
+	 * @param w The width of the plane
+	 * @param l The length of the plane
+	 * @param xRot The rotation on the x axis
+	 * @param yRot The rotation on the y axis
+	 * @param zRot The rotation on the z axis
+	 * @param xA The point, relative to the point to position this object, to rotate on the x axis
+	 * @param yA The point, relative to the point to position this object, to rotate on the y axis
+	 * @param zA The point, relative to the point to position this object, to rotate on the z axis
+	 * @param tex The texture id used by the buffer to draw
+	 * @param axisRotation True if the rotations are axis rotations, false for yaw, pitch, roll
+	 * @return true if the object was drawn, false otherwise
+	 */
+	private boolean drawPlaneBufferWithoutVertexArray(double x, double y, double z, double w, double l,
+													  double xRot, double yRot, double zRot, double xA, double yA, double zA, boolean axisRotation,
+													  int tex){
+		// Use the 3D buffer shader
+		this.checkDefaultShader(this.framebufferShader);
 		
 		glBindTexture(GL_TEXTURE_2D, tex);
 		

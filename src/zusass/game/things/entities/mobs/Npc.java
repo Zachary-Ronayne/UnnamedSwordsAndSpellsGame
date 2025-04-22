@@ -2,6 +2,7 @@ package zusass.game.things.entities.mobs;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
 import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZMath;
 import zgame.stat.modifier.ModifierType;
@@ -9,6 +10,7 @@ import zusass.ZusassGame;
 import zusass.game.magic.ProjectileSpell;
 import zusass.game.magic.Spell;
 import zusass.game.magic.effect.SpellEffectStatAdd;
+import zusass.game.stat.ZusassStat;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -113,17 +115,49 @@ public class Npc extends ZusassMob{
 		// issue#23 make a way of drawing a health bar above the mob, accounting for how this health bar will not be a part of the mob itself, but above it
 		
 		// Draw bars to represent its remaining health, stamina, and mana
-		var x = this.getX() + 4;
-		var y = this.getY() + 4;
-		var w = this.getWidth() * .2;
-		var h = this.getHeight() - 8;
-		r.setColor(1, 0, 0);
-		r.drawRectangle(x, y, w, h * this.currentHealthPerc());
-		r.drawSidePlaneX(this.getX(), this.getY() + this.getHeight() + 0.09, this.getZ(), this.getWidth() * 1.2 * this.currentHealthPerc(), 0.03, facingAngle);
-		r.setColor(0, 1, 0);
-		r.drawSidePlaneX(this.getX(), this.getY() + this.getHeight() + 0.05, this.getZ(), this.getWidth() * 1.2 * this.currentStaminaPerc(), 0.03, facingAngle);
-		r.setColor(0, 0, 1);
-		r.drawSidePlaneX(this.getX(), this.getY() + this.getHeight() + 0.01, this.getZ(), this.getWidth() * 1.2 * this.currentManaPerc(), 0.03, facingAngle);
+
+		var zgame = (ZusassGame)game;
+		this.drawResourceBar(r, zgame, ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, 0, new ZColor(1.5, 0, 0));
+		this.drawResourceBar(r, zgame, ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, 1, new ZColor(0, 1, 0));
+		this.drawResourceBar(r, zgame, ZusassStat.MANA, ZusassStat.MANA_MAX, 2, new ZColor(0, 0, 1.5));
+	}
+	
+	private void drawResourceBar(Renderer r, ZusassGame zgame, ZusassStat current, ZusassStat max, int index, ZColor color){
+		var c = this.stat(current);
+		var m = this.stat(max);
+		double facingAngle = this.getMobilityData().getFacingYaw() + ZMath.PI_BY_2;
+		double space = 0.032;
+		
+		r.pushTextureTintShader();
+		// TODO probably abstract out some of this rendering
+		double width = this.getWidth() * 1.2;
+		double height = 0.03;
+		double textureSize = 0.1;
+		double shiftX = ((System.currentTimeMillis() / 14000.0) % width) / width + index * index * 0.5;
+		double shiftY = ((System.currentTimeMillis() / 300000.0) % height) / height + index * index * 0.2;
+		
+		// TODO make the health bars line up on the left, not centered
+		
+		// TODO add the border to the health bars?
+//		double barOffset = 0.005;
+//		r.setColor(.5, .5, .5);
+//		r.drawRepeatingPlaneBuffer(
+//				this.getX() + barOffset, this.getY() + this.getHeight() + 0.09 - index * 0.03, this.getZ() + barOffset, this.getWidth() + barOffset * 2, height + barOffset * 2,
+//				-facingAngle, -ZMath.PI_BY_2, 0, 0, 0, 0, false,
+//				textureSize, textureSize, shiftX, shiftY,
+//				zgame.getImage("resourceBar").getId());
+		
+		r.setColor(color);
+		
+		// TODO make this easier to render
+		r.drawRepeatingPlaneBuffer(
+				this.getX(), this.getY() + this.getHeight() + 0.095 - index * space, this.getZ(), this.getWidth() * c / m, height,
+				-facingAngle, -ZMath.PI_BY_2, 0, 0, 0, 0, false,
+				// TODO fix broken texture scaling
+				textureSize, textureSize, shiftX, shiftY,
+				zgame.getImage("resourceBar").getId());
+		
+		r.popShader();
 	}
 	
 }
