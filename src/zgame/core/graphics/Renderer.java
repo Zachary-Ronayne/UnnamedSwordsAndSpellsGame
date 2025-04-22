@@ -117,6 +117,8 @@ public class Renderer implements Destroyable{
 	private VertexArray imgVertArr;
 	/** The {@link VertexBuffer} used to track the texture coordinates for drawing the entirety of a texture, i.e. from (0, 0) to (1, 1) */
 	private VertexBuffer texCoordBuff;
+	/** A {@link VertexArray} for drawing images that have textures that regularly change texture coordinates */
+	private VertexArray changeImgVertArr;
 	
 	/** The {@link IndexByteBuffer} that tracks indexes for drawing a 3D rectangular prism */
 	private IndexByteBuffer rect3DIndexBuff;
@@ -630,6 +632,9 @@ public class Renderer implements Destroyable{
 		
 		// Generate a vertex array for rendering images
 		this.imgVertArr = new VertexArray(this.fillScreenPosBuff, this.texCoordBuff);
+		
+		// Generate a vertex array for rendering images with changing texture coordinates
+		this.changeImgVertArr = new VertexArray(this.fillScreenPosBuff, this.changeTexCoordBuff);
 		
 		// Generate a vertex array for rendering text
 		this.textVertArr = new VertexArray(this.posBuff2D, this.changeTexCoordBuff);
@@ -1528,6 +1533,21 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
+	 * Draw a rectangular texture at the specified location, repeating the texture
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * This method does not set the shader to use, and it does not check if the bounds should be rendered
+	 *
+	 * @param r The bounds of the image
+	 * @param img The image to use id of the image to draw
+	 * @param textureW The width of the texture to render
+	 * @param textureH The height of the texture to render
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawRepeatingTexture(ZRect2D r, double textureW, double textureH, GameImage img){
+		return this.drawRepeatingTexture(r.getX(), r.getY(), r.getWidth(), r.getHeight(), textureW, textureH, img.getId());
+	}
+	
+	/**
 	 * Draw a rectangular image at the specified location.
 	 * If the given dimensions have a different aspect ratio that those of the given image, then the image will stretch to fit the given dimensions
 	 * Coordinate types depend on {@link #positioningEnabledStack}
@@ -1548,7 +1568,6 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a rectangular texture at the specified location.
-	 * Draw a rectangular texture at the specified location on the given buffer
 	 * If the given dimensions have a different aspect ratio that those of the given texture, then the texture will stretch to fit the given dimensions
 	 * Coordinate types depend on {@link #positioningEnabledStack}
 	 * This method does not set the shader to use, and it does not check if the bounds should be rendered
@@ -1562,6 +1581,53 @@ public class Renderer implements Destroyable{
 	 */
 	private boolean drawTexture(double x, double y, double w, double h, int img){
 		this.bindVertexArray(imgVertArr);
+		return this.drawTextureWithoutVertexArray(x, y, w, h, img);
+	}
+	
+	/**
+	 * Draw a rectangular texture at the specified location, repeating the texture
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * This method does not set the shader to use, and it does not check if the bounds should be rendered
+	 *
+	 * @param x The x coordinate of the upper left hand corner of the texture
+	 * @param y The y coordinate of the upper left hand corner of the texture
+	 * @param w The width of the bounds to render
+	 * @param h The height of the bounds to render
+	 * @param textureW The width of the texture to render
+	 * @param textureH The height of the texture to render
+	 * @param img The OpenGL id of the texture to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	private boolean drawRepeatingTexture(double x, double y, double w, double h, double textureW, double textureH, int img){
+		this.bindVertexArray(changeImgVertArr);
+		
+		float wOffset = (float)(w / textureW);
+		float hOffset = (float)(h / textureH);
+		
+		this.changeTexCoordBuff.updateData(new float[]{
+				0, 0,
+				wOffset, 0,
+				wOffset, hOffset,
+				0, hOffset,
+		});
+		
+		return this.drawTextureWithoutVertexArray(x, y, w, h, img);
+	}
+	
+	/**
+	 * Draw a rectangular texture at the specified location without specifying the vertex array
+	 * If the given dimensions have a different aspect ratio that those of the given texture, then the texture will stretch to fit the given dimensions
+	 * Coordinate types depend on {@link #positioningEnabledStack}
+	 * This method does not set the shader to use, and it does not check if the bounds should be rendered
+	 *
+	 * @param x The x coordinate of the upper left hand corner of the texture
+	 * @param y The y coordinate of the upper left hand corner of the texture
+	 * @param w The width of the texture
+	 * @param h The height of the texture
+	 * @param img The OpenGL id of the texture to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	private boolean drawTextureWithoutVertexArray(double x, double y, double w, double h, int img){
 		glBindTexture(GL_TEXTURE_2D, img);
 		
 		// Perform the drawing operation

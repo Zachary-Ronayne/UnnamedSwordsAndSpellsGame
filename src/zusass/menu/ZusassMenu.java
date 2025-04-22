@@ -58,10 +58,9 @@ public abstract class ZusassMenu extends Menu{
 	@Override
 	public void render(Game game, Renderer r, ZRect2D bounds){
 		super.render(game, r, bounds);
-		// TODO make this have a repeating tile texture, need a separate vertex array with a vertex buffer that allows for changing buffer values
-		r.setColor(new ZColor(0.6, 0.5, 0.5));
+		r.setColor(new ZColor(0.3, 0.26, 0.26));
 		r.pushTextureTintShader();
-		r.drawImage(bounds, game.getImage("brickGrayscale"));
+		r.drawRepeatingTexture(bounds, 128, 128, game.getImage("brickGrayscale"));
 		r.popShader();
 	}
 	
