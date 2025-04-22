@@ -1,7 +1,6 @@
 package zusass.menu;
 
 import zgame.core.Game;
-import zgame.core.graphics.AlphaMode;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZRect2D;
@@ -60,10 +59,9 @@ public abstract class ZusassMenu extends Menu{
 	public void render(Game game, Renderer r, ZRect2D bounds){
 		super.render(game, r, bounds);
 		// TODO make this have a repeating tile texture, need a separate vertex array with a vertex buffer that allows for changing buffer values
-		// TODO make alpha mode a stack in renderer, not a separate param, do a similar pattern as shader
 		r.setColor(new ZColor(0.6, 0.5, 0.5));
 		r.pushTextureTintShader();
-		r.drawImage(bounds, game.getImage("brickGrayscale"), AlphaMode.NORMAL);
+		r.drawImage(bounds, game.getImage("brickGrayscale"));
 		r.popShader();
 	}
 	

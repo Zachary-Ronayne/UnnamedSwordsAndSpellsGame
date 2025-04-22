@@ -160,7 +160,7 @@ public class GameBuffer implements Destroyable{
 	 * @param r The {@link Renderer} to use
 	 */
 	public void drawOnRenderer(double x, double y, Renderer r){
-		r.drawBuffer(x, y, this.getWidth(), this.getHeight(), this, this.getAlphaMode());
+		r.drawBuffer(x, y, this.getWidth(), this.getHeight(), this);
 	}
 	
 	/** After calling this method, all further OpenGL rendering operations will draw to this GameBuffer */

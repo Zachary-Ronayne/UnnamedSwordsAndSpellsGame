@@ -178,8 +178,10 @@ public class Renderer implements Destroyable{
 	/** true if {@link #getColor()} has changed since last being sent to the current shader */
 	private boolean sendColor;
 	
+	/** The stack keeping track of the currently used alpha mode */
+	private final LimitedStack<AlphaMode> alphaModeStack;
 	/** The last used mode for rendering alpha values */
-	private AlphaMode alphaMode;
+	private AlphaMode lastAlphaMode;
 	
 	/** The stack keeping track of the current color used by this {@link Renderer} */
 	private final LimitedStack<ZColor> colorStack;
@@ -233,8 +235,6 @@ public class Renderer implements Destroyable{
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public Renderer(int width, int height){
-		this.alphaMode = AlphaMode.NORMAL;
-		
 		// Initialize stack list
 		this.stacks = new ArrayList<>();
 		this.attributeStacks = new ArrayList<>();
@@ -300,6 +300,10 @@ public class Renderer implements Destroyable{
 		
 		// Vertex arrays and vertex buffers
 		this.initVertexes();
+		
+		// Alpha mode stack
+		alphaModeStack = new LimitedStack<>(AlphaMode.NORMAL);
+		this.updateAlphaMode(AlphaMode.NORMAL);
 		
 		// Init depth test, setting it to false, matching the OpenGL default
 		this.depthTestEnabled = false;
@@ -992,7 +996,7 @@ public class Renderer implements Destroyable{
 	 */
 	private void checkDefaultShader(ShaderProgram shader){
 		var currentShader = this.shaderStack.peek();
-		if(currentShader != null) {
+		if(currentShader != null){
 			if(currentShader != this.lastShader) this.useShader(currentShader);
 			return;
 		}
@@ -1081,7 +1085,7 @@ public class Renderer implements Destroyable{
 	public void drawToWindow(GameWindow window){
 		// Set the current shader for drawing a frame buffer
 		this.checkDefaultShader(this.framebufferShader);
-		AlphaMode.NORMAL.use();
+		this.updateAlphaMode(AlphaMode.NORMAL);
 		this.pushColor(this.getColor().solid());
 		this.pushMatrix();
 		this.identityMatrix();
@@ -1101,6 +1105,9 @@ public class Renderer implements Destroyable{
 		// Draw the image
 		glDrawElements(GL_TRIANGLES, this.rectIndexBuff.getBuff());
 		this.popMatrix();
+		
+		// Put the alpha mode back to the value at the top of the stack after changing the alpha mode
+		this.updateAlphaMode(this.alphaModeStack.peek());
 	}
 	
 	/** @return The top of {@link #limitedBoundsStack} */
@@ -1454,9 +1461,25 @@ public class Renderer implements Destroyable{
 	/** @param mode The new mode to use */
 	private void updateAlphaMode(AlphaMode mode){
 		if(mode == null) mode = AlphaMode.NORMAL;
-		if(mode == this.alphaMode) return;
-		this.alphaMode = mode;
-		this.alphaMode.use();
+		if(mode == this.lastAlphaMode) return;
+		this.lastAlphaMode = mode;
+		this.lastAlphaMode.use();
+	}
+	
+	/**
+	 * Push the given alpha mode onto the stack
+	 *
+	 * @param mode The mode to push
+	 */
+	public void pushAlphaMode(AlphaMode mode){
+		this.alphaModeStack.push(mode);
+		this.updateAlphaMode(mode);
+	}
+	
+	/** Pop the top of the alpha mode stack */
+	public void popAlphaMode(){
+		this.alphaModeStack.pop();
+		this.updateAlphaMode(this.alphaModeStack.peek());
 	}
 	
 	/**
@@ -1466,11 +1489,10 @@ public class Renderer implements Destroyable{
 	 *
 	 * @param r The bounds
 	 * @param b The {@link GameBuffer} to draw
-	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawBuffer(ZRect2D r, GameBuffer b, AlphaMode mode){
-		return this.drawBuffer(r.getX(), r.getY(), r.getWidth(), r.getHeight(), b, mode);
+	public boolean drawBuffer(ZRect2D r, GameBuffer b){
+		return this.drawBuffer(r.getX(), r.getY(), r.getWidth(), r.getHeight(), b);
 	}
 	
 	/**
@@ -1483,13 +1505,12 @@ public class Renderer implements Destroyable{
 	 * @param w The width of the image
 	 * @param h The height of the image
 	 * @param b The {@link GameBuffer} to draw
-	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawBuffer(double x, double y, double w, double h, GameBuffer b, AlphaMode mode){
+	public boolean drawBuffer(double x, double y, double w, double h, GameBuffer b){
 		if(!this.shouldDraw(x, y, w, h)) return false;
 		this.checkDefaultShader(this.framebufferShader);
-		return this.drawTexture(x, y, w, h, b.getTextureID(), mode);
+		return this.drawTexture(x, y, w, h, b.getTextureID());
 	}
 	
 	/**
@@ -1500,11 +1521,10 @@ public class Renderer implements Destroyable{
 	 *
 	 * @param r The bounds of the image
 	 * @param img The OpenGL id of the image to draw
-	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawImage(ZRect2D r, GameImage img, AlphaMode mode){
-		return this.drawImage(r.getX(), r.getY(), r.getWidth(), r.getHeight(), img, mode);
+	public boolean drawImage(ZRect2D r, GameImage img){
+		return this.drawImage(r.getX(), r.getY(), r.getWidth(), r.getHeight(), img);
 	}
 	
 	/**
@@ -1517,14 +1537,13 @@ public class Renderer implements Destroyable{
 	 * @param w The width of the image
 	 * @param h The height of the image
 	 * @param img The {@link GameImage} to draw
-	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawImage(double x, double y, double w, double h, GameImage img, AlphaMode mode){
+	public boolean drawImage(double x, double y, double w, double h, GameImage img){
 		if(!this.shouldDraw(x, y, w, h)) return false;
 		
 		this.checkDefaultShader(this.textureShader);
-		return this.drawTexture(x, y, w, h, img.getId(), mode);
+		return this.drawTexture(x, y, w, h, img.getId());
 	}
 	
 	/**
@@ -1539,13 +1558,11 @@ public class Renderer implements Destroyable{
 	 * @param w The width of the texture
 	 * @param h The height of the texture
 	 * @param img The OpenGL id of the texture to draw
-	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
 	 * @return true if the object was drawn, false otherwise
 	 */
-	private boolean drawTexture(double x, double y, double w, double h, int img, AlphaMode mode){
+	private boolean drawTexture(double x, double y, double w, double h, int img){
 		this.bindVertexArray(imgVertArr);
 		glBindTexture(GL_TEXTURE_2D, img);
-		updateAlphaMode(mode);
 		
 		// Perform the drawing operation
 		this.pushMatrix();
@@ -1593,23 +1610,6 @@ public class Renderer implements Destroyable{
 	 */
 	public boolean drawText(double x, double y, String text){
 		return drawText(x, y, this.getFont(), List.of(new TextOption(text)));
-	}
-	
-	/**
-	 * Draw the given text to the given position
-	 * The text will be positioned such that it is written on a line, and the given position is the leftmost part of that line.
-	 * i.e. the text starts at the given coordinates and is draw left to right
-	 * Coordinate types depend on {@link #positioningEnabledStack}
-	 * It is unwise to call this method directly. Usually it's better to use a {@link TextBuffer} and draw to that, then draw the text buffer
-	 *
-	 * @param x The x position of the text
-	 * @param y The y position of the text
-	 * @param text The text to draw
-	 * @param mode The way to draw the texture for transparency, or null to default to {@link AlphaMode#NORMAL}
-	 * @return true if the text was drawn, false otherwise
-	 */
-	public boolean drawText(double x, double y, String text, AlphaMode mode){
-		return drawText(x, y, this.getFont(), List.of(new TextOption(text, null, mode)));
 	}
 	
 	/**
@@ -1800,6 +1800,9 @@ public class Renderer implements Destroyable{
 		}
 		this.popMatrix();
 		
+		// Put the alpha mode back to the value at the top of the stack after changing the alpha mode
+		this.updateAlphaMode(this.alphaModeStack.peek());
+		
 		return true;
 	}
 	
@@ -1922,7 +1925,6 @@ public class Renderer implements Destroyable{
 		
 		this.bindVertexArray(this.rect3DTexVertArr);
 		glBindTexture(GL_TEXTURE_2D, texture.getId());
-		updateAlphaMode(AlphaMode.NORMAL);
 		
 		// Position the 3D rect
 		this.pushMatrix();
@@ -2135,7 +2137,6 @@ public class Renderer implements Destroyable{
 		this.bindVertexArray(planeTexVertArr);
 		
 		glBindTexture(GL_TEXTURE_2D, tex);
-		updateAlphaMode(AlphaMode.NORMAL);
 		
 		// Position the plane
 		this.pushMatrix();

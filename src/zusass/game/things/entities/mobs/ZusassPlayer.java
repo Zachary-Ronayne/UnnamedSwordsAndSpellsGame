@@ -5,6 +5,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.GameInteractable;
+import zgame.core.graphics.AlphaMode;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera3D;
