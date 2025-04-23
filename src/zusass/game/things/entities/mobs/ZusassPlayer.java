@@ -5,7 +5,6 @@ import static org.lwjgl.glfw.GLFW.*;
 import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.GameInteractable;
-import zgame.core.graphics.AlphaMode;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera3D;
@@ -180,11 +179,10 @@ public class ZusassPlayer extends ZusassMob{
 		// TODO fix transparency rendering order
 		
 		// Billboard rendering of the player
-		// TODO make this rendering easier to define
-		r.drawPlaneBuffer(
-				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(),
-				this.getWidth(), this.getHeight(),
-				-this.getMobilityData().getFacingYaw() + ZMath.PI_BY_2, -ZMath.PI_BY_2, 0, 0, 0, 0, false,
+		r.drawPlaneBufferSide(
+				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(), this.getWidth(), this.getHeight(),
+				// TODO why is this negative and plus 90 degrees?
+				-this.getMobilityData().getFacingYaw() + ZMath.PI_BY_2,
 				game.getImage("zusassPlayer").getId());
 	}
 	

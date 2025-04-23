@@ -5,6 +5,7 @@ import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.RotRender3D;
 import zgame.core.sound.SoundSource;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint3D;
@@ -255,11 +256,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		double pitch = ZMath.atan2Normalized(dy, Math.sqrt(dx * dx + dz * dz)) + ZMath.atan2Normalized(armSize, 0) * anglePerc;
 		
 		// Draw the final rotated rect
-		var rect = new RectRender3D(basePoint.getX(), basePoint.getY(), basePoint.getZ(), armSize, attackSize, armSize);
-		rect.setCoordinateRotation(false);
-		rect.setYaw(yaw);
-		rect.setPitch(pitch);
-		rect.setRoll(0);
+		var rect = new RectRender3D(basePoint.getX(), basePoint.getY(), basePoint.getZ(), armSize, attackSize, armSize, RotRender3D.euler(yaw, pitch, 0));
 		var c = r.getColor();
 		r.drawRectPrism(rect, c, c, c, c, c, c);
 	}

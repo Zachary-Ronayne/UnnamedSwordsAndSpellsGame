@@ -2,6 +2,7 @@ package zgame.core.graphics.buffer;
 
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.RotRender3D;
 import zgame.core.utils.ZMath;
 
 /**
@@ -73,7 +74,7 @@ public class DrawableBuffer3D implements Destroyable{
 				this.getX(), this.getY(), this.getZ(),
 				this.getWidth(), this.getLength(),
 				// Not sure why the z rotation needs to be modified like this to display correctly, probably the weird coordinate system I'm using
-				this.getRotX(), this.getRotY(), -this.getRotZ() + ZMath.PI_BY_2, 0, 0, 0, true,
+				RotRender3D.axis(this.getRotX(), this.getRotY(), -this.getRotZ() + ZMath.PI_BY_2),
 				this.buffer.getTextureID());
 		r.popColor();
 	}

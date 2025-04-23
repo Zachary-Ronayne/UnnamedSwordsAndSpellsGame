@@ -1275,22 +1275,10 @@ public class Renderer implements Destroyable{
 	 * @param r The position to rotate to
 	 */
 	public void positionObject(RectRender3D r){
-		if(r.isCoordinateRotation()){
-			this.positionObject(
-					r.getX(), r.getY(), r.getZ(),
-					r.getWidth(), r.getHeight(), r.getLength(),
-					r.xRot(), r.yRot(), r.zRot(),
-					r.xA(), r.yA(), r.zA(),
-					true);
-		}
-		else{
-			this.positionObject(
-					r.getX(), r.getY(), r.getZ(),
-					r.getWidth(), r.getHeight(), r.getLength(),
-					r.yaw(), r.pitch(), r.roll(),
-					r.xA(), r.yA(), r.zA(),
-					false);
-		}
+		this.positionObject(
+				r.getX(), r.getY(), r.getZ(),
+				r.getWidth(), r.getHeight(), r.getLength(),
+				r.getRot());
 	}
 	
 	/**
@@ -1341,33 +1329,37 @@ public class Renderer implements Destroyable{
 	 * @param w The width, x axis, of the rect
 	 * @param h The height, y axis, of the rect
 	 * @param l The length, z axis, of the rect
-	 * @param xRot The rotation on the x axis
-	 * @param yRot The rotation on the y axis
-	 * @param zRot The rotation on the z axis
-	 * @param xA The point, relative to the point to position this object, to rotate on the x axis, or yaw depending on axisRotation
-	 * @param yA The point, relative to the point to position this object, to rotate on the y axis, or pitch depending on axisRotation
-	 * @param zA The point, relative to the point to position this object, to rotate on the z axis, or roll depending on axisRotation
-	 * @param axisRotation true if xA, yA, and zA represent rotations on their axes, false if they represent yaw, pitch, and roll respectively
+	 * @param rot The rotations to apply
 	 */
 	private void positionObject(double x, double y, double z,
 								double w, double h, double l,
-								double xRot, double yRot, double zRot,
-								double xA, double yA, double zA, boolean axisRotation){
+								RotRender3D rot){
+		
+		double xA = rot.xA();
+		double yA = rot.yA();
+		double zA = rot.zA();
+		
 		// Transformations happen in reverse order
 		
 		// Move the object to its final position
 		this.translate(x - xA, y - yA, z - zA);
 		
-		// Rotate around the center for each axis
-		if(axisRotation){
-			if(xRot != 0) this.rotate(xRot, 1.0f, 0.0f, 0.0f);
-			if(yRot != 0) this.rotate(yRot, 0.0f, 1.0f, 0.0f);
-			if(zRot != 0) this.rotate(zRot, 0.0f, 0.0f, 1.0f);
-		}
-		else this.rotate(xRot, yRot, zRot);
+		// Rotate around the center for each axis if needed
+		double xRot = rot.xRot();
+		double yRot = rot.yRot();
+		double zRot = rot.zRot();
+		if(xRot != 0) this.rotate(xRot, 1.0f, 0.0f, 0.0f);
+		if(yRot != 0) this.rotate(yRot, 0.0f, 1.0f, 0.0f);
+		if(zRot != 0) this.rotate(zRot, 0.0f, 0.0f, 1.0f);
 		
-		// Translate to the axis of rotation
-		this.translate(xA, yA, zA);
+		// Rotate with euler rotations if needed
+		double yaw = rot.yaw();
+		double pitch = rot.pitch();
+		double roll = rot.roll();
+		if(yaw != 0 || pitch != 0 || roll != 0) this.rotate(yaw, pitch, roll);
+		
+		// Translate to the axis of rotation if needed
+		if(xA != 0 || yA != 0 || zA != 0) this.translate(xA, yA, zA);
 		
 		// Start by scaling appropriately
 		this.scale(w, h, l);
@@ -2064,7 +2056,7 @@ public class Renderer implements Destroyable{
 		
 		// Position the plane
 		this.pushMatrix();
-		this.positionObject(x, y, z, radius, radius, radius, 0, 0, 0, 0, 0, 0, true);
+		this.positionObject(x, y, z, radius, radius, radius, new RotRender3D());
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuColor();
@@ -2088,7 +2080,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawFlatPlane(double x, double y, double z, double w, double l){
-		return this.drawPlane(x, y, z, w, l, 0, 0, 0, 0, 0, 0);
+		return this.drawPlane(x, y, z, w, l, new RotRender3D());
 	}
 	
 	/**
@@ -2103,7 +2095,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawFlatPlane(double x, double y, double z, double w, double l, double angle){
-		return this.drawPlane(x, y, z, w, l, 0, angle, 0, 0, 0, 0);
+		return this.drawPlane(x, y, z, w, l, RotRender3D.axis(0, angle, 0));
 	}
 	
 	/**
@@ -2132,7 +2124,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawSidePlaneX(double x, double y, double z, double s, double h, double angle){
-		return this.drawSidePlane(x, y, z, h, s, h, Math.PI * 0.5, 0, angle);
+		return this.drawSidePlane(x, y, z, h, s, h, RotRender3D.axis(Math.PI * 0.5, 0, angle));
 	}
 	
 	/**
@@ -2161,11 +2153,11 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawSidePlaneZ(double x, double y, double z, double s, double h, double angle){
-		return this.drawSidePlane(x, y, z, h, s, s, 0, angle, Math.PI * 0.5);
+		return this.drawSidePlane(x, y, z, h, s, s, RotRender3D.axis(0, angle, Math.PI * 0.5));
 	}
 	
 	/**
-	 * Draw a plane, default aligned to the x axis, i.e. the side of something like a wall
+	 * Draw a plane with its y adjusted to be at the bottom of the height
 	 *
 	 * @param x The x coordinate of the center bottom of the plane
 	 * @param y The y coordinate of the center bottom of the plane
@@ -2173,13 +2165,11 @@ public class Renderer implements Destroyable{
 	 * @param s The size of the plane side to side
 	 * @param h The height of the plane
 	 * @param hh The height to use for adjusting the plane so that the y coordinate is the bottom
-	 * @param xRot The rotation on the x axis
-	 * @param yRot The rotation on the y axis
-	 * @param zRot The rotation on the z axis
+	 * @param rot Any rotations to apply
 	 * @return true if the object was drawn, false otherwise
 	 */
-	private boolean drawSidePlane(double x, double y, double z, double s, double h, double hh, double xRot, double yRot, double zRot){
-		return this.drawPlane(x, y + hh * 0.5, z, h, s, xRot, yRot, zRot, 0, 0, 0);
+	private boolean drawSidePlane(double x, double y, double z, double s, double h, double hh, RotRender3D rot){
+		return this.drawPlane(x, y + hh * 0.5, z, h, s, rot);
 	}
 	
 	/**
@@ -2190,22 +2180,17 @@ public class Renderer implements Destroyable{
 	 * @param z The z coordinate center of the initially horizontal plane
 	 * @param w The width of the plane
 	 * @param l The length of the plane
-	 * @param xRot The rotation on the x axis
-	 * @param yRot The rotation on the y axis
-	 * @param zRot The rotation on the z axis
-	 * @param xA The point, relative to the point to position this object, to rotate on the x axis
-	 * @param yA The point, relative to the point to position this object, to rotate on the y axis
-	 * @param zA The point, relative to the point to position this object, to rotate on the z axis
+	 * @param rot Any rotations to apply
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawPlane(double x, double y, double z, double w, double l, double xRot, double yRot, double zRot, double xA, double yA, double zA){
+	public boolean drawPlane(double x, double y, double z, double w, double l, RotRender3D rot){
 		// Use the 3D color shader and the 3D rect vertex array
 		this.checkDefaultShader(this.shapeShader);
 		this.bindVertexArray(planeVertArr);
 		
 		// Position the plane
 		this.pushMatrix();
-		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, xA, yA, zA, true);
+		this.positionObject(x, y, z, w, 1, l, rot);
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuColor();
@@ -2219,34 +2204,70 @@ public class Renderer implements Destroyable{
 	}
 	
 	/**
-	 * Draw a plane with a buffer on it based on the given values
+	 * Draw a plane with a buffer on it based on the given values. The plane will be rotated to be parallel with the floor (xz axis) by default
 	 *
 	 * @param x The x coordinate center of the initially horizontal plane
 	 * @param y The y coordinate of the initially horizontal plane
 	 * @param z The z coordinate center of the initially horizontal plane
 	 * @param w The width of the plane
 	 * @param l The length of the plane
-	 * @param xRot The rotation on the x axis
-	 * @param yRot The rotation on the y axis
-	 * @param zRot The rotation on the z axis
-	 * @param xA The point, relative to the point to position this object, to rotate on the x axis
-	 * @param yA The point, relative to the point to position this object, to rotate on the y axis
-	 * @param zA The point, relative to the point to position this object, to rotate on the z axis
+	 * @param yaw The additional yaw rotation to apply
 	 * @param tex The texture id used by the buffer to draw
 	 * @param textureW The width of the texture to render
 	 * @param textureH The height of the texture to render
 	 * @param shiftX An amount to shift the texture over by on the x axis
 	 * @param shiftY An amount to shift the texture over by on the y axis
-	 * @param axisRotation True if the rotations are axis rotations, false for yaw, pitch, roll
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawRepeatingPlaneBuffer(double x, double y, double z, double w, double l,
-											double xRot, double yRot, double zRot, double xA, double yA, double zA, boolean axisRotation,
+	public boolean drawRepeatingPlaneBufferSide(double x, double y, double z, double w, double l, double yaw,
 											double textureW, double textureH, double shiftX, double shiftY, int tex){
+		
+		// TODO are the texture coordinates wrong? Shouldn't this be rotate positive 90 degrees?
+		return this.drawRepeatingPlaneBuffer(x, y, z, w, l, RotRender3D.euler(yaw, -ZMath.PI_BY_2, 0),
+				textureW, textureH, shiftX, shiftY, tex);
+	}
+	
+	/**
+	 * Draw a plane with a buffer on it based on the given values. The plane will be rotated to be parallel with the floor (xz axis) by default
+	 *
+	 * @param x The x coordinate center of the initially horizontal plane
+	 * @param y The y coordinate of the initially horizontal plane
+	 * @param z The z coordinate center of the initially horizontal plane
+	 * @param w The width of the plane
+	 * @param l The length of the plane
+	 * @param rot Any rotations to apply
+	 * @param tex The texture id used by the buffer to draw
+	 * @param textureW The width of the texture to render
+	 * @param textureH The height of the texture to render
+	 * @param shiftX An amount to shift the texture over by on the x axis
+	 * @param shiftY An amount to shift the texture over by on the y axis
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawRepeatingPlaneBuffer(double x, double y, double z, double w, double l, RotRender3D rot,
+											double textureW, double textureH, double shiftX, double shiftY, int tex){
+		
+		// TODO maybe make the repeating texture values an object
 		
 		this.bindVertexArray(planeTexChangeVertArr);
 		this.bufferRepeatingTexture(w, l, textureW, textureH, shiftX, shiftY);
-		return this.drawPlaneBufferWithoutVertexArray(x, y, z, w, l, xRot, yRot, zRot, xA, yA, zA, axisRotation, tex);
+		return this.drawPlaneBufferWithoutVertexArray(x, y, z, w, l, rot, tex);
+	}
+	
+	/**
+	 * Draw a plane with a buffer on it based on the given values. This plane will be facing the side, xy axis before applying the yaw rotation
+	 *
+	 * @param x The x coordinate center of the initially horizontal plane
+	 * @param y The y coordinate of the initially horizontal plane
+	 * @param z The z coordinate center of the initially horizontal plane
+	 * @param w The width of the plane
+	 * @param h The height of the plane
+	 * @param yaw The additional yaw rotation to apply
+	 * @param tex The texture id used by the buffer to draw
+	 * @return true if the object was drawn, false otherwise
+	 */
+	public boolean drawPlaneBufferSide(double x, double y, double z, double w, double h, double yaw, int tex){
+		// TODO are the texture coordinates wrong? Shouldn't this be rotate positive 90 degrees?
+		return this.drawPlaneBuffer(x, y, z, w, h, RotRender3D.euler(yaw, -ZMath.PI_BY_2, 0), tex);
 	}
 	
 	/**
@@ -2257,21 +2278,13 @@ public class Renderer implements Destroyable{
 	 * @param z The z coordinate center of the initially horizontal plane
 	 * @param w The width of the plane
 	 * @param l The length of the plane
-	 * @param xRot The rotation on the x axis
-	 * @param yRot The rotation on the y axis
-	 * @param zRot The rotation on the z axis
-	 * @param xA The point, relative to the point to position this object, to rotate on the x axis
-	 * @param yA The point, relative to the point to position this object, to rotate on the y axis
-	 * @param zA The point, relative to the point to position this object, to rotate on the z axis
+	 * @param rot Any rotations to apply
 	 * @param tex The texture id used by the buffer to draw
-	 * @param axisRotation True if the rotations are axis rotations, false for yaw, pitch, roll
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawPlaneBuffer(double x, double y, double z, double w, double l,
-								   double xRot, double yRot, double zRot, double xA, double yA, double zA, boolean axisRotation,
-								   int tex){
+	public boolean drawPlaneBuffer(double x, double y, double z, double w, double l, RotRender3D rot, int tex){
 		this.bindVertexArray(planeTexVertArr);
-		return this.drawPlaneBufferWithoutVertexArray(x, y, z, w, l, xRot, yRot, zRot, xA, yA, zA, axisRotation, tex);
+		return this.drawPlaneBufferWithoutVertexArray(x, y, z, w, l, rot, tex);
 	}
 	
 	/**
@@ -2282,19 +2295,11 @@ public class Renderer implements Destroyable{
 	 * @param z The z coordinate center of the initially horizontal plane
 	 * @param w The width of the plane
 	 * @param l The length of the plane
-	 * @param xRot The rotation on the x axis
-	 * @param yRot The rotation on the y axis
-	 * @param zRot The rotation on the z axis
-	 * @param xA The point, relative to the point to position this object, to rotate on the x axis
-	 * @param yA The point, relative to the point to position this object, to rotate on the y axis
-	 * @param zA The point, relative to the point to position this object, to rotate on the z axis
+	 * @param rot Any rotations to apply
 	 * @param tex The texture id used by the buffer to draw
-	 * @param axisRotation True if the rotations are axis rotations, false for yaw, pitch, roll
 	 * @return true if the object was drawn, false otherwise
 	 */
-	private boolean drawPlaneBufferWithoutVertexArray(double x, double y, double z, double w, double l,
-													  double xRot, double yRot, double zRot, double xA, double yA, double zA, boolean axisRotation,
-													  int tex){
+	private boolean drawPlaneBufferWithoutVertexArray(double x, double y, double z, double w, double l, RotRender3D rot, int tex){
 		// Use the 3D buffer shader
 		this.checkDefaultShader(this.framebufferShader);
 		
@@ -2302,7 +2307,7 @@ public class Renderer implements Destroyable{
 		
 		// Position the plane
 		this.pushMatrix();
-		this.positionObject(x, y, z, w, 1, l, xRot, yRot, zRot, xA, yA, zA, axisRotation);
+		this.positionObject(x, y, z, w, 1, l, rot);
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuColor();
@@ -2334,7 +2339,7 @@ public class Renderer implements Destroyable{
 		this.bindVertexArray(ellipse3DVertArr);
 		
 		this.pushMatrix();
-		this.positionObject(x, y, z, w, 1, l, 0, 0, 0, 0, 0, 0, true);
+		this.positionObject(x, y, z, w, 1, l, new RotRender3D());
 		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuColor();

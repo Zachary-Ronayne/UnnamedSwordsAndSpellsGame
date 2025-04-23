@@ -3,6 +3,7 @@ package tester;
 import zgame.core.Game;
 import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.RotRender3D;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.state.PlayState;
@@ -154,7 +155,7 @@ public class GameDemo3D extends Game{
 			super.render(game, r);
 			
 			// Draw the cube
-			r.drawRectPrism(new RectRender3D(0, .2, 0, .6, .6, .6, xRot, yRot, zRot, 0, -.3, 0),
+			r.drawRectPrism(new RectRender3D(0, .2, 0, .6, .6, .6, RotRender3D.axis(xRot, yRot, zRot, 0, -.3, 0)),
 					new ZColor(1, 0, 0), new ZColor(1, 1, 0),
 					new ZColor(0, 1, 0), new ZColor(0, 1, 1),
 					new ZColor(0, 0, 1), new ZColor(1, 0, 1));

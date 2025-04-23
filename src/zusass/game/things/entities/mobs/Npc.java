@@ -105,12 +105,10 @@ public class Npc extends ZusassMob{
 		double facingAngle = this.getMobilityData().getFacingYaw() + ZMath.PI_BY_2;
 		
 		// Render a billboard texture
-		// TODO make this rendering easier to define
-		r.drawPlaneBuffer(
-				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(),
-				this.getWidth(), this.getHeight(),
-				-facingAngle, -ZMath.PI_BY_2, 0, 0, 0, 0, false,
-				game.getImage("goblin").getId());
+		r.drawPlaneBufferSide(
+				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(), this.getWidth(), this.getHeight(),
+				// TODO why does this need to be negative facing angle?
+				-facingAngle, game.getImage("goblin").getId());
 		
 		// issue#23 make a way of drawing a health bar above the mob, accounting for how this health bar will not be a part of the mob itself, but above it
 		
@@ -138,7 +136,7 @@ public class Npc extends ZusassMob{
 		
 		// TODO make the health bars line up on the left, not centered
 		
-		// TODO add the border to the health bars?
+		// TODO add the border to the health bars? Render the health bar to a buffer with the border, then render the buffer
 //		double barOffset = 0.005;
 //		r.setColor(.5, .5, .5);
 //		r.drawRepeatingPlaneBuffer(
@@ -149,10 +147,8 @@ public class Npc extends ZusassMob{
 		
 		r.setColor(color);
 		
-		// TODO make this easier to render
-		r.drawRepeatingPlaneBuffer(
-				this.getX(), this.getY() + this.getHeight() + 0.095 - index * space, this.getZ(), this.getWidth() * c / m, height,
-				-facingAngle, -ZMath.PI_BY_2, 0, 0, 0, 0, false,
+		r.drawRepeatingPlaneBufferSide(
+				this.getX(), this.getY() + this.getHeight() + 0.095 - index * space, this.getZ(), this.getWidth() * c / m, height, -facingAngle,
 				// TODO fix broken texture scaling
 				textureSize, textureSize, shiftX, shiftY,
 				zgame.getImage("resourceBar").getId());
