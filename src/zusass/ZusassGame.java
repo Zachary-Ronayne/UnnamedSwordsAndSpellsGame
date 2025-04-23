@@ -97,6 +97,7 @@ public class ZusassGame extends Game{
 		this.setData(new ZusassData(0));
 		
 		// TODO move sound management to a static singleton?
+		// TODO maybe move image management, or all asset management, to a static singleton?
 		// Load sounds into the game
 		this.initSound();
 		var sm = this.getSounds();

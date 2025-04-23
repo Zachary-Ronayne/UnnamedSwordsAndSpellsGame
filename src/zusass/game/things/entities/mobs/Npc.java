@@ -3,6 +3,7 @@ package zusass.game.things.entities.mobs;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.graphics.buffer.DrawableBuffer;
 import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZMath;
 import zgame.stat.modifier.ModifierType;
@@ -19,6 +20,9 @@ public class Npc extends ZusassMob{
 	
 	/** The amount of time, in seconds since the last spell cast */
 	private double spellTime;
+	
+	/** The buffer for drawing this Npc's resource bar */
+	private DrawableBuffer resourceBarBuffer;
 	
 	/**
 	 * Create a new Npc with the given bounds
@@ -45,6 +49,7 @@ public class Npc extends ZusassMob{
 		this.getSpells().setSelectedSpellIndex(0);
 		
 		this.spellTime = 0;
+		this.resourceBarBuffer = null;
 	}
 	
 	@Override
@@ -115,45 +120,28 @@ public class Npc extends ZusassMob{
 		// Draw bars to represent its remaining health, stamina, and mana
 
 		var zgame = (ZusassGame)game;
-		this.drawResourceBar(r, zgame, ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, 0, new ZColor(1.5, 0, 0));
-		this.drawResourceBar(r, zgame, ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, 1, new ZColor(0, 1, 0));
-		this.drawResourceBar(r, zgame, ZusassStat.MANA, ZusassStat.MANA_MAX, 2, new ZColor(0, 0, 1.5));
-	}
-	
-	private void drawResourceBar(Renderer r, ZusassGame zgame, ZusassStat current, ZusassStat max, int index, ZColor color){
-		var c = this.stat(current);
-		var m = this.stat(max);
-		double facingAngle = this.getMobilityData().getFacingYaw() + ZMath.PI_BY_2;
-		double space = 0.032;
+		int barBufferWidth = 300;
+		int barPixelHeight = 24;
+		int barBufferHeight = 90;
+		if(this.resourceBarBuffer == null) {
+			// TODO consider if there's a better way of doing this, checking if the buffer is null or not yet generated every time feels stupid
+			// TODO maybe make a drawable buffer that passes a lambda
+			this.resourceBarBuffer = new DrawableBuffer(barBufferWidth, barBufferHeight){
+				@Override
+				public void draw(Renderer r){
+					drawResourceBars(r, zgame, 0, 0, barBufferWidth, barPixelHeight, false);
+				}
+			};
+			this.resourceBarBuffer.regenerateBuffer();
+		}
+		this.resourceBarBuffer.redraw(r);
 		
-		r.pushTextureTintShader();
-		// TODO probably abstract out some of this rendering
-		double width = this.getWidth() * 1.2;
-		double height = 0.03;
-		double textureSize = 0.1;
-		double shiftX = ((System.currentTimeMillis() / 14000.0) % width) / width + index * index * 0.5;
-		double shiftY = ((System.currentTimeMillis() / 300000.0) % height) / height + index * index * 0.2;
-		
-		// TODO make the health bars line up on the left, not centered
-		
-		// TODO add the border to the health bars? Render the health bar to a buffer with the border, then render the buffer
-//		double barOffset = 0.005;
-//		r.setColor(.5, .5, .5);
-//		r.drawRepeatingPlaneBuffer(
-//				this.getX() + barOffset, this.getY() + this.getHeight() + 0.09 - index * 0.03, this.getZ() + barOffset, this.getWidth() + barOffset * 2, height + barOffset * 2,
-//				-facingAngle, -ZMath.PI_BY_2, 0, 0, 0, 0, false,
-//				textureSize, textureSize, shiftX, shiftY,
-//				zgame.getImage("resourceBar").getId());
-		
-		r.setColor(color);
-		
-		r.drawRepeatingPlaneBufferSide(
-				this.getX(), this.getY() + this.getHeight() + 0.095 - index * space, this.getZ(), this.getWidth() * c / m, height, -facingAngle,
-				// TODO fix broken texture scaling
-				textureSize, textureSize, shiftX, shiftY,
-				zgame.getImage("resourceBar").getId());
-		
-		r.popShader();
+		// TODO fix the angles being flipped by default?
+		double barWidth = this.getWidth() * 1.2;
+		double barHeight = barWidth / barBufferWidth * barBufferHeight;
+		r.drawPlaneBufferSide(
+				this.getX(), this.getY() + this.getHeight() + 0.05, this.getZ(), barWidth, barHeight, -facingAngle + Math.PI,
+				this.resourceBarBuffer.getTextureID());
 	}
 	
 }
