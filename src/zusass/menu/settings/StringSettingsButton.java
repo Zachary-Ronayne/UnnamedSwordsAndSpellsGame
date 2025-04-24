@@ -23,8 +23,9 @@ public class StringSettingsButton extends ZusassTextBox implements ValueSettings
 	 * @param setting The setting which this button modifies
 	 * @param zgame The game that uses this button
 	 */
+	// TODO maybe make the game not a required parameter here?
 	public StringSettingsButton(double x, double y, StringTypeSetting setting, String name, BaseSettingsMenu menu, ZusassGame zgame){
-		super(x, y, 600, 45, zgame);
+		super(x, y, 600, 45);
 		this.menu = menu;
 		this.setting = setting;
 		this.zgame = zgame;

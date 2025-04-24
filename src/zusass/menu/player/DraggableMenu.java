@@ -58,19 +58,20 @@ public abstract class DraggableMenu extends ZusassMenu{
 	 *
 	 * @param zgame The game to init the things in
 	 */
+	// TODO maybe make the game not a required parameter here?
 	public void initMenuThings(ZusassGame zgame){
 		this.defaultFormatter = this.getDefaultFormatter();
 		this.defaultPosition(zgame);
 		
 		// issue#31 Stop the weird glitchy movement with the scroller when resizing the menu
-		this.menuScroller = new VerticalScroller(1, 1, 10, 100, 200, zgame);
+		this.menuScroller = new VerticalScroller(1, 1, 10, 100, 200);
 		this.menuScroller.setScrollWheelEnabled(true);
 		this.menuScroller.setScrollWheelInverse(true);
 		this.menuScroller.setFormatter(new PixelFormatter(null, BORDER_SIZE, DRAGGABLE_HEIGHT * 1.4, 20.0));
 		this.menuScroller.setScrollWheelAsPercent(false);
 		this.menuScroller.setScrollWheelStrength(this.getScrollWheelStrength());
 		
-		var movingThing = this.getScrollableMovingThing(zgame);
+		var movingThing = this.getScrollableMovingThing();
 		this.addThing(movingThing);
 		this.menuScroller.setMovingThing(movingThing);
 		this.mob = null;
@@ -82,10 +83,9 @@ public abstract class DraggableMenu extends ZusassMenu{
 	}
 	
 	/**
-	 * @param zgame The game to use for creating the thing
 	 * @return The menu thing which moves with the scroll wheel
 	 */
-	public abstract MenuThing getScrollableMovingThing(ZusassGame zgame);
+	public abstract MenuThing getScrollableMovingThing();
 	
 	/** @return Create a new formatter for the default position and size of this menu */
 	public abstract MenuFormatter getDefaultFormatter();
@@ -98,10 +98,8 @@ public abstract class DraggableMenu extends ZusassMenu{
 	
 	/**
 	 * Regenerate the state of all the things used by this menu, based on the current value of {@link #mob}, should not call unless {@link #mob} is not null
-	 *
-	 * @param zgame The game to regenerate with
 	 */
-	public abstract void regenerateThings(ZusassGame zgame);
+	public abstract void regenerateThings();
 	
 	@Override
 	public void onDragEnd(Game game, boolean sideDrag){
@@ -130,12 +128,11 @@ public abstract class DraggableMenu extends ZusassMenu{
 	}
 	
 	/**
-	 * @param zgame The game where the mob is set in
 	 * @param mob See {@link #mob}
 	 */
-	public void setMob(ZusassGame zgame, ZusassMob mob){
+	public void setMob(ZusassMob mob){
 		this.mob = mob;
-		this.regenerateThings(zgame);
+		this.regenerateThings();
 	}
 	
 }

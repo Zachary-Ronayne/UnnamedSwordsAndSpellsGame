@@ -1,7 +1,6 @@
 package zusass.menu.spellmaker;
 
 import zgame.menu.format.PixelFormatter;
-import zusass.ZusassGame;
 import zusass.menu.comp.ZusassEnumToggleButton;
 
 /** A button for selecting the spell effect type for the spell maker */
@@ -12,10 +11,9 @@ public class EffectTypeButton extends ZusassEnumToggleButton<MakerEffectType>{
 	
 	/**
 	 * @param menu See {@link #menu}
-	 * @param zgame The {@link ZusassGame} that uses this button
 	 */
-	public EffectTypeButton(SpellMakerMenu menu, ZusassGame zgame){
-		super(0, 0, 180, 32, MakerEffectType.STATUS, MakerEffectType.values(), zgame);
+	public EffectTypeButton(SpellMakerMenu menu){
+		super(0, 0, 180, 32, MakerEffectType.STATUS, MakerEffectType.values());
 		this.menu = menu;
 		this.onValueChange(this.getSelectedValue());
 		

@@ -2,7 +2,6 @@ package zusass.menu.comp;
 
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuText;
-import zusass.ZusassGame;
 
 /** A {@link MenuText} used by the Zusass game */
 public class ZusassMenuText extends MenuText{
@@ -15,10 +14,9 @@ public class ZusassMenuText extends MenuText{
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 * @param text The text to display
-	 * @param zgame The game associated with this text
 	 */
-	public ZusassMenuText(double x, double y, double w, double h, String text, ZusassGame zgame){
-		this(x, y, w, h, text, zgame, false);
+	public ZusassMenuText(double x, double y, double w, double h, String text){
+		this(x, y, w, h, text, false);
 	}
 	
 	/**
@@ -29,12 +27,11 @@ public class ZusassMenuText extends MenuText{
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 * @param text The text to display
-	 * @param zgame The game associated with this text
 	 * @param textOnly true if only the text should display, false for a background and border
 	 */
-	public ZusassMenuText(double x, double y, double w, double h, String text, ZusassGame zgame, boolean textOnly){
-		super(x, y, w, h, text, zgame);
-		ZusassStyle.applyStyleText(zgame, this);
+	public ZusassMenuText(double x, double y, double w, double h, String text, boolean textOnly){
+		super(x, y, w, h, text);
+		ZusassStyle.applyStyleText(this);
 		if(textOnly){
 			this.setBorder(new ZColor(0, 0, 0, 0));
 			this.setFill(new ZColor(0, 0, 0, 0));

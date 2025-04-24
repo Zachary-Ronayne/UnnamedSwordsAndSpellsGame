@@ -1,7 +1,5 @@
 package zgame.menu.togglebutton;
 
-import zgame.core.Game;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,10 +14,9 @@ public class BoolToggleButton extends ToggleButton<BoolToggleButtonValue>{
 	 * @param trueSelected true if true is selected by default, false otherwise
 	 * @param trueValue The value to display when this button is toggle to true
 	 * @param falseValue The value to display when this button is toggle to false
-	 * @param game The game that uses this button
 	 */
-	public BoolToggleButton(double x, double y, double w, double h, boolean trueSelected, String trueValue, String falseValue, Game game){
-		super(x, y, w, h, trueSelected ? 0 : 1, new ArrayList<>(List.of(new BoolToggleButtonValue(true, trueValue), new BoolToggleButtonValue(false, falseValue))), game);
+	public BoolToggleButton(double x, double y, double w, double h, boolean trueSelected, String trueValue, String falseValue){
+		super(x, y, w, h, trueSelected ? 0 : 1, new ArrayList<>(List.of(new BoolToggleButtonValue(true, trueValue), new BoolToggleButtonValue(false, falseValue))));
 	}
 	
 	/**

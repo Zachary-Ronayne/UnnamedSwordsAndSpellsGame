@@ -2,7 +2,6 @@ package zusass.menu.comp;
 
 import zgame.menu.togglebutton.ToggleButton;
 import zgame.menu.togglebutton.ToggleButtonValue;
-import zusass.ZusassGame;
 
 import java.util.List;
 
@@ -16,11 +15,10 @@ public class ZusassToggleButton<T extends ToggleButtonValue> extends ToggleButto
 	 * @param h See {@link #getHeight()}
 	 * @param defaultIndex The index of the initially selected value in values, can be null to default to 0
 	 * @param values See {@link #values}
-	 * @param zgame The game that uses this button
 	 */
-	public ZusassToggleButton(double x, double y, double w, double h, Integer defaultIndex, List<T> values, ZusassGame zgame){
-		super(x, y, w, h, defaultIndex, values, zgame);
+	public ZusassToggleButton(double x, double y, double w, double h, Integer defaultIndex, List<T> values){
+		super(x, y, w, h, defaultIndex, values);
 		
-		ZusassStyle.applyStyleText(zgame, this);
+		ZusassStyle.applyStyleText(this);
 	}
 }

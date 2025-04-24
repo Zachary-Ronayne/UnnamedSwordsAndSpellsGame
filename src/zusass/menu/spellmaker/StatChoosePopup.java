@@ -3,7 +3,6 @@ package zusass.menu.spellmaker;
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.Menu;
-import zusass.ZusassGame;
 import zusass.menu.comp.ZusassButton;
 
 /** The popup to select the stat to effect for the spell */
@@ -12,9 +11,8 @@ public class StatChoosePopup extends Menu{
 	/**
 	 * Create the popup for selecting a stat type
 	 * @param button The button which creates this popup
-	 * @param zgame The game this button uses
 	 */
-	public StatChoosePopup(StatChooseButton button, ZusassGame zgame){
+	public StatChoosePopup(StatChooseButton button){
 		super();
 		
 		var values = StatSpellType.values();
@@ -32,12 +30,12 @@ public class StatChoosePopup extends Menu{
 		
 		for(int i = 0; i < values.length; i++){
 			var s = values[i];
-			var b = new ZusassButton(offset, offset + buttonHeight * i + (i == 0 ? 0 : i * buttonSpace), buttonWidth, buttonHeight, s.getDisplay(), zgame){
+			var b = new ZusassButton(offset, offset + buttonHeight * i + (i == 0 ? 0 : i * buttonSpace), buttonWidth, buttonHeight, s.getDisplay()){
 				@Override
 				public void click(Game game){
 					super.click(game);
 					button.setSelectedStat(s);
-					zgame.getCurrentState().removeTopMenu(game);
+					game.getCurrentState().removeTopMenu(game);
 				}
 			};
 			b.setFontSize(20);
@@ -45,8 +43,6 @@ public class StatChoosePopup extends Menu{
 			b.setTextY(b.getTextY() - 4);
 			this.addThing(b);
 		}
-
-		this.center(zgame.getWindow());
 	}
 	
 }

@@ -32,10 +32,9 @@ public class LoadSaveButton extends SavesMenuButton{
 	 * @param y See {@link #getY()}
 	 * @param text The name of the file to display
 	 * @param path See {@link #path}
-	 * @param zgame The {@link ZusassGame} associated with this button
 	 */
-	public LoadSaveButton(double x, double y, String text, String path, SavesMenu menu, ZusassGame zgame){
-		super(x, y, text, menu, zgame);
+	public LoadSaveButton(double x, double y, String text, String path, SavesMenu menu){
+		super(x, y, text, menu);
 		this.path = path;
 		this.setWidth(WIDTH);
 		this.setHeight(HEIGHT);

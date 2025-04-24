@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.TextOption;
 import zgame.core.graphics.ZColor;
+import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.TextBuffer;
 import zgame.core.utils.ZArrayUtils;
@@ -32,8 +33,8 @@ public class MenuText extends MenuThing{
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 */
-	public MenuText(double x, double y, double w, double h, Game game){
-		this(x, y, w, h, "", game);
+	public MenuText(double x, double y, double w, double h){
+		this(x, y, w, h, "");
 	}
 	
 	/**
@@ -44,10 +45,9 @@ public class MenuText extends MenuThing{
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 * @param text The text to display
-	 * @param game The game associated with this thing
 	 */
-	public MenuText(double x, double y, double w, double h, String text, Game game){
-		this(x, y, w, h, new TextOption(text), game);
+	public MenuText(double x, double y, double w, double h, String text){
+		this(x, y, w, h, new TextOption(text));
 	}
 	
 	/**
@@ -58,10 +58,9 @@ public class MenuText extends MenuThing{
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 * @param option The single element for See #options
-	 * @param game The game associated with this thing
 	 */
-	public MenuText(double x, double y, double w, double h, TextOption option, Game game){
-		this(x, y, w, h, ZArrayUtils.singleList(option), game);
+	public MenuText(double x, double y, double w, double h, TextOption option){
+		this(x, y, w, h, ZArrayUtils.singleList(option));
 	}
 	
 	/**
@@ -72,13 +71,12 @@ public class MenuText extends MenuThing{
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 * @param options See {@link TextBuffer#options}
-	 * @param game The game associated with this thing
 	 */
-	public MenuText(double x, double y, double w, double h, ArrayList<TextOption> options, Game game){
+	public MenuText(double x, double y, double w, double h, ArrayList<TextOption> options){
 		super(x, y, w, h);
 		
 		// Using zfont by default
-		this.textBuffer = new TextBuffer((int)Math.round(w), (int)Math.round(h), options, game.getFont("zfont"));
+		this.textBuffer = new TextBuffer((int)Math.round(w), (int)Math.round(h), options, FontManager.getDefaultFont());
 		this.setTextX(10);
 		this.setTextY(this.getHeight() * .9);
 		this.textBuffer.setForceUnlimit(false);

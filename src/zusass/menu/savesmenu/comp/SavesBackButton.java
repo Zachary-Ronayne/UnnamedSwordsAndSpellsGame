@@ -12,10 +12,9 @@ public class SavesBackButton extends SavesMenuButton{
 	 * Create the {@link SavesBackButton}
 	 *
 	 * @param menu See {@link #getMenu()}
-	 * @param zgame The {@link Game} associated with this button
 	 */
-	public SavesBackButton(SavesMenu menu, ZusassGame zgame){
-		super(20, 600, "Back", menu, zgame);
+	public SavesBackButton(SavesMenu menu){
+		super(20, 600, "Back", menu);
 	}
 	
 	@Override

@@ -7,6 +7,7 @@ import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.RotRender3D;
 import zgame.core.graphics.ZColor;
+import zgame.core.graphics.image.ImageManager;
 import zgame.core.sound.SoundSource;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint3D;
@@ -273,13 +274,12 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	 * @param listIndex How many elements in a list of resource bars this is
 	 * @param width The total width of the bar
 	 * @param height The total height of the bar
-	 * @param zgame The game drawing the bar
 	 * @param current The stat to use for the current value
 	 * @param max The stat to use for the max value
 	 * @param color The color of the resource bar
 	 * @param textColor The color fo the text on the resource bar, null to hide text
 	 */
-	public void drawResourceBar(Renderer r, double x, double y, int listIndex, double width, double height, ZusassGame zgame, ZusassStat current, ZusassStat max, ZColor color, ZColor textColor){
+	public void drawResourceBar(Renderer r, double x, double y, int listIndex, double width, double height, ZusassStat current, ZusassStat max, ZColor color, ZColor textColor){
 		var c = this.stat(current);
 		var m = this.stat(max);
 		double border = 2;
@@ -292,9 +292,10 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		double textureSize = 64;
 		double shiftX = -((System.currentTimeMillis() / 14.0) % width) / width + listIndex * listIndex * 0.5;
 		double shiftY = ((System.currentTimeMillis() / 300.0) % height) / height + listIndex * listIndex * 0.2;
-		r.drawRepeatingTexture(x, y + space, width, height, textureSize, textureSize, shiftX, shiftY, zgame.getImage("resourceBar"));
+		var resourceBarImage = ImageManager.image("resourceBar");
+		r.drawRepeatingTexture(x, y + space, width, height, textureSize, textureSize, shiftX, shiftY, resourceBarImage);
 		r.setColor(color);
-		r.drawRepeatingTexture(x + border, y + border + space, (width - borderTwice) * c / m, height - borderTwice, textureSize, textureSize, shiftX, shiftY, zgame.getImage("resourceBar"));
+		r.drawRepeatingTexture(x + border, y + border + space, (width - borderTwice) * c / m, height - borderTwice, textureSize, textureSize, shiftX, shiftY, resourceBarImage);
 		r.popShader();
 		// Using draw text like this is inefficient, but whatever, can optimize later if needed
 		if(textColor != null){
@@ -308,19 +309,18 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	 * Draw the resource bars, i.e. health, stamina, and mana, in 2D for the stat of this mob
 	 *
 	 * @param r The renderer to draw with
-	 * @param zgame The game the drawing takes place in
 	 * @param barX The upper left x pixel coordinate of the bars
 	 * @param barY The upper left y pixel coordinate of the bars
 	 * @param barWidth The width in pixels of the bar
 	 * @param barHeight The height in pixels of the bar
 	 * @param drawText true to draw the text for the stat numbers, false otherwise
 	 */
-	public void drawResourceBars(Renderer r, ZusassGame zgame, double barX, double barY, double barWidth, double barHeight, boolean drawText){
+	public void drawResourceBars(Renderer r, double barX, double barY, double barWidth, double barHeight, boolean drawText){
 		var textColor = drawText ? new ZColor(1) : null;
 		
-		this.drawResourceBar(r, barX, barY, 0, barWidth, barHeight, zgame, ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, new ZColor(1.5, 0, 0), textColor);
-		this.drawResourceBar(r, barX, barY, 1, barWidth, barHeight, zgame, ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, new ZColor(0, 1, 0), textColor);
-		this.drawResourceBar(r, barX, barY, 2, barWidth, barHeight, zgame, ZusassStat.MANA, ZusassStat.MANA_MAX, new ZColor(0, 0, 1.5), textColor);
+		this.drawResourceBar(r, barX, barY, 0, barWidth, barHeight, ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, new ZColor(1.5, 0, 0), textColor);
+		this.drawResourceBar(r, barX, barY, 1, barWidth, barHeight, ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, new ZColor(0, 1, 0), textColor);
+		this.drawResourceBar(r, barX, barY, 2, barWidth, barHeight, ZusassStat.MANA, ZusassStat.MANA_MAX, new ZColor(0, 0, 1.5), textColor);
 	}
 	
 	/**

@@ -15,11 +15,9 @@ public class SpellCreateButton extends ZusassButton{
 	
 	/**
 	 * Create a {@link SpellCreateButton} with the appropriate parameters
-	 *
-	 * @param zgame The {@link ZusassGame} that uses this button
 	 */
-	public SpellCreateButton(SpellMakerMenu menu, ZusassGame zgame){
-		super(0, 0, 200, 32, "Create", zgame);
+	public SpellCreateButton(SpellMakerMenu menu){
+		super(0, 0, 200, 32, "Create");
 		this.menu = menu;
 		this.setFontSize(20);
 		this.centerText();
@@ -39,7 +37,7 @@ public class SpellCreateButton extends ZusassButton{
 		player.getSpells().addSpell(spell);
 		
 		var inventoryMenu = zgame.getPlayState().getSpellListMenu();
-		inventoryMenu.regenerateThings(zgame);
+		inventoryMenu.regenerateThings();
 		inventoryMenu.updateScrollAmount();
 		
 		this.menu.setTextBoxText(SpellMakerMenu.NAME, "");

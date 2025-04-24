@@ -9,9 +9,13 @@ import zusass.menu.settings.SettingsMenu;
 /** The {@link MenuButton} in the pause menu for going to the settings menu */
 public class PauseSettingsButton extends PauseMenuButton{
 	
-	/** Create the {@link PauseSettingsButton} */
-	public PauseSettingsButton(PauseMenu menu, ZusassGame zgame){
-		super(0, 450, "Settings", menu, zgame);
+	/**
+	 * Create the {@link PauseSettingsButton}
+	 *
+	 * @param menu The menu which uses this button
+	 */
+	public PauseSettingsButton(PauseMenu menu){
+		super(0, 450, "Settings", menu);
 	}
 	
 	@Override

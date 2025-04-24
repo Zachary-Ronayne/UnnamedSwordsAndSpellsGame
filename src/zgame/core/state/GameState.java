@@ -101,6 +101,7 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	 * @param game The game where this call happened
 	 * @param node The node to add
 	 */
+	// TODO maybe make the game not a required parameter here?
 	public void popupMenu(Game game, MenuNode node){
 		var menu = node.getMenu();
 		var foundIndex = this.findIndex(menu);

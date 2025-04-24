@@ -91,10 +91,9 @@ public class MenuTextBox extends MenuButton{
 	 * @param y See {@link #getRelY()}
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
-	 * @param game The game associated with this thing
 	 */
-	public MenuTextBox(double x, double y, double w, double h, Game game){
-		super(x, y, w, h, game);
+	public MenuTextBox(double x, double y, double w, double h){
+		super(x, y, w, h);
 		this.hint = "";
 		this.label = "";
 		
@@ -119,7 +118,10 @@ public class MenuTextBox extends MenuButton{
 		this.setCursorIndex(-1);
 		this.setText("");
 		this.setCurrentText("");
-		this.bufferWidthToWindow(game);
+		// TODO is zgame needed?
+//		this.bufferWidthToWindow(zgame);
+		var textBuffer = this.getTextBuffer();
+		textBuffer.regenerateBuffer(2000, textBuffer.getHeight());
 	}
 	
 	@Override

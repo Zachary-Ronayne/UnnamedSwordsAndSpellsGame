@@ -4,7 +4,6 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.menu.MenuHolder;
 import zgame.menu.format.PixelFormatter;
-import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassMob;
 
@@ -31,10 +30,9 @@ public class StatList extends MenuHolder{
 	 * Create the list of stats
 	 *
 	 * @param menu See {@link #menu}
-	 * @param zgame The game containing this menu
 	 * @param mob The mob to get stats from
 	 */
-	public StatList(StatsMenu menu, ZusassGame zgame, ZusassMob mob){
+	public StatList(StatsMenu menu, ZusassMob mob){
 		super();
 		this.menu = menu;
 		this.textList = new ArrayList<>();
@@ -48,65 +46,63 @@ public class StatList extends MenuHolder{
 		// Generate the list of text things
 		double baseY = 0;
 		double y = baseY;
-		y = this.addTextThing(zgame, "Resources:", HEADER_SPACE, y,
+		y = this.addTextThing("Resources:", HEADER_SPACE, y,
 				"Current value / Max value (Regen per second)");
-		y = this.addResourceStat(zgame,"Health", ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, ZusassStat.HEALTH_REGEN, y,
+		y = this.addResourceStat("Health", ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, ZusassStat.HEALTH_REGEN, y,
 				"If health reaches zero, you die.");
-		y = this.addResourceStat(zgame,"Stamina", ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, ZusassStat.STAMINA_REGEN, y,
+		y = this.addResourceStat("Stamina", ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, ZusassStat.STAMINA_REGEN, y,
 				"How tired you are. Lower stamina means attacks are less effective.");
-		y = this.addResourceStat(zgame,"Mana", ZusassStat.MANA, ZusassStat.MANA_MAX, ZusassStat.MANA_REGEN, y,
+		y = this.addResourceStat("Mana", ZusassStat.MANA, ZusassStat.MANA_MAX, ZusassStat.MANA_REGEN, y,
 				"Used to cast spells. You cannot cast spells if you don't have enough mana for it.");
-		y = this.addTextSpaceThing(zgame, y);
+		y = this.addTextSpaceThing(y);
 		
-		y = this.addTextThing(zgame, "Attributes:", HEADER_SPACE, y,
+		y = this.addTextThing("Attributes:", HEADER_SPACE, y,
 				"Values that govern how effective your actions are.");
-		y = this.addAttributeStat(zgame, "Strength", ZusassStat.STRENGTH, y,
+		y = this.addAttributeStat("Strength", ZusassStat.STRENGTH, y,
 				"Governs attack damage and max health.");
-		y = this.addAttributeStat(zgame, "Endurance", ZusassStat.ENDURANCE, y,
+		y = this.addAttributeStat("Endurance", ZusassStat.ENDURANCE, y,
 				"Governs max stamina and stamina regen.");
-		y = this.addAttributeStat(zgame, "Intelligence", ZusassStat.INTELLIGENCE, y,
+		y = this.addAttributeStat("Intelligence", ZusassStat.INTELLIGENCE, y,
 				"Governs max mana and mana regen.");
-		y = this.addAttributeStat(zgame, "Agility", ZusassStat.AGILITY, y,
+		y = this.addAttributeStat("Agility", ZusassStat.AGILITY, y,
 				"Governs jump power and height.");
-		y = this.addTextSpaceThing(zgame, y);
+		y = this.addTextSpaceThing(y);
 		
-		y = this.addTextThing(zgame, "Attack", HEADER_SPACE, y,
+		y = this.addTextThing("Attack", HEADER_SPACE, y,
 				"How effective your attacks are.");
-		y = this.addAttributeStat(zgame, "Damage", ZusassStat.ATTACK_DAMAGE, y,
+		y = this.addAttributeStat("Damage", ZusassStat.ATTACK_DAMAGE, y,
 				"The base damage you do per hit.");
-		y = this.addAttributeStat(zgame, "Speed", ZusassStat.ATTACK_SPEED, y,
+		y = this.addAttributeStat("Speed", ZusassStat.ATTACK_SPEED, y,
 				"The number of attacks you can perform in a second.");
-		y = this.addAttributeStat(zgame, "Range", ZusassStat.ATTACK_RANGE, y,
+		y = this.addAttributeStat("Range", ZusassStat.ATTACK_RANGE, y,
 				"The distance away from you that your attacks can hit enemies.");
-		y = this.addTextSpaceThing(zgame, y);
+		y = this.addTextSpaceThing(y);
 		
-		y = this.addTextThing(zgame, "Misc", HEADER_SPACE, y,
+		y = this.addTextThing("Misc", HEADER_SPACE, y,
 				"Other stats");
-		y = this.addAttributeStat(zgame, "Move Speed", ZusassStat.MOVE_SPEED, y,
+		y = this.addAttributeStat("Move Speed", ZusassStat.MOVE_SPEED, y,
 				"The number of units you move per second");
 		
 		this.setHeight(y - baseY);
 		
-		this.regenerateText(zgame, mob);
+		this.regenerateText(mob);
 	}
 	
 	/**
 	 * Add a text thing to this stat list
-	 * @param zgame The game using this list
 	 * @param baseName The name for the base of the attribute
 	 * @param stat The stat to display
 	 * @param y The current y position to place a list item
 	 * @param description Some short text describing what the stat does
 	 * @return The next y position to place an item
 	 */
-	private double addAttributeStat(ZusassGame zgame, String baseName, ZusassStat stat, double y, String description){
+	private double addAttributeStat(String baseName, ZusassStat stat, double y, String description){
 		var size = TEXT_SPACE;
-		return this.addTextThing(new AttributeListItem(size, this, baseName, stat, zgame), null, size, y, description);
+		return this.addTextThing(new AttributeListItem(size, this, baseName, stat), null, size, y, description);
 	}
 	
 	/**
 	 * Add a text thing to this stat list
-	 * @param zgame The game using this list
 	 * @param baseName The name for the base of the resource
 	 * @param current The stat holding the current value of the stat
 	 * @param max The stat holding the max value of the stat
@@ -115,32 +111,30 @@ public class StatList extends MenuHolder{
 	 * @param description Some short text describing what the stat does
 	 * @return The next y position to place an item
 	 */
-	private double addResourceStat(ZusassGame zgame, String baseName, ZusassStat current, ZusassStat max, ZusassStat regen, double y, String description){
+	private double addResourceStat(String baseName, ZusassStat current, ZusassStat max, ZusassStat regen, double y, String description){
 		var size = TEXT_SPACE;
-		return this.addTextThing(new ResourceListItem(size, this, baseName, current, max, regen, zgame), null, size, y, description);
+		return this.addTextThing(new ResourceListItem(size, this, baseName, current, max, regen), null, size, y, description);
 	}
 	
 	/**
 	 * Add a text thing to this stat list
-	 * @param zgame The game using this list
 	 * @param y The current y position to place a list item
 	 * @return The next y position to place an item
 	 */
-	private double addTextSpaceThing(ZusassGame zgame, double y){
-		return this.addTextThing(zgame, "", TEXT_SPACE * 0.5, y, null);
+	private double addTextSpaceThing(double y){
+		return this.addTextThing("", TEXT_SPACE * 0.5, y, null);
 	}
 	
 	/**
 	 * Add a text thing to this stat list
-	 * @param zgame The game using this list
 	 * @param baseString The base text to use to display the thing
 	 * @param size The size of the thing
 	 * @param y The current y position to place a list item
 	 * @param description Some short text describing what the stat does
 	 * @return The next y position to place an item
 	 */
-	private double addTextThing(ZusassGame zgame, String baseString, double size, double y, String description){
-		return this.addTextThing(new StatListItem(size, this,null, zgame), baseString, size, y, description);
+	private double addTextThing(String baseString, double size, double y, String description){
+		return this.addTextThing(new StatListItem(size, this,null), baseString, size, y, description);
 	}
 	
 	/**
@@ -165,10 +159,9 @@ public class StatList extends MenuHolder{
 	
 	/**
 	 * Regenerate the state of the text on the stats
-	 * @param zgame The game to update the list
 	 * @param mob The mob to get stats from
 	 */
-	public void regenerateText(ZusassGame zgame, ZusassMob mob){
+	public void regenerateText(ZusassMob mob){
 		if(mob == null) return;
 		
 		// Loop through each text thing and update it

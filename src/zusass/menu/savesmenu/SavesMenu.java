@@ -5,6 +5,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.graphics.font.FontManager;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.MenuHolder;
 import zusass.ZusassGame;
@@ -45,18 +46,18 @@ public class SavesMenu extends ZusassMenu{
 		super(zgame, "Saves");
 		this.setTitleX(50);
 		
-		this.addThing(new SavesBackButton(this, zgame));
-		this.addThing(new SavesRefreshButton(this, zgame));
+		this.addThing(new SavesBackButton(this));
+		this.addThing(new SavesRefreshButton(this));
 		
-		this.scroller = new SavesMenuScroller(zgame);
+		this.scroller = new SavesMenuScroller();
 		this.loadButtons = new LoadSaveButtonList(this, zgame);
 		this.scroller.setMovingThing(this.loadButtons);
 		this.addThing(this.scroller);
 		this.addThing(this.loadButtons);
 		
 		this.extraButtonHolder = new MenuHolder();
-		this.extraButtonHolder.addThing(new SavesLoadButton(this, zgame));
-		this.extraButtonHolder.addThing(new SavesDeleteButton(this, zgame));
+		this.extraButtonHolder.addThing(new SavesLoadButton(this));
+		this.extraButtonHolder.addThing(new SavesDeleteButton(this));
 		
 		this.messageText = "";
 		this.messageTimer = 0;
@@ -79,7 +80,7 @@ public class SavesMenu extends ZusassMenu{
 		super.render(game, r, bounds);
 		if(this.messageTimer < 0) return;
 		
-		r.setFont(game.getFont("zfont"));
+		r.setFont(FontManager.getDefaultFont());
 		r.setFontSize(25);
 		r.setColor(new ZColor(.8));
 		r.drawText(10, 700, this.messageText);

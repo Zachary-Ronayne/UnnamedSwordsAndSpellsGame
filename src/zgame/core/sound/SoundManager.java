@@ -43,12 +43,6 @@ public class SoundManager implements Destroyable{
 	 */
 	private final List<SpeakerDevice> devices;
 	
-	/** The object managing every {@link EffectSound} currently available through this {@link SoundManager} */
-	private EffectsManager effectsManager;
-	
-	/** The object managing every piece of music currently available through this {@link SoundManager}. The key is a string representing the name of the sound */
-	private MusicManager musicManager;
-	
 	/** Initialize the {@link SoundManager} to its default state */
 	public SoundManager(){
 		this(1);
@@ -61,8 +55,9 @@ public class SoundManager implements Destroyable{
 	 */
 	public SoundManager(double distanceScalar){
 		this.distanceScalar = distanceScalar;
-		this.effectsManager = new EffectsManager();
-		this.musicManager = new MusicManager();
+		// TODO should these be here? Or should this whole class be a singleton?
+		EffectsManager.init();
+		MusicManager.init();
 		
 		this.devices = new ArrayList<>();
 		this.scanDevices();
@@ -141,14 +136,8 @@ public class SoundManager implements Destroyable{
 	@Override
 	public synchronized void destroy(){
 		this.closeDevices();
-		if(this.effectsManager != null) {
-			this.effectsManager.destroy();
-			this.effectsManager = null;
-		}
-		if(this.musicManager != null) {
-			this.musicManager.destroy();
-			this.musicManager = null;
-		}
+		EffectsManager.destroyEffects();
+		MusicManager.destroyMusic();
 		if(this.musicSource != null) {
 			this.musicSource.destroy();
 			this.musicSource = null;
@@ -178,7 +167,7 @@ public class SoundManager implements Destroyable{
 	 * @param name The name of the sound, use this value when playing sounds
 	 */
 	public void addEffect(EffectSound effect, String name){
-		this.effectsManager.add(effect, name);
+		EffectsManager.instance().add(effect, name);
 	}
 	
 	/**
@@ -197,7 +186,7 @@ public class SoundManager implements Destroyable{
 	 * @param name The name of the sound to use. After calling this method, the sound with the given name will not be able to play
 	 */
 	public void removeEffect(String name){
-		this.effectsManager.remove(name);
+		EffectsManager.instance().remove(name);
 	}
 	
 	/**
@@ -207,7 +196,7 @@ public class SoundManager implements Destroyable{
 	 * @param name The name of the sound, use this value when playing sounds
 	 */
 	public void addMusic(MusicSound music, String name){
-		this.musicManager.add(music, name);
+		MusicManager.instance().add(music, name);
 	}
 	
 	/**
@@ -225,7 +214,7 @@ public class SoundManager implements Destroyable{
 	 * @param name The name of the sound to use. After calling this method, the sound with the given name will not be able to play
 	 */
 	public void removeMusic(String name){
-		this.musicManager.remove(name);
+		MusicManager.instance().remove(name);
 	}
 	
 	/**
@@ -234,7 +223,7 @@ public class SoundManager implements Destroyable{
 	 * sound contained by that folder. Then, each of those folders will contain the sound files which will be of the type of the folder they are in
 	 */
 	public void addAllEffects(){
-		this.effectsManager.addAll();
+		EffectsManager.instance().addAll();
 	}
 	
 	/**
@@ -242,7 +231,7 @@ public class SoundManager implements Destroyable{
 	 * {@link #playMusic(String)}
 	 */
 	public void addAllMusic(){
-		this.musicManager.addAll();
+		MusicManager.instance().addAll();
 	}
 	
 	/**
@@ -261,7 +250,7 @@ public class SoundManager implements Destroyable{
 	 * @param name The name of the sound, i.e. the name used when calling {@link #addEffect(EffectSound, String)}
 	 */
 	public void playEffect(SoundSource source, String name){
-		this.getEffectsPlayer().playSound(source, this.effectsManager.get(name));
+		this.getEffectsPlayer().playSound(source, EffectsManager.instance().get(name));
 	}
 	
 	/**
@@ -270,7 +259,7 @@ public class SoundManager implements Destroyable{
 	 * @param name The name of the sound, i.e. the name used when calling {@link #addMusic(String)}
 	 */
 	public void playMusic(String name){
-		this.getMusicPlayer().playSound(this.getMusicSource(), this.musicManager.get(name));
+		this.getMusicPlayer().playSound(this.getMusicSource(), MusicManager.instance().get(name));
 	}
 	
 	/**

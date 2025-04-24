@@ -7,8 +7,10 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.TextOption;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera;
+import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.TextBuffer;
+import zgame.core.graphics.image.ImageManager;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.sound.EffectsPlayer;
@@ -158,6 +160,7 @@ public class MainTest extends Game{
 	}
 	
 	public static void main(String[] args){
+		Game.initAssetManagers();
 		// Set up game
 		testerGame = new MainTest();
 //		testerGame.setCurrentState(new TesterGameState(testerGame));
@@ -168,7 +171,7 @@ public class MainTest extends Game{
 		window.center();
 		
 		// Add images
-		testerGame.getImages().addAll();
+		ImageManager.instance().addAll();
 		
 		// Add sounds
 		SoundManager sm = testerGame.getSounds();
@@ -300,7 +303,7 @@ public class MainTest extends Game{
 			super.playKeyAction(game, button, press, shift, alt, ctrl);
 			if(press) return;
 			
-			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState(game));
+			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState());
 			
 			var r = this.getCurrentRoom();
 			if(button == GLFW_KEY_W) r.makeWallState(Room2D.WALL_CEILING, !r.isSolid(Room2D.WALL_CEILING));
@@ -378,8 +381,8 @@ public class MainTest extends Game{
 		private static final String SAVES_PATH = "./saves";
 		private static final String FILE_PATH = SAVES_PATH + "/testGame.json";
 		
-		public TesterGameState(Game game){
-			this.textBuffer = new TextBuffer((int)bufferBounds.width, (int)bufferBounds.height, game.getFont("zfont"));
+		public TesterGameState(){
+			this.textBuffer = new TextBuffer((int)bufferBounds.width, (int)bufferBounds.height, FontManager.getDefaultFont());
 			this.textBuffer.setText("Text from a buffer");
 			this.textBuffer.setTextX(10);
 			this.textBuffer.setTextY(75);
@@ -519,9 +522,9 @@ public class MainTest extends Game{
 			this.textBuffer.drawOnRenderer(bufferBounds.x, bufferBounds.y, r);
 			
 			r.makeOpaque();
-			r.drawImage(playerX, playerY, 150, 150, game.getImage("player"));
+			r.drawImage(playerX, playerY, 150, 150, ImageManager.image("player"));
 			r.setAlpha(.5);
-			r.drawImage(550, 100, 50, 50, game.getImage("goal"));
+			r.drawImage(550, 100, 50, 50, ImageManager.image("goal"));
 			
 			r.setColor(0, 0, 1, 0.5);
 			r.drawRectangle(140, 70, 90, 400);
@@ -529,7 +532,7 @@ public class MainTest extends Game{
 			r.setColor(new ZColor(.9, .9, .9));
 			r.drawRectangle(0, -100, 250, 100);
 			r.setColor(new ZColor(0));
-			r.setFont(game.getFont("zfont"));
+			r.setFont(FontManager.getDefaultFont());
 			r.setFontSize(40);
 			r.limitBounds(new ZRect2D(0, -100, 250, 100));
 			r.drawText(0, -10, "a long string that should get cut off");
@@ -781,7 +784,7 @@ public class MainTest extends Game{
 		@Override
 		public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 			super.keyAction(game, button, press, shift, alt, ctrl);
-			if(!press && alt && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState(game));
+			if(!press && alt && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState());
 		}
 		
 		@Override
@@ -790,7 +793,7 @@ public class MainTest extends Game{
 			r.fill();
 			super.renderBackground(game, r);
 			
-			r.setFont(game.getFont("zfont"));
+			r.setFont(FontManager.getDefaultFont());
 			r.setColor(0, 0, 1);
 			r.setFontSize(30);
 			r.setFontLineSpace(-4);
@@ -810,7 +813,7 @@ public class MainTest extends Game{
 			this.regenerateBuffer();
 			this.setFill(new ZColor(.1, .1, .2, 1));
 			
-			MenuScroller scrollX = new HorizontalScroller(0, 370, 800, 20, 200, game){
+			MenuScroller scrollX = new HorizontalScroller(0, 370, 800, 20, 200){
 				@Override
 				public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 					super.keyActionFocused(game, button, press, shift, alt, ctrl);
@@ -825,7 +828,7 @@ public class MainTest extends Game{
 			scrollX.getButton().regenerateBuffer();
 			scrollX.getButton().setHighlightColor(new ZColor(0, 0, 1, .5));
 			scrollX.getButton().setFill(new ZColor(.5, .5, .5));
-			MenuScroller scrollY = new VerticalScroller(820, 0, 20, 350, 200, game){
+			MenuScroller scrollY = new VerticalScroller(820, 0, 20, 350, 200){
 				@Override
 				public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 					super.keyActionFocused(game, button, press, shift, alt, ctrl);
@@ -844,10 +847,10 @@ public class MainTest extends Game{
 			scrollX.setMovingThing(base);
 			scrollY.setMovingThing(base);
 			
-			t = new MenuButton(10, 10, 300, 50, game){
+			t = new MenuButton(10, 10, 300, 50){
 				@Override
 				public void click(Game game){
-					game.setCurrentState(new TesterGameState(game));
+					game.setCurrentState(new TesterGameState());
 				}
 			};
 			t.setFill(new ZColor(0, .2, .7));
@@ -855,7 +858,7 @@ public class MainTest extends Game{
 			t.setText("Back");
 			base.addThing(t);
 			
-			t = new MenuButton(50, 100, 200, 100, game){
+			t = new MenuButton(50, 100, 200, 100){
 				double pos = 0;
 				
 				@Override
@@ -867,7 +870,7 @@ public class MainTest extends Game{
 				public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 					super.keyActionFocused(game, button, press, shift, alt, ctrl);
 					if(button == GLFW_KEY_1 && !press){
-						MenuButton b = new MenuButton(pos, this.getHeight(), 15, 10, game);
+						MenuButton b = new MenuButton(pos, this.getHeight(), 15, 10);
 						b.setFill(new ZColor(0, 0, (pos / 100) % 1));
 						this.addThing(b);
 						pos += 20;
@@ -877,10 +880,10 @@ public class MainTest extends Game{
 			t.setFill(new ZColor(.5, 0, 0));
 			t.setText("Exit");
 			t.setFontColor(new ZColor(0));
-			t.setFont(new GameFont(game.getFontAsset("zfont"), 50, 0, 0));
+			t.setFont(new GameFont(FontManager.getDefaultFontAsset(), 50, 0, 0));
 			base.addThing(t);
 			
-			t = new MenuButton(50, 220, 200, 50, game){
+			t = new MenuButton(50, 220, 200, 50){
 				@Override
 				public void click(Game game){
 					createPopup(game);
@@ -888,23 +891,23 @@ public class MainTest extends Game{
 			};
 			t.setText("popup");
 			t.setTextY(45);
-			t.setFont(new GameFont(game.getFontAsset("zfont"), 25, 0, 0));
+			t.setFont(new GameFont(FontManager.getDefaultFontAsset(), 25, 0, 0));
 			t.setFontColor(new ZColor(0));
 			base.addThing(t);
 			
 			base.getAllThings().addClass(MenuTextBox.class);
-			makeTextBox(base, game, 100, MenuTextBox.Mode.DEFAULT);
-			makeTextBox(base, game, 160, MenuTextBox.Mode.INT);
-			makeTextBox(base, game, 220, MenuTextBox.Mode.INT_POS);
-			makeTextBox(base, game, 280, MenuTextBox.Mode.FLOAT);
-			makeTextBox(base, game, 340, MenuTextBox.Mode.FLOAT_POS);
+			makeTextBox(base,100, MenuTextBox.Mode.DEFAULT);
+			makeTextBox(base,160, MenuTextBox.Mode.INT);
+			makeTextBox(base,220, MenuTextBox.Mode.INT_POS);
+			makeTextBox(base,280, MenuTextBox.Mode.FLOAT);
+			makeTextBox(base,340, MenuTextBox.Mode.FLOAT_POS);
 			
 			this.addThing(scrollX);
 			this.addThing(scrollY);
 		}
 		
-		private void makeTextBox(MenuThing base, Game game, double y, MenuTextBox.Mode mode){
-			var textBox = new MenuTextBox(300, y, 300, 50, game){
+		private void makeTextBox(MenuThing base, double y, MenuTextBox.Mode mode){
+			var textBox = new MenuTextBox(300, y, 300, 50){
 				@Override
 				public void click(Game game){
 					if(mode == Mode.INT || mode == Mode.INT_POS) ZStringUtils.prints(getTextAsInt());
@@ -927,7 +930,7 @@ public class MainTest extends Game{
 					r.fill();
 				}
 			};
-			MenuButton b = new MenuButton(100, 100, 300, 100, game){
+			MenuButton b = new MenuButton(100, 100, 300, 100){
 				@Override
 				public void click(Game game){
 					state.removeTopMenu(game);
@@ -936,7 +939,7 @@ public class MainTest extends Game{
 			b.setText("exit popup");
 			b.setFontColor(new ZColor(0));
 			b.setTextY(90);
-			b.setFont(new GameFont(game.getFontAsset("zfont"), 32, 0, 0));
+			b.setFont(new GameFont(FontManager.getDefaultFontAsset(), 32, 0, 0));
 			menu.addThing(b);
 			this.state.popupMenu(game, menu);
 		}

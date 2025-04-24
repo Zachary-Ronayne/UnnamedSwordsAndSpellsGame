@@ -3,7 +3,6 @@ package zusass.menu.comp;
 import zgame.menu.togglebutton.EnumToggleButton;
 import zgame.menu.togglebutton.ToggleButton;
 import zgame.menu.togglebutton.ToggleButtonValue;
-import zusass.ZusassGame;
 
 /** A {@link ToggleButton} in the Zusass style */
 public class ZusassEnumToggleButton<E extends Enum<E> & ToggleButtonValue> extends EnumToggleButton<E>{
@@ -15,12 +14,11 @@ public class ZusassEnumToggleButton<E extends Enum<E> & ToggleButtonValue> exten
 	 * @param h See {@link #getHeight()}
 	 * @param defaultSelected The default enum to select for this button
 	 * @param values The valid enums to use, usually just MyEnum.values()
-	 * @param zgame The game that uses this button
 	 */
-	public ZusassEnumToggleButton(double x, double y, double w, double h, E defaultSelected, E[] values, ZusassGame zgame){
-		super(x, y, w, h, defaultSelected, values, zgame);
+	public ZusassEnumToggleButton(double x, double y, double w, double h, E defaultSelected, E[] values){
+		super(x, y, w, h, defaultSelected, values);
 		
-		ZusassStyle.applyStyleText(zgame, this);
+		ZusassStyle.applyStyleText(this);
 	}
 	
 }

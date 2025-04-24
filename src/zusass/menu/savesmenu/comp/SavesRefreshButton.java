@@ -11,10 +11,9 @@ public class SavesRefreshButton extends SavesMenuButton{
 	 * Create the {@link SavesBackButton}
 	 *
 	 * @param menu See {@link #getMenu()}
-	 * @param zgame The {@link Game} associated with this button
 	 */
-	public SavesRefreshButton(SavesMenu menu, ZusassGame zgame){
-		super(20, 550, "Refresh", menu, zgame);
+	public SavesRefreshButton(SavesMenu menu){
+		super(20, 550, "Refresh", menu);
 	}
 	
 	@Override

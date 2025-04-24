@@ -61,8 +61,8 @@ public class StatsMenu extends DraggableMenu{
 	}
 	
 	@Override
-	public MenuThing getScrollableMovingThing(ZusassGame zgame){
-		this.statList = new StatList(this, zgame, this.getMob());
+	public MenuThing getScrollableMovingThing(){
+		this.statList = new StatList(this, this.getMob());
 		return this.statList;
 	}
 	
@@ -82,8 +82,8 @@ public class StatsMenu extends DraggableMenu{
 	}
 	
 	@Override
-	public void regenerateThings(ZusassGame zgame){
-		this.statList.regenerateText(zgame, this.getMob());
+	public void regenerateThings(){
+		this.statList.regenerateText(this.getMob());
 		this.lastStatUpdate = 0;
 	}
 	
@@ -95,13 +95,13 @@ public class StatsMenu extends DraggableMenu{
 		if(press == this.shiftDown) return;
 		this.shiftDown = press;
 		this.displayDecimals = press;
-		this.regenerateThings((ZusassGame)game);
+		this.regenerateThings();
 	}
 	
 	@Override
 	public void tick(Game game, double dt){
 		super.tick(game, dt);
-		if(this.lastStatUpdate >= STAT_UPDATE_TIME) this.regenerateThings((ZusassGame)game);
+		if(this.lastStatUpdate >= STAT_UPDATE_TIME) this.regenerateThings();
 		else this.lastStatUpdate += dt;
 	}
 	

@@ -8,6 +8,7 @@ import zgame.core.GameInteractable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera3D;
+import zgame.core.graphics.image.ImageManager;
 import zgame.core.input.InputHandler;
 import zgame.core.input.InputHandlers;
 import zgame.core.input.InputType;
@@ -183,7 +184,7 @@ public class ZusassPlayer extends ZusassMob{
 				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(), this.getWidth(), this.getHeight(),
 				// TODO why is this negative and plus 90 degrees?
 				-this.getMobilityData().getFacingYaw() + ZMath.PI_BY_2,
-				game.getImage("zusassPlayer").getId());
+				ImageManager.image("zusassPlayer").getId());
 	}
 	
 	@Override

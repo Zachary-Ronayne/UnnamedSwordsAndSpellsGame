@@ -26,8 +26,9 @@ public class BoolSettingsButton extends ZusassBoolToggleButton implements ValueS
 	 * @param falseValue The value to display when this button is toggle to false
 	 * @param zgame The game that uses this button
 	 */
+	// TODO maybe make the game not a required parameter here?
 	public BoolSettingsButton(double x, double y, BooleanTypeSetting setting, String trueValue, String falseValue, BaseSettingsMenu menu, ZusassGame zgame){
-		super(x, y, 300, 45, zgame.get(setting), trueValue, falseValue, zgame);
+		super(x, y, 300, 45, zgame.get(setting), trueValue, falseValue);
 		this.menu = menu;
 		this.setting = setting;
 		this.zgame = zgame;

@@ -1,7 +1,6 @@
 package zusass.menu.mainmenu.comp.newgamemenu;
 
 import zgame.menu.MenuTextBox;
-import zusass.ZusassGame;
 import zusass.menu.comp.ZusassTextBox;
 
 /** A {@link MenuTextBox} for typing in the name of a new game */
@@ -13,11 +12,10 @@ public class NewGameTextBox extends ZusassTextBox{
 	/**
 	 * Initialize the {@link NewGameTextBox}
 	 * 
-	 * @param zgame The Zusass game used by this thing
 	 * @param popup See {@link #popup}
 	 */
-	public NewGameTextBox(ZusassGame zgame, NewGamePopup popup){
-		super(500, 350, 470, 50, zgame);
+	public NewGameTextBox(NewGamePopup popup){
+		super(500, 350, 470, 50);
 		this.popup = popup;
 		this.setHint("Save name...");
 	}

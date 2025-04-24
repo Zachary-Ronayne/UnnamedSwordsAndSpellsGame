@@ -6,6 +6,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.RotRender3D;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.camera.GameCamera3D;
+import zgame.core.graphics.image.ImageManager;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZRect2D;
@@ -76,7 +77,7 @@ public class GameDemo3D extends Game{
 		window.setSizeUniform(1500, 900);
 		window.center();
 		
-		game.getImages().add("brick");
+		ImageManager.instance().add("brick");
 		
 		dummyRoom = new DummyRoom();
 		var state = new DemoGameState(dummyRoom);

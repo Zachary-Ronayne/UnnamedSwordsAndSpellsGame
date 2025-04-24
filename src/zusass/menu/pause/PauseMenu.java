@@ -45,7 +45,7 @@ public class PauseMenu extends Menu{
 		this.setBorderWidth(8);
 		this.setFill(new ZColor(.5, 0, 0, .5));
 		
-		ZusassMenuText title = new ZusassMenuText(0, 20, 330, 120, "Pause", zgame, true);
+		ZusassMenuText title = new ZusassMenuText(0, 20, 330, 120, "Pause", true);
 		title.setFontSize(100);
 		title.setFontColor(new ZColor(0));
 		title.setFill(new ZColor(.5, .2, .2));
@@ -55,22 +55,22 @@ public class PauseMenu extends Menu{
 		
 		this.addThing(title);
 		
-		this.returnButton = new PauseReturnButton(this, zgame);
+		this.returnButton = new PauseReturnButton(this);
 		this.addThing(this.returnButton);
 		
-		this.mainMenuButton = new PauseMainMenuButton(this, zgame);
+		this.mainMenuButton = new PauseMainMenuButton(this);
 		this.addThing(this.mainMenuButton);
 		
-		this.quitButton = new PauseQuitButton(this, zgame);
+		this.quitButton = new PauseQuitButton(this);
 		this.addThing(this.quitButton);
 		
-		this.saveButton = new PauseSaveButton(this, zgame);
+		this.saveButton = new PauseSaveButton(this);
 		this.addThing(this.saveButton);
 		
-		this.hubButton = new PauseHubButton(this, zgame);
+		this.hubButton = new PauseHubButton(this);
 		this.addThing(this.hubButton);
 		
-		this.settingsButton = new PauseSettingsButton(this, zgame);
+		this.settingsButton = new PauseSettingsButton(this);
 		this.addThing(this.settingsButton);
 	}
 	

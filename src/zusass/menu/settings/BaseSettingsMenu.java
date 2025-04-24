@@ -19,7 +19,7 @@ public class BaseSettingsMenu extends ZusassMenu{
 		super(zgame, title);
 		this.settingsMenu = settingsMenu;
 		
-		var backButton = new SettingsBackButton(zgame){
+		var backButton = new SettingsBackButton(){
 			@Override
 			public void click(Game game){
 				super.click(game);
@@ -29,7 +29,7 @@ public class BaseSettingsMenu extends ZusassMenu{
 		this.addThing(backButton);
 		
 		if(addConfirmButton){
-			this.confirmButton = new SettingsConfirmButton(zgame);
+			this.confirmButton = new SettingsConfirmButton();
 			this.addThing(confirmButton);
 		}
 		else confirmButton = null;

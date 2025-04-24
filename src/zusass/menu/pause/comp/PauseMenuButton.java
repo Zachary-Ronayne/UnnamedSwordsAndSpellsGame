@@ -1,6 +1,5 @@
 package zusass.menu.pause.comp;
 
-import zusass.ZusassGame;
 import zusass.menu.comp.ZusassButton;
 import zusass.menu.pause.PauseMenu;
 
@@ -16,10 +15,9 @@ public class PauseMenuButton extends ZusassButton{
 	 * @param x The x coordinate of the button
 	 * @param y The y coordinate of the button
 	 * @param text The text for the button
-	 * @param zgame The game which will use the button
 	 */
-	public PauseMenuButton(double x, double y, String text, PauseMenu menu, ZusassGame zgame){
-		super(x, y, 250, 50, text, zgame);
+	public PauseMenuButton(double x, double y, String text, PauseMenu menu){
+		super(x, y, 250, 50, text);
 		this.menu = menu;
 	}
 	

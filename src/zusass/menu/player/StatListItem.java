@@ -6,7 +6,6 @@ import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZArrayUtils;
 import zgame.menu.format.PercentFormatter;
 import zgame.stat.Stat;
-import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassMob;
 import zusass.menu.comp.ZusassButton;
@@ -48,10 +47,9 @@ public class StatListItem extends ZusassButton{
 	 *
 	 * @param size The size of this item
 	 * @param statType See {@link #statType}
-	 * @param zgame The game to use to create the item
 	 */
-	public StatListItem(double size, StatList statList, ZusassStat statType, ZusassGame zgame){
-		super(0, 0, 1, size, "", zgame);
+	public StatListItem(double size, StatList statList, ZusassStat statType){
+		super(0, 0, 1, size, "");
 		this.statList = statList;
 		this.statType = statType;
 		this.setFormatter(new PercentFormatter(1.0, null, 0.5, null));
@@ -59,7 +57,11 @@ public class StatListItem extends ZusassButton{
 		this.setFill(FILL_COLOR);
 		this.setBorderWidth(1);
 		this.setBorder(BORDER_COLOR);
-		this.bufferWidthToWindow(zgame);
+		
+		// TODO is zgame needed?
+//		this.bufferWidthToWindow(zgame);
+		var textBuffer = this.getTextBuffer();
+		textBuffer.regenerateBuffer(2000, textBuffer.getHeight());
 	}
 	
 	/**

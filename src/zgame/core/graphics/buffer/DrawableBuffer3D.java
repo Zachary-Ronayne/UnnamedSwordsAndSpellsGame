@@ -69,7 +69,6 @@ public class DrawableBuffer3D implements Destroyable{
 		}
 		r.pushColor();
 		r.setColor(0, 0, 0, this.getOpacity());
-		// TODO make this not need to specify axis rotation every time
 		r.drawPlaneBuffer(
 				this.getX(), this.getY(), this.getZ(),
 				this.getWidth(), this.getLength(),

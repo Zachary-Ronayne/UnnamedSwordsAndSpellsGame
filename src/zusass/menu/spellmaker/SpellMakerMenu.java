@@ -113,11 +113,11 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.format(zgame.getWindow(), new PercentFormatter(.8, .95, .5, .5));
 		
 		// The button for creating a new spell
-		this.createButton = new SpellCreateButton(this, zgame);
+		this.createButton = new SpellCreateButton(this);
 		this.addThing(this.createButton);
 		
 		// The button for resetting the menu
-		var resetButton = new ZusassButton(1, 1, 160, 40, "Reset", zgame){
+		var resetButton = new ZusassButton(1, 1, 160, 40, "Reset"){
 			@Override
 			public void click(Game game){
 				reset();
@@ -130,41 +130,41 @@ public class SpellMakerMenu extends ZusassMenu{
 		
 		this.textBoxes = new HashMap<>();
 		
-		this.initTextBox(NAME, zgame, "Name", 120, MenuTextBox.Mode.DEFAULT, this);
+		this.initTextBox(NAME, "Name", 120, MenuTextBox.Mode.DEFAULT, this);
 		
 		this.projectileBoxesHolder = makeNewMenuHolder();
 		this.statusEffectBoxesHolder = makeNewMenuHolder();
 		
-		this.initTextBox(DURATION, zgame, "Duration", 170, MenuTextBox.Mode.FLOAT_POS, this.statusEffectBoxesHolder);
-		this.initTextBox(MAGNITUDE, zgame, "Magnitude", 220, MenuTextBox.Mode.FLOAT_POS, this);
-		this.initTextBox(SPEED, zgame, "Speed", 270, MenuTextBox.Mode.FLOAT_POS, this.projectileBoxesHolder);
-		this.initTextBox(SIZE, zgame, "Size", 320, MenuTextBox.Mode.FLOAT_POS, this.projectileBoxesHolder);
-		this.initTextBox(RANGE, zgame, "Range", 370, MenuTextBox.Mode.FLOAT_POS, this.projectileBoxesHolder);
+		this.initTextBox(DURATION, "Duration", 170, MenuTextBox.Mode.FLOAT_POS, this.statusEffectBoxesHolder);
+		this.initTextBox(MAGNITUDE, "Magnitude", 220, MenuTextBox.Mode.FLOAT_POS, this);
+		this.initTextBox(SPEED, "Speed", 270, MenuTextBox.Mode.FLOAT_POS, this.projectileBoxesHolder);
+		this.initTextBox(SIZE, "Size", 320, MenuTextBox.Mode.FLOAT_POS, this.projectileBoxesHolder);
+		this.initTextBox(RANGE, "Range", 370, MenuTextBox.Mode.FLOAT_POS, this.projectileBoxesHolder);
 		this.addThing(this.statusEffectBoxesHolder);
 		this.addThing(this.projectileBoxesHolder);
 		
 		// The button for selecting the spell type
-		this.statChooseButton = new StatChooseButton(this, zgame);
+		this.statChooseButton = new StatChooseButton(this);
 		this.addThing(this.statChooseButton);
 		
 		// The button for selecting if the spell will be positive or negative
-		this.positiveNegativeButton = new PositiveNegativeButton(this, zgame);
+		this.positiveNegativeButton = new PositiveNegativeButton(this);
 		this.addThing(this.positiveNegativeButton);
 		
 		// The button for selecting the effect type, like instant effect or status effect
-		this.effectTypeButton = new EffectTypeButton(this, zgame);
+		this.effectTypeButton = new EffectTypeButton(this);
 		this.addThing(this.effectTypeButton);
 		
 		// The button for selecting the cast type, so self or projectile
-		this.castTypeButton = new CastTypeButton(this, zgame);
+		this.castTypeButton = new CastTypeButton(this);
 		this.addThing(this.castTypeButton);
 		
 		// The button for the modifier type
-		this.modifierTypeButton = new ModifierTypeButton(this, zgame);
+		this.modifierTypeButton = new ModifierTypeButton(this);
 		this.addThing(this.modifierTypeButton);
 		
 		// Text for showing the spell cost
-		this.spellCostText = new ZusassMenuText(0, 0, 300, 32, "", zgame);
+		this.spellCostText = new ZusassMenuText(0, 0, 300, 32, "");
 		this.spellCostText.setFill(new ZColor(1));
 		this.spellCostText.setBorder(new ZColor(0));
 		this.spellCostText.setBorderWidth(2);
@@ -191,15 +191,14 @@ public class SpellMakerMenu extends ZusassMenu{
 	 * Set up a text box for input
 	 *
 	 * @param key The string to use for a key to put into {@link #textBoxes}
-	 * @param zgame The game using the box
 	 * @param hint The hint for the box
 	 * @param y The y position of the box
 	 * @param mode The input mode of the box
 	 * @param addTo The {@link MenuThing} to add the text box to
 	 * @return The new box
 	 */
-	private ZusassTextBox initTextBox(String key, ZusassGame zgame, String hint, double y, MenuTextBox.Mode mode, MenuThing addTo){
-		var box = new ZusassTextBox(0, y, 1, 40, zgame){
+	private ZusassTextBox initTextBox(String key, String hint, double y, MenuTextBox.Mode mode, MenuThing addTo){
+		var box = new ZusassTextBox(0, y, 1, 40){
 			@Override
 			public void setCurrentText(String text){
 				super.setCurrentText(text);
@@ -209,7 +208,7 @@ public class SpellMakerMenu extends ZusassMenu{
 			@Override
 			public void setFocused(Game game){
 				super.setFocused(game);
-				if(isFocused(game)) selectTextBox(zgame, this);
+				if(isFocused(game)) selectTextBox((ZusassGame)game, this);
 			}
 		};
 		box.setHint(hint + "...");
@@ -221,7 +220,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		
 		var w = 300;
 		var h = box.getHeight();
-		var text = new ZusassMenuText(box.getRelX() - w, box.getRelY() - h * .1, w, h, hint + ":", zgame, true);
+		var text = new ZusassMenuText(box.getRelX() - w, box.getRelY() - h * .1, w, h, hint + ":", true);
 		text.setFontColor(new ZColor(0));
 		text.setFontSize(30);
 		text.centerTextVertical();

@@ -30,16 +30,17 @@ public class NewGamePopup extends Menu{
 	 */
 	public NewGamePopup(NewGameButton button, ZusassGame zgame){
 		super(0, 0);
+		// TODO make this not need zgame
 		this.setWidth(zgame.getScreenWidth());
 		this.setHeight(zgame.getScreenHeight());
 		this.setFill(new ZColor(0, .7));
 		this.setBorder(new ZColor(0, 0));
 		
-		this.newGameTextBox = new NewGameTextBox(zgame, this);
+		this.newGameTextBox = new NewGameTextBox(this);
 		this.addThing(this.newGameTextBox);
 		this.newGameTextBox.centerHorizontal();
 		
-		var seedLabel = new ZusassMenuText(100, 410, 430, 35, "Leave blank for random seed", zgame);
+		var seedLabel = new ZusassMenuText(100, 410, 430, 35, "Leave blank for random seed");
 		seedLabel.setFontSize(30);
 		this.addThing(seedLabel);
 		seedLabel.centerHorizontal();
@@ -50,22 +51,22 @@ public class NewGamePopup extends Menu{
 		seedLabel.centerText();
 		seedLabel.setTextY(seedLabel.getTextY() - 6);
 		
-		this.seedTextBox = new SeedTextBox(zgame);
+		this.seedTextBox = new SeedTextBox();
 		this.addThing(this.seedTextBox);
 		this.seedTextBox.centerHorizontal();
 		
-		this.createButton = new CreateGameButton(this, zgame);
+		this.createButton = new CreateGameButton(this);
 		this.addThing(this.createButton);
 		this.createButton.centerHorizontal();
 		this.createButton.moveX(-(this.createButton.getWidth() * .5) - 20);
 		this.createButton.disable();
 		
-		var cancelButton = new CancelGameButton(zgame);
+		var cancelButton = new CancelGameButton();
 		this.addThing(cancelButton);
 		cancelButton.centerHorizontal();
 		cancelButton.moveX(cancelButton.getWidth() * .5 + 20);
 		
-		ZusassMenuText title = new ZusassMenuText(100, 100, 600, 100, "Create new Game", zgame);
+		ZusassMenuText title = new ZusassMenuText(100, 100, 600, 100, "Create new Game");
 		this.addThing(title);
 		title.setFill(new ZColor(.5, .8));
 		title.setBorder(new ZColor(0, 0));

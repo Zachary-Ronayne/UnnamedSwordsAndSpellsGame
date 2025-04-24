@@ -3,6 +3,8 @@ package zusass.menu;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.graphics.font.FontManager;
+import zgame.core.graphics.image.ImageManager;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
 import zgame.menu.MenuText;
@@ -34,13 +36,14 @@ public abstract class ZusassMenu extends Menu{
 	 * @param y The y position of the title
 	 */
 	public ZusassMenu(ZusassGame zgame, String title, double x, double y){
+		// TODO make this not need zgame passed in, the width and height should be set after the menu is created
 		super(0, 0, zgame.getScreenWidth(), zgame.getScreenHeight(), false);
 		this.sendToTopOnClick = false;
 		this.setFill(new ZColor(0.2, 0.2, 0.2));
 		
-		this.titleThing = new MenuText(0, 0, zgame.getScreenWidth(), zgame.getScreenHeight(), zgame);
+		this.titleThing = new MenuText(0, 0, zgame.getScreenWidth(), zgame.getScreenHeight());
 		this.titleThing.setText(title);
-		this.titleThing.setFont(zgame.getDefaultFont().size(100));
+		this.titleThing.setFont(FontManager.getDefaultFont().size(100));
 		this.titleThing.setTextX(x);
 		this.titleThing.setTextY(y);
 		this.titleThing.invisible();
@@ -60,7 +63,7 @@ public abstract class ZusassMenu extends Menu{
 		super.render(game, r, bounds);
 		r.setColor(new ZColor(0.3, 0.26, 0.26));
 		r.pushTextureTintShader();
-		r.drawRepeatingTexture(bounds, 128, 128, game.getImage("brickGrayscale"));
+		r.drawRepeatingTexture(bounds, 128, 128, ImageManager.image("brickGrayscale"));
 		r.popShader();
 	}
 	

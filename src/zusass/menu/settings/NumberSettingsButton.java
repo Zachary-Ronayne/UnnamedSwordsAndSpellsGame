@@ -35,8 +35,9 @@ public abstract class NumberSettingsButton<N extends Number> extends ZusassTextB
 	 * @param max The maximum value this setting can be scrolled to
 	 * @param zgame The game using this button
 	 */
+	// TODO maybe make the game not a required parameter here?
 	public NumberSettingsButton(double x, double y, SettingType<N> setting, String name, Integer min, Integer max, boolean allowDecimal, BaseSettingsMenu menu, ZusassGame zgame){
-		super(x, y, 300, 45, zgame);
+		super(x, y, 300, 45);
 		this.menu = menu;
 		this.setting = setting;
 		this.zgame = zgame;
@@ -52,7 +53,7 @@ public abstract class NumberSettingsButton<N extends Number> extends ZusassTextB
 		this.setCurrentText(String.valueOf(currentValue));
 		
 		if(min != null && max != null){
-			this.scroller = new HorizontalSelectionScroller(min, max, this, zgame){
+			this.scroller = new HorizontalSelectionScroller(min, max, this){
 				@Override
 				public void onScrollValueChange(double perc){
 					super.onScrollValueChange(perc);

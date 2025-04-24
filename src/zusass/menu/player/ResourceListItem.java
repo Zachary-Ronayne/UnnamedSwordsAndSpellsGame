@@ -1,7 +1,6 @@
 package zusass.menu.player;
 
 import zgame.core.graphics.TextOption;
-import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassMob;
 
@@ -27,10 +26,9 @@ public class ResourceListItem extends StatListItem{
 	 * @param currentType See {@link #currentType}
 	 * @param maxType See {@link #maxType}
 	 * @param regenType See {@link #regenType}
-	 * @param zgame The game to use to create the item
 	 */
-	public ResourceListItem(double size, StatList statList, String baseName, ZusassStat currentType, ZusassStat maxType, ZusassStat regenType, ZusassGame zgame){
-		super(size, statList, null, zgame);
+	public ResourceListItem(double size, StatList statList, String baseName, ZusassStat currentType, ZusassStat maxType, ZusassStat regenType){
+		super(size, statList, null);
 		this.baseName = baseName;
 		this.currentType = currentType;
 		this.maxType = maxType;

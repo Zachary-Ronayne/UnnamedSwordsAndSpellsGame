@@ -11,8 +11,8 @@ import zusass.utils.ZusassConfig;
 public class ContinueGameButton extends MainMenuButton{
 	
 	/** Create the {@link ContinueGameButton} */
-	public ContinueGameButton(ZusassGame zgame){
-		super(50, 50, "Continue", zgame);
+	public ContinueGameButton(){
+		super(50, 50, "Continue");
 		this.setFill(new ZColor(.5));
 	}
 	

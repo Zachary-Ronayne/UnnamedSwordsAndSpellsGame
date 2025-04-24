@@ -16,33 +16,31 @@ public class MainMenu extends ZusassMenu{
 	 *
 	 * @param zgame The Zusass game associated with this {@link MainMenu}
 	 */
+	// TODO maybe make the game not a required parameter here?
 	public MainMenu(ZusassGame zgame){
 		super(zgame, "ZUSASS");
-		this.initButtons(zgame);
+		this.initButtons();
 	}
 	
 	/**
 	 * Initialize this menu to a default state
-	 *
-	 * @param zgame The game to base the buttons on
 	 */
-	public void initButtons(ZusassGame zgame){
+	public void initButtons(){
 		// Only show the continue and load buttons if at least one valid save file exists
 		String file = ZusassConfig.getMostRecentSave();
 		if(file != null){
-			this.addThing(new ContinueGameButton(zgame));
-			this.addThing(new LoadGameButton(zgame));
+			this.addThing(new ContinueGameButton());
+			this.addThing(new LoadGameButton());
 		}
-		this.addThing(new NewGameButton(zgame));
-		this.addThing(new ExitButton(zgame));
-		this.addThing(new MainSettingsButton(zgame));
+		this.addThing(new NewGameButton());
+		this.addThing(new ExitButton());
+		this.addThing(new MainSettingsButton());
 	}
 	
 	@Override
 	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		ZusassGame zgame = (ZusassGame)game;
-		super.keyActionFocused(zgame, button, press, shift, alt, ctrl);
-		if(!press && button == GLFW_KEY_F5) this.initButtons(zgame);
+		super.keyActionFocused(game, button, press, shift, alt, ctrl);
+		if(!press && button == GLFW_KEY_F5) this.initButtons();
 	}
 	
 }

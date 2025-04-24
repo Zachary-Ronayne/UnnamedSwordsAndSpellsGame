@@ -11,8 +11,8 @@ import zusass.menu.settings.SettingsMenu;
 public class MainSettingsButton extends MainMenuButton{
 	
 	/** Create the {@link MainSettingsButton} */
-	public MainSettingsButton(ZusassGame zgame){
-		super(600, 500, "Settings", zgame);
+	public MainSettingsButton(){
+		super(600, 500, "Settings");
 		this.setWidth(200);
 		this.centerText();
 		this.setFill(new ZColor(.5));

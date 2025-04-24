@@ -1,7 +1,5 @@
 package zgame.menu.togglebutton;
 
-import zgame.core.Game;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -18,10 +16,9 @@ public class EnumToggleButton<E extends Enum<E> & ToggleButtonValue> extends Tog
 	 * @param h See {@link #getHeight()}
 	 * @param defaultSelected The default enum to select for this button
 	 * @param values The valid enums to use, usually just MyEnum.values()
-	 * @param game The game that uses this button
 	 */
-	public EnumToggleButton(double x, double y, double w, double h, E defaultSelected, E[] values, Game game){
-		super(x, y, w, h, Arrays.stream(values).toList().indexOf(defaultSelected), new ArrayList<>(Arrays.stream(values).toList()), game);
+	public EnumToggleButton(double x, double y, double w, double h, E defaultSelected, E[] values){
+		super(x, y, w, h, Arrays.stream(values).toList().indexOf(defaultSelected), new ArrayList<>(Arrays.stream(values).toList()));
 		this.values = values;
 	}
 	

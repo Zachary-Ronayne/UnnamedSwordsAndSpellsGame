@@ -11,10 +11,9 @@ public class SavesLoadButton extends SavesMenuButton{
 	 * Create the {@link SavesLoadButton}
 	 *
 	 * @param menu See {@link #getMenu()}
-	 * @param zgame The {@link Game} associated with this button
 	 */
-	public SavesLoadButton(SavesMenu menu, ZusassGame zgame){
-		super(205, 600, "Load", menu, zgame);
+	public SavesLoadButton(SavesMenu menu){
+		super(205, 600, "Load", menu);
 	}
 	
 	@Override

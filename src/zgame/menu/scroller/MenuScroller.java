@@ -46,9 +46,8 @@ public abstract class MenuScroller extends MenuThing{
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 * @param amount See {@link #amount}
-	 * @param game The game associated with this thing
 	 */
-	public MenuScroller(double x, double y, double w, double h, double amount, Game game){
+	public MenuScroller(double x, double y, double w, double h, double amount){
 		super(x, y);
 		this.scrollWheelStrength = 0.1;
 		this.scrollWheelAsPercent = true;
@@ -59,7 +58,7 @@ public abstract class MenuScroller extends MenuThing{
 		this.setHeight(h);
 		this.amount = amount;
 		this.axis = new ScrollAxis();
-		this.button = this.generateButton(game);
+		this.button = this.generateButton();
 		super.addThing(button);
 		this.movingThing = null;
 		
@@ -107,10 +106,9 @@ public abstract class MenuScroller extends MenuThing{
 	}
 	
 	/**
-	 * @param game The game associated with this thing
 	 * @return A MenuScrollerButton implemented to move the scroll button around in the desired way
 	 */
-	public abstract MenuScrollerButton generateButton(Game game);
+	public abstract MenuScrollerButton generateButton();
 	
 	/** @param amount The amount to scroll this menu scroller by, as a percentage */
 	public void scroll(double amount){

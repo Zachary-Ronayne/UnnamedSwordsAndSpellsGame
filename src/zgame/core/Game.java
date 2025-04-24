@@ -10,16 +10,10 @@ import zgame.core.graphics.camera.CameraAxis;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.graphics.font.FontManager;
-import zgame.core.graphics.font.GameFont;
-import zgame.core.graphics.font.FontAsset;
-import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.image.ImageManager;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
-import zgame.core.sound.EffectsPlayer;
-import zgame.core.sound.MusicPlayer;
-import zgame.core.sound.SoundManager;
-import zgame.core.sound.SoundSource;
+import zgame.core.sound.*;
 import zgame.core.state.DefaultState;
 import zgame.core.state.GameState;
 import zgame.core.state.PlayState;
@@ -59,12 +53,6 @@ public class Game implements Saveable, Destroyable{
 	
 	/** true to initialize the sound engine on game {@link #start()}, false otherwise, it will have to be started later using {@link #initSound()} */
 	private boolean initSoundOnStart;
-	
-	/** The {@link ImageManager} used by this {@link Game} to load images for ease of use in rendering */
-	private final ImageManager images;
-	
-	/** The {@link FontManager} used by this {@link Game} to load fonts for rendering text */
-	private final FontManager fonts;
 	
 	/** The looper to run the main OpenGL loop */
 	private final GameLooper renderLooper;
@@ -244,13 +232,12 @@ public class Game implements Saveable, Destroyable{
 		this.window.setGame(this);
 		this.focusedMenuThing = null;
 		
-		// Init images
-		this.images = new ImageManager();
-		
-		// Init fonts and set the default font
-		this.fonts = new FontManager();
-		this.fonts.add("zfont");
-		this.getWindow().getRenderer().setFont(this.getFont("zfont"));
+		// TODO is this the best place for this?
+		// Load the default font if the manager was initialized
+		if(FontManager.instance() != null) {
+			FontManager.addDefaultFont();
+			this.getWindow().getRenderer().setFont(FontManager.getDefaultFont());
+		}
 		
 		// Init camera
 		this.camera = new GameCamera();
@@ -349,7 +336,7 @@ public class Game implements Saveable, Destroyable{
 		if(this.sounds != null) this.sounds.destroy();
 		
 		// Free images
-		this.images.destroy();
+		ImageManager.destroyImages();
 	}
 	
 	/**
@@ -816,36 +803,6 @@ public class Game implements Saveable, Destroyable{
 	 */
 	public void playMusic(String name){
 		this.getSounds().playMusic(name);
-	}
-	
-	/** @return See {@link #images} */
-	public ImageManager getImages(){
-		return this.images;
-	}
-	
-	/** @return The image from {@link #images} with the given name */
-	public GameImage getImage(String name){
-		return this.getImages().get(name);
-	}
-	
-	/** @return See {@link #fonts} */
-	public FontManager getFonts(){
-		return this.fonts;
-	}
-	
-	/** @return See {@link FontManager#get(String)} */
-	public FontAsset getFontAsset(String font){
-		return this.getFonts().get(font);
-	}
-	
-	/** @return A {@link GameFont} with the given font name */
-	public GameFont getFont(String font){
-		return new GameFont(this.getFonts().get(font));
-	}
-	
-	/** @return The default font */
-	public GameFont getDefaultFont(){
-		return getFont("zfont");
 	}
 	
 	/**
@@ -1323,6 +1280,22 @@ public class Game implements Saveable, Destroyable{
 	/** Assign this game as a 3D game */
 	public void make3D(){
 		this.setRenderStyle(RenderStyle.S_3D);
+	}
+	
+	/** Initialize all singletons for managing assets */
+	public static void initAssetManagers(){
+		ImageManager.init();
+		EffectsManager.init();
+		MusicManager.init();
+		FontManager.init();
+	}
+	
+	/** Destroy all resources used by all asset managers */
+	public static void destroyAssetManagers(){
+		ImageManager.destroyImages();
+		EffectsManager.destroyEffects();
+		MusicManager.destroyMusic();
+		FontManager.destroyFonts();
 	}
 	
 }

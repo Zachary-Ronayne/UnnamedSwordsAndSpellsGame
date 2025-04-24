@@ -5,6 +5,7 @@ import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.image.GameImage;
+import zgame.core.graphics.image.ImageManager;
 import zgame.physics.material.Material;
 
 /** A simple tile which has a constant material */
@@ -52,7 +53,7 @@ public class CubeTexTile extends TileType3D{
 	@Override
 	public void render(Tile3D t, Game g, Renderer r){
 		r.setColor(this.getColor());
-		this.renderTile(new RectRender3D(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength()), g.getImage(this.getFileName()), r);
+		this.renderTile(new RectRender3D(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength()), ImageManager.image(this.getFileName()), r);
 	}
 	
 	/**

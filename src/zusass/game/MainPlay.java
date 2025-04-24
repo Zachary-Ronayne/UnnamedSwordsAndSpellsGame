@@ -1,7 +1,6 @@
 package zusass.game;
 
 import zgame.core.Game;
-import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.state.MenuNode;
@@ -10,7 +9,6 @@ import zgame.core.utils.ZMath;
 import zgame.world.Direction3D;
 import zgame.world.Room3D;
 import zusass.ZusassGame;
-import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassPlayer;
 import zusass.menu.player.SpellListMenu;
 import zusass.menu.player.StatsMenu;
@@ -84,8 +82,8 @@ public class MainPlay extends PlayState{
 		super.onSet(game);
 		var zgame = (ZusassGame)game;
 		zgame.onNextLoop(() -> {
-			this.getSpellListMenu().setMob(zgame, zgame.getPlayer());
-			this.getStatsMenu().setMob(zgame, zgame.getPlayer());
+			this.getSpellListMenu().setMob(zgame.getPlayer());
+			this.getStatsMenu().setMob(zgame.getPlayer());
 		});
 	}
 	
@@ -169,7 +167,7 @@ public class MainPlay extends PlayState{
 		// Draw a basic health bar
 		ZusassPlayer p = zgame.getPlayer();
 		if(p == null) return;
-		p.drawResourceBars(r, zgame, 8, 10, 200, 24, true);
+		p.drawResourceBars(r, 8, 10, 200, 24, true);
 		
 		// Using draw text like this is inefficient, but whatever, this is temp code
 		String text;
@@ -281,7 +279,7 @@ public class MainPlay extends PlayState{
 		this.playerMenusOpen = true;
 		this.popupMenu(zgame, MenuNode.withAll(this.spellListMenu));
 		this.popupMenu(zgame, MenuNode.withAll(this.statsMenu));
-		this.statsMenu.regenerateThings(zgame);
+		this.statsMenu.regenerateThings();
 	}
 	
 	/**

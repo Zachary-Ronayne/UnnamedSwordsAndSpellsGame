@@ -16,10 +16,9 @@ public class CreateGameButton extends ZusassButton{
 	 * Initialize the {@link CreateGameButton}
 	 *
 	 * @param popup See {@link #popup}
-	 * @param zgame The Zusass game used by this thing
 	 */
-	public CreateGameButton(NewGamePopup popup, ZusassGame zgame){
-		super(0, 550, 200, 50, "Create", zgame);
+	public CreateGameButton(NewGamePopup popup){
+		super(0, 550, 200, 50, "Create");
 		this.popup = popup;
 	}
 	

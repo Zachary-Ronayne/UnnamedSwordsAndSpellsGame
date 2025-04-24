@@ -4,7 +4,6 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.menu.MenuHolder;
 import zgame.menu.format.PixelFormatter;
-import zusass.ZusassGame;
 import zusass.game.things.entities.mobs.ZusassMob;
 
 import java.util.ArrayList;
@@ -19,9 +18,8 @@ public class SpellList extends MenuHolder{
 	 * Create the new basic spell list menu thing
 	 *
 	 * @param menu See {@link #menu}
-	 * @param zgame The game containing this menu
 	 */
-	public SpellList(SpellListMenu menu, ZusassGame zgame){
+	public SpellList(SpellListMenu menu){
 		super();
 		this.getAllThings().addClass(SpellListButton.class);
 		
@@ -37,9 +35,8 @@ public class SpellList extends MenuHolder{
 	 * Generate the buttons used by this spell list, from the given mob and game
 	 *
 	 * @param mob The mob, must not be null
-	 * @param zgame The game
 	 */
-	public void generateButtons(ZusassMob mob, ZusassGame zgame){
+	public void generateButtons(ZusassMob mob){
 		var existingButtons = new ArrayList<>(this.getAllThings().get(SpellListButton.class));
 		for(var e : existingButtons) this.removeThing(e);
 		
@@ -47,7 +44,7 @@ public class SpellList extends MenuHolder{
 		var size = spells.size();
 		SpellListButton firstButton = null;
 		for(int i = 0; i < size; i++){
-			var b = new SpellListButton(spells.get(i), i, this, zgame);
+			var b = new SpellListButton(spells.get(i), i, this);
 			if(i == 0) firstButton = b;
 			this.addThing(b);
 			if(i == size - 1) this.setHeight(b.getY() + b.getHeight() - firstButton.getY());

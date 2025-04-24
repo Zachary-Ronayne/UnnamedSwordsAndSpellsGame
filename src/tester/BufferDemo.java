@@ -41,7 +41,7 @@ public class BufferDemo extends Game{
 			}
 		};
 		state = new MenuState(game, menu){};
-		var thing = new MenuText(100, 100, 500, 300, game){
+		var thing = new MenuText(100, 100, 500, 300){
 			@Override
 			public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 				super.keyActionFocused(game, button, press, shift, alt, ctrl);

@@ -4,7 +4,6 @@ import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.format.PixelFormatter;
 import zgame.settings.SettingType;
-import zusass.ZusassGame;
 import zusass.menu.comp.ZusassButton;
 
 import java.util.HashMap;
@@ -18,11 +17,9 @@ public class SettingsConfirmButton extends ZusassButton {
 	
 	/**
 	 * Create a {@link ZusassButton} with the appropriate parameters
-	 *
-	 * @param zgame The {@link ZusassGame} that uses this button
 	 */
-	public SettingsConfirmButton(ZusassGame zgame){
-		super(0, 0, 100, 30, "Confirm", zgame);
+	public SettingsConfirmButton(){
+		super(0, 0, 100, 30, "Confirm");
 		this.buttons = new HashMap<>();
 		
 		this.setFill(new ZColor(.8, .8, 1));

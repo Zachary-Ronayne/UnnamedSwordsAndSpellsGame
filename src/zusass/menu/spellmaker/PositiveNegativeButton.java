@@ -3,7 +3,6 @@ package zusass.menu.spellmaker;
 import zgame.menu.format.PixelFormatter;
 import zgame.menu.togglebutton.BoolToggleButtonValue;
 import zgame.stat.modifier.ModifierType;
-import zusass.ZusassGame;
 import zusass.menu.comp.ZusassBoolToggleButton;
 
 /** The button for toggling if the spell will be a positive or negative effect */
@@ -14,10 +13,9 @@ public class PositiveNegativeButton extends ZusassBoolToggleButton{
 	
 	/**
 	 * @param menu The menu using this button
-	 * @param zgame The {@link ZusassGame} that uses this button
 	 */
-	public PositiveNegativeButton(SpellMakerMenu menu, ZusassGame zgame){
-		super(0, 0, 180, 32, true, "Buff", "Debuff", zgame);
+	public PositiveNegativeButton(SpellMakerMenu menu){
+		super(0, 0, 180, 32, true, "Buff", "Debuff");
 		this.menu = menu;
 		this.onValueChange(this.getSelectedValue());
 		this.setFontSize(20);

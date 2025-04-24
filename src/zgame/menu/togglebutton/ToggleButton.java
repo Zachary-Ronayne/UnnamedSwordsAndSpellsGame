@@ -25,10 +25,9 @@ public class ToggleButton<T extends ToggleButtonValue> extends MenuButton{
 	 * @param h See {@link #getHeight()}
 	 * @param defaultIndex The index of the initially selected value in values, can be null to default to 0
 	 * @param values See {@link #values}
-	 * @param game The game that uses this button
 	 */
-	public ToggleButton(double x, double y, double w, double h, Integer defaultIndex, List<T> values, Game game){
-		super(x, y, w, h, "", game);
+	public ToggleButton(double x, double y, double w, double h, Integer defaultIndex, List<T> values){
+		super(x, y, w, h, "");
 		this.values = values;
 		this.setSelectedIndex(defaultIndex == null ? 0 : defaultIndex);
 	}

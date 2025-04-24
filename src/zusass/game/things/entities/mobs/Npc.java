@@ -2,8 +2,8 @@ package zusass.game.things.entities.mobs;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.core.graphics.ZColor;
 import zgame.core.graphics.buffer.DrawableBuffer;
+import zgame.core.graphics.image.ImageManager;
 import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZMath;
 import zgame.stat.modifier.ModifierType;
@@ -11,7 +11,6 @@ import zusass.ZusassGame;
 import zusass.game.magic.ProjectileSpell;
 import zusass.game.magic.Spell;
 import zusass.game.magic.effect.SpellEffectStatAdd;
-import zusass.game.stat.ZusassStat;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -50,6 +49,12 @@ public class Npc extends ZusassMob{
 		
 		this.spellTime = 0;
 		this.resourceBarBuffer = null;
+	}
+	
+	@Override
+	public void destroy(){
+		super.destroy();
+		this.resourceBarBuffer.destroy();
 	}
 	
 	@Override
@@ -113,13 +118,12 @@ public class Npc extends ZusassMob{
 		r.drawPlaneBufferSide(
 				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(), this.getWidth(), this.getHeight(),
 				// TODO why does this need to be negative facing angle?
-				-facingAngle, game.getImage("goblin").getId());
+				-facingAngle, ImageManager.image("goblin").getId());
 		
 		// issue#23 make a way of drawing a health bar above the mob, accounting for how this health bar will not be a part of the mob itself, but above it
 		
 		// Draw bars to represent its remaining health, stamina, and mana
 
-		var zgame = (ZusassGame)game;
 		int barBufferWidth = 300;
 		int barPixelHeight = 24;
 		int barBufferHeight = 90;
@@ -129,7 +133,7 @@ public class Npc extends ZusassMob{
 			this.resourceBarBuffer = new DrawableBuffer(barBufferWidth, barBufferHeight){
 				@Override
 				public void draw(Renderer r){
-					drawResourceBars(r, zgame, 0, 0, barBufferWidth, barPixelHeight, false);
+					drawResourceBars(r, 0, 0, barBufferWidth, barPixelHeight, false);
 				}
 			};
 			this.resourceBarBuffer.regenerateBuffer();

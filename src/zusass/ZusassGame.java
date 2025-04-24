@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.image.ImageManager;
 import zgame.core.utils.ZConfig;
 import zgame.settings.BooleanTypeSetting;
 import zgame.stat.Stats;
@@ -81,11 +82,8 @@ public class ZusassGame extends Game{
 		
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
-		// Load fonts
-		this.getFonts().addAll();
-		
 		// Load textures
-		var im = this.getImages();
+		var im = ImageManager.instance();
 		im.add("brickGrayscale");
 		im.add("goblin");
 		im.add("zusassPlayer");
@@ -199,6 +197,7 @@ public class ZusassGame extends Game{
 			ZConfig.error("An instance of ZusassGame already exists, will not create another");
 			return;
 		}
+		Game.initAssetManagers();
 		
 		ZusassSetting.init();
 		

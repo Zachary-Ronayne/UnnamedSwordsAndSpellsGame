@@ -63,11 +63,12 @@ public class LoadSaveButtonList extends MenuHolder{
 			
 			// Add the actual button
 			this.addThing(new LoadSaveButton(-LoadSaveButton.WIDTH - 10, i * LoadSaveButton.TOTAL_SPACE, name.replace(ZusassConfig.SAVE_FILE_SUFFIX, ""),
-					ZStringUtils.concat(path, name), this.menu, zgame));
+					ZStringUtils.concat(path, name), this.menu));
 			i++;
 		}
 		// Set the scrollable size to the space the buttons go off screen
 		buttons = this.getButtons();
+		// TODO make this not need zgame
 		this.menu.getScroller().setAmount(Math.min(0, zgame.getScreenHeight() - (buttons.size() + 1) * LoadSaveButton.TOTAL_SPACE - LoadSaveButton.SPACE));
 		
 		return true;

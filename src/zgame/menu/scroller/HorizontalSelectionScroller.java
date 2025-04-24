@@ -1,7 +1,6 @@
 package zgame.menu.scroller;
 
 import org.lwjgl.glfw.GLFW;
-import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuThing;
 import zgame.menu.format.PercentFormatter;
@@ -20,10 +19,9 @@ public class HorizontalSelectionScroller extends HorizontalScroller{
 	 * @param min See {@link #min}
 	 * @param max See {@link #max}
 	 * @param baseThing The thing which will be used as a reference for how big this scroller should be. This thing will take up the entirety of the width of the given thing
-	 * @param game The game associated with this thing
 	 */
-	public HorizontalSelectionScroller(double min, double max, MenuThing baseThing, Game game){
-		super(0, 0, baseThing.getWidth(), baseThing.getHeight(), baseThing.getWidth(), game);
+	public HorizontalSelectionScroller(double min, double max, MenuThing baseThing){
+		super(0, 0, baseThing.getWidth(), baseThing.getHeight(), baseThing.getWidth());
 		this.min = min;
 		this.max = max;
 		

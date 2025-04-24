@@ -15,10 +15,9 @@ public class SavesDeleteButton extends SavesMenuButton{
 	 * Create the {@link SavesLoadButton}
 	 *
 	 * @param menu See {@link #getMenu()}
-	 * @param zgame The {@link Game} associated with this button
 	 */
-	public SavesDeleteButton(SavesMenu menu, ZusassGame zgame){
-		super(360, 600, "Delete", menu, zgame);
+	public SavesDeleteButton(SavesMenu menu){
+		super(360, 600, "Delete", menu);
 	}
 	
 	@Override

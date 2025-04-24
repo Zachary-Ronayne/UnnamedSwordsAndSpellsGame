@@ -27,8 +27,8 @@ public class SpellListMenu extends DraggableMenu{
 	}
 	
 	@Override
-	public MenuThing getScrollableMovingThing(ZusassGame zgame){
-		this.spellList = new SpellList(this, zgame);
+	public MenuThing getScrollableMovingThing(){
+		this.spellList = new SpellList(this);
 		return this.spellList;
 	}
 	
@@ -48,8 +48,8 @@ public class SpellListMenu extends DraggableMenu{
 	}
 	
 	@Override
-	public void regenerateThings(ZusassGame zgame){
-		this.spellList.generateButtons(this.getMob(), zgame);
+	public void regenerateThings(){
+		this.spellList.generateButtons(this.getMob());
 	}
 	
 	@Override
@@ -62,14 +62,13 @@ public class SpellListMenu extends DraggableMenu{
 	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		super.keyActionFocused(game, button, press, shift, alt, ctrl);
 		if(this == game.getCurrentState().getMenu() && !press && button == GLFW.GLFW_KEY_DELETE){
-			var zgame = (ZusassGame)game;
 			var mob = this.getMob();
 			if(mob == null) return;
 			var spells = mob.getSpells();
 			spells.removeSelectedSpell();
 			var size = spells.getSpellList().size();
 			if(spells.getSelectedSpellIndex() >= size) spells.setSelectedSpellIndex(size - 1);
-			game.onNextLoop(() -> this.regenerateThings(zgame));
+			game.onNextLoop(this::regenerateThings);
 		}
 	}
 }

@@ -21,7 +21,7 @@ public class SettingsMenu extends BaseSettingsMenu{
 		super("Settings", zgame, null, false);
 		this.goBack = goBack;
 		
-		var videoSettingsButton = new ZusassButton(10, 50, 500, 100, "Video Settings", zgame){
+		var videoSettingsButton = new ZusassButton(10, 50, 500, 100, "Video Settings"){
 			@Override
 			public void click(Game game){
 				super.click(game);
@@ -30,7 +30,7 @@ public class SettingsMenu extends BaseSettingsMenu{
 		};
 		this.addThing(videoSettingsButton);
 		
-		var allSettingsButton = new ZusassButton(10, 160, 500, 100, "All Settings", zgame){
+		var allSettingsButton = new ZusassButton(10, 160, 500, 100, "All Settings"){
 			@Override
 			public void click(Game game){
 				super.click(game);

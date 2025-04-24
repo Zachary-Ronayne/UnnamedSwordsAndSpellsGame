@@ -1,7 +1,6 @@
 package zusass.menu.player;
 
 import zgame.core.graphics.TextOption;
-import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassMob;
 
@@ -18,10 +17,9 @@ public class AttributeListItem extends StatListItem{
 	 * @param size The size of this item
 	 * @param statList See {@link #statList}
 	 * @param baseName See {@link #baseName}
-	 * @param zgame The game to use to create the item
 	 */
-	public AttributeListItem(double size, StatList statList, String baseName, ZusassStat statType, ZusassGame zgame){
-		super(size, statList, statType, zgame);
+	public AttributeListItem(double size, StatList statList, String baseName, ZusassStat statType){
+		super(size, statList, statType);
 		this.baseName = baseName;
 	}
 	

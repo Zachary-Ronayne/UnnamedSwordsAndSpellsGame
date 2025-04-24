@@ -34,10 +34,9 @@ public class MenuButton extends MenuText{
 	 * @param y See {@link #getY()}
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
-	 * @param game The game associated with this thing
 	 */
-	public MenuButton(double x, double y, double w, double h, Game game){
-		this(x, y, w, h, "", game);
+	public MenuButton(double x, double y, double w, double h){
+		this(x, y, w, h, "");
 	}
 	
 	/**
@@ -48,10 +47,9 @@ public class MenuButton extends MenuText{
 	 * @param w See {@link #getWidth()}
 	 * @param h See {@link #getHeight()}
 	 * @param text The text to display
-	 * @param game The game associated with this thing
 	 */
-	public MenuButton(double x, double y, double w, double h, String text, Game game){
-		super(x, y, w, h, text, game);
+	public MenuButton(double x, double y, double w, double h, String text){
+		super(x, y, w, h, text);
 		this.setFocusable(true);
 		
 		this.highlightColor = new ZColor(0, .2);

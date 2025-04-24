@@ -28,17 +28,19 @@ public class SpellListButton extends ZusassButton{
 	 * @param spell The spell to display
 	 * @param index The index of this button in spellList
 	 * @param list See {@link #spellList}
-	 * @param zgame The {@link ZusassGame} that uses this button
 	 */
-	public SpellListButton(Spell spell, int index, SpellList list, ZusassGame zgame){
-		super(0, index * (HEIGHT + HEIGHT_SPACE), list.getWidth(), HEIGHT, spell.nameAndCost(), zgame);
+	public SpellListButton(Spell spell, int index, SpellList list){
+		super(0, index * (HEIGHT + HEIGHT_SPACE), list.getWidth(), HEIGHT, spell.nameAndCost());
 		this.spellList = list;
 		this.spellIndex = index;
 		this.setKeepInParent(false);
 		
 		this.setFormatter(new PercentFormatter(1.0, null, 0.5, null));
 		this.setFontSize(24);
-		this.bufferWidthToWindow(zgame);
+		// TODO is zgame needed?
+//		this.bufferWidthToWindow(zgame);
+		var textBuffer = this.getTextBuffer();
+		textBuffer.regenerateBuffer(2000, textBuffer.getHeight());
 		this.updateTextPosition();
 	}
 	

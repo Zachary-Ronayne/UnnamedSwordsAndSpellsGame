@@ -3,7 +3,6 @@ package zusass.menu.spellmaker;
 import zgame.core.Game;
 import zgame.core.state.MenuNode;
 import zgame.menu.format.PixelFormatter;
-import zusass.ZusassGame;
 import zusass.menu.comp.ZusassButton;
 
 /** The button that, when clicked, opens a button a popup to select the stat to effect for the spell */
@@ -18,10 +17,9 @@ public class StatChooseButton extends ZusassButton{
 	/**
 	 * Create the button for selecting a stat type
 	 * @param menu The menu which uses this button
-	 * @param zgame The game this button uses
 	 */
-	public StatChooseButton(SpellMakerMenu menu, ZusassGame zgame){
-		super(0, 0, 180, 32, "", zgame);
+	public StatChooseButton(SpellMakerMenu menu){
+		super(0, 0, 180, 32, "");
 		
 		this.setSelectedStat(null);
 		
@@ -44,8 +42,9 @@ public class StatChooseButton extends ZusassButton{
 	@Override
 	public void click(Game game){
 		super.click(game);
-		game.getCurrentState().popupMenu(game, new MenuNode(new StatChoosePopup(this, (ZusassGame)game),
-				false, false, false));
+		var popup = new StatChoosePopup(this);
+		game.getCurrentState().popupMenu(game, new MenuNode(popup, false, false, false));
+		popup.center(game.getWindow());
 	}
 	
 	/** @return See {@link #selectedStat} */
