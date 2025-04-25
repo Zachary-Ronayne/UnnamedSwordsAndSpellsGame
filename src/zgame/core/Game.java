@@ -21,6 +21,7 @@ import zgame.core.type.RenderStyle;
 import zgame.core.utils.ZConfig;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
+import zgame.core.window.WindowManager;
 import zgame.settings.*;
 import zgame.stat.DefaultStatType;
 import zgame.world.Room;
@@ -35,12 +36,17 @@ import java.util.List;
  */
 public class Game implements Saveable, Destroyable{
 	
+	// TODO make a wiki or something explaining how to make a new game and the important things for setting it up
+	
 	/**
 	 * By default, the number of times a second the sound will be updated, i.e. updating streaming sounds, checking if sounds are still playing, checking which sounds need to
 	 * play, etc. Generally shouldn't modify the value in a {@link Game}, but it can be modified through {@link Game#setSoundUpdates(int)} Setting the value too low can result
 	 * in sounds getting stuck, particularly streaming sounds, i.e. music
 	 */
 	public static final int DEFAULT_SOUND_UPDATES = 100;
+	
+	/** The default id to use for the window of the game */
+	public static final String DEFAULT_WINDOW_ID = "defaultWindow";
 	
 	/** The {@link GlfwWindow} used by this {@link Game} as the core interaction */
 	private final GameWindow window;
@@ -192,6 +198,7 @@ public class Game implements Saveable, Destroyable{
 	 * @param tps The number of ticks per second
 	 * @param printTps true to, every second, print the number of ticks that occurred in that last second, false otherwise
 	 */
+	// TODO don't pass so many parameters into the game constructor, make all of this stuff just set initially and then on Game.start all of the complicated initialization happens
 	public Game(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
 		this.nextLoopFuncs = new ArrayList<>();
 		
@@ -228,16 +235,18 @@ public class Game implements Saveable, Destroyable{
 		this.setInitSoundOnStart(true);
 		
 		// Init window
+		WindowManager.init();
 		this.window = new GlfwWindow(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
 		this.window.addSizeChangeListener(this::onWindowSizeChange);
 		this.window.addEnterFullScreenListener(window -> this.getRenderStyle().setupCore(this, window.getRenderer()));
+		this.updateWindowId();
 		this.focusedMenuThing = null;
 		
 		// TODO is this the best place for this?
 		// TODO maybe make font management always initialized?
 		// TODO maybe always auto init all managers, just don't load any assets
 		// Load the default font if the manager was initialized
-		if(FontManager.instance() != null) {
+		if(FontManager.instance() != null){
 			FontManager.addDefaultFont();
 			this.getWindow().getRenderer().setFont(FontManager.getDefaultFont());
 		}
@@ -293,7 +302,7 @@ public class Game implements Saveable, Destroyable{
 	
 	/** Call all necessary methods for initializing sound processes */
 	public void initSound(){
-		if(this.sounds != null) {
+		if(this.sounds != null){
 			this.sounds.scanDevices();
 			return;
 		}
@@ -672,6 +681,21 @@ public class Game implements Saveable, Destroyable{
 	/** @param minimizedUpdate See {@link #minimizedUpdate} */
 	public void setMinimizedUpdate(boolean minimizedUpdate){
 		this.minimizedUpdate = minimizedUpdate;
+	}
+	
+	/**
+	 * @return The id to use for the main window. Should always return a static value, otherwise window management can break. Can override for a custom id
+	 * 		If there is a need to change the window id, call {@link #updateWindowId()} to replace the window in the manager when the id changes
+	 */
+	public String getGameWindowId(){
+		return DEFAULT_WINDOW_ID;
+	}
+	
+	/** Put the window of this game into the {@link WindowManager}, also attempt to remove the old window if it doesn't exist */
+	public void updateWindowId(){
+		var wm = WindowManager.get();
+		wm.removeWindow(this.getWindow());
+		wm.addWindow(this.getGameWindowId(), this.getWindow());
 	}
 	
 	/** @return See {@link #window} */

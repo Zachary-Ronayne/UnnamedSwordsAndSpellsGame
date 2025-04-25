@@ -3,7 +3,6 @@ package zusass.menu.mainmenu;
 import static org.lwjgl.glfw.GLFW.*;
 
 import zgame.core.Game;
-import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
 import zusass.menu.mainmenu.comp.*;
 import zusass.utils.ZusassConfig;
@@ -13,12 +12,9 @@ public class MainMenu extends ZusassMenu{
 	
 	/**
 	 * Initialize the {@link MainMenu}
-	 *
-	 * @param zgame The Zusass game associated with this {@link MainMenu}
 	 */
-	// TODO maybe make the game not a required parameter here?
-	public MainMenu(ZusassGame zgame){
-		super(zgame, "ZUSASS");
+	public MainMenu(){
+		super("ZUSASS");
 		this.initButtons();
 	}
 	

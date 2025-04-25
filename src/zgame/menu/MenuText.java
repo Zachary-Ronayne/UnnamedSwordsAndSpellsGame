@@ -9,6 +9,7 @@ import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.TextBuffer;
 import zgame.core.utils.ZArrayUtils;
 import zgame.core.utils.ZRect2D;
+import zgame.core.window.GameWindow;
 
 import java.util.ArrayList;
 
@@ -179,12 +180,12 @@ public class MenuText extends MenuThing{
 	}
 	
 	/**
-	 * Set the width of {@link #textBuffer} to the width of the window of the given game.
+	 * Set the width of {@link #textBuffer} to the width of the given window.
 	 * This is useful for buffers which will be used for resizable things where it is infeasible to regenerate the buffer every time the thing is
-	 * @param game The game to get the window's width from
+	 * @param window The window to get the width from
 	 */
-	public void bufferWidthToWindow(Game game){
-		this.textBuffer.widthToWindow(game);
+	public void bufferWidthToWindow(GameWindow window){
+		this.textBuffer.widthToWindow(window);
 	}
 	
 	/** @param fontColor Set the color used to draw text, this will override anything in this thing's buffer's {@link TextBuffer#options} */

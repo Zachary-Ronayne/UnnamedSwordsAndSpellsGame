@@ -26,15 +26,14 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	
 	/**
 	 * Make a spell maker at the given position
-	 * @param zgame The game which this thing will exist in
 	 * @param x The upper left hand x coordinate
 	 * @param y The upper left hand y coordinate
 	 */
-	public SpellMakerThing(ZusassGame zgame, double x, double y, double z){
+	public SpellMakerThing(double x, double y, double z){
 		super(x, y, z, 0.4, 0.2, 0.4);
 		this.uuid = UUID.randomUUID().toString();
 		
-		this.menu = new SpellMakerMenu(zgame);
+		this.menu = new SpellMakerMenu();
 	}
 	
 	@Override

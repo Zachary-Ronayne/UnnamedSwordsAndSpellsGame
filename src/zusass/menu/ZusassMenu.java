@@ -24,8 +24,8 @@ public abstract class ZusassMenu extends Menu{
 	 *
 	 * @param title The text for {@link #titleThing}
 	 */
-	public ZusassMenu(ZusassGame zgame, String title){
-		this(zgame, title, 600, 110);
+	public ZusassMenu(String title){
+		this(title, 600, 110);
 	}
 	
 	/**
@@ -35,13 +35,13 @@ public abstract class ZusassMenu extends Menu{
 	 * @param x The x position of the title
 	 * @param y The y position of the title
 	 */
-	public ZusassMenu(ZusassGame zgame, String title, double x, double y){
-		// TODO make this not need zgame passed in, the width and height should be set after the menu is created
-		super(0, 0, zgame.getScreenWidth(), zgame.getScreenHeight(), false);
+	public ZusassMenu(String title, double x, double y){
+		super(0, 0, ZusassGame.window().getScreenWidth(), ZusassGame.window().getScreenHeight(), false);
 		this.sendToTopOnClick = false;
 		this.setFill(new ZColor(0.2, 0.2, 0.2));
 		
-		this.titleThing = new MenuText(0, 0, zgame.getScreenWidth(), zgame.getScreenHeight());
+		var window = ZusassGame.window();
+		this.titleThing = new MenuText(0, 0, window.getScreenWidth(), window.getScreenHeight());
 		this.titleThing.setText(title);
 		this.titleThing.setFont(FontManager.getDefaultFont().size(100));
 		this.titleThing.setTextX(x);

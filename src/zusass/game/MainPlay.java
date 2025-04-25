@@ -56,9 +56,9 @@ public class MainPlay extends PlayState{
 		this.enterHub(zgame);
 		
 		this.playerMenusOpen = false;
-		this.pauseMenu = new PauseMenu(zgame);
-		this.spellListMenu = new SpellListMenu(zgame);
-		this.statsMenu = new StatsMenu(zgame);
+		this.pauseMenu = new PauseMenu();
+		this.spellListMenu = new SpellListMenu();
+		this.statsMenu = new StatsMenu();
 	}
 	
 	/**

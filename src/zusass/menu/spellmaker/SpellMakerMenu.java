@@ -89,11 +89,9 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	/**
 	 * Create the menu
-	 *
-	 * @param zgame The game using the menu
 	 */
-	public SpellMakerMenu(ZusassGame zgame){
-		super(zgame, "Spell Creation");
+	public SpellMakerMenu(){
+		super("Spell Creation");
 		this.setSendToTopOnClick(true);
 		this.currentSpell = null;
 		
@@ -110,7 +108,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.getTitleThing().setFontSize(40);
 		this.getTitleThing().setTextY(50);
 		
-		this.format(zgame.getWindow(), new PercentFormatter(.8, .95, .5, .5));
+		this.format(ZusassGame.window(), new PercentFormatter(.8, .95, .5, .5));
 		
 		// The button for creating a new spell
 		this.createButton = new SpellCreateButton(this);
@@ -174,7 +172,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		this.addThing(this.spellCostText);
 		
 		this.updateMenuState();
-		this.reformat(zgame);
+		this.reformat();
 		this.reset();
 	}
 	
@@ -321,10 +319,8 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	/**
 	 * Format the components of this menu based on its current size
-	 *
-	 * @param zgame The game to reformat to
 	 */
-	private void reformat(ZusassGame zgame){
+	private void reformat(){
 		var t = this.getTitleThing();
 		t.format(new MultiFormatter(new PercentFormatter(1.0, 1.0, 0.5, 0.5), new PixelFormatter(null, null, 50.0, null)));
 		t.centerTextHorizontal();
@@ -335,7 +331,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	@Override
 	public void onDragEnd(Game game, boolean sideDrag){
 		super.onDragEnd(game, sideDrag);
-		this.reformat((ZusassGame)game);
+		this.reformat();
 	}
 	
 	@Override

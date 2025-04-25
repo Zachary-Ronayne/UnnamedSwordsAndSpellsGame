@@ -33,14 +33,12 @@ public class PauseMenu extends Menu{
 	
 	/**
 	 * Make a new pause menu
-	 *
-	 * @param zgame The game which will use this pause menu
 	 */
-	public PauseMenu(ZusassGame zgame){
+	public PauseMenu(){
 		super(0, 0, 350, 520, false);
 		this.setDefaultDestroyRemove(false);
 		
-		this.center(zgame.getWindow());
+		this.center(ZusassGame.window());
 		this.setBorder(new ZColor(.2, 0, 0, .5));
 		this.setBorderWidth(8);
 		this.setFill(new ZColor(.5, 0, 0, .5));

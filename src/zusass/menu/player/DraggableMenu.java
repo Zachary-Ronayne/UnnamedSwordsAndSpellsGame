@@ -33,11 +33,9 @@ public abstract class DraggableMenu extends ZusassMenu{
 	
 	/**
 	 * Create a new {@link DraggableMenu} for displaying the contents of something
-	 *
-	 * @param zgame The game which will use this menu
 	 */
-	public DraggableMenu(ZusassGame zgame){
-		super(zgame, "");
+	public DraggableMenu(){
+		super("");
 		this.setDefaultDestroyRemove(false);
 		this.setSendToTopOnClick(true);
 		
@@ -55,13 +53,10 @@ public abstract class DraggableMenu extends ZusassMenu{
 	
 	/**
 	 * Initialize the state of all menu things for this menu
-	 *
-	 * @param zgame The game to init the things in
 	 */
-	// TODO maybe make the game not a required parameter here?
-	public void initMenuThings(ZusassGame zgame){
+	public void initMenuThings(){
 		this.defaultFormatter = this.getDefaultFormatter();
-		this.defaultPosition(zgame);
+		this.defaultPosition();
 		
 		// issue#31 Stop the weird glitchy movement with the scroller when resizing the menu
 		this.menuScroller = new VerticalScroller(1, 1, 10, 100, 200);
@@ -114,12 +109,9 @@ public abstract class DraggableMenu extends ZusassMenu{
 	
 	/**
 	 * Bring this menu to its default position
-	 *
-	 * @param zgame The game used to position the menu
 	 */
-	public void defaultPosition(ZusassGame zgame){
-		var w = zgame.getWindow();
-		this.format(w, this.defaultFormatter);
+	public void defaultPosition(){
+		this.format(ZusassGame.window(), this.defaultFormatter);
 	}
 	
 	/** @return See {@link #mob} */

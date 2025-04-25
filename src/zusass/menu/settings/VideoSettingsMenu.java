@@ -14,7 +14,7 @@ public class VideoSettingsMenu extends BaseSettingsMenu{
 	 * @param settingsMenu The main menu using this menu
 	 */
 	public VideoSettingsMenu(ZusassGame zgame, SettingsMenu settingsMenu){
-		super("Video Settings", zgame, settingsMenu, true);
+		super("Video Settings", settingsMenu, true);
 		this.getTitleThing().setFontSize(60);
 		
 		this.addThing(new BoolSettingsButton(10, 150, BooleanTypeSetting.V_SYNC, "Vsync Enabled", "Vsync Disabled", this, zgame));

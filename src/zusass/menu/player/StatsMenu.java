@@ -11,7 +11,6 @@ import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
-import zusass.ZusassGame;
 
 /** The menu which displays on top of the game */
 public class StatsMenu extends DraggableMenu{
@@ -41,14 +40,12 @@ public class StatsMenu extends DraggableMenu{
 	
 	/**
 	 * Create a new {@link StatsMenu} for displaying the spells of something
-	 *
-	 * @param zgame The game which will use this menu
 	 */
-	public StatsMenu(ZusassGame zgame){
-		super(zgame);
+	public StatsMenu(){
+		super();
 		this.lastStatUpdate = 0;
 		this.setWidth(350);
-		this.initMenuThings(zgame);
+		this.initMenuThings();
 		this.displayDecimals = false;
 		this.statPopup = null;
 		this.lastPopupItem = null;

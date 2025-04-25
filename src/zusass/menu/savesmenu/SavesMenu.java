@@ -8,7 +8,6 @@ import zgame.core.graphics.ZColor;
 import zgame.core.graphics.font.FontManager;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.MenuHolder;
-import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
 import zusass.menu.savesmenu.comp.LoadSaveButtonList;
 import zusass.menu.savesmenu.comp.SavesBackButton;
@@ -39,18 +38,16 @@ public class SavesMenu extends ZusassMenu{
 	
 	/**
 	 * Create a new blank {@link SavesMenu}
-	 *
-	 * @param zgame The game that uses this menu
 	 */
-	public SavesMenu(ZusassGame zgame){
-		super(zgame, "Saves");
+	public SavesMenu(){
+		super("Saves");
 		this.setTitleX(50);
 		
 		this.addThing(new SavesBackButton(this));
 		this.addThing(new SavesRefreshButton(this));
 		
 		this.scroller = new SavesMenuScroller();
-		this.loadButtons = new LoadSaveButtonList(this, zgame);
+		this.loadButtons = new LoadSaveButtonList(this);
 		this.scroller.setMovingThing(this.loadButtons);
 		this.addThing(this.scroller);
 		this.addThing(this.loadButtons);
@@ -88,9 +85,8 @@ public class SavesMenu extends ZusassMenu{
 	
 	@Override
 	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		ZusassGame zgame = (ZusassGame)game;
 		super.keyActionFocused(game, button, press, shift, alt, ctrl);
-		if(!press && button == GLFW_KEY_F5) this.getLoadButtons().populate(zgame);
+		if(!press && button == GLFW_KEY_F5) this.getLoadButtons().populate();
 	}
 	
 	/** @return See {@link #scroller} */

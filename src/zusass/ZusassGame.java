@@ -6,6 +6,8 @@ import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.image.ImageManager;
 import zgame.core.utils.ZConfig;
+import zgame.core.window.GameWindow;
+import zgame.core.window.WindowManager;
 import zgame.settings.BooleanTypeSetting;
 import zgame.stat.Stats;
 import zusass.game.MainPlay;
@@ -32,6 +34,9 @@ import java.io.File;
  * Sandbox
  */
 public class ZusassGame extends Game{
+	
+	/** The id used for the single window of the Zusass game */
+	public final static String ZUSASS_WINDOW_ID = "zusassMainWindow";
 	
 	/** The json key used to store the main chunk of data about the game */
 	public final static String DATA_KEY = "data";
@@ -62,8 +67,6 @@ public class ZusassGame extends Game{
 	
 	/** Create the only instance of ZusassGame from this class. This constructor will place the game in the main menu */
 	private ZusassGame(){
-		// TODO make window management a singleton, make the game generate a window from there
-		
 		super();
 		this.make3D();
 		this.getWindow().setWindowTitle("ZUSASS");
@@ -256,9 +259,19 @@ public class ZusassGame extends Game{
 		}
 	}
 	
+	@Override
+	public String getGameWindowId(){
+		return ZUSASS_WINDOW_ID;
+	}
+	
 	/** @return The global instance of the game, only should be used for testing, normal operation should pass an instance of ZusassGame where needed */
 	public static ZusassGame instance(){
 		return zgame;
+	}
+	
+	/** @return The single window used by the game */
+	public static GameWindow window(){
+		return WindowManager.get().getWindow(ZUSASS_WINDOW_ID);
 	}
 	
 }

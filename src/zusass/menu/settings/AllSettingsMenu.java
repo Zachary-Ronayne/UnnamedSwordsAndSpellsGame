@@ -12,7 +12,7 @@ public class AllSettingsMenu extends BaseSettingsMenu{
 	 * @param settingsMenu The main menu using this menu
 	 */
 	public AllSettingsMenu(ZusassGame zgame, SettingsMenu settingsMenu){
-		super("All Settings", zgame, settingsMenu, true);
+		super("All Settings", settingsMenu, true);
 		
 		var y = 250;
 		for(var setting : SettingType.idMap.values()){

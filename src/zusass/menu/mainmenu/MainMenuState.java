@@ -9,7 +9,7 @@ public class MainMenuState extends MenuState{
 	
 	/** Initialize the main menu */
 	public MainMenuState(ZusassGame zgame){
-		super(zgame, new MainMenu(zgame));
+		super(zgame, new MainMenu());
 		this.setUseCamera(false);
 	}
 	

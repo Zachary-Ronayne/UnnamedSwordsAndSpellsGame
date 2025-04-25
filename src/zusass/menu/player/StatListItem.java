@@ -6,6 +6,7 @@ import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZArrayUtils;
 import zgame.menu.format.PercentFormatter;
 import zgame.stat.Stat;
+import zusass.ZusassGame;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassMob;
 import zusass.menu.comp.ZusassButton;
@@ -58,10 +59,7 @@ public class StatListItem extends ZusassButton{
 		this.setBorderWidth(1);
 		this.setBorder(BORDER_COLOR);
 		
-		// TODO is zgame needed? Probably make the window the "root" of all menus which have none
-//		this.bufferWidthToWindow(zgame);
-		var textBuffer = this.getTextBuffer();
-		textBuffer.regenerateBuffer(2000, textBuffer.getHeight());
+		this.bufferWidthToWindow(ZusassGame.window());
 	}
 	
 	/**

@@ -6,13 +6,13 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
 
-import zgame.core.Game;
 import zgame.core.graphics.AlphaMode;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZRect2D;
+import zgame.core.window.GameWindow;
 
 /**
  * A class that manages an OpenGL Framebuffer for a Renderer to draw to.
@@ -131,12 +131,12 @@ public class GameBuffer implements Destroyable{
 	}
 	
 	/**
-	 * Set the width of this buffer to the width of the window of the given game.
+	 * Set the width of this buffer to the width of the given window.
 	 * This is useful for buffers which will be used for resizable things where it is infeasible to regenerate the buffer every time the thing is resized
-	 * @param game The game to get the window's width from
+	 * @param window The window to get the width from
 	 */
-	public void widthToWindow(Game game){
-		this.setSize(game.getScreenWidth(), this.getHeight());
+	public void widthToWindow(GameWindow window){
+		this.setSize(window.getScreenWidth(), this.getHeight());
 	}
 	
 	/** Erase all resources associated with this GameBuffer. After calling this method, this object should not be used */

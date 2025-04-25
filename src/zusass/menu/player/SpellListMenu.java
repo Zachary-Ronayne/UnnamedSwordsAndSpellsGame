@@ -7,7 +7,6 @@ import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
-import zusass.ZusassGame;
 
 /** The menu which displays on top of the game */
 public class SpellListMenu extends DraggableMenu{
@@ -17,13 +16,11 @@ public class SpellListMenu extends DraggableMenu{
 	
 	/**
 	 * Create a new {@link SpellListMenu} for displaying the spells of something
-	 *
-	 * @param zgame The game which will use this menu
 	 */
-	public SpellListMenu(ZusassGame zgame){
-		super(zgame);
+	public SpellListMenu(){
+		super();
 		this.setWidth(200);
-		this.initMenuThings(zgame);
+		this.initMenuThings();
 	}
 	
 	@Override

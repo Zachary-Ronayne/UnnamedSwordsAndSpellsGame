@@ -26,13 +26,12 @@ public class NewGamePopup extends Menu{
 	 * Initialize the {@link NewGamePopup}
 	 * 
 	 * @param button The {@link NewGameButton} used by this menu
-	 * @param zgame The Zusass game used by this thing
 	 */
-	public NewGamePopup(NewGameButton button, ZusassGame zgame){
+	public NewGamePopup(NewGameButton button){
 		super(0, 0);
-		// TODO make this not need zgame
-		this.setWidth(zgame.getScreenWidth());
-		this.setHeight(zgame.getScreenHeight());
+		var window = ZusassGame.window();
+		this.setWidth(window.getScreenWidth());
+		this.setHeight(window.getScreenHeight());
 		this.setFill(new ZColor(0, .7));
 		this.setBorder(new ZColor(0, 0));
 		

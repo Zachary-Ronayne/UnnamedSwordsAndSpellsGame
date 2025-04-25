@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import zgame.core.Game;
 import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZStringUtils;
 import zgame.menu.MenuHolder;
@@ -25,23 +24,21 @@ public class LoadSaveButtonList extends MenuHolder{
 	 * Create a new {@link LoadSaveButtonList} at the specified location
 	 *
 	 * @param menu See {@link #menu}
-	 * @param zgame The game that uses this list
 	 */
-	public LoadSaveButtonList(SavesMenu menu, ZusassGame zgame){
+	public LoadSaveButtonList(SavesMenu menu){
 		super(SavesMenuScroller.X, SavesMenuScroller.Y);
 		this.getAllThings().addClass(SavesLoadButton.class);
 		this.menu = menu;
 		this.selected = null;
-		this.populate(zgame);
+		this.populate();
 	}
 	
 	/**
 	 * Find all files at {@link #} and generate the list of buttons
 	 *
-	 * @param zgame The {@link Game} associated with this list
 	 * @return true if the files were found, false otherwise
 	 */
-	public boolean populate(ZusassGame zgame){
+	public boolean populate(){
 		// Reset the button array
 		this.setSelected(null);
 		this.removeAll();
@@ -68,8 +65,7 @@ public class LoadSaveButtonList extends MenuHolder{
 		}
 		// Set the scrollable size to the space the buttons go off screen
 		buttons = this.getButtons();
-		// TODO make this not need zgame
-		this.menu.getScroller().setAmount(Math.min(0, zgame.getScreenHeight() - (buttons.size() + 1) * LoadSaveButton.TOTAL_SPACE - LoadSaveButton.SPACE));
+		this.menu.getScroller().setAmount(Math.min(0, ZusassGame.window().getScreenHeight() - (buttons.size() + 1) * LoadSaveButton.TOTAL_SPACE - LoadSaveButton.SPACE));
 		
 		return true;
 	}

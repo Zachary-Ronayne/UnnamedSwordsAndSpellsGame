@@ -5,7 +5,6 @@ import java.io.File;
 import zgame.core.Game;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
-import zusass.ZusassGame;
 import zusass.menu.savesmenu.SavesMenu;
 
 /** A button to delete the selected save file in the saves menu */
@@ -22,7 +21,6 @@ public class SavesDeleteButton extends SavesMenuButton{
 	
 	@Override
 	public void click(Game game){
-		ZusassGame zgame = (ZusassGame)game;
 		SavesMenu menu = this.getMenu();
 		LoadSaveButton button = menu.getLoadButtons().getSelected();
 		
@@ -32,7 +30,7 @@ public class SavesDeleteButton extends SavesMenuButton{
 			File file = new File(path);
 			var success = file.delete();
 			if(success) menu.getLoadButtons().setSelected(null);
-			menu.getLoadButtons().populate(zgame);
+			menu.getLoadButtons().populate();
 			menu.showMessage(ZStringUtils.concat("Delete ", success ? "success" : "failed", " for: ", button.getText()));
 			
 		}catch(SecurityException | NullPointerException e){

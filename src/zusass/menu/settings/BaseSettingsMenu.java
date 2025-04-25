@@ -15,8 +15,8 @@ public class BaseSettingsMenu extends ZusassMenu{
 	/** The button used by this menu to confirm settings, can be null if not used */
 	private final SettingsConfirmButton confirmButton;
 	
-	public BaseSettingsMenu(String title, ZusassGame zgame, SettingsMenu settingsMenu, boolean addConfirmButton){
-		super(zgame, title);
+	public BaseSettingsMenu(String title, SettingsMenu settingsMenu, boolean addConfirmButton){
+		super(title);
 		this.settingsMenu = settingsMenu;
 		
 		var backButton = new SettingsBackButton(){
