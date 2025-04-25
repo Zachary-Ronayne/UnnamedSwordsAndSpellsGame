@@ -58,7 +58,7 @@ public class StatListItem extends ZusassButton{
 		this.setBorderWidth(1);
 		this.setBorder(BORDER_COLOR);
 		
-		// TODO is zgame needed?
+		// TODO is zgame needed? Probably make the window the "root" of all menus which have none
 //		this.bufferWidthToWindow(zgame);
 		var textBuffer = this.getTextBuffer();
 		textBuffer.regenerateBuffer(2000, textBuffer.getHeight());

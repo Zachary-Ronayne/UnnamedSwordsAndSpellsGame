@@ -62,6 +62,8 @@ public class ZusassGame extends Game{
 	
 	/** Create the only instance of ZusassGame from this class. This constructor will place the game in the main menu */
 	private ZusassGame(){
+		// TODO make window management a singleton, make the game generate a window from there
+		
 		super();
 		this.make3D();
 		this.getWindow().setWindowTitle("ZUSASS");
@@ -94,8 +96,6 @@ public class ZusassGame extends Game{
 		// Initialize the base data object
 		this.setData(new ZusassData(0));
 		
-		// TODO move sound management to a static singleton?
-		// TODO maybe move image management, or all asset management, to a static singleton?
 		// Load sounds into the game
 		this.initSound();
 		var sm = this.getSounds();

@@ -118,7 +118,8 @@ public class MenuTextBox extends MenuButton{
 		this.setCursorIndex(-1);
 		this.setText("");
 		this.setCurrentText("");
-		// TODO is zgame needed?
+		
+		// TODO is zgame needed? Probably make the window the "root" of all menus which have none
 //		this.bufferWidthToWindow(zgame);
 		var textBuffer = this.getTextBuffer();
 		textBuffer.regenerateBuffer(2000, textBuffer.getHeight());

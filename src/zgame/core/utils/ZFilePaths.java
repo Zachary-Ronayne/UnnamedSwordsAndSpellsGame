@@ -5,7 +5,9 @@ package zgame.core.utils;
  */
 public final class ZFilePaths{
 	
-	// TODO these paths should probably be dynamic based on a config per game. Maybe the shaders should be built in as a separate path
+	// TODO make the root assets folder configurable
+	
+	// TODO allow the required assets, like the shaders and the default font, to always be pulled from the default location
 	
 	/** The location of the main assets folder */
 	public static final String ASSETS = "assets/";

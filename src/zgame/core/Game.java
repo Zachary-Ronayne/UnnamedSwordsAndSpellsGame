@@ -229,10 +229,13 @@ public class Game implements Saveable, Destroyable{
 		
 		// Init window
 		this.window = new GlfwWindow(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
-		this.window.setGame(this);
+		this.window.addSizeChangeListener(this::onWindowSizeChange);
+		this.window.addEnterFullScreenListener(window -> this.getRenderStyle().setupCore(this, window.getRenderer()));
 		this.focusedMenuThing = null;
 		
 		// TODO is this the best place for this?
+		// TODO maybe make font management always initialized?
+		// TODO maybe always auto init all managers, just don't load any assets
 		// Load the default font if the manager was initialized
 		if(FontManager.instance() != null) {
 			FontManager.addDefaultFont();

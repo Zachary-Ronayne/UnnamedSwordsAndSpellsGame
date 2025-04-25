@@ -18,14 +18,12 @@ import org.lwjgl.opengl.GLUtil;
 
 import java.awt.Dimension;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 
 /**
  * A class that handles one central window. This includes an option to move to full screen
  */
 public abstract class GameWindow implements Destroyable{
-	
-	/** The game associated with this window, or null if no association exists */
-	private Game game;
 	
 	/** The title displayed on the window */
 	private String windowTitle;
@@ -95,6 +93,11 @@ public abstract class GameWindow implements Destroyable{
 	/** true if the internal buffer should be resized any time the window changes size, to match the window, false otherwise */
 	private boolean resizeScreenOnResizeWindow;
 	
+	/** A list of actions to run when this window changes size */
+	private final ArrayList<SizeChange> sizeChangeListeners;
+	
+	private final ArrayList<EnterFullScreen> enterFullScreenListeners;
+	
 	/** An interface for a lambda method which is called each time a key or mouse button is pressed or released */
 	public interface ButtonAction{
 		/**
@@ -130,6 +133,27 @@ public abstract class GameWindow implements Destroyable{
 		void act(double amount);
 	}
 	
+	/** An interface for a lambda called when the window size changes */
+	public interface SizeChange{
+		/**
+		 * Called when the size of this window changes
+		 *
+		 * @param width The new width of the window
+		 * @param height The new height of the window
+		 */
+		void changed(int width, int height);
+	}
+	
+	/** An interface for a lambda called when the window enters full screen */
+	public interface EnterFullScreen{
+		/**
+		 * Called when a window goes into full screen
+		 *
+		 * @param window The window that went into full screen
+		 */
+		void entered(GameWindow window);
+	}
+	
 	/**
 	 * Create a GameWindow with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
 	 *
@@ -157,6 +181,8 @@ public abstract class GameWindow implements Destroyable{
 		this.mouseMoveMethod = null;
 		this.mouseWheelMoveMethod = null;
 		this.resizeScreenOnResizeWindow = false;
+		this.sizeChangeListeners = new ArrayList<>();
+		this.enterFullScreenListeners = new ArrayList<>();
 		
 		// Ensure window context is set up
 		this.createContext();
@@ -334,6 +360,7 @@ public abstract class GameWindow implements Destroyable{
 	/**
 	 * Set the size of this window and the internal buffer used to render to the screen and perform needed updates to recalculate any necessary values.
 	 * This is an expensive operation and should only be used during initialization or with things like changing a setting
+	 *
 	 * @param w The new width
 	 * @param h The new height
 	 */
@@ -379,8 +406,7 @@ public abstract class GameWindow implements Destroyable{
 			this.oldPosition = this.getWindowPos();
 			this.enterFullScreen();
 			
-			// Apply any needed states from the game's type
-			if(this.game != null) game.getRenderStyle().setupCore(this.game, this.getRenderer());
+			for(var listener : this.enterFullScreenListeners) listener.entered(this);
 		}
 		else{
 			this.exitFullScreen();
@@ -443,8 +469,7 @@ public abstract class GameWindow implements Destroyable{
 		this.setWidth(s.width);
 		this.setHeight(s.height);
 		
-		var game = this.getGame();
-		if(game != null) game.onWindowSizeChange(s.width, s.height);
+		for(var listener : this.sizeChangeListeners) listener.changed(s.width, s.height);
 	}
 	
 	/**
@@ -480,16 +505,6 @@ public abstract class GameWindow implements Destroyable{
 	 * @return The monitor id which the window was centered to
 	 */
 	public abstract long center();
-	
-	/** @param game See {@link #game} */
-	public void setGame(Game game){
-		this.game = game;
-	}
-	
-	/** @return See {@link #game} */
-	public Game getGame(){
-		return this.game;
-	}
 	
 	/**
 	 * Call to change the fullscreen state on the next OpenGL loop. If the window is already in the desired state, nothing happens
@@ -581,6 +596,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Set the mouse to act normally or to be invisible and stuck to the center of the window
+	 *
 	 * @param normal true for normal, false otherwise
 	 */
 	public abstract void updateMouseNormally(boolean normal);
@@ -664,8 +680,6 @@ public abstract class GameWindow implements Destroyable{
 	private void updateInternalValues(){
 		this.updateRatios();
 		this.updateViewportValues();
-		var game = this.getGame();
-		if(game != null) game.onWindowSizeChange(this.getWidth(), this.getHeight());
 	}
 	
 	/** @return See {@link #windowRatio} */
@@ -913,6 +927,42 @@ public abstract class GameWindow implements Destroyable{
 	 */
 	public double sizeGlToScreenY(double y){
 		return this.getRenderer().sizeGlToScreenY(this, y);
+	}
+	
+	/**
+	 * Add the given action to perform on a window changing
+	 *
+	 * @param listener The action to perform on the window size changing
+	 */
+	public void addSizeChangeListener(SizeChange listener){
+		this.sizeChangeListeners.add(listener);
+	}
+	
+	/**
+	 * Remove the given action from this window
+	 *
+	 * @param listener The action to no longer perform on the window size changing
+	 */
+	public void removeSizeChangeListener(SizeChange listener){
+		this.sizeChangeListeners.remove(listener);
+	}
+	
+	/**
+	 * Add the given action to perform on a window changing
+	 *
+	 * @param listener The action to perform on the window entering full screen
+	 */
+	public void addEnterFullScreenListener(EnterFullScreen listener){
+		this.enterFullScreenListeners.add(listener);
+	}
+	
+	/**
+	 * Remove the given action from this window
+	 *
+	 * @param listener The action to no longer perform on the window entering full screen
+	 */
+	public void removeEnterFullScreenListener(EnterFullScreen listener){
+		this.enterFullScreenListeners.remove(listener);
 	}
 	
 }
