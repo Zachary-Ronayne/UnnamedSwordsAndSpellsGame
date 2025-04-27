@@ -1,6 +1,5 @@
 package zgame.menu;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.TextOption;
 import zgame.core.graphics.ZColor;
@@ -121,8 +120,8 @@ public class MenuTextBox extends MenuButton{
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
-		super.tick(game, dt);
+	public void tick(double dt){
+		super.tick(dt);
 		this.currentBlinkTime += dt;
 		if(this.getCurrentBlinkTime() > this.getBlinkTime()){
 			this.blinkCursor = !this.blinkCursor;
@@ -131,10 +130,10 @@ public class MenuTextBox extends MenuButton{
 	}
 	
 	@Override
-	public boolean mouseActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		boolean input = super.mouseActionFocused(game, button, press, shift, alt, ctrl);
+	public boolean mouseActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		boolean input = super.mouseActionFocused(button, press, shift, alt, ctrl);
 		// Determine if the text box is selected
-		if(this.isFocused(game)) {
+		if(this.isFocused()) {
 			this.setCursorIndex(this.getCurrentText().length() - 1);
 			return true;
 		}
@@ -159,8 +158,8 @@ public class MenuTextBox extends MenuButton{
 	}
 	
 	@Override
-	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyActionFocused(game, button, press, shift, alt, ctrl);
+	public void keyActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyActionFocused(button, press, shift, alt, ctrl);
 		if(!press) return;
 		
 		if(button == GLFW_KEY_BACKSPACE){
@@ -287,15 +286,15 @@ public class MenuTextBox extends MenuButton{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect2D bounds){
+	public void render(Renderer r, ZRect2D bounds){
 		TextOption op;
 		if(this.getCurrentText().isEmpty()) op = new TextOption(this.getHint(), this.getHintColor());
 		else op = new TextOption(this.getDisplayText(), this.getTextColor());
 		this.getTextBuffer().setOptions(ZArrayUtils.singleList(op));
 		
-		super.render(game, r, bounds);
+		super.render(r, bounds);
 		
-		if(!this.isDisabled() && this.isFocused(game) && this.isBlinkCursor()){
+		if(!this.isDisabled() && this.isFocused() && this.isBlinkCursor()){
 			r.setColor(this.getCursorColor());
 			double fontSize = this.getFontSize();
 			r.drawRectangle(bounds.getX() + this.getCursorX(), bounds.getY() + this.getTextY() - fontSize, this.getCursorWidth(), fontSize);

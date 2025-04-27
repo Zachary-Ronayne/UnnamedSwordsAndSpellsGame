@@ -2,7 +2,6 @@ package zgame.things.entity;
 
 import java.util.*;
 
-import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
@@ -137,7 +136,7 @@ public abstract class EntityThing<
 	public abstract V zeroVector();
 	
 	@Override
-	public void tick(Game game, double dt){
+	public void tick(double dt){
 		// Update the amount of time the entity has been on the ground, walls, and ceiling
 		if(this.groundTime != -1) this.groundTime += dt;
 		if(this.ceilingTime != -1) this.ceilingTime += dt;
@@ -153,10 +152,9 @@ public abstract class EntityThing<
 	/**
 	 * Update the position and velocity of this {@link EntityThing} based on its current forces and velocity
 	 *
-	 * @param game The {@link Game} where the update takes place
 	 * @param dt The amount of time, in seconds, which passed in the tick where this update took place
 	 */
-	public void updatePosition(Game game, double dt){
+	public void updatePosition(double dt){
 		// Account for frictional force based on current ground material, must be updated directly before applying any movement
 		this.updateFrictionForce(dt);
 		
@@ -455,7 +453,7 @@ public abstract class EntityThing<
 		return this.wallMaterial;
 	}
 	
-	/** @return true if this {@link EntityThing} was on the ground in the past {@link #tick(Game, double)}, false otherwise */
+	/** @return true if this {@link EntityThing} was on the ground in the past {@link #tick(double)}, false otherwise */
 	@Override
 	public boolean isOnGround(){
 		return this.groundTime == -1;
@@ -476,13 +474,13 @@ public abstract class EntityThing<
 		return this.wallTime;
 	}
 	
-	/** @return true if this {@link EntityThing} was on a ceiling in the past {@link #tick(Game, double)}, false otherwise */
+	/** @return true if this {@link EntityThing} was on a ceiling in the past {@link #tick(double)}, false otherwise */
 	@Override
 	public boolean isOnCeiling(){
 		return this.ceilingTime == -1;
 	}
 	
-	/** @return true if this {@link EntityThing} was touching a wall in the past {@link #tick(Game, double)}, false otherwise */
+	/** @return true if this {@link EntityThing} was touching a wall in the past {@link #tick(double)}, false otherwise */
 	@Override
 	public boolean isOnWall(){
 		return this.wallTime == -1;
@@ -546,11 +544,10 @@ public abstract class EntityThing<
 	 * Called each this {@link EntityThing} has its entity collision handled.
 	 * Does nothing by default, override to add custom behavior
 	 *
-	 * @param game The game the collision happened in
 	 * @param entity The entity that was collided with this entity
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
-	public void checkEntityCollision(Game game, E entity, double dt){}
+	public void checkEntityCollision(E entity, double dt){}
 	
 	/** @param velocity The new current velocity of this {@link EntityThing} */
 	public void setVelocity(V velocity){
@@ -681,9 +678,8 @@ public abstract class EntityThing<
 	 *
 	 * @param from The room to move the thing from, i.e. the thing was in this room. Can be null if the thing didn't come from a room
 	 * @param to The room to move the thing to, i.e. the thing is now in this room. Can be null if the thing isn't going to a room
-	 * @param game The {@link Game} where this thing entered the room
 	 */
-	public void enterRoom(R from, R to, Game game){
+	public void enterRoom(R from, R to){
 		if(from != null) from.removeThing(this);
 		if(to != null) to.addThing(this);
 	}

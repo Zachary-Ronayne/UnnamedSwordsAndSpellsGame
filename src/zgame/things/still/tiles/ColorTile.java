@@ -1,6 +1,5 @@
 package zgame.things.still.tiles;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.physics.material.Material;
@@ -53,7 +52,7 @@ public class ColorTile extends TileType2D{
 	}
 	
 	@Override
-	public void render(Tile2D t, Game g, Renderer r){
+	public void render(Tile2D t, Renderer r){
 		r.setColor(this.getColor());
 		r.drawRectangle(t.getX(), t.getY(), t.getWidth(), t.getHeight());
 	}

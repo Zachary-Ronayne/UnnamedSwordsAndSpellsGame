@@ -75,15 +75,16 @@ public class ProjectileSpell extends Spell{
 	}
 	
 	@Override
-	protected void cast(ZusassGame zgame, ZusassMob caster){
-		var r = zgame.getCurrentRoom();
+	protected void cast(ZusassMob caster){
+		var r = ZusassGame.get().getCurrentRoom();
 		var mobilityData = caster.getMobilityData();
 		var vel = new ZVector3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), this.getSpeed(), false);
 		var castPoint = caster.getSpellCastPont();
 		var p = new MagicProjectile(castPoint.getX(), castPoint.getY(), castPoint.getZ(), caster.getUuid(), vel, this.getEffects());
 		p.setRange(this.range);
 		p.setRadius(this.radius);
-		p.initSounds(zgame);
+		// TODO should this be called every time this method happens?
+		p.initSounds();
 		r.addThing(p);
 	}
 	

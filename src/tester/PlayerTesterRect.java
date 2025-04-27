@@ -1,6 +1,5 @@
 package tester;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.things.type.bounds.RectangleHitBox;
 
@@ -18,7 +17,7 @@ public class PlayerTesterRect extends PlayerTester implements RectangleHitBox{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
+	public void render(Renderer r){
 		r.setColor(1, 0, 0);
 		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}

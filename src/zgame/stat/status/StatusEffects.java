@@ -1,6 +1,5 @@
 package zgame.stat.status;
 
-import zgame.core.Game;
 import zgame.core.utils.NotNullList;
 import zusass.game.things.entities.mobs.ZusassMob;
 
@@ -73,17 +72,16 @@ public class StatusEffects{
 	/**
 	 * Update the state of {@link #effects}, clearing them when they run out of duration
 	 *
-	 * @param game The game where this tick happened
 	 * @param dt The amount of time that passed in this update
 	 * @param mob The mob to update the state of the effect by
 	 */
-	public void tick(Game game, double dt, ZusassMob mob){
+	public void tick(double dt, ZusassMob mob){
 		var effectList = this.effects.entrySet().stream().toList();
 		for(var e : effectList){
 			var id = e.getKey();
 			var list = e.getValue().stream().toList();
 			for(var effect : list){
-				var removed = effect.tick(game, dt);
+				var removed = effect.tick(dt);
 				if(removed) this.removeEffect(effect, id, mob);
 			}
 		}

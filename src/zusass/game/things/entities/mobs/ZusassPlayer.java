@@ -97,10 +97,10 @@ public class ZusassPlayer extends ZusassMob{
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
-		super.tick(game, dt);
+	public void tick(double dt){
+		super.tick(dt);
 		
-		if(!this.isInputDisabled()) this.checkInput(game, dt);
+		if(!this.isInputDisabled()) this.checkInput(dt);
 		
 		var mobilityData = this.getMobilityData();
 		
@@ -109,6 +109,7 @@ public class ZusassPlayer extends ZusassMob{
 		 Doing this does leave a small amount of delay from frame to frame for the camera catching up,
 		 rather than setting the camera before any drawing operations happen, but it somehow looks glitchier doing it the latter way
 		 */
+		var game = Game.get();
 		this.updateCameraPos(game.getCamera3D());
 		
 		//issue#61
@@ -122,10 +123,10 @@ public class ZusassPlayer extends ZusassMob{
 	/**
 	 * Perform any actions needed for player input
 	 *
-	 * @param game The game the input took place in
 	 * @param dt The amount of time, in seconds, passed in the tick representing this input
 	 */
-	private void checkInput(Game game, double dt){
+	private void checkInput(double dt){
+		var game = Game.get();
 		var ki = game.getKeyInput();
 		var left = ki.buttonDown(GLFW_KEY_A);
 		var right = ki.buttonDown(GLFW_KEY_D);
@@ -140,27 +141,27 @@ public class ZusassPlayer extends ZusassMob{
 		this.setSprinting(ki.buttonDown(GLFW_KEY_E));
 		
 		// Toggle casting or attacking
-		if(this.inputHandlers.tick(game, GLFW_KEY_R)) this.toggleCasting();
+		if(this.inputHandlers.tick(GLFW_KEY_R)) this.toggleCasting();
 		
 		// Toggle first person or third person
-		if(this.inputHandlers.tick(game, GLFW_KEY_F)) this.firstPerson = !firstPerson;
+		if(this.inputHandlers.tick(GLFW_KEY_F)) this.firstPerson = !firstPerson;
 		
 		// Go to next or previous spell
-		if(this.inputHandlers.tick(game, GLFW_KEY_RIGHT_BRACKET)) this.getSpells().previousSpell();
-		if(this.inputHandlers.tick(game, GLFW_KEY_LEFT_BRACKET)) this.getSpells().nextSpell();
+		if(this.inputHandlers.tick(GLFW_KEY_RIGHT_BRACKET)) this.getSpells().previousSpell();
+		if(this.inputHandlers.tick(GLFW_KEY_LEFT_BRACKET)) this.getSpells().nextSpell();
 	}
 	
-	/** See {@link GameInteractable#mouseAction(Game, int, boolean, boolean, boolean, boolean)} */
-	public boolean mouseAction(ZusassGame zgame, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	/** See {@link GameInteractable#mouseAction(int, boolean, boolean, boolean, boolean)} */
+	public boolean mouseAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		if(this.isInputDisabled()) return false;
 		// Left click to interact with something on click
 		if(!press && button == GLFW_MOUSE_BUTTON_LEFT){
-			return zgame.getCurrentRoom().attemptClick(zgame, this);
+			return ZusassGame.get().getCurrentRoom().attemptClick(this);
 		}
 		// Right click to attack in a direction
 		else if(press && button == GLFW_MOUSE_BUTTON_RIGHT){
-			if(casting) this.castSpell(zgame);
-			else this.beginAttack(zgame);
+			if(casting) this.castSpell();
+			else this.beginAttack();
 			return true;
 		}
 		return false;
@@ -173,9 +174,9 @@ public class ZusassPlayer extends ZusassMob{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
+	public void render(Renderer r){
 		r.setColor(new ZColor(0.5));
-		this.renderAttackTimer(game, r);
+		this.renderAttackTimer(r);
 		
 		// TODO fix transparency rendering order
 		
@@ -188,8 +189,8 @@ public class ZusassPlayer extends ZusassMob{
 	}
 	
 	@Override
-	public void die(ZusassGame zgame){
-		super.die(zgame);
+	public void die(){
+		super.die();
 		// Remove all non-persistent effects on death, as well as all modifiers, and restore resources and attributes
 		this.getEffects().removeAllTemporary(this);
 		var statArr = this.getStats().getArr();
@@ -202,16 +203,17 @@ public class ZusassPlayer extends ZusassMob{
 		this.setResourcesMax();
 		
 		// Put the player back in the hub
-		zgame.getPlayState().enterHub(zgame);
-		zgame.getData().checkAutoSave(zgame);
+		var zgame = ZusassGame.get();
+		zgame.getPlayState().enterHub();
+		zgame.getData().checkAutoSave();
 	}
 	
 	@Override
-	public void enterRoom(Room3D from, Room3D to, Game game){
-		ZusassGame zgame = (ZusassGame)game;
-		super.enterRoom(from, to, zgame);
+	public void enterRoom(Room3D from, Room3D to){
+		super.enterRoom(from, to);
 		if(to != null){
 			// If this is setting the room to a new room, remove the player from that room, and set the new room
+			var zgame = ZusassGame.get();
 			if(zgame.getCurrentRoom() != to){
 				var play = zgame.getPlayState();
 				if(play != null) play.setCurrentRoom(to);
@@ -228,11 +230,11 @@ public class ZusassPlayer extends ZusassMob{
 	@Override
 	public void updateCameraPos(GameCamera3D camera){
 		super.updateCameraPos(camera);
-		if(this.firstPerson) {
+		if(this.firstPerson){
 			camera.setPositionOffset(0.03);
 			this.setVisionForwardDistance(0.02);
 		}
-		else {
+		else{
 			camera.setPositionOffset(-1.3);
 			this.setVisionForwardDistance(0);
 		}

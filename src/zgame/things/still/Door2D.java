@@ -110,24 +110,24 @@ public class Door2D extends StaticThing2D implements Door<Room2D, HitBox2D, Enti
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
+	public void tick(double dt){
 		if(!this.isAutoEnter()) return;
 		
 		// Check every entity and if it touches this door, move it to this Room
-		var room = (Room2D)game.getCurrentRoom();
+		var room = (Room2D)Game.get().getCurrentRoom();
 		var entities = room.getEntities();
 		for(var entity : entities){
 			// issue#49 avoid needing this double check call to canEnter
 			if(!this.canEnter(entity)) continue;
 			
 			if(entity.intersectsRect(this.getX(), this.getY(), this.getWidth(), this.getHeight())){
-				this.enterRoom(room, entity, game);
+				this.enterRoom(room, entity);
 			}
 		}
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
+	public void render(Renderer r){
 		r.setColor(.25, .125, 0);
 		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}

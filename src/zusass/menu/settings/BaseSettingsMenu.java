@@ -1,6 +1,5 @@
 package zusass.menu.settings;
 
-import zgame.core.Game;
 import zusass.ZusassGame;
 import zusass.menu.ZusassMenu;
 
@@ -21,9 +20,9 @@ public class BaseSettingsMenu extends ZusassMenu{
 		
 		var backButton = new SettingsBackButton(){
 			@Override
-			public void click(Game game){
-				super.click(game);
-				handleGoBackInput((ZusassGame)game);
+			public void click(){
+				super.click();
+				handleGoBackInput();
 			}
 		};
 		this.addThing(backButton);
@@ -41,25 +40,23 @@ public class BaseSettingsMenu extends ZusassMenu{
 	}
 	
 	@Override
-	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyActionFocused(game, button, press, shift, alt, ctrl);
+	public void keyActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyActionFocused(button, press, shift, alt, ctrl);
 		if(press) return;
-		if(button == GLFW_KEY_ESCAPE) this.handleGoBackInput((ZusassGame)game);
+		if(button == GLFW_KEY_ESCAPE) this.handleGoBackInput();
 	}
 	
 	/** Tell this menu to go back to its previous state */
-	private void handleGoBackInput(ZusassGame zgame){
+	private void handleGoBackInput(){
 		// For now just go back, probably should add a warning here if there are unsaved changes to settings
-		
-		this.goBack(zgame);
+		this.goBack();
 	}
 	
 	/**
 	 * Called when a user action causes this menu to need to go back to the previous menu. By default, goes one menu back, can override for custom behavior
-	 * @param zgame The game where it was told to go back in
 	 */
-	public void goBack(ZusassGame zgame){
-		zgame.getCurrentState().setMenu(zgame, new SettingsMenu(zgame, this.getSettingsMenu().getGoBack()));
+	public void goBack(){
+		ZusassGame.get().getCurrentState().setMenu(new SettingsMenu(this.getSettingsMenu().getGoBack()));
 	}
 	
 	/** @return See {@link #confirmButton} */

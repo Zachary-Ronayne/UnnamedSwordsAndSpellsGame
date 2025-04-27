@@ -10,8 +10,9 @@ public class Style2D implements RenderStyle{
 	public Style2D(){}
 	
 	@Override
-	public void setupFrame(Game game, Renderer r){
+	public void setupFrame(Renderer r){
 		// Set the camera
+		var game = Game.get();
 		boolean useCam = game.getCurrentState().isUseCamera();
 		if(useCam) r.setCamera(game.getCamera());
 		else r.setCamera(null);
@@ -23,5 +24,5 @@ public class Style2D implements RenderStyle{
 	}
 	
 	@Override
-	public void setupCore(Game game, Renderer r){}
+	public void setupCore(Renderer r){}
 }

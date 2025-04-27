@@ -211,19 +211,19 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D, Col
 	/**
 	 * Draw this {@link Room} to the given {@link Renderer}
 	 *
-	 * @param game The {@link Game} to draw this {@link Room} relative to
 	 * @param r The {@link Renderer} to draw this {@link Room} on
 	 */
-	public void render(Game game, Renderer r){
+	public void render(Renderer r){
 		// Determine the indexes of the tiles that need to be rendered
+		var game = Game.get();
 		int startX = Math.max(0, (int)Math.floor(game.getScreenLeft() / Tile2D.size()));
 		int endX = Math.min(this.getXTiles(), (int)Math.ceil(game.getScreenRight() / Tile2D.size()));
 		int startY = Math.max(0, (int)Math.floor(game.getScreenTop() / Tile2D.size()));
 		int endY = Math.min(this.getYTiles(), (int)Math.ceil(game.getScreenBottom() / Tile2D.size()));
 		// Draw all the tiles
-		for(int i = startX; i < endX; i++) for(int j = startY; j < endY; j++) this.tiles[i][j].renderWithCheck(game, r);
+		for(int i = startX; i < endX; i++) for(int j = startY; j < endY; j++) this.tiles[i][j].renderWithCheck(r);
 		
-		super.render(game, r);
+		super.render(r);
 	}
 	
 	/** Cause every wall to be solid. See {@link #wallSolid} for details */

@@ -1,6 +1,5 @@
 package zgame.things.entity.projectile;
 
-import zgame.core.Game;
 import zgame.core.utils.FunctionMap;
 import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResult2D;
@@ -117,15 +116,15 @@ public abstract class Projectile2D extends EntityThing2D implements Projectile<H
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
-		super.tick(game, dt);
-		Projectile.super.tick(game, dt);
+	public void tick(double dt){
+		super.tick(dt);
+		Projectile.super.tick(dt);
 	}
 	
 	@Override
-	public void checkEntityCollision(Game game, EntityThing2D entity, double dt){
-		super.checkEntityCollision(game, entity, dt);
-		Projectile.super.checkEntityCollision(game, entity, dt);
+	public void checkEntityCollision(EntityThing2D entity, double dt){
+		super.checkEntityCollision(entity, dt);
+		Projectile.super.checkEntityCollision(entity, dt);
 	}
 	
 	@Override

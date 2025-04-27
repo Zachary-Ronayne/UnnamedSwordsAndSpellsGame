@@ -1,6 +1,5 @@
 package zgame.things.still.tiles;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.physics.material.Material;
@@ -21,7 +20,7 @@ public class BottomSlabColorTile extends ColorTile{
 	}
 	
 	@Override
-	public void render(Tile2D t, Game g, Renderer r){
+	public void render(Tile2D t, Renderer r){
 		r.setColor(this.getColor());
 		var b = t.getBounds();
 		r.drawRectangle(b.getX(), b.getCenterY(), b.getWidth(), b.getHeight() * 0.5);

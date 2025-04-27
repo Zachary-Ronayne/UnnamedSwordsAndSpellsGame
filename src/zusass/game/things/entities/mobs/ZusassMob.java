@@ -1,7 +1,6 @@
 package zusass.game.things.entities.mobs;
 
 import com.google.gson.JsonElement;
-import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
@@ -191,43 +190,38 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	
 	/**
 	 * Initialize this mob for creating sounds, otherwise sounds will not play
-	 *
-	 * @param zgame The game the sound will be played in
 	 */
-	public void initSounds(ZusassGame zgame){
-		if(this.castSoundSource == null) this.castSoundSource = zgame.getSounds().createSource(this.getX(), this.getY(), this.getZ());
+	public void initSounds(){
+		if(this.castSoundSource == null) this.castSoundSource = ZusassGame.get().getSounds().createSource(this.getX(), this.getY(), this.getZ());
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
-		var zgame = (ZusassGame)game;
-		
+	public void tick(double dt){
 		// Update the state of the status effects
-		this.effects.tick(zgame, dt, this);
+		this.effects.tick(dt, this);
 		
 		// Update the state of the stats
-		this.updateStats(zgame, dt);
+		this.updateStats(dt);
 		
 		// Update the attack timer
 		if(this.attackTime >= 0){
 			this.attackTime -= dt;
-			if(this.attackTime < 0) this.attackNearest(zgame);
+			if(this.attackTime < 0) this.attackNearest();
 		}
 		
 		// If running and moving, need to drain stamina
 		this.staminaRunDrain.setValue(this.isSprinting() && this.isTryingToMove() ? -35 : 0);
 		
 		// Do the normal game update
-		super.tick(game, dt);
+		super.tick(dt);
 	}
 	
 	/**
 	 * Minimal method for drawing a basic attack timer for melee attacks
 	 *
-	 * @param game The game where the attack is performed
 	 * @param r The renderer to draw the attack with
 	 */
-	public void renderAttackTimer(Game game, Renderer r){
+	public void renderAttackTimer(Renderer r){
 		// Do nothing if not attacking
 		if(this.getAttackTime() < 0) return;
 		
@@ -295,7 +289,8 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		var resourceBarImage = ImageManager.image("resourceBar");
 		r.drawRepeatingTexture(x, y + space, width, height, textureSize, textureSize, shiftX, shiftY, resourceBarImage);
 		r.setColor(color);
-		r.drawRepeatingTexture(x + border, y + border + space, (width - borderTwice) * c / m, height - borderTwice, textureSize, textureSize, shiftX, shiftY, resourceBarImage);
+		r.drawRepeatingTexture(x + border, y + border + space, (width - borderTwice) * c / m, height - borderTwice, textureSize, textureSize, shiftX, shiftY,
+				resourceBarImage);
 		r.popShader();
 		// Using draw text like this is inefficient, but whatever, can optimize later if needed
 		if(textColor != null){
@@ -326,24 +321,21 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	/**
 	 * Perform any necessary updates for the mob based on its current stats
 	 *
-	 * @param zgame The game to update the stats on
 	 * @param dt The number of seconds which passed in this update
 	 */
-	public void updateStats(ZusassGame zgame, double dt){
+	public void updateStats(double dt){
 		this.stats.tick(dt);
 		
 		// If this thing has 0 or less health, kill it
-		if(this.getCurrentHealth() <= 0) this.die(zgame);
+		if(this.getCurrentHealth() <= 0) this.die();
 	}
 	
 	/**
 	 * Called when this stat thing dies
-	 *
-	 * @param zgame The game it was in when it died
 	 */
-	public void die(ZusassGame zgame){
+	public void die(){
 		// On death, by default, remove the thing from the game
-		zgame.getCurrentRoom().removeThing(this);
+		ZusassGame.get().getCurrentRoom().removeThing(this);
 	}
 	
 	@Override
@@ -363,10 +355,8 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	
 	/**
 	 * Cause this mob to begin performing an attack in the direction it is facing
-	 *
-	 * @param zgame The game where the attack took place
 	 */
-	public void beginAttack(ZusassGame zgame){
+	public void beginAttack(){
 		// Do not allow attacking if an attack is taking place
 		if(this.attackTime > 0) return;
 		
@@ -387,11 +377,9 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	
 	/**
 	 * Attack the nearest mob, in the direction the mob is facing, in the game which is not this mob
-	 *
-	 * @param game The game where the attack should happen
 	 */
-	public void attackNearest(ZusassGame game){
-		var mobs = game.getCurrentRoom().getMobs();
+	public void attackNearest(){
+		var mobs = ZusassGame.get().getCurrentRoom().getMobs();
 		for(var m : mobs){
 			// Skip the current mob if it is this mob or the mob is out of the attack range
 			if(m == this) continue;
@@ -429,12 +417,12 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	/**
 	 * Attempt to cast the currently selected spell
 	 *
-	 * @param zgame The {@link ZusassGame} where the spell was cast
 	 * @return true if the spell could be cast, false otherwise i.e. the caster doesn't have enough mana
 	 */
-	public boolean castSpell(ZusassGame zgame){
-		var success = this.getSelectedSpell().castAttempt(zgame, this);
+	public boolean castSpell(){
+		var success = this.getSelectedSpell().castAttempt(this);
 		if(this.castSoundSource != null){
+			var zgame = ZusassGame.get();
 			var sm = zgame.getSounds();
 			sm.updateSourcePos(this.castSoundSource, this.getX(), this.getY(), this.getZ());
 			sm.updateSourceDirection(this.castSoundSource, 0, 0, 0);

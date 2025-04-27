@@ -1,6 +1,5 @@
 package zgame.things.still.tiles;
 
-import zgame.core.Game;
 import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
@@ -51,13 +50,14 @@ public class CubeTexTile extends TileType3D{
 	}
 	
 	@Override
-	public void render(Tile3D t, Game g, Renderer r){
+	public void render(Tile3D t, Renderer r){
 		r.setColor(this.getColor());
 		this.renderTile(new RectRender3D(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength()), ImageManager.image(this.getFileName()), r);
 	}
 	
 	/**
 	 * Draw the given bounds of a tile as a cube, can override for custom rendering
+	 *
 	 * @param rect The bounds to render
 	 * @param image The image for rendering the bounds
 	 * @param r The renderer to use for drawing

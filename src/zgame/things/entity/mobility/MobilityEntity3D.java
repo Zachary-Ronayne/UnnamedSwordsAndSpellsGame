@@ -1,6 +1,5 @@
 package zgame.things.entity.mobility;
 
-import zgame.core.Game;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
@@ -50,9 +49,9 @@ public abstract class MobilityEntity3D extends EntityThing3D implements Mobility
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
+	public void tick(double dt){
 		this.mobilityTick(dt);
-		super.tick(game, dt);
+		super.tick(dt);
 	}
 	
 	@Override

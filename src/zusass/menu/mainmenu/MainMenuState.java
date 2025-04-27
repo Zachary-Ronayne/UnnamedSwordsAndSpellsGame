@@ -1,6 +1,5 @@
 package zusass.menu.mainmenu;
 
-import zgame.core.Game;
 import zgame.core.state.MenuState;
 import zusass.ZusassGame;
 
@@ -8,14 +7,14 @@ import zusass.ZusassGame;
 public class MainMenuState extends MenuState{
 	
 	/** Initialize the main menu */
-	public MainMenuState(ZusassGame zgame){
-		super(zgame, new MainMenu());
+	public MainMenuState(){
+		super(new MainMenu());
 		this.setUseCamera(false);
 	}
 	
 	@Override
-	public void onSet(Game game){
-		super.onSet(game);
-		game.unloadGame();
+	public void onSet(){
+		super.onSet();
+		ZusassGame.get().unloadGame();
 	}
 }

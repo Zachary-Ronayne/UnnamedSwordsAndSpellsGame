@@ -1,6 +1,5 @@
 package zgame.things;
 
-import zgame.core.Game;
 import zgame.physics.ZVector3D;
 import zgame.things.type.bounds.Clickable3D;
 import zgame.things.type.bounds.ClickerBounds;
@@ -12,16 +11,14 @@ public interface ThingClickDetector3D extends Clickable3D{
 	/**
 	 * Run when this thing is clicked
 	 *
-	 * @param game The game used by the tick method
 	 * @param room The room where this click happened
 	 */
-	void handlePress(Game game, Room3D room);
+	void handlePress(Room3D room);
 	
 	/**
 	 * Utility method for finding the distance from a thing clicking on this thing
 	 *
 	 * @param clickerBounds The bounds of the thing that does the click
-	 *
 	 * @return The distance from this object
 	 */
 	default double findClickDistance(ClickerBounds clickerBounds){
@@ -35,7 +32,6 @@ public interface ThingClickDetector3D extends Clickable3D{
 	 * Utility method for determining if the thing clicking on this thing is able to click
 	 *
 	 * @param clickerBounds The bounds of the thing that does the click
-	 *
 	 * @return true if this thing can be clicked, false otherwise
 	 */
 	default boolean canClick(ClickerBounds clickerBounds){
@@ -43,12 +39,11 @@ public interface ThingClickDetector3D extends Clickable3D{
 	}
 	
 	/**
-	/**
+	 * /**
 	 * Utility method for determining if the thing clicking on this thing is able to click
 	 *
 	 * @param distance The distance the thing is away from this thing
 	 * @param clickRange The distance the clicker can be away from this thing
-	 *
 	 * @return true if this thing can be clicked, false otherwise
 	 */
 	default boolean canClick(double clickRange, double distance){

@@ -4,15 +4,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import zgame.core.Game;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /** A {@link Setting} holding a boolean. See {@link SettingType} */
 public class BooleanTypeSetting extends SettingType<Boolean>{
 	
-	public static final BooleanTypeSetting V_SYNC = new BooleanTypeSetting("V_SYNC", true, (game, n) -> game.getWindow().setUseVsync(n));
-	public static final BooleanTypeSetting FULLSCREEN = new BooleanTypeSetting("FULLSCREEN", false, (game, n) -> game.getWindow().setFullscreen(n));
-	public static final BooleanTypeSetting PRINT_FPS = new BooleanTypeSetting("PRINT_FPS", true, (game, n) -> game.getRenderLooper().setPrintRate(n));
-	public static final BooleanTypeSetting PRINT_TPS = new BooleanTypeSetting("PRINT_TPS", true, (game, n) -> game.getTickLooper().setPrintRate(n));
+	public static final BooleanTypeSetting V_SYNC = new BooleanTypeSetting("V_SYNC", true, n -> Game.get().getWindow().setUseVsync(n));
+	public static final BooleanTypeSetting FULLSCREEN = new BooleanTypeSetting("FULLSCREEN", false, n -> Game.get().getWindow().setFullscreen(n));
+	public static final BooleanTypeSetting PRINT_FPS = new BooleanTypeSetting("PRINT_FPS", true, n -> Game.get().getRenderLooper().setPrintRate(n));
+	public static final BooleanTypeSetting PRINT_TPS = new BooleanTypeSetting("PRINT_TPS", true, n -> Game.get().getTickLooper().setPrintRate(n));
 	
 	public static final BooleanTypeSetting CAMERA_LOOK_INVERT_X = new BooleanTypeSetting("CAMERA_INVERT_X", false);
 	public static final BooleanTypeSetting CAMERA_LOOK_INVERT_Y = new BooleanTypeSetting("CAMERA_INVERT_Y", false);
@@ -34,7 +34,7 @@ public class BooleanTypeSetting extends SettingType<Boolean>{
 	 * @param defaultVal See {@link #defaultVal}
 	 * @param onChange See {@link #onChange}
 	 */
-	protected BooleanTypeSetting(String name, boolean defaultVal, BiConsumer<Game, Boolean> onChange){
+	protected BooleanTypeSetting(String name, boolean defaultVal, Consumer<Boolean> onChange){
 		super(name, defaultVal, onChange);
 	}
 	
@@ -47,7 +47,7 @@ public class BooleanTypeSetting extends SettingType<Boolean>{
 	public Boolean fromJson(JsonElement e){
 		try{
 			return e.getAsBoolean();
-		} catch(Exception ex){
+		}catch(Exception ex){
 			return this.getDefault();
 		}
 	}

@@ -1,6 +1,5 @@
 package zusass.menu.pause;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZRect2D;
@@ -81,37 +80,36 @@ public class PauseMenu extends Menu{
 	}
 	
 	@Override
-	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyActionFocused(game, button, press, shift, alt, ctrl);
+	public void keyActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyActionFocused(button, press, shift, alt, ctrl);
 		if(press) return;
 		
 		// On releasing escape or tab, exit the pause menu
-		if(button == GLFW_KEY_ESCAPE || button == GLFW_KEY_TAB) this.exitMenu((ZusassGame)game);
+		if(button == GLFW_KEY_ESCAPE || button == GLFW_KEY_TAB) this.exitMenu();
 	}
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect2D bounds){
+	public void render(Renderer r, ZRect2D bounds){
 		// Fade the background
 		r.setColor(.1, .1, .1, .5);
 		r.fill();
 		// Then draw the menu
-		super.render(game, r, bounds);
+		super.render(r, bounds);
 	}
 	
 	/**
 	 * Exit out of this pause menu and go back to the game
-	 *
-	 * @param zgame The game using this button
 	 */
-	public void exitMenu(ZusassGame zgame){
-		MainPlay play = zgame.getPlayState();
+	public void exitMenu(){
+		MainPlay play = ZusassGame.get().getPlayState();
 		play.fullUnpause();
-		play.removeTopMenu(zgame, false);
+		play.removeTopMenu(false);
 	}
 	
-	public void save(ZusassGame zgame){
+	public void save(){
+		var zgame = ZusassGame.get();
 		ZusassData d = zgame.getData();
-		d.checkAutoSave(zgame);
+		d.checkAutoSave();
 		zgame.saveLoadedGame();
 	}
 	

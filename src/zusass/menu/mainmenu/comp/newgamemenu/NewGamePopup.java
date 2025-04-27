@@ -83,11 +83,11 @@ public class NewGamePopup extends Menu{
 	}
 	
 	@Override
-	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyActionFocused(game, button, press, shift, alt, ctrl);
+	public void keyActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyActionFocused(button, press, shift, alt, ctrl);
 		if(press) return;
-		if(button == GLFW_KEY_ESCAPE) game.getCurrentState().removeTopMenu(game);
-		else if(button == GLFW_KEY_ENTER) createButton.click(game);
+		if(button == GLFW_KEY_ESCAPE) Game.get().getCurrentState().removeTopMenu();
+		else if(button == GLFW_KEY_ENTER) createButton.click();
 	}
 	
 	/** @return The text currently entered for the level name */

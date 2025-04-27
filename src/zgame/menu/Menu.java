@@ -1,6 +1,5 @@
 package zgame.menu;
 
-import zgame.core.Game;
 import zgame.core.state.MenuNode;
 
 /**
@@ -75,7 +74,7 @@ public class Menu extends MenuThing{
 	}
 	
 	@Override
-	public boolean useMouseInput(Game game){
+	public boolean useMouseInput(){
 		return true;
 	}
 	
@@ -91,17 +90,13 @@ public class Menu extends MenuThing{
 	
 	/**
 	 * Called when this menu is added to the currently displayed menus
-	 *
-	 * @param game The game when the add happened
 	 */
-	public void onAdd(Game game){}
+	public void onAdd(){}
 	
 	/**
 	 * Called when this menu is removed from the currently displayed menus
-	 *
-	 * @param game The game when the remove happened
 	 */
-	public void onRemove(Game game){}
+	public void onRemove(){}
 	
 	/** @return See {@link #propagateKeyAction} */
 	public boolean isPropagateKeyAction(){

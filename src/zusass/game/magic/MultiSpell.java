@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import zgame.core.file.Saveable;
 import zgame.core.utils.NotNullList;
-import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffectNone;
 import zusass.game.things.entities.mobs.ZusassMob;
 
@@ -47,8 +46,8 @@ public class MultiSpell extends Spell{
 	}
 	
 	@Override
-	protected void cast(ZusassGame zgame, ZusassMob caster){
-		for(var s : spells) s.cast(zgame, caster);
+	protected void cast(ZusassMob caster){
+		for(var s : spells) s.cast(caster);
 	}
 	
 	@Override

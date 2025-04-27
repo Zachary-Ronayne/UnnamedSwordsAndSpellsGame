@@ -1,6 +1,5 @@
 package zusass.menu.pause.comp;
 
-import zgame.core.Game;
 import zgame.menu.MenuButton;
 import zusass.ZusassGame;
 import zusass.menu.pause.PauseMenu;
@@ -19,12 +18,11 @@ public class PauseSettingsButton extends PauseMenuButton{
 	}
 	
 	@Override
-	public void click(Game game){
-		ZusassGame zgame = (ZusassGame)game;
-		zgame.getCurrentState().setMenu(zgame, new SettingsMenu(zgame, z -> {
-			var p = z.getPlayState();
-			p.removeTopMenu(z);
-			p.openPauseMenu(z);
+	public void click(){
+		ZusassGame.get().getCurrentState().setMenu(new SettingsMenu(() -> {
+			var p = ZusassGame.get().getPlayState();
+			p.removeTopMenu();
+			p.openPauseMenu();
 		}));
 	}
 }

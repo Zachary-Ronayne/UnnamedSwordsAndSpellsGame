@@ -1,6 +1,5 @@
 package zusass.menu.pause.comp;
 
-import zgame.core.Game;
 import zusass.ZusassGame;
 import zusass.menu.pause.PauseMenu;
 
@@ -17,9 +16,8 @@ public class PauseMainMenuButton extends PauseMenuButton{
 	}
 	
 	@Override
-	public void click(Game game){
-		ZusassGame zgame = (ZusassGame)game;
-		zgame.getPlayState().enterMainMenu(zgame);
+	public void click(){
+		ZusassGame.get().getPlayState().enterMainMenu();
 	}
 	
 }

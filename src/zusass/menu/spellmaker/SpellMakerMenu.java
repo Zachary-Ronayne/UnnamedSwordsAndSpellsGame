@@ -1,6 +1,5 @@
 package zusass.menu.spellmaker;
 
-import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuHolder;
 import zgame.menu.MenuTextBox;
@@ -117,7 +116,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		// The button for resetting the menu
 		var resetButton = new ZusassButton(1, 1, 160, 40, "Reset"){
 			@Override
-			public void click(Game game){
+			public void click(){
 				reset();
 			}
 		};
@@ -204,9 +203,9 @@ public class SpellMakerMenu extends ZusassMenu{
 			}
 			
 			@Override
-			public void setFocused(Game game){
-				super.setFocused(game);
-				if(isFocused(game)) selectTextBox((ZusassGame)game, this);
+			public void setFocused(){
+				super.setFocused();
+				if(isFocused()) selectTextBox(this);
 			}
 		};
 		box.setHint(hint + "...");
@@ -288,7 +287,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	/** @param modifierType The new value for {@link #selectedModifierType} */
 	public void updateModifierType(ModifierType modifierType){
 		this.selectedModifierType = modifierType;
-		if(this.positiveNegativeButton != null) {
+		if(this.positiveNegativeButton != null){
 			this.positiveNegativeButton.setDisabled(modifierType == ModifierType.MULT_MULT);
 			this.positiveNegativeButton.updateForMultMult();
 		}
@@ -296,22 +295,20 @@ public class SpellMakerMenu extends ZusassMenu{
 	}
 	
 	@Override
-	public void onRemove(Game game){
-		super.onRemove(game);
-		var zgame = (ZusassGame)game;
-		var player = zgame.getPlayer();
+	public void onRemove(){
+		super.onRemove();
+		var player = ZusassGame.get().getPlayer();
 		player.setInputDisabled(false);
 	}
 	
 	/**
 	 * Set it so that only the given text box is selected
 	 *
-	 * @param zgame The game using this menu
 	 * @param box The box which was selected or not selected
 	 */
-	private void selectTextBox(ZusassGame zgame, ZusassTextBox box){
+	private void selectTextBox(ZusassTextBox box){
 		// Disable player input while in a text box
-		zgame.getPlayer().setInputDisabled(true);
+		ZusassGame.get().getPlayer().setInputDisabled(true);
 		
 		// Disable key input on other menus while a text box is selected
 		this.setPropagateKeyAction(false);
@@ -329,8 +326,8 @@ public class SpellMakerMenu extends ZusassMenu{
 	}
 	
 	@Override
-	public void onDragEnd(Game game, boolean sideDrag){
-		super.onDragEnd(game, sideDrag);
+	public void onDragEnd(boolean sideDrag){
+		super.onDragEnd(sideDrag);
 		this.reformat();
 	}
 	
@@ -484,12 +481,12 @@ public class SpellMakerMenu extends ZusassMenu{
 			
 			effect = new SpellEffectStatusEffect(new StatEffect(duration, modifier, stat.getStatus()));
 		}
-		else {
+		else{
 			if(Arrays.asList(stat, buff, magnitude).contains(null)) return null;
 			effect = new SpellEffectStatAdd(stat.getInstant(), buff ? magnitude : -magnitude);
 		}
 		
-		if(castType == SpellCastType.PROJECTILE) {
+		if(castType == SpellCastType.PROJECTILE){
 			if(Arrays.asList(effect, size, range, speed).contains(null)) return null;
 			spell = new ProjectileSpell(effect, size, range, speed);
 		}

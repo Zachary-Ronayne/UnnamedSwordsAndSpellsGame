@@ -32,10 +32,10 @@ public class StatChoosePopup extends Menu{
 			var s = values[i];
 			var b = new ZusassButton(offset, offset + buttonHeight * i + (i == 0 ? 0 : i * buttonSpace), buttonWidth, buttonHeight, s.getDisplay()){
 				@Override
-				public void click(Game game){
-					super.click(game);
+				public void click(){
+					super.click();
 					button.setSelectedStat(s);
-					game.getCurrentState().removeTopMenu(game);
+					Game.get().getCurrentState().removeTopMenu();
 				}
 			};
 			b.setFontSize(20);

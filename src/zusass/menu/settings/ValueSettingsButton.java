@@ -1,7 +1,7 @@
 package zusass.menu.settings;
 
-import zgame.core.Game;
 import zgame.settings.SettingType;
+import zusass.ZusassGame;
 
 import java.util.Objects;
 
@@ -9,10 +9,8 @@ import java.util.Objects;
 public interface ValueSettingsButton{
 	/**
 	 * Based on the state of this menu thing, update the current setting value
-	 *
-	 * @param game The game to update the setting to
 	 */
-	void updateSetting(Game game);
+	void updateSetting();
 	
 	/** @return The setting type that this button uses */
 	SettingType<?> getSetting();
@@ -22,15 +20,16 @@ public interface ValueSettingsButton{
 	
 	/**
 	 * Should be called any time the input value for a setting is modified
+	 *
 	 * @param menu The menu holding the button
 	 */
-	default void changeDisplayedSetting(Game game, BaseSettingsMenu menu){
+	default void changeDisplayedSetting(BaseSettingsMenu menu){
 		if(menu == null) return;
 		var confirmButton = menu.getConfirmButton();
 		if(confirmButton == null) return;
 		var setting = this.getSetting();
 		var currentValue = this.getSettingInputValue();
-		if(Objects.equals(game.getAny(setting), currentValue)) confirmButton.removeSettingButton(this);
+		if(Objects.equals(ZusassGame.get().getAny(setting), currentValue)) confirmButton.removeSettingButton(this);
 		else confirmButton.addSettingButton(this);
 	}
 	

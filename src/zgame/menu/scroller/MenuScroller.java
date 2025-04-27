@@ -1,6 +1,5 @@
 package zgame.menu.scroller;
 
-import zgame.core.Game;
 import zgame.menu.MenuThing;
 
 /**
@@ -72,20 +71,20 @@ public abstract class MenuScroller extends MenuThing{
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
-		super.tick(game, dt);
+	public void tick(double dt){
+		super.tick(dt);
 		MenuThing thing = this.getMovingThing();
 		if(thing != null) this.button.updateRelativePosition(thing);
 	}
 	
 	@Override
-	public boolean mouseWheelMoveFocused(Game game, double amount){
-		boolean input = super.mouseWheelMoveFocused(game, amount);
+	public boolean mouseWheelMoveFocused(double amount){
+		boolean input = super.mouseWheelMoveFocused(amount);
 		
 		if(!this.isScrollWheelEnabled()) return input;
 		amount *= this.getScrollWheelStrength();
 		if(this.isScrollWheelInverse()) amount = -amount;
-		if(!this.isScrollWheelAsPercent()) {
+		if(!this.isScrollWheelAsPercent()){
 			if(this.isScrollByBar()) amount = this.button.scrollToPercent(amount);
 			else amount = amount / this.getAmount();
 		}

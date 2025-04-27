@@ -1,6 +1,5 @@
 package zusass.menu.savesmenu.comp;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZRect2D;
@@ -49,8 +48,8 @@ public class LoadSaveButton extends SavesMenuButton{
 	 */
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect2D bounds){
-		super.render(game, r, bounds);
+	public void render(Renderer r, ZRect2D bounds){
+		super.render(r, bounds);
 		// If this button is selected, draw an additional highlight
 		if(this.getMenu().getLoadButtons().getSelected() == this){
 			r.setColor(new ZColor(.2, .2, .5, .3));
@@ -59,27 +58,26 @@ public class LoadSaveButton extends SavesMenuButton{
 	}
 	
 	@Override
-	public void click(Game game){
+	public void click(){
 		this.getMenu().getLoadButtons().setSelected(this);
 	}
 	
 	@Override
-	public void doubleClick(Game game){
-		ZusassGame zgame = (ZusassGame)game;
-		this.attemptLoad(zgame);
+	public void doubleClick(){
+		this.attemptLoad();
 	}
 	
 	/**
 	 * Attempt to load the file at {@link #path} into the game
 	 *
-	 * @param zgame The game to load into
 	 * @return true if the file loaded, false otherwise
 	 */
-	public boolean attemptLoad(ZusassGame zgame){
+	public boolean attemptLoad(){
+		var zgame = ZusassGame.get();
 		boolean success = zgame.loadGame(ZusassConfig.createSaveFileSuffix(path));
 		// If the load was successful, enter the play state
 		if(success){
-			zgame.setCurrentState(new MainPlay(zgame));
+			zgame.setCurrentState(new MainPlay());
 		}
 		// Otherwise, say that it failed to load
 		else this.getMenu().showMessage(ZStringUtils.concat("Load failed for: ", this.getText()));

@@ -197,6 +197,7 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	
 	/**
 	 * Set a frictional force on the horizontal, i.e. non-gravitational, axis
+	 *
 	 * @param name The string identifying the force
 	 * @param f The quantity of the force, negative or positive to use direction
 	 * @return The vector representing the added force
@@ -236,17 +237,15 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	}
 	
 	@Override
-	public boolean shouldRender(Game game, Renderer r){
+	public boolean shouldRender(Renderer r){
 		return r.gameBoundsInScreen(this.getBounds());
 	}
 	
 	/**
 	 * Center the camera of the given {@link Game} to the center of this object
-	 *
-	 * @param game The game
 	 */
-	public void centerCamera(Game game){
-		game.centerCamera(this.centerX(), this.centerY());
+	public void centerCamera(){
+		Game.get().centerCamera(this.centerX(), this.centerY());
 	}
 	
 }

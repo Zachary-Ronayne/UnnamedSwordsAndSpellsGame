@@ -23,6 +23,7 @@ public class BufferDemo extends Game{
 	public static GameState state;
 	
 	public static void main(String[] args){
+		Game.initAssetManagers();
 		game = new Game();
 		game.setPrintFps(false);
 		game.setPrintTps(false);
@@ -34,17 +35,17 @@ public class BufferDemo extends Game{
 		
 		var menu = new Menu(){
 			@Override
-			public void render(Game game, Renderer r, ZRect2D bounds){
+			public void render(Renderer r, ZRect2D bounds){
 				r.setColor(new ZColor(.5));
 				r.fill();
-				super.render(game, r, bounds);
+				super.render(r, bounds);
 			}
 		};
-		state = new MenuState(game, menu){};
+		state = new MenuState(menu){};
 		var thing = new MenuText(100, 100, 500, 300){
 			@Override
-			public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-				super.keyActionFocused(game, button, press, shift, alt, ctrl);
+			public void keyActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+				super.keyActionFocused(button, press, shift, alt, ctrl);
 				if(!press && button == GLFW.GLFW_KEY_SPACE){
 					this.getTextBuffer().updateRedraw(true);
 				}
@@ -53,8 +54,8 @@ public class BufferDemo extends Game{
 			}
 
 			@Override
-			public void render(Game game, Renderer r, ZRect2D bounds){
-				super.render(game, r, bounds);
+			public void render(Renderer r, ZRect2D bounds){
+				super.render(r, bounds);
 				r.setColor(1, 0, 0);
 				r.drawRectangle(new ZRect2D(bounds.x + 10, bounds.y + 10, 100, 100));
 			}
@@ -68,8 +69,8 @@ public class BufferDemo extends Game{
 		
 		MenuThing t = new MenuThing(){
 			@Override
-			public void render(Game game, Renderer r, ZRect2D bounds){
-				super.render(game, r, bounds);
+			public void render(Renderer r, ZRect2D bounds){
+				super.render(r, bounds);
 				r.setColor(0, 1, 0, .5);
 				r.drawRectangle(bounds.x - 20, bounds.y - 20, bounds.width + 80, bounds.height + 80);
 			}
@@ -82,8 +83,8 @@ public class BufferDemo extends Game{
 		
 		t = new MenuThing(){
 			@Override
-			public void render(Game game, Renderer r, ZRect2D bounds){
-				super.render(game, r, bounds);
+			public void render(Renderer r, ZRect2D bounds){
+				super.render(r, bounds);
 				r.setColor(0, 1, 1, .5);
 				r.fill();
 			}
@@ -97,8 +98,8 @@ public class BufferDemo extends Game{
 		
 		t = new MenuThing(){
 			@Override
-			public void render(Game game, Renderer r, ZRect2D bounds){
-				super.render(game, r, bounds);
+			public void render(Renderer r, ZRect2D bounds){
+				super.render(r, bounds);
 				r.setColor(1, 0, 1, .5);
 				r.fill();
 			}
@@ -127,8 +128,8 @@ public class BufferDemo extends Game{
 		}
 		
 		@Override
-		public void draw(Game game, Renderer r){
-			super.draw(game, r);
+		public void draw(Renderer r){
+			super.draw(r);
 			r.setColor(new ZColor(1, 0, 0));
 			r.fill();
 		}

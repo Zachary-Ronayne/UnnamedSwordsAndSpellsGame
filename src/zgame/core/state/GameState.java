@@ -67,14 +67,13 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	}
 	
 	/**
-	 * @param game The game using this game state
 	 * @param menu The new root menu of this {@link GameState}, i.e. the menu on the bottom before popups
 	 */
-	public void setMenu(Game game, Menu menu){
+	public void setMenu(Menu menu){
 		if(this.menuStack == null || this.hasMenu()) this.menuStack = new ArrayList<>();
 		var node = new MenuNode(menu);
 		this.menuStack.add(0, node);
-		this.onMenuChange(game, true);
+		this.onMenuChange(true);
 	}
 	
 	/** @return The number of menus currently displayed on this {@link GameState} */
@@ -85,23 +84,21 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	/**
 	 * Add the given {@link Menu} on top of the existing menus on this state
 	 *
-	 * @param game The game where this call happened
 	 * @param menu The menu to add
 	 */
-	public void popupMenu(Game game, Menu menu){
+	public void popupMenu(Menu menu){
 		var node = menu.getNode();
 		if(node == null) node = new MenuNode(menu);
 		else node = node.copySettings(menu);
-		this.popupMenu(game, node);
+		this.popupMenu(node);
 	}
 	
 	/**
 	 * Put given {@link Menu} on top of the existing menus on this state
 	 *
-	 * @param game The game where this call happened
 	 * @param node The node to add
 	 */
-	public void popupMenu(Game game, MenuNode node){
+	public void popupMenu(MenuNode node){
 		var menu = node.getMenu();
 		var foundIndex = this.findIndex(menu);
 		
@@ -114,8 +111,8 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 		}
 		// Otherwise, just add the menu to the top
 		else this.menuStack.add(node);
-		menu.onRemove(game);
-		this.onMenuChange(game, true);
+		menu.onRemove();
+		this.onMenuChange(true);
 	}
 	
 	/**
@@ -148,59 +145,55 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	/**
 	 * Remove the given menu from the menu stack
 	 *
-	 * @param game The game where this call happened
 	 * @param menu The menu to remove. This should be the actual object reference to remove, not based on any kind of identifier
 	 * @return The removed menu, or null if the menu is not a part of the stack. The returned menu will be destroyed if {@link Menu#isDefaultDestroyRemove()} returns true
 	 */
-	public Menu removeMenu(Game game, Menu menu){
-		return removeMenu(game, menu, false);
+	public Menu removeMenu(Menu menu){
+		return removeMenu(menu, false);
 	}
 	
 	/**
 	 * Remove the given menu from the menu stack
 	 *
-	 * @param game The game where this call happened
 	 * @param menu The menu to remove. This should be the actual object reference to remove, not based on any kind of identifier
 	 * @param preventDestroy true if {@link Menu#isDefaultDestroyRemove()} will be ignored, and the menu will not be destroyed, false otherwise
 	 * @return The removed menu, or null if the menu is not a part of the stack. The returned menu will be destroyed if {@link Menu#isDefaultDestroyRemove()} returns true
 	 */
-	public Menu removeMenu(Game game, Menu menu, boolean preventDestroy){
+	public Menu removeMenu(Menu menu, boolean preventDestroy){
 		var i = findIndex(menu);
 		if(i == -1) return null;
 		var n = this.menuStack.remove(i);
 		if(n == null) return null;
 		var m = n.getMenu();
-		m.onRemove(game);
+		m.onRemove();
 		if(m.isDefaultDestroyRemove() && !preventDestroy) m.destroy();
-		this.onMenuChange(game, false);
+		this.onMenuChange(false);
 		return m;
 	}
 	
 	/**
 	 * Remove and potentially destroy the menu on the top of this menu state.
 	 *
-	 * @param game The game where this call happened
 	 * @return The removed menu, or null if only the base menu exists
 	 */
-	public Menu removeTopMenu(Game game){
+	public Menu removeTopMenu(){
 		if(this.getStackSize() <= getMinMenuStack()) return null;
 		Menu removed = this.menuStack.remove(this.menuStack.size() - 1).getMenu();
-		removed.onRemove(game);
+		removed.onRemove();
 		if(removed.isDefaultDestroyRemove()) removed.destroy();
-		this.onMenuChange(game, false);
+		this.onMenuChange(false);
 		return removed;
 	}
 	
 	/**
 	 * Remove the menu on the top of this menu state.
 	 *
-	 * @param game The game where this call happened
 	 * @param destroy true to destroy the menu after it's removed, false otherwise If destroy is false, then does not destroy the removed menu or any of its allocated
 	 * 		resources. It is the responsibility of the caller of this method to destroy the returned menu if the menu is not destroyed by default
 	 * @return The removed menu, or null if only the base menu exists
 	 */
-	public Menu removeTopMenu(Game game, boolean destroy){
-		var removed = this.removeTopMenu(game);
+	public Menu removeTopMenu(boolean destroy){
+		var removed = this.removeTopMenu();
 		if(removed == null) return null;
 		// If we are destroying the menu by default, don't try to destroy it again
 		if(removed.isDefaultDestroyRemove()) return removed;
@@ -217,10 +210,9 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	/**
 	 * Called when a menu is added or removed from this state. Does nothing by default, override to provide custom behavior
 	 *
-	 * @param game The game where the change happened
 	 * @param added true if a menu was added, false if it was removed
 	 */
-	public void onMenuChange(Game game, boolean added){}
+	public void onMenuChange(boolean added){}
 	
 	/** @return See {@link #minMenuStack} */
 	public int getMinMenuStack(){
@@ -244,101 +236,98 @@ public abstract class GameState implements GameInteractable, Saveable, Destroyab
 	
 	/**
 	 * A method called when a {@link Game} sets its current state to this {@link GameState}. Override this method to do something when it happens. Does nothing by default
-	 *
-	 * @param game The {@link Game} which set its current state
 	 */
-	public void onSet(Game game){
-	}
+	public void onSet(){}
 	
 	@Override
-	public void tick(Game game, double dt){
+	public void tick(double dt){
 		Menu menu = this.getTopMenu();
 		if(menu != null && menu.isPropagateTick()){
 			for(int i = 0; i < this.menuStack.size() - 1; i++){
 				MenuNode m = this.menuStack.get(i);
-				m.tick(game, dt);
+				m.tick(dt);
 			}
 		}
-		if(menu != null) menu.tick(game, dt);
+		if(menu != null) menu.tick(dt);
 	}
 	
 	@Override
-	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		Menu menu = this.getTopMenu();
-		if(menu != null) menu.keyAction(game, button, press, shift, alt, ctrl);
+		if(menu != null) menu.keyAction(button, press, shift, alt, ctrl);
 		if(menu != null && !menu.isPropagateKeyAction()) return;
 		for(int i = this.getStackSize() - 2; i >= 0; i--){
 			MenuNode m = this.menuStack.get(i);
-			m.keyAction(game, button, press, shift, alt, ctrl);
+			m.keyAction(button, press, shift, alt, ctrl);
 		}
 	}
 	
 	@Override
-	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public boolean mouseAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		Menu menu = this.getTopMenu();
-		if(menu != null && menu.mouseAction(game, button, press, shift, alt, ctrl)) return true;
+		if(menu != null && menu.mouseAction(button, press, shift, alt, ctrl)) return true;
 		if(menu != null && !menu.isPropagateMouseAction()) return false;
 		for(int i = this.getStackSize() - 2; i >= 0; i--){
 			MenuNode m = this.menuStack.get(i);
-			if(m.mouseAction(game, button, press, shift, alt, ctrl)) return true;
+			if(m.mouseAction(button, press, shift, alt, ctrl)) return true;
 		}
 		return false;
 	}
 	
 	@Override
-	public boolean mouseMove(Game game, double x, double y){
+	public boolean mouseMove(double x, double y){
 		Menu menu = this.getTopMenu();
 		if(menu != null){
 			// Check for the mouse entering or leaving the menu and all other menus
-			var onChild = menu.updateMouseOn(game, x, y, false);
+			var onChild = menu.updateMouseOn(x, y, false);
 			
 			if(menu.isPropagateMouseMove()){
 				for(int i = this.getStackSize() - 2; i >= 0; i--){
 					MenuNode m = this.menuStack.get(i);
-					onChild = m.getMenu().updateMouseOn(game, x, y, onChild);
+					onChild = m.getMenu().updateMouseOn(x, y, onChild);
 				}
 			}
 			
 			// Account for mouse movement on the top menu
-			if(menu.mouseMove(game, x, y)) return true;
+			if(menu.mouseMove(x, y)) return true;
 		}
 		// Account for mouse movement on every other menu
 		if(menu != null && menu.isPropagateMouseMove()){
 			for(int i = this.getStackSize() - 2; i >= 0; i--){
 				MenuNode m = this.menuStack.get(i);
-				if(m.mouseMove(game, x, y)) return true;
+				if(m.mouseMove(x, y)) return true;
 			}
 		}
 		return false;
 	}
 	
 	@Override
-	public boolean mouseWheelMove(Game game, double amount){
+	public boolean mouseWheelMove(double amount){
 		Menu menu = this.getTopMenu();
-		if(menu != null && menu.mouseWheelMove(game, amount)) return true;
+		if(menu != null && menu.mouseWheelMove(amount)) return true;
 		if(menu != null && !menu.isPropagateMouseWheelMove()) return false;
 		for(int i = this.getStackSize() - 2; i >= 0; i--){
 			MenuNode m = this.menuStack.get(i);
-			if(m.mouseWheelMove(game, amount)) return true;
+			if(m.mouseWheelMove(amount)) return true;
 		}
 		return false;
 	}
 	
 	@Override
-	public void renderBackground(Game game, Renderer r){
+	public void renderBackground(Renderer r){
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
+	public void render(Renderer r){
 	}
 	
 	@Override
-	public void renderHud(Game game, Renderer r){
+	public void renderHud(Renderer r){
 		Menu m = this.getTopMenu();
 		if(m != null && m.isPropagateRender()){
-			for(int i = 0; i < this.getStackSize() - 1; i++) this.menuStack.get(i).render(game, r);
+			for(int i = 0; i < this.getStackSize() - 1; i++) this.menuStack.get(i).render(r);
 		}
-		if(m != null) m.renderHud(game, r);
+		if(m != null) m.renderHud(r);
 	}
 	
 	/**

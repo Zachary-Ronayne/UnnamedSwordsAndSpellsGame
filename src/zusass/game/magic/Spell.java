@@ -8,7 +8,6 @@ import zgame.core.file.Saveable;
 import zgame.core.utils.NotNullList;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
-import zusass.ZusassGame;
 import zusass.game.magic.effect.*;
 import zusass.game.stat.ZusassStat;
 import zusass.game.status.StatEffect;
@@ -88,16 +87,15 @@ public abstract class Spell implements Saveable{
 	/**
 	 * Make the given mob attempt to cast this spell into the given game
 	 *
-	 * @param zgame The game the spell is cast in
 	 * @param caster The mob that casts the spell
 	 * @return true if the spell could be cast, false otherwise i.e. the caster doesn't have enough mana
 	 */
-	public final boolean castAttempt(ZusassGame zgame, ZusassMob caster){
+	public final boolean castAttempt(ZusassMob caster){
 		var c = this.getCost();
 		if(caster.stat(MANA) < c) return false;
 		
 		caster.getStat(MANA).addValue(-c);
-		this.cast(zgame, caster);
+		this.cast(caster);
 		
 		return true;
 	}
@@ -116,12 +114,11 @@ public abstract class Spell implements Saveable{
 	
 	/**
 	 * Cast this spell into the game, cast by the given mob. This method instantly casts the spell and does not account for things like current mana or the amount of time it
-	 * takes to cast the spell. Use {@link #castAttempt(ZusassGame, ZusassMob)} for such cases
+	 * takes to cast the spell. Use {@link #castAttempt(ZusassMob)} for such cases
 	 *
-	 * @param zgame The game to cast in
 	 * @param caster The mob that cast the spell
 	 */
-	protected abstract void cast(ZusassGame zgame, ZusassMob caster);
+	protected abstract void cast(ZusassMob caster);
 	
 	/** @return See {@link #effects}. If updating the returned value, also call {@link #calculateCost()} to update the spell cost */
 	public NotNullList<SpellEffect> getEffects(){

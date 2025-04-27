@@ -17,8 +17,8 @@ public class NewGameButton extends MainMenuButton{
 	}
 	
 	@Override
-	public void click(Game game){
-		game.getCurrentState().popupMenu(game, new NewGamePopup(this));
+	public void click(){
+		Game.get().getCurrentState().popupMenu(new NewGamePopup(this));
 	}
 	
 }

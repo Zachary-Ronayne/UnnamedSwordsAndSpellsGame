@@ -167,6 +167,8 @@ public abstract class GameWindow implements Destroyable{
 	 * @param stretchToFill See {@link #stretchToFill}
 	 */
 	public GameWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
+		// TODO don't pass all of these fields in during the constructor
+		// TODO don't do any initialization until a start method is called
 		// Init general values
 		this.windowTitle = title;
 		this.width = winWidth;
@@ -554,6 +556,9 @@ public abstract class GameWindow implements Destroyable{
 		this.setUseVsyncNow(this.usesVsync());
 	}
 	
+	// TODO potentially make this private so that only the window can directly use the renderer, and anything related to rendering would need to be here
+	// TODO should renderer also be a singleton? Maybe just the things like vertex arrays should be static, but everything else in the renderer should be separate objects?
+	// TODO should each window have its own renderer? Or should it be one renderer managed by game who passes it to windows when they need to render?
 	/** @return See {@link #renderer} */
 	public Renderer getRenderer(){
 		return this.renderer;

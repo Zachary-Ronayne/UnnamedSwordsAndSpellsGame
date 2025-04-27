@@ -1,40 +1,37 @@
 package zusass.menu.settings;
 
-import zgame.core.Game;
 import zusass.ZusassGame;
 import zusass.menu.comp.ZusassButton;
-
-import java.util.function.Consumer;
 
 /** The root menu for displaying settings */
 public class SettingsMenu extends BaseSettingsMenu{
 	
 	/** A function to run when exiting this menu */
-	private final Consumer<ZusassGame> goBack;
+	private final Runnable goBack;
 	
 	/**
 	 * Create the basic settings menu
-	 * @param zgame The game using the settings
+	 *
 	 * @param goBack See {@link #goBack}
 	 */
-	public SettingsMenu(ZusassGame zgame, Consumer<ZusassGame> goBack){
+	public SettingsMenu(Runnable goBack){
 		super("Settings", null, false);
 		this.goBack = goBack;
 		
 		var videoSettingsButton = new ZusassButton(10, 50, 500, 100, "Video Settings"){
 			@Override
-			public void click(Game game){
-				super.click(game);
-				handleVideoSettingsClick((ZusassGame)game);
+			public void click(){
+				super.click();
+				handleVideoSettingsClick();
 			}
 		};
 		this.addThing(videoSettingsButton);
 		
 		var allSettingsButton = new ZusassButton(10, 160, 500, 100, "All Settings"){
 			@Override
-			public void click(Game game){
-				super.click(game);
-				handleAllSettingsClick((ZusassGame)game);
+			public void click(){
+				super.click();
+				handleAllSettingsClick();
 			}
 		};
 		this.addThing(allSettingsButton);
@@ -47,27 +44,25 @@ public class SettingsMenu extends BaseSettingsMenu{
 	
 	/**
 	 * Called when the button for going to video settings is clicked
-	 * @param zgame The game using the button
 	 */
-	public void handleVideoSettingsClick(ZusassGame zgame){
-		zgame.getCurrentState().setMenu(zgame, new VideoSettingsMenu(zgame, this));
+	public void handleVideoSettingsClick(){
+		ZusassGame.get().getCurrentState().setMenu(new VideoSettingsMenu(this));
 	}
 	
 	/**
 	 * Called when the button for going to all settings is clicked
-	 * @param zgame The game using the button
 	 */
-	public void handleAllSettingsClick(ZusassGame zgame){
-		zgame.getCurrentState().setMenu(zgame, new AllSettingsMenu(zgame, this));
+	public void handleAllSettingsClick(){
+		ZusassGame.get().getCurrentState().setMenu(new AllSettingsMenu(this));
 	}
 	
 	/** @return See {@link #goBack} */
-	public Consumer<ZusassGame> getGoBack(){
+	public Runnable getGoBack(){
 		return this.goBack;
 	}
 	
 	@Override
-	public void goBack(ZusassGame zgame){
-		this.getGoBack().accept(zgame);
+	public void goBack(){
+		this.getGoBack().run();
 	}
 }

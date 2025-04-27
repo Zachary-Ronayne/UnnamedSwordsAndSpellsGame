@@ -1,6 +1,5 @@
 package zgame.core.state;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.menu.Menu;
 
@@ -12,38 +11,36 @@ public abstract class MenuState extends GameState{
 	/**
 	 * Create a new {@link MenuState} with the given {@link Menu}
 	 *
-	 * @param game The game using this state
 	 * @param menu The menu to use
 	 */
-	public MenuState(Game game, Menu menu){
-		this(game, new MenuNode(menu));
+	public MenuState(Menu menu){
+		this(new MenuNode(menu));
 	}
 	
 	/**
 	 * Create a new {@link MenuState} with the given {@link MenuNode}
 	 *
-	 * @param game The game using this state
 	 * @param menu The node to use
 	 */
-	public MenuState(Game game, MenuNode menu){
+	public MenuState(MenuNode menu){
 		super(false);
-		this.setMenu(game, menu.getMenu());
+		this.setMenu(menu.getMenu());
 		this.setMinMenuStack(1);
 	}
 	
-	/** Do not call directly, use {@link #renderHud(Game, Renderer)} to draw the state of this {@link Menu} and override its rendering behavior */
+	/** Do not call directly, use {@link #renderHud(Renderer)} to draw the state of this {@link Menu} and override its rendering behavior */
 	@Override
-	public void renderBackground(Game game, Renderer r){
+	public void renderBackground(Renderer r){
 	}
 	
-	/** Do not call directly, use {@link #renderHud(Game, Renderer)} to draw the state of this {@link Menu} and override its rendering behavior */
+	/** Do not call directly, use {@link #renderHud(Renderer)} to draw the state of this {@link Menu} and override its rendering behavior */
 	@Override
-	public final void render(Game game, Renderer r){
+	public final void render(Renderer r){
 	}
 	
 	@Override
-	public void renderHud(Game game, Renderer r){
-		super.renderHud(game, r);
+	public void renderHud(Renderer r){
+		super.renderHud(r);
 	}
 	
 }

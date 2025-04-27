@@ -1,7 +1,6 @@
 package zusass.game.magic;
 
 import com.google.gson.JsonElement;
-import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffectNone;
 import zusass.game.things.entities.mobs.ZusassMob;
 
@@ -23,5 +22,5 @@ public class NoneSpell extends Spell{
 	}
 	
 	@Override
-	protected void cast(ZusassGame zgame, ZusassMob caster){}
+	protected void cast(ZusassMob caster){}
 }

@@ -1,6 +1,5 @@
 package zgame.things.entity.projectile;
 
-import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.utils.FunctionMap;
 import zgame.physics.ZVector;
@@ -30,14 +29,14 @@ public interface Projectile<H extends HitBox<H, C>,
 	
 	/**
 	 * Called to check this projectile's collision with the given entity
-	 * @param game The game where the collision took place
+	 *
 	 * @param entity The entity being potentially collided with
 	 * @param dt The amount of time passed in a tick
 	 */
-	default void checkEntityCollision(Game game, E entity, double dt){
+	default void checkEntityCollision(E entity, double dt){
 		// Ignore the current thing if the projectile will not hit it, or if the entity should not collide with projectiles
 		if(!this.willHit(entity.get()) || entity.hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
-		this.hit(game, entity.get());
+		this.hit(entity.get());
 		if(this.isOnHit()) this.removeNext();
 	}
 	
@@ -102,10 +101,9 @@ public interface Projectile<H extends HitBox<H, C>,
 	/**
 	 * Called when this {@link Projectile} hits the given {@link HitBox}
 	 *
-	 * @param game The game where thing was hit
 	 * @param thing The {@link HitBox} which was hit
 	 */
-	void hit(Game game, H thing);
+	void hit(H thing);
 	
 	/**
 	 * Determine if this {@link Projectile} will hit the given {@link HitBox} thing when their hitboxes intersect
@@ -147,8 +145,8 @@ public interface Projectile<H extends HitBox<H, C>,
 	boolean willRemove();
 	
 	@Override
-	default void tick(Game game, double dt){
-		if(this.willRemove()) this.getEntity().removeFrom(game);
+	default void tick(double dt){
+		if(this.willRemove()) this.getEntity().removeFrom();
 		
 		var r = this.getRange();
 		if(r >= 0 && this.getTotalDistance() >= r) this.removeNext();

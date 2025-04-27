@@ -1,6 +1,5 @@
 package zusass.menu.player;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.menu.MenuHolder;
 import zgame.menu.format.PixelFormatter;
@@ -189,12 +188,12 @@ public class StatList extends MenuHolder{
 	}
 	
 	@Override
-	public void drawThings(Game game, Renderer r, boolean reposition){
+	public void drawThings(Renderer r, boolean reposition){
 		var b = this.menu.getRelBounds();
 		b.y += StatsMenu.SCROLLER_POSITION;
 		b.height -= StatsMenu.SCROLLER_POSITION;
 		r.pushLimitedBoundsIntersection(b);
-		super.drawThings(game, r, reposition);
+		super.drawThings(r, reposition);
 		r.popLimitedBounds();
 	}
 }

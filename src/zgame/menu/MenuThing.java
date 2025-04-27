@@ -51,7 +51,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	private final ClassMappedList things;
 	
 	/**
-	 * The buffer used by this {@link MenuThing} to keep track of what's drawn for {@link #renderHud(Game, Renderer)}, or null if using a buffer is not enabled. If null, the
+	 * The buffer used by this {@link MenuThing} to keep track of what's drawn for {@link #renderHud(Renderer)}, or null if using a buffer is not enabled. If null, the
 	 * contents of this {@link MenuThing} will be redrawn every frame
 	 */
 	private DrawableGameBuffer buffer;
@@ -119,7 +119,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/**
 	 * true if this menuThing should not be allowed to leave the bounds of its parent, false to ignore.
 	 * The width and height of this thing will also not exceed that of its parent
-	 * If this has no parent, the bounds will update to the game window during {@link #tick(Game, double)}
+	 * If this has no parent, the bounds will update to the game window during {@link #tick(double)}
 	 */
 	private boolean keepInParent;
 	
@@ -905,13 +905,12 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * Update the state of if the mouse is on this thing or not
 	 *
 	 * @param on true if the mouse is on this thing, false otherwise
-	 * @param game The game where the update happened
 	 */
-	private void setMouseOn(Game game, boolean on){
+	private void setMouseOn(boolean on){
 		if(on == this.mouseOn) return;
 		this.mouseOn = on;
-		if(on) this.mouseEnter(game);
-		else this.mouseExit(game);
+		if(on) this.mouseEnter();
+		else this.mouseExit();
 	}
 	
 	/**
@@ -1051,46 +1050,46 @@ public class MenuThing implements GameInteractable, Destroyable{
 	
 	/** Do not call directly */
 	@Override
-	public void tick(Game game, double dt){
+	public void tick(double dt){
 		var things = this.getThings();
 		if(this.anchorPoint == null && this.isKeepInParent() && this.parent == null){
+			var game = Game.get();
 			var w = game.getWindow();
 			this.keepInBounds(0, 0, w.getScreenWidth(), w.getScreenHeight());
 		}
 		
 		for(int i = 0; i < things.size(); i++){
 			MenuThing t = things.get(i);
-			t.tick(game, dt);
+			t.tick(dt);
 		}
 	}
 	
 	/**
-	 * @param game The game using this thing
 	 * @return true if this thing is allowed to accept input, false otherwise
 	 */
-	public boolean canInput(Game game){
-		return !this.isFocusable() || this.isFocused(game);
+	public boolean canInput(){
+		return !this.isFocusable() || this.isFocused();
 	}
 	
 	/** Do not call directly */
 	@Override
-	public final void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public final void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		if(this.isDisableChildrenWhenDragging() && this.currentlyDragging()) return;
 		
-		if(this.canInput(game)) this.keyActionFocused(game, button, press, shift, alt, ctrl);
+		if(this.canInput()) this.keyActionFocused(button, press, shift, alt, ctrl);
 		
 		var things = this.getThings();
 		for(int i = 0; i < things.size(); i++){
 			MenuThing t = things.get(i);
-			t.keyAction(game, button, press, shift, alt, ctrl);
+			t.keyAction(button, press, shift, alt, ctrl);
 		}
 	}
 	
 	/**
-	 * The same thing as {@link #keyAction(Game, int, boolean, boolean, boolean, boolean)}
-	 * but only happens when {@link #canInput(Game)} returns true
+	 * The same thing as {@link #keyAction(int, boolean, boolean, boolean, boolean)}
+	 * but only happens when {@link #canInput()} returns true
 	 */
-	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){}
+	public void keyActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){}
 	
 	/**
 	 * @param x The current x coordinate of the mouse
@@ -1104,64 +1103,65 @@ public class MenuThing implements GameInteractable, Destroyable{
 	/**
 	 * Called when dragging starts. Does nothing by default, override to provide custom behavior
 	 *
-	 * @param game The game where the drag began in
 	 * @param x See {@link #draggingX}
 	 * @param y See {@link #draggingY}
 	 * @param sideDrag true if the sides of the thing were dragged, false otherwise
 	 */
-	public void onDragStart(Game game, double x, double y, boolean sideDrag){
+	public void onDragStart(double x, double y, boolean sideDrag){
 		var ts = this.getThings();
-		for(var t : ts) t.onDragStart(game, x, y, sideDrag);
+		for(var t : ts) t.onDragStart(x, y, sideDrag);
 	}
 	
 	/**
 	 * Called when dragging stops. Calls this method for all child components by default. Override to provide custom behavior
 	 *
-	 * @param game The game where the drag ended
 	 * @param sideDrag true if the sides of the thing were dragged, false otherwise
 	 */
-	public void onDragEnd(Game game, boolean sideDrag){
+	public void onDragEnd(boolean sideDrag){
 		var ts = this.getThings();
-		for(var t : ts) t.onDragEnd(game, sideDrag);
+		for(var t : ts) t.onDragEnd(sideDrag);
 	}
 	
 	/** Do not call directly */
 	@Override
-	public final boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public final boolean mouseAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		if(!(this.isDisableChildrenWhenDragging() && this.currentlyDragging())){
 			var things = this.getThings();
 			for(int i = 0; i < things.size(); i++){
 				MenuThing t = things.get(i);
-				if(t.mouseAction(game, button, press, shift, alt, ctrl)) return true;
+				if(t.mouseAction(button, press, shift, alt, ctrl)) return true;
 			}
 		}
 		
+		var game = Game.get();
 		if(this.isFocusable()){
 			double mx = game.mouseSX();
 			double my = game.mouseSY();
-			if(this.getBounds().contains(mx, my)) this.setFocused(game);
+			if(this.getBounds().contains(mx, my)) this.setFocused();
 			else{
-				this.mouseActionUnFocused(game, button, press, shift, alt, ctrl);
+				this.mouseActionUnFocused(button, press, shift, alt, ctrl);
 				return this.shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 			}
 		}
 		
-		if(this.canInput(game)) return this.mouseActionFocused(game, button, press, shift, alt, ctrl);
+		if(this.canInput()) return this.mouseActionFocused(button, press, shift, alt, ctrl);
 		return this.shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 	}
 	
-	/** Same as {@link #mouseAction(Game, int, boolean, boolean, boolean, boolean)}, but only happens when {@link #canInput(Game)} returns true */
-	public boolean mouseActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		this.checkForDraggingStart(game, button, press);
+	/** Same as {@link #mouseAction(int, boolean, boolean, boolean, boolean)}, but only happens when {@link #canInput()} returns true */
+	public boolean mouseActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		this.checkForDraggingStart(button, press);
+		var game = Game.get();
 		return this.shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 	}
 	
 	/**
-	 * Same as {@link #mouseAction(Game, int, boolean, boolean, boolean, boolean)}, but only happens when {@link #isFocusable()} returns true, and this thing could not be
+	 * Same as {@link #mouseAction(int, boolean, boolean, boolean, boolean)}, but only happens when {@link #isFocusable()} returns true, and this thing could not be
 	 * focused during this mouse action
 	 */
-	public boolean mouseActionUnFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		this.checkForDraggingStart(game, button, press);
+	public boolean mouseActionUnFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		this.checkForDraggingStart(button, press);
+		var game = Game.get();
 		return this.shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 	}
 	
@@ -1171,17 +1171,16 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/**
-	 * Helper for {@link #mouseAction(Game, int, boolean, boolean, boolean, boolean)}, checking if this element should begin dragging from the mouse
+	 * Helper for {@link #mouseAction(int, boolean, boolean, boolean, boolean)}, checking if this element should begin dragging from the mouse
 	 *
-	 * @param game The game where the button was pressed
 	 * @param button The pressed button
 	 * @param press true if the button was pressed down, false for released
 	 */
-	private void checkForDraggingStart(Game game, int button, boolean press){
+	private void checkForDraggingStart(int button, boolean press){
 		if(!press){
 			if(this.anchorPoint != null){
 				this.anchorPoint = null;
-				this.onDragEnd(game, this.isSideDragging());
+				this.onDragEnd(this.isSideDragging());
 			}
 			this.draggingX = 0;
 			this.draggingY = 0;
@@ -1189,6 +1188,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		}
 		if(button != this.getDraggableButton()) return;
 		var d = this.getDraggableArea();
+		var game = Game.get();
 		var mx = game.mouseSX() - this.getRelX() - this.getParentX();
 		var my = game.mouseSY() - this.getRelY() - this.getParentY();
 		var dragging = false;
@@ -1234,27 +1234,27 @@ public class MenuThing implements GameInteractable, Destroyable{
 		}
 		// If any dragging occurred, set the anchor
 		if(dragging){
-			this.onDragStart(game, this.draggingX, this.draggingY, this.isSideDragging());
+			this.onDragStart(this.draggingX, this.draggingY, this.isSideDragging());
 			this.anchorPoint = new ZPoint2D(ax, ay);
 		}
 	}
 	
 	/** Do not call directly */
 	@Override
-	public final boolean mouseMove(Game game, double x, double y){
+	public final boolean mouseMove(double x, double y){
 		if(!(this.isDisableChildrenWhenDragging() && this.currentlyDragging())){
 			var things = this.getThings();
 			for(int i = 0; i < things.size(); i++){
 				MenuThing t = things.get(i);
-				if(t.mouseMove(game, x, y)) return true;
+				if(t.mouseMove(x, y)) return true;
 			}
 		}
-		if(this.canInput(game)) return this.mouseMoveFocused(game, x, y);
+		if(this.canInput()) return this.mouseMoveFocused(x, y);
 		return this.shouldDisableMouseInput(x, y);
 	}
 	
-	/** Same as {@link #mouseMove(Game, double, double)}, but only happens when {@link #canInput(Game)} returns true */
-	public boolean mouseMoveFocused(Game game, double x, double y){
+	/** Same as {@link #mouseMove(double, double)}, but only happens when {@link #canInput()} returns true */
+	public boolean mouseMoveFocused(double x, double y){
 		var a = this.anchorPoint;
 		if(a == null) return this.shouldDisableMouseInput(x, y);
 		boolean fullDrag = this.draggingX == 0 && this.draggingY == 0 && this.isDraggable();
@@ -1296,25 +1296,24 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * Based on the position of the mouse, this thing, and any of its children, update the state of if the mouse is on this thing.
 	 * This updates both this thing, and all of its children
 	 *
-	 * @param game The game where this update happens
 	 * @param x The current x coordinate of the mouse in screen coordinates
 	 * @param y The current y coordinate of the mouse in screen coordinates
 	 * @param onChild true if the mouse is on a child of the thing, false otherwise
 	 * @return true if the mouse is on a child, false otherwise
 	 */
-	public boolean updateMouseOn(Game game, double x, double y, boolean onChild){
+	public boolean updateMouseOn(double x, double y, boolean onChild){
 		if(!(this.isDisableChildrenWhenDragging() && this.currentlyDragging())){
 			var things = this.getThings();
 			for(int i = 0; i < things.size(); i++){
 				var t = things.get(i);
-				if(t.updateMouseOn(game, x, y, onChild)){
+				if(t.updateMouseOn(x, y, onChild)){
 					onChild = true;
 				}
 			}
 		}
 		var in = this.getBounds().contains(x, y);
-		this.setMouseOn(game, !onChild && in);
-		if(!this.useMouseInput(game)) return onChild;
+		this.setMouseOn(!onChild && in);
+		if(!this.useMouseInput()) return onChild;
 		if(in && !onChild) return true;
 		return onChild;
 	}
@@ -1330,95 +1329,87 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/**
-	 * @param game The game which uses this thing
 	 * @return true if this thing can accept input, false otherwise. The result of this method is not used if {@link #focusable} is false
 	 */
-	public boolean isFocused(Game game){
-		if(game == null) return false;
-		return Objects.equals(game.getFocusedMenuThing(), this.hashCode());
+	public boolean isFocused(){
+		return Objects.equals(Game.get().getFocusedMenuThing(), this.hashCode());
 	}
 	
 	/**
 	 * Cause this thing to be focused and all other things to be unfocused
-	 *
-	 * @param game The game which uses this thing
 	 */
-	public void setFocused(Game game){
-		if(game == null) return;
-		game.setFocusedMenuThing(this.hashCode());
+	public void setFocused(){
+		Game.get().setFocusedMenuThing(this.hashCode());
 	}
 	
 	/**
 	 * Determine if this thing should accept mouse input and stop mouse input from propagating to further things, false otherwise
 	 *
-	 * @param game The game where the mouse input happened
 	 * @return true if it should use mouse input, false otherwise
 	 */
-	public boolean useMouseInput(Game game){
+	public boolean useMouseInput(){
 		return false;
 	}
 	
 	/** Do not call directly */
 	@Override
-	public final boolean mouseWheelMove(Game game, double amount){
+	public final boolean mouseWheelMove(double amount){
 		if(!(this.isDisableChildrenWhenDragging() && this.currentlyDragging())){
 			var things = this.getThings();
 			for(int i = 0; i < things.size(); i++){
 				MenuThing t = things.get(i);
-				if(t.mouseWheelMove(game, amount)) return true;
+				if(t.mouseWheelMove(amount)) return true;
 			}
 		}
-		if(this.canInput(game)) this.mouseWheelMoveFocused(game, amount);
+		if(this.canInput()) this.mouseWheelMoveFocused(amount);
+		var game = Game.get();
 		return this.shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 	}
 	
-	/** Same as {@link #mouseWheelMove(Game, double)}, but only happens when {@link #canInput(Game)} returns true */
-	public boolean mouseWheelMoveFocused(Game game, double amount){
+	/** Same as {@link #mouseWheelMove(double)}, but only happens when {@link #canInput()} returns true */
+	public boolean mouseWheelMoveFocused(double amount){
+		var game = Game.get();
 		return this.shouldDisableMouseInput(game.mouseSX(), game.mouseSY());
 	}
 	
 	/**
 	 * Called when the mouse enters the active bounds of this thing. Does nothing by default, override to provide custom behavior
-	 *
-	 * @param game The game when the mouse entered
 	 */
-	public void mouseEnter(Game game){}
+	public void mouseEnter(){}
 	
 	/**
 	 * Called when the mouse exits the active bounds of this thing. Does nothing by default, override to provide custom behavior
-	 *
-	 * @param game The game when the mouse entered
 	 */
-	public void mouseExit(Game game){}
+	public void mouseExit(){}
 	
-	/** Do not call directly, use {@link #render(Game, Renderer, ZRect2D)} to draw menu things and override their rendering behavior */
+	/** Do not call directly, use {@link #render(Renderer, ZRect2D)} to draw menu things and override their rendering behavior */
 	@Override
-	public final void renderBackground(Game game, Renderer r){
+	public final void renderBackground(Renderer r){
 	}
 	
-	/** Do not call directly, use {@link #render(Game, Renderer, ZRect2D)} to draw menu things and override their rendering behavior */
+	/** Do not call directly, use {@link #render(Renderer, ZRect2D)} to draw menu things and override their rendering behavior */
 	@Override
-	public final void render(Game game, Renderer r){
+	public final void render(Renderer r){
 	}
 	
-	/** Do not call directly, use {@link #render(Game, Renderer, ZRect2D)} to draw menu things and override their rendering behavior */
+	/** Do not call directly, use {@link #render(Renderer, ZRect2D)} to draw menu things and override their rendering behavior */
 	@Override
-	public final void renderHud(Game game, Renderer r){
+	public final void renderHud(Renderer r){
 		// If using a buffer, draw the contents of the buffer to the relative position
 		if(this.usesBuffer()){
-			this.buffer.drawToRenderer(this.getRelX(), this.getRelY(), r, game);
+			this.buffer.drawToRenderer(this.getRelX(), this.getRelY(), r);
 			
 			if(this.isLimitToBounds()) r.pushLimitedBounds(new ZRect2D(0, 0, this.getWidth(), this.getHeight()));
-			if(!this.isDrawThingsToBuffer()) this.drawThings(game, r, true);
+			if(!this.isDrawThingsToBuffer()) this.drawThings(r, true);
 		}
 		// Otherwise, draw the object directly with the renderer
 		else{
 			// Draw relative to the parent
 			var b = this.getRelBounds();
 			if(this.isLimitToBounds()) r.pushLimitedBounds(b);
-			this.render(game, r, b);
-			this.drawThings(game, r, true);
-			this.renderOnTop(game, r, b);
+			this.render(r, b);
+			this.drawThings(r, true);
+			this.renderOnTop(r, b);
 		}
 		if(this.isLimitToBounds()) r.popLimitedBounds();
 	}
@@ -1427,11 +1418,10 @@ public class MenuThing implements GameInteractable, Destroyable{
 	 * Draw the contents of just this menu thing, not anything in {@link #things} Anything drawn using this method should be drawn relative to the given bounds, not based on
 	 * this thing's position or relative position
 	 *
-	 * @param game The game associated with this thing
 	 * @param r The renderer to use
 	 * @param bounds The bounds which this thing will be rendered relative to
 	 */
-	public void render(Game game, Renderer r, ZRect2D bounds){
+	public void render(Renderer r, ZRect2D bounds){
 		double b = this.getBorderWidth();
 		r.setColor(this.getBorder());
 		var x = bounds.getX();
@@ -1460,41 +1450,39 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/**
-	 * The same thing as {@link #render(Game, Renderer, ZRect2D)}, but this happens after the main render and things are rendered
+	 * The same thing as {@link #render(Renderer, ZRect2D)}, but this happens after the main render and things are rendered
 	 *
-	 * @param game The game associated with this thing
 	 * @param r The renderer to use
 	 * @param bounds The bounds which this thing will be rendered relative to
 	 */
-	public void renderOnTop(Game game, Renderer r, ZRect2D bounds){}
+	public void renderOnTop(Renderer r, ZRect2D bounds){}
 	
 	/**
 	 * Render this {@link MenuThing} to the given renderer using the given game, relative to the internal buffer
 	 *
-	 * @param game The game
 	 * @param r The renderer
 	 */
-	private void renderToBuffer(Game game, Renderer r){
+	private void renderToBuffer(Renderer r){
 		// Draw relative to the origin
 		var b = new ZRect2D(0, 0, this.getWidth(), this.getHeight());
-		this.render(game, r, b);
+		this.render(r, b);
 		// If drawing things directly to the buffer, draw them
-		if(this.isDrawThingsToBuffer()) this.drawThings(game, r, false);
-		this.render(game, r, b);
+		if(this.isDrawThingsToBuffer()) this.drawThings(r, false);
+		this.render(r, b);
 	}
 	
 	/**
 	 * Render this the contents of {@link #things} using the associated game and renderer
 	 *
-	 * @param game The game
 	 * @param r The renderer
 	 * @param reposition true to reposition the coordinates based on {@link #relX} and {@link #relY}, false otherwise
 	 */
-	public void drawThings(Game game, Renderer r, boolean reposition){
+	public void drawThings(Renderer r, boolean reposition){
 		// Position the renderer to draw this thing's things relative to this thing
 		if(reposition){
 			r.pushMatrix();
-			GameWindow w = game.getWindow();
+			var game = Game.get();
+			var w = game.getWindow();
 			r.translate(w.sizeScreenToGlX(this.getRelX()), w.sizeScreenToGlY(-this.getRelY()));
 		}
 		
@@ -1511,7 +1499,7 @@ public class MenuThing implements GameInteractable, Destroyable{
 		var things = this.getThings();
 		for(int i = 0; i < things.size(); i++){
 			MenuThing t = things.get(i);
-			t.renderHud(game, r);
+			t.renderHud(r);
 		}
 		
 		if(cb != null) r.popLimitedBounds();
@@ -1537,8 +1525,8 @@ public class MenuThing implements GameInteractable, Destroyable{
 		}
 		
 		@Override
-		public void draw(Game game, Renderer r){
-			this.thing.renderToBuffer(game, r);
+		public void draw(Renderer r){
+			this.thing.renderToBuffer(r);
 		}
 	}
 	

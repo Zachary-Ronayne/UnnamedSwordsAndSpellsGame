@@ -1,6 +1,5 @@
 package tester;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.things.type.bounds.CircleHitBox;
 
@@ -26,7 +25,7 @@ public class PlayerTesterCircle extends PlayerTester implements CircleHitBox{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
+	public void render(Renderer r){
 		r.setColor(1, 0, 0);
 		r.drawCircle(this.centerX(), this.centerY(), this.radius);
 	}

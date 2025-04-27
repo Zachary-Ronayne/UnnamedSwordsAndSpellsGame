@@ -2,7 +2,6 @@ package zusass.menu.savesmenu.comp;
 
 import java.io.File;
 
-import zgame.core.Game;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZStringUtils;
 import zusass.menu.savesmenu.SavesMenu;
@@ -20,7 +19,7 @@ public class SavesDeleteButton extends SavesMenuButton{
 	}
 	
 	@Override
-	public void click(Game game){
+	public void click(){
 		SavesMenu menu = this.getMenu();
 		LoadSaveButton button = menu.getLoadButtons().getSelected();
 		

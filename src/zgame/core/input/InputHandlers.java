@@ -1,6 +1,5 @@
 package zgame.core.input;
 
-import zgame.core.Game;
 import zgame.core.utils.ZConfig;
 
 import java.util.HashMap;
@@ -51,20 +50,19 @@ public class InputHandlers{
 	}
 	
 	/**
-	 * Perform {@link InputHandler#tick(Game)} on the given index. Does not check if the mapping exists, and will throw an exception if the mapping does not exist
+	 * Perform {@link InputHandler#tick()} on the given index. Does not check if the mapping exists, and will throw an exception if the mapping does not exist
 	 *
-	 * @param game The game
 	 * @param index the index
 	 * @return true if the handler was pressed, false otherwise
 	 */
-	public boolean tick(Game game, int index){
+	public boolean tick(int index){
 		var handler = this.handlers.get(index);
 		if(handler == null){
 			ZConfig.error("No input handler for index", index);
 			return false;
 		}
 		
-		return handler.tick(game);
+		return handler.tick();
 	}
 	
 }

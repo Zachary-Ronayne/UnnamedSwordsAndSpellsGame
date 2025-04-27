@@ -1,6 +1,5 @@
 package zusass.game.things.entities.mobs;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.buffer.DrawableBuffer;
 import zgame.core.graphics.image.ImageManager;
@@ -58,10 +57,10 @@ public class Npc extends ZusassMob{
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
-		super.tick(game, dt);
+	public void tick(double dt){
+		super.tick(dt);
 		
-		var zgame = (ZusassGame)game;
+		var zgame = ZusassGame.get();
 		var player = zgame.getPlayer();
 		double playerDx = player.getX() - this.getX();
 		double playerDy = (player.getY() + player.getHeight() * 0.5) - (this.getY() + this.getHeight());
@@ -79,7 +78,7 @@ public class Npc extends ZusassMob{
 		// If the AI has an attack available, and stamina is at least 75%, begin attacking
 		var staminaPerc = this.currentStaminaPerc();
 		if(this.getAttackTime() <= 0 && inRange && staminaPerc > .75){
-			this.beginAttack(zgame);
+			this.beginAttack();
 		}
 		
 		// If not in range, use the speed spell, otherwise use the damage spell
@@ -90,27 +89,27 @@ public class Npc extends ZusassMob{
 		
 		// Try to cast a spell if enough time has passed
 		double intelligence = this.stat(INTELLIGENCE);
-		if(intelligence > 0 && this.spellTime > 10 / intelligence) this.castSpell(zgame);
+		if(intelligence > 0 && this.spellTime > 10 / intelligence) this.castSpell();
 		
 		// If sprinting and stamina is low, stop sprinting
 		var sprinting = this.isSprinting();
 		if(staminaPerc < .25 && sprinting || inRange) this.setSprinting(false);
-		// If stamina is above 75% and not sprinting, start sprinting
+			// If stamina is above 75% and not sprinting, start sprinting
 		else if(staminaPerc > .75 && !sprinting) this.setSprinting(true);
 	}
 	
 	@Override
-	public boolean castSpell(ZusassGame zgame){
-		var success = super.castSpell(zgame);
+	public boolean castSpell(){
+		var success = super.castSpell();
 		if(success) this.spellTime = 0;
 		return success;
 	}
 	
 	@Override
-	protected void render(Game game, Renderer r){
+	protected void render(Renderer r){
 		// Draw an attack timer
 		r.setColor(0, 0.7, 0);
-		this.renderAttackTimer(game, r);
+		this.renderAttackTimer(r);
 		
 		double facingAngle = this.getMobilityData().getFacingYaw() + ZMath.PI_BY_2;
 		
@@ -123,11 +122,11 @@ public class Npc extends ZusassMob{
 		// issue#23 make a way of drawing a health bar above the mob, accounting for how this health bar will not be a part of the mob itself, but above it
 		
 		// Draw bars to represent its remaining health, stamina, and mana
-
+		
 		int barBufferWidth = 300;
 		int barPixelHeight = 24;
 		int barBufferHeight = 90;
-		if(this.resourceBarBuffer == null) {
+		if(this.resourceBarBuffer == null){
 			// TODO consider if there's a better way of doing this, checking if the buffer is null or not yet generated every time feels stupid
 			// TODO maybe make a drawable buffer that passes a lambda
 			this.resourceBarBuffer = new DrawableBuffer(barBufferWidth, barBufferHeight){

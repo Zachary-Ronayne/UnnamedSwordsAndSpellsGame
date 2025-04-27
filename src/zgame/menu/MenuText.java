@@ -1,6 +1,5 @@
 package zgame.menu;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.TextOption;
 import zgame.core.graphics.ZColor;
@@ -182,6 +181,7 @@ public class MenuText extends MenuThing{
 	/**
 	 * Set the width of {@link #textBuffer} to the width of the given window.
 	 * This is useful for buffers which will be used for resizable things where it is infeasible to regenerate the buffer every time the thing is
+	 *
 	 * @param window The window to get the width from
 	 */
 	public void bufferWidthToWindow(GameWindow window){
@@ -275,11 +275,11 @@ public class MenuText extends MenuThing{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect2D bounds){
+	public void render(Renderer r, ZRect2D bounds){
 		// If the buffer has not been generated yet, generate it now
 		if(!this.textBuffer.isBufferGenerated()) this.textBuffer.regenerateBuffer();
 		
-		super.render(game, r, bounds);
+		super.render(r, bounds);
 		
 		if(this.getFont() != null) r.setFont(this.getFont());
 		r.setFontSize(this.getFontSize());

@@ -46,6 +46,7 @@ public class ZusassGame extends Game{
 	/** A class holding all the data used by this {@link ZusassGame} */
 	private ZusassData data;
 	
+	// TODO make the game manage a mapping of players to ids, allowing for multiple players
 	/** The main player which is in this game */
 	private ZusassPlayer player;
 	
@@ -57,7 +58,7 @@ public class ZusassGame extends Game{
 	/** @param player See player. Note that this will not account for adding the player or removing the player from a room */
 	public void setPlayer(ZusassPlayer player){
 		this.player = player;
-		this.player.initSounds(zgame);
+		this.player.initSounds();
 	}
 	
 	/*
@@ -74,7 +75,7 @@ public class ZusassGame extends Game{
 		// Window and performance settings
 		this.setTps(100);
 		this.setMaxFps(144);
-		this.setCurrentState(new MainMenuState(this));
+		this.setCurrentState(new MainMenuState());
 		this.setInitSoundOnStart(false);
 		// For some reason this has to happen on the next tick and not in the constructor to make sure the menu gets resized properly
 		this.onNextLoop(() -> {
@@ -109,7 +110,7 @@ public class ZusassGame extends Game{
 	}
 	
 	/** The only instance of {@link ZusassGame} which can exist */
-	private static ZusassGame zgame = null;
+	private static ZusassGame zgame;
 	
 	public static void main(String[] args){
 		init();
@@ -130,9 +131,9 @@ public class ZusassGame extends Game{
 		data.setLoadedFile(ZusassConfig.createSaveFilePath(name));
 		zgame.setData(data);
 		
-		MainPlay play = new MainPlay(zgame);
+		MainPlay play = new MainPlay();
 		zgame.setCurrentState(play);
-		data.checkAutoSave(zgame);
+		data.checkAutoSave();
 	}
 	
 	@Override
@@ -215,7 +216,7 @@ public class ZusassGame extends Game{
 		 */
 		new ZusassMob(0, 0, 0, 0, 0){
 			@Override
-			protected void render(Game game, Renderer r){}
+			protected void render(Renderer r){}
 		};
 	}
 	
@@ -264,8 +265,8 @@ public class ZusassGame extends Game{
 		return ZUSASS_WINDOW_ID;
 	}
 	
-	/** @return The global instance of the game, only should be used for testing, normal operation should pass an instance of ZusassGame where needed */
-	public static ZusassGame instance(){
+	/** @return The global instance of the Zusass game */
+	public static ZusassGame get(){
 		return zgame;
 	}
 	

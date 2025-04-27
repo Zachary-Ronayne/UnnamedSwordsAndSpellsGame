@@ -3,7 +3,6 @@ package zusass.menu.mainmenu.comp;
 import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuButton;
-import zusass.ZusassGame;
 import zusass.game.MainPlay;
 import zusass.utils.ZusassConfig;
 
@@ -17,11 +16,11 @@ public class ContinueGameButton extends MainMenuButton{
 	}
 	
 	@Override
-	public void click(Game game){
-		ZusassGame zgame = (ZusassGame)game;
+	public void click(){
+		var game = Game.get();
 		boolean success = game.loadGame(ZusassConfig.getMostRecentSave());
 		if(!success) return;
-		MainPlay play = new MainPlay(zgame);
+		MainPlay play = new MainPlay();
 		game.setCurrentState(play);
 	}
 }

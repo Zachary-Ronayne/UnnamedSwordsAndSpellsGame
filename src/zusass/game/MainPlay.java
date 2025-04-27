@@ -44,16 +44,14 @@ public class MainPlay extends PlayState{
 	
 	/**
 	 * Initialize the main play state for the Zusass game
-	 *
-	 * @param zgame The {@link Game} using this state
 	 */
-	public MainPlay(ZusassGame zgame){
+	public MainPlay(){
 		// issue#53 maybe make this go to a hub initially right away instead of a separate method call
 		super(new Room3D(0, 0, 0));
 		this.debugInfo = false;
 		this.debugNumberFormat = new DecimalFormat("0.0#####");
 		
-		this.enterHub(zgame);
+		this.enterHub();
 		
 		this.playerMenusOpen = false;
 		this.pauseMenu = new PauseMenu();
@@ -63,25 +61,23 @@ public class MainPlay extends PlayState{
 	
 	/**
 	 * Set the current room of the game to the main hub
-	 *
-	 * @param zgame The {@link Game} using this state
 	 */
-	public void enterHub(ZusassGame zgame){
+	public void enterHub(){
 		// Make the hub and set that as the current room
-		zgame.onNextLoop(() -> {
-			Hub hub = new Hub(zgame);
+		ZusassGame.get().onNextLoop(() -> {
+			Hub hub = new Hub();
 			this.setCurrentRoom(hub);
 			
 			// Place the player on the next tick
-			hub.onNextTick(() -> hub.placePlayer(zgame));
+			hub.onNextTick(hub::placePlayer);
 		});
 	}
 	
 	@Override
-	public void onSet(Game game){
-		super.onSet(game);
-		var zgame = (ZusassGame)game;
-		zgame.onNextLoop(() -> {
+	public void onSet(){
+		super.onSet();
+		ZusassGame.get().onNextLoop(() -> {
+			var zgame = ZusassGame.get();
 			this.getSpellListMenu().setMob(zgame.getPlayer());
 			this.getStatsMenu().setMob(zgame.getPlayer());
 		});
@@ -94,11 +90,9 @@ public class MainPlay extends PlayState{
 	
 	/**
 	 * Set the current state of the game to the main menu
-	 *
-	 * @param zgame The {@link Game} using this state
 	 */
-	public void enterMainMenu(ZusassGame zgame){
-		zgame.setCurrentState(new MainMenuState(zgame));
+	public void enterMainMenu(){
+		ZusassGame.get().setCurrentState(new MainMenuState());
 	}
 	
 	/** @return See {@link #playerMenusOpen} */
@@ -107,60 +101,60 @@ public class MainPlay extends PlayState{
 	}
 	
 	@Override
-	public void playKeyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.playKeyAction(game, button, press, shift, alt, ctrl);
+	public void playKeyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.playKeyAction(button, press, shift, alt, ctrl);
 		if(press) return;
 		
 		// On releasing escape, open the pause menu if no menus are open, or close whatever other menu is open
 		if(button == GLFW_KEY_ESCAPE){
-			ZusassGame zgame = (ZusassGame)game;
 			// If the player menus are open, and one of them is on top, prioritize closing them
-			if(this.playerMenusOpen && this.anyPlayerMenuOnTop(zgame)){
-				this.closePlayerMenus(zgame);
+			if(this.playerMenusOpen && this.anyPlayerMenuOnTop()){
+				this.closePlayerMenus();
 				return;
 			}
 			// Otherwise close the top menu
-			var c = zgame.getCurrentState();
+			var c = ZusassGame.get().getCurrentState();
 			if(c.getStackSize() > 0){
-				c.removeTopMenu(game);
+				c.removeTopMenu();
 			}
 			// Otherwise, open the pause menu
 			else{
-				this.openPauseMenu(zgame);
+				this.openPauseMenu();
 			}
 		}
 		// On releasing tab, open inventory if it is not open, otherwise, close it
 		else if(button == GLFW_KEY_TAB){
-			if(this.playerMenusOpen) this.closePlayerMenus((ZusassGame)game);
-			else this.openPlayerMenus((ZusassGame)game);
+			if(this.playerMenusOpen) this.closePlayerMenus();
+			else this.openPlayerMenus();
 		}
 		// Use F3 to toggle debug
 		else if(button == GLFW_KEY_F3) this.debugInfo = !this.debugInfo;
 	}
 	
 	@Override
-	public boolean playMouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		boolean input = super.playMouseAction(game, button, press, shift, alt, ctrl);
+	public boolean playMouseAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		boolean input = super.playMouseAction(button, press, shift, alt, ctrl);
 		if(input) return true;
-		var zgame = (ZusassGame)game;
-		return zgame.getPlayer().mouseAction(zgame, button, press, shift, alt, ctrl);
+		var zgame = ZusassGame.get();
+		return zgame.getPlayer().mouseAction(button, press, shift, alt, ctrl);
 	}
 	
 	@Override
-	public void renderBackground(Game game, Renderer r){
-		super.renderBackground(game, r);
+	public void renderBackground(Renderer r){
+		super.renderBackground(r);
 		
 		// Draw a solid color for the background
 		r.setColor(new ZColor(.05));
+		var game = Game.get();
 		r.drawRectangle(0, 0, game.getScreenWidth(), game.getScreenHeight());
 		
 		// Draw the rest of the background
-		super.renderBackground(game, r);
+		super.renderBackground(r);
 	}
 	
 	@Override
-	public void renderHud(Game game, Renderer r){
-		var zgame = (ZusassGame)game;
+	public void renderHud(Renderer r){
+		var zgame = ZusassGame.get();
 		
 		// First draw the in game hud
 		
@@ -186,7 +180,7 @@ public class MainPlay extends PlayState{
 		if(debugInfo){
 			r.setFontSize(22);
 			var mobilityData = p.getMobilityData();
-			double ty = game.getWindow().getHeight() - 5;
+			double ty = ZusassGame.window().getHeight() - 5;
 			var yaw = mobilityData.getFacingYaw();
 			var velocity = p.getVelocity();
 			var debugTextList = List.of(
@@ -210,7 +204,7 @@ public class MainPlay extends PlayState{
 		this.drawCrossHair(r);
 		
 		// Now draw the rest of the menus
-		super.renderHud(game, r);
+		super.renderHud(r);
 	}
 	
 	/** @param r The renderer to use to draw the cross-hair */
@@ -250,44 +244,37 @@ public class MainPlay extends PlayState{
 	
 	/**
 	 * Open the pause menu for the game, and pause the game
-	 *
-	 * @param zgame The game to pause and open the pause menu
 	 */
-	public void openPauseMenu(ZusassGame zgame){
-		MenuNode pauseNode = MenuNode.withAll(this.pauseMenu);
-		zgame.getPlayState().fullPause();
-		this.popupMenu(zgame, pauseNode);
+	public void openPauseMenu(){
+		var pauseNode = MenuNode.withAll(this.pauseMenu);
+		ZusassGame.get().getPlayState().fullPause();
+		this.popupMenu(pauseNode);
 	}
 	
 	/**
 	 * Close the display of the player inventory
-	 *
-	 * @param zgame The game with the inventory
 	 */
-	public void closePlayerMenus(ZusassGame zgame){
+	public void closePlayerMenus(){
 		this.playerMenusOpen = false;
-		this.removeMenu(zgame, this.spellListMenu);
-		this.removeMenu(zgame, this.statsMenu);
+		this.removeMenu(this.spellListMenu);
+		this.removeMenu(this.statsMenu);
 	}
 	
 	/**
 	 * Make the player inventory menu show
-	 *
-	 * @param zgame The game to show the inventory in
 	 */
-	public void openPlayerMenus(ZusassGame zgame){
+	public void openPlayerMenus(){
 		this.playerMenusOpen = true;
-		this.popupMenu(zgame, MenuNode.withAll(this.spellListMenu));
-		this.popupMenu(zgame, MenuNode.withAll(this.statsMenu));
+		this.popupMenu(MenuNode.withAll(this.spellListMenu));
+		this.popupMenu(MenuNode.withAll(this.statsMenu));
 		this.statsMenu.regenerateThings();
 	}
 	
 	/**
-	 * @param zgame The game to check
 	 * @return true if any of the player menus are on the top, false otherwise
 	 */
-	public boolean anyPlayerMenuOnTop(ZusassGame zgame){
-		var topMenu = zgame.getCurrentState().getTopMenu();
+	public boolean anyPlayerMenuOnTop(){
+		var topMenu = ZusassGame.get().getCurrentState().getTopMenu();
 		return topMenu == this.getSpellListMenu() ||
 			   topMenu == this.getStatsMenu();
 	}

@@ -75,9 +75,9 @@ public class ToggleButton<T extends ToggleButtonValue> extends MenuButton{
 	}
 	
 	@Override
-	public void click(Game game){
-		super.click(game);
-		if(game.getKeyInput().shift()) this.prevIndex();
+	public void click(){
+		super.click();
+		if(Game.get().getKeyInput().shift()) this.prevIndex();
 		else this.nextIndex();
 	}
 	

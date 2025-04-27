@@ -27,6 +27,7 @@ public class CollisionDemo3D extends Game{
 	
 	public static void main(String[] args){
 		
+		Game.initAssetManagers();
 		game = new CollisionDemo3D();
 		game.setInitSoundOnStart(false);
 		game.setPrintTps(false);
@@ -51,8 +52,8 @@ public class CollisionDemo3D extends Game{
 		}
 		
 		@Override
-		public void tick(Game game, double dt){
-			super.tick(game, dt);
+		public void tick(double dt){
+			super.tick(dt);
 			
 			var ki = game.getKeyInput();
 			var left = ki.buttonDown(GLFW_KEY_A);
@@ -143,7 +144,7 @@ public class CollisionDemo3D extends Game{
 		}
 		
 		@Override
-		protected void render(Game game, Renderer r){
+		protected void render(Renderer r){
 //			var collision = ZCollision.rectToSphereBasic(
 //					RECT.getX(), RECT.getY(), RECT.getZ(), RECT.getWidth(), RECT.getHeight(), RECT.getLength(),
 //					this.getX(), this.getY(), this.getZ(), this.getRadius(), Materials.NONE
@@ -176,8 +177,8 @@ public class CollisionDemo3D extends Game{
 		}
 		
 		@Override
-		public void playKeyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-			super.playKeyAction(game, button, press, shift, alt, ctrl);
+		public void playKeyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+			super.playKeyAction(button, press, shift, alt, ctrl);
 			if(!press && button == GLFW_KEY_ESCAPE){
 				var w = game.getWindow();
 				w.setMouseNormally(!w.isMouseNormally());
@@ -224,8 +225,8 @@ public class CollisionDemo3D extends Game{
 		}
 		
 		@Override
-		public void render(Game game, Renderer r){
-			super.render(game, r);
+		public void render(Renderer r){
+			super.render(r);
 			
 			var c = new ZColor(1, 0, 0, 0.5);
 			r.drawRectPrism(RECT, c, c, c, c, c, c);

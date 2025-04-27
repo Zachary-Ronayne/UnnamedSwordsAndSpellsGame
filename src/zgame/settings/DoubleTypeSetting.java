@@ -4,12 +4,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import zgame.core.Game;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /** A {@link Setting} holding a double. See {@link SettingType} */
 public class DoubleTypeSetting extends SettingType<Double>{
 	
-	public static final DoubleTypeSetting FOV = new DoubleTypeSetting("FOV", 1, Game::setFov);
+	public static final DoubleTypeSetting FOV = new DoubleTypeSetting("FOV", 1, d -> Game.get().setFov(d));
 	
 	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_X = new DoubleTypeSetting("CAMERA_LOOK_SPEED_X", 0.0009);
 	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_Y = new DoubleTypeSetting("CAMERA_LOOK_SPEED_Y", 0.0009);
@@ -31,7 +31,7 @@ public class DoubleTypeSetting extends SettingType<Double>{
 	 * @param defaultVal See {@link #defaultVal}
 	 * @param onChange See {@link #onChange}
 	 */
-	protected DoubleTypeSetting(String name, double defaultVal, BiConsumer<Game, Double> onChange){
+	protected DoubleTypeSetting(String name, double defaultVal, Consumer<Double> onChange){
 		super(name, defaultVal, onChange);
 	}
 	
@@ -44,7 +44,7 @@ public class DoubleTypeSetting extends SettingType<Double>{
 	public Double fromJson(JsonElement e){
 		try{
 			return e.getAsDouble();
-		} catch(Exception ex){
+		}catch(Exception ex){
 			return this.getDefault();
 		}
 	}

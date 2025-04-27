@@ -38,7 +38,7 @@ public class VerticalScrollerButton extends MenuScrollerButton{
 	}
 	
 	@Override
-	public double mouseOffset(Game game){
-		return game.mouseSY() - this.getY();
+	public double mouseOffset(){
+		return Game.get().mouseSY() - this.getY();
 	}
 }

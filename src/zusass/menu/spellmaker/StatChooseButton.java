@@ -16,6 +16,7 @@ public class StatChooseButton extends ZusassButton{
 	
 	/**
 	 * Create the button for selecting a stat type
+	 *
 	 * @param menu The menu which uses this button
 	 */
 	public StatChooseButton(SpellMakerMenu menu){
@@ -40,10 +41,11 @@ public class StatChooseButton extends ZusassButton{
 	}
 	
 	@Override
-	public void click(Game game){
-		super.click(game);
+	public void click(){
+		super.click();
 		var popup = new StatChoosePopup(this);
-		game.getCurrentState().popupMenu(game, new MenuNode(popup, false, false, false));
+		var game = Game.get();
+		game.getCurrentState().popupMenu(new MenuNode(popup, false, false, false));
 		popup.center(game.getWindow());
 	}
 	
@@ -56,7 +58,7 @@ public class StatChooseButton extends ZusassButton{
 	public void setSelectedStat(StatSpellType selectedStat){
 		this.selectedStat = selectedStat;
 		this.updateText();
-		if(this.menu != null) {
+		if(this.menu != null){
 			this.menu.updateMenuState();
 			this.menu.updateEffectTypeButton();
 		}

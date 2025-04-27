@@ -7,7 +7,7 @@ public class InputHandler{
 	
 	/** The index representing the key that is pressed */
 	private int inputKey;
-	/** true if the button represented by {@link #inputKey} is currently pressed down, and releasing it will cause {@link #tick(Game)} to return true */
+	/** true if the button represented by {@link #inputKey} is currently pressed down, and releasing it will cause {@link #tick()} to return true */
 	private boolean pressed;
 	/** The type of device to get input from */
 	private InputType type;
@@ -25,15 +25,18 @@ public class InputHandler{
 	
 	/**
 	 * Update the state of this handler based on the input devices of the given game
-	 * @param game The game
+	 *
 	 * @return true if this tick represents an input press, and the control should perform its action, false otherwise
 	 */
-	public boolean tick(Game game){
+	public boolean tick(){
 		boolean nowPressed;
+		var game = Game.get();
 		switch(this.type){
 			case KEYBOARD -> nowPressed = game.getKeyInput().pressed(this.inputKey);
 			case MOUSE_BUTTONS -> nowPressed = game.getMouseInput().buttonDown(this.inputKey);
-			default -> {return false;}
+			default -> {
+				return false;
+			}
 		}
 		
 		if(this.pressed && !nowPressed){

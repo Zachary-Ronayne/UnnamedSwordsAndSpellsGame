@@ -1,6 +1,5 @@
 package zgame.things.still.tiles;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.physics.material.Material;
@@ -112,8 +111,8 @@ public class Tile3D extends GameThing implements Tile<HitBox3D, CollisionResult3
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
-		this.getType().render(this, game, r);
+	public void render(Renderer r){
+		this.getType().render(this, r);
 	}
 	
 	/** @return The unit size of a tile */

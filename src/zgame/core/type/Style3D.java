@@ -10,7 +10,8 @@ public class Style3D implements RenderStyle{
 	public Style3D(){}
 	
 	@Override
-	public void setupFrame(Game game, Renderer r){
+	public void setupFrame(Renderer r){
+		var game = Game.get();
 		r.updateFrustum(game.getCamera3D());
 		
 		r.setDepthTestEnabled(true);
@@ -18,8 +19,8 @@ public class Style3D implements RenderStyle{
 	}
 	
 	@Override
-	public void setupCore(Game game, Renderer r){
-		var window = game.getWindow();
+	public void setupCore(Renderer r){
+		var window = Game.get().getWindow();
 		
 		// Turn on the depth buffer
 		var buff = r.getBuffer();
@@ -34,23 +35,24 @@ public class Style3D implements RenderStyle{
 	}
 	
 	@Override
-	public void onMenuOpened(Game game){
-		RenderStyle.super.onMenuOpened(game);
+	public void onMenuOpened(){
+		RenderStyle.super.onMenuOpened();
 		
-		game.getWindow().setMouseNormally(true);
+		Game.get().getWindow().setMouseNormally(true);
 	}
 	
 	@Override
-	public void onAllMenusClosed(Game game){
-		RenderStyle.super.onAllMenusClosed(game);
+	public void onAllMenusClosed(){
+		RenderStyle.super.onAllMenusClosed();
 		
-		game.getWindow().setMouseNormally(false);
+		Game.get().getWindow().setMouseNormally(false);
 	}
 	
 	@Override
-	public void mouseMove(Game game, double x, double y){
-		RenderStyle.super.mouseMove(game, x, y);
+	public void mouseMove(double x, double y){
+		RenderStyle.super.mouseMove(x, y);
 		
+		var game = Game.get();
 		var window = game.getWindow();
 		if(!window.isMouseNormally()) game.look3D();
 	}

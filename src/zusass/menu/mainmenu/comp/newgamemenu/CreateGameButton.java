@@ -1,6 +1,5 @@
 package zusass.menu.mainmenu.comp.newgamemenu;
 
-import zgame.core.Game;
 import zusass.ZusassGame;
 import zusass.menu.comp.ZusassButton;
 
@@ -23,10 +22,9 @@ public class CreateGameButton extends ZusassButton{
 	}
 	
 	@Override
-	public void click(Game game){
+	public void click(){
 		var levelName = this.popup.getLevelNameText();
 		if(levelName == null || levelName.isEmpty()) return;
-		var zgame = (ZusassGame)game;
 		
 		var seedString = this.popup.getSeed();
 		long seed;
@@ -44,7 +42,7 @@ public class CreateGameButton extends ZusassButton{
 			}
 		}
 		
-		zgame.createNewGame(levelName, seed);
+		ZusassGame.get().createNewGame(levelName, seed);
 	}
 	
 }

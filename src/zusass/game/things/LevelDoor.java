@@ -1,6 +1,5 @@
 package zusass.game.things;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.TextOption;
 import zgame.core.graphics.ZColor;
@@ -81,20 +80,18 @@ public class LevelDoor extends ZusassDoor{
 	}
 	
 	@Override
-	public boolean enterRoom(ZusassRoom r, EntityThing3D thing, Game game){
-		ZusassGame zgame = (ZusassGame)game;
-		
+	public boolean enterRoom(ZusassRoom r, EntityThing3D thing){
 		// Generate the new room, then enter it
 		var levelRoom = new LevelRoom(this.getLevel());
 		this.setLeadRoom(levelRoom, 2, 1, 2);
-		levelRoom.initRandom(zgame);
-		boolean success = super.enterRoom(r, thing, game);
+		levelRoom.initRandom();
+		boolean success = super.enterRoom(r, thing);
 		
 		// Update the highest level room the player has been in
 		if(success){
-			ZusassData d = zgame.getData();
+			ZusassData d = ZusassGame.get().getData();
 			d.updatedHighestRoomLevel(this.getLevel());
-			d.checkAutoSave(zgame);
+			d.checkAutoSave();
 		}
 		return success;
 	}
@@ -115,8 +112,8 @@ public class LevelDoor extends ZusassDoor{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
-		super.render(game, r);
+	public void render(Renderer r){
+		super.render(r);
 		
 		if(this.levelTextBuffer.getBuffer() == null){
 			var textB = new TextBuffer(500, 500,

@@ -1,6 +1,5 @@
 package zusass.game.things;
 
-import zgame.core.Game;
 import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
@@ -50,23 +49,23 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 	/**
 	 * If the player is attempting to click on a door, have the player enter the door, otherwise do nothing
 	 *
-	 * @param zgame The game used by the tick method
 	 * @param room The room used by the tick method
 	 */
 	@Override
-	public void handleZusassPress(ZusassGame zgame, ZusassRoom room){
+	public void handleZusassPress(ZusassRoom room){
+		var zgame = ZusassGame.get();
 		var player = zgame.getPlayer();
-		this.enterRoom(zgame.getCurrentRoom(), player, zgame);
+		this.enterRoom(zgame.getCurrentRoom(), player);
 	}
 	
 	@Override
-	public boolean enterRoom(Room3D r, EntityThing3D thing, Game game){
-		return super.enterRoom(r, thing, game);
+	public boolean enterRoom(Room3D r, EntityThing3D thing){
+		return super.enterRoom(r, thing);
 	}
 	
-	/** Convenience method that calls {@link #enterRoom(Room3D, EntityThing3D, Game)} without a need to type cast */
-	public boolean enterRoom(ZusassRoom r, EntityThing3D thing, Game game){
-		return this.enterRoom((Room3D)r, thing, game);
+	/** Convenience method that calls {@link #enterRoom(Room3D, EntityThing3D)} without a need to type cast */
+	public boolean enterRoom(ZusassRoom r, EntityThing3D thing){
+		return this.enterRoom((Room3D)r, thing);
 	}
 	
 	/** @return See {@link #facingDirection} */
@@ -75,8 +74,8 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
-		var zgame = (ZusassGame)game;
+	public void render(Renderer r){
+		var zgame = ZusassGame.get();
 		double clickDistance = this.findClickDistance(zgame.getPlayer());
 		double maxClickRange = zgame.getPlayer().getClickRange();
 		

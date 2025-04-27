@@ -1,6 +1,5 @@
 package zgame.world;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
@@ -242,17 +241,17 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
+	public void render(Renderer r){
 		// issue#52 make a way to efficiently render tiles, i.e. only render the ones that need to be rendered
 		for(int x = 0; x < this.tilesX; x++){
 			for(int y = 0; y < this.tilesY; y++){
 				for(int z = 0; z < this.tilesZ; z++){
-					this.tiles[x][y][z].render(game, r);
+					this.tiles[x][y][z].render(r);
 				}
 			}
 		}
 		
-		super.render(game, r);
+		super.render(r);
 	}
 	
 	@Override
@@ -417,11 +416,10 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	/**
 	 * Have the given thing attempt to click on this room. The closest thing to the given clicker will be clicked, or nothing if there is nothing within clicking range
 	 *
-	 * @param game The game containing this room
 	 * @param clicker The thing doing the clicking
 	 * @return true if something was clicked, false otherwise
 	 */
-	public boolean attemptClick(Game game, ClickerBounds clicker){
+	public boolean attemptClick(ClickerBounds clicker){
 		// If no clickable things, do nothing
 		var clickables = this.getAllThings().get(ThingClickDetector3D.class);
 		if(clickables == null) return false;
@@ -446,7 +444,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		if(tileDistance >= 0 && tileDistance < closestDistance) return false;
 		
 		// Perform the actual click
-		closestClickable.handlePress(game, this);
+		closestClickable.handlePress(this);
 		return true;
 	}
 	
@@ -539,21 +537,21 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			 i.e. if negative or greater than max, and already moving in that direction, quit early, there is no intersection
 			*/
 			if(xTileMove){
-				if(xPositive) {
+				if(xPositive){
 					tx++;
 					if(tx >= this.getTilesX()) return -1;
 				}
-				else {
+				else{
 					tx--;
 					if(tx < 0) return -1;
 				}
 			}
 			else if(yTileMove){
-				if(yPositive) {
+				if(yPositive){
 					ty++;
 					if(ty >= this.getTilesY()) return -1;
 				}
-				else {
+				else{
 					ty--;
 					if(ty < 0) return -1;
 				}
@@ -563,7 +561,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 					tz++;
 					if(tz >= this.getTilesZ()) return -1;
 				}
-				else {
+				else{
 					tz--;
 					if(tz < 0) return -1;
 				}
@@ -649,7 +647,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	public void setTile(int x, int y, int z, TileType3D t, boolean skipRecompute){
 		this.tiles[x][y][z] = new Tile3D(x, y, z, t);
 		
-		if(!skipRecompute) {
+		if(!skipRecompute){
 			/*
 			 There is a lot of room for optimization here, for example only the touching faces of updated tiles need to be recomputed, not the whole tile,
 			 but this is fine for now

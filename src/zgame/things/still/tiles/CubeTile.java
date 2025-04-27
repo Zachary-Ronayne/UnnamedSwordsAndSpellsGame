@@ -1,6 +1,5 @@
 package zgame.things.still.tiles;
 
-import zgame.core.Game;
 import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
@@ -46,7 +45,7 @@ public class CubeTile extends TileType3D{
 	}
 	
 	@Override
-	public void render(Tile3D t, Game g, Renderer r){
+	public void render(Tile3D t, Renderer r){
 		var c = this.getBaseColor();
 		// issue#46 render tiles with transparency properly, maybe this as is, is good enough, just only render them if they are fully opaque
 		if(c.alpha() < 1) return;

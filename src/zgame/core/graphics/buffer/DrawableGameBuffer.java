@@ -19,12 +19,7 @@ public class DrawableGameBuffer extends DrawableBuffer{
 		super(Math.max(1, (int)Math.round(width)), Math.max(1, (int)Math.round(height)));
 	}
 	
-	/** {@link DrawableBuffer#draw(Renderer)} is not used by this class, use {@link #draw(Game, Renderer)} instead */
-	@Override
-	public final void draw(Renderer r){
-	}
-	
-	/** {@link #drawOnRenderer(double, double, Renderer)} is not used by this class, use {@link #drawToRenderer(double, double, Renderer, Game)} instead */
+	/** {@link #drawOnRenderer(double, double, Renderer)} is not used by this class, use {@link #drawToRenderer(double, double, Renderer)} instead */
 	@Override
 	public final void drawOnRenderer(double x, double y, Renderer r){
 	}
@@ -35,20 +30,18 @@ public class DrawableGameBuffer extends DrawableBuffer{
 	 * @param x The x coordinate to draw the upper left hand corner of the buffer
 	 * @param y The y coordinate to draw the upper left hand corner of the buffer
 	 * @param r The renderer to draw this buffer to
-	 * @param game The game to use for drawing
 	 */
-	public void drawToRenderer(double x, double y, Renderer r, Game game){
-		if(!this.skipRedraw()) this.redraw(r, (ren, g) -> draw(game, ren), game);
+	public void drawToRenderer(double x, double y, Renderer r){
+		if(!this.skipRedraw()) this.redraw(r, this::draw);
 		super.drawOnRenderer(x, y, r);
 	}
 	
 	/**
 	 * Draw the buffer using the provided game. Override this method to draw custom values
 	 *
-	 * @param game The game to use for drawing
 	 * @param r The renderer to draw to
 	 */
-	public void draw(Game game, Renderer r){
+	public void draw(Renderer r){
 	}
 	
 }

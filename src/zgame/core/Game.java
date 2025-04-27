@@ -48,6 +48,10 @@ public class Game implements Saveable, Destroyable{
 	/** The default id to use for the window of the game */
 	public static final String DEFAULT_WINDOW_ID = "defaultWindow";
 	
+	/** The single instance of game that is allowed to exist */
+	private static Game instance;
+	
+	// TODO should game gave a reference to window here? Probably do that through window manager
 	/** The {@link GlfwWindow} used by this {@link Game} as the core interaction */
 	private final GameWindow window;
 	
@@ -63,6 +67,7 @@ public class Game implements Saveable, Destroyable{
 	/** The looper to run the main OpenGL loop */
 	private final GameLooper renderLooper;
 	
+	// TODO does the camera being in game actually make sense?
 	/** The Camera which determines the relative location and scale of objects drawn in the game */
 	private final GameCamera camera;
 	
@@ -200,6 +205,9 @@ public class Game implements Saveable, Destroyable{
 	 */
 	// TODO don't pass so many parameters into the game constructor, make all of this stuff just set initially and then on Game.start all of the complicated initialization happens
 	public Game(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
+		if(instance != null) throw new RuntimeException("Cannot create a second instance of Game, only one instance may exist at a time");
+		instance = this;
+		
 		this.nextLoopFuncs = new ArrayList<>();
 		
 		// Init misc values
@@ -225,9 +233,9 @@ public class Game implements Saveable, Destroyable{
 		// Init this game's instance of settings
 		SettingType.init();
 		this.saveLoaded = false;
-		this.settings = new Settings(this);
-		this.globalSettings = new Settings(this);
-		this.localSettings = new Settings(this);
+		this.settings = new Settings();
+		this.globalSettings = new Settings();
+		this.localSettings = new Settings();
 		// On initialization, load the global settings
 		this.loadGlobalSettings();
 		
@@ -236,9 +244,10 @@ public class Game implements Saveable, Destroyable{
 		
 		// Init window
 		WindowManager.init();
+		// TODO make the window generated through a function that can be overridden, so a game can use whatever window implementation if desired
 		this.window = new GlfwWindow(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
 		this.window.addSizeChangeListener(this::onWindowSizeChange);
-		this.window.addEnterFullScreenListener(window -> this.getRenderStyle().setupCore(this, window.getRenderer()));
+		this.window.addEnterFullScreenListener(window -> this.getRenderStyle().setupCore(window.getRenderer()));
 		this.updateWindowId();
 		this.focusedMenuThing = null;
 		
@@ -337,6 +346,8 @@ public class Game implements Saveable, Destroyable{
 	
 	@Override
 	public void destroy(){
+		// TODO make this allow a new Game object to be created
+		
 		// End the loopers
 		this.renderLooper.end();
 		this.tickLooper.end();
@@ -371,7 +382,7 @@ public class Game implements Saveable, Destroyable{
 	 * @param ctrl true if ctrl is pressed, false otherwise
 	 */
 	protected void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		this.getCurrentState().keyAction(this, button, press, shift, alt, ctrl);
+		this.getCurrentState().keyAction(button, press, shift, alt, ctrl);
 	}
 	
 	/**
@@ -385,7 +396,7 @@ public class Game implements Saveable, Destroyable{
 	 * @param ctrl true if ctrl is pressed, false otherwise
 	 */
 	protected void mouseAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		this.getCurrentState().mouseAction(this, button, press, shift, alt, ctrl);
+		this.getCurrentState().mouseAction(button, press, shift, alt, ctrl);
 	}
 	
 	/**
@@ -396,7 +407,7 @@ public class Game implements Saveable, Destroyable{
 	 * @param y The y coordinate in screen coordinates
 	 */
 	protected void mouseMove(double x, double y){
-		this.getCurrentState().mouseMove(this, x, y);
+		this.getCurrentState().mouseMove(x, y);
 	}
 	
 	/**
@@ -406,7 +417,7 @@ public class Game implements Saveable, Destroyable{
 	 * @param amount The amount the scroll wheel was moved
 	 */
 	protected void mouseWheelMove(double amount){
-		this.getCurrentState().mouseWheelMove(this, amount);
+		this.getCurrentState().mouseWheelMove(amount);
 	}
 	
 	/**
@@ -444,18 +455,18 @@ public class Game implements Saveable, Destroyable{
 				r.initToDraw();
 				
 				// Draw the background
-				RenderStyle.S_2D.setupFrame(this, r);
+				RenderStyle.S_2D.setupFrame(r);
 				r.setCamera(null);
 				r.identityMatrix();
 				this.renderBackground(r);
 				
 				// Draw the foreground, i.e. main objects
 				// Perform any needed operations based on the type
-				this.getRenderStyle().setupFrame(this, r);
+				this.getRenderStyle().setupFrame(r);
 				this.render(r);
 				
 				// Draw the hud
-				RenderStyle.S_2D.setupFrame(this, r);
+				RenderStyle.S_2D.setupFrame(r);
 				r.setCamera(null);
 				r.identityMatrix();
 				this.renderHud(r);
@@ -480,7 +491,7 @@ public class Game implements Saveable, Destroyable{
 	 * @param r The Renderer to use for drawing
 	 */
 	protected void renderBackground(Renderer r){
-		this.getCurrentState().renderBackground(this, r);
+		this.getCurrentState().renderBackground(r);
 	}
 	
 	/**
@@ -491,7 +502,7 @@ public class Game implements Saveable, Destroyable{
 	 * @param r The Renderer to use for drawing
 	 */
 	protected void render(Renderer r){
-		this.getCurrentState().render(this, r);
+		this.getCurrentState().render(r);
 	}
 	
 	/**
@@ -501,7 +512,7 @@ public class Game implements Saveable, Destroyable{
 	 * @param r The Renderer to use for drawing
 	 */
 	protected void renderHud(Renderer r){
-		this.getCurrentState().renderHud(this, r);
+		this.getCurrentState().renderHud(r);
 	}
 	
 	/**
@@ -554,7 +565,7 @@ public class Game implements Saveable, Destroyable{
 	 */
 	protected void tick(double dt){
 		this.totalTickTime += dt;
-		this.getCurrentState().tick(this, dt);
+		this.getCurrentState().tick(dt);
 	}
 	
 	/**
@@ -1008,7 +1019,7 @@ public class Game implements Saveable, Destroyable{
 		this.destroyState = this.currentState;
 		this.currentState = this.nextCurrentState;
 		this.playState = this.currentState.asPlay();
-		this.currentState.onSet(this);
+		this.currentState.onSet();
 		this.nextCurrentState = null;
 	}
 	
@@ -1296,7 +1307,7 @@ public class Game implements Saveable, Destroyable{
 	/** @param renderStyle See {@link #renderStyle} */
 	public void setRenderStyle(RenderStyle renderStyle){
 		this.renderStyle = renderStyle;
-		this.renderStyle.setupCore(this, this.getWindow().getRenderer());
+		this.renderStyle.setupCore(this.getWindow().getRenderer());
 	}
 	
 	/** Assign this game as a 2D game */
@@ -1309,6 +1320,7 @@ public class Game implements Saveable, Destroyable{
 		this.setRenderStyle(RenderStyle.S_3D);
 	}
 	
+	// TODO ensure this basic init always happens when a new Game object is create
 	/** Initialize all singletons for managing assets */
 	public static void initAssetManagers(){
 		ImageManager.init();
@@ -1323,6 +1335,12 @@ public class Game implements Saveable, Destroyable{
 		EffectsManager.destroyEffects();
 		MusicManager.destroyMusic();
 		FontManager.destroyFonts();
+	}
+	
+	/** @return The single instance of {@link Game} which is allowed to exist */
+	public static Game get(){
+		if(instance == null) ZConfig.error("Cannot get instance of game, no new Game instance has been created");
+		return instance;
 	}
 	
 }

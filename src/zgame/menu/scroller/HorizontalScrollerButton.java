@@ -38,7 +38,7 @@ public class HorizontalScrollerButton extends MenuScrollerButton{
 	}
 	
 	@Override
-	public double mouseOffset(Game game){
-		return game.mouseSX() - this.getX();
+	public double mouseOffset(){
+		return Game.get().mouseSX() - this.getX();
 	}
 }

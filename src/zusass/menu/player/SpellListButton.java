@@ -1,6 +1,5 @@
 package zusass.menu.player;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.format.PercentFormatter;
@@ -43,8 +42,8 @@ public class SpellListButton extends ZusassButton{
 	}
 	
 	@Override
-	public void click(Game game){
-		super.click(game);
+	public void click(){
+		super.click();
 		var m = this.spellList.getMenu().getMob();
 		if(m == null) return;
 		m.getSpells().setSelectedSpellIndex(this.spellIndex);
@@ -59,9 +58,9 @@ public class SpellListButton extends ZusassButton{
 	}
 	
 	@Override
-	public void onDragEnd(Game game, boolean sideDrag){
+	public void onDragEnd(boolean sideDrag){
 		// This needs to be in here and not in the parent InventoryMenu, so that the main menu doesn't need to use a buffer to be regularly regenerated
-		super.onDragEnd(game, sideDrag);
+		super.onDragEnd(sideDrag);
 		if(!sideDrag) return;
 		this.updateTextPosition();
 	}
@@ -73,12 +72,11 @@ public class SpellListButton extends ZusassButton{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect2D bounds){
-		super.render(game, r, bounds);
+	public void render(Renderer r, ZRect2D bounds){
+		super.render(r, bounds);
 		
 		// Draw a highlight if this button is the currently selected spell
-		var zgame = (ZusassGame)game;
-		if(zgame.getPlayer().getSpells().getSelectedSpellIndex() == this.spellIndex){
+		if(ZusassGame.get().getPlayer().getSpells().getSelectedSpellIndex() == this.spellIndex){
 			r.setColor(.8, .8, 1, 0.5);
 			r.drawRectangle(bounds);
 		}

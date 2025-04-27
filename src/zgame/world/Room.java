@@ -3,7 +3,6 @@ package zgame.world;
 import java.util.ArrayList;
 import java.util.List;
 
-import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ClassMappedList;
@@ -130,11 +129,10 @@ public abstract class Room<
 	/**
 	 * Collide the given {@link EntityThing} with the entities in the given room
 	 *
-	 * @param game The game with the current room to collide with
 	 * @param checkEntity The entity to check collision for
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
-	public void checkEntityCollisions(Game game, E checkEntity, double dt){
+	public void checkEntityCollisions(E checkEntity, double dt){
 		// issue#21 make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
 		// Probably just rewrite the actual entity collision outside of on intersection, the commented out code is copied and modified from the EntityThing class, which was originally just for 2D
 		
@@ -158,7 +156,7 @@ public abstract class Room<
 		for(int i = 0; i < entities.size(); i++){
 			var e = entities.get(i);
 			if(e == checkEntity || !checkEntity.get().intersects(e.get())) continue;
-			checkEntity.checkEntityCollision(game, e, dt);
+			checkEntity.checkEntityCollision(e, dt);
 
 //			// If they intersect, determine the force they should have against each other, and apply it to both entities
 //			String eUuid = e.getUuid();
@@ -225,20 +223,19 @@ public abstract class Room<
 	/**
 	 * Update this {@link Room}
 	 *
-	 * @param game The {@link Game} which this {@link Room} should update relative to
 	 * @param dt The amount of time passed in this update
 	 */
-	public void tick(Game game, double dt){
+	public void tick(double dt){
 		// Update all updatable objects
 		var tickable = this.getTickableThings();
 		for(int i = 0; i < tickable.size(); i++){
 			GameTickable t = tickable.get(i);
-			t.tick(game, dt);
+			t.tick(dt);
 		}
 		
 		// Update the position of all relevant objects
 		var entities = this.getEntities();
-		for(int i = 0; i < entities.size(); i++) entities.get(i).updatePosition(game, dt);
+		for(int i = 0; i < entities.size(); i++) entities.get(i).updatePosition(dt);
 		
 		// Check the collision of this room for entities
 		for(int i = 0; i < entities.size(); i++){
@@ -248,11 +245,11 @@ public abstract class Room<
 			this.collide(e.get());
 			
 			// Check for entity collision, and apply appropriate forces based on what is currently colliding
-			this.checkEntityCollisions(game, e, dt);
+			this.checkEntityCollisions(e, dt);
 		}
 		
 		// Remove all things that need to be removed
-		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(game, thing);
+		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(thing);
 		this.thingsToRemove.clear();
 		
 		// Run any functions which need to happen
@@ -261,26 +258,24 @@ public abstract class Room<
 	}
 	
 	/**
-	 * Called each time a thing is removed via {@link #tick(Game, double)}, i.e. the thing was added to {@link #thingsToRemove}, and now it's being removed
+	 * Called each time a thing is removed via {@link #tick(double)}, i.e. the thing was added to {@link #thingsToRemove}, and now it's being removed
 	 *
-	 * @param game The game where the removal took place
 	 * @param thing The thing to remove
 	 */
-	private void tickRemoveThing(Game game, GameThing thing){
+	private void tickRemoveThing(GameThing thing){
 		this.thingsMap.remove(thing);
-		thing.onRoomRemove(game);
+		thing.onRoomRemove();
 	}
 	
 	/**
 	 * Draw this {@link Room} to the given {@link Renderer}
 	 *
-	 * @param game The {@link Game} to draw this {@link Room} relative to
 	 * @param r The {@link Renderer} to draw this {@link Room} on
 	 */
-	public void render(Game game, Renderer r){
+	public void render(Renderer r){
 		// Draw all the things
 		var things = this.getThings();
-		for(int i = 0; i < things.size(); i++) things.get(i).renderWithCheck(game, r);
+		for(int i = 0; i < things.size(); i++) things.get(i).renderWithCheck(r);
 	}
 	
 	/**

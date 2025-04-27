@@ -1,6 +1,5 @@
 package zusass.game;
 
-import zgame.core.Game;
 import zgame.core.graphics.AlphaMode;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.TextOption;
@@ -12,6 +11,7 @@ import zgame.core.utils.ZMath;
 import zgame.stat.modifier.ModifierType;
 import zgame.things.still.tiles.BaseTiles3D;
 import zgame.things.type.GameThing;
+
 import static zgame.world.Direction3D.*;
 
 import zgame.world.Room;
@@ -67,11 +67,10 @@ public class LevelRoom extends ZusassRoom{
 	
 	/**
 	 * Initialize the state of this level room by adding all the intended objects, i.e., tiles, mobs, etc.
-	 * @param zgame The game which this level is for
 	 */
-	public void initRandom(ZusassGame zgame){
+	public void initRandom(){
 		// Grab this game's seed
-		long seed = zgame.getData().getSeed();
+		long seed = ZusassGame.get().getData().getSeed();
 		var random = new Random(seed * (1 + this.getLevel()));
 		
 		// Set up the tiles, slight room variation size for now, this will make the rooms up to 5 tiles longer on each axis, scaling up slowly
@@ -167,9 +166,9 @@ public class LevelRoom extends ZusassRoom{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
+	public void render(Renderer r){
 		// Draw the main rendering
-		super.render(game, r);
+		super.render(r);
 		
 		// Draw a numerical level counter
 		if(this.levelTextBuffer != null){

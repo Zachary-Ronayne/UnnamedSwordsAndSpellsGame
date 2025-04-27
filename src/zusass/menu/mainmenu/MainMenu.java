@@ -2,7 +2,6 @@ package zusass.menu.mainmenu;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-import zgame.core.Game;
 import zusass.menu.ZusassMenu;
 import zusass.menu.mainmenu.comp.*;
 import zusass.utils.ZusassConfig;
@@ -34,8 +33,8 @@ public class MainMenu extends ZusassMenu{
 	}
 	
 	@Override
-	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyActionFocused(game, button, press, shift, alt, ctrl);
+	public void keyActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyActionFocused(button, press, shift, alt, ctrl);
 		if(!press && button == GLFW_KEY_F5) this.initButtons();
 	}
 	

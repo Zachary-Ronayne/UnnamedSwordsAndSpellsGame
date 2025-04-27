@@ -1,12 +1,12 @@
 package zusass.menu.player;
 
 import org.lwjgl.glfw.GLFW;
-import zgame.core.Game;
 import zgame.menu.MenuThing;
 import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
+import zusass.ZusassGame;
 
 /** The menu which displays on top of the game */
 public class SpellListMenu extends DraggableMenu{
@@ -56,16 +56,17 @@ public class SpellListMenu extends DraggableMenu{
 	}
 	
 	@Override
-	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyActionFocused(game, button, press, shift, alt, ctrl);
-		if(this == game.getCurrentState().getMenu() && !press && button == GLFW.GLFW_KEY_DELETE){
+	public void keyActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyActionFocused(button, press, shift, alt, ctrl);
+		var zgame = ZusassGame.get();
+		if(this == zgame.getCurrentState().getMenu() && !press && button == GLFW.GLFW_KEY_DELETE){
 			var mob = this.getMob();
 			if(mob == null) return;
 			var spells = mob.getSpells();
 			spells.removeSelectedSpell();
 			var size = spells.getSpellList().size();
 			if(spells.getSelectedSpellIndex() >= size) spells.setSelectedSpellIndex(size - 1);
-			game.onNextLoop(this::regenerateThings);
+			zgame.onNextLoop(this::regenerateThings);
 		}
 	}
 }

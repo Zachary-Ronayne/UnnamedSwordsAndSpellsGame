@@ -1,6 +1,5 @@
 package zusass.menu.spellmaker;
 
-import zgame.core.Game;
 import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
@@ -25,10 +24,10 @@ public class SpellCreateButton extends ZusassButton{
 	}
 	
 	@Override
-	public void click(Game game){
-		super.click(game);
+	public void click(){
+		super.click();
 		
-		var zgame = (ZusassGame)game;
+		var zgame = ZusassGame.get();
 		var player = zgame.getPlayer();
 		
 		var spell = this.menu.createSpell();

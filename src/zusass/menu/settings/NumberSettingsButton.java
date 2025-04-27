@@ -8,6 +8,7 @@ import zusass.menu.comp.ZusassTextBox;
 
 /**
  * A button for selecting a number setting
+ *
  * @param <N> The number type of this setting
  */
 public abstract class NumberSettingsButton<N extends Number> extends ZusassTextBox implements ValueSettingsButton{
@@ -17,9 +18,6 @@ public abstract class NumberSettingsButton<N extends Number> extends ZusassTextB
 	
 	/** The setting which this button uses */
 	private final SettingType<N> setting;
-	
-	/** The game using this button */
-	private final ZusassGame zgame;
 	
 	/** The scroller used to change this setting */
 	private final HorizontalSelectionScroller scroller;
@@ -33,23 +31,21 @@ public abstract class NumberSettingsButton<N extends Number> extends ZusassTextB
 	 * @param name The display text of the setting
 	 * @param min The minimum value this setting can be scrolled to
 	 * @param max The maximum value this setting can be scrolled to
-	 * @param zgame The game using this button
 	 */
-	// TODO maybe make the game not a required parameter here?
-	public NumberSettingsButton(double x, double y, SettingType<N> setting, String name, Integer min, Integer max, boolean allowDecimal, BaseSettingsMenu menu, ZusassGame zgame){
+	// TODO allow for floating point min/max, not just ints
+	public NumberSettingsButton(double x, double y, SettingType<N> setting, String name, Integer min, Integer max, boolean allowDecimal, BaseSettingsMenu menu){
 		super(x, y, 300, 45);
 		this.menu = menu;
 		this.setting = setting;
-		this.zgame = zgame;
 		this.setHint(name + "...");
 		this.setLabel(name + ": ");
-		if(min != null && max != null) {
+		if(min != null && max != null){
 			if(allowDecimal) this.setMode(min < 0 || max < 0 ? Mode.FLOAT : Mode.FLOAT_POS);
 			else this.setMode(min < 0 || max < 0 ? Mode.INT : Mode.INT_POS);
 		}
 		else this.setMode(allowDecimal ? Mode.FLOAT : Mode.INT);
 		
-		var currentValue = zgame.getAny(this.setting);
+		var currentValue = ZusassGame.get().getAny(this.setting);
 		this.setCurrentText(String.valueOf(currentValue));
 		
 		if(min != null && max != null){
@@ -75,7 +71,7 @@ public abstract class NumberSettingsButton<N extends Number> extends ZusassTextB
 			if(newValue == null) newValue = this.scroller.getMin();
 			this.scroller.setScrolledValue(newValue.doubleValue());
 		}
-		this.changeDisplayedSetting(this.zgame, this.menu);
+		this.changeDisplayedSetting(this.menu);
 	}
 	
 	/** @return See {@link #setting} */
@@ -88,9 +84,9 @@ public abstract class NumberSettingsButton<N extends Number> extends ZusassTextB
 	public abstract N getSettingInputValue();
 	
 	@Override
-	public void updateSetting(Game game){
+	public void updateSetting(){
 		var newValue = this.getSettingInputValue();
-		if(newValue != null) game.setAny(this.setting, newValue, false);
+		if(newValue != null) Game.get().setAny(this.setting, newValue, false);
 	}
 	
 }

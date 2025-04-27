@@ -248,8 +248,8 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public void onSet(Game game){
-			game.getCamera().setPos(50, 100);
+		public void onSet(){
+			Game.get().getCamera().setPos(50, 100);
 		}
 		
 		private Room2D makeRoom(){
@@ -275,22 +275,22 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public void renderBackground(Game game, Renderer r){
-			super.renderBackground(game, r);
+		public void renderBackground(Renderer r){
+			super.renderBackground(r);
 			r.setColor(.1, .1, .1);
 			r.fill();
 		}
 		
 		@Override
-		public void render(Game game, Renderer r){
-			super.render(game, r);
+		public void render(Renderer r){
+			super.render(r);
 			r.setColor(1, 1, 1);
 			r.drawRectangle(990, 0, 20, 500);
 		}
 		
 		@Override
-		public void renderHud(Game game, Renderer r){
-			super.renderHud(game, r);
+		public void renderHud(Renderer r){
+			super.renderHud(r);
 			if(this.isPaused()){
 				r.setColor(0.5, 0, 1);
 				r.setFontSize(40);
@@ -299,10 +299,11 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public void playKeyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-			super.playKeyAction(game, button, press, shift, alt, ctrl);
+		public void playKeyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+			super.playKeyAction(button, press, shift, alt, ctrl);
 			if(press) return;
 			
+			var game = Game.get();
 			if(shift && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState());
 			
 			var r = this.getCurrentRoom();
@@ -357,8 +358,9 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public boolean playMouseWheelMove(Game game, double amount){
-			boolean input = super.playMouseWheelMove(game, amount);
+		public boolean playMouseWheelMove(double amount){
+			boolean input = super.playMouseWheelMove(amount);
+			var game = Game.get();
 			if(game.getKeyInput().shift()) {
 				game.getCamera().zoom(amount);
 				return true;
@@ -397,7 +399,8 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public void keyAction(Game game, int key, boolean press, boolean shift, boolean alt, boolean ctrl){
+		public void keyAction(int key, boolean press, boolean shift, boolean alt, boolean ctrl){
+			var game = Game.get();
 			ZKeyInput keys = game.getKeyInput();
 			if(keys.shift()){
 				if(key == GLFW_KEY_Z) green = (green + 0.05) % 1;
@@ -439,7 +442,7 @@ public class MainTest extends Game{
 				}
 				else if(key == GLFW_KEY_SPACE){
 					if(shift) game.setCurrentState(new GameEngineState());
-					else game.setCurrentState(new TesterMenuState(game));
+					else game.setCurrentState(new TesterMenuState());
 				}
 				else if(key == GLFW_KEY_C && keys.ctrl()){
 					makeSaveDir();
@@ -458,8 +461,8 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-			boolean input = super.mouseAction(game, button, press, shift, alt, ctrl);
+		public boolean mouseAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+			boolean input = super.mouseAction(button, press, shift, alt, ctrl);
 			if(shift && alt && ctrl && !press){
 				changeR = Math.random();
 				changeG = Math.random();
@@ -470,8 +473,9 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public boolean mouseMove(Game game, double x, double y){
-			boolean input = super.mouseMove(game, x, y);
+		public boolean mouseMove(double x, double y){
+			boolean input = super.mouseMove(x, y);
+			var game = Game.get();
 			ZKeyInput keys = game.getKeyInput();
 			ZMouseInput mouse = game.getMouseInput();
 			if(keys.shift() && mouse.middleDown()){
@@ -483,9 +487,9 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public boolean mouseWheelMove(Game game, double amount){
-			boolean input = super.mouseWheelMove(game, amount);
-			ZKeyInput keys = game.getKeyInput();
+		public boolean mouseWheelMove(double amount){
+			boolean input = super.mouseWheelMove(amount);
+			ZKeyInput keys = Game.get().getKeyInput();
 			if(keys.shift()){
 				double size = changeRect.width * Math.pow(1.1, amount);
 				changeRect.width = (int)size;
@@ -496,13 +500,13 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public void renderBackground(Game game, Renderer r){
+		public void renderBackground(Renderer r){
 			r.setColor(.1, .1, .1);
 			r.fill();
 		}
 		
 		@Override
-		public void render(Game game, Renderer r){
+		public void render(Renderer r){
 			r.setColor(.2, .2, .2);
 			r.drawRectangle(0, 0, 1000, 700);
 			
@@ -614,7 +618,8 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public void renderHud(Game game, Renderer r){
+		public void renderHud(Renderer r){
+			var game = Game.get();
 			SoundManager sm = game.getSounds();
 			EffectsPlayer e = sm.getEffectsPlayer();
 			MusicPlayer m = sm.getMusicPlayer();
@@ -641,8 +646,9 @@ public class MainTest extends Game{
 		}
 		
 		@Override
-		public void tick(Game game, double dt){
+		public void tick(double dt){
 			// Get values for updating things
+			var game = Game.get();
 			ZMouseInput mouse = game.getMouseInput();
 			ZKeyInput keys = game.getKeyInput();
 			GameCamera cam = game.getCamera();
@@ -776,22 +782,22 @@ public class MainTest extends Game{
 	
 	public static class TesterMenuState extends MenuState{
 		
-		public TesterMenuState(Game game){
-			super(game, new TesterMenu(game));
+		public TesterMenuState(){
+			super(new TesterMenu());
 			((TesterMenu)this.getMenu()).state = this;
 		}
 		
 		@Override
-		public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-			super.keyAction(game, button, press, shift, alt, ctrl);
-			if(!press && alt && button == GLFW_KEY_SPACE) game.setCurrentState(new TesterGameState());
+		public void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+			super.keyAction(button, press, shift, alt, ctrl);
+			if(!press && alt && button == GLFW_KEY_SPACE) Game.get().setCurrentState(new TesterGameState());
 		}
 		
 		@Override
-		public void renderBackground(Game game, Renderer r){
+		public void renderBackground(Renderer r){
 			r.setColor(.1, .1, .1);
 			r.fill();
-			super.renderBackground(game, r);
+			super.renderBackground(r);
 			
 			r.setFont(FontManager.getDefaultFont());
 			r.setColor(0, 0, 1);
@@ -805,7 +811,7 @@ public class MainTest extends Game{
 	public static class TesterMenu extends Menu{
 		public TesterMenuState state;
 		
-		public TesterMenu(Game game){
+		public TesterMenu(){
 			super(100, 250, 830, 380, true);
 			
 			this.setWidth(830);
@@ -815,8 +821,8 @@ public class MainTest extends Game{
 			
 			MenuScroller scrollX = new HorizontalScroller(0, 370, 800, 20, 200){
 				@Override
-				public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-					super.keyActionFocused(game, button, press, shift, alt, ctrl);
+				public void keyActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+					super.keyActionFocused(button, press, shift, alt, ctrl);
 					setScrollWheelEnabled(shift);
 				}
 			};
@@ -830,8 +836,8 @@ public class MainTest extends Game{
 			scrollX.getButton().setFill(new ZColor(.5, .5, .5));
 			MenuScroller scrollY = new VerticalScroller(820, 0, 20, 350, 200){
 				@Override
-				public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-					super.keyActionFocused(game, button, press, shift, alt, ctrl);
+				public void keyActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+					super.keyActionFocused(button, press, shift, alt, ctrl);
 					setScrollWheelEnabled(!shift);
 				}
 			};
@@ -849,8 +855,8 @@ public class MainTest extends Game{
 			
 			t = new MenuButton(10, 10, 300, 50){
 				@Override
-				public void click(Game game){
-					game.setCurrentState(new TesterGameState());
+				public void click(){
+					Game.get().setCurrentState(new TesterGameState());
 				}
 			};
 			t.setFill(new ZColor(0, .2, .7));
@@ -862,13 +868,13 @@ public class MainTest extends Game{
 				double pos = 0;
 				
 				@Override
-				public void click(Game game){
-					game.stop();
+				public void click(){
+					Game.get().stop();
 				}
 				
 				@Override
-				public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-					super.keyActionFocused(game, button, press, shift, alt, ctrl);
+				public void keyActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+					super.keyActionFocused(button, press, shift, alt, ctrl);
 					if(button == GLFW_KEY_1 && !press){
 						MenuButton b = new MenuButton(pos, this.getHeight(), 15, 10);
 						b.setFill(new ZColor(0, 0, (pos / 100) % 1));
@@ -885,8 +891,8 @@ public class MainTest extends Game{
 			
 			t = new MenuButton(50, 220, 200, 50){
 				@Override
-				public void click(Game game){
-					createPopup(game);
+				public void click(){
+					createPopup();
 				}
 			};
 			t.setText("popup");
@@ -909,7 +915,7 @@ public class MainTest extends Game{
 		private void makeTextBox(MenuThing base, double y, MenuTextBox.Mode mode){
 			var textBox = new MenuTextBox(300, y, 300, 50){
 				@Override
-				public void click(Game game){
+				public void click(){
 					if(mode == Mode.INT || mode == Mode.INT_POS) ZStringUtils.prints(getTextAsInt());
 					else if(mode == Mode.FLOAT || mode == Mode.FLOAT_POS) ZStringUtils.prints(getTextAsDouble());
 					else ZStringUtils.prints(getText());
@@ -921,19 +927,19 @@ public class MainTest extends Game{
 			base.addThing(textBox);
 		}
 		
-		public void createPopup(Game game){
+		public void createPopup(){
 			Menu menu = new Menu(){
 				@Override
-				public void render(Game game, Renderer r, ZRect2D bounds){
-					super.render(game, r, bounds);
+				public void render(Renderer r, ZRect2D bounds){
+					super.render(r, bounds);
 					r.setColor(.2, .2, .4, .3);
 					r.fill();
 				}
 			};
 			MenuButton b = new MenuButton(100, 100, 300, 100){
 				@Override
-				public void click(Game game){
-					state.removeTopMenu(game);
+				public void click(){
+					state.removeTopMenu();
 				}
 			};
 			b.setText("exit popup");
@@ -941,7 +947,7 @@ public class MainTest extends Game{
 			b.setTextY(90);
 			b.setFont(new GameFont(FontManager.getDefaultFontAsset(), 32, 0, 0));
 			menu.addThing(b);
-			this.state.popupMenu(game, menu);
+			this.state.popupMenu(menu);
 		}
 	}
 }

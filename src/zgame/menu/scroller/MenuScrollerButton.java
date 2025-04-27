@@ -35,14 +35,15 @@ public abstract class MenuScrollerButton extends MenuButton{
 	}
 	
 	@Override
-	public boolean mouseActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		boolean input = super.mouseActionFocused(game, button, press, shift, alt, ctrl);
+	public boolean mouseActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		boolean input = super.mouseActionFocused(button, press, shift, alt, ctrl);
 		if(press){
+			var game = Game.get();
 			double mx = game.mouseSX();
 			double my = game.mouseSY();
 			if(this.getBounds().contains(mx, my)){
 				this.anchored = true;
-				this.anchorOffset = this.mouseOffset(game);
+				this.anchorOffset = this.mouseOffset();
 				return true;
 			}
 		}
@@ -51,25 +52,25 @@ public abstract class MenuScrollerButton extends MenuButton{
 	}
 	
 	@Override
-	public boolean mouseActionUnFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		var input = super.mouseActionUnFocused(game, button, press, shift, alt, ctrl);
+	public boolean mouseActionUnFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		var input = super.mouseActionUnFocused(button, press, shift, alt, ctrl);
 		if(!press) anchored = false;
 		return input;
 	}
 	
 	@Override
-	public boolean mouseMoveFocused(Game game, double x, double y){
-		boolean input = super.mouseMoveFocused(game, x, y);
-		if(this.anchored) {
-			this.scroller.scroll(this.scrollToPercent(this.mouseOffset(game) - this.anchorOffset));
+	public boolean mouseMoveFocused(double x, double y){
+		boolean input = super.mouseMoveFocused(x, y);
+		if(this.anchored){
+			this.scroller.scroll(this.scrollToPercent(this.mouseOffset() - this.anchorOffset));
 			return true;
 		}
 		return input;
 	}
 	
 	@Override
-	public boolean showHighlight(Game game){
-		return super.showHighlight(game) || this.anchored;
+	public boolean showHighlight(){
+		return super.showHighlight() || this.anchored;
 	}
 	
 	/**
@@ -101,7 +102,7 @@ public abstract class MenuScrollerButton extends MenuButton{
 	public abstract double scrollAreaSize();
 	
 	/** @return The distance the mouse is offset from this button */
-	public abstract double mouseOffset(Game game);
+	public abstract double mouseOffset();
 	
 	/** @return See {@link #scroller} */
 	public MenuScroller getScroller(){

@@ -1,6 +1,5 @@
 package zusass.menu.mainmenu.comp;
 
-import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuButton;
 import zusass.ZusassGame;
@@ -19,8 +18,7 @@ public class MainSettingsButton extends MainMenuButton{
 	}
 	
 	@Override
-	public void click(Game game){
-		ZusassGame zgame = (ZusassGame)game;
-		zgame.getCurrentState().setMenu(zgame, new SettingsMenu(zgame, z -> z.getCurrentState().setMenu(z, new MainMenu())));
+	public void click(){
+		ZusassGame.get().getCurrentState().setMenu(new SettingsMenu(() -> ZusassGame.get().getCurrentState().setMenu(new MainMenu())));
 	}
 }

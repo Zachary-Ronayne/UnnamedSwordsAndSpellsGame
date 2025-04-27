@@ -1,6 +1,5 @@
 package zusass.game.things;
 
-import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
@@ -43,29 +42,29 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	}
 	
 	@Override
-	protected void render(Game game, Renderer r){
+	protected void render(Renderer r){
 		var b = this.getBounds();
 		var c = new ZColor(.6, 0, .8);
 		r.drawRectPrism(new RectRender3D(b), c, c, c, c, c, c);
 	}
 	
 	@Override
-	public void handleZusassPress(ZusassGame zgame, ZusassRoom room){
-		var c = zgame.getCurrentState();
+	public void handleZusassPress(ZusassRoom room){
+		var c = ZusassGame.get().getCurrentState();
 		// Don't pop up this menu if it is already showing this menu
 		if(c.showingMenu(menu)) return;
 		
-		c.popupMenu(zgame, MenuNode.withAll(this.menu));
+		c.popupMenu(MenuNode.withAll(this.menu));
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
-		var zgame = (ZusassGame)game;
+	public void tick(double dt){
+		var zgame = ZusassGame.get();
 		var p = zgame.getPlayer();
 		var play = zgame.getPlayState();
 		// If the player is too far away from the spell maker, then make them leave the menu
 		if(play.showingMenu(this.menu) && p.distance(this) > p.getClickRange() + this.getWidth()){
-			zgame.onNextLoop(() -> play.removeMenu(game, this.menu));
+			zgame.onNextLoop(() -> play.removeMenu(this.menu));
 		}
 	}
 	

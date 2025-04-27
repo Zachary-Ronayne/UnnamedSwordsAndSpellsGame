@@ -1,6 +1,6 @@
 package zgame.core.graphics.buffer;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZRect2D;
@@ -69,7 +69,7 @@ public class DrawableBuffer extends GameBuffer{
 	 * @param r The {@link Renderer} to use for drawing the buffer
 	 */
 	public void redraw(Renderer r){
-		this.redraw(r, (rr, d) -> {
+		this.redraw(r, rr -> {
 			var unlimited = this.isForceUnlimit();
 			if(unlimited) rr.pushUnlimitedBounds();
 			else rr.pushLimitedBounds(this.getBounds());
@@ -78,18 +78,16 @@ public class DrawableBuffer extends GameBuffer{
 			this.clear();
 			this.draw(rr);
 			rr.popLimitedBounds();
-		}, null);
+		});
 	}
 	
 	/**
 	 * Perform a redraw with an object
 	 *
-	 * @param <D> The type of the object to use with the redraw
 	 * @param r The renderer to give to the draw function
 	 * @param func The function to call to perform the actual drawing
-	 * @param data The data to use for rendering
 	 */
-	protected final <D> void redraw(Renderer r, BiConsumer<Renderer, D> func, D data){
+	protected final void redraw(Renderer r, Consumer<Renderer> func){
 		if(!this.isBufferGenerated()) this.regenerateBuffer(this.getWidth(), this.getHeight());
 		
 		if(this.skipRedraw()) return;
@@ -105,7 +103,7 @@ public class DrawableBuffer extends GameBuffer{
 		
 		// Perform the actual drawing
 		r.identityMatrix();
-		func.accept(r, data);
+		func.accept(r);
 		
 		// Put the old state back
 		r.popAll();

@@ -2,7 +2,6 @@ package zusass.game.magic;
 
 import com.google.gson.JsonElement;
 import zgame.core.utils.NotNullList;
-import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
 
@@ -33,7 +32,7 @@ public class SelfSpell extends Spell{
 	}
 	
 	@Override
-	protected void cast(ZusassGame zgame, ZusassMob caster){
+	protected void cast(ZusassMob caster){
 		for(var ef : this.getEffects()) ef.apply(caster.getUuid(), caster);
 	}
 }

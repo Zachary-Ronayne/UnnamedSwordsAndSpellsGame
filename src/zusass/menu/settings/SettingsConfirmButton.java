@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** A button pre positioned and with functionality for confirming changes to settings */
-public class SettingsConfirmButton extends ZusassButton {
+public class SettingsConfirmButton extends ZusassButton{
 	
 	/** A mapping of a setting to its button for modifying it */
 	private final Map<SettingType<?>, ValueSettingsButton> buttons;
@@ -48,12 +48,12 @@ public class SettingsConfirmButton extends ZusassButton {
 	}
 	
 	@Override
-	public void click(Game game){
-		super.click(game);
+	public void click(){
+		super.click();
 		
-		for(var button : this.buttons.values()) button.updateSetting(game);
+		for(var button : this.buttons.values()) button.updateSetting();
 		// issue#33
-		game.saveGlobalSettings();
+		Game.get().saveGlobalSettings();
 		
 		this.buttons.clear();
 		this.updateDisabled();

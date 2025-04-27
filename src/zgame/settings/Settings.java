@@ -2,7 +2,6 @@ package zgame.settings;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.utils.ZConfig;
 
@@ -12,18 +11,13 @@ public class Settings implements Saveable{
 	/** The json key used to store the settings used by this object */
 	public static final String SETTINGS_ARR_KEY = "settings";
 	
-	/** The {@link Game} using this {@link Settings} */
-	private final Game game;
-	
 	/** The settings used by this object */
 	private Setting<?>[] values;
 	
 	/**
 	 * Create a new settings object for the given game
-	 * @param game See {@link #game}
 	 */
-	public Settings(Game game){
-		this.game = game;
+	public Settings(){
 		this.initValues();
 	}
 	
@@ -42,13 +36,9 @@ public class Settings implements Saveable{
 		for(var v : values) v.setRaw(v.getType().getDefault());
 	}
 	
-	/** @return See {@link #game} */
-	public Game getGame(){
-		return this.game;
-	}
-	
 	/**
 	 * Gets a setting without checking its type
+	 *
 	 * @param setting The value of the setting to get
 	 * @return The value
 	 */
@@ -58,6 +48,7 @@ public class Settings implements Saveable{
 	
 	/**
 	 * Sets a value without checking that the types are the same. Generally should avoid using when not needed
+	 *
 	 * @param setting The value of the setting to set
 	 * @param value The new value
 	 * @param shouldChange true if updating this setting should call the {@link SettingType#onChange} method
@@ -68,11 +59,12 @@ public class Settings implements Saveable{
 		if(!shouldChange) return;
 		
 		var onChange = setting.getOnChange();
-		if(onChange != null) onChange.accept(this.getGame(), (T)value);
+		if(onChange != null) onChange.accept((T)value);
 	}
 	
 	/**
 	 * Get a boolean value of a setting
+	 *
 	 * @param setting The name of the setting to get the value of
 	 * @return The setting's value
 	 */
@@ -82,6 +74,7 @@ public class Settings implements Saveable{
 	
 	/**
 	 * Set the value of a boolean setting
+	 *
 	 * @param setting The name of the setting to set the value of
 	 * @param value The new value
 	 * @param shouldChange true if updating this setting should call the {@link SettingType#onChange} method
@@ -92,6 +85,7 @@ public class Settings implements Saveable{
 	
 	/**
 	 * Get an integer value of a setting
+	 *
 	 * @param setting The name of the setting to get the value of
 	 * @return The setting's value
 	 */
@@ -101,6 +95,7 @@ public class Settings implements Saveable{
 	
 	/**
 	 * Set the value of an integer setting
+	 *
 	 * @param setting The name of the setting to set the value of
 	 * @param value The new value
 	 * @param shouldChange true if updating this setting should call the {@link SettingType#onChange} method
@@ -111,6 +106,7 @@ public class Settings implements Saveable{
 	
 	/**
 	 * Get a double value of a setting
+	 *
 	 * @param setting The name of the setting to get the value of
 	 * @return The setting's value
 	 */
@@ -120,6 +116,7 @@ public class Settings implements Saveable{
 	
 	/**
 	 * Set the value of a double setting
+	 *
 	 * @param setting The name of the setting to set the value of
 	 * @param value The new value
 	 * @param shouldChange true if updating this setting should call the {@link SettingType#onChange} method
@@ -130,6 +127,7 @@ public class Settings implements Saveable{
 	
 	/**
 	 * Get a string value of a setting
+	 *
 	 * @param setting The name of the setting to get the value of
 	 * @return The setting's value
 	 */
@@ -139,6 +137,7 @@ public class Settings implements Saveable{
 	
 	/**
 	 * Set the value of a string setting
+	 *
 	 * @param setting The name of the setting to set the value of
 	 * @param value The new value
 	 * @param shouldChange true if updating this setting should call the {@link SettingType#onChange} method
@@ -149,6 +148,7 @@ public class Settings implements Saveable{
 	
 	/**
 	 * Set this object's settings values to the ones in the given settings object which are not the default settings
+	 *
 	 * @param settings The settings to place into this settings
 	 * @param shouldChange true if updating this setting should call the {@link SettingType#onChange} method
 	 */
@@ -184,7 +184,7 @@ public class Settings implements Saveable{
 			
 			// If the setting is unknown, skip it
 			var s = SettingType.get(name);
-			if(s == null) {
+			if(s == null){
 				ZConfig.error("When loading settings, could not modify setting with name: ", name);
 				continue;
 			}

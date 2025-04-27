@@ -1,6 +1,5 @@
 package zgame.things.still;
 
-import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResult;
@@ -35,10 +34,9 @@ public interface Door<
 	 *
 	 * @param r The room which thing is coming from, can be null if there is no room the thing is coming from
 	 * @param thing The thing to move
-	 * @param game The {@link Game} where this room entering takes place
 	 * @return true if thing entered this room, false otherwise
 	 */
-	default boolean enterRoom(R r, E thing, Game game){
+	default boolean enterRoom(R r, E thing){
 		var leadRoom = this.getLeadRoom();
 		
 		if(leadRoom != null && !leadRoom.canEnter(thing)) return false;
@@ -52,7 +50,7 @@ public interface Door<
 		}
 		if(leadRoom != null){
 			this.onEntityEnter(thing);
-			thing.enterRoom(r, leadRoom, game);
+			thing.enterRoom(r, leadRoom);
 		}
 		else return false;
 		return true;

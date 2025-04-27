@@ -1,6 +1,5 @@
 package zusass.menu;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.font.FontManager;
@@ -52,15 +51,15 @@ public abstract class ZusassMenu extends Menu{
 	}
 	
 	@Override
-	public boolean mouseActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		var result = super.mouseActionFocused(game, button, press, shift, alt, ctrl);
-		if(press) this.moveToTop(game);
+	public boolean mouseActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		var result = super.mouseActionFocused(button, press, shift, alt, ctrl);
+		if(press) this.moveToTop();
 		return result;
 	}
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect2D bounds){
-		super.render(game, r, bounds);
+	public void render(Renderer r, ZRect2D bounds){
+		super.render(r, bounds);
 		r.setColor(new ZColor(0.3, 0.26, 0.26));
 		r.pushTextureTintShader();
 		r.drawRepeatingTexture(bounds, 128, 128, ImageManager.image("brickGrayscale"));
@@ -69,15 +68,14 @@ public abstract class ZusassMenu extends Menu{
 	
 	/**
 	 * Move this menu to the top of the menu stack if {@link #isSendToTopOnClick()} returns true
-	 * @param game The game to move the menu in
 	 */
-	public void moveToTop(Game game){
+	public void moveToTop(){
 		if(!this.isSendToTopOnClick()) return;
 		
-		var state = game.getCurrentState();
+		var state = ZusassGame.get().getCurrentState();
 		var topMenu = state.getTopMenu();
 		// If this menu is not on top, move it to the top
-		if(this.isMouseOn() && this != topMenu) state.popupMenu(game, this);
+		if(this.isMouseOn() && this != topMenu) state.popupMenu(this);
 	}
 	
 	/** @return See {@link #titleThing} */

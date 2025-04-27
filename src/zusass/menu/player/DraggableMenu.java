@@ -1,6 +1,5 @@
 package zusass.menu.player;
 
-import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuThing;
 import zgame.menu.format.MenuFormatter;
@@ -97,8 +96,8 @@ public abstract class DraggableMenu extends ZusassMenu{
 	public abstract void regenerateThings();
 	
 	@Override
-	public void onDragEnd(Game game, boolean sideDrag){
-		super.onDragEnd(game, sideDrag);
+	public void onDragEnd(boolean sideDrag){
+		super.onDragEnd(sideDrag);
 		this.updateScrollAmount();
 	}
 	

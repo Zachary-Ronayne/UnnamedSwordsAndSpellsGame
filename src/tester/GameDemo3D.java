@@ -23,7 +23,9 @@ import zgame.things.still.tiles.CubeTexTile;
 import zgame.things.still.tiles.TileHitbox3D;
 import zgame.things.type.bounds.CylinderHitbox;
 import zgame.things.type.bounds.RectPrismHitbox;
+
 import static zgame.world.Direction3D.*;
+
 import zgame.world.Room3D;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -61,6 +63,7 @@ public class GameDemo3D extends Game{
 	}
 	
 	public static void main(String[] args){
+		Game.initAssetManagers();
 		game = new GameDemo3D();
 		
 		// Don't use any sound for this game
@@ -85,14 +88,14 @@ public class GameDemo3D extends Game{
 		
 		updatePaused(true);
 		
-		player = new Player3D(game);
+		player = new Player3D();
 		player.setZ(2);
 		dummyRoom.addThing(player);
 		
 		var movingRect = new Rect(2){
 			@Override
-			public void tick(Game game, double dt){
-				super.tick(game, dt);
+			public void tick(double dt){
+				super.tick(dt);
 			}
 		};
 		movingRect.setY(2);
@@ -131,7 +134,7 @@ public class GameDemo3D extends Game{
 		staticCylinder.setZ(-3);
 		dummyRoom.addThing(staticRect);
 		dummyRoom.addThing(staticCylinder);
-				
+		
 		game.start();
 	}
 	
@@ -152,8 +155,8 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public void render(Game game, Renderer r){
-			super.render(game, r);
+		public void render(Renderer r){
+			super.render(r);
 			
 			// Draw the cube
 			r.drawRectPrism(new RectRender3D(0, .2, 0, .6, .6, .6, RotRender3D.axis(xRot, yRot, zRot, 0, -.3, 0)),
@@ -221,8 +224,8 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public void renderHud(Game game, Renderer r){
-			super.renderHud(game, r);
+		public void renderHud(Renderer r){
+			super.renderHud(r);
 			r.setFontSize(30);
 			var s = "FPS: " + game.getFps();
 			
@@ -234,8 +237,8 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public void playKeyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-			super.playKeyAction(game, button, press, shift, alt, ctrl);
+		public void playKeyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+			super.playKeyAction(button, press, shift, alt, ctrl);
 			
 			if(press) return;
 			
@@ -252,11 +255,11 @@ public class GameDemo3D extends Game{
 			// Modify FOV
 			if(button == GLFW_KEY_LEFT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) - .1, false);
 			else if(button == GLFW_KEY_RIGHT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) + .1, false);
-			
-			// Toggle no clip for the player
+				
+				// Toggle no clip for the player
 			else if(button == GLFW_KEY_N) player.setNoClip(!player.isNoClip());
-			
-			// Toggle tiny mode
+				
+				// Toggle tiny mode
 			else if(button == GLFW_KEY_T) tinyPlayer = !tinyPlayer;
 			
 			// Numerical button related controls
@@ -339,8 +342,8 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public void tick(Game game, double dt){
-			super.tick(game, dt);
+		public void tick(double dt){
+			super.tick(dt);
 			var ki = game.getKeyInput();
 			
 			var mobilityData = player.getMobilityData();
@@ -410,8 +413,8 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public void render(Game game, Renderer r){
-			super.render(game, r);
+		public void render(Renderer r){
+			super.render(r);
 			// Draw a marker at the origin
 			var c = new ZColor(.5, 0, 0, 0.5);
 			r.drawRectPrism(new RectRender3D(0, 0, 0, 0.1, 0.1, 0.1), c, c, c, c, c, c);
@@ -432,7 +435,7 @@ public class GameDemo3D extends Game{
 		}
 	}
 	
-	private static abstract class MovingThing extends EntityThing3D {
+	private static abstract class MovingThing extends EntityThing3D{
 		
 		private boolean movingLeft;
 		private final double speed;
@@ -477,8 +480,8 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public void tick(Game game, double dt){
-			super.tick(game, dt);
+		public void tick(double dt){
+			super.tick(dt);
 			double dx = dt * speed;
 			
 			if(this.getX() < -1.5) movingLeft = false;
@@ -507,7 +510,7 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		protected void render(Game game, Renderer r){
+		protected void render(Renderer r){
 			ZColor c;
 			if(this.isIntersecting()) c = new ZColor(1, 1, 0);
 			else c = new ZColor(1, 0, 0);
@@ -526,7 +529,7 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		protected void render(Game game, Renderer r){
+		protected void render(Renderer r){
 			ZColor c;
 			if(this.isIntersecting()) c = new ZColor(0, 1, 1);
 			else c = new ZColor(0, 0, 1);
@@ -545,10 +548,10 @@ public class GameDemo3D extends Game{
 		if(p == null) return;
 		p.setPaused(paused);
 		if(paused){
-			game.getCurrentState().popupMenu(game, new Menu(600, 300, 500, 100, false){
+			game.getCurrentState().popupMenu(new Menu(600, 300, 500, 100, false){
 				@Override
-				public void render(Game game, Renderer r, ZRect2D bounds){
-					super.render(game, r, bounds);
+				public void render(Renderer r, ZRect2D bounds){
+					super.render(r, bounds);
 					// issue#28 fix proper transparency not working here, probably something with buffers
 					r.setColor(new ZColor(0, .5));
 					r.drawRectangle(bounds);
@@ -559,20 +562,18 @@ public class GameDemo3D extends Game{
 				}
 			});
 		}
-		else game.getCurrentState().removeTopMenu(game);
+		else game.getCurrentState().removeTopMenu();
 	}
 	
 	public static class Player3D extends MobilityEntity3D implements CylinderHitbox{
-		private final Game game;
 		
-		public Player3D(Game game){
+		public Player3D(){
 			super(100);
-			this.game = game;
 		}
 		
 		@Override
-		public void tick(Game game, double dt){
-			super.tick(game, dt);
+		public void tick(double dt){
+			super.tick(dt);
 			
 			var ki = game.getKeyInput();
 			var left = ki.buttonDown(GLFW_KEY_A);
@@ -594,7 +595,7 @@ public class GameDemo3D extends Game{
 		}
 		
 		private GameCamera3D getCamera(){
-			return this.game.getCamera3D();
+			return Game.get().getCamera3D();
 		}
 		
 		@Override
@@ -684,11 +685,11 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public boolean isSprinting(){
-			return this.game.getKeyInput().shift();
+			return Game.get().getKeyInput().shift();
 		}
 		
 		@Override
-		protected void render(Game game, Renderer r){
+		protected void render(Renderer r){
 			// issue#41 make some way of rendering this differently when it's the selected thing to control?
 			r.setColor(new ZColor(.5, 0, 0));
 			double diameter = this.getRadius() * 2.0;

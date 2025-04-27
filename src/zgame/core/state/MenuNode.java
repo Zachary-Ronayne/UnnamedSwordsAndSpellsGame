@@ -1,6 +1,5 @@
 package zgame.core.state;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.menu.Menu;
 
@@ -86,31 +85,28 @@ public class MenuNode{
 	/**
 	 * Called each time a game tick occurs. A tick is a game update, i.e. some amount of time passing. Does nothing if {@link #isTick()} returns false
 	 *
-	 * @param game The {@link Game} which called this method
 	 * @param dt The amount of time, in seconds, which passed in this tick
 	 */
-	public void tick(Game game, double dt){
-		if(this.isTick()) this.getMenu().tick(game, dt);
+	public void tick(double dt){
+		if(this.isTick()) this.getMenu().tick(dt);
 	}
 	
 	/**
 	 * Called when a keyboard key is pressed on the game Does nothing if {@link #isKeyAction()} returns false
 	 *
-	 * @param game The {@link Game} which called this method
 	 * @param button The id of the key
 	 * @param press true if the key was pressed, false for released
 	 * @param shift true if shift is pressed, false otherwise
 	 * @param alt true if alt is pressed, false otherwise
 	 * @param ctrl true if ctrl is pressed, false otherwise
 	 */
-	public void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		if(this.isKeyAction()) this.getMenu().keyAction(game, button, press, shift, alt, ctrl);
+	public void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		if(this.isKeyAction()) this.getMenu().keyAction(button, press, shift, alt, ctrl);
 	}
 	
 	/**
 	 * Called when a mouse button is pressed on the game Does nothing if {@link #isMouseAction()} returns false
 	 *
-	 * @param game The {@link Game} which called this method
 	 * @param button The ID of the mouse button
 	 * @param press true if the key was pressed, false for released
 	 * @param shift true if shift is pressed, false otherwise
@@ -118,33 +114,31 @@ public class MenuNode{
 	 * @param ctrl true if ctrl is pressed, false otherwise
 	 * @return true if sub objects of this object should be blocked from further input, false otherwise
 	 */
-	public boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		if(this.isMouseAction()) return this.getMenu().mouseAction(game, button, press, shift, alt, ctrl);
+	public boolean mouseAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		if(this.isMouseAction()) return this.getMenu().mouseAction(button, press, shift, alt, ctrl);
 		return false;
 	}
 	
 	/**
 	 * Called when the mouse is moved on the game Does nothing if {@link #isMouseMove()} returns false
 	 *
-	 * @param game The {@link Game} which called this method
 	 * @param x The x coordinate in screen coordinates
 	 * @param y The y coordinate in screen coordinates
 	 * @return true if sub objects of this object should be blocked from further input, false otherwise
 	 */
-	public boolean mouseMove(Game game, double x, double y){
-		if(this.isMouseMove()) return this.getMenu().mouseMove(game, x, y);
+	public boolean mouseMove(double x, double y){
+		if(this.isMouseMove()) return this.getMenu().mouseMove(x, y);
 		return false;
 	}
 	
 	/**
 	 * Called when the mouse wheel is moved on the game Does nothing if {@link #isMouseWheelMove()} returns false
 	 *
-	 * @param game The {@link Game} which called this method
 	 * @param amount The amount the scroll wheel was moved
 	 * @return true if sub objects of this object should be blocked from further input, false otherwise
 	 */
-	public boolean mouseWheelMove(Game game, double amount){
-		if(this.isMouseWheelMove()) return this.getMenu().mouseWheelMove(game, amount);
+	public boolean mouseWheelMove(double amount){
+		if(this.isMouseWheelMove()) return this.getMenu().mouseWheelMove(amount);
 		return false;
 	}
 	
@@ -152,12 +146,11 @@ public class MenuNode{
 	 * Called once each time a frame is of the game is drawn. Use this method to define what is drawn in the game each frame. Does nothing if {@link #isRender()} returns
 	 * false
 	 *
-	 * @param game The {@link Game} which called this method
 	 * @param r The Renderer to use for drawing
 	 */
-	public void render(Game game, Renderer r){
+	public void render(Renderer r){
 		// Rendering hud because menus should always appear on top
-		if(this.isRender()) this.getMenu().renderHud(game, r);
+		if(this.isRender()) this.getMenu().renderHud(r);
 	}
 	
 	/** @return See {@link #menu} */

@@ -62,31 +62,31 @@ public class MenuButton extends MenuText{
 	}
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect2D bounds){
-		super.render(game, r, bounds);
+	public void render(Renderer r, ZRect2D bounds){
+		super.render(r, bounds);
 		if(this.isDisabled()){
 			r.setColor(this.getDisableOverlay());
 			r.drawRectangle(bounds);
 			return;
 		}
-		if(this.showHighlight(game)){
+		if(this.showHighlight()){
 			r.setColor(this.getHighlightColor());
 			r.drawRectangle(bounds);
 		}
 	}
 	
 	/**
-	 * Call {@link #click(Game)} if the mouse was released while on top of this button
+	 * Call {@link #click()} if the mouse was released while on top of this button
 	 */
 	@Override
-	public boolean mouseActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		boolean input = super.mouseActionFocused(game, button, press, shift, alt, ctrl);
+	public boolean mouseActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		boolean input = super.mouseActionFocused(button, press, shift, alt, ctrl);
 		if(this.isDisabled()) return input;
 		
-		ZMouseInput mi = game.getMouseInput();
+		ZMouseInput mi = Game.get().getMouseInput();
 		if(!press && this.getBounds().contains(mi.x(), mi.y())){
-			if(System.currentTimeMillis() - this.getLastClick() <= this.getDoubleClickThreshold()) this.doubleClick(game);
-			this.click(game);
+			if(System.currentTimeMillis() - this.getLastClick() <= this.getDoubleClickThreshold()) this.doubleClick();
+			this.click();
 			this.lastClick = System.currentTimeMillis();
 			return true;
 		}
@@ -94,34 +94,28 @@ public class MenuButton extends MenuText{
 	}
 	
 	@Override
-	public boolean useMouseInput(Game game){
+	public boolean useMouseInput(){
+		var game = Game.get();
 		return this.getBounds().contains(game.mouseSX(), game.mouseSY());
 	}
 	
 	/**
 	 * A method that is called when this button is activated, i.e. clicked on. Override this method to perform an action when the button is clicked
-	 *
-	 * @param game The {@link Game} which was used when the button was clicked
 	 */
-	public void click(Game game){
+	public void click(){
 		
 	}
 	
 	/**
 	 * A method that is called when this button is double clicked, i.e. clicked once, then clicked again, usually after a short time. Time can be changed based on
 	 * {@link #doubleClickThreshold} Override this method to perform an action when the button is double clicked
-	 *
-	 * @param game The {@link Game} which was used when the button was double clicked
 	 */
-	public void doubleClick(Game game){
-		
-	}
+	public void doubleClick(){}
 	
 	/**
-	 * @param game The game used by this {@link MenuButton}
 	 * @return true if a highlight on top of this button should render. By default, renders when the mouse is over it
 	 */
-	public boolean showHighlight(Game game){
+	public boolean showHighlight(){
 		return this.isMouseOn();
 	}
 	

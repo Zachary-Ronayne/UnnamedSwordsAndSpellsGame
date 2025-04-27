@@ -91,26 +91,24 @@ public abstract class PlayerTester extends MobilityEntity2D{
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
+	public void tick(double dt){
 		// Perform the normal game tick on the player
-		super.tick(game, dt);
+		super.tick(dt);
 		
 		// Now handle movement controls
-		var ki = game.getKeyInput();
+		var ki = Game.get().getKeyInput();
 		boolean up = ki.pressed(GLFW_KEY_UP);
 		this.handleMobilityControls(ki.pressed(GLFW_KEY_LEFT), ki.pressed(GLFW_KEY_RIGHT), up, ki.pressed(GLFW_KEY_DOWN), up, dt);
 		
 		// Now the camera to the player after repositioning the player
-		this.checkCenterCamera(game);
+		this.checkCenterCamera();
 	}
 	
 	/**
 	 * If the camera should be locked to this {@link PlayerTester}, then lock the camera, otherwise do nothing
-	 *
-	 * @param game The game to get the camera from
 	 */
-	public void checkCenterCamera(Game game){
-		if(this.isLockCamera()) this.centerCamera(game);
+	public void checkCenterCamera(){
+		if(this.isLockCamera()) this.centerCamera();
 	}
 	
 	/** @return See {@link #lockCamera} */
@@ -124,12 +122,12 @@ public abstract class PlayerTester extends MobilityEntity2D{
 	}
 	
 	@Override
-	public void enterRoom(Room2D from, Room2D to, Game game){
-		super.enterRoom(from, to, game);
-		if(to != null) game.getPlayState().setCurrentRoom(to);
+	public void enterRoom(Room2D from, Room2D to){
+		super.enterRoom(from, to);
+		if(to != null) Game.get().getPlayState().setCurrentRoom(to);
 		
 		// Center the camera to the player
-		this.checkCenterCamera(game);
+		this.checkCenterCamera();
 	}
 	
 	/** @return See {@link #width} */

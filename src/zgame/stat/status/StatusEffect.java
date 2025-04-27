@@ -1,6 +1,5 @@
 package zgame.stat.status;
 
-import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zusass.game.things.entities.mobs.ZusassMob;
 
@@ -26,11 +25,10 @@ public abstract class StatusEffect implements Saveable{
 	/**
 	 * Update the state of this effect, clearing it if it runs out of duration
 	 *
-	 * @param game The game where this tick happened
 	 * @param dt The amount of time that passed in this update
 	 * @return true if the effect should be cleared, false otherwise
 	 */
-	public boolean tick(Game game, double dt){
+	public boolean tick(double dt){
 		if(this.isPermanent()) return false;
 		this.remaining -= dt;
 		return this.remaining <= 0;

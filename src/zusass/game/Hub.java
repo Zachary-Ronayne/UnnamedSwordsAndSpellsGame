@@ -1,10 +1,10 @@
 package zusass.game;
 
-import zgame.core.Game;
-import zgame.core.graphics.Renderer;
 import zgame.things.still.tiles.BaseTiles3D;
 import zgame.things.type.GameThing;
+
 import static zgame.world.Direction3D.*;
+
 import zgame.world.Room;
 import zusass.ZusassGame;
 import zusass.game.things.LevelDoor;
@@ -25,10 +25,8 @@ public class Hub extends ZusassRoom{
 	
 	/**
 	 * Create the hub in the default state
-	 *
-	 * @param zgame The {@link Game} using this hub
 	 */
-	public Hub(ZusassGame zgame){
+	public Hub(){
 		super();
 		this.initTiles(X_TILES, Y_TILES, Z_TILES, BaseTiles3D.AIR);
 		this.setTileBoundaries();
@@ -42,7 +40,7 @@ public class Hub extends ZusassRoom{
 		}
 		
 		// The door to start at the highest level gotten to, only if it is past level 1
-		var data = zgame.getData();
+		var data = ZusassGame.get().getData();
 		int highestRoom = data.getHighestRoomLevel();
 		if(highestRoom > 1){
 			var t = this.getTile(1, 1, 1);
@@ -62,9 +60,9 @@ public class Hub extends ZusassRoom{
 	
 	/**
 	 * Put the current player of the game into the hub at the default position
-	 * @param zgame The game to use
 	 */
-	public void placePlayer(ZusassGame zgame){
+	public void placePlayer(){
+		var zgame = ZusassGame.get();
 		var player = zgame.getPlayer();
 		player.setX(2);
 		player.setY(1);
@@ -77,11 +75,6 @@ public class Hub extends ZusassRoom{
 	public void addThing(GameThing thing){
 		super.addThing(thing);
 		if(thing.hasTag(ZusassTags.HUB_ENTER_RESTORE)) ((ZusassMob)thing).setResourcesMax();
-	}
-	
-	@Override
-	public void render(Game game, Renderer r){
-		super.render(game, r);
 	}
 	
 }

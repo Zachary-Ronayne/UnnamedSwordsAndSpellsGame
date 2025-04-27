@@ -1,7 +1,6 @@
 package zusass.menu.player;
 
 import org.lwjgl.glfw.GLFW;
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.buffer.DrawableBuffer;
@@ -11,6 +10,7 @@ import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
+import zusass.ZusassGame;
 
 /** The menu which displays on top of the game */
 public class StatsMenu extends DraggableMenu{
@@ -65,7 +65,7 @@ public class StatsMenu extends DraggableMenu{
 	
 	@Override
 	public MenuFormatter getDefaultFormatter(){
-		return new MultiFormatter(new PixelFormatter(10.0,  null, null, null), new PercentFormatter(null, 0.8, null, 0.5));
+		return new MultiFormatter(new PixelFormatter(10.0, null, null, null), new PercentFormatter(null, 0.8, null, 0.5));
 	}
 	
 	@Override
@@ -85,8 +85,8 @@ public class StatsMenu extends DraggableMenu{
 	}
 	
 	@Override
-	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyActionFocused(game, button, press, shift, alt, ctrl);
+	public void keyActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyActionFocused(button, press, shift, alt, ctrl);
 		if(button != GLFW.GLFW_KEY_LEFT_SHIFT && button != GLFW.GLFW_KEY_RIGHT_SHIFT) return;
 		
 		if(press == this.shiftDown) return;
@@ -96,21 +96,21 @@ public class StatsMenu extends DraggableMenu{
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
-		super.tick(game, dt);
+	public void tick(double dt){
+		super.tick(dt);
 		if(this.lastStatUpdate >= STAT_UPDATE_TIME) this.regenerateThings();
 		else this.lastStatUpdate += dt;
 	}
 	
 	@Override
-	public void renderOnTop(Game game, Renderer r, ZRect2D bounds){
-		super.renderOnTop(game, r, bounds);
+	public void renderOnTop(Renderer r, ZRect2D bounds){
+		super.renderOnTop(r, bounds);
 		
 		var currentSelected = this.statList.getSelectedStat();
 		// If the last drawn popup is not the currently selected one, regenerate the buffer
 		if(this.lastPopupItem != currentSelected){
 			// Only make a new popup if there is a selected item
-			if(currentSelected != null) {
+			if(currentSelected != null){
 				if(this.statPopup != null) this.statPopup.destroy();
 				this.statPopup = new StatPopup(currentSelected.getDescription(), r);
 			}
@@ -119,13 +119,14 @@ public class StatsMenu extends DraggableMenu{
 		// If the popup hasn't been made yet, or there's no popup
 		if(this.statPopup == null || this.lastPopupItem == null) return;
 		
-		double mx = game.mouseSX();
-		double my = game.mouseSY();
+		var zgame = ZusassGame.get();
+		double mx = zgame.mouseSX();
+		double my = zgame.mouseSY();
 		if(!bounds.contains(mx, my)) return;
 		
 		double w = this.statPopup.getWidth();
-		double sw = game.getScreenWidth();
-		double sh = game.getScreenHeight();
+		double sw = zgame.getScreenWidth();
+		double sh = zgame.getScreenHeight();
 		double h = this.statPopup.getHeight();
 		
 		double x = Math.max(0, mx - w * 0.5);
@@ -154,7 +155,7 @@ public class StatsMenu extends DraggableMenu{
 		public StatPopup(String description, Renderer r){
 			super(1, 1);
 			
-			if(description == null || description.isEmpty()) {
+			if(description == null || description.isEmpty()){
 				this.text = null;
 				return;
 			}

@@ -1,6 +1,5 @@
 package zgame.things.still.tiles;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.collision.CollisionResult;
 import zgame.physics.material.Material;
@@ -62,10 +61,9 @@ public abstract class TileType<H extends HitBox<H, C>, T extends Tile<H, C>, TH 
 	 * Draw the given tile using this {@link TileType}
 	 *
 	 * @param t The tile to draw
-	 * @param g The game where the tile is drawn
 	 * @param r The renderer to use for drawing
 	 */
-	public abstract void render(T t, Game g, Renderer r);
+	public abstract void render(T t, Renderer r);
 	
 	@Override
 	public Material getMaterial(){

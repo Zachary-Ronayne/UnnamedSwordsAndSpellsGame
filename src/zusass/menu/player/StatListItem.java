@@ -1,6 +1,5 @@
 package zusass.menu.player;
 
-import zgame.core.Game;
 import zgame.core.graphics.TextOption;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZArrayUtils;
@@ -120,15 +119,15 @@ public class StatListItem extends ZusassButton{
 	}
 	
 	@Override
-	public void mouseEnter(Game game){
-		super.mouseEnter(game);
+	public void mouseEnter(){
+		super.mouseEnter();
 		// When the mouse moves to this item, select this stat
 		this.statList.setSelectedStat(this);
 	}
 	
 	@Override
-	public void mouseExit(Game game){
-		super.mouseExit(game);
+	public void mouseExit(){
+		super.mouseExit();
 		// If the mouse moves away from this item and this item is currently selected, deselect it
 		if(this.statList.getSelectedStat() == this) this.statList.setSelectedStat(null);
 	}

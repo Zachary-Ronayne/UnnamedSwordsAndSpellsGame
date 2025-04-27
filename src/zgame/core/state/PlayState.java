@@ -85,86 +85,87 @@ public class PlayState extends GameState{
 	}
 	
 	@Override
-	public void onSet(Game game){
-		super.onSet(game);
+	public void onSet(){
+		super.onSet();
 		// When going into the play state, consider all menus as closed
-		game.getRenderStyle().onAllMenusClosed(game);
+		Game.get().getRenderStyle().onAllMenusClosed();
 	}
 	
 	@Override
-	public void onMenuChange(Game game, boolean added){
-		super.onMenuChange(game, added);
-		if(added) game.getRenderStyle().onMenuOpened(game);
-		else if(!this.hasMenu()) game.getRenderStyle().onAllMenusClosed(game);
+	public void onMenuChange(boolean added){
+		super.onMenuChange(added);
+		var game = Game.get();
+		if(added) game.getRenderStyle().onMenuOpened();
+		else if(!this.hasMenu()) game.getRenderStyle().onAllMenusClosed();
 	}
 	
 	@Override
-	public final void tick(Game game, double dt){
-		super.tick(game, dt);
+	public final void tick(double dt){
+		super.tick(dt);
 		if(this.isPaused()) return;
 		
-		this.currentRoom.tick(game, dt);
+		this.currentRoom.tick(dt);
 	}
 	
 	@Override
-	public final void keyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	public final void keyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		boolean currentlyPaused = this.isInputPaused();
-		super.keyAction(game, button, press, shift, alt, ctrl);
+		super.keyAction(button, press, shift, alt, ctrl);
 		if(currentlyPaused) return;
 		
-		this.playKeyAction(game, button, press, shift, alt, ctrl);
+		this.playKeyAction(button, press, shift, alt, ctrl);
 	}
 	
-	/** See {@link #keyAction(Game, int, boolean, boolean, boolean, boolean)} Override this method instead to perform actions when the keyboard buttons are pressed */
-	public void playKeyAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	/** See {@link #keyAction(int, boolean, boolean, boolean, boolean)} Override this method instead to perform actions when the keyboard buttons are pressed */
+	public void playKeyAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 	}
 	
 	@Override
-	public final boolean mouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		boolean input = super.mouseAction(game, button, press, shift, alt, ctrl);
+	public final boolean mouseAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		boolean input = super.mouseAction(button, press, shift, alt, ctrl);
 		if(this.isInputPaused()) return input;
 		if(input) return true;
 		
-		return this.playMouseAction(game, button, press, shift, alt, ctrl);
+		return this.playMouseAction(button, press, shift, alt, ctrl);
 	}
 	
-	/** See {@link #mouseAction(Game, int, boolean, boolean, boolean, boolean)} Override this method instead to perform actions when the mouse buttons are pressed */
-	public boolean playMouseAction(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+	/** See {@link #mouseAction(int, boolean, boolean, boolean, boolean)} Override this method instead to perform actions when the mouse buttons are pressed */
+	public boolean playMouseAction(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
 		return false;
 	}
 	
 	@Override
-	public final boolean mouseMove(Game game, double x, double y){
-		boolean input = super.mouseMove(game, x, y);
+	public final boolean mouseMove(double x, double y){
+		boolean input = super.mouseMove(x, y);
 		if(this.isInputPaused()) return input;
 		
-		game.getRenderStyle().mouseMove(game, x, y);
+		Game.get().getRenderStyle().mouseMove(x, y);
 		
-		return this.playMouseMove(game, x, y);
+		return this.playMouseMove(x, y);
 	}
 	
-	/** See {@link #mouseMove(Game, double, double)} Override this method instead to perform actions when the mouse moves */
-	public boolean playMouseMove(Game game, double x, double y){
+	/** See {@link #mouseMove(double, double)} Override this method instead to perform actions when the mouse moves */
+	public boolean playMouseMove(double x, double y){
 		return false;
 	}
 	
 	@Override
-	public final boolean mouseWheelMove(Game game, double amount){
-		boolean input = super.mouseWheelMove(game, amount);
+	public final boolean mouseWheelMove(double amount){
+		boolean input = super.mouseWheelMove(amount);
 		if(this.isInputPaused()) return input;
 		
-		return this.playMouseWheelMove(game, amount);
+		return this.playMouseWheelMove(amount);
 	}
 	
-	/** See {@link #mouseWheelMove(Game, double)} Override this method instead to perform actions when a mouse wheel moves */
-	public boolean playMouseWheelMove(Game game, double amount){
+	/** See {@link #mouseWheelMove(double)} Override this method instead to perform actions when a mouse wheel moves */
+	public boolean playMouseWheelMove(double amount){
 		return false;
 	}
 	
 	@Override
-	public void render(Game game, Renderer r){
-		this.currentRoom.render(game, r);
-		super.render(game, r);
+	public void render(Renderer r){
+		this.currentRoom.render(r);
+		super.render(r);
 	}
 	
 	@Override

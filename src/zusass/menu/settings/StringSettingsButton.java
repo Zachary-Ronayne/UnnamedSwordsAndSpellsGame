@@ -14,31 +14,25 @@ public class StringSettingsButton extends ZusassTextBox implements ValueSettings
 	/** The setting used by this button */
 	private final StringTypeSetting setting;
 	
-	/** The game using this button */
-	private final ZusassGame zgame;
-	
 	/**
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
 	 * @param setting The setting which this button modifies
-	 * @param zgame The game that uses this button
 	 */
-	// TODO maybe make the game not a required parameter here?
-	public StringSettingsButton(double x, double y, StringTypeSetting setting, String name, BaseSettingsMenu menu, ZusassGame zgame){
+	public StringSettingsButton(double x, double y, StringTypeSetting setting, String name, BaseSettingsMenu menu){
 		super(x, y, 600, 45);
 		this.menu = menu;
 		this.setting = setting;
-		this.zgame = zgame;
 		
 		this.setHint(name + "...");
 		this.setLabel(name + ": ");
-		this.setCurrentText(zgame.get(setting));
+		this.setCurrentText(ZusassGame.get().get(setting));
 	}
 	
 	@Override
 	public void setCurrentText(String currentText){
 		super.setCurrentText(currentText);
-		this.changeDisplayedSetting(this.zgame, this.menu);
+		this.changeDisplayedSetting(this.menu);
 	}
 	
 	/** @return See {@link #setting} */
@@ -53,7 +47,7 @@ public class StringSettingsButton extends ZusassTextBox implements ValueSettings
 	}
 	
 	@Override
-	public void updateSetting(Game game){
-		game.set(this.setting, this.getSettingInputValue(), false);
+	public void updateSetting(){
+		Game.get().set(this.setting, this.getSettingInputValue(), false);
 	}
 }

@@ -91,42 +91,43 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	}
 	
 	// issue#62
+	
 	/**
 	 * Initialize this mob for creating sounds, otherwise sounds will not play
-	 * @param zgame The game the sound will be played in
+	 * e the sound will be played in
 	 */
-	public void initSounds(ZusassGame zgame){
-		this.removedSoundSource = zgame.getSounds().createSource(this.getX(), this.getY(), this.getZ());
+	public void initSounds(){
+		this.removedSoundSource = ZusassGame.get().getSounds().createSource(this.getX(), this.getY(), this.getZ());
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
-		super.tick(game, dt);
+	public void tick(double dt){
+		super.tick(dt);
 		// issue#61, Does updating the sound position here cause lag?
-		if(this.removedSoundSource != null) {
-			var sm = game.getSounds();
+		if(this.removedSoundSource != null){
+			var sm = Game.get().getSounds();
 			sm.updateSourcePos(this.removedSoundSource, this.getX(), this.getY(), this.getZ());
 			sm.updateSourceDirection(this.removedSoundSource, 0, 0, 0);
 		}
 	}
 	
 	@Override
-	public void onRoomRemove(Game game){
-		super.onRoomRemove(game);
-		if(this.removedSoundSource != null) {
+	public void onRoomRemove(){
+		super.onRoomRemove();
+		if(this.removedSoundSource != null){
 			this.removedSoundSource.setBaseVolume(10);
-			game.playEffect(this.removedSoundSource, "lose");
+			Game.get().playEffect(this.removedSoundSource, "lose");
 		}
 	}
 	
 	@Override
-	public void hit(Game game, HitBox3D thing){
+	public void hit(HitBox3D thing){
 		if(this.willRemove()) return;
 		thing.hitBy(this);
 	}
 	
 	@Override
-	protected void render(Game game, Renderer r){
+	protected void render(Renderer r){
 		r.setColor(this.color);
 		r.drawSphere(this.getX(), this.getY(), this.getZ(), this.getRadius());
 	}

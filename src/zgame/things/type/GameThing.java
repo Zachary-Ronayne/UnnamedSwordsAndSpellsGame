@@ -28,40 +28,36 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	/**
 	 * Draw this {@link GameThing} to the given {@link Renderer}
 	 *
-	 * @param game The {@link Game} to draw this {@link GameThing} relative to
 	 * @param r The {@link Renderer} to draw this {@link GameThing} on
 	 */
-	protected abstract void render(Game game, Renderer r);
+	protected abstract void render(Renderer r);
 	
 	/**
 	 * Determine if this {@link GameThing} should be rendered
 	 *
-	 * @param game The {@link Game} which will be used to draw this {@link GameThing}
 	 * @param r The {@link Renderer} which will be used to draw this {@link GameThing}
 	 * @return Always true by default, can override to provide custom behavior. Generally should return false if this object will not appear on the screen
 	 */
-	public boolean shouldRender(Game game, Renderer r){
+	public boolean shouldRender(Renderer r){
 		return true;
 	}
 	
 	/**
-	 * Draw this {@link GameThing} to the given {@link Renderer}, only if {@link #shouldRender(Game, Renderer)} returns true
+	 * Draw this {@link GameThing} to the given {@link Renderer}, only if {@link #shouldRender(Renderer)} returns true
 	 *
-	 * @param game The {@link Game} to draw this {@link GameThing} relative to
 	 * @param r The {@link Renderer} to draw this {@link GameThing} on
 	 * @return true if the rendering took place, false otherwise
 	 */
-	public final boolean renderWithCheck(Game game, Renderer r){
-		if(!shouldRender(game, r)) return false;
-		this.render(game, r);
+	public final boolean renderWithCheck(Renderer r){
+		if(!shouldRender(r)) return false;
+		this.render(r);
 		return true;
 	}
 	
 	/**
 	 * Called any time this game thing is removed from a room, does nothing by default, override to provide custom behavior
-	 * @param game The game where the removal took place, the room will be the current room of the game's play state
 	 */
-	public void onRoomRemove(Game game){}
+	public void onRoomRemove(){}
 	
 	/**
 	 * Determines the order that game things are stored in lists rooms. Primarily used in 2D when determining which thing should be rendered first.
@@ -83,11 +79,9 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	
 	/**
 	 * Remove this thing from the given game
-	 *
-	 * @param game The game to remove it from
 	 */
-	public void removeFrom(Game game){
-		game.getCurrentRoom().removeThing(this);
+	public void removeFrom(){
+		Game.get().getCurrentRoom().removeThing(this);
 	}
 	
 	/**

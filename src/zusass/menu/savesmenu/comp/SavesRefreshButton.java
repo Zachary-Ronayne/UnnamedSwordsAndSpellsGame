@@ -1,6 +1,5 @@
 package zusass.menu.savesmenu.comp;
 
-import zgame.core.Game;
 import zusass.menu.savesmenu.SavesMenu;
 
 /** A {@link SavesMenuButton} for refreshing the loaded save files of a {@link SavesMenu} */
@@ -16,7 +15,7 @@ public class SavesRefreshButton extends SavesMenuButton{
 	}
 	
 	@Override
-	public void click(Game game){
+	public void click(){
 		this.getMenu().getLoadButtons().populate();
 	}
 	

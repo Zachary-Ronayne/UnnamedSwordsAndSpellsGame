@@ -7,7 +7,7 @@ import zgame.core.Game;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * An interface to be used for generating settings, should be implemented by an enum.
@@ -35,7 +35,7 @@ public abstract class SettingType<T>{
 	/** The default value of the setting if it hasn't been overridden */
 	private final T defaultVal;
 	/** A function that runs each time the setting changes, or null to do nothing on change. The game is the game where the setting changed, the T is the new value */
-	private final BiConsumer<Game, T> onChange;
+	private final Consumer<T> onChange;
 	
 	/** A setting used to obtain as a generic instance of a setting, mostly used for initialization, and to ensure at least one setting exists */
 	public static final SettingType<?> ROOT = new SettingType<>("ROOT", null){
@@ -66,7 +66,7 @@ public abstract class SettingType<T>{
 	 * @param defaultVal See {@link #defaultVal}
 	 * @param onChange See {@link #onChange}
 	 */
-	protected SettingType(String name, T defaultVal, BiConsumer<Game, T> onChange){
+	protected SettingType(String name, T defaultVal, Consumer<T> onChange){
 		this.name = name;
 		this.id = SettingId.next();
 		this.defaultVal = defaultVal;
@@ -91,7 +91,7 @@ public abstract class SettingType<T>{
 	}
 	
 	/** See {@link #onChange} */
-	public BiConsumer<Game, T> getOnChange(){
+	public Consumer<T> getOnChange(){
 		return this.onChange;
 	}
 	

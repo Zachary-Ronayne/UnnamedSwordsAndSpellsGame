@@ -1,6 +1,5 @@
 package zusass.menu.spellmaker;
 
-import zgame.core.Game;
 import zgame.menu.format.PixelFormatter;
 import zusass.menu.comp.ZusassEnumToggleButton;
 
@@ -30,8 +29,8 @@ public class ModifierTypeButton extends ZusassEnumToggleButton<MakerModifierType
 	}
 	
 	@Override
-	public void click(Game game){
-		super.click(game);
+	public void click(){
+		super.click();
 		this.menu.updatePositiveNegativeButton();
 	}
 }

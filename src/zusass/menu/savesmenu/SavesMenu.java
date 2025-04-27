@@ -2,7 +2,6 @@ package zusass.menu.savesmenu;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.font.FontManager;
@@ -67,14 +66,14 @@ public class SavesMenu extends ZusassMenu{
 	}
 	
 	@Override
-	public void tick(Game game, double dt){
-		super.tick(game, dt);
+	public void tick(double dt){
+		super.tick(dt);
 		if(this.messageTimer > 0) this.messageTimer -= dt;
 	}
 	
 	@Override
-	public void render(Game game, Renderer r, ZRect2D bounds){
-		super.render(game, r, bounds);
+	public void render(Renderer r, ZRect2D bounds){
+		super.render(r, bounds);
 		if(this.messageTimer < 0) return;
 		
 		r.setFont(FontManager.getDefaultFont());
@@ -84,8 +83,8 @@ public class SavesMenu extends ZusassMenu{
 	}
 	
 	@Override
-	public void keyActionFocused(Game game, int button, boolean press, boolean shift, boolean alt, boolean ctrl){
-		super.keyActionFocused(game, button, press, shift, alt, ctrl);
+	public void keyActionFocused(int button, boolean press, boolean shift, boolean alt, boolean ctrl){
+		super.keyActionFocused(button, press, shift, alt, ctrl);
 		if(!press && button == GLFW_KEY_F5) this.getLoadButtons().populate();
 	}
 	
