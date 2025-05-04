@@ -23,15 +23,22 @@ public class BufferDemo extends Game{
 	public static GameState state;
 	
 	public static void main(String[] args){
-		Game.initAssetManagers();
-		game = new Game();
+		game = new BufferDemo();
 		game.setPrintFps(false);
 		game.setPrintTps(false);
 		game.setMaxFps(100);
 		game.setTps(100);
 		game.getWindow().setUseVsync(false);
-		game.getWindow().center();
+
+		game.start();
+	}
+	
+	@Override
+	public void init(){
+		super.init();
+		
 		buffer = new BufferTester(500, 300);
+		buffer.regenerateBuffer();
 		
 		var menu = new Menu(){
 			@Override
@@ -49,10 +56,10 @@ public class BufferDemo extends Game{
 				if(!press && button == GLFW.GLFW_KEY_SPACE){
 					this.getTextBuffer().updateRedraw(true);
 				}
-
+				
 				if(!press && button == GLFW.GLFW_KEY_F11) game.toggleFullscreen();
 			}
-
+			
 			@Override
 			public void render(Renderer r, ZRect2D bounds){
 				super.render(r, bounds);
@@ -110,9 +117,8 @@ public class BufferDemo extends Game{
 		t.setHeight(300);
 		t.setLimitToBounds(true);
 		menu.addThing(t);
-
+		
 		game.setCurrentState(state);
-		game.start();
 	}
 	
 	public static class BufferTester extends DrawableGameBuffer{
@@ -124,7 +130,6 @@ public class BufferDemo extends Game{
 		 */
 		public BufferTester(int width, int height){
 			super(width, height);
-			this.regenerateBuffer();
 		}
 		
 		@Override

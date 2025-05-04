@@ -231,7 +231,6 @@ public class Renderer implements Destroyable{
 	/** true if the OpenGL depth test is enabled, false otherwise */
 	private boolean depthTestEnabled;
 	
-	
 	/**
 	 * Create a new empty renderer
 	 *
@@ -245,7 +244,6 @@ public class Renderer implements Destroyable{
 		
 		// Buffer stack
 		var coreBuffer = new GameBuffer(width, height);
-		coreBuffer.regenerateBuffer();
 		this.bufferStack = new LimitedStack<>(coreBuffer, false);
 		this.stacks.add(this.bufferStack);
 		
@@ -288,31 +286,45 @@ public class Renderer implements Destroyable{
 		this.limitedBoundsStack = new LimitedStack<>(DEFAULT_LIMITED_BOUNDS);
 		this.stacks.add(this.limitedBoundsStack);
 		this.attributeStacks.add(this.limitedBoundsStack);
-		this.updateLimitedBounds();
 		
 		// Text rendering buffers
 		this.xTextBuff = BufferUtils.createFloatBuffer(1);
 		this.yTextBuff = BufferUtils.createFloatBuffer(1);
 		this.textQuad = STBTTAlignedQuad.create();
 		
-		// Load shaders
-		this.initShaders();
+		// Shader stack
 		this.shaderStack = new LimitedStack<>(DEFAULT_SHADER);
 		this.stacks.add(this.shaderStack);
 		this.attributeStacks.add(this.shaderStack);
+		
+		// Alpha mode stack
+		this.alphaModeStack = new LimitedStack<>(AlphaMode.NORMAL);
+		
+		// Init depth test, setting it to false, matching the OpenGL default
+		this.depthTestEnabled = false;
+	}
+	
+	/** Initialize all OpenGL values used for the renderer */
+	public void init(){
+		// Buffer stack
+		var coreBuffer = new GameBuffer(this.getWidth(), this.getHeight());
+		coreBuffer.regenerateBuffer();
+		
+		// Ensure limited bounds is set correctly
+		this.updateLimitedBounds();
+		
+		// Load shaders and use a default shader
+		this.initShaders();
 		this.useShader(this.shapeShader);
 		
 		// Vertex arrays and vertex buffers
 		this.initVertexes();
 		
-		// Alpha mode stack
-		alphaModeStack = new LimitedStack<>(AlphaMode.NORMAL);
+		// Init default alpha mode
 		this.updateAlphaMode(AlphaMode.NORMAL);
 		
-		// Init depth test, setting it to false, matching the OpenGL default
-		this.depthTestEnabled = false;
-		glDisable(GL_DEPTH_TEST);
-		this.setDepthTestEnabled(false);
+		// Init depth test
+		this.updateDepthTest();
 	}
 	
 	/** Initialize the state of all shaders, including loading them from a file */
@@ -1247,6 +1259,11 @@ public class Renderer implements Destroyable{
 	public void setDepthTestEnabled(boolean depthTestEnabled){
 		if(this.depthTestEnabled == depthTestEnabled) return;
 		this.depthTestEnabled = depthTestEnabled;
+		this.updateDepthTest();
+	}
+	
+	/** Update the OpenGL value for depth test, use {@link #setDepthTestEnabled(boolean)} to set the actual value */
+	private void updateDepthTest(){
 		if(depthTestEnabled) glEnable(GL_DEPTH_TEST);
 		else glDisable(GL_DEPTH_TEST);
 	}

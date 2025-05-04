@@ -59,11 +59,21 @@ public class GameDemo3D extends Game{
 	
 	public GameDemo3D(){
 		super();
+	}
+	
+	@Override
+	public void init(){
+		super.init();
 		this.make3D();
+		
+		var window = this.getWindow();
+		window.setSizeUniform(1500, 900);
+		window.center();
+		
+		ImageManager.instance().add("brick");
 	}
 	
 	public static void main(String[] args){
-		Game.initAssetManagers();
 		game = new GameDemo3D();
 		
 		// Don't use any sound for this game
@@ -77,10 +87,6 @@ public class GameDemo3D extends Game{
 		
 		var window = game.getWindow();
 		window.setWindowTitle("Cube Demo");
-		window.setSizeUniform(1500, 900);
-		window.center();
-		
-		ImageManager.instance().add("brick");
 		
 		dummyRoom = new DummyRoom();
 		var state = new DemoGameState(dummyRoom);

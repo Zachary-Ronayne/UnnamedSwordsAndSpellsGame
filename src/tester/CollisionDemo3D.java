@@ -26,14 +26,10 @@ public class CollisionDemo3D extends Game{
 	private static final RectRender3D RECT = new RectRender3D(0, -0.5, 0, 1.2, 1, 0.8);
 	
 	public static void main(String[] args){
-		
-		Game.initAssetManagers();
 		game = new CollisionDemo3D();
 		game.setInitSoundOnStart(false);
 		game.setPrintTps(false);
 		game.setPrintFps(false);
-		
-		game.getWindow().center();
 		
 		game.onNextLoop(() -> {
 			game.setCurrentState(new Play());

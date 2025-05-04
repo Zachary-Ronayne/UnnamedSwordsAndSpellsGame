@@ -2,7 +2,6 @@ package zgame.core.window;
 
 import org.lwjgl.glfw.*;
 
-import zgame.core.Game;
 import zgame.core.input.GLFWModUtils;
 import zgame.core.input.keyboard.GLFWKeyInput;
 import zgame.core.input.mouse.GLFWMouseInput;
@@ -38,50 +37,19 @@ public class GlfwWindow extends GameWindow{
 	private final GLFWKeyInput keyInput;
 	
 	/**
-	 * Create an empty {@link GlfwWindow}. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
+	 * Create an empty {@link GlfwWindow}. This does not initialize anything for GLFW or OpenGL, call {@link #init()} for that
 	 */
 	public GlfwWindow(){
-		this("Game Window");
+		super();
+		
+		// Create input objects
+		this.mouseInput = new GLFWMouseInput(this);
+		this.keyInput = new GLFWKeyInput(this);
 	}
 	
-	/**
-	 * Create a default {@link GlfwWindow}. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 *
-	 * @param title See {@link #getWindowTitle()}
-	 */
-	public GlfwWindow(String title){
-		this(title, 1280, 720, 200, true, false, true);
-	}
-	
-	/**
-	 * Create a {@link GlfwWindow} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 *
-	 * @param title See {@link #getWindowTitle()}
-	 * @param winWidth See {@link #getWidth()}
-	 * @param winHeight See {@link #getHeight()}
-	 * @param maxFps See {@link Game#getMaxFps()}
-	 * @param useVsync See {@link #usesVsync()}
-	 * @param stretchToFill See {@link #isStretchToFill()}
-	 * @param printFps See {@link Game#isPrintFps()}
-	 */
-	public GlfwWindow(String title, int winWidth, int winHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps){
-		this(title, winWidth, winHeight, winWidth, winHeight, maxFps, useVsync, stretchToFill, printFps, 60, true);
-	}
-	
-	/**
-	 * Create a {@link GlfwWindow} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 *
-	 * @param title See {@link #getWindowTitle()}
-	 * @param winWidth See {@link #getWidth()}
-	 * @param winHeight See {@link #getHeight()}
-	 * @param screenWidth The width, in pixels, of the internal buffer to draw to
-	 * @param screenHeight The height, in pixels, of the internal buffer to draw to
-	 * @param maxFps See {@link Game#getMaxFps()}
-	 * @param useVsync See {@link #usesVsync()}
-	 * @param stretchToFill See {@link #isStretchToFill()}
-	 */
-	public GlfwWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
-		super(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
+	@Override
+	public void init(){
+		super.init();
 		
 		// Set up window behavior
 		glfwDefaultWindowHints();
@@ -92,10 +60,6 @@ public class GlfwWindow extends GameWindow{
 		
 		// Update screen width and height
 		this.updateWindowSize();
-		
-		// Create input objects
-		this.mouseInput = new GLFWMouseInput(this);
-		this.keyInput = new GLFWKeyInput(this);
 	}
 	
 	@Override

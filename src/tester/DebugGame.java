@@ -29,12 +29,10 @@ public class DebugGame extends Game{
 	static DebugGame game;
 	
 	public static void main(String[] args){
-		Game.initAssetManagers();
 		game = new DebugGame();
 		game.setPrintTps(false);
 		game.setPrintFps(false);
 		game.setPrintSoundUpdates(false);
-		game.getWindow().center();
 		game.start();
 	}
 	

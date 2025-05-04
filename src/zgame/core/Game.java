@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class Game implements Saveable, Destroyable{
 	
-	// TODO make a wiki or something explaining how to make a new game and the important things for setting it up
+	// TODO make a wiki or something explaining how to make a new game and the important things for setting it up, maybe save this for the first alpha version
 	
 	/**
 	 * By default, the number of times a second the sound will be updated, i.e. updating streaming sounds, checking if sounds are still playing, checking which sounds need to
@@ -50,10 +50,6 @@ public class Game implements Saveable, Destroyable{
 	
 	/** The single instance of game that is allowed to exist */
 	private static Game instance;
-	
-	// TODO should game gave a reference to window here? Probably do that through window manager
-	/** The {@link GlfwWindow} used by this {@link Game} as the core interaction */
-	private final GameWindow window;
 	
 	/** The way the core game is rendered, defaults to 2D */
 	private RenderStyle renderStyle;
@@ -153,58 +149,11 @@ public class Game implements Saveable, Destroyable{
 		}
 	}
 	
+	
 	/**
-	 * Create a {@link Game} with no special parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
+	 * Create a {@link Game}. This will not initialize anything related to OpenGL, OpenAL, or window management, call {@link #start()} for that
 	 */
 	public Game(){
-		this("Game");
-	}
-	
-	/**
-	 * Create a {@link Game} with the given name. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 *
-	 * @param title The title of the game to be displayed on the window
-	 */
-	public Game(String title){
-		this(title, 1280, 720, 200, true, false, false, true);
-	}
-	
-	/**
-	 * Create a game with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 *
-	 * @param title The title of the game to be displayed on the window
-	 * @param winWidth The current width of the window in pixels, this does not include decorators such as the minimize button
-	 * @param winHeight The current height of the window in pixels, this does not include decorators such as the minimize button
-	 * @param maxFps The maximum frames per second the game can draw, use 0 for unlimited FPS, does nothing if useVsync is true
-	 * @param useVsync true to lock the framerate to the display refresh rate, false otherwise
-	 * @param enterFullScreen True to immediately enter fullscreen
-	 * @param stretchToFill true if, when drawing the final Renderer image to the screen, the image should stretch to fill up the entire screen, false to draw the image in
-	 * 		the center of the screen leave black bars in areas that the image doesn't fill up
-	 * @param printFps true to print the fps every second
-	 */
-	public Game(String title, int winWidth, int winHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps){
-		this(title, winWidth, winHeight, winWidth, winHeight, maxFps, useVsync, enterFullScreen, stretchToFill, printFps, 60, true);
-	}
-	
-	/**
-	 * Create a {@link Game} with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 *
-	 * @param title The title of the game to be displayed on the window
-	 * @param winWidth See The current width of the window in pixels, this does not include decorators such as the minimize button
-	 * @param winHeight The current height of the window in pixels, this does not include decorators such as the minimize button
-	 * @param screenWidth The width, in pixels, of the internal buffer to draw to
-	 * @param screenHeight The height, in pixels, of the internal buffer to draw to
-	 * @param maxFps The maximum frames per second the game can draw, use 0 for unlimited FPS, does nothing if useVsync is true
-	 * @param useVsync true to lock the framerate to the display refresh rate, false otherwise
-	 * @param enterFullScreen True to immediately enter fullscreen
-	 * @param stretchToFill true if, when drawing the final Renderer image to the screen, the image should stretch to fill up the entire screen, false to draw the image in
-	 * 		the center of the screen leave black bars in areas that the image doesn't fill up
-	 * @param printFps true to, every second, print the number of frames rendered in that last second, false otherwise
-	 * @param tps The number of ticks per second
-	 * @param printTps true to, every second, print the number of ticks that occurred in that last second, false otherwise
-	 */
-	// TODO don't pass so many parameters into the game constructor, make all of this stuff just set initially and then on Game.start all of the complicated initialization happens
-	public Game(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean enterFullScreen, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
 		if(instance != null) throw new RuntimeException("Cannot create a second instance of Game, only one instance may exist at a time");
 		instance = this;
 		
@@ -227,38 +176,30 @@ public class Game implements Saveable, Destroyable{
 		this.playState = null;
 		this.destroyState = null;
 		
+		// Set up all asset managers
+		Game.initAssetManagers();
+		
 		// Init stat enum
 		DefaultStatType.init();
 		
-		// Init this game's instance of settings
+		// Init the core settings objects
 		SettingType.init();
 		this.saveLoaded = false;
 		this.settings = new Settings();
 		this.globalSettings = new Settings();
 		this.localSettings = new Settings();
-		// On initialization, load the global settings
-		this.loadGlobalSettings();
 		
 		// Init sound on start by default
 		this.setInitSoundOnStart(true);
 		
-		// Init window
+		// Init the main window the game will use
 		WindowManager.init();
-		// TODO make the window generated through a function that can be overridden, so a game can use whatever window implementation if desired
-		this.window = new GlfwWindow(title, winWidth, winHeight, screenWidth, screenHeight, maxFps, useVsync, stretchToFill, printFps, tps, printTps);
-		this.window.addSizeChangeListener(this::onWindowSizeChange);
-		this.window.addEnterFullScreenListener(window -> this.getRenderStyle().setupCore(window.getRenderer()));
+		var window = this.createNewWindow();
+		WindowManager.get().addWindow(this.getGameWindowId(), window);
+		window.addSizeChangeListener(this::onWindowSizeChange);
+		window.addEnterFullScreenListener(w -> this.getRenderStyle().setupCore(w.getRenderer()));
 		this.updateWindowId();
 		this.focusedMenuThing = null;
-		
-		// TODO is this the best place for this?
-		// TODO maybe make font management always initialized?
-		// TODO maybe always auto init all managers, just don't load any assets
-		// Load the default font if the manager was initialized
-		if(FontManager.instance() != null){
-			FontManager.addDefaultFont();
-			this.getWindow().getRenderer().setFont(FontManager.getDefaultFont());
-		}
 		
 		// Init camera
 		this.camera = new GameCamera();
@@ -267,26 +208,46 @@ public class Game implements Saveable, Destroyable{
 		this.camera3D = new GameCamera3D();
 		
 		// Set up lambda calls for input
-		this.window.setKeyActionMethod(this::keyAction);
-		this.window.setMouseActionMethod(this::mouseAction);
-		this.window.setMouseMoveMethod(this::mouseMove);
-		this.window.setMouseWheelMoveMethod(this::mouseWheelMove);
+		window.setKeyActionMethod(this::keyAction);
+		window.setMouseActionMethod(this::mouseAction);
+		window.setMouseMoveMethod(this::mouseMove);
+		window.setMouseWheelMoveMethod(this::mouseWheelMove);
 		
 		// Create the main loop
-		this.renderLooper = new GameLooper(maxFps, this::loopFunction, this::shouldRender, this::keepRenderLoopFunction, this::renderLoopWaitFunction, "FPS", printFps);
+		this.renderLooper = new GameLooper(200, this::loopFunction, this::shouldRender, this::keepRenderLoopFunction, this::renderLoopWaitFunction, "FPS", false);
 		
 		// Create the tick loop
-		this.tickLooper = new GameLooper(tps, this::tickLoopFunction, this::shouldTick, this::keepTickLoopFunction, this::tickLoopWaitFunction, "TPS", printTps);
+		this.tickLooper = new GameLooper(60, this::tickLoopFunction, this::shouldTick, this::keepTickLoopFunction, this::tickLoopWaitFunction, "TPS", false);
 		
 		// Create the sound loop
 		this.soundLooper = new GameLooper(DEFAULT_SOUND_UPDATES, this::updateSounds, this::shouldUpdateSound, this::keepSoundLoopFunction, this::soundLoopWaitFunction,
 				"Audio", false);
-		
-		// Go to fullscreen if applicable
-		this.window.setInFullScreenNow(enterFullScreen);
+	}
+	
+	/**
+	 * Run any necessary code for the start up of this game, after OpenGL and other contexts have been made available.
+	 * Do not call this method directly, call {@link #start()} to start running the game
+	 */
+	public void init(){
+		// On start, load the global settings
+		this.loadGlobalSettings();
 		
 		// Init the type
 		this.make2D();
+		
+		// Start the window
+		var window = this.getWindow();
+		window.init();
+		
+		// Go to fullscreen if applicable
+		window.setInFullScreenNow(this.get(BooleanTypeSetting.FULLSCREEN));
+		
+		// Load the default font if the manager was initialized
+		FontManager.init();
+		FontManager.addDefaultFont();
+		window.getRenderer().setFont(FontManager.getDefaultFont());
+		
+		window.center();
 	}
 	
 	/**
@@ -294,12 +255,15 @@ public class Game implements Saveable, Destroyable{
 	 * Calling this method will run the loop on the currently executing thread. This should only be the main Java thread, not an external thread. In parallel to the main
 	 * thread, a second thread will run, which runs the game tick loop, and a third thread will run which updates the sounds
 	 */
-	public void start(){
+	public final void start(){
+		this.init();
+		
 		// Run the tick loop on its own thread first
 		this.tickTask = new TickLoopTask();
 		this.tickThread = new Thread(this.tickTask);
 		this.tickThread.start();
 		
+		// Init sound on start if applicable
 		if(this.isInitSoundOnStart()) this.initSound();
 		
 		// Run the render loop in the main thread
@@ -346,8 +310,6 @@ public class Game implements Saveable, Destroyable{
 	
 	@Override
 	public void destroy(){
-		// TODO make this allow a new Game object to be created
-		
 		// End the loopers
 		this.renderLooper.end();
 		this.tickLooper.end();
@@ -360,6 +322,9 @@ public class Game implements Saveable, Destroyable{
 		
 		// Free images
 		ImageManager.destroyImages();
+		
+		// Allow a new game to be created
+		instance = null;
 	}
 	
 	/**
@@ -705,13 +670,23 @@ public class Game implements Saveable, Destroyable{
 	/** Put the window of this game into the {@link WindowManager}, also attempt to remove the old window if it doesn't exist */
 	public void updateWindowId(){
 		var wm = WindowManager.get();
-		wm.removeWindow(this.getWindow());
-		wm.addWindow(this.getGameWindowId(), this.getWindow());
+		var window = this.getWindow();
+		wm.removeWindow(window);
+		wm.addWindow(this.getGameWindowId(), window);
 	}
 	
-	/** @return See {@link #window} */
+	/** @return The main window which this game uses */
 	public GameWindow getWindow(){
-		return window;
+		return WindowManager.get().getWindow(this.getGameWindowId());
+	}
+	
+	/**
+	 * Build a new window object that this game can use as its default window.
+	 *
+	 * @return The window, by default a {@link GlfwWindow}, override for a custom window
+	 */
+	public GameWindow createNewWindow(){
+		return new GlfwWindow();
 	}
 	
 	/**
@@ -1320,7 +1295,6 @@ public class Game implements Saveable, Destroyable{
 		this.setRenderStyle(RenderStyle.S_3D);
 	}
 	
-	// TODO ensure this basic init always happens when a new Game object is create
 	/** Initialize all singletons for managing assets */
 	public static void initAssetManagers(){
 		ImageManager.init();

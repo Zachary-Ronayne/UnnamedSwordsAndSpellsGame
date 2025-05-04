@@ -155,28 +155,18 @@ public abstract class GameWindow implements Destroyable{
 	}
 	
 	/**
-	 * Create a GameWindow with the given parameters. This also handles all of the setup for LWJGL, including OpenGL and OpenAL
-	 *
-	 * @param title See {@link #windowTitle}
-	 * @param winWidth See {@link #width}
-	 * @param winHeight See {@link #height}
-	 * @param screenWidth The width, in pixels, of the internal buffer to draw to
-	 * @param screenHeight The height, in pixels, of the internal buffer to draw to
-	 * @param maxFps See {@link Game#getMaxFps()}
-	 * @param useVsync See {@link #useVsync}
-	 * @param stretchToFill See {@link #stretchToFill}
+	 * Create a new default {@link GameWindow}.
+	 * This does no initialization for OpenGL or window managerment, call {@link #init()} to do that
 	 */
-	public GameWindow(String title, int winWidth, int winHeight, int screenWidth, int screenHeight, int maxFps, boolean useVsync, boolean stretchToFill, boolean printFps, int tps, boolean printTps){
-		// TODO don't pass all of these fields in during the constructor
-		// TODO don't do any initialization until a start method is called
+	public GameWindow(){
 		// Init general values
-		this.windowTitle = title;
-		this.width = winWidth;
-		this.height = winHeight;
+		this.windowTitle = "Game";
+		this.width = 1280;
+		this.height = 720;
 		this.focused = true;
 		this.minimized = false;
-		this.useVsync = useVsync;
-		this.stretchToFill = stretchToFill;
+		this.useVsync = true;
+		this.stretchToFill = false;
 		this.oldPosition = new Point(0, 0);
 		this.keyActionMethod = null;
 		this.mouseActionMethod = null;
@@ -185,6 +175,25 @@ public abstract class GameWindow implements Destroyable{
 		this.resizeScreenOnResizeWindow = false;
 		this.sizeChangeListeners = new ArrayList<>();
 		this.enterFullScreenListeners = new ArrayList<>();
+		
+		// Set up full screen
+		this.updateFullscreen = OnOffState.NOTHING;
+		
+		// Set up vsync
+		this.updateVsync = OnOffState.NOTHING;
+		
+		// Init mouse movement, use normal movement by default
+		this.mouseNormally = true;
+		
+		// Set up renderer
+		this.renderer = new Renderer(this.getWidth(), this.getHeight());
+	}
+	
+	/**
+	 * Call to allow this window to be used, calling all initialization values for OpenGL.
+	 * Override this and call super to implement custom start behavior for a window implementation
+	 */
+	public void init(){
 		
 		// Ensure window context is set up
 		this.createContext();
@@ -206,12 +215,12 @@ public abstract class GameWindow implements Destroyable{
 		this.updateFullscreen = OnOffState.NOTHING;
 		
 		// Init renderer
-		this.renderer = new Renderer(screenWidth, screenHeight);
+		this.renderer.init();
 		this.updateInternalValues();
 		
 		// Set up vsync
 		this.updateVsync = OnOffState.NOTHING;
-		this.setUseVsyncNow(useVsync);
+		this.setUseVsyncNow(this.usesVsync());
 		
 		// setup callbacks
 		this.initCallBacks();
@@ -221,7 +230,7 @@ public abstract class GameWindow implements Destroyable{
 		
 		// Init mouse movement, use normal movement by default
 		this.mouseNormally = true;
-		this.updateMouseNormally(true);
+		this.updateMouseNormally(this.isMouseNormally());
 	}
 	
 	/** Called during object initialization. Must establish window context with OpenGL before further initialization can occur */
@@ -559,6 +568,7 @@ public abstract class GameWindow implements Destroyable{
 	// TODO potentially make this private so that only the window can directly use the renderer, and anything related to rendering would need to be here
 	// TODO should renderer also be a singleton? Maybe just the things like vertex arrays should be static, but everything else in the renderer should be separate objects?
 	// TODO should each window have its own renderer? Or should it be one renderer managed by game who passes it to windows when they need to render?
+	
 	/** @return See {@link #renderer} */
 	public Renderer getRenderer(){
 		return this.renderer;

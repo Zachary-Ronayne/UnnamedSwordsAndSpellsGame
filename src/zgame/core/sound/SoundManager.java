@@ -55,7 +55,7 @@ public class SoundManager implements Destroyable{
 	 */
 	public SoundManager(double distanceScalar){
 		this.distanceScalar = distanceScalar;
-		// TODO should these be here? Or should this whole class be a singleton?
+		// TODO make sound manager a singleton
 		EffectsManager.init();
 		MusicManager.init();
 		

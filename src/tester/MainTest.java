@@ -22,7 +22,6 @@ import zgame.core.state.MenuState;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect2D;
 import zgame.core.utils.ZStringUtils;
-import zgame.core.window.GameWindow;
 import zgame.menu.*;
 import zgame.menu.scroller.HorizontalScroller;
 import zgame.menu.scroller.MenuScroller;
@@ -124,7 +123,6 @@ import java.util.ArrayList;
 public class MainTest extends Game{
 	
 	public static Game testerGame;
-	public static GameWindow window;
 	
 	public static final boolean CIRCLE_PLAYER = false;
 	
@@ -156,29 +154,40 @@ public class MainTest extends Game{
 	public static SoundSource loseSource;
 	
 	public MainTest(){
-		super("test", 1500, 720, 1000, 720, 0, true, false, false, true, 100, true);
+		super();
+		var window = this.getWindow();
+		window.setWindowTitle("test");
+		this.setPrintFps(true);
+		this.setPrintTps(true);
+		this.setTps(100);
 	}
 	
-	public static void main(String[] args){
-		Game.initAssetManagers();
-		// Set up game
-		testerGame = new MainTest();
-//		testerGame.setCurrentState(new TesterGameState(testerGame));
-//		testerGame.setCurrentState(new TesterMenuState(testerGame));
-		testerGame.setCurrentState(new GameEngineState());
-		
-		window = testerGame.getWindow();
+	@Override
+	public void init(){
+		super.init();
+		var window = this.getWindow();
+		window.setSize(1500, 720);
+		window.resizeScreen(1000, 720);
 		window.center();
 		
 		// Add images
 		ImageManager.instance().addAll();
 		
 		// Add sounds
-		SoundManager sm = testerGame.getSounds();
+		var sm = testerGame.getSounds();
 		sm.addAllSounds();
 		
 		// Set the sound scaling distance
 		sm.setDistanceScalar(.04);
+	}
+	
+	public static void main(String[] args){
+		// Set up game
+		testerGame = new MainTest();
+//		testerGame.setCurrentState(new TesterGameState(testerGame));
+//		testerGame.setCurrentState(new TesterMenuState(testerGame));
+		testerGame.setCurrentState(new GameEngineState());
+		testerGame.setInitSoundOnStart(true);
 		
 		// Start up the game
 		reset();
@@ -679,6 +688,7 @@ public class MainTest extends Game{
 			if(keys.released(GLFW_KEY_2)){
 				if(down[TWO]){
 					down[TWO] = false;
+					var window = game.getWindow();
 					window.setUseVsync(!window.usesVsync());
 				}
 			}
@@ -686,6 +696,7 @@ public class MainTest extends Game{
 			if(keys.released(GLFW_KEY_3)){
 				if(down[THREE]){
 					down[THREE] = false;
+					var window = game.getWindow();
 					window.setStretchToFill(!window.isStretchToFill());
 				}
 			}
