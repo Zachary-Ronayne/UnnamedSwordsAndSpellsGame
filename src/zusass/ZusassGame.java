@@ -6,6 +6,7 @@ import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.image.ImageManager;
 import zgame.core.utils.ZConfig;
+import zgame.core.utils.ZFilePaths;
 import zgame.core.window.GameWindow;
 import zgame.core.window.WindowManager;
 import zgame.settings.BooleanTypeSetting;
@@ -37,6 +38,9 @@ public class ZusassGame extends Game{
 	
 	/** The id used for the single window of the Zusass game */
 	public final static String ZUSASS_WINDOW_ID = "zusassMainWindow";
+	
+	/** The location used for the Zusass game assets */
+	public final static String ZUSASS_ASSETS_LOCATION = "zusassets";
 	
 	/** The json key used to store the main chunk of data about the game */
 	public final static String DATA_KEY = "data";
@@ -71,6 +75,7 @@ public class ZusassGame extends Game{
 		}
 		
 		// Init static values
+		ZFilePaths.setAssets(ZUSASS_ASSETS_LOCATION);
 		ZusassSetting.init();
 		ZusassStat.init();
 		Stats.init();

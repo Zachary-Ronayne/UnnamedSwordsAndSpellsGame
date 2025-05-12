@@ -17,7 +17,7 @@ public class EffectsManager extends AssetManager<EffectSound>{
 	
 	/** Create a new empty {@link EffectsManager} */
 	private EffectsManager(){
-		super(ZFilePaths.EFFECTS, "ogg");
+		super(ZFilePaths.effects(), "ogg");
 	}
 	
 	@Override
@@ -28,12 +28,12 @@ public class EffectsManager extends AssetManager<EffectSound>{
 	@Override
 	public void addAll(){
 		// First find all the folders
-		List<String> folders = ZAssetUtils.getAllFolders(ZFilePaths.EFFECTS);
+		List<String> folders = ZAssetUtils.getAllFolders(ZFilePaths.effects());
 		
 		// Now for each folder, add every effect in those folders, using the folder as the type
 		for(String f : folders){
 			// Get every file in the folder
-			List<String> names = ZAssetUtils.getAllFiles(ZStringUtils.concat(ZFilePaths.EFFECTS, f), false);
+			List<String> names = ZAssetUtils.getAllFiles(ZStringUtils.concat(ZFilePaths.effects(), f), false);
 			
 			// Add each file
 			for(String n : names) this.add(EffectSound.loadSound(ZStringUtils.concat(f, "/", n), f), n);

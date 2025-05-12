@@ -134,7 +134,7 @@ public class MusicSound extends Sound{
 	 * @return The loaded sound
 	 */
 	public static MusicSound loadMusic(String name){
-		MusicSound s = new MusicSound(ZStringUtils.concat(ZFilePaths.MUSIC, name));
+		MusicSound s = new MusicSound(ZStringUtils.concat(ZFilePaths.music(), name));
 		s.load(false);
 		return s;
 	}

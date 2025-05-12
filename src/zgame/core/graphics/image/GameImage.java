@@ -83,13 +83,13 @@ public class GameImage extends Asset{
 	}
 	
 	/**
-	 * A convenience method which creates a GameImage with a file of the given name, assuming the file is located in {@link ZFilePaths#IMAGES}
+	 * A convenience method which creates a GameImage with a file of the given name, assuming the file is located in {@link ZFilePaths#images()}
 	 *
 	 * @param name The name of the file, including file extension
 	 * @return The new image
 	 */
 	public static GameImage create(String name){
-		return new GameImage(ZStringUtils.concat(ZFilePaths.IMAGES, name));
+		return new GameImage(ZStringUtils.concat(ZFilePaths.images(), name));
 	}
 	
 	/** Set the settings of the currently loaded texture as pixelated */

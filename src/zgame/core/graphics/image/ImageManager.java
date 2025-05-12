@@ -14,7 +14,7 @@ public final class ImageManager extends AssetManager<GameImage>{
 	
 	/** Create a new empty {@link ImageManager} */
 	private ImageManager(){
-		super(ZFilePaths.IMAGES, "png");
+		super(ZFilePaths.images(), "png");
 	}
 	
 	@Override

@@ -16,7 +16,7 @@ public class FontManager extends AssetManager<FontAsset>{
 	
 	/** Create a new empty {@link FontManager} */
 	private FontManager(){
-		super(ZFilePaths.FONTS, "ttf");
+		super(ZFilePaths.fonts(), "ttf");
 	}
 	
 	@Override
@@ -46,7 +46,7 @@ public class FontManager extends AssetManager<FontAsset>{
 	
 	/** Add the default font to the manager */
 	public static void addDefaultFont(){
-		instance.add(DEFAULT_FONT_NAME);
+		instance.add(new FontAsset(ZFilePaths.FONTS_CORE + DEFAULT_FONT_NAME + ".ttf"), DEFAULT_FONT_NAME);
 	}
 	
 	/** @return The singleton instance for font management */

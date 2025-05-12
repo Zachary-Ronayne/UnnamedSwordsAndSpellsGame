@@ -329,12 +329,12 @@ public class Renderer implements Destroyable{
 	
 	/** Initialize the state of all shaders, including loading them from a file */
 	public void initShaders(){
-		this.shapeShader = new ShaderProgram("default");
-		this.textureShader = new ShaderProgram("texture");
-		this.textureTintShader = new ShaderProgram("textureTint");
-		this.fontShader = new ShaderProgram("font");
-		this.framebufferShader = new ShaderProgram("framebuffer");
-		this.rect3DShader = new ShaderProgram("default3D");
+		this.shapeShader = ShaderProgram.coreShader("default");
+		this.textureShader = ShaderProgram.coreShader("texture");
+		this.textureTintShader = ShaderProgram.coreShader("textureTint");
+		this.fontShader = ShaderProgram.coreShader("font");
+		this.framebufferShader = ShaderProgram.coreShader("framebuffer");
+		this.rect3DShader = ShaderProgram.coreShader("default3D");
 	}
 	
 	/** Initialize all resources used by index buffers, vertex arrays, and vertex buffers */

@@ -41,7 +41,7 @@ public class ShaderProgram{
 	 * @param name The name of the shader
 	 */
 	public ShaderProgram(String name){
-		this(ZStringUtils.concat(ZFilePaths.SHADERS, name, ".vert"), ZStringUtils.concat(ZFilePaths.SHADERS, name, ".frag"));
+		this(ZStringUtils.concat(ZFilePaths.shaders(), name, ".vert"), ZStringUtils.concat(ZFilePaths.shaders(), name, ".frag"));
 	}
 	
 	/**
@@ -82,6 +82,16 @@ public class ShaderProgram{
 	/** @return See {@link #id} */
 	public int getId(){
 		return this.id;
+	}
+	
+	/**
+	 * Build a shader using one of the core shaders
+	 *
+	 * @param name The name used by a shader core to the engine
+	 * @return The shader
+	 */
+	public static ShaderProgram coreShader(String name){
+		return new ShaderProgram(ZStringUtils.concat(ZFilePaths.SHADERS_CORE, name, ".vert"), ZStringUtils.concat(ZFilePaths.SHADERS_CORE, name, ".frag"));
 	}
 	
 }

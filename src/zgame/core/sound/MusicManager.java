@@ -13,7 +13,7 @@ public class MusicManager extends AssetManager<MusicSound>{
 	
 	/** Create a new empty {@link MusicManager} */
 	private MusicManager(){
-		super(ZFilePaths.MUSIC, "ogg");
+		super(ZFilePaths.music(), "ogg");
 	}
 	
 	@Override

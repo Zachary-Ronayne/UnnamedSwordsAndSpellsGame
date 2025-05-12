@@ -387,7 +387,7 @@ public class FontAsset extends Asset{
 	 * @return The new font
 	 */
 	public static FontAsset create(String name){
-		return new FontAsset(ZStringUtils.concat(ZFilePaths.FONTS, name));
+		return new FontAsset(ZStringUtils.concat(ZFilePaths.fonts(), name));
 	}
 	
 }

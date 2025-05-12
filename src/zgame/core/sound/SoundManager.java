@@ -173,7 +173,7 @@ public class SoundManager implements Destroyable{
 	/**
 	 * Add a sound effect used by this {@link SoundManager}. Sounds added here will automatically be deleted when {@link #destroy()} is called
 	 *
-	 * @param name The name of the sound, which must exist as a .ogg file in {@link ZFilePaths#EFFECTS} use this value when playing sounds
+	 * @param name The name of the sound, which must exist as a .ogg file in {@link ZFilePaths#effects()} use this value when playing sounds
 	 */
 	public void addEffect(String name){
 		EffectSound e = EffectSound.loadSound(name);
@@ -202,7 +202,7 @@ public class SoundManager implements Destroyable{
 	/**
 	 * Add a music sound used by this SoundManager Sounds added here will automatically be deleted when {@link #destroy()} is called
 	 *
-	 * @param name The name of the sound, which must exist as a .ogg file in {@link ZFilePaths#MUSIC}, use this value when playing sounds
+	 * @param name The name of the sound, which must exist as a .ogg file in {@link ZFilePaths#music()}, use this value when playing sounds
 	 */
 	public void addMusic(String name){
 		this.addMusic(MusicSound.loadMusic(name), name);
@@ -218,8 +218,8 @@ public class SoundManager implements Destroyable{
 	}
 	
 	/**
-	 * Load all the sounds as effects in {@link ZFilePaths#EFFECTS}, where the name of the file without a file extension is how they will be referred to using
-	 * {@link #playEffect(SoundSource, String)} The files should be stored such that {@link ZFilePaths#EFFECTS} contains folders, where each folder is named as the type of
+	 * Load all the sounds as effects in {@link ZFilePaths#effects()}, where the name of the file without a file extension is how they will be referred to using
+	 * {@link #playEffect(SoundSource, String)} The files should be stored such that {@link ZFilePaths#effects()} contains folders, where each folder is named as the type of
 	 * sound contained by that folder. Then, each of those folders will contain the sound files which will be of the type of the folder they are in
 	 */
 	public void addAllEffects(){
@@ -235,7 +235,7 @@ public class SoundManager implements Destroyable{
 	}
 	
 	/**
-	 * Load all the sounds as effects in {@link ZFilePaths#EFFECTS}, and all the sounds as music in {@link ZFilePaths#MUSIC}, where the name of the file without a file
+	 * Load all the sounds as effects in {@link ZFilePaths#effects()}, and all the sounds as music in {@link ZFilePaths#music()}, where the name of the file without a file
 	 * extension is how they will be referred to using {@link #playEffect(SoundSource, String)} and {@link #playMusic(String)}
 	 */
 	public void addAllSounds(){
