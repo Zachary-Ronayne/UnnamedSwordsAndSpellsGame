@@ -16,6 +16,9 @@ import zgame.core.utils.ZFilePaths;
  */
 public class SoundManager implements Destroyable{
 	
+	/** The single instance of sound manager that is allowed to exist */
+	private static SoundManager instance;
+	
 	/** The {@link EffectsPlayer} tracking the sound effects played by this {@link SoundManager} */
 	private final EffectsPlayer effectsPlayer;
 	
@@ -43,19 +46,11 @@ public class SoundManager implements Destroyable{
 	 */
 	private final List<SpeakerDevice> devices;
 	
-	/** Initialize the {@link SoundManager} to its default state */
-	public SoundManager(){
-		this(1);
-	}
-	
 	/**
 	 * Initialize the {@link SoundManager} to its default state
-	 *
-	 * @param distanceScalar See {@link #distanceScalar}
 	 */
-	public SoundManager(double distanceScalar){
-		this.distanceScalar = distanceScalar;
-		// TODO make sound manager a singleton
+	private SoundManager(){
+		this.distanceScalar = 1;
 		EffectsManager.init();
 		MusicManager.init();
 		
@@ -395,4 +390,19 @@ public class SoundManager implements Destroyable{
 		this.distanceScalar = distanceScalar;
 	}
 	
+	/** Initialize the sound manager to its default state */
+	public static void init(){
+		if(instance != null) return;
+		
+		instance = new SoundManager();
+	}
+	
+	/** @return See {@link #instance} */
+	public static SoundManager get(){
+		if(instance == null) {
+			ZConfig.error("SoundManager not initialized on get, initializing now, call SoundManager.init() separately before getting it");
+			init();
+		}
+		return instance;
+	}
 }

@@ -54,9 +54,6 @@ public class Game implements Saveable, Destroyable{
 	/** The way the core game is rendered, defaults to 2D */
 	private RenderStyle renderStyle;
 	
-	/** The {@link SoundManager} used by this {@link Game} to create sounds */
-	private SoundManager sounds;
-	
 	/** true to initialize the sound engine on game {@link #start()}, false otherwise, it will have to be started later using {@link #initSound()} */
 	private boolean initSoundOnStart;
 	
@@ -275,12 +272,9 @@ public class Game implements Saveable, Destroyable{
 	
 	/** Call all necessary methods for initializing sound processes */
 	public void initSound(){
-		if(this.sounds != null){
-			this.sounds.scanDevices();
-			return;
-		}
-		this.sounds = new SoundManager();
-		this.sounds.scanDevices();
+		SoundManager.init();
+		var sounds = SoundManager.get();
+		sounds.scanDevices();
 		
 		// Run the audio loop
 		this.soundTask = new SoundLoopTask();
@@ -318,7 +312,8 @@ public class Game implements Saveable, Destroyable{
 		this.getWindow().destroy();
 		
 		// Free sounds
-		if(this.sounds != null) this.sounds.destroy();
+		var sounds = SoundManager.get();
+		if(sounds != null) sounds.destroy();
 		
 		// Free images
 		ImageManager.destroyImages();
@@ -782,11 +777,9 @@ public class Game implements Saveable, Destroyable{
 		return ZJsonFile.saveJsonFile(this.getGlobalSettingsFilePath(), this.globalSettings::save);
 	}
 	
-	/** @return See {@link #sounds} */
+	/** @return The singleton {@link SoundManager} */
 	public SoundManager getSounds(){
-		// Ensure sounds are initialized if they don't exist yet
-		if(this.sounds == null) this.initSound();
-		return this.sounds;
+		return SoundManager.get();
 	}
 	
 	/** @return See {@link #initSoundOnStart} */
