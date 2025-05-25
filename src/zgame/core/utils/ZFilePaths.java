@@ -5,8 +5,6 @@ package zgame.core.utils;
  */
 public final class ZFilePaths{
 	
-	// TODO potentially move the core game to a separate intellij project that Zusass depends on, to have fully separate jars
-	
 	/** The default place to load assets from */
 	private static final String ASSETS_ROOT_DEFAULT = "assets";
 	

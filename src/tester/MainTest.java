@@ -170,9 +170,12 @@ public class MainTest extends Game{
 		window.resizeScreen(1000, 720);
 		window.center();
 		
+		reset();
+		
 		// Add images
 		ImageManager.instance().addAll();
 		
+		// TODO fix sounds not playing?
 		// Add sounds
 		var sm = testerGame.getSounds();
 		sm.addAllSounds();
@@ -190,7 +193,6 @@ public class MainTest extends Game{
 		testerGame.setInitSoundOnStart(true);
 		
 		// Start up the game
-		reset();
 		testerGame.start();
 		
 		// Close sound sources

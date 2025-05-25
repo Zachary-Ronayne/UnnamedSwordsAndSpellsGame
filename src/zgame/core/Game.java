@@ -253,15 +253,15 @@ public class Game implements Saveable, Destroyable{
 	 * thread, a second thread will run, which runs the game tick loop, and a third thread will run which updates the sounds
 	 */
 	public final void start(){
+		// Init sound on start if applicable
+		if(this.isInitSoundOnStart()) this.initSound();
+		
 		this.init();
 		
 		// Run the tick loop on its own thread first
 		this.tickTask = new TickLoopTask();
 		this.tickThread = new Thread(this.tickTask);
 		this.tickThread.start();
-		
-		// Init sound on start if applicable
-		if(this.isInitSoundOnStart()) this.initSound();
 		
 		// Run the render loop in the main thread
 		this.renderLooper.loop();
