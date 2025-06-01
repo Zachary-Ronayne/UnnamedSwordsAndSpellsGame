@@ -51,15 +51,14 @@ public class GlfwWindow extends GameWindow{
 	public void init(){
 		super.init();
 		
-		// Set up window behavior
-		glfwDefaultWindowHints();
-		// Set not visible
-		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-		// Set resizable
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-		
 		// Update screen width and height
 		this.updateWindowSize();
+		
+		// TODO fix weird flickering with the window initially showing up
+		// TODO make the window not show up until the first frame is drawn
+		// Center the window and then show it
+		this.center();
+		glfwShowWindow(this.getWindowID());
 	}
 	
 	@Override
@@ -69,6 +68,13 @@ public class GlfwWindow extends GameWindow{
 		
 		// Must call to init GLFW, if it returns false, then the program cannot run
 		if(!glfwInit()) throw new IllegalStateException("GLFW failed to initialize");
+		
+		// Set up window behavior, hidden by default
+		glfwDefaultWindowHints();
+		// Set not visible
+		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+		// Set resizable
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		
 		// Create the window
 		this.windowID = glfwCreateWindow(this.getWidth(), this.getHeight(), this.getWindowTitle(), NULL, NULL);
@@ -244,8 +250,8 @@ public class GlfwWindow extends GameWindow{
 	}
 	
 	@Override
-	public void setSize(int w, int h){
-		super.setSize(w, h);
+	public void resize(int w, int h){
+		super.resize(w, h);
 		glfwSetWindowSize(this.getWindowID(), w, h);
 	}
 	

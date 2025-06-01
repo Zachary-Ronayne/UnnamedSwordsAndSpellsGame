@@ -24,7 +24,7 @@ public class GameWindowTest{
 	/** Run one time before each test occurs, use for initialization of values that must be the same before each test */
 	@BeforeEach
 	public void setup(){
-		window.setSize(400, 150);
+		window.resize(400, 150);
 		// coordinateValue = 5;
 	}
 	
@@ -126,7 +126,7 @@ public class GameWindowTest{
 		assertEquals(window.viewportH(), 150, "Checking viewport h after using stretch to fill");
 		
 		window.setStretchToFill(false);
-		window.setSize(200, 250);
+		window.resize(200, 250);
 		assertEquals(window.viewportX(), 0, "Checking viewport x with horizontal bars");
 		assertEquals(window.viewportY(), 75, "Checking viewport y with horizontal bars");
 		assertEquals(window.viewportW(), 200, "Checking viewport x with horizontal bars");

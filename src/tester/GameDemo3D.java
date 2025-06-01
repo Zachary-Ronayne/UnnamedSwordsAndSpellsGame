@@ -67,7 +67,7 @@ public class GameDemo3D extends Game{
 		this.make3D();
 		
 		var window = this.getWindow();
-		window.setSizeUniform(1500, 900);
+		window.resizeUniform(1500, 900);
 		window.center();
 		
 		ImageManager.instance().add("brick");

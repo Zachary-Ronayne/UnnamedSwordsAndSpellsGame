@@ -88,6 +88,7 @@ public class ZusassGame extends Game{
 	private ZusassGame(){
 		super();
 		this.getWindow().setWindowTitle("ZUSASS");
+		this.getWindow().setSize(1920, 1020);
 		
 		// Window and performance settings
 		this.setTps(100);
@@ -136,13 +137,6 @@ public class ZusassGame extends Game{
 		sm.setDistanceScalar(10);
 		sm.getEffectsPlayer().setPaused(false);
 		sm.getEffectsPlayer().setMuted(true);
-		
-		// Update the window size, must be on the next loop for some reason
-		this.onNextLoop(() -> {
-			var window = this.getWindow();
-			window.setSize(1920, 1020);
-			window.center();
-		});
 	}
 	
 	/**

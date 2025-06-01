@@ -166,7 +166,7 @@ public class MainTest extends Game{
 	public void init(){
 		super.init();
 		var window = this.getWindow();
-		window.setSize(1500, 720);
+		window.resize(1500, 720);
 		window.resizeScreen(1000, 720);
 		window.center();
 		

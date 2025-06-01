@@ -199,8 +199,6 @@ public abstract class GameWindow implements Destroyable{
 	 * Override this and call super to implement custom start behavior for a window implementation
 	 */
 	public void init(){
-		// TODO fix the window being the default size when initially opening instead of whatever it was set to
-		
 		// Ensure window context is set up
 		this.createContext();
 		
@@ -413,13 +411,26 @@ public abstract class GameWindow implements Destroyable{
 	}
 	
 	/**
+	 * Set the desired size of {@link #windowBuffer} and the window's size without calling any OpenGL operations.
+	 * The buffer will need to be regenerated and the window's actual size updated after a call to this
+	 *
+	 * @param w The new width
+	 * @param h The new height
+	 */
+	public void setSize(int w, int h){
+		this.windowBuffer.setSize(w, h);
+		this.setWidth(w);
+		this.setHeight(h);
+	}
+	
+	/**
 	 * Update the size of the window, directly changing the window. Does nothing if the {@link GameWindow} is in full screen, only works on a windowed version. This method
 	 * should be overwritten and called as super to directly update the size, it should not be called outside the main OpenGL loop or initialization
 	 *
 	 * @param w The new width, in pixels, not including any decorators such as the minimize button
 	 * @param h The new height, in pixels, not including any decorators such as the minimize button
 	 */
-	public void setSize(int w, int h){
+	public void resize(int w, int h){
 		if(this.isInFullScreen()) return;
 		if(this.isResizeScreenOnResizeWindow()) this.resizeScreen(w, h);
 		
@@ -434,8 +445,8 @@ public abstract class GameWindow implements Destroyable{
 	 * @param w The new width
 	 * @param h The new height
 	 */
-	public void setSizeUniform(int w, int h){
-		this.setSize(w, h);
+	public void resizeUniform(int w, int h){
+		this.resize(w, h);
 		this.resizeScreen(w, h);
 		this.updateWindowSize();
 	}
