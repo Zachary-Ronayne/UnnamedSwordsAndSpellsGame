@@ -22,8 +22,9 @@ public class Style3D implements RenderStyle{
 	public void setupCore(Renderer r){
 		var window = Game.get().getWindow();
 		
+		// TODO this may need to be moved elsewhere?
 		// Turn on the depth buffer
-		var buff = r.getBuffer();
+		var buff = window.getWindowBuffer();
 		buff.setDepthBufferEnabled(true);
 		buff.regenerateBuffer();
 		

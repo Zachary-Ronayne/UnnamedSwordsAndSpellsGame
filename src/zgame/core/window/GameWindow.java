@@ -11,6 +11,7 @@ import zgame.core.graphics.buffer.GameBuffer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
+import zgame.core.type.RenderStyle;
 import zgame.core.utils.OnOffState;
 
 import java.awt.Point;
@@ -189,7 +190,7 @@ public abstract class GameWindow implements Destroyable{
 		// Init mouse movement, use normal movement by default
 		this.mouseNormally = true;
 		
-		// Set up renderer and buffer
+		// Set up the internal buffer
 		this.windowBuffer = new GameBuffer(this.getWidth(), this.getHeight());
 	}
 	
@@ -221,9 +222,6 @@ public abstract class GameWindow implements Destroyable{
 		
 		// Init internal buffer
 		this.getWindowBuffer().regenerateBuffer();
-		
-		// TODO make the core render loop code happen in GameWindow instead of in Game
-		
 		this.updateInternalValues();
 		
 		// Set up vsync
@@ -279,6 +277,59 @@ public abstract class GameWindow implements Destroyable{
 	 * @return true if the callbacks were set, false if an error occurred
 	 */
 	public abstract boolean initCallBacks();
+	
+	/**
+	 * Draw the given contents of this window's internal buffer using the given window and game
+	 * @param r The renderer to draw with
+	 * @param game The game to draw the contents to
+	 */
+	public void redraw(Renderer r, Game game){
+		// Update the window
+		boolean focused = this.isFocused();
+		boolean minimized = this.isMinimized();
+		this.checkEvents();
+		
+		r.pushBuffer(this.getWindowBuffer());
+		
+		// Only perform rendering operations if the window should be rendered, based on the state of the window's focus and minimize
+		if(!(game.isFocusedRender() && !focused) && !(game.isMinimizedRender() && minimized)){
+			// Clear the main framebuffer
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			
+			// Clear the internal renderer and set it up to use the renderer's frame buffer to draw to
+			r.clear();
+			
+			// Render objects using the renderer's frame buffer
+			r.initToDraw();
+			
+			// TODO allow for some way of specifying what is drawn other than it being the game, probably starting after this line, this should be moved
+			// Draw the background
+			RenderStyle.S_2D.setupFrame(r);
+			r.setCamera(null);
+			r.identityMatrix();
+			game.renderBackground(r);
+			
+			// Draw the foreground, i.e. main objects
+			// Perform any needed operations based on the type
+			game.getRenderStyle().setupFrame(r);
+			game.render(r);
+			
+			// Draw the hud
+			RenderStyle.S_2D.setupFrame(r);
+			r.setCamera(null);
+			r.identityMatrix();
+			game.renderHud(r);
+			
+			// Draw the renderer's frame buffer to the window
+			r.drawToWindow(this);
+		}
+		// Update the window
+		this.swapBuffers();
+		
+		r.popBuffer();
+	}
 	
 	/**
 	 * Call this method when a key is acted on, i.e. pressed or released
@@ -472,8 +523,8 @@ public abstract class GameWindow implements Destroyable{
 	/**
 	 * Modify the size of {@link #windowBuffer}, this is a costly operation and should not regularly be run
 	 *
-	 * @param width The width, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
-	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
+	 * @param width The width, in pixels, of the size of the internal buffer
+	 * @param height The height, in pixels, of the size of the internal buffer
 	 */
 	public void resizeScreen(int width, int height){
 		this.getWindowBuffer().regenerateBuffer(width, height);
@@ -750,7 +801,7 @@ public abstract class GameWindow implements Destroyable{
 		}
 		else{
 			var buffer = this.getWindowBuffer();
-			// wRatio for the window aspect ratio and tRatio for the render's aspect ratio
+			// wRatio for the window aspect ratio and tRatio for the buffer's aspect ratio
 			double wRatio = this.getWindowRatio();
 			double tRatio = buffer.getRatioWH();
 			int w;
@@ -820,10 +871,10 @@ public abstract class GameWindow implements Destroyable{
 	
 	
 	/**
-	 * Determine if the given bounds are in the bounds of this {@link Renderer}
+	 * Determine if the given bounds are in the bounds of {@link #windowBuffer}
 	 *
 	 * @param bounds The bounds to check, in game coordinates
-	 * @return true if they intersect, i.e. return true if any part of the given bounds is in this {@link Renderer}'s bounds, false otherwise
+	 * @return true if they intersect, i.e. return true if any part of the given bounds is in {@link #windowBuffer} bounds, false otherwise
 	 */
 	public boolean gameBoundsInScreen(ZRect2D bounds){
 		ZRect2D rBounds = this.getWindowBuffer().getBounds();

@@ -135,7 +135,7 @@ public class ZusassGame extends Game{
 		sm.addAllSounds();
 		sm.setDistanceScalar(10);
 		sm.getEffectsPlayer().setPaused(false);
-		sm.getEffectsPlayer().setMuted(false);
+		sm.getEffectsPlayer().setMuted(true);
 		
 		// Update the window size, must be on the next loop for some reason
 		this.onNextLoop(() -> {

@@ -2,7 +2,6 @@ package zgame.core.graphics.camera;
 
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZRect2D;
-import zgame.core.window.GameWindow;
 
 /**
  * A class used by {@link Renderer} to track the location of where objects should be drawn, based on their position in the game.

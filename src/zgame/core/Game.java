@@ -1,7 +1,5 @@
 package zgame.core;
 
-import static org.lwjgl.opengl.GL30.*;
-
 import zgame.core.file.Saveable;
 import zgame.core.file.ZJsonFile;
 import zgame.core.graphics.Destroyable;
@@ -100,6 +98,7 @@ public class Game implements Saveable, Destroyable{
 	/** The {@link Runnable} used by {@link #soundThread} to run its thread */
 	private SoundLoopTask soundTask;
 	
+	// TODO consider if some of these values should be moved to GameWindow, or to settings
 	/** true if the game should only render frames when the game window has focus, false otherwise */
 	private boolean focusedRender;
 	/** true if the game should only update the state of the game when the game window has focus, false otherwise. If the game is not updating, this will also pause all sound */
@@ -242,8 +241,6 @@ public class Game implements Saveable, Destroyable{
 		window.init();
 		
 		// Init renderer
-		// TODO make individual windows push and pop buffers when they are needed for rendering
-		this.renderer.pushBuffer(window.getWindowBuffer());
 		this.renderer.init();
 		
 		// Go to fullscreen if applicable
@@ -409,48 +406,8 @@ public class Game implements Saveable, Destroyable{
 				this.nextLoopFuncs.clear();
 			}
 			
-			// Update the window
-			boolean focused = this.getWindow().isFocused();
-			boolean minimized = this.getWindow().isMinimized();
-			this.getWindow().checkEvents();
-			
-			// TODO move appropriate parts of this logic to GameWindow
-			// Only perform rendering operations if the window should be rendered, based on the state of the window's focus and minimize
-			if(!(this.isFocusedRender() && !focused) && !(this.isMinimizedRender() && minimized)){
-				// Clear the main framebuffer
-				glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				
-				// Clear the internal renderer and set it up to use the renderer's frame buffer to draw to
-				var r = this.renderer;
-				r.clear();
-				
-				// Render objects using the renderer's frame buffer
-				r.initToDraw();
-				
-				// Draw the background
-				RenderStyle.S_2D.setupFrame(r);
-				r.setCamera(null);
-				r.identityMatrix();
-				this.renderBackground(r);
-				
-				// Draw the foreground, i.e. main objects
-				// Perform any needed operations based on the type
-				this.getRenderStyle().setupFrame(r);
-				this.render(r);
-				
-				// Draw the hud
-				RenderStyle.S_2D.setupFrame(r);
-				r.setCamera(null);
-				r.identityMatrix();
-				this.renderHud(r);
-				
-				// Draw the renderer's frame buffer to the window
-				r.drawToWindow(this.getWindow());
-			}
-			// Update the window
-			this.getWindow().swapBuffers();
+			// TODO add management here to allow for rendering multiple windows
+			this.getWindow().redraw(this.renderer, this);
 			
 			// Check if a state needs to be destroyed
 			if(this.destroyState != null) this.destroyState.destroy();
@@ -465,7 +422,7 @@ public class Game implements Saveable, Destroyable{
 	 *
 	 * @param r The Renderer to use for drawing
 	 */
-	protected void renderBackground(Renderer r){
+	public void renderBackground(Renderer r){
 		this.getCurrentState().renderBackground(r);
 	}
 	
@@ -476,7 +433,7 @@ public class Game implements Saveable, Destroyable{
 	 *
 	 * @param r The Renderer to use for drawing
 	 */
-	protected void render(Renderer r){
+	public void render(Renderer r){
 		this.getCurrentState().render(r);
 	}
 	
@@ -486,7 +443,7 @@ public class Game implements Saveable, Destroyable{
 	 *
 	 * @param r The Renderer to use for drawing
 	 */
-	protected void renderHud(Renderer r){
+	public void renderHud(Renderer r){
 		this.getCurrentState().renderHud(r);
 	}
 	

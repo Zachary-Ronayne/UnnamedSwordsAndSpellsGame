@@ -719,7 +719,6 @@ public class Renderer implements Destroyable{
 	/** Delete any resources used by this Renderer */
 	@Override
 	public void destroy(){
-		this.getBuffer().destroy();
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		this.destroyVertexes();

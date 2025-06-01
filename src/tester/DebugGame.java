@@ -37,7 +37,7 @@ public class DebugGame extends Game{
 	}
 	
 	@Override
-	protected void render(Renderer r){
+	public void render(Renderer r){
 		super.render(r);
 		r.setColor(1, 0, 0);
 		r.drawRectangle(rect);
