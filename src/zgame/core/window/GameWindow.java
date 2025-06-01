@@ -48,9 +48,6 @@ public abstract class GameWindow implements Destroyable{
 	/** Determines if on the next OpenGL loop, vsync should update */
 	private OnOffState updateVsync;
 	
-	/** The renderer used by this {@link GameWindow} to draw to a buffer which can later be drawn to the window */
-	private final Renderer renderer;
-	
 	/** A lambda function which is called each time a key is pressed or released, can be null to do nothing */
 	private ButtonAction keyActionMethod;
 	/** A lambda function which is called each time a mouse button is pressed or released, can be null to do nothing */
@@ -194,7 +191,6 @@ public abstract class GameWindow implements Destroyable{
 		
 		// Set up renderer and buffer
 		this.windowBuffer = new GameBuffer(this.getWidth(), this.getHeight());
-		this.renderer = new Renderer();
 	}
 	
 	/**
@@ -228,10 +224,6 @@ public abstract class GameWindow implements Destroyable{
 		
 		// TODO make the core render loop code happen in GameWindow instead of in Game
 		
-		// Init renderer
-		// TODO make individual windows push and pop buffers when they are needed for rendering
-		this.renderer.pushBuffer(this.getWindowBuffer());
-		this.renderer.init();
 		this.updateInternalValues();
 		
 		// Set up vsync
@@ -275,7 +267,6 @@ public abstract class GameWindow implements Destroyable{
 	/** End the program, freeing all resources. Do not call directly outside of the main loop */
 	@Override
 	public void destroy(){
-		this.getRenderer().destroy();
 		this.getWindowBuffer().destroy();
 	}
 	
@@ -443,9 +434,7 @@ public abstract class GameWindow implements Destroyable{
 			this.setWindowPosition(this.oldPosition.x, this.oldPosition.y);
 		}
 		// Reset the renderer vertex objects
-		var r = this.getRenderer();
-		r.destroyVertexes();
-		r.initVertexes();
+		Renderer.reloadVertexes();
 		
 		// Ensure the current window has the callbacks
 		this.initCallBacks();
@@ -481,13 +470,13 @@ public abstract class GameWindow implements Destroyable{
 	protected abstract boolean exitFullScreen();
 	
 	/**
-	 * Modify the size of this the screen of {@link #renderer}. This is a costly operation and should not regularly be run
+	 * Modify the size of {@link #windowBuffer}, this is a costly operation and should not regularly be run
 	 *
 	 * @param width The width, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
 	 */
 	public void resizeScreen(int width, int height){
-		this.renderer.resize(width, height);
+		this.getWindowBuffer().regenerateBuffer(width, height);
 		this.updateWindowSize();
 	}
 	
@@ -580,13 +569,6 @@ public abstract class GameWindow implements Destroyable{
 	 */
 	private void updateVsync(){
 		this.setUseVsyncNow(this.usesVsync());
-	}
-	
-	// TODO don't store renderer as an object here, game should access it as a singleton, and relevant window methods will need it passed in
-	
-	/** @return See {@link #renderer} */
-	public Renderer getRenderer(){
-		return this.renderer;
 	}
 	
 	/** @return See {@link #windowBuffer} */
@@ -753,14 +735,9 @@ public abstract class GameWindow implements Destroyable{
 	}
 	
 	/**
-	 * Update the stored state of the values to use for the viewport for drawing the contents of the screen via {@link #renderer} This method does nothing the given renderer
-	 * is not yet initialized
+	 * Update the stored state of the values to use for the viewport for drawing the contents of the screen
 	 */
 	public void updateViewportValues(){
-		// Cannot perform this action without renderer initialized
-		Renderer r = getRenderer();
-		if(r == null) return;
-		
 		// sw and sh for screen width and height
 		int sw = this.getWidth();
 		int sh = this.getHeight();
@@ -772,9 +749,10 @@ public abstract class GameWindow implements Destroyable{
 			this.viewportH = sh;
 		}
 		else{
+			var buffer = this.getWindowBuffer();
 			// wRatio for the window aspect ratio and tRatio for the render's aspect ratio
 			double wRatio = this.getWindowRatio();
-			double tRatio = r.getRatioWH();
+			double tRatio = buffer.getRatioWH();
 			int w;
 			int h;
 			if(tRatio < wRatio){
@@ -783,7 +761,7 @@ public abstract class GameWindow implements Destroyable{
 			}
 			else{
 				w = sw;
-				h = (int)Math.round(w * r.getRatioHW());
+				h = (int)Math.round(w * buffer.getRatioHW());
 			}
 			this.viewportX = (sw - w) >> 1;
 			this.viewportY = (sh - h) >> 1;

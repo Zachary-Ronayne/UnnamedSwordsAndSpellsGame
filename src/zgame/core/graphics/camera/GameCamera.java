@@ -40,29 +40,6 @@ public class GameCamera{
 	}
 	
 	/**
-	 * Apply OpenGL transformations to position objects to where the camera should be, based on the given {@link GameWindow}
-	 * This translation will treat {@link #x} and {@link #y} positions as the upper left hand corner of the screen
-	 *
-	 * @param window The {@link GameWindow}
-	 */
-	public void transform(GameWindow window){
-		// Find the distance the camera must travel, in OpenGL coordinates
-		double x = window.sizeScreenToGlX(this.getX().getPos());
-		double y = -window.sizeScreenToGlY(this.getY().getPos());
-		Renderer r = window.getRenderer();
-		
-		// OpenGL transformations occur in reverse order
-		// Lastly, translate the camera to its actual position
-		r.translate(x, y);
-		// Third, adjust the camera back so that the upper left hand corner is in the correct position
-		r.translate(-1, 1);
-		// Second, scale to the appropriate size, based on the axis zoom levels
-		r.scale(this.getX().getZoomScale(), this.getY().getZoomScale());
-		// First, adjust the camera so that the upper left hand corner, i.e. game coordinates (0, 0) is the center to use for scaling
-		r.translate(1, -1);
-	}
-	
-	/**
 	 * Set the anchor position for panning. Once set, all calls to {@link #pan(double, double)} will be relative to this position until it is set again
 	 * If an anchor is already set, this method does nothing
 	 *

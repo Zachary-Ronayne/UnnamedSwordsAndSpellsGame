@@ -203,8 +203,7 @@ public class Renderer implements Destroyable{
 	 * The stack of buffers which this Renderer draws to, which later can be drawn to a window.
 	 * All drawing operations happen to the top of the stack.
 	 * Note that the stack will initially contain one buffer for drawing, based on the given size when initializing this {@link Renderer}
-	 * Any buffers added to the stack must be externally managed, i.e., this class will not attempt to destroy them.
-	 * If {@link #resize(int, int)} is called, it will destroy the initial buffer created by this object
+	 * Any buffers added to the stack must be externally managed, i.e., this class will not attempt to destroy them
 	 */
 	private final LimitedStack<GameBuffer> bufferStack;
 	
@@ -711,6 +710,12 @@ public class Renderer implements Destroyable{
 		this.boundVertexArray.bind();
 	}
 	
+	/** Destroy and recreate the vertexes used by the renderer. A new {@link Renderer} instance must have already been created */
+	public static void reloadVertexes(){
+		instance.destroyVertexes();
+		instance.initVertexes();
+	}
+	
 	/** Delete any resources used by this Renderer */
 	@Override
 	public void destroy(){
@@ -744,18 +749,6 @@ public class Renderer implements Destroyable{
 	/** Pop the values of the simple attributes of this renderer */
 	public void popAttributes(){
 		for(LimitedStack<?> s : this.attributeStacks) s.pop();
-	}
-	
-	/**
-	 * Modify the default size of this Renderer. This is a costly operation and should not regularly be run
-	 * This will not modify the current top of the buffer stack, but the default buffer, unless the default buffer is at the top of the stack.
-	 * This method will also destroy the buffer at the bottom of the stack
-	 *
-	 * @param width The width, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
-	 * @param height The height, in pixels, of the size of this Renderer, i.e. the size of the internal buffer
-	 */
-	public void resize(int width, int height){
-		this.bufferStack.peek().regenerateBuffer(width, height);
 	}
 	
 	/**
@@ -811,7 +804,7 @@ public class Renderer implements Destroyable{
 		
 		// This assumes only scaling and translation transformations have occurred
 		
-		ZRect2D renderBounds = this.getBounds();
+		var renderBounds = this.getBuffer().getBounds();
 		
 		// issue#6 Transform the render bounds by the current model view matrix so that it aligns with the given draw bounds, figure out where this math is going wrong
 		
@@ -964,6 +957,29 @@ public class Renderer implements Destroyable{
 	public void rotate(Quaternionf q){
 		this.modelView().rotate(q);
 		this.markModelViewChanged();
+	}
+	
+	/**
+	 * Apply OpenGL transformations to position objects to where the camera should be, based on the given {@link GameWindow}
+	 * This translation will treat the camera's x and y positions as the upper left hand corner of the screen
+	 *
+	 * @param camera The camera where the g ame should be
+	 * @param window The {@link GameWindow} to transform to
+	 */
+	public void transform(GameCamera camera, GameWindow window){
+		// Find the distance the camera must travel, in OpenGL coordinates
+		double x = window.sizeScreenToGlX(camera.getX().getPos());
+		double y = -window.sizeScreenToGlY(camera.getY().getPos());
+		
+		// OpenGL transformations occur in reverse order
+		// Lastly, translate the camera to its actual position
+		this.translate(x, y);
+		// Third, adjust the camera back so that the upper left hand corner is in the correct position
+		this.translate(-1, 1);
+		// Second, scale to the appropriate size, based on the axis zoom levels
+		this.scale(camera.getX().getZoomScale(), camera.getY().getZoomScale());
+		// First, adjust the camera so that the upper left hand corner, i.e. game coordinates (0, 0) is the center to use for scaling
+		this.translate(1, -1);
 	}
 	
 	/**
@@ -1251,7 +1267,7 @@ public class Renderer implements Destroyable{
 			h = c.sizeGameToScreenY(h);
 		}
 		glEnable(GL_SCISSOR_TEST);
-		glScissor((int)Math.round(x), (int)Math.round(this.getHeight() - y), (int)Math.round(w), (int)Math.round(h));
+		glScissor((int)Math.round(x), (int)Math.round(this.getBuffer().getHeight() - y), (int)Math.round(w), (int)Math.round(h));
 	}
 	
 	/** @param depthTestEnabled See {@link #depthTestEnabled} */
@@ -1865,7 +1881,7 @@ public class Renderer implements Destroyable{
 		this.scale(1, -1);
 		// Need to position with height - y to account for the negative scaling
 		// Need to use posSize for the width and height to keep it scaled appropriately to OpenGL coordinates
-		this.positionObject(x, this.getHeight() - y, posSize, posSize);
+		this.positionObject(x, this.getBuffer().getHeight() - y, posSize, posSize);
 		
 		// Draw every character of the text
 		for(var op : options){
@@ -2513,36 +2529,6 @@ public class Renderer implements Destroyable{
 	/** @return See {@link #renderOnlyInsideStack} */
 	public LimitedStack<Boolean> getRenderOnlyInsideStack(){
 		return this.renderOnlyInsideStack;
-	}
-	
-	/** @return The width, in pixels, of the underlying buffer of this Renderer */
-	public int getWidth(){
-		return this.getBuffer().getWidth();
-	}
-	
-	/** @return The height, in pixels, of the underlying buffer of this Renderer */
-	public int getHeight(){
-		return this.getBuffer().getHeight();
-	}
-	
-	/** @return A rectangle of the bounds of this {@link Renderer}, i.e. the position will be (0, 0), width will be {@link #getWidth()} and height will be {@link #getHeight()} */
-	public ZRect2D getBounds(){
-		return this.getBuffer().getBounds();
-	}
-	
-	/** @return The ratio of the size of the internal buffer, i.e. the width divided by the height */
-	public double getRatioWH(){
-		return this.getBuffer().getRatioWH();
-	}
-	
-	/** @return The ratio of the size of the internal buffer, i.e. the height divided by the width */
-	public double getRatioHW(){
-		return this.getBuffer().getRatioHW();
-	}
-	
-	/** @return The OpenGL id used by the top of this {@link Renderer}s {@link #bufferStack} */
-	public int getBufferId(){
-		return this.getBuffer().getTextureID();
 	}
 	
 	/** @return The top of see {@link #bufferStack} */

@@ -18,7 +18,7 @@ public class Style2D implements RenderStyle{
 		else r.setCamera(null);
 		// Move based on the camera, if applicable, and draw the objects
 		r.identityMatrix();
-		if(useCam) game.getCamera().transform(game.getWindow());
+		if(useCam) r.transform(game.getCamera(), game.getWindow());
 		
 		r.setDepthTestEnabled(false);
 	}

@@ -212,8 +212,9 @@ public class MainPlay extends PlayState{
 		double size = 8;
 		double thick = 2;
 		double border = 1;
-		double centerX = r.getWidth() * 0.5;
-		double centerY = r.getHeight() * 0.5;
+		var buffer = ZusassGame.window().getWindowBuffer();
+		double centerX = buffer.getWidth() * 0.5;
+		double centerY = buffer.getHeight() * 0.5;
 		
 		r.setColor(0, 0, 0);
 		r.drawRectangle(centerX - size, centerY - thick, size + size, thick + thick);

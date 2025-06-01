@@ -48,6 +48,7 @@ public class GameBuffer implements Destroyable{
 	/** true if the buffer has been generated, false otherwise */
 	private boolean bufferGenerated;
 	
+	// TODO is this actually used?
 	/** The way this buffer should be rendered for the alpha channel */
 	private AlphaMode alphaMode;
 	
