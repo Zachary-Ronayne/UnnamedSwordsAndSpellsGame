@@ -98,13 +98,8 @@ public class Game implements Saveable, Destroyable{
 	/** The {@link Runnable} used by {@link #soundThread} to run its thread */
 	private SoundLoopTask soundTask;
 	
-	// TODO consider if some of these values should be moved to GameWindow, or to settings
-	/** true if the game should only render frames when the game window has focus, false otherwise */
-	private boolean focusedRender;
 	/** true if the game should only update the state of the game when the game window has focus, false otherwise. If the game is not updating, this will also pause all sound */
 	private boolean focusedUpdate;
-	/** true if the game should only render frames when the game window is not minimized, false otherwise */
-	private boolean minimizedRender;
 	/** true if the game should only update the state of the game when the game is not minimized, false otherwise. If the game is not updating, this will also pause all sound */
 	private boolean minimizedUpdate;
 	/** Tracks if the sound effects were paused before pausing them due to the window losing focus or being minimized */
@@ -164,9 +159,7 @@ public class Game implements Saveable, Destroyable{
 		this.gameSpeed = 1;
 		this.totalTickTime = 0;
 		
-		this.focusedRender = false;
 		this.focusedUpdate = false;
-		this.minimizedRender = false;
 		this.minimizedUpdate = false;
 		this.effectsPaused = false;
 		this.musicPaused = false;
@@ -238,6 +231,7 @@ public class Game implements Saveable, Destroyable{
 		
 		// Start the window
 		var window = this.getWindow();
+		window.setRenderFunc(this::renderAll);
 		window.init();
 		
 		// Init renderer
@@ -406,14 +400,38 @@ public class Game implements Saveable, Destroyable{
 				this.nextLoopFuncs.clear();
 			}
 			
-			// TODO add management here to allow for rendering multiple windows
-			this.getWindow().redraw(this.renderer, this);
+			// Render the contents of the windows
+			for(var window : WindowManager.get().getWindows()) window.loopFunction(this.renderer);
 			
 			// Check if a state needs to be destroyed
 			if(this.destroyState != null) this.destroyState.destroy();
 		}catch(Exception e){
 			ZConfig.exception(e);
 		}
+	}
+	
+	/**
+	 * Render all contents for what the game should currently be displaying
+	 *
+	 * @param r The renderer to use
+	 */
+	private void renderAll(Renderer r){
+		// Draw the background
+		RenderStyle.S_2D.setupFrame(r);
+		r.setCamera(null);
+		r.identityMatrix();
+		this.renderBackground(r);
+		
+		// Draw the foreground, i.e. main objects
+		// Perform any needed operations based on the type
+		this.getRenderStyle().setupFrame(r);
+		this.render(r);
+		
+		// Draw the hud
+		RenderStyle.S_2D.setupFrame(r);
+		r.setCamera(null);
+		r.identityMatrix();
+		this.renderHud(r);
 	}
 	
 	/**
@@ -586,16 +604,6 @@ public class Game implements Saveable, Destroyable{
 		return true;
 	}
 	
-	/** @return See {@link #focusedRender} */
-	public boolean isFocusedRender(){
-		return this.focusedRender;
-	}
-	
-	/** @param focusedRender See {@link #focusedRender} */
-	public void setFocusedRender(boolean focusedRender){
-		this.focusedRender = focusedRender;
-	}
-	
 	/** @return See {@link #focusedUpdate} */
 	public boolean isFocusedUpdate(){
 		return this.focusedUpdate;
@@ -604,16 +612,6 @@ public class Game implements Saveable, Destroyable{
 	/** @param focusedUpdate See {@link #focusedUpdate} */
 	public void setFocusedUpdate(boolean focusedUpdate){
 		this.focusedUpdate = focusedUpdate;
-	}
-	
-	/** @return See {@link #minimizedRender} */
-	public boolean isMinimizedRender(){
-		return this.minimizedRender;
-	}
-	
-	/** @param minimizedRender See {@link #minimizedRender} */
-	public void setMinimizedRender(boolean minimizedRender){
-		this.minimizedRender = minimizedRender;
 	}
 	
 	/** @return See {@link #minimizedUpdate} */

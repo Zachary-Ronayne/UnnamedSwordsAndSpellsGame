@@ -184,6 +184,7 @@ public class MainPlay extends PlayState{
 			var yaw = mobilityData.getFacingYaw();
 			var velocity = p.getVelocity();
 			var debugTextList = List.of(
+					"FPS: " + zgame.getFps(),
 					"X: " + this.debugNumberFormat.format(p.getX()),
 					"Y: " + this.debugNumberFormat.format(p.getY()),
 					"Z: " + this.debugNumberFormat.format(p.getZ()),

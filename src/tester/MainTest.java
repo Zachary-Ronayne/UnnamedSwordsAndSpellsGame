@@ -22,6 +22,9 @@ import zgame.core.state.MenuState;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect2D;
 import zgame.core.utils.ZStringUtils;
+import zgame.core.window.GameWindow;
+import zgame.core.window.GlfwWindow;
+import zgame.core.window.WindowManager;
 import zgame.menu.*;
 import zgame.menu.scroller.HorizontalScroller;
 import zgame.menu.scroller.MenuScroller;
@@ -187,9 +190,6 @@ public class MainTest extends Game{
 	public static void main(String[] args){
 		// Set up game
 		testerGame = new MainTest();
-//		testerGame.setCurrentState(new TesterGameState(testerGame));
-//		testerGame.setCurrentState(new TesterMenuState(testerGame));
-		testerGame.setCurrentState(new GameEngineState());
 		testerGame.setInitSoundOnStart(true);
 		
 		// Start up the game
@@ -201,6 +201,10 @@ public class MainTest extends Game{
 	}
 	
 	public static void reset(){
+		testerGame.setCurrentState(new TesterGameState());
+//		testerGame.setCurrentState(new TesterMenuState());
+//		testerGame.setCurrentState(new GameEngineState());
+		
 		playerX = 200;
 		playerY = 500;
 		changeRect = new Rectangle(600, 20, 200, 200);
@@ -394,6 +398,8 @@ public class MainTest extends Game{
 		private static final String SAVES_PATH = "./saves";
 		private static final String FILE_PATH = SAVES_PATH + "/testGame.json";
 		
+		private GameWindow secondWindow;
+		
 		public TesterGameState(){
 			this.textBuffer = new TextBuffer((int)bufferBounds.width, (int)bufferBounds.height, FontManager.getDefaultFont());
 			this.textBuffer.setText("Text from a buffer");
@@ -437,10 +443,29 @@ public class MainTest extends Game{
 				else if(key == GLFW_KEY_L) s.getMusicPlayer().toggleLooping();
 				
 				else if(key == GLFW_KEY_5){
-					if(!keys.shift() && !keys.alt()) game.setFocusedRender(!game.isFocusedRender());
-					else if(keys.shift() && !keys.alt()) game.setMinimizedRender(!game.isMinimizedRender());
+					var window = Game.get().getWindow();
+					if(!keys.shift() && !keys.alt()) window.setFocusedRender(!window.isFocusedRender());
+					else if(keys.shift() && !keys.alt()) window.setMinimizedRender(!window.isMinimizedRender());
 					else if(!keys.shift() && keys.alt()) game.setFocusedUpdate(!game.isFocusedUpdate());
 					else game.setMinimizedUpdate(!game.isMinimizedUpdate());
+				}
+				
+				else if(key == GLFW_KEY_6){
+					// TODO make a way to cleanly open and close new windows
+					if(this.secondWindow == null){
+						this.secondWindow = new GlfwWindow();
+						this.secondWindow.setRenderFunc(r -> {
+							r.setColor(1, 0, 0);
+							r.drawRectangle(10, 100, 200, 300);
+						});
+						this.secondWindow.init();
+						WindowManager.get().addWindow("secondWindow", this.secondWindow);
+					}
+					else {
+						WindowManager.get().removeWindow(this.secondWindow);
+						this.secondWindow.destroy();
+						this.secondWindow = null;
+					}
 				}
 				
 				else if(key == GLFW_KEY_F11){
@@ -645,8 +670,9 @@ public class MainTest extends Game{
 			r.setColor(rr, 0, bb);
 			r.drawRectangle(40, 5, 30, 30 * m.getVolume());
 			
-			rr = game.isFocusedRender() ? 1 : 0;
-			bb = game.isMinimizedRender() ? 1 : 0;
+			var window = Game.get().getWindow();
+			rr = window.isFocusedRender() ? 1 : 0;
+			bb = window.isMinimizedRender() ? 1 : 0;
 			r.setColor(rr, 0, bb);
 			r.drawRectangle(930, 5, 30, 30);
 			

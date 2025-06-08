@@ -11,7 +11,6 @@ import zgame.core.graphics.buffer.GameBuffer;
 import zgame.core.graphics.camera.GameCamera;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
-import zgame.core.type.RenderStyle;
 import zgame.core.utils.OnOffState;
 
 import java.awt.Point;
@@ -19,6 +18,7 @@ import java.awt.Point;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLUtil;
 import zgame.core.utils.ZRect2D;
+import zgame.settings.BooleanTypeSetting;
 
 import java.awt.Dimension;
 import java.nio.IntBuffer;
@@ -94,11 +94,19 @@ public abstract class GameWindow implements Destroyable{
 	/** true if the internal buffer should be resized any time the window changes size, to match the window, false otherwise */
 	private boolean resizeScreenOnResizeWindow;
 	
+	/** true if the window should only render when the window has focus, false otherwise */
+	private boolean focusedRender;
+	/** true if the game should only render frames when the game window is not minimized, false otherwise */
+	private boolean minimizedRender;
+	
 	/** A list of actions to run when this window changes size */
 	private final ArrayList<SizeChange> sizeChangeListeners;
 	
 	/** Functions to call when this window enters full screen */
 	private final ArrayList<EnterFullScreen> enterFullScreenListeners;
+	
+	/** The function used to draw this window, or null if no rendering is defined */
+	private RenderFunc renderFunc;
 	
 	/** The main buffer rendered to for this window */
 	private final GameBuffer windowBuffer;
@@ -159,6 +167,16 @@ public abstract class GameWindow implements Destroyable{
 		void entered(GameWindow window);
 	}
 	
+	/** An interface for passing a function to use to draw the contents of the window */
+	public interface RenderFunc{
+		/**
+		 * Called when a window needs to be redrawn
+		 *
+		 * @param r The renderer to draw with
+		 */
+		void render(Renderer r);
+	}
+	
 	/**
 	 * Create a new default {@link GameWindow}.
 	 * This does no initialization for OpenGL or window managerment, call {@link #init()} to do that
@@ -178,6 +196,8 @@ public abstract class GameWindow implements Destroyable{
 		this.mouseMoveMethod = null;
 		this.mouseWheelMoveMethod = null;
 		this.resizeScreenOnResizeWindow = false;
+		this.focusedRender = false;
+		this.minimizedRender = false;
 		this.sizeChangeListeners = new ArrayList<>();
 		this.enterFullScreenListeners = new ArrayList<>();
 		
@@ -229,6 +249,8 @@ public abstract class GameWindow implements Destroyable{
 		// setup callbacks
 		this.initCallBacks();
 		
+		// TODO somehow manage giving a context for each window, does the renderer actually need to not be a singleton?
+		
 		// Set up texture settings for drawing with an alpha channel
 		initTextureSettings();
 		
@@ -239,6 +261,9 @@ public abstract class GameWindow implements Destroyable{
 	
 	/** Called during object initialization. Must establish window context with OpenGL before further initialization can occur */
 	protected abstract void createContext();
+	
+	/** Call the appropriate methods to  */
+	public abstract void obtainContext();
 	
 	/**
 	 * Call this method once at the beginning of each OpenGL loop to check for events, i.e. keyboard input, mouse input, window size changed, etc. This method will also update
@@ -277,56 +302,45 @@ public abstract class GameWindow implements Destroyable{
 	public abstract boolean initCallBacks();
 	
 	/**
-	 * Draw the given contents of this window's internal buffer using the given window and game
+	 * Draw the given contents of this window's internal buffer using the given window and game, along with checking any window events which need to happen
+	 *
 	 * @param r The renderer to draw with
-	 * @param game The game to draw the contents to
 	 */
-	public void redraw(Renderer r, Game game){
+	public void loopFunction(Renderer r){
 		// Update the window
 		boolean focused = this.isFocused();
 		boolean minimized = this.isMinimized();
 		this.checkEvents();
 		
-		r.pushBuffer(this.getWindowBuffer());
-		
 		// Only perform rendering operations if the window should be rendered, based on the state of the window's focus and minimize
-		if(!(game.isFocusedRender() && !focused) && !(game.isMinimizedRender() && minimized)){
+		if(!(this.isFocusedRender() && !focused) && !(this.isMinimizedRender() && minimized)){
+//			// TODO only call this if the static context changed
+//			this.obtainContext();
+			
+			r.pushBuffer(this.getWindowBuffer());
+
 			// Clear the main framebuffer
 			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			
+
 			// Clear the internal renderer and set it up to use the renderer's frame buffer to draw to
 			r.clear();
-			
+
 			// Render objects using the renderer's frame buffer
 			r.initToDraw();
-			
-			// TODO allow for some way of specifying what is drawn other than it being the game, probably starting after this line, this should be moved
-			// Draw the background
-			RenderStyle.S_2D.setupFrame(r);
-			r.setCamera(null);
-			r.identityMatrix();
-			game.renderBackground(r);
-			
-			// Draw the foreground, i.e. main objects
-			// Perform any needed operations based on the type
-			game.getRenderStyle().setupFrame(r);
-			game.render(r);
-			
-			// Draw the hud
-			RenderStyle.S_2D.setupFrame(r);
-			r.setCamera(null);
-			r.identityMatrix();
-			game.renderHud(r);
-			
+
+			var fun = this.getRenderFunc();
+			if(fun != null) fun.render(r);
+
 			// Draw the renderer's frame buffer to the window
 			r.drawToWindow(this);
+
+			// Update the window
+			this.swapBuffers();
+
+			r.popBuffer();
 		}
-		// Update the window
-		this.swapBuffers();
-		
-		r.popBuffer();
 	}
 	
 	/**
@@ -587,7 +601,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Call to change the fullscreen state on the next OpenGL loop. If the window is already in the desired state, nothing happens
-	 * When using this window with a {@link Game}, the setting {@link zgame.settings.BooleanTypeSetting#FULLSCREEN} should be set instead of calling this method
+	 * When using this window with a {@link Game}, the setting {@link BooleanTypeSetting#FULLSCREEN} should be set instead of calling this method
 	 *
 	 * @param fullscreen true to enter fullscreen, false to exist.
 	 */
@@ -844,6 +858,37 @@ public abstract class GameWindow implements Destroyable{
 		this.resizeScreenOnResizeWindow = resizeScreenOnResizeWindow;
 	}
 	
+	/** @return See {@link #focusedRender} */
+	public boolean isFocusedRender(){
+		return this.focusedRender;
+	}
+	
+	/** @param focusedRender See {@link #focusedRender} */
+	public void setFocusedRender(boolean focusedRender){
+		this.focusedRender = focusedRender;
+	}
+	
+	/** @return See {@link #minimizedRender} */
+	public boolean isMinimizedRender(){
+		return this.minimizedRender;
+	}
+	
+	/** @param minimizedRender See {@link #minimizedRender} */
+	public void setMinimizedRender(boolean minimizedRender){
+		this.minimizedRender = minimizedRender;
+	}
+	
+	
+	/** @return See {@link #renderFunc} */
+	public RenderFunc getRenderFunc(){
+		return this.renderFunc;
+	}
+	
+	/** @param renderFunc See {@link #renderFunc} */
+	public void setRenderFunc(RenderFunc renderFunc){
+		this.renderFunc = renderFunc;
+	}
+	
 	/**
 	 * Add the given action to perform on a window changing
 	 *
@@ -879,7 +924,6 @@ public abstract class GameWindow implements Destroyable{
 	public void removeEnterFullScreenListener(EnterFullScreen listener){
 		this.enterFullScreenListeners.remove(listener);
 	}
-	
 	
 	/**
 	 * Determine if the given bounds are in the bounds of {@link #windowBuffer}

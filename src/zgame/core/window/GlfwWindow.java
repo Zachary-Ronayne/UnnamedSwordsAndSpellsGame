@@ -85,6 +85,12 @@ public class GlfwWindow extends GameWindow{
 	}
 	
 	@Override
+	public void obtainContext(){
+		if(this.isInFullScreen()) glfwMakeContextCurrent(this.fullScreenID);
+		else glfwMakeContextCurrent(this.windowID);
+	}
+	
+	@Override
 	public void checkEvents(){
 		super.checkEvents();
 		

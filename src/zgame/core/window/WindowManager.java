@@ -1,5 +1,6 @@
 package zgame.core.window;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 /** A class for managing potential multiple windows from a static reference */
@@ -24,6 +25,11 @@ public class WindowManager{
 	 */
 	public GameWindow getWindow(String id){
 		return this.windows.get(id);
+	}
+	
+	/** @return All windows managed by the manager. Should be treated as read only */
+	public Collection<GameWindow> getWindows(){
+		return this.windows.values();
 	}
 	
 	/**
