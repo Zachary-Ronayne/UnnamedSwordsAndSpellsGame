@@ -3,6 +3,7 @@ package zusass.game.things.entities.projectile;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.sound.SoundManager;
 import zgame.core.sound.SoundSource;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector3D;
@@ -97,7 +98,7 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	 * e the sound will be played in
 	 */
 	public void initSounds(){
-		this.removedSoundSource = ZusassGame.get().getSounds().createSource(this.getX(), this.getY(), this.getZ());
+		if(SoundManager.initialized()) this.removedSoundSource = SoundManager.get().createSource(this.getX(), this.getY(), this.getZ());
 	}
 	
 	@Override

@@ -29,7 +29,7 @@ public class SoundManager implements Destroyable{
 	private SoundSource musicSource;
 	
 	/** The single {@link SoundListener} which determines where sound is located */
-	private final SoundListener listener;
+	private SoundListener listener;
 	
 	/** The {@link SpeakerDevice} which is currently being used to play sounds */
 	private SpeakerDevice currentDevice;
@@ -46,21 +46,31 @@ public class SoundManager implements Destroyable{
 	 */
 	private final List<SpeakerDevice> devices;
 	
+	// TODO this is an awkward way to do this, consider a better way to not have sound enabled
+	/** true if this should be a dummy manager that doesn't actually do anything, false for normal. Use true to replace the instance with a non null object */
+	private final boolean dummy;
+	
 	/**
 	 * Initialize the {@link SoundManager} to its default state
+	 *
+	 * @param dummy See {@link #dummy}
 	 */
-	private SoundManager(){
+	private SoundManager(boolean dummy){
+		this.dummy = dummy;
 		this.distanceScalar = 1;
-		EffectsManager.init();
-		MusicManager.init();
-		
 		this.devices = new ArrayList<>();
-		this.scanDevices();
+		
+		if(!dummy){
+			EffectsManager.init();
+			MusicManager.init();
+			this.scanDevices();
+			this.musicSource = new SoundSource();
+			this.listener = new SoundListener();
+		}
 		
 		this.effectsPlayer = new EffectsPlayer();
 		this.musicPlayer = new MusicPlayer();
-		this.musicSource = new SoundSource();
-		this.listener = new SoundListener();
+		
 	}
 	
 	/**
@@ -68,6 +78,7 @@ public class SoundManager implements Destroyable{
 	 * {@link #currentDevice} is no longer available, it is set to the default device. This method closes any previously loaded devices, and loads all newly loaded devices
 	 */
 	public void scanDevices(){
+		if(this.isDummy()) return;
 		// Reset the players for effects and music
 		if(this.effectsPlayer != null) this.effectsPlayer.reset();
 		if(this.musicPlayer != null) this.musicPlayer.reset();
@@ -130,10 +141,11 @@ public class SoundManager implements Destroyable{
 	/** Clear any resources used by this {@link SoundManager} */
 	@Override
 	public synchronized void destroy(){
+		if(this.isDummy()) return;
 		this.closeDevices();
 		EffectsManager.destroyEffects();
 		MusicManager.destroyMusic();
-		if(this.musicSource != null) {
+		if(this.musicSource != null){
 			this.musicSource.destroy();
 			this.musicSource = null;
 		}
@@ -141,9 +153,10 @@ public class SoundManager implements Destroyable{
 	
 	/** Free all resources used by audio devices sed by this {@link SoundManager} */
 	private synchronized void closeDevices(){
+		if(this.isDummy()) return;
 		// Copy the list of devices
 		var deviceList = this.devices.stream().toList();
-		for(var s : deviceList) {
+		for(var s : deviceList){
 			s.destroy();
 			this.devices.remove(s);
 		}
@@ -151,6 +164,7 @@ public class SoundManager implements Destroyable{
 	
 	/** Update the state of the effects and music player */
 	public void update(){
+		if(this.isDummy()) return;
 		this.getEffectsPlayer().updateState();
 		this.getMusicPlayer().updateState();
 	}
@@ -162,6 +176,7 @@ public class SoundManager implements Destroyable{
 	 * @param name The name of the sound, use this value when playing sounds
 	 */
 	public void addEffect(EffectSound effect, String name){
+		if(this.isDummy()) return;
 		EffectsManager.instance().add(effect, name);
 	}
 	
@@ -171,6 +186,7 @@ public class SoundManager implements Destroyable{
 	 * @param name The name of the sound, which must exist as a .ogg file in {@link ZFilePaths#effects()} use this value when playing sounds
 	 */
 	public void addEffect(String name){
+		if(this.isDummy()) return;
 		EffectSound e = EffectSound.loadSound(name);
 		this.addEffect(e, name);
 	}
@@ -181,6 +197,7 @@ public class SoundManager implements Destroyable{
 	 * @param name The name of the sound to use. After calling this method, the sound with the given name will not be able to play
 	 */
 	public void removeEffect(String name){
+		if(this.isDummy()) return;
 		EffectsManager.instance().remove(name);
 	}
 	
@@ -191,6 +208,7 @@ public class SoundManager implements Destroyable{
 	 * @param name The name of the sound, use this value when playing sounds
 	 */
 	public void addMusic(MusicSound music, String name){
+		if(this.isDummy()) return;
 		MusicManager.instance().add(music, name);
 	}
 	
@@ -200,6 +218,7 @@ public class SoundManager implements Destroyable{
 	 * @param name The name of the sound, which must exist as a .ogg file in {@link ZFilePaths#music()}, use this value when playing sounds
 	 */
 	public void addMusic(String name){
+		if(this.isDummy()) return;
 		this.addMusic(MusicSound.loadMusic(name), name);
 	}
 	
@@ -209,6 +228,7 @@ public class SoundManager implements Destroyable{
 	 * @param name The name of the sound to use. After calling this method, the sound with the given name will not be able to play
 	 */
 	public void removeMusic(String name){
+		if(this.isDummy()) return;
 		MusicManager.instance().remove(name);
 	}
 	
@@ -218,6 +238,7 @@ public class SoundManager implements Destroyable{
 	 * sound contained by that folder. Then, each of those folders will contain the sound files which will be of the type of the folder they are in
 	 */
 	public void addAllEffects(){
+		if(this.isDummy()) return;
 		EffectsManager.instance().addAll();
 	}
 	
@@ -226,6 +247,7 @@ public class SoundManager implements Destroyable{
 	 * {@link #playMusic(String)}
 	 */
 	public void addAllMusic(){
+		if(this.isDummy()) return;
 		MusicManager.instance().addAll();
 	}
 	
@@ -234,6 +256,7 @@ public class SoundManager implements Destroyable{
 	 * extension is how they will be referred to using {@link #playEffect(SoundSource, String)} and {@link #playMusic(String)}
 	 */
 	public void addAllSounds(){
+		if(this.isDummy()) return;
 		this.addAllEffects();
 		this.addAllMusic();
 	}
@@ -245,6 +268,7 @@ public class SoundManager implements Destroyable{
 	 * @param name The name of the sound, i.e. the name used when calling {@link #addEffect(EffectSound, String)}
 	 */
 	public void playEffect(SoundSource source, String name){
+		if(this.isDummy()) return;
 		this.getEffectsPlayer().playSound(source, EffectsManager.instance().get(name));
 	}
 	
@@ -254,6 +278,7 @@ public class SoundManager implements Destroyable{
 	 * @param name The name of the sound, i.e. the name used when calling {@link #addMusic(String)}
 	 */
 	public void playMusic(String name){
+		if(this.isDummy()) return;
 		this.getMusicPlayer().playSound(this.getMusicSource(), MusicManager.instance().get(name));
 	}
 	
@@ -265,6 +290,7 @@ public class SoundManager implements Destroyable{
 	 * @param z The new z coordinate in game coordinates
 	 */
 	public void updateListenerPos(double x, double y, double z){
+		if(this.isDummy()) return;
 		this.updateSoundPos(this.getListener(), x, y, z);
 	}
 	
@@ -277,6 +303,7 @@ public class SoundManager implements Destroyable{
 	 * @param z The new z coordinate in game coordinates
 	 */
 	public void updateSourcePos(SoundSource s, double x, double y, double z){
+		if(this.isDummy()) return;
 		this.updateSoundPos(s, x, y, z);
 	}
 	
@@ -288,6 +315,7 @@ public class SoundManager implements Destroyable{
 	 * @param z The new z vector direction component
 	 */
 	public void updateListenerDirection(double x, double y, double z){
+		if(this.isDummy()) return;
 		this.updateSoundDirection(this.getListener(), x, y, z);
 	}
 	
@@ -300,6 +328,7 @@ public class SoundManager implements Destroyable{
 	 * @param z The new z vector direction component
 	 */
 	public void updateSourceDirection(SoundSource s, double x, double y, double z){
+		if(this.isDummy()) return;
 		this.updateSoundDirection(s, x, y, z);
 	}
 	
@@ -312,6 +341,7 @@ public class SoundManager implements Destroyable{
 	 * @param z The new z coordinate in game coordinates
 	 */
 	private void updateSoundPos(SoundLocation s, double x, double y, double z){
+		if(this.isDummy()) return;
 		s.updatePosition(x * this.getDistanceScalar(), y * this.getDistanceScalar(), z * this.getDistanceScalar());
 	}
 	
@@ -324,6 +354,7 @@ public class SoundManager implements Destroyable{
 	 * @param z The new z vector direction component
 	 */
 	private void updateSoundDirection(SoundLocation s, double x, double y, double z){
+		if(this.isDummy()) return;
 		s.updateDirection(x, y, z);
 	}
 	
@@ -336,6 +367,8 @@ public class SoundManager implements Destroyable{
 	 * @return The source
 	 */
 	public SoundSource createSource(double x, double y, double z){
+		if(this.isDummy()) return null;
+		
 		SoundSource s = new SoundSource(x, y, z);
 		this.updateSourcePos(s, x, y, z);
 		return s;
@@ -373,6 +406,8 @@ public class SoundManager implements Destroyable{
 	
 	/** @return A copy of {@link #devices}. The returned list is distinct from the internal list of devices */
 	public SpeakerDevice[] getDevices(){
+		if(this.isDummy()) return new SpeakerDevice[0];
+		
 		SpeakerDevice[] arr = new SpeakerDevice[this.devices.size()];
 		for(int i = 0; i < arr.length; i++){
 			arr[i] = this.devices.get(i);
@@ -385,23 +420,36 @@ public class SoundManager implements Destroyable{
 		return this.distanceScalar;
 	}
 	
-	/** @param distanceScalar See {@link #distanceScalar} */
+	/**
+	 * @param distanceScalar See {@link #distanceScalar}. Must be set before any sound sources are created, otherwise those sources must have their positions updated after
+	 * 		this is called
+	 */
 	public void setDistanceScalar(double distanceScalar){
 		this.distanceScalar = distanceScalar;
 	}
 	
+	/** @return See {@link #dummy} */
+	public boolean isDummy(){
+		return this.dummy;
+	}
+	
 	/** Initialize the sound manager to its default state */
 	public static void init(){
-		if(instance != null) return;
+		if(instance != null && instance.isDummy()) return;
 		
-		instance = new SoundManager();
+		instance = new SoundManager(false);
+	}
+	
+	/** @return true if {@link #instance} has been set up and is not a dummy, false otherwise */
+	public static boolean initialized(){
+		return instance != null && !instance.isDummy();
 	}
 	
 	/** @return See {@link #instance} */
 	public static SoundManager get(){
-		if(instance == null) {
-			ZConfig.error("SoundManager not initialized on get, initializing now, call SoundManager.init() separately before getting it");
-			init();
+		if(instance == null){
+			ZConfig.error("SoundManager not initialized on get, call SoundManager.init() separately before getting it, using dummy instance");
+			instance = new SoundManager(true);
 		}
 		return instance;
 	}

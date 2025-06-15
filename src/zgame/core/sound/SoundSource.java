@@ -48,13 +48,13 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	}
 	
 	/**
-	 * Create and initialize a new {@link SoundSource}
+	 * Create and initialize a new {@link SoundSource}, which plays at full volume
 	 *
 	 * @param x The current x position of the sound
 	 * @param y The current y position of the sound
 	 */
 	public SoundSource(double x, double y, double z){
-		this(x, y, z, 0);
+		this(x, y, z, 1);
 	}
 	
 	/**

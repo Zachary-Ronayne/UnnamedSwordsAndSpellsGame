@@ -12,6 +12,7 @@ import zgame.core.graphics.image.ImageManager;
 import zgame.core.input.InputHandler;
 import zgame.core.input.InputHandlers;
 import zgame.core.input.InputType;
+import zgame.core.sound.SoundManager;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
 import zgame.stat.modifier.ModifierType;
@@ -114,10 +115,12 @@ public class ZusassPlayer extends ZusassMob{
 		
 		//issue#61
 		// Update the sound listener to the player
-		var sm = game.getSounds();
-		sm.updateListenerPos(this.getX(), this.getY(), this.getZ());
-		var soundVec = new ZVector3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), 1, false);
-		sm.updateListenerDirection(soundVec.getX(), soundVec.getY(), soundVec.getZ());
+		if(SoundManager.initialized()){
+			var sm = SoundManager.get();
+			sm.updateListenerPos(this.getX(), this.getY(), this.getZ());
+			var soundVec = new ZVector3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), 1, false);
+			sm.updateListenerDirection(soundVec.getX(), soundVec.getY(), soundVec.getZ());
+		}
 	}
 	
 	/**

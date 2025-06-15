@@ -171,7 +171,8 @@ public class Game implements Saveable, Destroyable{
 		this.destroyState = null;
 		
 		// Set up all asset managers
-		Game.initAssetManagers();
+		ImageManager.init();
+		FontManager.init();
 		
 		// Init stat enum
 		DefaultStatType.init();
@@ -183,8 +184,8 @@ public class Game implements Saveable, Destroyable{
 		this.globalSettings = new Settings();
 		this.localSettings = new Settings();
 		
-		// Init sound on start by default
-		this.setInitSoundOnStart(true);
+		// Do not init sound on start by default
+		this.setInitSoundOnStart(false);
 		
 		// Init the main window the game will use
 		WindowManager.init();
@@ -275,7 +276,8 @@ public class Game implements Saveable, Destroyable{
 	public void initSound(){
 		SoundManager.init();
 		var sounds = SoundManager.get();
-		sounds.scanDevices();
+		if(sounds == null) ZConfig.error("Failed to initialize game sound");
+		else sounds.scanDevices();
 		
 		// Run the audio loop
 		this.soundTask = new SoundLoopTask();
@@ -305,16 +307,18 @@ public class Game implements Saveable, Destroyable{
 	
 	@Override
 	public void destroy(){
+		/*
+		 Free sounds first to avoid the audio management from freaking out if it tries to shut down at the wrong time or something,
+		  and break the audio device until it's unplugged
+		 */
+		if(SoundManager.initialized()) SoundManager.get().destroy();
+		
 		// End the loopers
 		this.renderLooper.end();
 		this.tickLooper.end();
 		
 		// Free memory / destroy callbacks
 		this.getWindow().destroy();
-		
-		// Free sounds
-		var sounds = SoundManager.get();
-		if(sounds != null) sounds.destroy();
 		
 		// Free images
 		ImageManager.destroyImages();
@@ -1256,14 +1260,6 @@ public class Game implements Saveable, Destroyable{
 	/** Assign this game as a 3D game */
 	public void make3D(){
 		this.setRenderStyle(RenderStyle.S_3D);
-	}
-	
-	/** Initialize all singletons for managing assets */
-	public static void initAssetManagers(){
-		ImageManager.init();
-		EffectsManager.init();
-		MusicManager.init();
-		FontManager.init();
 	}
 	
 	/** Destroy all resources used by all asset managers */

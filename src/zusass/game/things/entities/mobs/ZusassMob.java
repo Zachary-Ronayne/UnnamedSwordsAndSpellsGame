@@ -7,6 +7,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.RotRender3D;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.image.ImageManager;
+import zgame.core.sound.SoundManager;
 import zgame.core.sound.SoundSource;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint3D;
@@ -192,7 +193,18 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	 * Initialize this mob for creating sounds, otherwise sounds will not play
 	 */
 	public void initSounds(){
-		if(this.castSoundSource == null) this.castSoundSource = ZusassGame.get().getSounds().createSource(this.getX(), this.getY(), this.getZ());
+		if(this.castSoundSource == null) {
+			if(SoundManager.initialized()) this.castSoundSource = SoundManager.get().createSource(this.getX(), this.getY(), this.getZ());
+		}
+	}
+	
+	@Override
+	public void destroy(){
+		super.destroy();
+		if(this.castSoundSource != null){
+			this.castSoundSource.destroy();
+			this.castSoundSource = null;
+		}
 	}
 	
 	@Override

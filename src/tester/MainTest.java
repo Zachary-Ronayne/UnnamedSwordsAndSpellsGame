@@ -126,6 +126,7 @@ import java.util.ArrayList;
 public class MainTest extends Game{
 	
 	public static Game testerGame;
+	public static final boolean ENABLE_SOUND = false;
 	
 	public static final boolean CIRCLE_PLAYER = false;
 	
@@ -173,31 +174,32 @@ public class MainTest extends Game{
 		window.resizeScreen(1000, 720);
 		window.center();
 		
-		reset();
-		
 		// Add images
 		ImageManager.instance().addAll();
 		
-		// TODO fix sounds not playing?
 		// Add sounds
-		var sm = testerGame.getSounds();
-		sm.addAllSounds();
+		if(SoundManager.initialized()){
+			var sm = SoundManager.get();
+			sm.addAllSounds();
+			
+			// Set the sound scaling distance
+			sm.setDistanceScalar(.04);
+		}
 		
-		// Set the sound scaling distance
-		sm.setDistanceScalar(.04);
+		reset();
 	}
 	
 	public static void main(String[] args){
 		// Set up game
 		testerGame = new MainTest();
-		testerGame.setInitSoundOnStart(true);
+		testerGame.setInitSoundOnStart(ENABLE_SOUND);
 		
 		// Start up the game
 		testerGame.start();
 		
 		// Close sound sources
-		winSource.destroy();
-		loseSource.destroy();
+		if(winSource != null) winSource.destroy();
+		if(loseSource != null) loseSource.destroy();
 	}
 	
 	public static void reset(){
@@ -212,9 +214,11 @@ public class MainTest extends Game{
 		
 		if(winSource != null) winSource.destroy();
 		if(loseSource != null) loseSource.destroy();
-		SoundManager sm = testerGame.getSounds();
-		winSource = sm.createSource(playerX, playerY, 0);
-		loseSource = sm.createSource(0, 200, 0);
+		if(SoundManager.initialized()){
+			var sm = SoundManager.get();
+			winSource = sm.createSource(playerX, playerY, 0);
+			loseSource = sm.createSource(0, 200, 0);
+		}
 	}
 	
 	@Override
@@ -656,23 +660,25 @@ public class MainTest extends Game{
 		@Override
 		public void renderHud(Renderer r){
 			var game = Game.get();
-			SoundManager sm = game.getSounds();
-			EffectsPlayer e = sm.getEffectsPlayer();
-			MusicPlayer m = sm.getMusicPlayer();
-			
-			double rr = e.isMuted() ? 1 : 0;
-			double bb = e.isPaused() ? 1 : 0;
-			r.setColor(rr, 0, bb);
-			r.drawRectangle(5, 5, 30, 30 * e.getVolume());
-			
-			rr = m.isMuted() ? 1 : 0;
-			bb = m.isPaused() ? 1 : 0;
-			r.setColor(rr, 0, bb);
-			r.drawRectangle(40, 5, 30, 30 * m.getVolume());
+			if(SoundManager.initialized()){
+				SoundManager sm = game.getSounds();
+				EffectsPlayer e = sm.getEffectsPlayer();
+				MusicPlayer m = sm.getMusicPlayer();
+				
+				double rr = e.isMuted() ? 1 : 0;
+				double bb = e.isPaused() ? 1 : 0;
+				r.setColor(rr, 0, bb);
+				r.drawRectangle(5, 5, 30, 30 * e.getVolume());
+				
+				rr = m.isMuted() ? 1 : 0;
+				bb = m.isPaused() ? 1 : 0;
+				r.setColor(rr, 0, bb);
+				r.drawRectangle(40, 5, 30, 30 * m.getVolume());
+			}
 			
 			var window = Game.get().getWindow();
-			rr = window.isFocusedRender() ? 1 : 0;
-			bb = window.isMinimizedRender() ? 1 : 0;
+			double rr = window.isFocusedRender() ? 1 : 0;
+			double bb = window.isMinimizedRender() ? 1 : 0;
 			r.setColor(rr, 0, bb);
 			r.drawRectangle(930, 5, 30, 30);
 			
@@ -745,32 +751,35 @@ public class MainTest extends Game{
 			if(keys.pressed(GLFW_KEY_R)) reset();
 			
 			// Adjust volume
-			SoundManager sm = game.getSounds();
-			EffectsPlayer ep = sm.getEffectsPlayer();
-			MusicPlayer mp = sm.getMusicPlayer();
-			if(keys.pressed(GLFW_KEY_F1)){
-				if(keys.shift()) mp.addVolume(dt * 0.5);
-				else ep.addVolume(dt * 0.5);
-			}
-			else if(keys.pressed(GLFW_KEY_F2)){
-				if(keys.shift()) mp.addVolume(dt * -0.5);
-				else ep.addVolume(dt * -0.5);
-			}
-			else if(keys.pressed(GLFW_KEY_F3)){
-				if(keys.shift()) loseSource.addBaseVolume(dt * 0.5);
-				else winSource.addBaseVolume(dt * 0.5);
-			}
-			else if(keys.pressed(GLFW_KEY_F4)){
-				if(keys.shift()) loseSource.addBaseVolume(dt * -0.5);
-				else winSource.addBaseVolume(dt * -0.5);
-			}
-			else if(keys.pressed(GLFW_KEY_F5)){
-				if(keys.shift()) ep.addTypeVolume("bad", dt * 0.5);
-				else ep.addTypeVolume("good", dt * 0.5);
-			}
-			else if(keys.pressed(GLFW_KEY_F6)){
-				if(keys.shift()) ep.addTypeVolume("bad", dt * -0.5);
-				else ep.addTypeVolume("good", dt * -0.5);
+			if(SoundManager.initialized()){
+				SoundManager sm = game.getSounds();
+				EffectsPlayer ep = sm.getEffectsPlayer();
+				MusicPlayer mp = sm.getMusicPlayer();
+			
+				if(keys.pressed(GLFW_KEY_F1)){
+					if(keys.shift()) mp.addVolume(dt * 0.5);
+					else ep.addVolume(dt * 0.5);
+				}
+				else if(keys.pressed(GLFW_KEY_F2)){
+					if(keys.shift()) mp.addVolume(dt * -0.5);
+					else ep.addVolume(dt * -0.5);
+				}
+				else if(keys.pressed(GLFW_KEY_F3)){
+					if(keys.shift()) loseSource.addBaseVolume(dt * 0.5);
+					else winSource.addBaseVolume(dt * 0.5);
+				}
+				else if(keys.pressed(GLFW_KEY_F4)){
+					if(keys.shift()) loseSource.addBaseVolume(dt * -0.5);
+					else winSource.addBaseVolume(dt * -0.5);
+				}
+				else if(keys.pressed(GLFW_KEY_F5)){
+					if(keys.shift()) ep.addTypeVolume("bad", dt * 0.5);
+					else ep.addTypeVolume("good", dt * 0.5);
+				}
+				else if(keys.pressed(GLFW_KEY_F6)){
+					if(keys.shift()) ep.addTypeVolume("bad", dt * -0.5);
+					else ep.addTypeVolume("good", dt * -0.5);
+				}
 			}
 			// Move the player with keys
 			double hMoveState = 0;
@@ -815,7 +824,7 @@ public class MainTest extends Game{
 				red = 0;
 			}
 			// Update sound positions
-			game.getSounds().updateListenerPos(playerX, playerY, 0);
+			if(SoundManager.initialized()) SoundManager.get().updateListenerPos(playerX, playerY, 0);
 		}
 	}
 	

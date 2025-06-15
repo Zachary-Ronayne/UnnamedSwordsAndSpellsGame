@@ -184,7 +184,7 @@ public class Demo3D{
 	}
 	
 	private static void customInit(){
-		shader = new ShaderProgram("default3D");
+		shader = ShaderProgram.coreShader("default3D");
 		shader.use();
 		
 		modelView = new Matrix4f();

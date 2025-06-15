@@ -6,7 +6,6 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
 
-import zgame.core.graphics.AlphaMode;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.image.GameImage;
@@ -48,10 +47,6 @@ public class GameBuffer implements Destroyable{
 	/** true if the buffer has been generated, false otherwise */
 	private boolean bufferGenerated;
 	
-	// TODO is this actually used?
-	/** The way this buffer should be rendered for the alpha channel */
-	private AlphaMode alphaMode;
-	
 	/** true if this buffer should use a depth buffer for the depth test when it is generated, false otherwise */
 	private boolean depthBufferEnabled;
 	
@@ -63,7 +58,6 @@ public class GameBuffer implements Destroyable{
 	 * @param height See {@link #height}
 	 */
 	public GameBuffer(int width, int height){
-		this.alphaMode = AlphaMode.NORMAL;
 		this.bufferGenerated = false;
 		this.depthBufferEnabled = false;
 		this.width = width;
@@ -178,16 +172,6 @@ public class GameBuffer implements Destroyable{
 	public void clear(){
 		glClearColor(0, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-	
-	/** @return See {@link #alphaMode} */
-	public AlphaMode getAlphaMode(){
-		return this.alphaMode;
-	}
-	
-	/** @param alphaMode See {@link #alphaMode} */
-	public void setAlphaMode(AlphaMode alphaMode){
-		this.alphaMode = alphaMode;
 	}
 	
 	/** @return See {@link #depthBufferEnabled} */
