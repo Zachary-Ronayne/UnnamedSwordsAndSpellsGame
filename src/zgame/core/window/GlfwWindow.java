@@ -107,15 +107,25 @@ public class GlfwWindow extends GameWindow{
 	@Override
 	public void destroy(){
 		super.destroy();
+		// Remove old ids
+		var oldWindowId = this.getWindowID();
+		var oldFullscreenId = this.getFullScreenID();
+		this.windowID = NULL;
+		this.fullScreenID = NULL;
+		
 		// Free memory / destroy callbacks
-		long w = this.getWindowID();
-		glfwFreeCallbacks(w);
-		glfwDestroyWindow(w);
-		long f = this.getFullScreenID();
-		if(f != NULL){
-			glfwFreeCallbacks(f);
-			glfwDestroyWindow(f);
+		glfwFreeCallbacks(oldWindowId);
+		glfwDestroyWindow(oldWindowId);
+		if(oldFullscreenId != NULL){
+			glfwFreeCallbacks(oldFullscreenId);
+			glfwDestroyWindow(oldFullscreenId);
 		}
+		// TODO figure out why the GL_INVALID_VALUE errors happen when closing a window and opening one
+	}
+	
+	@Override
+	public void onAllWindowsClosed(){
+		// TODO somehow call this automatically only when the game ends, in a generic way
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
 		var func = glfwSetErrorCallback(null);

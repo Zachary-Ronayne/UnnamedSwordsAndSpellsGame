@@ -46,8 +46,7 @@ public class SoundManager implements Destroyable{
 	 */
 	private final List<SpeakerDevice> devices;
 	
-	// TODO this is an awkward way to do this, consider a better way to not have sound enabled
-	/** true if this should be a dummy manager that doesn't actually do anything, false for normal. Use true to replace the instance with a non null object */
+	/** true if this should be a dummy manager that doesn't actually do anything, false for normal. Use true to replace the instance with a non-null object */
 	private final boolean dummy;
 	
 	/**
@@ -70,7 +69,6 @@ public class SoundManager implements Destroyable{
 		
 		this.effectsPlayer = new EffectsPlayer();
 		this.musicPlayer = new MusicPlayer();
-		
 	}
 	
 	/**

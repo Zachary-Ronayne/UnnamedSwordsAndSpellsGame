@@ -428,25 +428,27 @@ public class MainTest extends Game{
 				if(key == GLFW_KEY_X) blue = (blue + 0.05) % 1;
 			}
 			if(!press){
-				SoundManager s = game.getSounds();
-				if(key == GLFW_KEY_G) game.playEffect(winSource, "win");
-				else if(key == GLFW_KEY_H) game.playEffect(loseSource, "lose");
-				else if(key == GLFW_KEY_M){
-					if(shift) game.playMusic("song short");
-					else game.playMusic("song");
+				if(SoundManager.initialized()){
+					var s = game.getSounds();
+					if(key == GLFW_KEY_G) game.playEffect(winSource, "win");
+					else if(key == GLFW_KEY_H) game.playEffect(loseSource, "lose");
+					else if(key == GLFW_KEY_M){
+						if(shift) game.playMusic("song short");
+						else game.playMusic("song");
+					}
+					else if(key == GLFW_KEY_N) s.scanDevices();
+					else if(key == GLFW_KEY_P){
+						if(shift) s.getMusicPlayer().togglePaused();
+						else s.getEffectsPlayer().togglePaused();
+					}
+					else if(key == GLFW_KEY_O){
+						if(shift) s.getMusicPlayer().toggleMuted();
+						else s.getEffectsPlayer().toggleMuted();
+					}
+					else if(key == GLFW_KEY_L) s.getMusicPlayer().toggleLooping();
 				}
-				else if(key == GLFW_KEY_N) s.scanDevices();
-				else if(key == GLFW_KEY_P){
-					if(shift) s.getMusicPlayer().togglePaused();
-					else s.getEffectsPlayer().togglePaused();
-				}
-				else if(key == GLFW_KEY_O){
-					if(shift) s.getMusicPlayer().toggleMuted();
-					else s.getEffectsPlayer().toggleMuted();
-				}
-				else if(key == GLFW_KEY_L) s.getMusicPlayer().toggleLooping();
 				
-				else if(key == GLFW_KEY_5){
+				if(key == GLFW_KEY_5){
 					var window = Game.get().getWindow();
 					if(!keys.shift() && !keys.alt()) window.setFocusedRender(!window.isFocusedRender());
 					else if(keys.shift() && !keys.alt()) window.setMinimizedRender(!window.isMinimizedRender());
@@ -455,20 +457,29 @@ public class MainTest extends Game{
 				}
 				
 				else if(key == GLFW_KEY_6){
-					// TODO make a way to cleanly open and close new windows
+					// TODO make a way to open and close windows without destroying them, i.e. hide them
 					if(this.secondWindow == null){
-						this.secondWindow = new GlfwWindow();
+						// Hack to use an array to make the value an object
+						final var pos = new double[]{10.0};
+						this.secondWindow = new GlfwWindow(){
+							@Override
+							public void keyAction(int key, boolean press, boolean shift, boolean alt, boolean ctrl){
+								super.keyAction(key, press, shift, alt, ctrl);
+								if(press) return;
+								if(key == GLFW_KEY_LEFT) pos[0] = pos[0] - 10;
+								else if(key == GLFW_KEY_RIGHT) pos[0] = pos[0] + 10;
+								else if(key == GLFW_KEY_ESCAPE) closeSecondWindow();
+							}
+						};
 						this.secondWindow.setRenderFunc(r -> {
 							r.setColor(1, 0, 0);
-							r.drawRectangle(10, 100, 200, 300);
+							r.drawRectangle(pos[0], 100, 200, 300);
 						});
 						this.secondWindow.init();
 						WindowManager.get().addWindow("secondWindow", this.secondWindow);
 					}
 					else {
-						WindowManager.get().removeWindow(this.secondWindow);
-						this.secondWindow.destroy();
-						this.secondWindow = null;
+						closeSecondWindow();
 					}
 				}
 				
@@ -493,6 +504,11 @@ public class MainTest extends Game{
 					game.loadGame(FILE_PATH);
 				}
 			}
+		}
+		
+		public void closeSecondWindow(){
+			WindowManager.get().flagRemoval(this.secondWindow);
+			this.secondWindow = null;
 		}
 		
 		private void makeSaveDir(){

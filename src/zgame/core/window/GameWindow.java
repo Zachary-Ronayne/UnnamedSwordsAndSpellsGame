@@ -32,6 +32,9 @@ public abstract class GameWindow implements Destroyable{
 	/** The title displayed on the window */
 	private String windowTitle;
 	
+	/** true if this window has been initialized, false otherwise, i.e. it has not been initialized or is destroyed */
+	private boolean initialized;
+	
 	/** true if the Game is currently in full screen, false otherwise */
 	private boolean inFullScreen;
 	/** Determines if on the next OpenGL loop, the screen should update if it is or is not in full screen */
@@ -111,6 +114,9 @@ public abstract class GameWindow implements Destroyable{
 	/** The main buffer rendered to for this window */
 	private final GameBuffer windowBuffer;
 	
+	/** The renderer this window uses to draw graphics */
+	private final Renderer renderer;
+	
 	/** An interface for a lambda method which is called each time a key or mouse button is pressed or released */
 	public interface ButtonAction{
 		/**
@@ -184,6 +190,7 @@ public abstract class GameWindow implements Destroyable{
 	public GameWindow(){
 		// Init general values
 		this.windowTitle = "Game";
+		this.initialized = false;
 		this.width = 1280;
 		this.height = 720;
 		this.focused = true;
@@ -212,6 +219,9 @@ public abstract class GameWindow implements Destroyable{
 		
 		// Set up the internal buffer
 		this.windowBuffer = new GameBuffer(this.getWidth(), this.getHeight());
+		
+		// Set up the blank renderer
+		this.renderer = new Renderer();
 	}
 	
 	/**
@@ -249,7 +259,8 @@ public abstract class GameWindow implements Destroyable{
 		// setup callbacks
 		this.initCallBacks();
 		
-		// TODO somehow manage giving a context for each window, does the renderer actually need to not be a singleton?
+		// Set up renderer
+		this.renderer.init();
 		
 		// Set up texture settings for drawing with an alpha channel
 		initTextureSettings();
@@ -257,6 +268,13 @@ public abstract class GameWindow implements Destroyable{
 		// Init mouse movement, use normal movement by default
 		this.mouseNormally = true;
 		this.updateMouseNormally(this.isMouseNormally());
+		
+		this.initialized = true;
+	}
+	
+	/** @return See {@link #renderer}. Should be used sparingly, generally should be passed in to appropriate methods when needed */
+	public Renderer getRenderer(){
+		return this.renderer;
 	}
 	
 	/** Called during object initialization. Must establish window context with OpenGL before further initialization can occur */
@@ -289,7 +307,12 @@ public abstract class GameWindow implements Destroyable{
 	@Override
 	public void destroy(){
 		this.getWindowBuffer().destroy();
+		this.getRenderer().destroy();
+		this.initialized = false;
 	}
+	
+	/** Perform any necessary logic for when all windows have been closed */
+	public abstract void onAllWindowsClosed();
 	
 	/** @return true if the current window is no longer used and should close */
 	public abstract boolean shouldClose();
@@ -301,12 +324,15 @@ public abstract class GameWindow implements Destroyable{
 	 */
 	public abstract boolean initCallBacks();
 	
+	/** @return See {@link #initialized} */
+	public boolean isInitialized(){
+		return this.initialized;
+	}
+	
 	/**
 	 * Draw the given contents of this window's internal buffer using the given window and game, along with checking any window events which need to happen
-	 *
-	 * @param r The renderer to draw with
 	 */
-	public void loopFunction(Renderer r){
+	public void loopFunction(){
 		// Update the window
 		boolean focused = this.isFocused();
 		boolean minimized = this.isMinimized();
@@ -314,9 +340,7 @@ public abstract class GameWindow implements Destroyable{
 		
 		// Only perform rendering operations if the window should be rendered, based on the state of the window's focus and minimize
 		if(!(this.isFocusedRender() && !focused) && !(this.isMinimizedRender() && minimized)){
-//			// TODO only call this if the static context changed
-//			this.obtainContext();
-			
+			var r = this.getRenderer();
 			r.pushBuffer(this.getWindowBuffer());
 
 			// Clear the main framebuffer
@@ -510,7 +534,7 @@ public abstract class GameWindow implements Destroyable{
 			this.setWindowPosition(this.oldPosition.x, this.oldPosition.y);
 		}
 		// Reset the renderer vertex objects
-		Renderer.reloadVertexes();
+		this.getRenderer().reloadVertexes();
 		
 		// Ensure the current window has the callbacks
 		this.initCallBacks();

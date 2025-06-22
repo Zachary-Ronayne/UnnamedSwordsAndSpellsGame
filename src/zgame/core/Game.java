@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The central class used to create a game. Create an extension of this class to begin making a game
@@ -64,9 +65,6 @@ public class Game implements Saveable, Destroyable{
 	
 	/** The camera used for 3D graphics */
 	private final GameCamera3D camera3D;
-	
-	/** The single renderer instance allowed for rendering graphics */
-	private Renderer renderer;
 	
 	/** The {@link GameState} which this game is currently in */
 	private GameState currentState;
@@ -151,8 +149,6 @@ public class Game implements Saveable, Destroyable{
 		if(instance != null) throw new RuntimeException("Cannot create a second instance of Game, only one instance may exist at a time");
 		instance = this;
 		
-		this.renderer = new Renderer();
-		
 		this.nextLoopFuncs = new ArrayList<>();
 		
 		// Init misc values
@@ -192,7 +188,7 @@ public class Game implements Saveable, Destroyable{
 		var window = this.createNewWindow();
 		WindowManager.get().addWindow(this.getGameWindowId(), window);
 		window.addSizeChangeListener(this::onWindowSizeChange);
-		window.addEnterFullScreenListener(w -> this.getRenderStyle().setupCore(this.renderer));
+		window.addEnterFullScreenListener(w -> this.getRenderStyle().setupCore(window.getRenderer()));
 		this.updateWindowId();
 		this.focusedMenuThing = null;
 		
@@ -235,16 +231,8 @@ public class Game implements Saveable, Destroyable{
 		window.setRenderFunc(this::renderAll);
 		window.init();
 		
-		// Init renderer
-		this.renderer.init();
-		
 		// Go to fullscreen if applicable
 		window.setInFullScreenNow(this.get(BooleanTypeSetting.FULLSCREEN));
-		
-		// Load the default font if the manager was initialized
-		FontManager.init();
-		FontManager.addDefaultFont();
-		this.renderer.setFont(FontManager.getDefaultFont());
 		
 		window.center();
 	}
@@ -318,14 +306,10 @@ public class Game implements Saveable, Destroyable{
 		this.tickLooper.end();
 		
 		// Free memory / destroy callbacks
-		this.getWindow().destroy();
+		WindowManager.get().destroy();
 		
 		// Free images
 		ImageManager.destroyImages();
-		
-		// Clean up renderer
-		this.renderer.destroy();
-		this.renderer = null;
 		
 		// Allow a new game to be created
 		instance = null;
@@ -404,8 +388,8 @@ public class Game implements Saveable, Destroyable{
 				this.nextLoopFuncs.clear();
 			}
 			
-			// Render the contents of the windows
-			for(var window : WindowManager.get().getWindows()) window.loopFunction(this.renderer);
+			// Update the windows and rneder them
+			WindowManager.get().loopFunction();
 			
 			// Check if a state needs to be destroyed
 			if(this.destroyState != null) this.destroyState.destroy();
@@ -640,8 +624,10 @@ public class Game implements Saveable, Destroyable{
 	public void updateWindowId(){
 		var wm = WindowManager.get();
 		var window = this.getWindow();
-		wm.removeWindow(window);
-		wm.addWindow(this.getGameWindowId(), window);
+		var oldId = wm.findWindowId(window);
+		var newId = this.getGameWindowId();
+		if(!Objects.equals(oldId, newId)) wm.flagRemoval(oldId);
+		wm.addWindow(newId, window);
 	}
 	
 	/** @return The main window which this game uses */
@@ -1035,7 +1021,7 @@ public class Game implements Saveable, Destroyable{
 	
 	/** Set the model view to be the base matrix for a perspective projection using the current {@link #camera3D} perspective */
 	public void camera3DPerspective(){
-		this.renderer.camera3DPerspective(this.getCamera3D());
+		this.getWindow().getRenderer().camera3DPerspective(this.getCamera3D());
 	}
 	
 	/** @return See {@link #camera3D} */
@@ -1249,7 +1235,7 @@ public class Game implements Saveable, Destroyable{
 	/** @param renderStyle See {@link #renderStyle} */
 	public void setRenderStyle(RenderStyle renderStyle){
 		this.renderStyle = renderStyle;
-		this.renderStyle.setupCore(this.renderer);
+		this.renderStyle.setupCore(this.getWindow().getRenderer());
 	}
 	
 	/** Assign this game as a 2D game */

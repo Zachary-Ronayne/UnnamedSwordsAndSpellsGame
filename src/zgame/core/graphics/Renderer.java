@@ -11,6 +11,7 @@ import org.lwjgl.stb.STBTTAlignedQuad;
 import zgame.core.graphics.buffer.*;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.graphics.camera.GameCamera;
+import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.TextBuffer;
 import zgame.core.graphics.image.GameImage;
@@ -41,10 +42,9 @@ import java.util.List;
  */
 public class Renderer implements Destroyable{
 	
-	// issue#5 abstract out the values being sent to the GPU, and make their updating handled by a separate class
+	// TODO move vertex buffers, shaders, etc, to a singleton
 	
-	/** The single instance of renderer which is allowed to exist */
-	private static Renderer instance = null;
+	// issue#5 abstract out the values being sent to the GPU, and make their updating handled by a separate class
 	
 	/** The color to use for rendering by default */
 	public static final ZColor DEFAULT_COLOR = new ZColor(0);
@@ -237,9 +237,6 @@ public class Renderer implements Destroyable{
 	 * Create a new empty renderer
 	 */
 	public Renderer(){
-		if(instance != null) throw new RuntimeException("Cannot initialize additional instances of Renderer");
-		instance = this;
-		
 		// Initialize stack list
 		this.stacks = new ArrayList<>();
 		this.attributeStacks = new ArrayList<>();
@@ -322,6 +319,14 @@ public class Renderer implements Destroyable{
 		
 		// Init depth test
 		this.updateDepthTest();
+		
+		// TODO make fonts and other assets load as a singleton
+		// Load the default font if the manager was initialized
+		FontManager.init();
+		FontManager.addDefaultFont();
+		
+		// Init default font
+		this.setFont(FontManager.getDefaultFont());
 	}
 	
 	/** Initialize the state of all shaders, including loading them from a file */
@@ -710,10 +715,10 @@ public class Renderer implements Destroyable{
 		this.boundVertexArray.bind();
 	}
 	
-	/** Destroy and recreate the vertexes used by the renderer. A new {@link Renderer} instance must have already been created */
-	public static void reloadVertexes(){
-		instance.destroyVertexes();
-		instance.initVertexes();
+	/** Destroy and recreate the vertexes used by this renderer */
+	public void reloadVertexes(){
+		this.destroyVertexes();
+		this.initVertexes();
 	}
 	
 	/** Delete any resources used by this Renderer */
@@ -722,7 +727,6 @@ public class Renderer implements Destroyable{
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		this.destroyVertexes();
-		instance = null;
 	}
 	
 	/** Push the entire state of this renderer into its stacks */
