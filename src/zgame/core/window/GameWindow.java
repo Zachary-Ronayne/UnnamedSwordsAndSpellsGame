@@ -317,6 +317,9 @@ public abstract class GameWindow implements Destroyable{
 	/** @return true if the current window is no longer used and should close */
 	public abstract boolean shouldClose();
 	
+	/** @return An id representing this window as a long */
+	public abstract long getLongId();
+	
 	/**
 	 * Assign the current window all needed callbacks, i.e. input, window size changing, etc. This will usually be an expensive operation and should not be regularly called
 	 *

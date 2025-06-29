@@ -35,8 +35,6 @@ public class FontAsset extends Asset{
 	/** The ID of the bitmap of the image holding the font */
 	private int bitmapID;
 	
-	/** The buffer holding the raw data for the font */
-	private ByteBuffer data;
 	/** The data used by stb_truetype to represent a font */
 	private STBTTBakedChar.Buffer charData;
 	/** The data used by stv_truetype for tracking font metrics */
@@ -151,15 +149,15 @@ public class FontAsset extends Asset{
 		String path = this.getPath();
 		
 		// Load the font from the jar
-		this.data = ZAssetUtils.getJarBytes(path);
+		var data = ZAssetUtils.getJarBytes(path);
 		
 		// Find the font info
 		this.info = STBTTFontinfo.create();
-		boolean infoSuccess = stbtt_InitFont(this.info, this.data);
+		boolean infoSuccess = stbtt_InitFont(this.info, data);
 		if(!infoSuccess) ZConfig.error("Font '", path, "' failed to load font info via stb true type");
 		
 		// Check for errors
-		int numFonts = stbtt_GetNumberOfFonts(this.data);
+		int numFonts = stbtt_GetNumberOfFonts(data);
 		
 		boolean success = numFonts != -1;
 		if(success) ZConfig.success("Font '", path, "' loaded successfully. ", numFonts, " total fonts loaded.");
@@ -171,7 +169,7 @@ public class FontAsset extends Asset{
 		// Load the font
 		ByteBuffer pixels = BufferUtils.createByteBuffer(this.width * this.height);
 		this.charData = STBTTBakedChar.create(this.loadChars);
-		int numChars = stbtt_BakeFontBitmap(this.data, this.resolution, pixels, this.width, this.height, firstChar, this.charData);
+		int numChars = stbtt_BakeFontBitmap(data, this.resolution, pixels, this.width, this.height, firstChar, this.charData);
 		if(numChars > 0) ZConfig.success("    First unused row: ", numChars);
 		else if(numChars < 0) ZConfig.success("    Characters which fit: ", -numChars);
 		else ZConfig.success("    No Characters fit: ");

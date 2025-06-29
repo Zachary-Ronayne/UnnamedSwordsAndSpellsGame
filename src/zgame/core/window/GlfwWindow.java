@@ -2,6 +2,7 @@ package zgame.core.window;
 
 import org.lwjgl.glfw.*;
 
+import zgame.core.Game;
 import zgame.core.input.GLFWModUtils;
 import zgame.core.input.keyboard.GLFWKeyInput;
 import zgame.core.input.mouse.GLFWMouseInput;
@@ -25,7 +26,7 @@ import java.awt.Dimension;
 /** An implementation of {@link GameWindow} which uses GLFW methods */
 public class GlfwWindow extends GameWindow{
 	
-	/** The number used by glfw to track the main window */
+	/** The number used by glfw to track the normal window */
 	private long windowID;
 	/** The number used by glfw to track the full screen window */
 	private long fullScreenID;
@@ -77,7 +78,7 @@ public class GlfwWindow extends GameWindow{
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		
 		// Create the window
-		this.windowID = glfwCreateWindow(this.getWidth(), this.getHeight(), this.getWindowTitle(), NULL, NULL);
+		this.windowID = glfwCreateWindow(this.getWidth(), this.getHeight(), this.getWindowTitle(), NULL, Game.get().getWindow().getLongId());
 		if(this.windowID == NULL) throw new RuntimeException("Failed to create the GLFW window");
 		
 		// Set up window context
@@ -120,7 +121,6 @@ public class GlfwWindow extends GameWindow{
 			glfwFreeCallbacks(oldFullscreenId);
 			glfwDestroyWindow(oldFullscreenId);
 		}
-		// TODO figure out why the GL_INVALID_VALUE errors happen when closing a window and opening one
 	}
 	
 	@Override
@@ -136,6 +136,13 @@ public class GlfwWindow extends GameWindow{
 	public boolean shouldClose(){
 		long w = this.getCurrentWindowID();
 		return w == NULL || !glfwWindowShouldClose(w);
+	}
+	
+	@Override
+	public long getLongId(){
+		if(!this.isInitialized()) return NULL;
+		if(this.isInFullScreen()) return this.fullScreenID;
+		return this.windowID;
 	}
 	
 	/**

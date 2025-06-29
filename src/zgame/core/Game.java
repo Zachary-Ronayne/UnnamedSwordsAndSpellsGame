@@ -388,7 +388,7 @@ public class Game implements Saveable, Destroyable{
 				this.nextLoopFuncs.clear();
 			}
 			
-			// Update the windows and rneder them
+			// Update the windows and render them
 			WindowManager.get().loopFunction();
 			
 			// Check if a state needs to be destroyed
