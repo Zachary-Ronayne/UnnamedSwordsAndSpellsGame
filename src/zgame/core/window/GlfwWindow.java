@@ -40,12 +40,16 @@ public class GlfwWindow extends GameWindow{
 	/** true if this window is currently being shown, false otherwise */
 	private boolean showing;
 	
+	/** true if this window should be visible when it starts up, false otherwise */
+	private boolean showOnInit;
+	
 	/**
 	 * Create an empty {@link GlfwWindow}. This does not initialize anything for GLFW or OpenGL, call {@link #init()} for that
 	 */
 	public GlfwWindow(){
 		super();
 		this.showing = false;
+		this.showOnInit = false;
 		
 		// Create input objects
 		this.mouseInput = new GLFWMouseInput(this);
@@ -59,11 +63,10 @@ public class GlfwWindow extends GameWindow{
 		// Update screen width and height
 		this.updateWindowSize();
 		
-		// TODO fix weird flickering with the window initially showing up
 		// TODO make the window not show up until the first frame is drawn
 		// Center the window and then show it
 		this.center();
-		glfwShowWindow(this.getWindowID());
+		if(this.isShowOnInit()) this.show();
 	}
 	
 	@Override
@@ -84,7 +87,7 @@ public class GlfwWindow extends GameWindow{
 		// Create the window
 		this.windowID = glfwCreateWindow(this.getWidth(), this.getHeight(), this.getWindowTitle(), NULL, Game.get().getWindow().getLongId());
 		if(this.windowID == NULL) throw new RuntimeException("Failed to create the GLFW window");
-		this.showing = true;
+		this.hide();
 		
 		// Set up window context
 		obtainContext();
@@ -189,6 +192,16 @@ public class GlfwWindow extends GameWindow{
 	/** @return See {@link #showing} */
 	public boolean isShowing(){
 		return this.showing;
+	}
+	
+	/** @return See {@link #showOnInit} */
+	public boolean isShowOnInit(){
+		return this.showOnInit;
+	}
+	
+	/** @param showOnInit See {@link #showOnInit} */
+	public void setShowOnInit(boolean showOnInit){
+		this.showOnInit = showOnInit;
 	}
 	
 	/**
@@ -308,7 +321,8 @@ public class GlfwWindow extends GameWindow{
 		if(this.fullScreenID == NULL) return false;
 		// Use the fullscreen window
 		glfwMakeContextCurrent(this.fullScreenID);
-		glfwShowWindow(this.fullScreenID);
+		// Display the window again if it should be showing
+		if(this.isShowing()) glfwShowWindow(this.fullScreenID);
 		// Hide the old window
 		glfwHideWindow(this.windowID);
 		
@@ -326,7 +340,8 @@ public class GlfwWindow extends GameWindow{
 		}
 		// Use the windowed window
 		glfwMakeContextCurrent(window);
-		glfwShowWindow(window);
+		// Display the window again if it should be showing
+		if(this.isShowing()) glfwShowWindow(window);
 		
 		return true;
 	}

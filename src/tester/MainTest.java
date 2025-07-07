@@ -22,7 +22,6 @@ import zgame.core.state.MenuState;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZRect2D;
 import zgame.core.utils.ZStringUtils;
-import zgame.core.window.GameWindow;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.WindowManager;
 import zgame.menu.*;
@@ -402,7 +401,7 @@ public class MainTest extends Game{
 		private static final String SAVES_PATH = "./saves";
 		private static final String FILE_PATH = SAVES_PATH + "/testGame.json";
 		
-		private GameWindow secondWindow;
+		private GlfwWindow secondWindow;
 		
 		public TesterGameState(){
 			this.textBuffer = new TextBuffer((int)bufferBounds.width, (int)bufferBounds.height, FontManager.getDefaultFont());
@@ -474,6 +473,7 @@ public class MainTest extends Game{
 							r.setColor(1, 0, 0);
 							r.drawRectangle(pos[0], 100, 200, 300);
 						});
+						this.secondWindow.setShowOnInit(true);
 						this.secondWindow.init();
 						WindowManager.get().addWindow("secondWindow", this.secondWindow);
 					}

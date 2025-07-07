@@ -11,7 +11,6 @@ import org.lwjgl.stb.STBTTAlignedQuad;
 import zgame.core.graphics.buffer.*;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.graphics.camera.GameCamera;
-import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.TextBuffer;
 import zgame.core.graphics.image.GameImage;
@@ -305,14 +304,6 @@ public class Renderer implements Destroyable{
 		
 		// Init depth test
 		this.updateDepthTest();
-		
-		// TODO make fonts and other assets load as a singleton
-		// Load the default font if the manager was initialized
-		FontManager.init();
-		FontManager.addDefaultFont();
-		
-		// Init default font
-		this.setFont(FontManager.getDefaultFont());
 	}
 	
 	/** Initialize all resources used by index buffers, vertex arrays, and vertex buffers */

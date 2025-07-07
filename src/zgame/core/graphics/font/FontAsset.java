@@ -32,6 +32,9 @@ public class FontAsset extends Asset{
 	/** The number of int buffers available in {@link #floatBuffers} */
 	public static final int FLOAT_BUFFERS = 2;
 	
+	/** true if this asset has been initialized, false otherwise */
+	private boolean initialized;
+	
 	/** The ID of the bitmap of the image holding the font */
 	private int bitmapID;
 	
@@ -125,6 +128,8 @@ public class FontAsset extends Asset{
 	 */
 	public FontAsset(String path, int resolution, int loadChars, int sizeRatio){
 		super(path);
+		this.initialized = false;
+		
 		this.firstChar = 32;
 		this.resolution = resolution;
 		this.resolutionInverse = 1.0 / this.resolution;
@@ -140,12 +145,12 @@ public class FontAsset extends Asset{
 		this.intBuffers = new IntBuffer[INT_BUFFERS];
 		this.floatBuffers = new FloatBuffer[FLOAT_BUFFERS];
 		this.quadBuffer = null;
-		
-		init();
 	}
 	
 	/** Initialize this {@link FontAsset} based on the current path of the font */
-	private void init(){
+	public void init(){
+		if(this.isInitialized()) return;
+		
 		String path = this.getPath();
 		
 		// Load the font from the jar
@@ -193,10 +198,18 @@ public class FontAsset extends Asset{
 		this.ascent = a.get(0);
 		this.descent = d.get(0);
 		this.lineGap = l.get(0);
+		
+		this.initialized = true;
+	}
+	
+	/** @return See {@link #initialized} */
+	public boolean isInitialized(){
+		return this.initialized;
 	}
 	
 	@Override
 	public void destroy(){
+		this.initialized = false;
 	}
 	
 	/**

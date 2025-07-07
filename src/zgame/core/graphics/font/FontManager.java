@@ -31,7 +31,9 @@ public class FontManager extends AssetManager<FontAsset>{
 	
 	/** @return A {@link GameFont} with the given font name */
 	public static GameFont getFont(String font){
-		return new GameFont(instance().get(font));
+		var asset = instance().get(font);
+		if(asset == null) ZConfig.error("Cannot get font: ", font, ", no asset has been loaded. Ensure FontManager is initialized and a font under that name has been loaded");
+		return new GameFont(asset);
 	}
 	
 	/** @return The asset for tge default font */
@@ -46,7 +48,7 @@ public class FontManager extends AssetManager<FontAsset>{
 	
 	/** Add the default font to the manager */
 	public static void addDefaultFont(){
-		instance.add(new FontAsset(ZFilePaths.FONTS_CORE + DEFAULT_FONT_NAME + ".ttf"), DEFAULT_FONT_NAME);
+		if(instance.get(DEFAULT_FONT_NAME) == null) instance.add(new FontAsset(ZFilePaths.FONTS_CORE + DEFAULT_FONT_NAME + ".ttf"), DEFAULT_FONT_NAME);
 	}
 	
 	/** @return The singleton instance for font management */
@@ -56,6 +58,13 @@ public class FontManager extends AssetManager<FontAsset>{
 		}
 		
 		return instance;
+	}
+	
+	/** Initialize all font assets managed by this manager */
+	public static void initFontAssets(){
+		for(var asset : instance().getAll()){
+			asset.init();
+		}
 	}
 	
 	/** Initialize the singleton for {@link FontManager}, must be called before any fonts are used */

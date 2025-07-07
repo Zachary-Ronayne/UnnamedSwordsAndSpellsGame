@@ -226,10 +226,18 @@ public class Game implements Saveable, Destroyable{
 		// Init the type
 		this.make2D();
 		
+		// Load fonts
+		FontManager.init();
+		
 		// Start the window
 		var window = this.getWindow();
 		window.setRenderFunc(this::renderAll);
 		window.init();
+		
+		// Set the window's default font
+		FontManager.addDefaultFont();
+		FontManager.initFontAssets();
+		window.getRenderer().setFont(FontManager.getDefaultFont());
 		
 		// Go to fullscreen if applicable
 		window.setInFullScreenNow(this.get(BooleanTypeSetting.FULLSCREEN));
@@ -252,6 +260,9 @@ public class Game implements Saveable, Destroyable{
 		this.tickTask = new TickLoopTask();
 		this.tickThread = new Thread(this.tickTask);
 		this.tickThread.start();
+		
+		// Show the window
+		this.getWindow().show();
 		
 		// Run the render loop in the main thread
 		this.renderLooper.loop();
