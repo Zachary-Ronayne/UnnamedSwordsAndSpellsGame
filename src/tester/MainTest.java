@@ -457,7 +457,6 @@ public class MainTest extends Game{
 				}
 				
 				else if(key == GLFW_KEY_6){
-					// TODO make a way to open and close windows without destroying them, i.e. hide them
 					if(this.secondWindow == null){
 						// Hack to use an array to make the value an object
 						final var pos = new double[]{10.0};
@@ -480,6 +479,12 @@ public class MainTest extends Game{
 					}
 					else {
 						closeSecondWindow();
+					}
+				}
+				else if(key == GLFW_KEY_7){
+					if(this.secondWindow != null){
+						if(shift) this.secondWindow.hide();
+						else this.secondWindow.show();
 					}
 				}
 				

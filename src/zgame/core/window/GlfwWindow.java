@@ -37,11 +37,15 @@ public class GlfwWindow extends GameWindow{
 	/** The object tracking keyboard input events */
 	private final GLFWKeyInput keyInput;
 	
+	/** true if this window is currently being shown, false otherwise */
+	private boolean showing;
+	
 	/**
 	 * Create an empty {@link GlfwWindow}. This does not initialize anything for GLFW or OpenGL, call {@link #init()} for that
 	 */
 	public GlfwWindow(){
 		super();
+		this.showing = false;
 		
 		// Create input objects
 		this.mouseInput = new GLFWMouseInput(this);
@@ -80,9 +84,10 @@ public class GlfwWindow extends GameWindow{
 		// Create the window
 		this.windowID = glfwCreateWindow(this.getWidth(), this.getHeight(), this.getWindowTitle(), NULL, Game.get().getWindow().getLongId());
 		if(this.windowID == NULL) throw new RuntimeException("Failed to create the GLFW window");
+		this.showing = true;
 		
 		// Set up window context
-		glfwMakeContextCurrent(this.windowID);
+		obtainContext();
 	}
 	
 	@Override
@@ -165,6 +170,25 @@ public class GlfwWindow extends GameWindow{
 		glfwSetWindowIconifyCallback(w, this::windowMinimize);
 		glfwSetWindowFocusCallback(w, this::windowFocus);
 		return true;
+	}
+	
+	@Override
+	public void hide(){
+		if(this.getWindowID() != NULL) glfwHideWindow(this.getWindowID());
+		if(this.getFullScreenID() != NULL) glfwHideWindow(this.getFullScreenID());
+		this.showing = false;
+	}
+	
+	@Override
+	public void show(){
+		if(this.getWindowID() != NULL) glfwShowWindow(this.getWindowID());
+		if(this.getFullScreenID() != NULL) glfwShowWindow(this.getFullScreenID());
+		this.showing = true;
+	}
+	
+	/** @return See {@link #showing} */
+	public boolean isShowing(){
+		return this.showing;
 	}
 	
 	/**

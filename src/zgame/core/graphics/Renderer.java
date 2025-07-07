@@ -42,8 +42,6 @@ import java.util.List;
  */
 public class Renderer implements Destroyable{
 	
-	// TODO load fonts as a singleton
-	
 	// issue#5 abstract out the values being sent to the GPU, and make their updating handled by a separate class
 	
 	/** The color to use for rendering by default */

@@ -572,6 +572,12 @@ public abstract class GameWindow implements Destroyable{
 	 */
 	protected abstract boolean exitFullScreen();
 	
+	/** Tell this window to be hidden from view, but do not destroy it. Should have no effect if it's already hidden */
+	public abstract void hide();
+	
+	/** Tell this window to become visible again if it is hidden. Should have no effect if it's already shown */
+	public abstract void show();
+	
 	/**
 	 * Modify the size of {@link #windowBuffer}, this is a costly operation and should not regularly be run
 	 *
