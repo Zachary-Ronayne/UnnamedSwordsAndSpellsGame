@@ -133,6 +133,14 @@ public class GlfwWindow extends GameWindow{
 		glfwTerminate();
 		var func = glfwSetErrorCallback(null);
 		if(func != null) func.free();
+		
+		
+		// Give the system some time to stop anything else that might be running
+		try{
+			Thread.sleep(100);
+		}catch(Exception e){
+			ZConfig.error(e, "Error in waiting for window to close when ending glfw windows");
+		}
 	}
 	
 	@Override

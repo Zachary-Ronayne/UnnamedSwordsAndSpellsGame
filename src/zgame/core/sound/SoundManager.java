@@ -144,11 +144,20 @@ public class SoundManager implements Destroyable{
 		var game = Game.get();
 		game.stopSound();
 		
-		// Wait until the sound loop is done
+		// Wait until the sound loop is done, or until a timeout period is reached
 		int stopCnt = 0;
-		while(game.isSoundRunning()){
+		long start = System.currentTimeMillis();
+		long maxWait = 3000;
+		while(game.isSoundRunning() && System.currentTimeMillis() - start > maxWait){
 			stopCnt++;
 			ZConfig.debug("Waiting for sound to stop, wait loop reached ", stopCnt, " times");
+		}
+		
+		// Give the system some time to stop anything else that might be running
+		try{
+			Thread.sleep(100);
+		}catch(Exception e){
+			ZConfig.error(e, "Error in waiting for sounds to finish playing while trying to destroy sound manager");
 		}
 		
 		// First destroy any sounds
