@@ -67,6 +67,9 @@ public class SpeakerDevice implements Destroyable{
 		this.id = alcOpenDevice(this.getName());
 		this.setState(DeviceState.INITIALIZED);
 		
+		// Ensure destruction on shut down as best possible
+		Runtime.getRuntime().addShutdownHook(new Thread(this::destroy));
+		
 		// Error check
 		if(this.id == NULL){
 			ZConfig.error("Failed to load audio device with name:", name);
@@ -97,7 +100,7 @@ public class SpeakerDevice implements Destroyable{
 	@Override
 	public synchronized void destroy(){
 		if(this.getState() != DeviceState.INITIALIZED) {
-			ZConfig.error("Cannot destroy SpeakerDevice: ", this.getName(), ", in state: ", this.getState().name());
+			ZConfig.debug("Cannot destroy SpeakerDevice: ", this.getName(), ", in state: ", this.getState().name());
 			return;
 		}
 		

@@ -47,9 +47,6 @@ public class ZusassGame extends Game{
 	/** The json key used to store the player data */
 	public final static String PLAYER_KEY = "player";
 	
-	/** true to enable sound for the Zusass game on start up, false to disable */
-	public final static boolean ENABLE_SOUND = false;
-	
 	/** A class holding all the data used by this {@link ZusassGame} */
 	private ZusassData data;
 	
@@ -96,7 +93,6 @@ public class ZusassGame extends Game{
 		// Window and performance settings
 		this.setTps(100);
 		this.setMaxFps(144);
-		this.setInitSoundOnStart(ENABLE_SOUND);
 		
 		// Initialize the base data object
 		this.setData(new ZusassData(0));
@@ -134,13 +130,11 @@ public class ZusassGame extends Game{
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		// Load sounds into the game
-		if(ENABLE_SOUND){
-			var sm = this.getSounds();
-			sm.addAllSounds();
-			sm.setDistanceScalar(10);
-			sm.getEffectsPlayer().setPaused(false);
-			sm.getEffectsPlayer().setMuted(false);
-		}
+		var sm = this.getSounds();
+		sm.addAllSounds();
+		sm.setDistanceScalar(10);
+		sm.getEffectsPlayer().setPaused(false);
+		sm.getEffectsPlayer().setMuted(false);
 	}
 	
 	/**

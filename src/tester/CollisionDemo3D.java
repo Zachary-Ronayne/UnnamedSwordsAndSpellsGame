@@ -27,7 +27,6 @@ public class CollisionDemo3D extends Game{
 	
 	public static void main(String[] args){
 		game = new CollisionDemo3D();
-		game.setInitSoundOnStart(false);
 		game.setPrintTps(false);
 		game.setPrintFps(false);
 		

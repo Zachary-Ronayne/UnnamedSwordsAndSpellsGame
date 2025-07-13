@@ -125,7 +125,6 @@ import java.util.ArrayList;
 public class MainTest extends Game{
 	
 	public static Game testerGame;
-	public static final boolean ENABLE_SOUND = false;
 	
 	public static final boolean CIRCLE_PLAYER = false;
 	
@@ -191,7 +190,6 @@ public class MainTest extends Game{
 	public static void main(String[] args){
 		// Set up game
 		testerGame = new MainTest();
-		testerGame.setInitSoundOnStart(ENABLE_SOUND);
 		
 		// Start up the game
 		testerGame.start();

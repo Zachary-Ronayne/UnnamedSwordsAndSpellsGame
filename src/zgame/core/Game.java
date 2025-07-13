@@ -53,9 +53,6 @@ public class Game implements Saveable, Destroyable{
 	/** The way the core game is rendered, defaults to 2D */
 	private RenderStyle renderStyle;
 	
-	/** true to initialize the sound engine on game {@link #start()}, false otherwise, it will have to be started later using {@link #initSound()} */
-	private boolean initSoundOnStart;
-	
 	/** The looper to run the main OpenGL loop */
 	private final GameLooper renderLooper;
 	
@@ -183,9 +180,6 @@ public class Game implements Saveable, Destroyable{
 		this.globalSettings = new Settings();
 		this.localSettings = new Settings();
 		
-		// Do not init sound on start by default
-		this.setInitSoundOnStart(false);
-		
 		// Init the main window the game will use
 		WindowManager.init();
 		var window = this.createNewWindow();
@@ -254,8 +248,8 @@ public class Game implements Saveable, Destroyable{
 	 * thread, a second thread will run, which runs the game tick loop, and a third thread will run which updates the sounds
 	 */
 	public final void start(){
-		// Init sound on start if applicable
-		if(this.isInitSoundOnStart()) this.initSound();
+		// Init sound on start
+		this.initSound();
 		
 		this.init();
 		
@@ -310,7 +304,7 @@ public class Game implements Saveable, Destroyable{
 		 Free sounds first to avoid the audio management from freaking out if it tries to shut down at the wrong time or something,
 		  and break the audio device until it's unplugged
 		 */
-		if(SoundManager.initialized()) SoundManager.get().destroy();
+		SoundManager.get().destroy();
 		
 		// End the loopers
 		this.renderLooper.end();
@@ -763,17 +757,7 @@ public class Game implements Saveable, Destroyable{
 	public SoundManager getSounds(){
 		return SoundManager.get();
 	}
-	
-	/** @return See {@link #initSoundOnStart} */
-	public boolean isInitSoundOnStart(){
-		return this.initSoundOnStart;
-	}
-	
-	/** @param initSoundOnStart See {@link #initSoundOnStart} */
-	public void setInitSoundOnStart(boolean initSoundOnStart){
-		this.initSoundOnStart = initSoundOnStart;
-	}
-	
+
 	/**
 	 * A convenience method, this method is equivalent to {@link SoundManager#playEffect(SoundSource, String)}
 	 *
@@ -919,6 +903,16 @@ public class Game implements Saveable, Destroyable{
 	/** @param print true to, once per second, print the number of audio updates in that second, false otherwise */
 	public void setPrintSoundUpdates(boolean print){
 		this.soundLooper.setPrintRate(print);
+	}
+	
+	/** @return true of the main sound loop is running, false otherwise */
+	public boolean isSoundRunning(){
+		return this.soundLooper.isRunning();
+	}
+	
+	/** Force the sound looper to stop running, should be used in shutdown */
+	public void stopSound(){
+		this.soundLooper.setKeepRunningFunc(() -> false);
 	}
 	
 	/** @return Get the object tracking mouse input for this {@link Game} */

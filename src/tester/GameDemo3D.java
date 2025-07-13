@@ -76,9 +76,6 @@ public class GameDemo3D extends Game{
 	public static void main(String[] args){
 		game = new GameDemo3D();
 		
-		// Don't use any sound for this game
-		game.setInitSoundOnStart(false);
-		
 		game.set(BooleanTypeSetting.V_SYNC, true, false);
 		game.set(IntTypeSetting.FPS_LIMIT, 0, false);
 		

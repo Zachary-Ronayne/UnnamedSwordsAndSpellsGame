@@ -7,6 +7,7 @@ import static org.lwjgl.openal.ALC11.*;
 
 import org.lwjgl.openal.ALUtil;
 
+import zgame.core.Game;
 import zgame.core.graphics.Destroyable;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZFilePaths;
@@ -139,14 +140,27 @@ public class SoundManager implements Destroyable{
 	/** Clear any resources used by this {@link SoundManager} */
 	@Override
 	public synchronized void destroy(){
-		if(this.isDummy()) return;
-		this.closeDevices();
+		// Force the sound to stop if it isn't already
+		var game = Game.get();
+		game.stopSound();
+		
+		// Wait until the sound loop is done
+		int stopCnt = 0;
+		while(game.isSoundRunning()){
+			stopCnt++;
+			ZConfig.debug("Waiting for sound to stop, wait loop reached ", stopCnt, " times");
+		}
+		
+		// First destroy any sounds
 		EffectsManager.destroyEffects();
 		MusicManager.destroyMusic();
 		if(this.musicSource != null){
 			this.musicSource.destroy();
 			this.musicSource = null;
 		}
+		
+		// Now destroy devices only after sounds have been destroyed
+		this.closeDevices();
 	}
 	
 	/** Free all resources used by audio devices sed by this {@link SoundManager} */
