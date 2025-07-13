@@ -63,7 +63,6 @@ public class GlfwWindow extends GameWindow{
 		// Update screen width and height
 		this.updateWindowSize();
 		
-		// TODO make the window not show up until the first frame is drawn
 		// Center the window and then show it
 		this.center();
 		if(this.isShowOnInit()) this.show();

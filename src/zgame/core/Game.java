@@ -81,6 +81,8 @@ public class Game implements Saveable, Destroyable{
 	private Thread tickThread;
 	/** The {@link Runnable} used by {@link #tickThread} to run its thread */
 	private TickLoopTask tickTask;
+	/** true if the first render loop of the game has been triggered, false otherwise */
+	private boolean loopStarted;
 	/**
 	 * The factor in which time passes during each game tick, i.e. this number is multiplied to dt each time the main loop calls {@link #tick(double)} Values higher than 1
 	 * make the game faster, values less than 1 make the game slower, this value will not go below 0
@@ -150,6 +152,7 @@ public class Game implements Saveable, Destroyable{
 		instance = this;
 		
 		this.nextLoopFuncs = new ArrayList<>();
+		this.loopStarted = false;
 		
 		// Init misc values
 		this.gameSpeed = 1;
@@ -260,9 +263,6 @@ public class Game implements Saveable, Destroyable{
 		this.tickTask = new TickLoopTask();
 		this.tickThread = new Thread(this.tickTask);
 		this.tickThread.start();
-		
-		// Show the window
-		this.getWindow().show();
 		
 		// Run the render loop in the main thread
 		this.renderLooper.loop();
@@ -404,9 +404,20 @@ public class Game implements Saveable, Destroyable{
 			
 			// Check if a state needs to be destroyed
 			if(this.destroyState != null) this.destroyState.destroy();
+			
+			if(!this.loopStarted){
+				this.loopStarted = true;
+				this.onFirstLoop();
+			}
+			
 		}catch(Exception e){
 			ZConfig.exception(e);
 		}
+	}
+	
+	/** Called when the game renders its first loop of the main OpenGL loop. Opens the main window by default, override to provide custom behavior */
+	public void onFirstLoop(){
+		this.getWindow().show();
 	}
 	
 	/**
