@@ -172,7 +172,7 @@ public class SoundManager implements Destroyable{
 		this.closeDevices();
 	}
 	
-	/** Free all resources used by audio devices sed by this {@link SoundManager} */
+	/** Free all resources used by audio devices used by this {@link SoundManager} */
 	private synchronized void closeDevices(){
 		if(this.isDummy()) return;
 		// Copy the list of devices
