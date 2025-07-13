@@ -15,8 +15,6 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 import org.lwjgl.openal.ALCCapabilities;
 
-import java.nio.IntBuffer;
-
 /**
  * A class that represents a single device which can produce sound, i.e. a speaker, headphones, audio interface, but not a microphone
  */
@@ -88,7 +86,12 @@ public class SpeakerDevice implements Destroyable{
 		
 		if(this.alcCapabilities == null) this.alcCapabilities = ALC.createCapabilities(this.getId());
 		if(this.context == NULL){
-			this.context = alcCreateContext(this.getId(), (IntBuffer)null);
+			// Magic config that in theory should limit audio breaking on shut down
+			int[] attrs = {
+					ALC_REFRESH, 60,
+					0
+			};
+			this.context = alcCreateContext(this.getId(), attrs);
 			boolean result = alcMakeContextCurrent(this.getContext());
 			this.alCapabilities = AL.createCapabilities(this.getAlcCapabilities());
 			if(result) ZConfig.success("Successfully made context current with device name '", this.getName(), "' using context: ", this.getContext());
