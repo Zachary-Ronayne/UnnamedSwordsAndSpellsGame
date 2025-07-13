@@ -21,10 +21,14 @@ public class WindowManager implements Destroyable{
 	/** The last window which was used for the current context */
 	private GameWindow lastContext;
 	
+	/** A mapping of a type of {@link GameWindow} and a function to run when this manager is destroyed */
+	private final HashMap<Class<?>, Runnable> onManagerDestroyFunc;
+	
 	/** Initialize the {@link WindowManager} to a blank state */
 	private WindowManager(){
 		this.windows = new HashMap<>();
 		this.windowsToRemove = new HashSet<>();
+		this.onManagerDestroyFunc = new HashMap<>();
 		this.lastContext = null;
 	}
 	
@@ -35,6 +39,21 @@ public class WindowManager implements Destroyable{
 			WindowManager.get().removeWindow(window);
 			window.destroy();
 		}
+		
+		// Run any functions needed to be run when a type of window is closed
+		for(var cleanup : this.onManagerDestroyFunc.values()){
+			cleanup.run();
+		}
+	}
+	
+	/**
+	 * Tell this manager that when the manager closes, this type of window cleanup should happen
+	 *
+	 * @param windowClass The class of the window to clean up
+	 * @param cleanup The function to run on cleanup
+	 */
+	public void registerCloseFunc(Class<?> windowClass, Runnable cleanup){
+		this.onManagerDestroyFunc.put(windowClass, cleanup);
 	}
 	
 	/**

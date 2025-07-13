@@ -14,14 +14,11 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import static org.lwjgl.system.MemoryUtil.*;
 
+import java.awt.*;
 import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
-
-import java.awt.Rectangle;
-import java.awt.Point;
-import java.awt.Dimension;
 
 /** An implementation of {@link GameWindow} which uses GLFW methods */
 public class GlfwWindow extends GameWindow{
@@ -132,7 +129,6 @@ public class GlfwWindow extends GameWindow{
 	
 	@Override
 	public void onAllWindowsClosed(){
-		// TODO somehow call this automatically only when the game ends, in a generic way
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
 		var func = glfwSetErrorCallback(null);

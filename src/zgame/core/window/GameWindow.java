@@ -222,6 +222,9 @@ public abstract class GameWindow implements Destroyable{
 		
 		// Set up the blank renderer
 		this.renderer = new Renderer();
+		
+		// Tell the window manager that this type of window will need to be cleaned up
+		WindowManager.get().registerCloseFunc(this.getClass(), this::onAllWindowsClosed);
 	}
 	
 	/**
