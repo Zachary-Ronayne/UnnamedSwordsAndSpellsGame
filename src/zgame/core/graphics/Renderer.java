@@ -2223,8 +2223,7 @@ public class Renderer implements Destroyable{
 	 */
 	public boolean drawRepeatingPlaneBufferSide(double x, double y, double z, double w, double l, double yaw,
 											double textureW, double textureH, double shiftX, double shiftY, int tex){
-		
-		// TODO are the texture coordinates wrong? Shouldn't this be rotate positive 90 degrees?
+		// Rotating minus 90 degrees because textures are on the xz plane by default facing north, rotating negative brings the top upwards
 		return this.drawRepeatingPlaneBuffer(x, y, z, w, l, RotRender3D.euler(yaw, -ZMath.PI_BY_2, 0),
 				textureW, textureH, shiftX, shiftY, tex);
 	}
@@ -2268,7 +2267,7 @@ public class Renderer implements Destroyable{
 	 * @return true if the object was drawn, false otherwise
 	 */
 	public boolean drawPlaneBufferSide(double x, double y, double z, double w, double h, double yaw, int tex){
-		// TODO are the texture coordinates wrong? Shouldn't this be rotate positive 90 degrees?
+		// Rotating minus 90 degrees because textures are on the xz plane by default facing north, rotating negative brings the top upwards
 		return this.drawPlaneBuffer(x, y, z, w, h, RotRender3D.euler(yaw, -ZMath.PI_BY_2, 0), tex);
 	}
 	
