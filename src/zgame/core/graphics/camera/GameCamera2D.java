@@ -7,7 +7,7 @@ import zgame.core.utils.ZRect2D;
  * A class used by {@link Renderer} to track the location of where objects should be drawn, based on their position in the game.
  * All positions are in game coordinates
  */
-public class GameCamera{
+public class GameCamera2D{
 	
 	/** The x axis of the camera */
 	private final CameraAxis x;
@@ -23,9 +23,9 @@ public class GameCamera{
 	private boolean anchored;
 	
 	/**
-	 * Create a {@link GameCamera} in a default state, no translation or zooming
+	 * Create a {@link GameCamera2D} in a default state, no translation or zooming
 	 */
-	public GameCamera(){
+	public GameCamera2D(){
 		this.x = new CameraAxis();
 		this.y = new CameraAxis();
 		this.releaseAnchor();

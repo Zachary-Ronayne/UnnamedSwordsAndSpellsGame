@@ -1,7 +1,7 @@
 package zgame.core.graphics.camera;
 
 /**
- * An object that tracks a single axis zoom and position for a {@link GameCamera}
+ * An object that tracks a single axis zoom and position for a {@link GameCamera2D}
  */
 public class CameraAxis{
 	

@@ -10,7 +10,7 @@ import org.lwjgl.stb.STBTTAlignedQuad;
 
 import zgame.core.graphics.buffer.*;
 import zgame.core.graphics.camera.GameCamera3D;
-import zgame.core.graphics.camera.GameCamera;
+import zgame.core.graphics.camera.GameCamera2D;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.TextBuffer;
 import zgame.core.graphics.image.GameImage;
@@ -193,10 +193,10 @@ public class Renderer implements Destroyable{
 	private final LimitedStack<GameBuffer> bufferStack;
 	
 	/**
-	 * The stack keeping track of the {@link GameCamera} which determines the relative location and scale of objects drawn in this renderer.
+	 * The stack keeping track of the {@link GameCamera2D} which determines the relative location and scale of objects drawn in this renderer.
 	 * If the top of the stack is null, no transformations will be applied
 	 */
-	private final LimitedStack<GameCamera> cameraStack;
+	private final LimitedStack<GameCamera2D> cameraStack;
 	
 	/**
 	 * A stack keeping track of the attribute of if positioning should be used.
@@ -936,7 +936,7 @@ public class Renderer implements Destroyable{
 	 * @param camera The camera where the g ame should be
 	 * @param window The {@link GameWindow} to transform to
 	 */
-	public void transform(GameCamera camera, GameWindow window){
+	public void transform(GameCamera2D camera, GameWindow window){
 		// Find the distance the camera must travel, in OpenGL coordinates
 		double x = window.sizeScreenToGlX(camera.getX().getPos());
 		double y = -window.sizeScreenToGlY(camera.getY().getPos());
@@ -1229,7 +1229,7 @@ public class Renderer implements Destroyable{
 		double w = b.getWidth();
 		double h = b.getHeight();
 		y = y + h;
-		GameCamera c = this.getCamera();
+		GameCamera2D c = this.getCamera();
 		if(c != null){
 			x = c.gameToScreenX(x);
 			y = c.gameToScreenY(y);
@@ -2477,12 +2477,12 @@ public class Renderer implements Destroyable{
 	}
 	
 	/** @return The top of {@link #cameraStack} */
-	public GameCamera getCamera(){
+	public GameCamera2D getCamera(){
 		return this.cameraStack.peek();
 	}
 	
 	/** @param camera Set the top of {@link #cameraStack}. Can also use null to not use a camera for rendering */
-	public void setCamera(GameCamera camera){
+	public void setCamera(GameCamera2D camera){
 		this.cameraStack.replaceTop(camera);
 	}
 	

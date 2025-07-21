@@ -6,7 +6,7 @@ import zgame.core.graphics.AlphaMode;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.TextOption;
 import zgame.core.graphics.ZColor;
-import zgame.core.graphics.camera.GameCamera;
+import zgame.core.graphics.camera.GameCamera2D;
 import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.TextBuffer;
@@ -207,7 +207,7 @@ public class MainTest extends Game{
 		playerX = 200;
 		playerY = 500;
 		changeRect = new Rectangle(600, 20, 200, 200);
-		testerGame.getCamera().reset();
+		testerGame.getCamera2D().reset();
 		
 		if(winSource != null) winSource.destroy();
 		if(loseSource != null) loseSource.destroy();
@@ -265,7 +265,7 @@ public class MainTest extends Game{
 		
 		@Override
 		public void onSet(){
-			Game.get().getCamera().setPos(50, 100);
+			Game.get().getCamera2D().setPos(50, 100);
 		}
 		
 		private Room2D makeRoom(){
@@ -337,12 +337,12 @@ public class MainTest extends Game{
 			else if(button == GLFW_KEY_MINUS) player.setJumpPower(player.getJumpPower() - 10);
 			else if(button == GLFW_KEY_EQUAL) player.setJumpPower(player.getJumpPower() + 10);
 			else if(shift && button == GLFW_KEY_L) player.setLockCamera(!player.isLockCamera());
-			else if(button == GLFW_KEY_9) game.getCamera().zoom(-.5);
-			else if(button == GLFW_KEY_0) game.getCamera().zoom(.5);
-			else if(button == GLFW_KEY_J) game.getCamera().getX().shift(-50);
-			else if(button == GLFW_KEY_L) game.getCamera().getX().shift(50);
-			else if(button == GLFW_KEY_I) game.getCamera().getY().shift(-50);
-			else if(button == GLFW_KEY_K) game.getCamera().getY().shift(50);
+			else if(button == GLFW_KEY_9) game.getCamera2D().zoom(-.5);
+			else if(button == GLFW_KEY_0) game.getCamera2D().zoom(.5);
+			else if(button == GLFW_KEY_J) game.getCamera2D().getX().shift(-50);
+			else if(button == GLFW_KEY_L) game.getCamera2D().getX().shift(50);
+			else if(button == GLFW_KEY_I) game.getCamera2D().getY().shift(-50);
+			else if(button == GLFW_KEY_K) game.getCamera2D().getY().shift(50);
 			else if(button == GLFW_KEY_F1) {
 				if(shift){
 					game.setPrintFps(true);
@@ -378,7 +378,7 @@ public class MainTest extends Game{
 			boolean input = super.playMouseWheelMove(amount);
 			var game = Game.get();
 			if(game.getKeyInput().shift()) {
-				game.getCamera().zoom(amount);
+				game.getCamera2D().zoom(amount);
 				return true;
 			}
 			return input;
@@ -713,7 +713,7 @@ public class MainTest extends Game{
 			var game = Game.get();
 			ZMouseInput mouse = game.getMouseInput();
 			ZKeyInput keys = game.getKeyInput();
-			GameCamera cam = game.getCamera();
+			GameCamera2D cam = game.getCamera2D();
 			double msx = game.mouseSX();
 			double msy = game.mouseSY();
 			double mgx = game.mouseGX();

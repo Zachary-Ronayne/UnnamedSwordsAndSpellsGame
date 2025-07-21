@@ -14,11 +14,11 @@ public class Style2D implements RenderStyle{
 		// Set the camera
 		var game = Game.get();
 		boolean useCam = game.getCurrentState().isUseCamera();
-		if(useCam) r.setCamera(game.getCamera());
+		if(useCam) r.setCamera(game.getCamera2D());
 		else r.setCamera(null);
 		// Move based on the camera, if applicable, and draw the objects
 		r.identityMatrix();
-		if(useCam) r.transform(game.getCamera(), game.getWindow());
+		if(useCam) r.transform(game.getCamera2D(), game.getWindow());
 		
 		r.setDepthTestEnabled(false);
 	}

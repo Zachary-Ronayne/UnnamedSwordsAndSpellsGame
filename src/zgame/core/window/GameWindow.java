@@ -8,7 +8,6 @@ import zgame.core.Game;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.buffer.GameBuffer;
-import zgame.core.graphics.camera.GameCamera;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.utils.OnOffState;
@@ -968,8 +967,8 @@ public abstract class GameWindow implements Destroyable{
 	 * @return true if they intersect, i.e. return true if any part of the given bounds is in {@link #windowBuffer} bounds, false otherwise
 	 */
 	public boolean gameBoundsInScreen(ZRect2D bounds){
-		ZRect2D rBounds = this.getWindowBuffer().getBounds();
-		GameCamera c = Game.get().getCamera();
+		var rBounds = this.getWindowBuffer().getBounds();
+		var c = Game.get().getCamera2D();
 		ZRect2D gBounds;
 		if(c == null) gBounds = rBounds;
 		else gBounds = c.boundsScreenToGame(rBounds.getX(), rBounds.getBounds().getY(), rBounds.getBounds().getWidth(), rBounds.getBounds().getHeight());

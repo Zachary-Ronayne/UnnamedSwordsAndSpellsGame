@@ -2,15 +2,15 @@ package zgametest.graphics.camera;
 
 import org.junit.jupiter.api.*;
 
-import zgame.core.graphics.camera.GameCamera;
+import zgame.core.graphics.camera.GameCamera2D;
 
 import static zgametest.Tester.DELTA;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameCameraTest{
+public class GameCamera2DTest{
 	
-	private GameCamera cam;
+	private GameCamera2D cam;
 	private int coordinateValue;
 	
 	/** Run one time before all tests occur, use for initialization of static values */
@@ -21,7 +21,7 @@ public class GameCameraTest{
 	/** Run one time before each test occurs, use for initialization of values that must be the same before each test */
 	@BeforeEach
 	public void setup(){
-		cam = new GameCamera();
+		cam = new GameCamera2D();
 		coordinateValue = 5;
 	}
 	

@@ -5,7 +5,7 @@ import zgame.core.file.ZJsonFile;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.camera.CameraAxis;
-import zgame.core.graphics.camera.GameCamera;
+import zgame.core.graphics.camera.GameCamera2D;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.image.ImageManager;
@@ -35,8 +35,6 @@ import java.util.Objects;
  */
 public class Game implements Saveable, Destroyable{
 	
-	// TODO make a wiki or something explaining how to make a new game and the important things for setting it up, maybe save this for the first alpha version
-	
 	/**
 	 * By default, the number of times a second the sound will be updated, i.e. updating streaming sounds, checking if sounds are still playing, checking which sounds need to
 	 * play, etc. Generally shouldn't modify the value in a {@link Game}, but it can be modified through {@link Game#setSoundUpdates(int)} Setting the value too low can result
@@ -56,11 +54,10 @@ public class Game implements Saveable, Destroyable{
 	/** The looper to run the main OpenGL loop */
 	private final GameLooper renderLooper;
 	
-	// TODO does the camera being in game actually make sense?
-	/** The Camera which determines the relative location and scale of objects drawn in the game */
-	private final GameCamera camera;
+	/** The camera handling the relative location and scale of objects drawn in 2D during gameplay. Not used for menus */
+	private final GameCamera2D camera2D;
 	
-	/** The camera used for 3D graphics */
+	/** The camera handling the relative location and scale of objects drawn in 3D during gameplay */
 	private final GameCamera3D camera3D;
 	
 	/** The {@link GameState} which this game is currently in */
@@ -190,7 +187,7 @@ public class Game implements Saveable, Destroyable{
 		this.focusedMenuThing = null;
 		
 		// Init camera
-		this.camera = new GameCamera();
+		this.camera2D = new GameCamera2D();
 		
 		// 3D camera
 		this.camera3D = new GameCamera3D();
@@ -801,22 +798,22 @@ public class Game implements Saveable, Destroyable{
 	
 	/** @return The game x coordinate on the left side of what is displayed on the screen */
 	public double getScreenLeft(){
-		return this.getCamera().sizeScreenToGameX(-this.getCamera().getX().getPos());
+		return this.getCamera2D().sizeScreenToGameX(-this.getCamera2D().getX().getPos());
 	}
 	
 	/** @return The game x coordinate on the right side of what is displayed on the screen */
 	public double getScreenRight(){
-		return this.getScreenLeft() + this.getCamera().sizeScreenToGameX(this.getScreenWidth());
+		return this.getScreenLeft() + this.getCamera2D().sizeScreenToGameX(this.getScreenWidth());
 	}
 	
 	/** @return The game y coordinate of the top of what is displayed on the screen */
 	public double getScreenTop(){
-		return this.getCamera().sizeScreenToGameY(-this.getCamera().getY().getPos());
+		return this.getCamera2D().sizeScreenToGameY(-this.getCamera2D().getY().getPos());
 	}
 	
 	/** @return The game y coordinate at the bottom of what is displayed on the screen */
 	public double getScreenBottom(){
-		return this.getScreenTop() + this.getCamera().sizeScreenToGameY(this.getScreenHeight());
+		return this.getScreenTop() + this.getCamera2D().sizeScreenToGameY(this.getScreenHeight());
 	}
 	
 	/**
@@ -925,9 +922,9 @@ public class Game implements Saveable, Destroyable{
 		return this.getWindow().getKeyInput();
 	}
 	
-	/** @return See {@link #camera} */
-	public GameCamera getCamera(){
-		return this.camera;
+	/** @return See {@link #camera2D} */
+	public GameCamera2D getCamera2D(){
+		return this.camera2D;
 	}
 	
 	/**
@@ -937,7 +934,7 @@ public class Game implements Saveable, Destroyable{
 	 * @param y The center of the camera y coordinate in game coordinates
 	 */
 	public void centerCamera(double x, double y){
-		this.camera.setPos(this.getScreenWidth() * 0.5 - this.camera.sizeGameToScreenX(x), this.getScreenHeight() * 0.5 - this.camera.sizeGameToScreenY(y));
+		this.camera2D.setPos(this.getScreenWidth() * 0.5 - this.camera2D.sizeGameToScreenX(x), this.getScreenHeight() * 0.5 - this.camera2D.sizeGameToScreenY(y));
 	}
 	
 	/** @return See {@link #currentState} */
@@ -983,14 +980,14 @@ public class Game implements Saveable, Destroyable{
 	}
 	
 	/**
-	 * Zoom in the screen with {@link #camera} on just the x axis The zoom will reposition the camera so that the given coordinates are zoomed towards These coordinates are
+	 * Zoom in the screen with {@link #camera2D} on just the x axis The zoom will reposition the camera so that the given coordinates are zoomed towards These coordinates are
 	 * screen coordinates
 	 *
 	 * @param zoom The factor to zoom in by, which will be added to {@link CameraAxis#zoomFactor}, positive to zoom in, negative to zoom out, zero for no change
 	 * @param x The x coordinate to base the zoom
 	 */
 	public void zoomX(double zoom, double x){
-		this.getCamera().getX().zoom(zoom, x, this.getScreenWidth());
+		this.getCamera2D().getX().zoom(zoom, x, this.getScreenWidth());
 	}
 	
 	/**
@@ -1000,7 +997,7 @@ public class Game implements Saveable, Destroyable{
 	 * @param y The y coordinate to base the zoom
 	 */
 	public void zoomY(double zoom, double y){
-		this.getCamera().getY().zoom(zoom, y, this.getScreenHeight());
+		this.getCamera2D().getY().zoom(zoom, y, this.getScreenHeight());
 	}
 	
 	/**
@@ -1027,12 +1024,12 @@ public class Game implements Saveable, Destroyable{
 	
 	/** @return The current x coordinate of the mouse in game coordinates. Should use for things that move with the camera */
 	public double mouseGX(){
-		return this.getCamera().screenToGameX(this.mouseSX());
+		return this.getCamera2D().screenToGameX(this.mouseSX());
 	}
 	
 	/** @return The current y coordinate of the mouse in game coordinates. Should use for things that move with the camera */
 	public double mouseGY(){
-		return this.getCamera().screenToGameY(this.mouseSY());
+		return this.getCamera2D().screenToGameY(this.mouseSY());
 	}
 	
 	/** Set the model view to be the base matrix for a perspective projection using the current {@link #camera3D} perspective */
