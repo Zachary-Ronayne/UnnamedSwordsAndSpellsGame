@@ -1,4 +1,4 @@
-package zgame.things.still.tiles;
+package zgame.things.still.tiles.twoDee;
 
 import zgame.core.graphics.ZColor;
 import zgame.physics.material.Materials;

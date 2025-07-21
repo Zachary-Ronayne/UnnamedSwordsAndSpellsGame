@@ -1,4 +1,4 @@
-package zgame.things.still.tiles;
+package zgame.things.still.tiles.threeDee;
 
 import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
@@ -9,9 +9,6 @@ import zgame.physics.material.Material;
 
 /** A simple tile which has a constant material */
 public class CubeTexTile extends TileType3D{
-	
-	/** The {@link Material} of this {@link CubeTexTile} */
-	private final Material material;
 	
 	/** The file name where the texture of this tile comes from */
 	private final String fileName;
@@ -30,18 +27,12 @@ public class CubeTexTile extends TileType3D{
 	 */
 	public CubeTexTile(String id, String origin, String fileName, TileHitbox3D hitbox, Material material){
 		super(id, origin, hitbox, material);
-		this.material = material;
 		this.fileName = fileName;
 	}
 	
 	/** @return See {@link #fileName} */
 	public String getFileName(){
 		return this.fileName;
-	}
-	
-	@Override
-	public Material getMaterial(){
-		return this.material;
 	}
 	
 	/** @return By default returns see {@link #DEFAULT_COLOR}, override to use a custom color */

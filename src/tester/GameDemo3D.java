@@ -18,9 +18,9 @@ import zgame.settings.IntTypeSetting;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.mobility.MobilityType;
-import zgame.things.still.tiles.BaseTiles3D;
-import zgame.things.still.tiles.CubeTexTile;
-import zgame.things.still.tiles.TileHitbox3D;
+import zgame.things.still.tiles.threeDee.BaseTiles3D;
+import zgame.things.still.tiles.threeDee.CubeTexTile;
+import zgame.things.still.tiles.threeDee.TileHitbox3D;
 import zgame.things.type.bounds.CylinderHitbox;
 import zgame.things.type.bounds.RectPrismHitbox;
 

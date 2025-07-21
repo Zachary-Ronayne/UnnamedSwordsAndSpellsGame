@@ -1,6 +1,7 @@
-package zgame.things.still.tiles;
+package zgame.things.still.tiles.twoDee;
 
 import zgame.physics.collision.CollisionResult2D;
+import zgame.things.still.tiles.TileHitbox;
 import zgame.things.type.bounds.HitBox2D;
 
 /** An object that represents the hitbox of a tile, i.e., what parts of the tile have collision */

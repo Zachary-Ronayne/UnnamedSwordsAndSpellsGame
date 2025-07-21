@@ -1,4 +1,4 @@
-package zgame.things.still.tiles;
+package zgame.things.still.tiles.threeDee;
 
 import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;

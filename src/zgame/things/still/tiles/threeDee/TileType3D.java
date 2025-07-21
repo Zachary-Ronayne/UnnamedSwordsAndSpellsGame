@@ -1,7 +1,8 @@
-package zgame.things.still.tiles;
+package zgame.things.still.tiles.threeDee;
 
 import zgame.physics.collision.CollisionResult3D;
 import zgame.physics.material.Material;
+import zgame.things.still.tiles.TileType;
 import zgame.things.type.bounds.HitBox3D;
 
 /** A simple tile which has a constant material */

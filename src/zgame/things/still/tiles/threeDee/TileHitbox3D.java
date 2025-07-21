@@ -1,8 +1,9 @@
-package zgame.things.still.tiles;
+package zgame.things.still.tiles.threeDee;
 
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
+import zgame.things.still.tiles.TileHitbox;
 import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.world.Direction3D;

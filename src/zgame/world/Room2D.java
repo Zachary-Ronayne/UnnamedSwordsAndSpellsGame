@@ -8,9 +8,9 @@ import zgame.physics.collision.CollisionResult2D;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing2D;
-import zgame.things.still.tiles.BaseTiles2D;
-import zgame.things.still.tiles.Tile2D;
-import zgame.things.still.tiles.TileType2D;
+import zgame.things.still.tiles.twoDee.BaseTiles2D;
+import zgame.things.still.tiles.twoDee.Tile2D;
+import zgame.things.still.tiles.twoDee.TileType2D;
 import zgame.things.type.bounds.Bounds2D;
 import zgame.things.type.bounds.HitBox2D;
 

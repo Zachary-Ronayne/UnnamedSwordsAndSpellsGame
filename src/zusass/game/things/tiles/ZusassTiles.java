@@ -2,7 +2,10 @@ package zusass.game.things.tiles;
 
 import zgame.core.graphics.ZColor;
 import zgame.physics.material.Materials;
-import zgame.things.still.tiles.*;
+import zgame.things.still.tiles.threeDee.CubeTexTile;
+import zgame.things.still.tiles.threeDee.CubeTexTintTile;
+import zgame.things.still.tiles.threeDee.TileHitbox3D;
+import zgame.things.still.tiles.threeDee.TileType3D;
 
 /** A class defining tiles used in the Zusass game */
 public final class ZusassTiles{

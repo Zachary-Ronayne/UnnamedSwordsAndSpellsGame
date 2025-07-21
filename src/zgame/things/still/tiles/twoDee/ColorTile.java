@@ -1,9 +1,10 @@
-package zgame.things.still.tiles;
+package zgame.things.still.tiles.twoDee;
 
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
+import zgame.things.still.tiles.TileType;
 
 /** A {@link TileType} which renders tiles as a solid color */
 public class ColorTile extends TileType2D{

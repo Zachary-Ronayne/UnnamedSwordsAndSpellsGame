@@ -1,8 +1,9 @@
-package zgame.things.still.tiles;
+package zgame.things.still.tiles.twoDee;
 
 import zgame.core.graphics.Renderer;
 import zgame.physics.collision.CollisionResult2D;
 import zgame.physics.material.Material;
+import zgame.things.still.tiles.Tile;
 import zgame.things.type.*;
 import zgame.things.type.bounds.Bounds2D;
 import zgame.things.type.bounds.HitBox;

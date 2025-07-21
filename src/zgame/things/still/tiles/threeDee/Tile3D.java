@@ -1,8 +1,9 @@
-package zgame.things.still.tiles;
+package zgame.things.still.tiles.threeDee;
 
 import zgame.core.graphics.Renderer;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.physics.material.Material;
+import zgame.things.still.tiles.Tile;
 import zgame.things.type.GameThing;
 import zgame.things.type.Materialable;
 import zgame.things.type.bounds.Bounds3D;

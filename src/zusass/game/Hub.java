@@ -1,6 +1,6 @@
 package zusass.game;
 
-import zgame.things.still.tiles.BaseTiles3D;
+import zgame.things.still.tiles.threeDee.BaseTiles3D;
 import zgame.things.type.GameThing;
 
 import static zgame.world.Direction3D.*;
