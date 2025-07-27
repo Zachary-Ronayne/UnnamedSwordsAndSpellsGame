@@ -48,7 +48,7 @@ public class NewGamePopup extends Menu{
 		seedLabel.setFontColor(new ZColor(0.5));
 		seedLabel.setBorderWidth(0);
 		seedLabel.centerText();
-		seedLabel.setTextY(seedLabel.getTextY() - 6);
+		seedLabel.setTextY(seedLabel.getHeight() * 0.9);
 		
 		this.seedTextBox = new SeedTextBox();
 		this.addThing(this.seedTextBox);
@@ -70,6 +70,7 @@ public class NewGamePopup extends Menu{
 		title.setFill(new ZColor(.5, .8));
 		title.setBorder(new ZColor(0, 0));
 		title.setFontSize(50);
+		title.setFontColor(new ZColor(.8, .8, .8));
 		title.centerText();
 		title.centerHorizontal();
 	}

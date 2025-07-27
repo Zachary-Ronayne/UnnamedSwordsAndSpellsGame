@@ -40,7 +40,7 @@ public class StatChoosePopup extends Menu{
 			};
 			b.setFontSize(20);
 			b.centerText();
-			b.setTextY(b.getTextY() - 4);
+			b.setTextY(b.getHeight() * 0.9);
 			this.addThing(b);
 		}
 	}

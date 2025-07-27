@@ -53,7 +53,7 @@ public class SpellListButton extends ZusassButton{
 	public void updateTextPosition(){
 		this.setTextX(7);
 		this.centerTextVertical();
-		this.setTextY(this.getTextY() - 5);
+		this.setTextY(this.getFontSize());
 		this.regenerateBuffer();
 	}
 	
