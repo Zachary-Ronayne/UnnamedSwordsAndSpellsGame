@@ -2,10 +2,7 @@ package zusass.game.things.entities.mobs;
 
 import com.google.gson.JsonElement;
 import zgame.core.file.Saveable;
-import zgame.core.graphics.RectRender3D;
-import zgame.core.graphics.Renderer;
-import zgame.core.graphics.RotRender3D;
-import zgame.core.graphics.ZColor;
+import zgame.core.graphics.*;
 import zgame.core.graphics.image.ImageManager;
 import zgame.core.sound.SoundManager;
 import zgame.core.sound.SoundSource;
@@ -299,10 +296,10 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		double shiftX = -((System.currentTimeMillis() / 14.0) % width) / width + listIndex * listIndex * 0.5;
 		double shiftY = ((System.currentTimeMillis() / 300.0) % height) / height + listIndex * listIndex * 0.2;
 		var resourceBarImage = ImageManager.image("resourceBar");
-		r.drawRepeatingTexture(x, y + space, width, height, textureSize, textureSize, shiftX, shiftY, resourceBarImage);
+		var repeatingTexture = new RepeatingTexture(textureSize, textureSize, shiftX, shiftY);
+		r.drawRepeatingTexture(x, y + space, width, height, repeatingTexture, resourceBarImage);
 		r.setColor(color);
-		r.drawRepeatingTexture(x + border, y + border + space, (width - borderTwice) * c / m, height - borderTwice, textureSize, textureSize, shiftX, shiftY,
-				resourceBarImage);
+		r.drawRepeatingTexture(x + border, y + border + space, (width - borderTwice) * c / m, height - borderTwice, repeatingTexture, resourceBarImage);
 		r.popShader();
 		// Using draw text like this is inefficient, but whatever, can optimize later if needed
 		if(textColor != null){

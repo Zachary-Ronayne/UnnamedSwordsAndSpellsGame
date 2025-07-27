@@ -1537,13 +1537,12 @@ public class Renderer implements Destroyable{
 	 * This method does not set the shader to use, and it does not check if the bounds should be rendered
 	 *
 	 * @param r The bounds of the image
+	 * @param repeatingTexture The data representing the repeating texture
 	 * @param img The image to use id of the image to draw
-	 * @param textureW The width of the texture to render
-	 * @param textureH The height of the texture to render
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawRepeatingTexture(ZRect2D r, double textureW, double textureH, GameImage img){
-		return this.drawRepeatingTexture(r.getX(), r.getY(), r.getWidth(), r.getHeight(), textureW, textureH, img);
+	public boolean drawRepeatingTexture(ZRect2D r, RepeatingTexture repeatingTexture, GameImage img){
+		return this.drawRepeatingTexture(r.getX(), r.getY(), r.getWidth(), r.getHeight(), repeatingTexture, img);
 	}
 	
 	/**
@@ -1592,34 +1591,13 @@ public class Renderer implements Destroyable{
 	 * @param y The y coordinate of the upper left hand corner of the texture
 	 * @param w The width of the bounds to render
 	 * @param h The height of the bounds to render
-	 * @param textureW The width of the texture to render
-	 * @param textureH The height of the texture to render
+	 * @param repeatingTexture The data representing how to draw the repeated texture
 	 * @param img The OpenGL id of the texture to draw
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawRepeatingTexture(double x, double y, double w, double h, double textureW, double textureH, GameImage img){
-		return this.drawRepeatingTexture(x, y, w, h, textureW, textureH, 0, 0, img);
-	}
-	
-	/**
-	 * Draw a rectangular texture at the specified location, repeating the texture
-	 * Coordinate types depend on {@link #positioningEnabledStack}
-	 * This method does not set the shader to use, and it does not check if the bounds should be rendered
-	 *
-	 * @param x The x coordinate of the upper left hand corner of the texture
-	 * @param y The y coordinate of the upper left hand corner of the texture
-	 * @param w The width of the bounds to render
-	 * @param h The height of the bounds to render
-	 * @param textureW The width of the texture to render
-	 * @param textureH The height of the texture to render
-	 * @param shiftX An amount to shift the texture over by on the x axis
-	 * @param shiftY An amount to shift the texture over by on the y axis
-	 * @param img The OpenGL id of the texture to draw
-	 * @return true if the object was drawn, false otherwise
-	 */
-	public boolean drawRepeatingTexture(double x, double y, double w, double h, double textureW, double textureH, double shiftX, double shiftY, GameImage img){
+	public boolean drawRepeatingTexture(double x, double y, double w, double h, RepeatingTexture repeatingTexture, GameImage img){
 		this.bindVertexArray(changeImgVertArr);
-		this.bufferRepeatingTexture(w, h, textureW, textureH, shiftX, shiftY);
+		this.bufferRepeatingTexture(w, h, repeatingTexture);
 		
 		return this.drawTextureWithoutVertexArray(x, y, w, h, img.getId());
 	}
@@ -1629,16 +1607,13 @@ public class Renderer implements Destroyable{
 	 *
 	 * @param w The width of the bounds to render
 	 * @param h The height of the bounds to render
-	 * @param textureW The width of the texture to render
-	 * @param textureH The height of the texture to render
-	 * @param shiftX An amount to shift the texture over by on the x axis
-	 * @param shiftY An amount to shift the texture over by on the y axis
+	 * @param repeatingTexture The data representing how to draw the repeated texture
 	 */
-	private void bufferRepeatingTexture(double w, double h, double textureW, double textureH, double shiftX, double shiftY){
-		float wOffset = (float)(w / textureW);
-		float hOffset = (float)(h / textureH);
-		float sx = (float)shiftX;
-		float sy = (float)shiftY;
+	private void bufferRepeatingTexture(double w, double h, RepeatingTexture repeatingTexture){
+		float wOffset = (float)(w / repeatingTexture.getTexW());
+		float hOffset = (float)(h / repeatingTexture.getTexH());
+		float sx = (float)repeatingTexture.getShiftX();
+		float sy = (float)repeatingTexture.getShiftY();
 		
 		this.changeTexCoordBuff.updateData(new float[]{
 				sx + 0, sy + 0,
@@ -2214,18 +2189,13 @@ public class Renderer implements Destroyable{
 	 * @param w The width of the plane
 	 * @param l The length of the plane
 	 * @param yaw The additional yaw rotation to apply
+	 * @param repeatingTexture The data representing how to draw the repeated texture
 	 * @param tex The texture id used by the buffer to draw
-	 * @param textureW The width of the texture to render
-	 * @param textureH The height of the texture to render
-	 * @param shiftX An amount to shift the texture over by on the x axis
-	 * @param shiftY An amount to shift the texture over by on the y axis
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawRepeatingPlaneBufferSide(double x, double y, double z, double w, double l, double yaw,
-											double textureW, double textureH, double shiftX, double shiftY, int tex){
+	public boolean drawRepeatingPlaneBufferSide(double x, double y, double z, double w, double l, double yaw, RepeatingTexture repeatingTexture, int tex){
 		// Rotating minus 90 degrees because textures are on the xz plane by default facing north, rotating negative brings the top upwards
-		return this.drawRepeatingPlaneBuffer(x, y, z, w, l, RotRender3D.euler(yaw, -ZMath.PI_BY_2, 0),
-				textureW, textureH, shiftX, shiftY, tex);
+		return this.drawRepeatingPlaneBuffer(x, y, z, w, l, RotRender3D.euler(yaw, -ZMath.PI_BY_2, 0), repeatingTexture, tex);
 	}
 	
 	/**
@@ -2237,20 +2207,13 @@ public class Renderer implements Destroyable{
 	 * @param w The width of the plane
 	 * @param l The length of the plane
 	 * @param rot Any rotations to apply
+	 * @param repeatingTexture The data representing how to draw the repeated texture
 	 * @param tex The texture id used by the buffer to draw
-	 * @param textureW The width of the texture to render
-	 * @param textureH The height of the texture to render
-	 * @param shiftX An amount to shift the texture over by on the x axis
-	 * @param shiftY An amount to shift the texture over by on the y axis
 	 * @return true if the object was drawn, false otherwise
 	 */
-	public boolean drawRepeatingPlaneBuffer(double x, double y, double z, double w, double l, RotRender3D rot,
-											double textureW, double textureH, double shiftX, double shiftY, int tex){
-		
-		// TODO maybe make the repeating texture values an object
-		
+	public boolean drawRepeatingPlaneBuffer(double x, double y, double z, double w, double l, RotRender3D rot, RepeatingTexture repeatingTexture, int tex){
 		this.bindVertexArray(planeTexChangeVertArr);
-		this.bufferRepeatingTexture(w, l, textureW, textureH, shiftX, shiftY);
+		this.bufferRepeatingTexture(w, l, repeatingTexture);
 		return this.drawPlaneBufferWithoutVertexArray(x, y, z, w, l, rot, tex);
 	}
 	

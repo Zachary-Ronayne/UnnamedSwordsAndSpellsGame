@@ -36,6 +36,8 @@ import java.io.File;
  */
 public class ZusassGame extends Game{
 	
+	// TODO fix weird issue with text randomly being incorrectly aligned
+	
 	/** The id used for the single window of the Zusass game */
 	public final static String ZUSASS_WINDOW_ID = "zusassMainWindow";
 	

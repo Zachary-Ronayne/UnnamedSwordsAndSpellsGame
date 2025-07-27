@@ -1,6 +1,7 @@
 package zusass.menu;
 
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.RepeatingTexture;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.image.ImageManager;
@@ -62,7 +63,7 @@ public abstract class ZusassMenu extends Menu{
 		super.render(r, bounds);
 		r.setColor(new ZColor(0.3, 0.26, 0.26));
 		r.pushTextureTintShader();
-		r.drawRepeatingTexture(bounds, 128, 128, ImageManager.image("brickGrayscale"));
+		r.drawRepeatingTexture(bounds, new RepeatingTexture(128), ImageManager.image("brickGrayscale"));
 		r.popShader();
 	}
 	
