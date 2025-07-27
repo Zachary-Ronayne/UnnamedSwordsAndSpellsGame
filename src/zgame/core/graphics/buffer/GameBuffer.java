@@ -83,6 +83,15 @@ public class GameBuffer implements Destroyable{
 	 */
 	public boolean regenerateBuffer(int width, int height){
 		this.destroy();
+		// Prevent width or height from ever being zero
+		if(width <= 0){
+			ZConfig.error("Cannot regenerate game buffer with width ", width, ", defaulting to 1");
+			width = 1;
+		}
+		if(height <= 0){
+			ZConfig.error("Cannot regenerate game buffer with height ", height, ", defaulting to 1");
+			height = 1;
+		}
 		
 		this.setSize(width, height);
 		

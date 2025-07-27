@@ -184,6 +184,11 @@ public class SpellMakerMenu extends ZusassMenu{
 		return m;
 	}
 	
+	@Override
+	public ZColor getBackgroundTextureTint(){
+		return new ZColor(.9, .8, .6, 0.5);
+	}
+	
 	/**
 	 * Set up a text box for input
 	 *
@@ -215,13 +220,15 @@ public class SpellMakerMenu extends ZusassMenu{
 		addTo.addThing(box);
 		box.format();
 		
-		var w = 300;
-		var h = box.getHeight();
-		var text = new ZusassMenuText(box.getRelX() - w, box.getRelY() - h * .1, w, h, hint + ":", true);
-		text.setFontColor(new ZColor(0));
-		text.setFontSize(30);
-		text.centerTextVertical();
-		text.alignTextXRight(0);
+		double h = box.getHeight();
+		var text = new ZusassMenuText(0, box.getRelY(), 300, h, hint + ":", true);
+		text.setFontSize(35);
+		double w = text.getFont().stringWidth(text.getText()) + 10;
+		text.setWidth(w);
+		text.setRelX(box.getRelX() - w);
+		text.setFontColor(new ZColor(.9));
+		text.setTextY(h * 0.9);
+		text.alignTextXLeft(8);
 		addTo.addThing(text);
 		
 		this.textBoxes.put(key, box);

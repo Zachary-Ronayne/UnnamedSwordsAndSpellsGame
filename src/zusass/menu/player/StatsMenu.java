@@ -137,6 +137,11 @@ public class StatsMenu extends DraggableMenu{
 		this.statPopup.drawOnRenderer(x, y, r);
 	}
 	
+	@Override
+	public ZColor getBackgroundTextureTint(){
+		return new ZColor(.5, 0, 0);
+	}
+	
 	/** @return See {@link #displayDecimals} */
 	public boolean isDisplayDecimals(){
 		return this.displayDecimals;

@@ -237,6 +237,8 @@ public class MenuText extends MenuThing{
 		this.setTextX((this.getWidth() - width) * 0.5);
 	}
 	
+	// TODO fix weird issue with this not centering text correctly?
+	
 	/** Move the text of this {@link MenuText} so that it's in the center of it's top and bottom bounds */
 	public void centerTextVertical(){
 		this.centerTextVertical(this.getTextBounds().height);

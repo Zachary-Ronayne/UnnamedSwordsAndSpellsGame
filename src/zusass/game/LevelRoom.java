@@ -184,7 +184,7 @@ public class LevelRoom extends ZusassRoom{
 				textB.setFont(r.getFont().size(60));
 				textB.setOptions(ZArrayUtils.singleList(new TextOption("Current Level: " + this.getLevel(), new ZColor(0.8), AlphaMode.NORMAL)));
 				textB.setTextX(15);
-				textB.centerTextY();
+				textB.setTextY(textB.getHeight() * 0.9);
 				this.levelTextBuffer.setBuffer(textB);
 			}
 			this.levelTextBuffer.render(r);

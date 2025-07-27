@@ -1,6 +1,7 @@
 package zusass.menu.player;
 
 import org.lwjgl.glfw.GLFW;
+import zgame.core.graphics.ZColor;
 import zgame.menu.MenuThing;
 import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.MultiFormatter;
@@ -21,6 +22,11 @@ public class SpellListMenu extends DraggableMenu{
 		super();
 		this.setWidth(200);
 		this.initMenuThings();
+	}
+	
+	@Override
+	public ZColor getBackgroundTextureTint(){
+		return new ZColor(.5, .2, .4);
 	}
 	
 	@Override

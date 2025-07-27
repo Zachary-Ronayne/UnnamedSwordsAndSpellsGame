@@ -61,10 +61,15 @@ public abstract class ZusassMenu extends Menu{
 	@Override
 	public void render(Renderer r, ZRect2D bounds){
 		super.render(r, bounds);
-		r.setColor(new ZColor(0.3, 0.26, 0.26));
+		r.setColor(this.getBackgroundTextureTint());
 		r.pushTextureTintShader();
 		r.drawRepeatingTexture(bounds, new RepeatingTexture(128), ImageManager.image("brickGrayscale"));
 		r.popShader();
+	}
+	
+	/** @return A color to use for the background of this menu */
+	public ZColor getBackgroundTextureTint(){
+		return new ZColor(0.3, 0.26, 0.26);
 	}
 	
 	/**

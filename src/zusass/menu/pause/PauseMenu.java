@@ -8,6 +8,7 @@ import zgame.menu.MenuThing;
 import zusass.ZusassData;
 import zusass.ZusassGame;
 import zusass.game.MainPlay;
+import zusass.menu.ZusassMenu;
 import zusass.menu.comp.ZusassMenuText;
 import zusass.menu.pause.comp.*;
 
@@ -15,7 +16,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_TAB;
 
 /** The {@link Menu} which displays when the game is paused */
-public class PauseMenu extends Menu{
+public class PauseMenu extends ZusassMenu{
 	
 	/** See {@link PauseReturnButton} */
 	private final PauseReturnButton returnButton;
@@ -34,19 +35,19 @@ public class PauseMenu extends Menu{
 	 * Make a new pause menu
 	 */
 	public PauseMenu(){
-		super(0, 0, 350, 520, false);
+		super("");
 		this.setDefaultDestroyRemove(false);
+		this.setWidth(350);
+		this.setHeight(520);
 		
 		this.center(ZusassGame.window());
-		this.setBorder(new ZColor(.2, 0, 0, .5));
 		this.setBorderWidth(8);
-		this.setFill(new ZColor(.5, 0, 0, .5));
+		this.setFullColor(new ZColor(0, 0));
 		
 		ZusassMenuText title = new ZusassMenuText(0, 20, 330, 120, "Pause", true);
 		title.setFontSize(100);
 		title.setFontColor(new ZColor(0));
-		title.setFill(new ZColor(.5, .2, .2));
-		title.setBorder(new ZColor(.2, 0, 0));
+		title.setFill(new ZColor(.8, .5));
 		title.setBorderWidth(2);
 		title.centerText();
 		
@@ -95,6 +96,11 @@ public class PauseMenu extends Menu{
 		r.fill();
 		// Then draw the menu
 		super.render(r, bounds);
+	}
+	
+	@Override
+	public ZColor getBackgroundTextureTint(){
+		return new ZColor(.5);
 	}
 	
 	/**
