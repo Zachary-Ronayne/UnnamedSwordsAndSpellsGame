@@ -120,6 +120,7 @@ public class LevelDoor extends ZusassDoor{
 					ZArrayUtils.singleList(new TextOption("Level: " + this.getLevel(), new ZColor(0.8))),
 					r.getFont().size(90));
 			textB.centerTextX();
+			textB.centerTextY();
 			this.levelTextBuffer.setBuffer(textB);
 		}
 		

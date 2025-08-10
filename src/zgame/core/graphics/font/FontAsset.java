@@ -2,8 +2,6 @@ package zgame.core.graphics.font;
 
 import static org.lwjgl.opengl.GL30.*;
 
-import static org.lwjgl.stb.STBImage.*;
-
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -42,6 +40,8 @@ public class FontAsset extends Asset{
 	private STBTTBakedChar.Buffer charData;
 	/** The data used by stv_truetype for tracking font metrics */
 	private STBTTFontinfo info;
+	/** Must persist font data buffer in memory to ensure the font data doesn't become invalid */
+	private ByteBuffer fontDataBuffer;
 	
 	/** The width, in pixels, of the bitmap of this {@link FontAsset} */
 	private final int width;
@@ -154,15 +154,15 @@ public class FontAsset extends Asset{
 		String path = this.getPath();
 		
 		// Load the font from the jar
-		var data = ZAssetUtils.getJarBytes(path);
+		this.fontDataBuffer = ZAssetUtils.getJarBytes(path);
 		
 		// Find the font info
 		this.info = STBTTFontinfo.create();
-		boolean infoSuccess = stbtt_InitFont(this.info, data);
+		boolean infoSuccess = stbtt_InitFont(this.info, this.fontDataBuffer);
 		if(!infoSuccess) ZConfig.error("Font '", path, "' failed to load font info via stb true type");
 		
 		// Check for errors
-		int numFonts = stbtt_GetNumberOfFonts(data);
+		int numFonts = stbtt_GetNumberOfFonts(this.fontDataBuffer);
 		
 		boolean success = numFonts != -1;
 		if(success) ZConfig.success("Font '", path, "' loaded successfully. ", numFonts, " total fonts loaded.");
@@ -172,9 +172,9 @@ public class FontAsset extends Asset{
 		}
 		
 		// Load the font
-		ByteBuffer pixels = BufferUtils.createByteBuffer(this.width * this.height);
+		var pixels = BufferUtils.createByteBuffer(this.width * this.height);
 		this.charData = STBTTBakedChar.create(this.loadChars);
-		int numChars = stbtt_BakeFontBitmap(data, this.resolution, pixels, this.width, this.height, firstChar, this.charData);
+		int numChars = stbtt_BakeFontBitmap(this.fontDataBuffer, this.resolution, pixels, this.width, this.height, firstChar, this.charData);
 		if(numChars > 0) ZConfig.success("    First unused row: ", numChars);
 		else if(numChars < 0) ZConfig.success("    Characters which fit: ", -numChars);
 		else ZConfig.success("    No Characters fit: ");
@@ -183,9 +183,6 @@ public class FontAsset extends Asset{
 		glBindTexture(GL_TEXTURE_2D, this.bitmapID);
 		GameImage.setPixelSettings();
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, this.width, this.height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, pixels);
-		
-		// Free the data
-		stbi_image_free(pixels);
 		
 		// Unbind the texture
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -322,8 +319,7 @@ public class FontAsset extends Asset{
 	 * @return The ratio
 	 */
 	public double pixelRatio(double size){
-		if(!this.pixelRatioMap.containsKey(size)) this.pixelRatioMap.put(size, stbtt_ScaleForPixelHeight(this.getInfo(), (float)size));
-		return this.pixelRatioMap.get(size);
+		return this.pixelRatioMap.computeIfAbsent(size, k -> stbtt_ScaleForPixelHeight(this.getInfo(), (float)size));
 	}
 	
 	/** @return See {@link #bitmapID} */

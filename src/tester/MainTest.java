@@ -200,8 +200,8 @@ public class MainTest extends Game{
 	}
 	
 	public static void reset(){
-		testerGame.setCurrentState(new TesterGameState());
-//		testerGame.setCurrentState(new TesterMenuState());
+//		testerGame.setCurrentState(new TesterGameState());
+		testerGame.setCurrentState(new TesterMenuState());
 //		testerGame.setCurrentState(new GameEngineState());
 		
 		playerX = 200;
@@ -977,6 +977,24 @@ public class MainTest extends Game{
 			
 			this.addThing(scrollX);
 			this.addThing(scrollY);
+			
+			var centeredText = new MenuText(500, 30, 300, 50, "Centered j g I q S"){
+				@Override
+				public void render(Renderer r, ZRect2D bounds){
+					super.render(r, bounds);
+					r.setColor(new ZColor(0, 0, 1, 0.5));
+					var textBounds = getFont().stringBounds(getTextX() + getRelX(), getTextY() + getRelY(), this.getText(), 0, false)[this.getText().length()];
+					r.drawRectangle(textBounds);
+				}
+			};
+			centeredText.setFontColor(new ZColor(0));
+			centeredText.setFill(new ZColor(1));
+			centeredText.setBorder(new ZColor(.5));
+			centeredText.setBorderWidth(5);
+			centeredText.setFontSize(24);
+			centeredText.centerTextHorizontal();
+			centeredText.centerTextVertical();
+			this.addThing(centeredText);
 		}
 		
 		private void makeTextBox(MenuThing base, double y, MenuTextBox.Mode mode){

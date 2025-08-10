@@ -18,6 +18,7 @@ public class PauseMenuButton extends ZusassButton{
 	 */
 	public PauseMenuButton(double x, double y, String text, PauseMenu menu){
 		super(x, y, 250, 50, text);
+		this.centerText();
 		this.menu = menu;
 	}
 	

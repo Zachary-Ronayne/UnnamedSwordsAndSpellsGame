@@ -155,11 +155,12 @@ public class TextBuffer extends DrawableBuffer{
 		this.setTextX(this.getWidth() * 0.5 - this.getFont().stringWidth(this.getText()) * 0.5);
 	}
 	
-	// TODO fix weird issue with this suddenly not centering correctly
-	
 	/** Reposition the text so that it is at the center of the buffer on the y axis */
 	public void centerTextY(){
-		this.setTextY(this.getHeight() * 0.5 + this.getFont().getMaxHeight() * 0.5);
+		var font = this.getFont();
+		var fontAsset = font.getAsset();
+		var ratio = fontAsset.pixelRatio(font.getSize());
+		this.setTextY(this.getHeight() * 0.5 + this.getFont().stringBounds(this.getText()).height * 0.5 + fontAsset.getDescent() * 0.5 * ratio);
 	}
 	
 	/** @return See {@link #textY} */
