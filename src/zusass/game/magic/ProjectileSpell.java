@@ -83,7 +83,7 @@ public class ProjectileSpell extends Spell{
 		var p = new MagicProjectile(castPoint.getX(), castPoint.getY(), castPoint.getZ(), caster.getUuid(), vel, this.getEffects());
 		p.setRange(this.range);
 		p.setRadius(this.radius);
-		// TODO should this be called every time this method happens?
+		// Initialize the sound on the introduction of the projectile to the room
 		p.initSounds();
 		r.addThing(p);
 	}

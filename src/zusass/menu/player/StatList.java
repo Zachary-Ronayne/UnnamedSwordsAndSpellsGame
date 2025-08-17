@@ -149,7 +149,6 @@ public class StatList extends MenuHolder{
 		if(baseString != null) item.setText(baseString);
 		item.setFontSize(size * .8);
 		item.setRelY(y);
-		// TODO fix this text not showing up and the associated popup having a height of -1
 		item.setDescription(description);
 		if("".equals(baseString)) item.invisible();
 		this.textList.add(item);
