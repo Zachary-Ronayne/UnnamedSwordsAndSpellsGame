@@ -20,7 +20,7 @@ public class Npc extends ZusassMob{
 	private double spellTime;
 	
 	/** The buffer for drawing this Npc's resource bar */
-	private DrawableBuffer resourceBarBuffer;
+	private final DrawableBuffer resourceBarBuffer;
 	
 	/**
 	 * Create a new Npc with the given bounds
@@ -47,7 +47,16 @@ public class Npc extends ZusassMob{
 		this.getSpells().setSelectedSpellIndex(0);
 		
 		this.spellTime = 0;
-		this.resourceBarBuffer = null;
+		
+		int barBufferWidth = 300;
+		int barPixelHeight = 24;
+		int barBufferHeight = 90;
+		this.resourceBarBuffer = new DrawableBuffer(barBufferWidth, barBufferHeight){
+			@Override
+			public void draw(Renderer r){
+				drawResourceBars(r, 0, 0, barBufferWidth, barPixelHeight, false);
+			}
+		};
 	}
 	
 	@Override
@@ -119,29 +128,12 @@ public class Npc extends ZusassMob{
 				// TODO why does this need to be negative facing angle?
 				-facingAngle, ImageManager.image("goblin").getId());
 		
-		// issue#23 make a way of drawing a health bar above the mob, accounting for how this health bar will not be a part of the mob itself, but above it
-		
 		// Draw bars to represent its remaining health, stamina, and mana
-		
-		int barBufferWidth = 300;
-		int barPixelHeight = 24;
-		int barBufferHeight = 90;
-		if(this.resourceBarBuffer == null){
-			// TODO consider if there's a better way of doing this, checking if the buffer is null or not yet generated every time feels stupid
-			// TODO maybe make a drawable buffer that passes a lambda
-			this.resourceBarBuffer = new DrawableBuffer(barBufferWidth, barBufferHeight){
-				@Override
-				public void draw(Renderer r){
-					drawResourceBars(r, 0, 0, barBufferWidth, barPixelHeight, false);
-				}
-			};
-			this.resourceBarBuffer.regenerateBuffer();
-		}
 		this.resourceBarBuffer.redraw(r);
 		
 		// TODO fix the angles being flipped by default?
 		double barWidth = this.getWidth() * 1.2;
-		double barHeight = barWidth / barBufferWidth * barBufferHeight;
+		double barHeight = barWidth / this.resourceBarBuffer.getWidth() * this.resourceBarBuffer.getHeight();
 		r.drawPlaneBufferSide(
 				this.getX(), this.getY() + this.getHeight() + 0.05, this.getZ(), barWidth, barHeight, -facingAngle + Math.PI,
 				this.resourceBarBuffer.getTextureID());
