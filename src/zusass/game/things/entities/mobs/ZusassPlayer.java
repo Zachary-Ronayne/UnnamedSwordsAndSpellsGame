@@ -188,8 +188,6 @@ public class ZusassPlayer extends ZusassMob{
 		r.setColor(new ZColor(0.5));
 		this.renderAttackTimer(r);
 		
-		// TODO fix transparency rendering order
-		
 		// Billboard rendering of the player
 		r.drawPlaneBufferSide(
 				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(), this.getWidth(), this.getHeight(),
