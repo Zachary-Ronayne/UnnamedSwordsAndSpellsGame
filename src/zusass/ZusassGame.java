@@ -50,7 +50,7 @@ public class ZusassGame extends Game{
 	/** A class holding all the data used by this {@link ZusassGame} */
 	private ZusassData data;
 	
-	// TODO make the game manage a mapping of players to ids, allowing for multiple players
+	// issue#69 make the game manage a mapping of players to ids, allowing for multiple players
 	/** The main player which is in this game */
 	private ZusassPlayer player;
 	
