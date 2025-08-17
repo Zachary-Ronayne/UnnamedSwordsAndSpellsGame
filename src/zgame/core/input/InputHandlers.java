@@ -58,7 +58,7 @@ public class InputHandlers{
 	public boolean tick(int index){
 		var handler = this.handlers.get(index);
 		if(handler == null){
-			ZConfig.error("No input handler for index", index);
+			ZConfig.error("No input handler for index ", index);
 			return false;
 		}
 		

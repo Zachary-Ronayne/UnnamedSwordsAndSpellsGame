@@ -911,12 +911,12 @@ public class Renderer implements Destroyable{
 	/**
 	 * Rotate the transformation matrix by the given quaternion
 	 *
-	 * @param yaw The yaw to rotate
+	 * @param yaw The yaw to rotate, will be transformed to align with the engine's coordinates
 	 * @param pitch The pitch to rotate
 	 * @param roll The roll to rotate
 	 */
 	public void rotate(double yaw, double pitch, double roll){
-		this.rotate(new Quaternionf().rotateY((float)yaw).rotateX((float)pitch).rotateZ((float)roll));
+		this.rotate(new Quaternionf().rotateY((float)(-yaw + ZMath.PI_BY_2)).rotateX((float)pitch).rotateZ((float)roll));
 	}
 	
 	/**

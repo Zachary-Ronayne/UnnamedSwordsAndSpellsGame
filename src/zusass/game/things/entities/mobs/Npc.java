@@ -120,22 +120,20 @@ public class Npc extends ZusassMob{
 		r.setColor(0, 0.7, 0);
 		this.renderAttackTimer(r);
 		
-		double facingAngle = this.getMobilityData().getFacingYaw() + ZMath.PI_BY_2;
+		double facingAngle = this.getMobilityData().getFacingYaw();
 		
 		// Render a billboard texture
 		r.drawPlaneBufferSide(
 				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(), this.getWidth(), this.getHeight(),
-				// TODO why does this need to be negative facing angle?
-				-facingAngle, ImageManager.image("goblin").getId());
+				facingAngle, ImageManager.image("goblin").getId());
 		
 		// Draw bars to represent its remaining health, stamina, and mana
 		this.resourceBarBuffer.redraw(r);
 		
-		// TODO fix the angles being flipped by default?
 		double barWidth = this.getWidth() * 1.2;
 		double barHeight = barWidth / this.resourceBarBuffer.getWidth() * this.resourceBarBuffer.getHeight();
 		r.drawPlaneBufferSide(
-				this.getX(), this.getY() + this.getHeight() + 0.05, this.getZ(), barWidth, barHeight, -facingAngle + Math.PI,
+				this.getX(), this.getY() + this.getHeight() + 0.05, this.getZ(), barWidth, barHeight, facingAngle,
 				this.resourceBarBuffer.getTextureID());
 	}
 	

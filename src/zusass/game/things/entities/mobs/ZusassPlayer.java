@@ -13,7 +13,6 @@ import zgame.core.input.InputHandler;
 import zgame.core.input.InputHandlers;
 import zgame.core.input.InputType;
 import zgame.core.sound.SoundManager;
-import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
@@ -44,6 +43,9 @@ public class ZusassPlayer extends ZusassMob{
 	/** true if the camera should be in first person, false for third person */
 	private boolean firstPerson;
 	
+	/** Used for debugging, controls if the camera should follow the player or not */
+	private boolean followCamera;
+	
 	/**
 	 * Create a new object from json
 	 *
@@ -59,6 +61,7 @@ public class ZusassPlayer extends ZusassMob{
 		super(0, 0, 0, 0.2, 0.7);
 		this.casting = false;
 		this.firstPerson = true;
+		this.followCamera = true;
 		
 		this.inputDisabled = false;
 		this.addTags(ZusassTags.CAN_ENTER_LEVEL_DOOR, ZusassTags.MUST_CLEAR_LEVEL_ROOM, ZusassTags.HUB_ENTER_RESTORE);
@@ -92,6 +95,7 @@ public class ZusassPlayer extends ZusassMob{
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_E),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_F),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_R),
+				new InputHandler(InputType.KEYBOARD, GLFW_KEY_F8),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_LEFT_BRACKET),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_RIGHT_BRACKET)
 		);
@@ -111,7 +115,7 @@ public class ZusassPlayer extends ZusassMob{
 		 rather than setting the camera before any drawing operations happen, but it somehow looks glitchier doing it the latter way
 		 */
 		var game = Game.get();
-		this.updateCameraPos(game.getCamera3D());
+		if(this.followCamera) this.updateCameraPos(game.getCamera3D());
 		
 		//issue#61
 		// Update the sound listener to the player
@@ -148,6 +152,9 @@ public class ZusassPlayer extends ZusassMob{
 		
 		// Toggle first person or third person
 		if(this.inputHandlers.tick(GLFW_KEY_F)) this.firstPerson = !firstPerson;
+		
+		// Toggle following the camera
+		if(this.inputHandlers.tick(GLFW_KEY_F8)) this.followCamera = !followCamera;
 		
 		// Go to next or previous spell
 		if(this.inputHandlers.tick(GLFW_KEY_RIGHT_BRACKET)) this.getSpells().previousSpell();
@@ -186,8 +193,7 @@ public class ZusassPlayer extends ZusassMob{
 		// Billboard rendering of the player
 		r.drawPlaneBufferSide(
 				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(), this.getWidth(), this.getHeight(),
-				// TODO why is this negative and plus 90 degrees?
-				-this.getMobilityData().getFacingYaw() + ZMath.PI_BY_2,
+				this.getMobilityData().getFacingYaw(),
 				ImageManager.image("zusassPlayer").getId());
 	}
 	
