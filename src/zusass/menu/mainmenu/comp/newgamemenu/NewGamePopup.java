@@ -43,8 +43,7 @@ public class NewGamePopup extends Menu{
 		seedLabel.setFontSize(30);
 		this.addThing(seedLabel);
 		seedLabel.centerHorizontal();
-		seedLabel.setFullColor(seedLabel.getFill().alpha(0.2));
-		// TODO why does the font look transparent unless explicitly set here?
+		seedLabel.setFill(seedLabel.getFill().alpha(0.2));
 		seedLabel.setFontColor(new ZColor(0.5));
 		seedLabel.setBorderWidth(0);
 		seedLabel.centerText();
