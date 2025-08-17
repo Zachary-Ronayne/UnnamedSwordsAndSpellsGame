@@ -32,16 +32,15 @@ public abstract class NumberSettingsButton<N extends Number> extends ZusassTextB
 	 * @param min The minimum value this setting can be scrolled to
 	 * @param max The maximum value this setting can be scrolled to
 	 */
-	// TODO allow for floating point min/max, not just ints
-	public NumberSettingsButton(double x, double y, SettingType<N> setting, String name, Integer min, Integer max, boolean allowDecimal, BaseSettingsMenu menu){
+	public NumberSettingsButton(double x, double y, SettingType<N> setting, String name, N min, N max, boolean allowDecimal, BaseSettingsMenu menu){
 		super(x, y, 300, 45);
 		this.menu = menu;
 		this.setting = setting;
 		this.setHint(name + "...");
 		this.setLabel(name + ": ");
 		if(min != null && max != null){
-			if(allowDecimal) this.setMode(min < 0 || max < 0 ? Mode.FLOAT : Mode.FLOAT_POS);
-			else this.setMode(min < 0 || max < 0 ? Mode.INT : Mode.INT_POS);
+			if(allowDecimal) this.setMode(min.doubleValue() < 0 || max.doubleValue() < 0 ? Mode.FLOAT : Mode.FLOAT_POS);
+			else this.setMode(min.doubleValue() < 0 || max.doubleValue() < 0 ? Mode.INT : Mode.INT_POS);
 		}
 		else this.setMode(allowDecimal ? Mode.FLOAT : Mode.INT);
 		
@@ -49,11 +48,11 @@ public abstract class NumberSettingsButton<N extends Number> extends ZusassTextB
 		this.setCurrentText(String.valueOf(currentValue));
 		
 		if(min != null && max != null){
-			this.scroller = new HorizontalSelectionScroller(min, max, this){
+			this.scroller = new HorizontalSelectionScroller(min.doubleValue(), max.doubleValue(), this){
 				@Override
-				public void onScrollValueChange(double perc){
-					super.onScrollValueChange(perc);
-					setCurrentText(String.valueOf((int)perc));
+				public void onScrollValueChange(double amount){
+					super.onScrollValueChange(amount);
+					setCurrentText(scrollPercentToText(amount));
 				}
 			};
 			this.addThing(this.scroller);
@@ -61,6 +60,14 @@ public abstract class NumberSettingsButton<N extends Number> extends ZusassTextB
 		}
 		else this.scroller = null;
 	}
+	
+	/**
+	 * Get a string representing the given scroller value
+	 *
+	 * @param amount The value of the scroller at its current position
+	 * @return The string representing the value
+	 */
+	public abstract String scrollPercentToText(double amount);
 	
 	@Override
 	public void setCurrentText(String currentText){

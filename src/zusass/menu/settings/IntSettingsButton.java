@@ -24,4 +24,10 @@ public class IntSettingsButton extends NumberSettingsButton<Integer>{
 	public Integer getSettingInputValue(){
 		return this.getTextAsInt();
 	}
+	
+	@Override
+	public String scrollPercentToText(double amount){
+		return String.valueOf((int)amount);
+	}
+	
 }

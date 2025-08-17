@@ -16,7 +16,7 @@ public class DoubleSettingsButton extends NumberSettingsButton<Double>{
 	 * @param min The minimum value this setting can be scrolled to
 	 * @param max The maximum value this setting can be scrolled to
 	 */
-	public DoubleSettingsButton(double x, double y, DoubleTypeSetting setting, String name, Integer min, Integer max, BaseSettingsMenu menu){
+	public DoubleSettingsButton(double x, double y, DoubleTypeSetting setting, String name, Double min, Double max, BaseSettingsMenu menu){
 		super(x, y, setting, name, min, max, true, menu);
 	}
 	
@@ -24,4 +24,10 @@ public class DoubleSettingsButton extends NumberSettingsButton<Double>{
 	public Double getSettingInputValue(){
 		return this.getTextAsDouble();
 	}
+	
+	@Override
+	public String scrollPercentToText(double amount){
+		return String.format("%.2f", amount);
+	}
+	
 }
