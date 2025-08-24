@@ -36,6 +36,8 @@ import java.io.File;
  */
 public class ZusassGame extends Game{
 	
+	// TODO add settings for sound, make it mute effects and music if the slider is set to 0%
+	
 	/** The id used for the single window of the Zusass game */
 	public final static String ZUSASS_WINDOW_ID = "zusassMainWindow";
 	
@@ -126,6 +128,7 @@ public class ZusassGame extends Game{
 		im.add("goblin");
 		im.add("zusassPlayer");
 		im.add("resourceBar");
+		im.add("door");
 		
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		

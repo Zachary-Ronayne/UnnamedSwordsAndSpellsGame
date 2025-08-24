@@ -140,6 +140,10 @@ public class Renderer implements Destroyable{
 	private VertexBuffer rect3DTexCoordBuff;
 	/** The {@link VertexArray} for drawing a rectangular prism with a texture */
 	private VertexArray rect3DTexVertArr;
+	/** The {@link VertexBuffer} that tracks the texture coordinates which regularly change for drawing a 3D rectangular prism */
+	private VertexBuffer rect3DChangeTexCoordBuff;
+	/** The {@link VertexArray} for drawing a rectangular prism with a texture that has regularly changing texture coordinates */
+	private VertexArray rect3DTexChangeVertArr;
 	
 	/** The number of iterations for breaking up a sphere when drawing */
 	public static final int NUM_SPHERE_ITERATIONS = 16;
@@ -602,6 +606,10 @@ public class Renderer implements Destroyable{
 		}
 		this.rect3DTexCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_STATIC_DRAW, rect3DTexCoords);
 		
+		// Create the vertex buffer for the texture coordinates, default to all using the whole texture
+		// Buffer for the texture coordinate vertices
+		this.rect3DChangeTexCoordBuff = new VertexBuffer(VERTEX_TEX_INDEX, 2, GL_DYNAMIC_DRAW, rectIndex);
+		
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	}
 	
@@ -647,6 +655,9 @@ public class Renderer implements Destroyable{
 		
 		// Create a vertex array for drawing a textured cube
 		this.rect3DTexVertArr = new VertexArray(this.rect3DCoordBuff, this.rect3DTexCoordBuff);
+		
+		// Create a vertex array for drawing a texture with texture coordinates that vary
+		this.rect3DTexChangeVertArr = new VertexArray(this.rect3DCoordBuff, this.rect3DChangeTexCoordBuff);
 		
 		// By default, no bound array
 		this.boundVertexArray = null;
@@ -1981,6 +1992,38 @@ public class Renderer implements Destroyable{
 		
 		// Ensure the gpu has the current modelView
 		this.updateGpuModelView();
+		
+		// Draw the rect
+		glDrawElements(GL_QUADS, rect3DIndexBuff.getBuff());
+		this.popMatrix();
+		
+		return true;
+	}
+	
+	/**
+	 * Draw a rectangular prism using the given texture and associated coordinates
+	 * @param r The bounds to render
+	 * @param texture The texture to render
+	 * @param texCoords The way to interpret the texture to render
+	 * @return true if something was drawn, false otherwise
+	 */
+	public boolean drawRectPrismTex(RectRender3D r, GameImage texture, TexCoordsRectPrism3D texCoords){
+		// Use the texture shader and the 3D texture coordinate rect vertex array, and bind the needed texture
+		this.checkDefaultShader(RenderObjects.get().getTextureShader());
+		
+		this.bindVertexArray(this.rect3DTexChangeVertArr);
+		glBindTexture(GL_TEXTURE_2D, texture.getId());
+		
+		// Position the 3D rect
+		this.pushMatrix();
+		this.positionObject(r);
+		
+		// Position the texture coordinates
+		texCoords.updateVertexBuffer(this.rect3DChangeTexCoordBuff);
+		
+		// Ensure the gpu has the current modelView and color
+		this.updateGpuModelView();
+		this.updateGpuColor();
 		
 		// Draw the rect
 		glDrawElements(GL_QUADS, rect3DIndexBuff.getBuff());

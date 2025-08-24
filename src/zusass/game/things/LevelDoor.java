@@ -4,6 +4,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.TextOption;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.buffer.DrawableBuffer3D;
+import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.font.TextBuffer;
 import zgame.core.utils.ZArrayUtils;
 import zgame.core.utils.ZMath;
@@ -36,7 +37,12 @@ public class LevelDoor extends ZusassDoor{
 	public LevelDoor(double x, double y, double z, int level, Direction3D direction){
 		super(x, y, z, direction);
 		this.level = level;
-		this.levelTextBuffer = new DrawableBuffer3D(null);
+		
+		var textB = new TextBuffer(500, 500,
+				ZArrayUtils.singleList(new TextOption("Level: " + this.getLevel(), new ZColor(0.8))), FontManager.getDefaultFont().size(90));
+		textB.centerTextX();
+		textB.centerTextY();
+		this.levelTextBuffer = new DrawableBuffer3D(textB);
 		this.updateLevelTextBufferPosition();
 	}
 	
@@ -62,7 +68,7 @@ public class LevelDoor extends ZusassDoor{
 		else xOffset = sideOffset;
 		
 		this.levelTextBuffer.setX(this.getX() + xOffset);
-		this.levelTextBuffer.setY(this.getY() + this.getHeight() * 0.5);
+		this.levelTextBuffer.setY(this.getY() + this.getHeight() * 0.75);
 		this.levelTextBuffer.setZ(this.getZ() + zOffset);
 		double size = longSide * 0.95;
 		this.levelTextBuffer.setWidth(size);
@@ -114,15 +120,6 @@ public class LevelDoor extends ZusassDoor{
 	@Override
 	public void render(Renderer r){
 		super.render(r);
-		
-		if(this.levelTextBuffer.getBuffer() == null){
-			var textB = new TextBuffer(500, 500,
-					ZArrayUtils.singleList(new TextOption("Level: " + this.getLevel(), new ZColor(0.8))),
-					r.getFont().size(90));
-			textB.centerTextX();
-			textB.centerTextY();
-			this.levelTextBuffer.setBuffer(textB);
-		}
 		
 		this.levelTextBuffer.render(r);
 	}
