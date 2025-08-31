@@ -16,7 +16,10 @@ public class TexCoordsRectPrism3D{
 	 *
 	 * @param data The vertices which will be flattened to a 1D array. Indexed as data[face][vertex][coordinate],
 	 * 		<br/>
-	 * 		face, length 6, is indexed as, [0-5], [back, front, right, left, top, bottom] TODO consider reversing back with front and left with right, or is this already how it is?
+	 * 		face, length 6, is indexed as, [0-5], [front, back, left, right, top, bottom],
+	 * 		Where with no rotations, this object is facing north, and the front face is the north most face of the object,
+	 * 		meaning if an observer is also facing north and can see the object, i.e. the observer is behind the object, then
+	 * 		the observer will see the back face of the object
 	 * 		<br/>
 	 * 		vertex, length 4, is indexed as {@link Renderer}'s standard texture coordinates, bottom left, bottom right, upper right, upper left
 	 * 		<br/>

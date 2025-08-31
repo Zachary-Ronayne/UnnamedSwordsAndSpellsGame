@@ -327,7 +327,7 @@ public class Renderer implements Destroyable{
 		// Generate an index buffer for drawing rectangles
 		this.rectIndexBuff = new IndexByteBuffer(new byte[]{
 				0, 1, 2,
-				0, 3, 2
+				2, 3, 0
 		});
 		
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -358,7 +358,7 @@ public class Renderer implements Destroyable{
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		// Generate the indexes for the finite 3D plane
-		this.planeIndexBuff = new IndexByteBuffer(new byte[]{0, 1, 2, 3});
+		this.planeIndexBuff = new IndexByteBuffer(new byte[]{1, 0, 3, 2});
 		
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
@@ -492,15 +492,15 @@ public class Renderer implements Destroyable{
 				// Front
 				{4, 5, 6, 7},
 				// Back
-				{0, 1, 2, 3},
+				{1, 0, 3, 2},
 				// Left
-				{0, 4, 7, 3},
+				{5, 1, 2, 6},
 				// Right
-				{1, 5, 6, 2},
+				{0, 4, 7, 3},
 				// Top
-				{3, 2, 6, 7},
+				{2, 3, 7, 6},
 				// Bottom
-				{0, 1, 5, 4},
+				{5, 4, 0, 1},
 		};
 		
 		var cubePositions = new float[6 * 4 * 3];
@@ -616,7 +616,9 @@ public class Renderer implements Destroyable{
 	/** Initialize each type of vertex array core to the renderer */
 	private void initVertexArrays(){
 		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// 2D vertex arrays
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		// Generate a vertex array for drawing solid colored rectangles
 		this.rectVertArr = new VertexArray(this.fillScreenPosBuff);
@@ -633,7 +635,9 @@ public class Renderer implements Destroyable{
 		// Generate a vertex array for rendering ellipses
 		this.ellipseVertArr = new VertexArray(this.ellipsePosBuff);
 		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// 3D vertex arrays
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		// Create and bind the vertex array for the 3D rect
 		this.rect3DVertArr = new VertexArray(this.rect3DCoordBuff, this.rect3DColorBuff);
@@ -658,6 +662,8 @@ public class Renderer implements Destroyable{
 		
 		// Create a vertex array for drawing a texture with texture coordinates that vary
 		this.rect3DTexChangeVertArr = new VertexArray(this.rect3DCoordBuff, this.rect3DChangeTexCoordBuff);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		// By default, no bound array
 		this.boundVertexArray = null;
@@ -1994,7 +2000,7 @@ public class Renderer implements Destroyable{
 		this.updateGpuModelView();
 		
 		// Draw the rect
-		glDrawElements(GL_QUADS, rect3DIndexBuff.getBuff());
+		glDrawElements(GL_QUADS, this.rect3DIndexBuff.getBuff());
 		this.popMatrix();
 		
 		return true;
@@ -2026,7 +2032,7 @@ public class Renderer implements Destroyable{
 		this.updateGpuColor();
 		
 		// Draw the rect
-		glDrawElements(GL_QUADS, rect3DIndexBuff.getBuff());
+		glDrawElements(GL_QUADS, this.rect3DIndexBuff.getBuff());
 		this.popMatrix();
 		
 		return true;

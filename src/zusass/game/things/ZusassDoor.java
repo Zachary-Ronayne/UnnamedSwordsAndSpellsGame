@@ -47,8 +47,9 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 		double longSide = 0.5;
 		double shortSide = 0.125;
 		var direction = this.getFacingDirection();
-		boolean rotate = direction == Direction3D.NORTH || direction == Direction3D.SOUTH;
-		if(rotate){
+		boolean facingZ = direction == Direction3D.NORTH || direction == Direction3D.SOUTH;
+		boolean facingPos = direction == Direction3D.NORTH || direction == Direction3D.WEST;
+		if(facingZ){
 			this.setWidth(longSide);
 			this.setLength(shortSide);
 		}
@@ -58,83 +59,102 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 		}
 		
 		var data = new float[6][4][2];
+		
 		// TODO load these from a file based on configuration for how big each texture is instead of hard coding all of this crap
-		
 		// Constants from the image size
-		final float IW = 20;
+		// Image width
+		final float IW = 40;
+		// Image height
 		final float IH = 36;
+		// Width of texture on object
+		final float W = 16;
+		// Height of texture on object
 		final float H = 32;
+		
+		// Length of texture on object, based on texture format
 		final float L = IH - H;
-		final float W = IW - L;
 		
-		// TODO find a better way to handle rotations, including rotating the doorknob correctly, probably make it a config in the file
-		final int BACK = rotate ? 0 : 3;
-		final int FRONT = rotate ? 1 : 2;
-		final int RIGHT = rotate ? 2 : 0;
-		final int LEFT = rotate ? 3 : 1;
-		boolean swapKnob = direction == Direction3D.SOUTH || direction == Direction3D.WEST;
-		final float KNOB_RIGHT = swapKnob ? 0 : W / IW;
-		final float KNOB_LEFT = swapKnob ? W / IW : 0;
+		// Indexes for coordinates
+		final int X = 0;
+		final int Y = 1;
 		
-		// Back face
-		data[BACK][0][0] = KNOB_LEFT;
-		data[BACK][0][1] = L / IH;
-		data[BACK][1][0] = KNOB_RIGHT;
-		data[BACK][1][1] = L / IH;
-		data[BACK][2][0] = KNOB_RIGHT;
-		data[BACK][2][1] = 1;
-		data[BACK][3][0] = KNOB_LEFT;
-		data[BACK][3][1] = 1;
+		// TODO find a better way to handle rotations, probably render based always on the same north facing rect bounds, but let the hitbox change
+		final int FRONT = facingPos ? (facingZ ? 0 : 2) : (facingZ ? 1 : 3);
+		final int BACK = facingPos ? (facingZ ? 1 : 3) : (facingZ ? 0 : 2);
+		final int LEFT = facingPos ? (facingZ ? 2 : 1) : (facingZ ? 3 : 0);
+		final int RIGHT = facingPos ? (facingZ ? 3 : 0) : (facingZ ? 2 : 1);
+		final int TOP = 4;
+		final int BOTTOM = 5;
+		
+		final int TOP_X1Y1 = facingPos ? (facingZ ? 0 : 1) : (facingZ ? 2 : 3);
+		final int TOP_X2Y1 = facingPos ? (facingZ ? 1 : 2) : (facingZ ? 3 : 0);
+		final int TOP_X2Y2 = facingPos ? (facingZ ? 2 : 3) : (facingZ ? 0 : 1);
+		final int TOP_X1Y2 = facingPos ? (facingZ ? 3 : 0) : (facingZ ? 1 : 2);
+		
+		final int BOT_X1Y1 = facingPos ? (facingZ ? 0 : 3) : (facingZ ? 2 : 1);
+		final int BOT_X2Y1 = facingPos ? (facingZ ? 1 : 0) : (facingZ ? 3 : 2);
+		final int BOT_X2Y2 = facingPos ? (facingZ ? 2 : 1) : (facingZ ? 0 : 3);
+		final int BOT_X1Y2 = facingPos ? (facingZ ? 3 : 2) : (facingZ ? 1 : 0);
 		
 		// Front face
-		data[FRONT][0][0] = KNOB_LEFT;
-		data[FRONT][0][1] = L / IH;
-		data[FRONT][1][0] = KNOB_RIGHT;
-		data[FRONT][1][1] = L / IH;
-		data[FRONT][2][0] = KNOB_RIGHT;
-		data[FRONT][2][1] = 1;
-		data[FRONT][3][0] = KNOB_LEFT;
-		data[FRONT][3][1] = 1;
+		data[FRONT][0][X] = 0;
+		data[FRONT][0][Y] = L / IH;
+		data[FRONT][1][X] = W / IW;
+		data[FRONT][1][Y] = L / IH;
+		data[FRONT][2][X] = W / IW;
+		data[FRONT][2][Y] = 1;
+		data[FRONT][3][X] = 0;
+		data[FRONT][3][Y] = 1;
 		
-		// Right face
-		data[RIGHT][0][0] = W / IW;
-		data[RIGHT][0][1] = L / IH;
-		data[RIGHT][1][0] = 1;
-		data[RIGHT][1][1] = L / IH;
-		data[RIGHT][2][0] = 1;
-		data[RIGHT][2][1] = 1;
-		data[RIGHT][3][0] = W / IW;
-		data[RIGHT][3][1] = 1;
+		// Back face
+		data[BACK][0][X] = W / IW;
+		data[BACK][0][Y] = L / IH;
+		data[BACK][1][X] = (W + W) / IW;
+		data[BACK][1][Y] = L / IH;
+		data[BACK][2][X] = (W + W) / IW;
+		data[BACK][2][Y] = 1;
+		data[BACK][3][X] = W / IW;
+		data[BACK][3][Y] = 1;
 		
 		// Left face
-		data[LEFT][0][0] = W / IW;
-		data[LEFT][0][1] = L / IH;
-		data[LEFT][1][0] = 1;
-		data[LEFT][1][1] = L / IH;
-		data[LEFT][2][0] = 1;
-		data[LEFT][2][1] = 1;
-		data[LEFT][3][0] = W / IW;
-		data[LEFT][3][1] = 1;
+		data[LEFT][0][X] = (W + W ) / IW;
+		data[LEFT][0][Y] = L / IH;
+		data[LEFT][1][X] = (W + W + L) / IW;
+		data[LEFT][1][Y] = L / IH;
+		data[LEFT][2][X] = (W + W + L) / IW;
+		data[LEFT][2][Y] = 1;
+		data[LEFT][3][X] = (W + W) / IW;
+		data[LEFT][3][Y] = 1;
+		
+		// Right face
+		data[RIGHT][0][X] = (W + W + L) / IW;
+		data[RIGHT][0][Y] = L / IH;
+		data[RIGHT][1][X] = (W + W + L + L) / IW;
+		data[RIGHT][1][Y] = L / IH;
+		data[RIGHT][2][X] = (W + W + L + L) / IW;
+		data[RIGHT][2][Y] = 1;
+		data[RIGHT][3][X] = (W + W + L) / IW;
+		data[RIGHT][3][Y] = 1;
 		
 		// Top face
-		data[4][0][0] = 0;
-		data[4][0][1] = 0;
-		data[4][1][0] = W / IW;
-		data[4][1][1] = 0;
-		data[4][2][0] = W / IW;
-		data[4][2][1] = L / IH;
-		data[4][3][0] = 0;
-		data[4][3][1] = L / IH;
+		data[TOP][TOP_X1Y1][X] = 0;
+		data[TOP][TOP_X1Y1][Y] = 0;
+		data[TOP][TOP_X2Y1][X] = W / IW;
+		data[TOP][TOP_X2Y1][Y] = 0;
+		data[TOP][TOP_X2Y2][X] = W / IW;
+		data[TOP][TOP_X2Y2][Y] = L / IH;
+		data[TOP][TOP_X1Y2][X] = 0;
+		data[TOP][TOP_X1Y2][Y] = L / IH;
 		
 		// Bottom face
-		data[5][0][0] = 0;
-		data[5][0][1] = 0;
-		data[5][1][0] = W / IW;
-		data[5][1][1] = 0;
-		data[5][2][0] = W / IW;
-		data[5][2][1] = L / IH;
-		data[5][3][0] = 0;
-		data[5][3][1] = L / IH;
+		data[BOTTOM][BOT_X1Y1][X] = W / IW;
+		data[BOTTOM][BOT_X1Y1][Y] = 0;
+		data[BOTTOM][BOT_X2Y1][X] = (W + W) / IW;
+		data[BOTTOM][BOT_X2Y1][Y] = 0;
+		data[BOTTOM][BOT_X2Y2][X] = (W + W) / IW;
+		data[BOTTOM][BOT_X2Y2][Y] = L / IH;
+		data[BOTTOM][BOT_X1Y2][X] = W / IW;
+		data[BOTTOM][BOT_X1Y2][Y] = L / IH;
 		
 		this.textureCoordinates = new TexCoordsRectPrism3D(data);
 	}

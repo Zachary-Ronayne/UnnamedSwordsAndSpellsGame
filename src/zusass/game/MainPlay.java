@@ -183,6 +183,7 @@ public class MainPlay extends PlayState{
 			double ty = ZusassGame.window().getHeight() - 5;
 			var yaw = mobilityData.getFacingYaw();
 			var velocity = p.getVelocity();
+			var dir = Direction3D.findCardinal(yaw);
 			var debugTextList = List.of(
 					"FPS: " + zgame.getFps(),
 					"X: " + this.debugNumberFormat.format(p.getX()),
@@ -193,7 +194,7 @@ public class MainPlay extends PlayState{
 					"VZ: " + this.debugNumberFormat.format(velocity.getZ()),
 					"YAW: " + this.debugNumberFormat.format(Math.toDegrees(ZMath.angleNormalized(yaw))),
 					"PIT: " + this.debugNumberFormat.format(Math.toDegrees(ZMath.angleNormalized(mobilityData.getFacingPitch()))),
-					"FAC: " + Direction3D.findCardinal(yaw).name()
+					"FAC: " + dir.name() + " (" + (dir.isNegative() ? "-" : "+") + (dir.xAxis() ? "X" : "Z") + ")"
 			);
 			double border = 1;
 			for(int i = debugTextList.size() - 1; i >= 0; i--){

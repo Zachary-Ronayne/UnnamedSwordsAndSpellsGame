@@ -70,6 +70,20 @@ public enum Direction3D{
 		return this.pitch;
 	}
 	
+	/** @return true if this direction is on the x axis, false otherwise */
+	public boolean xAxis(){
+		return this == EAST || this == WEST;
+	}
+	
+	/** @return true if this direction is on the y axis, false otherwise */
+	public boolean yAxis(){
+		return this == UP || this == DOWN;
+	}
+	/** @return true if this direction is on the z axis, false otherwise */
+	public boolean zAxis(){
+		return this == NORTH || this == SOUTH;
+	}
+	
 	/**
 	 * Determine the cardinal direction that the given angle most closely points to
 	 * @param yaw The angle, in radians
