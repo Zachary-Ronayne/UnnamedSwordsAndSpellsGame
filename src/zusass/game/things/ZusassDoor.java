@@ -1,11 +1,9 @@
 package zusass.game.things;
 
-import zgame.core.graphics.RectRender3D;
-import zgame.core.graphics.Renderer;
-import zgame.core.graphics.TexCoordsRectPrism3D;
-import zgame.core.graphics.ZColor;
+import zgame.core.graphics.*;
 import zgame.core.graphics.image.ImageManager;
 import zgame.core.utils.ZConfig;
+import zgame.core.utils.ZMath;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.still.Door;
 import zgame.things.still.Door3D;
@@ -22,6 +20,9 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 	
 	/** The direction this door should be facing towards */
 	private final Direction3D facingDirection;
+	
+	/** The bounds used when determining how this door should be rendered */
+	private RectRender3D renderRect;
 	
 	/**
 	 * Create a new door at the given position
@@ -43,23 +44,6 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 	
 	/** Update the dimensions of this door based on the current value of {@link #facingDirection} */
 	private void updateFacingDimensions(){
-		// Set width and height based on direction
-		double longSide = 0.5;
-		double shortSide = 0.125;
-		var direction = this.getFacingDirection();
-		boolean facingZ = direction == Direction3D.NORTH || direction == Direction3D.SOUTH;
-		boolean facingPos = direction == Direction3D.NORTH || direction == Direction3D.WEST;
-		if(facingZ){
-			this.setWidth(longSide);
-			this.setLength(shortSide);
-		}
-		else{
-			this.setWidth(shortSide);
-			this.setLength(longSide);
-		}
-		
-		var data = new float[6][4][2];
-		
 		// TODO load these from a file based on configuration for how big each texture is instead of hard coding all of this crap
 		// Constants from the image size
 		// Image width
@@ -70,91 +54,110 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 		final float W = 16;
 		// Height of texture on object
 		final float H = 32;
-		
 		// Length of texture on object, based on texture format
 		final float L = IH - H;
+		
+		// Scale door assuming that 1 would be the whole width
+		double doorScale = 0.5;
+		double longSide = doorScale;
+		double shortSide = doorScale / W * L;
+		
+		// Set width and height based on direction
+		var direction = this.getFacingDirection();
+		boolean facingZ = direction == Direction3D.NORTH || direction == Direction3D.SOUTH;
+		if(facingZ){
+			this.setWidth(longSide);
+			this.setLength(shortSide);
+		}
+		else{
+			this.setWidth(shortSide);
+			this.setLength(longSide);
+		}
+		
+		// Rotation will be based on the facing direction
+		var renderBounds = this.getBounds();
+		renderBounds.setWidth(longSide);
+		renderBounds.setLength(shortSide);
+		this.renderRect = new RectRender3D(renderBounds);
+		var rot = new RotRender3D();
+		rot.setRotY(this.facingDirection.getYaw() - ZMath.PI_BY_2);
+		this.renderRect.setRot(rot);
+		
+		var data = new float[6][4][2];
 		
 		// Indexes for coordinates
 		final int X = 0;
 		final int Y = 1;
-		
-		// TODO find a better way to handle rotations, probably render based always on the same north facing rect bounds, but let the hitbox change
-		final int FRONT = facingPos ? (facingZ ? 0 : 2) : (facingZ ? 1 : 3);
-		final int BACK = facingPos ? (facingZ ? 1 : 3) : (facingZ ? 0 : 2);
-		final int LEFT = facingPos ? (facingZ ? 2 : 1) : (facingZ ? 3 : 0);
-		final int RIGHT = facingPos ? (facingZ ? 3 : 0) : (facingZ ? 2 : 1);
+		final int FRONT = 0;
+		final int BACK = 1;
+		final int LEFT = 2;
+		final int RIGHT = 3;
 		final int TOP = 4;
 		final int BOTTOM = 5;
-		
-		final int TOP_X1Y1 = facingPos ? (facingZ ? 0 : 1) : (facingZ ? 2 : 3);
-		final int TOP_X2Y1 = facingPos ? (facingZ ? 1 : 2) : (facingZ ? 3 : 0);
-		final int TOP_X2Y2 = facingPos ? (facingZ ? 2 : 3) : (facingZ ? 0 : 1);
-		final int TOP_X1Y2 = facingPos ? (facingZ ? 3 : 0) : (facingZ ? 1 : 2);
-		
-		final int BOT_X1Y1 = facingPos ? (facingZ ? 0 : 3) : (facingZ ? 2 : 1);
-		final int BOT_X2Y1 = facingPos ? (facingZ ? 1 : 0) : (facingZ ? 3 : 2);
-		final int BOT_X2Y2 = facingPos ? (facingZ ? 2 : 1) : (facingZ ? 0 : 3);
-		final int BOT_X1Y2 = facingPos ? (facingZ ? 3 : 2) : (facingZ ? 1 : 0);
+		final int BOT_LEFT = 0;
+		final int BOT_RIGHT = 1;
+		final int TOP_RIGHT = 2;
+		final int TOP_LEFT = 3;
 		
 		// Front face
-		data[FRONT][0][X] = 0;
-		data[FRONT][0][Y] = L / IH;
-		data[FRONT][1][X] = W / IW;
-		data[FRONT][1][Y] = L / IH;
-		data[FRONT][2][X] = W / IW;
-		data[FRONT][2][Y] = 1;
-		data[FRONT][3][X] = 0;
-		data[FRONT][3][Y] = 1;
+		data[FRONT][BOT_LEFT][X] = 0;
+		data[FRONT][BOT_LEFT][Y] = L / IH;
+		data[FRONT][BOT_RIGHT][X] = W / IW;
+		data[FRONT][BOT_RIGHT][Y] = L / IH;
+		data[FRONT][TOP_RIGHT][X] = W / IW;
+		data[FRONT][TOP_RIGHT][Y] = 1;
+		data[FRONT][TOP_LEFT][X] = 0;
+		data[FRONT][TOP_LEFT][Y] = 1;
 		
 		// Back face
-		data[BACK][0][X] = W / IW;
-		data[BACK][0][Y] = L / IH;
-		data[BACK][1][X] = (W + W) / IW;
-		data[BACK][1][Y] = L / IH;
-		data[BACK][2][X] = (W + W) / IW;
-		data[BACK][2][Y] = 1;
-		data[BACK][3][X] = W / IW;
-		data[BACK][3][Y] = 1;
+		data[BACK][BOT_LEFT][X] = W / IW;
+		data[BACK][BOT_LEFT][Y] = L / IH;
+		data[BACK][BOT_RIGHT][X] = (W + W) / IW;
+		data[BACK][BOT_RIGHT][Y] = L / IH;
+		data[BACK][TOP_RIGHT][X] = (W + W) / IW;
+		data[BACK][TOP_RIGHT][Y] = 1;
+		data[BACK][TOP_LEFT][X] = W / IW;
+		data[BACK][TOP_LEFT][Y] = 1;
 		
 		// Left face
-		data[LEFT][0][X] = (W + W ) / IW;
-		data[LEFT][0][Y] = L / IH;
-		data[LEFT][1][X] = (W + W + L) / IW;
-		data[LEFT][1][Y] = L / IH;
-		data[LEFT][2][X] = (W + W + L) / IW;
-		data[LEFT][2][Y] = 1;
-		data[LEFT][3][X] = (W + W) / IW;
-		data[LEFT][3][Y] = 1;
+		data[LEFT][BOT_LEFT][X] = (W + W ) / IW;
+		data[LEFT][BOT_LEFT][Y] = L / IH;
+		data[LEFT][BOT_RIGHT][X] = (W + W + L) / IW;
+		data[LEFT][BOT_RIGHT][Y] = L / IH;
+		data[LEFT][TOP_RIGHT][X] = (W + W + L) / IW;
+		data[LEFT][TOP_RIGHT][Y] = 1;
+		data[LEFT][TOP_LEFT][X] = (W + W) / IW;
+		data[LEFT][TOP_LEFT][Y] = 1;
 		
 		// Right face
-		data[RIGHT][0][X] = (W + W + L) / IW;
-		data[RIGHT][0][Y] = L / IH;
-		data[RIGHT][1][X] = (W + W + L + L) / IW;
-		data[RIGHT][1][Y] = L / IH;
-		data[RIGHT][2][X] = (W + W + L + L) / IW;
-		data[RIGHT][2][Y] = 1;
-		data[RIGHT][3][X] = (W + W + L) / IW;
-		data[RIGHT][3][Y] = 1;
+		data[RIGHT][BOT_LEFT][X] = (W + W + L) / IW;
+		data[RIGHT][BOT_LEFT][Y] = L / IH;
+		data[RIGHT][BOT_RIGHT][X] = (W + W + L + L) / IW;
+		data[RIGHT][BOT_RIGHT][Y] = L / IH;
+		data[RIGHT][TOP_RIGHT][X] = (W + W + L + L) / IW;
+		data[RIGHT][TOP_RIGHT][Y] = 1;
+		data[RIGHT][TOP_LEFT][X] = (W + W + L) / IW;
+		data[RIGHT][TOP_LEFT][Y] = 1;
 		
 		// Top face
-		data[TOP][TOP_X1Y1][X] = 0;
-		data[TOP][TOP_X1Y1][Y] = 0;
-		data[TOP][TOP_X2Y1][X] = W / IW;
-		data[TOP][TOP_X2Y1][Y] = 0;
-		data[TOP][TOP_X2Y2][X] = W / IW;
-		data[TOP][TOP_X2Y2][Y] = L / IH;
-		data[TOP][TOP_X1Y2][X] = 0;
-		data[TOP][TOP_X1Y2][Y] = L / IH;
+		data[TOP][BOT_LEFT][X] = 0;
+		data[TOP][BOT_LEFT][Y] = 0;
+		data[TOP][BOT_RIGHT][X] = W / IW;
+		data[TOP][BOT_RIGHT][Y] = 0;
+		data[TOP][TOP_RIGHT][X] = W / IW;
+		data[TOP][TOP_RIGHT][Y] = L / IH;
+		data[TOP][TOP_LEFT][X] = 0;
+		data[TOP][TOP_LEFT][Y] = L / IH;
 		
 		// Bottom face
-		data[BOTTOM][BOT_X1Y1][X] = W / IW;
-		data[BOTTOM][BOT_X1Y1][Y] = 0;
-		data[BOTTOM][BOT_X2Y1][X] = (W + W) / IW;
-		data[BOTTOM][BOT_X2Y1][Y] = 0;
-		data[BOTTOM][BOT_X2Y2][X] = (W + W) / IW;
-		data[BOTTOM][BOT_X2Y2][Y] = L / IH;
-		data[BOTTOM][BOT_X1Y2][X] = W / IW;
-		data[BOTTOM][BOT_X1Y2][Y] = L / IH;
+		data[BOTTOM][BOT_LEFT][X] = W / IW;
+		data[BOTTOM][BOT_LEFT][Y] = 0;
+		data[BOTTOM][BOT_RIGHT][X] = (W + W) / IW;
+		data[BOTTOM][BOT_RIGHT][Y] = 0;
+		data[BOTTOM][TOP_RIGHT][X] = (W + W) / IW;
+		data[BOTTOM][TOP_RIGHT][Y] = L / IH;
+		data[BOTTOM][TOP_LEFT][X] = W / IW;
+		data[BOTTOM][TOP_LEFT][Y] = L / IH;
 		
 		this.textureCoordinates = new TexCoordsRectPrism3D(data);
 	}
@@ -202,9 +205,9 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 		boolean canClick = clickDistance <= maxClickRange && clickDistance >= 0 && (tileDistance < 0 || tileDistance > clickDistance);
 		if(canClick){
 			r.pushTextureTintShader();
-			r.setColor(new ZColor(0.8));
+			r.setColor(new ZColor(0.7));
 		}
-		r.drawRectPrismTex(new RectRender3D(this.getBounds()), ImageManager.image("door"), this.textureCoordinates);
+		r.drawRectPrismTex(this.renderRect, ImageManager.image("door"), this.textureCoordinates);
 		if(canClick) r.popShader();
 	}
 	
