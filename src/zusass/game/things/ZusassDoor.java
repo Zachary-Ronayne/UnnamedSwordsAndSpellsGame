@@ -44,6 +44,8 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 	
 	/** Update the dimensions of this door based on the current value of {@link #facingDirection} */
 	private void updateFacingDimensions(){
+		// TODO make a better abstract way of doing this rather than having to explicitly set these values
+		// TODO verify that the coordinates set in the renderer match the actual coordinates rendered
 		double longSide = this.textureCoordinates.getRectRender().getWidth();
 		double shortSide = this.textureCoordinates.getRectRender().getLength();
 		
@@ -105,7 +107,7 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 			r.pushTextureTintShader();
 			r.setColor(new ZColor(0.7));
 		}
-		r.drawRectPrismTex(this.textureCoordinates.getRectRender(), ImageManager.image("door"), this.textureCoordinates);
+		r.drawRectPrismTex(this.textureCoordinates);
 		if(canClick) r.popShader();
 	}
 	

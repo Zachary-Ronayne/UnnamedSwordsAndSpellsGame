@@ -2010,21 +2010,19 @@ public class Renderer implements Destroyable{
 	
 	/**
 	 * Draw a rectangular prism using the given texture and associated coordinates
-	 * @param r The bounds to render
-	 * @param texture The texture to render
 	 * @param texCoords The way to interpret the texture to render
 	 * @return true if something was drawn, false otherwise
 	 */
-	public boolean drawRectPrismTex(RectRender3D r, GameImage texture, TexCoordsRectPrism3D texCoords){
+	public boolean drawRectPrismTex(TexCoordsRectPrism3D texCoords){
 		// Use the texture shader and the 3D texture coordinate rect vertex array, and bind the needed texture
 		this.checkDefaultShader(RenderObjects.get().getTextureShader());
 		
 		this.bindVertexArray(this.rect3DTexChangeVertArr);
-		glBindTexture(GL_TEXTURE_2D, texture.getId());
+		glBindTexture(GL_TEXTURE_2D, texCoords.getTexture().getId());
 		
 		// Position the 3D rect
 		this.pushMatrix();
-		this.positionObject(r);
+		this.positionObject(texCoords.getRectRender());
 		
 		// Position the texture coordinates
 		texCoords.updateVertexBuffer(this.rect3DChangeTexCoordBuff);

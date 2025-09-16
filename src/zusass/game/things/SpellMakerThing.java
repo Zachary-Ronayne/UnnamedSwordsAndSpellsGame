@@ -1,13 +1,14 @@
 package zusass.game.things;
 
 import zgame.core.GameTickable;
-import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.graphics.texture.TexCoordsRectPrism3D;
 import zgame.core.state.MenuNode;
 import zgame.things.still.StaticThing3D;
 import zgame.things.type.GameThing;
 import zgame.things.type.bounds.RectPrismClickable;
+import zgame.world.Direction3D;
 import zusass.ZusassGame;
 import zusass.game.ZusassRoom;
 import zusass.menu.spellmaker.SpellMakerMenu;
@@ -23,16 +24,27 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	/** The menu that this thing controls */
 	private final SpellMakerMenu menu;
 	
+	/** The texture coordinates used for the spell maker */
+	private final TexCoordsRectPrism3D textureCoordinates;
+	
 	/**
 	 * Make a spell maker at the given position
 	 * @param x The upper left hand x coordinate
 	 * @param y The upper left hand y coordinate
 	 */
 	public SpellMakerThing(double x, double y, double z){
-		super(x, y, z, 0.4, 0.2, 0.4);
+		// TODO make a real way of specifying dimensions here
+		super(x, y, z, 1, 0.5, 1);
 		this.uuid = UUID.randomUUID().toString();
 		
 		this.menu = new SpellMakerMenu();
+		this.textureCoordinates = new TexCoordsRectPrism3D("spellMaker");
+		this.textureCoordinates.initRectRender(this.getBounds(), 0.5, Direction3D.NORTH);
+		var rectRender = this.textureCoordinates.getRectRender();
+		rectRender.setHeight(rectRender.getHeight() * 0.5);
+		this.setWidth(rectRender.getWidth());
+		this.setHeight(rectRender.getHeight());
+		this.setLength(rectRender.getLength());
 	}
 	
 	@Override
@@ -43,9 +55,25 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	
 	@Override
 	protected void render(Renderer r){
-		var b = this.getBounds();
-		var c = new ZColor(.6, 0, .8);
-		r.drawRectPrism(new RectRender3D(b), c, c, c, c, c, c);
+		// TODO abstract this somehow with the same code used in the door
+		var zgame = ZusassGame.get();
+		double clickDistance = this.findClickDistance(zgame.getPlayer());
+		double maxClickRange = zgame.getPlayer().getClickRange();
+		
+		// Check for tiles
+		double tileDistance = -1;
+		if(clickDistance >= 0){
+			var room = zgame.getCurrentRoom();
+			if(room != null) tileDistance = room.findTileClickDistance(zgame.getPlayer());
+		}
+		
+		boolean canClick = clickDistance <= maxClickRange && clickDistance >= 0 && (tileDistance < 0 || tileDistance > clickDistance);
+		if(canClick){
+			r.pushTextureTintShader();
+			r.setColor(new ZColor(0.7));
+		}
+		r.drawRectPrismTex(this.textureCoordinates);
+		if(canClick) r.popShader();
 	}
 	
 	@Override
