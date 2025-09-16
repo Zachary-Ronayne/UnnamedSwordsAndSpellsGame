@@ -1,7 +1,7 @@
 package zusass.menu;
 
 import zgame.core.graphics.Renderer;
-import zgame.core.graphics.RepeatingTexture;
+import zgame.core.graphics.texture.RepeatingTexture;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.image.ImageManager;

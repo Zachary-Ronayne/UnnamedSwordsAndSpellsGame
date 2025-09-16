@@ -15,6 +15,8 @@ import zgame.core.graphics.font.GameFont;
 import zgame.core.graphics.font.TextBuffer;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.shader.ShaderProgram;
+import zgame.core.graphics.texture.RepeatingTexture;
+import zgame.core.graphics.texture.TexCoordsRectPrism3D;
 import zgame.core.utils.LimitedStack;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZRect2D;

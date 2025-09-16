@@ -93,6 +93,16 @@ public abstract class AssetManager<A extends Asset> implements Destroyable{
 	 */
 	public abstract A create(String path);
 	
+	/** @return See {@link #folderLoc} */
+	public String getFolderLoc(){
+		return this.folderLoc;
+	}
+	
+	/** @return See {@link #fileFormat} */
+	public String getFileFormat(){
+		return this.fileFormat;
+	}
+	
 	/** Free any resources used by this {@link AssetManager} */
 	@Override
 	public void destroy(){

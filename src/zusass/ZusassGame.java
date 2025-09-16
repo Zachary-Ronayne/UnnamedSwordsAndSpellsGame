@@ -5,6 +5,7 @@ import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.image.ImageManager;
+import zgame.core.graphics.texture.TextureMappingManager;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZFilePaths;
 import zgame.core.window.GameWindow;
@@ -129,6 +130,12 @@ public class ZusassGame extends Game{
 		im.add("zusassPlayer");
 		im.add("resourceBar");
 		im.add("door");
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		// Load mapped textures
+		var tmm = TextureMappingManager.instance();
+		tmm.add("door");
 		
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		

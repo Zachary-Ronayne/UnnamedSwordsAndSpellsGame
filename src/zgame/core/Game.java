@@ -9,6 +9,7 @@ import zgame.core.graphics.camera.GameCamera2D;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.image.ImageManager;
+import zgame.core.graphics.texture.TextureMappingManager;
 import zgame.core.input.keyboard.ZKeyInput;
 import zgame.core.input.mouse.ZMouseInput;
 import zgame.core.sound.*;
@@ -165,6 +166,7 @@ public class Game implements Saveable, Destroyable{
 		
 		// Set up all asset managers
 		ImageManager.init();
+		TextureMappingManager.init();
 		FontManager.init();
 		
 		// Init stat enum

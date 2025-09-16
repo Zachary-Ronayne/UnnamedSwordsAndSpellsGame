@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.*;
 import zgame.core.graphics.image.ImageManager;
+import zgame.core.graphics.texture.RepeatingTexture;
 import zgame.core.sound.SoundManager;
 import zgame.core.sound.SoundSource;
 import zgame.core.utils.ZMath;

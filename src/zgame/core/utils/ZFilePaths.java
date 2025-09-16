@@ -14,6 +14,9 @@ public final class ZFilePaths{
 	/** The path from an assets folder to images */
 	private static final String IMAGES = "images/";
 	
+	/** The path from an assets folder to mapped textures */
+	private static final String TEXTURE_MAPPINGS = "textureMappings/";
+	
 	/** The path from an assets folder to the root sounds folder */
 	private static final String SOUNDS = "sounds/";
 	
@@ -64,6 +67,11 @@ public final class ZFilePaths{
 	/** @return The location of the folder containing images */
 	public static String images(){
 		return fromAssetFolder(IMAGES);
+	}
+	
+	/** @return The location of the folder containing mapped textures */
+	public static String textureMappings(){
+		return fromAssetFolder(TEXTURE_MAPPINGS);
 	}
 	
 	/** @return The location of the root folder containing sounds */

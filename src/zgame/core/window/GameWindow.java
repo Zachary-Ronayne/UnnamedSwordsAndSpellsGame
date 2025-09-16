@@ -184,7 +184,7 @@ public abstract class GameWindow implements Destroyable{
 	
 	/**
 	 * Create a new default {@link GameWindow}.
-	 * This does no initialization for OpenGL or window managerment, call {@link #init()} to do that
+	 * This does no initialization for OpenGL or window management, call {@link #init()} to do that
 	 */
 	public GameWindow(){
 		// Init general values

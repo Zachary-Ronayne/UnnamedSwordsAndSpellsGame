@@ -42,7 +42,7 @@ public class ZJsonFile{
 			Gson gson = new Gson();
 			this.data = gson.fromJson(jsonText, JsonObject.class);
 		}catch(FileNotFoundException e){
-			ZConfig.error(e, "Failed to open JSON file at path", this.getPath());
+			ZConfig.error(e, "Failed to open JSON file at path: ", this.getPath());
 			return null;
 		}
 		return this.data;
@@ -94,9 +94,9 @@ public class ZJsonFile{
 		this.data = data;
 	}
 	
-	
 	/**
 	 * Save a data to a json file
+	 *
 	 * @param path The path to save the file to
 	 * @param fun A function that accepts the data for a save file, and then saves it, and returns true on success, false otherwise
 	 * @return true if the save was successful, false otherwise
@@ -117,8 +117,9 @@ public class ZJsonFile{
 	
 	/**
 	 * Load data from a json file
+	 *
 	 * @param path The path to load the file from
-	 * @param fun A function that accepts the data to  file, and then saves it, and returns true on success, false otherwise
+	 * @param fun A function that accepts the data to load, and returns true on success, false otherwise
 	 * @return true if the save was successful, false otherwise
 	 */
 	public static boolean loadJsonFile(String path, Function<JsonObject, Boolean> fun){

@@ -21,6 +21,11 @@ public class GameImage extends Asset{
 	/** The OpenGL texture id associated with this {@link GameImage} */
 	private int id;
 	
+	/** The width of the image in pixels */
+	private int width;
+	/** The height of the image in pixels */
+	private int height;
+	
 	/**
 	 * Create a new GameImage and load it from the given path
 	 *
@@ -52,17 +57,20 @@ public class GameImage extends Asset{
 		IntBuffer w = BufferUtils.createIntBuffer(1);
 		IntBuffer h = BufferUtils.createIntBuffer(1);
 		IntBuffer c = BufferUtils.createIntBuffer(1);
+		
 		ByteBuffer img = stbi_load_from_memory(buff, w, h, c, 0);
+		this.width = w.get();
+		this.height = h.get();
 		boolean success = img != null;
 		if(success){
 			ZConfig.success("Image '", path, "' loaded successfully");
-			ZConfig.success("with width: ", w.get(0), ", height: ", h.get(0), ", channels: ", c.get(0));
+			ZConfig.success("with width: ", this.width, ", height: ", this.height, ", channels: ", c.get(0));
 		}
 		else{
 			ZConfig.error("Image '", path, "' failed to load via stbi");
 			return;
 		}
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w.get(0), h.get(0), 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
 		
 		// Free the data
 		stbi_image_free(img);
@@ -80,6 +88,16 @@ public class GameImage extends Asset{
 	/** @return See {@link #id} */
 	public int getId(){
 		return this.id;
+	}
+	
+	/** @return See {@link #width} */
+	public int getWidth(){
+		return this.width;
+	}
+	
+	/** @return See {@link #height} */
+	public int getHeight(){
+		return this.height;
 	}
 	
 	/**

@@ -1,4 +1,4 @@
-package zgame.core.graphics;
+package zgame.core.graphics.texture;
 
 /** A class containing data used for rendering repeated textures */
 public class RepeatingTexture{
