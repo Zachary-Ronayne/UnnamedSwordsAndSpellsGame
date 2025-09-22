@@ -40,8 +40,7 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 		this.uuid = UUID.randomUUID().toString();
 		
 		this.menu = new SpellMakerMenu();
-		// TODO Scale all 3 axes based on set sizes in the class, so that final object size is not dependent on image sizes
-		this.textureCoordinates = new TexCoordsRectPrism3D("spellMaker", this, 7.0 / 32.0, Direction3D.NORTH);
+		this.textureCoordinates = new TexCoordsRectPrism3D("spellMaker", this, 14.0 / 32.0, 7.0 / 32.0, 14.0 / 32.0, Direction3D.NORTH);
 	}
 	
 	@Override

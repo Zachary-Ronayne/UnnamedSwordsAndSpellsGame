@@ -11,7 +11,6 @@ import zgame.things.BaseTags;
 import zgame.things.entity.projectile.Projectile3D;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.SphereHitBox;
-import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
 

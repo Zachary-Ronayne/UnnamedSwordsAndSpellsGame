@@ -3,7 +3,6 @@ package zusass.menu.settings;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
-import zusass.setting.ZusassSetting;
 import zusass.setting.ZusassSettingI;
 
 /** The menu used for displaying specific settings related to video options */

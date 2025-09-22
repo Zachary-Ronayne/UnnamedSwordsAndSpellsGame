@@ -42,11 +42,13 @@ public class TexCoordsRectPrism3D extends TexCoords<TextureMappingRect3DMapping>
 	 * @param name The name to use for both the texture and mapping, both must've been loaded before this method can process correctly
 	 * @param bounds The object used to obtain bounds. This constructor will set the bounds of this object to be scaled such that the height is 1, and the width and length
 	 * 		are scaled relative to the pixel size of the textures of this object
-	 * @param scale The scale of the object based on its dimensions from the image and mapping
+	 * @param scaleX The size of the x axis of the object based on its dimensions from the image and mapping
+	 * @param scaleY The size of the y axis of the object based on its dimensions from the image and mapping
+	 * @param scaleZ The size of the z axis of the object based on its dimensions from the image and mapping
 	 * @param direction The direction this object should face
 	 */
-	public TexCoordsRectPrism3D(String name, ModifiableRectDims3D bounds, double scale, Direction3D direction){
-		this(ImageManager.image(name), TextureMappingManager.rect3D(name), bounds, scale, direction);
+	public TexCoordsRectPrism3D(String name, ModifiableRectDims3D bounds, double scaleX, double scaleY, double scaleZ, Direction3D direction){
+		this(ImageManager.image(name), TextureMappingManager.rect3D(name), bounds, scaleX, scaleY, scaleZ, direction);
 	}
 	
 	/**
@@ -57,14 +59,16 @@ public class TexCoordsRectPrism3D extends TexCoords<TextureMappingRect3DMapping>
 	 * @param textureMapping See {@link #textureMapping}
 	 * @param bounds The object used to obtain bounds. This constructor will set the bounds of this object to be scaled such that the height is 1, and the width and length
 	 * 		are scaled relative to the pixel size of the textures of this object
-	 * @param scale The scale of the object based on its dimensions from the image and mapping
+	 * @param scaleX The size of the x axis of the object based on its dimensions from the image and mapping
+	 * @param scaleY The size of the y axis of the object based on its dimensions from the image and mapping
+	 * @param scaleZ The size of the z axis of the object based on its dimensions from the image and mapping
 	 * @param direction The direction this object should face
 	 */
-	public TexCoordsRectPrism3D(GameImage texture, TextureMappingRect3DMapping textureMapping, ModifiableRectDims3D bounds, double scale, Direction3D direction){
+	public TexCoordsRectPrism3D(GameImage texture, TextureMappingRect3DMapping textureMapping, ModifiableRectDims3D bounds, double scaleX, double scaleY, double scaleZ, Direction3D direction){
 		// 6 faces, 4 vertices per face, 2 coordinates per vertex
 		super(6 * 4 * 2, texture, textureMapping);
 		this.initData();
-		this.initRectRender(bounds, scale, direction);
+		this.initRectRender(bounds, scaleX, scaleY, scaleZ, direction);
 	}
 	
 	/**
@@ -73,32 +77,30 @@ public class TexCoordsRectPrism3D extends TexCoords<TextureMappingRect3DMapping>
 	 *
 	 * @param bounds The object used to obtain bounds. This method will set the bounds of this object to be scaled such that the height is 1, and the width and length are
 	 * 		scaled relative to the pixel size of the textures of this object
-	 * @param scale The scale of the object based on its dimensions from the image and mapping
+	 * @param scaleX The size of the x axis of the object based on its dimensions from the image and mapping
+	 * @param scaleY The size of the y axis of the object based on its dimensions from the image and mapping
+	 * @param scaleZ The size of the z axis of the object based on its dimensions from the image and mapping
 	 * @param direction The direction this object should face
 	 */
-	public void initRectRender(ModifiableRectDims3D bounds, double scale, Direction3D direction){
+	public void initRectRender(ModifiableRectDims3D bounds, double scaleX, double scaleY, double scaleZ, Direction3D direction){
 		this.rectRender = new RectRender3D(bounds.getBounds());
 		
-		int pixelWidth = this.getPixelWidth();
-		int pixelHeight = this.getPixelHeight();
-		int pixelLength = this.getPixelLength();
-		
-		double height = scale;
+		double height = scaleY;
 		// By default, the long side is the width, i.e. x axis
-		double longSide = height / pixelHeight * pixelWidth;
+		double longSide = scaleX;
 		// By default, the short side is the length, i.e. z axis
-		double shortSide = height / pixelHeight * pixelLength;
+		double shortSide = scaleZ;
 		
 		// Set the length or width appropriately depending on which axis this is facing
 		boolean facingZ = direction == Direction3D.NORTH || direction == Direction3D.SOUTH;
-//		if(facingZ){
+		if(facingZ){
 			bounds.setWidth(longSide);
 			bounds.setLength(shortSide);
-//		}
-//		else{
-//			bounds.setWidth(shortSide);
-//			bounds.setLength(longSide);
-//		}
+		}
+		else{
+			bounds.setWidth(shortSide);
+			bounds.setLength(longSide);
+		}
 		bounds.setHeight(height);
 		
 		// Rotation will be based on the facing direction. For rendering, the long side will always be the width, regardless of rotation
