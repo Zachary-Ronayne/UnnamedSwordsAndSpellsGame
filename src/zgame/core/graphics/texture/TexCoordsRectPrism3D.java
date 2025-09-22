@@ -6,7 +6,7 @@ import zgame.core.graphics.RotRender3D;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.image.ImageManager;
 import zgame.core.utils.ZMath;
-import zgame.core.utils.ZRect3D;
+import zgame.things.type.bounds.ModifiableRectDims3D;
 import zgame.world.Direction3D;
 
 /**
@@ -40,9 +40,13 @@ public class TexCoordsRectPrism3D extends TexCoords<TextureMappingRect3DMapping>
 	 * and the bottom and top faces below the front and back faces.
 	 *
 	 * @param name The name to use for both the texture and mapping, both must've been loaded before this method can process correctly
+	 * @param bounds The object used to obtain bounds. This constructor will set the bounds of this object to be scaled such that the height is 1, and the width and length
+	 * 		are scaled relative to the pixel size of the textures of this object
+	 * @param scale The scale of the object based on its dimensions from the image and mapping
+	 * @param direction The direction this object should face
 	 */
-	public TexCoordsRectPrism3D(String name){
-		this(ImageManager.image(name), TextureMappingManager.rect3D(name));
+	public TexCoordsRectPrism3D(String name, ModifiableRectDims3D bounds, double scale, Direction3D direction){
+		this(ImageManager.image(name), TextureMappingManager.rect3D(name), bounds, scale, direction);
 	}
 	
 	/**
@@ -51,31 +55,56 @@ public class TexCoordsRectPrism3D extends TexCoords<TextureMappingRect3DMapping>
 	 *
 	 * @param texture The texture which will be mapped onto the object
 	 * @param textureMapping See {@link #textureMapping}
-	 */
-	public TexCoordsRectPrism3D(GameImage texture, TextureMappingRect3DMapping textureMapping){
-		// 6 faces, 4 vertices per face, 2 coordinates per vertex
-		super(6 * 4 * 2, texture, textureMapping);
-		this.initData();
-	}
-	
-	/**
-	 * Initialize {@link #rectRender} for use in rendering. Once initialized, the size of the render bounds can be used to set the dimensions of the object using these texture coordinates
-	 *
-	 * @param baseBounds The initial bounds of the size of this object
+	 * @param bounds The object used to obtain bounds. This constructor will set the bounds of this object to be scaled such that the height is 1, and the width and length
+	 * 		are scaled relative to the pixel size of the textures of this object
 	 * @param scale The scale of the object based on its dimensions from the image and mapping
 	 * @param direction The direction this object should face
 	 */
-	public void initRectRender(ZRect3D baseBounds, double scale, Direction3D direction){
-		this.rectRender = new RectRender3D(baseBounds);
+	public TexCoordsRectPrism3D(GameImage texture, TextureMappingRect3DMapping textureMapping, ModifiableRectDims3D bounds, double scale, Direction3D direction){
+		// 6 faces, 4 vertices per face, 2 coordinates per vertex
+		super(6 * 4 * 2, texture, textureMapping);
+		this.initData();
+		this.initRectRender(bounds, scale, direction);
+	}
+	
+	/**
+	 * Initialize {@link #rectRender} for use in rendering. Once initialized, the size of the render bounds can be used to set the dimensions of the object using these texture
+	 * coordinates
+	 *
+	 * @param bounds The object used to obtain bounds. This method will set the bounds of this object to be scaled such that the height is 1, and the width and length are
+	 * 		scaled relative to the pixel size of the textures of this object
+	 * @param scale The scale of the object based on its dimensions from the image and mapping
+	 * @param direction The direction this object should face
+	 */
+	public void initRectRender(ModifiableRectDims3D bounds, double scale, Direction3D direction){
+		this.rectRender = new RectRender3D(bounds.getBounds());
 		
-		int length = this.getPixelLength();
-		int width = this.getPixelWidth();
+		int pixelWidth = this.getPixelWidth();
+		int pixelHeight = this.getPixelHeight();
+		int pixelLength = this.getPixelLength();
 		
-		double longSide = scale;
-		double shortSide = scale / width * length;
+		double height = scale;
+		// By default, the long side is the width, i.e. x axis
+		double longSide = height / pixelHeight * pixelWidth;
+		// By default, the short side is the length, i.e. z axis
+		double shortSide = height / pixelHeight * pixelLength;
 		
-		// Rotation will be based on the facing direction
+		// Set the length or width appropriately depending on which axis this is facing
+		boolean facingZ = direction == Direction3D.NORTH || direction == Direction3D.SOUTH;
+//		if(facingZ){
+			bounds.setWidth(longSide);
+			bounds.setLength(shortSide);
+//		}
+//		else{
+//			bounds.setWidth(shortSide);
+//			bounds.setLength(longSide);
+//		}
+		bounds.setHeight(height);
+		
+		// Rotation will be based on the facing direction. For rendering, the long side will always be the width, regardless of rotation
+		// If hitboxes are implemented to allow rotations, i.e. not just axis aligned, then this process will need to be changed
 		this.rectRender.setWidth(longSide);
+		this.rectRender.setHeight(height);
 		this.rectRender.setLength(shortSide);
 		var rot = new RotRender3D();
 		rot.setRotY(direction.getYaw() - ZMath.PI_BY_2);

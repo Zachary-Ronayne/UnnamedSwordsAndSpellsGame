@@ -1,20 +1,20 @@
 package zusass.game.things;
 
 import zgame.core.graphics.*;
-import zgame.core.graphics.image.ImageManager;
 import zgame.core.graphics.texture.TexCoordsRectPrism3D;
 import zgame.core.utils.ZConfig;
-import zgame.core.utils.ZMath;
+import zgame.core.utils.ZRect3D;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.still.Door;
 import zgame.things.still.Door3D;
+import zgame.things.type.bounds.ModifiableRectDims3D;
 import zgame.world.Direction3D;
 import zgame.world.Room3D;
 import zusass.ZusassGame;
 import zusass.game.ZusassRoom;
 
 /** A {@link Door} specifically used by the Zusass game */
-public class ZusassDoor extends Door3D implements ZThingClickDetector{
+public class ZusassDoor extends Door3D implements ZThingClickDetector, ModifiableRectDims3D{
 	
 	/** Texture coordinates used to define how this door is drawn */
 	private final TexCoordsRectPrism3D textureCoordinates;
@@ -33,33 +33,13 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 	public ZusassDoor(double x, double y, double z, Direction3D direction){
 		super(x, y, z, 1, 1, 1);
 		if(!direction.isCardinal()){
-			direction = Direction3D.NORTH;
-			ZConfig.error("ZusassDoor cannot use non cardinal direction ", direction.name(), " defaulting to ", direction.name());
+			var defaultDirection = Direction3D.NORTH;
+			ZConfig.error("ZusassDoor cannot use non cardinal direction ", direction.name(), " defaulting to ", defaultDirection);
+			direction = defaultDirection;
 		}
-		this.facingDirection = direction;
-		this.textureCoordinates = new TexCoordsRectPrism3D("door");
-		this.textureCoordinates.initRectRender(this.getBounds(), 0.5, this.facingDirection);
-		this.updateFacingDimensions();
-	}
-	
-	/** Update the dimensions of this door based on the current value of {@link #facingDirection} */
-	private void updateFacingDimensions(){
-		// TODO make a better abstract way of doing this rather than having to explicitly set these values
 		// TODO verify that the coordinates set in the renderer match the actual coordinates rendered
-		double longSide = this.textureCoordinates.getRectRender().getWidth();
-		double shortSide = this.textureCoordinates.getRectRender().getLength();
-		
-		// Set width and height based on direction
-		var direction = this.getFacingDirection();
-		boolean facingZ = direction == Direction3D.NORTH || direction == Direction3D.SOUTH;
-		if(facingZ){
-			this.setWidth(longSide);
-			this.setLength(shortSide);
-		}
-		else{
-			this.setWidth(shortSide);
-			this.setLength(longSide);
-		}
+		this.facingDirection = direction;
+		this.textureCoordinates = new TexCoordsRectPrism3D("door", this, 1, this.facingDirection);
 	}
 	
 	/**
@@ -109,6 +89,11 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector{
 		}
 		r.drawRectPrismTex(this.textureCoordinates);
 		if(canClick) r.popShader();
+	}
+	
+	@Override
+	public ZRect3D getBounds(){
+		return super.getBounds();
 	}
 	
 }

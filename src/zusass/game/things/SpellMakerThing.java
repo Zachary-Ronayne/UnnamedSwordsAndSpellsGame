@@ -5,8 +5,10 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.texture.TexCoordsRectPrism3D;
 import zgame.core.state.MenuNode;
+import zgame.core.utils.ZRect3D;
 import zgame.things.still.StaticThing3D;
 import zgame.things.type.GameThing;
+import zgame.things.type.bounds.ModifiableRectDims3D;
 import zgame.things.type.bounds.RectPrismClickable;
 import zgame.world.Direction3D;
 import zusass.ZusassGame;
@@ -16,7 +18,7 @@ import zusass.menu.spellmaker.SpellMakerMenu;
 import java.util.UUID;
 
 /** A {@link GameThing} used as a station for the player to click on to open the spell making interface */
-public class SpellMakerThing extends StaticThing3D implements ZThingClickDetector, GameTickable, RectPrismClickable{
+public class SpellMakerThing extends StaticThing3D implements ZThingClickDetector, GameTickable, RectPrismClickable, ModifiableRectDims3D{
 	
 	/** The uuid of this thing */
 	private final String uuid;
@@ -29,22 +31,17 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	
 	/**
 	 * Make a spell maker at the given position
+	 *
 	 * @param x The upper left hand x coordinate
 	 * @param y The upper left hand y coordinate
 	 */
 	public SpellMakerThing(double x, double y, double z){
-		// TODO make a real way of specifying dimensions here
-		super(x, y, z, 1, 0.5, 1);
+		super(x, y, z, 1, 1, 1);
 		this.uuid = UUID.randomUUID().toString();
 		
 		this.menu = new SpellMakerMenu();
-		this.textureCoordinates = new TexCoordsRectPrism3D("spellMaker");
-		this.textureCoordinates.initRectRender(this.getBounds(), 0.5, Direction3D.NORTH);
-		var rectRender = this.textureCoordinates.getRectRender();
-		rectRender.setHeight(rectRender.getHeight() * 0.5);
-		this.setWidth(rectRender.getWidth());
-		this.setHeight(rectRender.getHeight());
-		this.setLength(rectRender.getLength());
+		// TODO Scale all 3 axes based on set sizes in the class, so that final object size is not dependent on image sizes
+		this.textureCoordinates = new TexCoordsRectPrism3D("spellMaker", this, 7.0 / 32.0, Direction3D.NORTH);
 	}
 	
 	@Override
@@ -100,5 +97,10 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	@Override
 	public String getUuid(){
 		return this.uuid;
+	}
+	
+	@Override
+	public ZRect3D getBounds(){
+		return super.getBounds();
 	}
 }
