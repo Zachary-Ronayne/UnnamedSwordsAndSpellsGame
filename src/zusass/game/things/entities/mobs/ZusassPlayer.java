@@ -13,10 +13,12 @@ import zgame.core.input.InputHandler;
 import zgame.core.input.InputHandlers;
 import zgame.core.input.InputType;
 import zgame.core.sound.SoundManager;
+import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.modifier.TypedModifier;
+import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.world.Room3D;
 import zusass.ZusassDebugFlags;
 import zusass.ZusassGame;
@@ -32,6 +34,50 @@ import static zusass.game.stat.ZusassStat.*;
 /** A player inside the {@link ZusassGame} */
 public class ZusassPlayer extends ZusassMob{
 	
+	/** The type of movement the camera should have relative to the player */
+	private enum CameraState{
+		/** The camera is kept to the player's eye level */
+		FIRST_PERSON(true, false, 0.05),
+		/** The camera looks above and down onto the player */
+		THIRD_PERSON(true, false, -1.3),
+		/** The camera looks below and towards */
+		THIRD_PERSON_REVERSE(true, true, 1.3),
+		/** The camera is not controlled by the player */
+		FREEZE_CAMERA(false, false, 0),
+		/** The camera is separately controlled by input, irrespective of the player */
+		FREE_CAM(false, false, 0),
+		;
+		
+		/** true if this is a state where the camera should follow the player, false otherwise */
+		private final boolean follow;
+		
+		/** true if the camera should look backwards, false otherwise */
+		private final boolean reverse;
+		
+		/** Value to set {@link MobilityEntity3D#getVisionForwardDistance()} to */
+		private final double forwardDistance;
+		
+		CameraState(boolean follow, boolean reverse, double forwardDistance){
+			this.follow = follow;
+			this.reverse = reverse;
+			this.forwardDistance = forwardDistance;
+		}
+		/** @return See {@link #follow} */
+		public boolean isFollow(){
+			return this.follow;
+		}
+		
+		/** @return See {@link #reverse} */
+		public boolean isReverse(){
+			return this.reverse;
+		}
+		
+		/** @return See {@link #forwardDistance} */
+		public double getForwardDistance(){
+			return this.forwardDistance;
+		}
+	}
+	
 	/** The object tracking what is input used by the player */
 	private InputHandlers inputHandlers;
 	
@@ -41,11 +87,10 @@ public class ZusassPlayer extends ZusassMob{
 	/** true if this {@link ZusassPlayer} is in spell casting mode, false for weapon mode */
 	private boolean casting;
 	
-	/** true if the camera should be in first person, false for third person */
-	private boolean firstPerson;
-	
-	/** Used for debugging, controls if the camera should follow the player or not */
-	private boolean followCamera;
+	/** the current way the camera should be positioned relative to the player */
+	private CameraState cameraState;
+	/** The state the camera was in last time */
+	private CameraState previousCameraState;
 	
 	/**
 	 * Create a new object from json
@@ -61,8 +106,8 @@ public class ZusassPlayer extends ZusassMob{
 	public ZusassPlayer(){
 		super(0, 0, 0, 0.2, 0.7);
 		this.casting = false;
-		this.firstPerson = true;
-		this.followCamera = true;
+		this.previousCameraState = CameraState.FIRST_PERSON;
+		this.cameraState = CameraState.FIRST_PERSON;
 		
 		this.inputDisabled = false;
 		this.addTags(ZusassTags.CAN_ENTER_LEVEL_DOOR, ZusassTags.MUST_CLEAR_LEVEL_ROOM, ZusassTags.HUB_ENTER_RESTORE);
@@ -97,6 +142,7 @@ public class ZusassPlayer extends ZusassMob{
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_F),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_R),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_F8),
+				new InputHandler(InputType.KEYBOARD, GLFW_KEY_F4),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_LEFT_BRACKET),
 				new InputHandler(InputType.KEYBOARD, GLFW_KEY_RIGHT_BRACKET)
 		);
@@ -116,7 +162,7 @@ public class ZusassPlayer extends ZusassMob{
 		 rather than setting the camera before any drawing operations happen, but it somehow looks glitchier doing it the latter way
 		 */
 		var game = Game.get();
-		if(this.followCamera) this.updateCameraPos(game.getCamera3D());
+		this.updateCameraPos(game.getCamera3D());
 		
 		//issue#61
 		// Update the sound listener to the player
@@ -143,7 +189,11 @@ public class ZusassPlayer extends ZusassMob{
 		var up = ki.buttonDown(GLFW_KEY_Q);
 		var down = ki.buttonDown(GLFW_KEY_Z);
 		var cam = game.getCamera3D();
-		this.handleMobilityControls(dt, cam.getYaw(), cam.getPitch(), left, right, forward, backward, up, down);
+		
+		// If in free cam, move the camera instead
+		if(this.cameraState == CameraState.FREE_CAM) this.handleFreeCam(dt, cam.getYaw(), cam.getPitch(), left, right, forward, backward, up, down);
+		// Otherwise handle normal controls
+		else this.handleMobilityControls(dt, cam.getYaw(), cam.getPitch(), left, right, forward, backward, up, down);
 		
 		// Turn sprinting on or off
 		this.setSprinting(ki.buttonDown(GLFW_KEY_E));
@@ -151,16 +201,99 @@ public class ZusassPlayer extends ZusassMob{
 		// Toggle casting or attacking
 		if(this.inputHandlers.tick(GLFW_KEY_R)) this.toggleCasting();
 		
-		// Toggle first person or third person
-		if(this.inputHandlers.tick(GLFW_KEY_F)) this.firstPerson = !firstPerson;
+		// Toggle camera perspectives
+		if(this.inputHandlers.tick(GLFW_KEY_F)) {
+			if(this.cameraState == CameraState.FIRST_PERSON) this.setCameraState(CameraState.THIRD_PERSON);
+			else if(this.cameraState == CameraState.THIRD_PERSON) this.setCameraState(CameraState.THIRD_PERSON_REVERSE);
+			else if(this.cameraState == CameraState.THIRD_PERSON_REVERSE) this.setCameraState(CameraState.FIRST_PERSON);
+		}
 		
-		// TODO make a proper free cam type thing
 		// Toggle following the camera
-		if(this.inputHandlers.tick(GLFW_KEY_F8)) this.followCamera = !followCamera;
+		if(this.inputHandlers.tick(GLFW_KEY_F8)) {
+			if(this.cameraState == CameraState.FREEZE_CAMERA) this.setCameraState(this.previousCameraState);
+			else this.setCameraState(CameraState.FREEZE_CAMERA);
+		}
+		
+		// Enter free cam
+		if(this.inputHandlers.tick(GLFW_KEY_F4)) {
+			if(this.cameraState == CameraState.FREE_CAM) this.setCameraState(this.previousCameraState);
+			else this.setCameraState(CameraState.FREE_CAM);
+		}
 		
 		// Go to next or previous spell
 		if(this.inputHandlers.tick(GLFW_KEY_RIGHT_BRACKET)) this.getSpells().previousSpell();
 		if(this.inputHandlers.tick(GLFW_KEY_LEFT_BRACKET)) this.getSpells().nextSpell();
+	}
+	
+	/** @param cameraState See {@link #cameraState} */
+	private void setCameraState(CameraState cameraState){
+		// Only change the previous position if it follows the player
+		if(this.cameraState.isFollow()) this.previousCameraState = this.cameraState;
+		this.cameraState = cameraState;
+		
+		// If going to or from a reverse camera, must also change where the camera is looking by adding pi to yaw
+		if(this.cameraState.isReverse() != this.previousCameraState.isReverse()){
+			// TODO make this make the camera look back at the player
+		}
+	}
+	
+	/**
+	 * Update the position of the camera based on movement
+	 *
+	 * @param dt The amount of time passed during this movement update
+	 * @param yaw The current yaw ongle of the camera
+	 * @param pitch The current pitch ongle of the camera
+	 * @param left true if moving to the left, false otherwise
+	 * @param right true if moving to the right, false otherwise
+	 * @param forward true if moving forward, false otherwise
+	 * @param backward true if moving backwards, false otherwise
+	 * @param up true if moving up, false otherwise
+	 * @param down true if moving down, false otherwise
+	 */
+	private void handleFreeCam(double dt, double yaw, double pitch, boolean left, boolean right, boolean forward, boolean backward, boolean up, boolean down){
+		// Do nothing if no movement
+		if(left == right && forward == backward && up == down) return;
+		
+		var cam = Game.get().getCamera3D();
+		
+		// Have to subtract out half of pi because my engine is weird
+		yaw -= ZMath.PI_BY_2;
+		
+		// TODO If moving a direction other than just forward or backward, then only move on the axes
+		
+		// If moving left or right, then move only on the x plane axis
+		if(forward != backward){
+			if(backward){
+				if(left != right){
+					if(left) yaw -= ZMath.PI_BY_4 + ZMath.PI_BY_2;
+					else yaw += ZMath.PI_BY_4 + ZMath.PI_BY_2;
+				}
+				else yaw += Math.PI;
+			}
+			else{
+				if(left != right){
+					if(left) yaw -= ZMath.PI_BY_4;
+					else yaw += ZMath.PI_BY_4;
+				}
+				else pitch += Math.PI;
+			}
+		}
+		else if(left != right){
+			if(left) yaw -= ZMath.PI_BY_2;
+			else yaw += ZMath.PI_BY_2;
+		}
+		if(left != right) pitch = 0;
+		
+		// Force move up and down on pitch if those are pressed
+		if(up != down){
+			if(up) pitch = ZMath.PI_BY_2;
+			else pitch = -ZMath.PI_BY_2;
+		}
+		
+		var movement = new ZVector3D(yaw, pitch, dt * 3, false);
+		cam.addX(movement.getX());
+		cam.addY(movement.getY());
+		cam.addZ(movement.getZ());
 	}
 	
 	/** See {@link GameInteractable#mouseAction(int, boolean, boolean, boolean, boolean)} */
@@ -248,10 +381,10 @@ public class ZusassPlayer extends ZusassMob{
 	
 	@Override
 	public void updateCameraPos(GameCamera3D camera){
-		if(this.firstPerson) this.setVisionForwardDistance(0.05);
-		else this.setVisionForwardDistance(-1.3);
+		this.setVisionForwardDistance(this.cameraState.getForwardDistance());
 		
-		super.updateCameraPos(camera);
+		if(this.cameraState.isFollow()) super.updateCameraPos(camera);
+		else camera.setPositionOffset(this.cameraState.getForwardDistance());
 	}
 	
 	/** @return See {@link #inputDisabled} */
