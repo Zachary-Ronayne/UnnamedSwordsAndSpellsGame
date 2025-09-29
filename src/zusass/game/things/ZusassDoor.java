@@ -37,7 +37,6 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 			ZConfig.error("ZusassDoor cannot use non cardinal direction ", direction.name(), " defaulting to ", defaultDirection);
 			direction = defaultDirection;
 		}
-		// TODO verify that the coordinates set in the renderer match the actual coordinates rendered
 		this.facingDirection = direction;
 		this.textureCoordinates = new TexCoordsRectPrism3D("door", this, 1.0 / 2.0, 1.0, 1.0 / 8.0, this.facingDirection);
 	}

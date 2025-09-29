@@ -81,11 +81,7 @@ public abstract class MobilityEntity3D extends EntityThing3D implements Mobility
 	@Override
 	public void updateCameraPos(GameCamera3D camera){
 		super.updateCameraPos(camera);
-		
-		var mobilityData = this.getMobilityData();
-		var facingVec = new ZVector3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), this.getVisionForwardDistance(), false);
-		camera.addX(facingVec.getX());
-		camera.addZ(facingVec.getZ());
+		camera.setPositionOffset(this.getVisionForwardDistance());
 		
 		/*
 		 issue#64

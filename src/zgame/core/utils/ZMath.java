@@ -120,6 +120,7 @@ public final class ZMath{
 	
 	/**
 	 * Modify an array so that at most one value is non-zero, which will be the value with the smallest absolute value
+	 *
 	 * @param values The values to select from
 	 */
 	public static void selectSmallestNonZero(double[] values){
@@ -455,6 +456,7 @@ public final class ZMath{
 	
 	/**
 	 * Determine if two line segments intersect, assuming they lie on the same axis
+	 *
 	 * @param a1 The smaller coordinate of the first line
 	 * @param a2 The larger coordinate of the first line
 	 * @param b1 The smaller coordinate of the second line

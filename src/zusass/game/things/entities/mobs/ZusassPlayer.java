@@ -18,6 +18,7 @@ import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.modifier.TypedModifier;
 import zgame.world.Room3D;
+import zusass.ZusassDebugFlags;
 import zusass.ZusassGame;
 import zusass.game.magic.MultiSpell;
 import zusass.game.magic.ProjectileSpell;
@@ -153,6 +154,7 @@ public class ZusassPlayer extends ZusassMob{
 		// Toggle first person or third person
 		if(this.inputHandlers.tick(GLFW_KEY_F)) this.firstPerson = !firstPerson;
 		
+		// TODO make a proper free cam type thing
 		// Toggle following the camera
 		if(this.inputHandlers.tick(GLFW_KEY_F8)) this.followCamera = !followCamera;
 		
@@ -193,6 +195,16 @@ public class ZusassPlayer extends ZusassMob{
 				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(), this.getWidth(), this.getHeight(),
 				this.getMobilityData().getFacingYaw(),
 				ImageManager.image("zusassPlayer").getId());
+		
+		if(ZusassDebugFlags.PLAYER_LOOK_RANGER_MARKER){
+			var c = new ZColor(.5, 0, 0);
+			var facing = new ZVector3D(this.getMobilityData().getFacingYaw(), this.getMobilityData().getFacingPitch(), this.getClickRange(), false);
+			var sx = this.getClickX() + facing.getX();
+			var sy = this.getClickY() + facing.getY();
+			var sz = this.getClickZ() + facing.getZ();
+			r.setColor(c);
+			r.drawSphere(sx, sy, sz, 0.01);
+		}
 	}
 	
 	@Override
@@ -236,15 +248,10 @@ public class ZusassPlayer extends ZusassMob{
 	
 	@Override
 	public void updateCameraPos(GameCamera3D camera){
+		if(this.firstPerson) this.setVisionForwardDistance(0.05);
+		else this.setVisionForwardDistance(-1.3);
+		
 		super.updateCameraPos(camera);
-		if(this.firstPerson){
-			camera.setPositionOffset(0.03);
-			this.setVisionForwardDistance(0.02);
-		}
-		else{
-			camera.setPositionOffset(-1.3);
-			this.setVisionForwardDistance(0);
-		}
 	}
 	
 	/** @return See {@link #inputDisabled} */
