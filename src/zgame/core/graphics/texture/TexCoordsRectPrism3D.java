@@ -6,8 +6,11 @@ import zgame.core.graphics.RotRender3D;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.image.ImageManager;
 import zgame.core.utils.ZMath;
+import zgame.things.ThingClickDetector3D;
+import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.ModifiableRectDims3D;
 import zgame.world.Direction3D;
+import zgame.world.Room3D;
 
 /**
  * An object holding texture coordinates for a rectangular prism
@@ -240,4 +243,18 @@ public class TexCoordsRectPrism3D extends TexCoords<TextureMappingRect3DMapping>
 	public RectRender3D getRectRender(){
 		return this.rectRender;
 	}
+	
+	/**
+	 * Render this object, using a tint if it can be selected by the given
+	 *
+	 * @param r The rendered to use for drawing
+	 * @param room The room rendered in
+	 * @param clickable The thing that can be clicked on
+	 * @param clicker The thing that can click
+	 * @return true if something was rendered, false otherwise
+	 */
+	public boolean renderSelectable(Renderer r, Room3D room, ThingClickDetector3D clickable, ClickerBounds clicker){
+		return room.renderObjectSelectable(r, () -> r.drawRectPrismTex(this), clickable, clicker);
+	}
+	
 }

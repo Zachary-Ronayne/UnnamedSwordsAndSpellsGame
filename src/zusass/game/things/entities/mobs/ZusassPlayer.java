@@ -242,8 +242,8 @@ public class ZusassPlayer extends ZusassMob{
 	 * Update the position of the camera based on movement
 	 *
 	 * @param dt The amount of time passed during this movement update
-	 * @param yaw The current yaw ongle of the camera
-	 * @param pitch The current pitch ongle of the camera
+	 * @param yaw The current yaw of the camera
+	 * @param pitch The current pitch of the camera
 	 * @param left true if moving to the left, false otherwise
 	 * @param right true if moving to the right, false otherwise
 	 * @param forward true if moving forward, false otherwise

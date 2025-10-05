@@ -1,6 +1,7 @@
 package zgame.world;
 
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
@@ -18,6 +19,7 @@ import zgame.things.type.bounds.RectPrismBounds;
 import static zgame.world.Direction3D.*;
 
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 /** A {@link Room} which is made of 3D tiles */
 public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D> implements RectPrismBounds{
@@ -703,6 +705,32 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	
 	public Material getBoundaryMaterial(){
 		return Materials.BOUNDARY;
+	}
+	
+	/**
+	 * Render the given function, using a tint the given clickable can be clicked by the clicker
+	 * @param r The renderer used
+	 * @param render The function to render the object, true if something was rendered, false otherwise
+	 * @param clickable The thing which can be clicked on
+	 * @param clicker The thing that may be able to click on the clickable
+	 * @return The result of render
+	 */
+	public boolean renderObjectSelectable(Renderer r, Supplier<Boolean> render, ThingClickDetector3D clickable, ClickerBounds clicker){
+		double clickDistance = clickable.findClickDistance(clicker);
+		double maxClickRange = clicker.getClickRange();
+		
+		// Check for tiles
+		double tileDistance = -1;
+		if(clickDistance >= 0) tileDistance = this.findTileClickDistance(clicker);
+		
+		boolean canClick = clickDistance <= maxClickRange && clickDistance >= 0 && (tileDistance < 0 || tileDistance > clickDistance);
+		if(canClick){
+			r.pushTextureTintShader();
+			r.setColor(new ZColor(0.7));
+		}
+		boolean success = render.get();
+		if(canClick) r.popShader();
+		return success;
 	}
 	
 }

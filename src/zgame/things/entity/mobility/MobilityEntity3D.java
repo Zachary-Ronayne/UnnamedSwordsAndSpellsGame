@@ -1,7 +1,6 @@
 package zgame.things.entity.mobility;
 
 import zgame.core.graphics.camera.GameCamera3D;
-import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.things.entity.*;
 

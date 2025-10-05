@@ -2,8 +2,6 @@ package zusass.game.things;
 
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
-import zgame.core.graphics.ZColor;
-import zgame.core.graphics.texture.TexCoordsRectPrism3D;
 import zgame.core.state.MenuNode;
 import zgame.core.utils.ZRect3D;
 import zgame.things.still.StaticThing3D;
@@ -13,6 +11,7 @@ import zgame.things.type.bounds.RectPrismClickable;
 import zgame.world.Direction3D;
 import zusass.ZusassGame;
 import zusass.game.ZusassRoom;
+import zusass.graphics.ZusassTexCoordsRectPrism;
 import zusass.menu.spellmaker.SpellMakerMenu;
 
 import java.util.UUID;
@@ -27,7 +26,7 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	private final SpellMakerMenu menu;
 	
 	/** The texture coordinates used for the spell maker */
-	private final TexCoordsRectPrism3D textureCoordinates;
+	private final ZusassTexCoordsRectPrism textureCoordinates;
 	
 	/**
 	 * Make a spell maker at the given position
@@ -40,7 +39,7 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 		this.uuid = UUID.randomUUID().toString();
 		
 		this.menu = new SpellMakerMenu();
-		this.textureCoordinates = new TexCoordsRectPrism3D("spellMaker", this, 14.0 / 32.0, 7.0 / 32.0, 14.0 / 32.0, Direction3D.NORTH);
+		this.textureCoordinates = new ZusassTexCoordsRectPrism("spellMaker", this, 14.0 / 32.0, 7.0 / 32.0, 14.0 / 32.0, Direction3D.NORTH);
 	}
 	
 	@Override
@@ -50,26 +49,8 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	}
 	
 	@Override
-	protected void render(Renderer r){
-		// TODO abstract this somehow with the same code used in the door
-		var zgame = ZusassGame.get();
-		double clickDistance = this.findClickDistance(zgame.getPlayer());
-		double maxClickRange = zgame.getPlayer().getClickRange();
-		
-		// Check for tiles
-		double tileDistance = -1;
-		if(clickDistance >= 0){
-			var room = zgame.getCurrentRoom();
-			if(room != null) tileDistance = room.findTileClickDistance(zgame.getPlayer());
-		}
-		
-		boolean canClick = clickDistance <= maxClickRange && clickDistance >= 0 && (tileDistance < 0 || tileDistance > clickDistance);
-		if(canClick){
-			r.pushTextureTintShader();
-			r.setColor(new ZColor(0.7));
-		}
-		r.drawRectPrismTex(this.textureCoordinates);
-		if(canClick) r.popShader();
+	public void render(Renderer r){
+		this.textureCoordinates.renderSelectable(r,this);
 	}
 	
 	@Override

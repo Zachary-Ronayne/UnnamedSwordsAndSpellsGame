@@ -1,7 +1,6 @@
 package zusass.game.things;
 
 import zgame.core.graphics.*;
-import zgame.core.graphics.texture.TexCoordsRectPrism3D;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZRect3D;
 import zgame.things.entity.EntityThing3D;
@@ -12,12 +11,13 @@ import zgame.world.Direction3D;
 import zgame.world.Room3D;
 import zusass.ZusassGame;
 import zusass.game.ZusassRoom;
+import zusass.graphics.ZusassTexCoordsRectPrism;
 
 /** A {@link Door} specifically used by the Zusass game */
 public class ZusassDoor extends Door3D implements ZThingClickDetector, ModifiableRectDims3D{
 	
 	/** Texture coordinates used to define how this door is drawn */
-	private final TexCoordsRectPrism3D textureCoordinates;
+	private final ZusassTexCoordsRectPrism textureCoordinates;
 	
 	/** The direction this door should be facing towards */
 	private final Direction3D facingDirection;
@@ -38,7 +38,7 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 			direction = defaultDirection;
 		}
 		this.facingDirection = direction;
-		this.textureCoordinates = new TexCoordsRectPrism3D("door", this, 1.0 / 2.0, 1.0, 1.0 / 8.0, this.facingDirection);
+		this.textureCoordinates = new ZusassTexCoordsRectPrism("door", this, 1.0 / 2.0, 1.0, 1.0 / 8.0, this.facingDirection);
 	}
 	
 	/**
@@ -70,24 +70,7 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 	
 	@Override
 	public void render(Renderer r){
-		var zgame = ZusassGame.get();
-		double clickDistance = this.findClickDistance(zgame.getPlayer());
-		double maxClickRange = zgame.getPlayer().getClickRange();
-		
-		// Check for tiles
-		double tileDistance = -1;
-		if(clickDistance >= 0){
-			var room = zgame.getCurrentRoom();
-			if(room != null) tileDistance = room.findTileClickDistance(zgame.getPlayer());
-		}
-		
-		boolean canClick = clickDistance <= maxClickRange && clickDistance >= 0 && (tileDistance < 0 || tileDistance > clickDistance);
-		if(canClick){
-			r.pushTextureTintShader();
-			r.setColor(new ZColor(0.7));
-		}
-		r.drawRectPrismTex(this.textureCoordinates);
-		if(canClick) r.popShader();
+		this.textureCoordinates.renderSelectable(r, this);
 	}
 	
 	@Override
