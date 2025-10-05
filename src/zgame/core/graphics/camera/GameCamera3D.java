@@ -24,6 +24,13 @@ public class GameCamera3D{
 	/** The roll angle in radians */
 	private double roll;
 	
+	/** An offset to add to {@link #yaw} before applying transformations */
+	private double yawOffset;
+	/** An offset to add to {@link #pitch} before applying transformations */
+	private double pitchOffset;
+	/** An offset to add to {@link #roll} before applying transformations */
+	private double rollOffset;
+	
 	// Perspective settings
 	/** The current field of view of this camera */
 	private double fov;
@@ -56,6 +63,9 @@ public class GameCamera3D{
 		this.setPitch(0);
 		this.setRoll(0);
 		this.setPositionOffset(0);
+		this.setYawOffset(0);
+		this.setPitchOffset(0);
+		this.setRollOffset(0);
 		
 		this.setFov(1);
 		this.setNearZ(0.1);
@@ -168,6 +178,51 @@ public class GameCamera3D{
 	/** @param roll The amount to add to {@link #roll} */
 	public void addRoll(double roll){
 		this.setRoll(this.roll + roll);
+	}
+	
+	/** @return See {@link #yawOffset} */
+	public double getYawOffset(){
+		return this.yawOffset;
+	}
+	
+	/** @param yawOffset See {@link #yawOffset} */
+	public void setYawOffset(double yawOffset){
+		this.yawOffset = yawOffset;
+	}
+	
+	/** @return See {@link #pitchOffset} */
+	public double getPitchOffset(){
+		return this.pitchOffset;
+	}
+	
+	/** @param pitchOffset See {@link #pitchOffset} */
+	public void setPitchOffset(double pitchOffset){
+		this.pitchOffset = pitchOffset;
+	}
+	
+	/** @return See {@link #rollOffset} */
+	public double getRollOffset(){
+		return this.rollOffset;
+	}
+	
+	/** @param rollOffset See {@link #rollOffset} */
+	public void setRollOffset(double rollOffset){
+		this.rollOffset = rollOffset;
+	}
+	
+	/** @return The current yaw this camera should be transformed to */
+	public double getCurrentYaw(){
+		return this.getYaw() + this.getYawOffset();
+	}
+	
+	/** @return The current pitch this camera should be transformed to */
+	public double getCurrentPitch(){
+		return this.getPitch() + this.getPitchOffset();
+	}
+	
+	/** @return The current roll this camera should be transformed to */
+	public double getCurrentRoll(){
+		return this.getRoll() + this.getRollOffset();
 	}
 	
 	/** @return See {@link #enableLookLimit} */

@@ -977,22 +977,26 @@ public class Renderer implements Destroyable{
 	 * @param camera The camera to use
 	 */
 	public void camera3DPerspective(GameCamera3D camera){
+		double yaw = camera.getCurrentYaw();
+		double pitch = camera.getCurrentPitch();
+		double roll = camera.getCurrentRoll();
+		
 		/*
 		 The yaw has to be rotated by 90 degrees.
 		 My current understanding is that with OpenGL's default camera rotation, repositioning the camera by the offset of the way the
 		 camera is facing essentially moves the offset to the side instead of directly behind, so rotate the offset to be behind instead of to the side.
 		 There's probably a better explanation, and I could probably get rid of a lot of the seemingly random PI_BY_2 uses if I knew better how these angles work.
 		 */
-		var offsetVec = new ZVector3D(camera.getYaw() + ZMath.PI_BY_2, camera.getPitch(), camera.getPositionOffset(), false);
+		var offsetVec = new ZVector3D(yaw + ZMath.PI_BY_2, pitch, camera.getPositionOffset(), false);
 		double x = offsetVec.getX();
 		double y = offsetVec.getY();
 		double z = offsetVec.getZ();
 		this.setMatrix(new Matrix4f()
 				.perspective((float)camera.getFov(), (float)this.getBuffer().getRatioWH(), (float)camera.getNearZ(), (float)camera.getFarZ())
 				.rotate(new Quaternionf()
-						.rotateZ((float)camera.getRoll())
-						.rotateX((float)camera.getPitch())
-						.rotateY((float)camera.getYaw())
+						.rotateZ((float)roll)
+						.rotateX((float)pitch)
+						.rotateY((float)yaw)
 				)
 				.translate((float)(x - camera.getX()), (float)(y - camera.getY()), (float)(z - camera.getZ()))
 		);

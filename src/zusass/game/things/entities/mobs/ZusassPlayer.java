@@ -41,7 +41,7 @@ public class ZusassPlayer extends ZusassMob{
 		/** The camera looks above and down onto the player */
 		THIRD_PERSON(true, false, -1.3),
 		/** The camera looks below and towards */
-		THIRD_PERSON_REVERSE(true, true, 1.3),
+		THIRD_PERSON_REVERSE(true, true, -1.0),
 		/** The camera is not controlled by the player */
 		FREEZE_CAMERA(false, false, 0),
 		/** The camera is separately controlled by input, irrespective of the player */
@@ -190,8 +190,14 @@ public class ZusassPlayer extends ZusassMob{
 		var down = ki.buttonDown(GLFW_KEY_Z);
 		var cam = game.getCamera3D();
 		
+		// If reversed, also change left and right
+		if(this.cameraState.isReverse()){
+			left = !left;
+			right = !right;
+		}
+		
 		// If in free cam, move the camera instead
-		if(this.cameraState == CameraState.FREE_CAM) this.handleFreeCam(dt, cam.getYaw(), cam.getPitch(), left, right, forward, backward, up, down);
+		if(this.cameraState == CameraState.FREE_CAM) this.handleFreeCam(dt, cam.getCurrentYaw(), cam.getCurrentPitch(), left, right, forward, backward, up, down);
 		// Otherwise handle normal controls
 		else this.handleMobilityControls(dt, cam.getYaw(), cam.getPitch(), left, right, forward, backward, up, down);
 		
@@ -230,11 +236,6 @@ public class ZusassPlayer extends ZusassMob{
 		// Only change the previous position if it follows the player
 		if(this.cameraState.isFollow()) this.previousCameraState = this.cameraState;
 		this.cameraState = cameraState;
-		
-		// If going to or from a reverse camera, must also change where the camera is looking by adding pi to yaw
-		if(this.cameraState.isReverse() != this.previousCameraState.isReverse()){
-			// TODO make this make the camera look back at the player
-		}
 	}
 	
 	/**
@@ -258,8 +259,6 @@ public class ZusassPlayer extends ZusassMob{
 		
 		// Have to subtract out half of pi because my engine is weird
 		yaw -= ZMath.PI_BY_2;
-		
-		// TODO If moving a direction other than just forward or backward, then only move on the axes
 		
 		// If moving left or right, then move only on the x plane axis
 		if(forward != backward){
@@ -286,9 +285,17 @@ public class ZusassPlayer extends ZusassMob{
 		
 		// Force move up and down on pitch if those are pressed
 		if(up != down){
-			if(up) pitch = ZMath.PI_BY_2;
-			else pitch = -ZMath.PI_BY_2;
+			if(up) {
+				if(left != right || forward != backward) pitch = ZMath.PI_BY_4;
+				else pitch = ZMath.PI_BY_2;
+			}
+			else {
+				if(left != right || forward != backward) pitch = -ZMath.PI_BY_4;
+				else pitch = -ZMath.PI_BY_2;
+			}
 		}
+		// If not moving up or down, but sprinting, force movement on the same axis
+		else if(this.isSprinting()) pitch = 0;
 		
 		var movement = new ZVector3D(yaw, pitch, dt * 3, false);
 		cam.addX(movement.getX());
@@ -382,6 +389,8 @@ public class ZusassPlayer extends ZusassMob{
 	@Override
 	public void updateCameraPos(GameCamera3D camera){
 		this.setVisionForwardDistance(this.cameraState.getForwardDistance());
+		if(cameraState.isReverse()) camera.setYawOffset(Math.PI);
+		else camera.setYawOffset(0);
 		
 		if(this.cameraState.isFollow()) super.updateCameraPos(camera);
 		else camera.setPositionOffset(this.cameraState.getForwardDistance());
