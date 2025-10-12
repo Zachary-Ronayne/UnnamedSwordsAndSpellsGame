@@ -17,6 +17,7 @@ public class PauseQuitButton extends PauseMenuButton{
 	
 	@Override
 	public void click(){
+		super.click();
 		ZusassGame.get().stop();
 	}
 	

@@ -27,7 +27,16 @@ public class SettingsMenu extends BaseSettingsMenu{
 		};
 		this.addThing(videoSettingsButton);
 		
-		var allSettingsButton = new ZusassButton(10, 160, 500, 100, "All Settings"){
+		var soundsSettingsButton = new ZusassButton(10, 160, 500, 100, "Sound Settings"){
+			@Override
+			public void click(){
+				super.click();
+				handleSoundSettingsClick();
+			}
+		};
+		this.addThing(soundsSettingsButton);
+		
+		var allSettingsButton = new ZusassButton(10, 270, 500, 100, "All Settings"){
 			@Override
 			public void click(){
 				super.click();
@@ -47,6 +56,13 @@ public class SettingsMenu extends BaseSettingsMenu{
 	 */
 	public void handleVideoSettingsClick(){
 		ZusassGame.get().getCurrentState().setMenu(new VideoSettingsMenu(this));
+	}
+	
+	/**
+	 * Called when the button for going to video settings is clicked
+	 */
+	public void handleSoundSettingsClick(){
+		ZusassGame.get().getCurrentState().setMenu(new SoundSettingsMenu(this));
 	}
 	
 	/**

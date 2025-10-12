@@ -16,6 +16,7 @@ public class SavesLoadButton extends SavesMenuButton{
 	
 	@Override
 	public void click(){
+		super.click();
 		LoadSaveButtonList list = this.getMenu().getLoadButtons();
 		LoadSaveButton button = list.getSelected();
 		if(button == null) return;

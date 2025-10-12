@@ -37,8 +37,6 @@ import java.io.File;
  */
 public class ZusassGame extends Game{
 	
-	// TODO add settings for sound, make it mute effects and music if the slider is set to 0%
-	
 	/** The id used for the single window of the Zusass game */
 	public final static String ZUSASS_WINDOW_ID = "zusassMainWindow";
 	
@@ -145,8 +143,16 @@ public class ZusassGame extends Game{
 		var sm = this.getSounds();
 		sm.addAllSounds();
 		sm.setDistanceScalar(10);
+		
 		sm.getEffectsPlayer().setPaused(false);
 		sm.getEffectsPlayer().setMuted(false);
+		
+		// Play a test song by default on a loop
+		var music = sm.getMusicPlayer();
+		music.setPaused(false);
+		music.setMuted(false);
+		music.setLoop(true);
+		this.playMusic("testSong");
 	}
 	
 	/**

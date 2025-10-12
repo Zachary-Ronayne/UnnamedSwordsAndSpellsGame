@@ -117,6 +117,7 @@ public class SpellMakerMenu extends ZusassMenu{
 		var resetButton = new ZusassButton(1, 1, 160, 40, "Reset"){
 			@Override
 			public void click(){
+				super.click();
 				reset();
 			}
 		};

@@ -17,6 +17,7 @@ public class PauseHubButton extends PauseMenuButton{
 	
 	@Override
 	public void click(){
+		super.click();
 		ZusassGame.get().getPlayState().enterHub();
 		this.getMenu().exitMenu();
 	}

@@ -3,6 +3,7 @@ package zgame.settings;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import zgame.core.Game;
+import zgame.core.sound.SoundManager;
 
 import java.util.function.Consumer;
 
@@ -13,6 +14,19 @@ public class DoubleTypeSetting extends SettingType<Double>{
 	
 	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_X = new DoubleTypeSetting("CAMERA_LOOK_SPEED_X", 0.0009);
 	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_Y = new DoubleTypeSetting("CAMERA_LOOK_SPEED_Y", 0.0009);
+	
+	/** The volume the music player should be set to, 0 for muted, 1 for full volume */
+	public static final DoubleTypeSetting MUSIC_VOLUME = new DoubleTypeSetting("MUSIC_VOLUME", 100.0, d -> {
+		var music = SoundManager.get().getMusicPlayer();
+		music.setMuted(d <= 0);
+		music.setPaused(d <= 0);
+		music.setVolume(d / 100.0);
+	});
+	public static final DoubleTypeSetting EFFECTS_VOLUME = new DoubleTypeSetting("EFFECTS_VOLUME", 100.0, d -> {
+		var effects = SoundManager.get().getEffectsPlayer();
+		effects.setMuted(d <= 0);
+		effects.setVolume(d / 100.0);
+	});
 	
 	/**
 	 * Initialize a new double setting.

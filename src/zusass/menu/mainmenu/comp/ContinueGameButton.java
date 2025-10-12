@@ -17,6 +17,7 @@ public class ContinueGameButton extends MainMenuButton{
 	
 	@Override
 	public void click(){
+		super.click();
 		var game = Game.get();
 		boolean success = game.loadGame(ZusassConfig.getMostRecentSave());
 		if(!success) return;

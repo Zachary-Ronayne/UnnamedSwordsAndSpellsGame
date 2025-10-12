@@ -15,6 +15,7 @@ public class ExitButton extends MainMenuButton{
 	
 	@Override
 	public void click(){
+		super.click();
 		Game.get().stop();
 	}
 }

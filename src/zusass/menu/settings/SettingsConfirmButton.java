@@ -50,7 +50,11 @@ public class SettingsConfirmButton extends ZusassButton{
 	@Override
 	public void click(){
 		super.click();
-		
+		this.handleConfirm();
+	}
+	
+	/** Handle the confirmation of this button being pressed */
+	public void handleConfirm(){
 		for(var button : this.buttons.values()) button.updateSetting();
 		// issue#33
 		Game.get().saveGlobalSettings();
@@ -58,4 +62,5 @@ public class SettingsConfirmButton extends ZusassButton{
 		this.buttons.clear();
 		this.updateDisabled();
 	}
+	
 }

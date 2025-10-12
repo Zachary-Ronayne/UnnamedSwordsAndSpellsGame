@@ -14,6 +14,7 @@ public class LoadGameButton extends MainMenuButton{
 	
 	@Override
 	public void click(){
+		super.click();
 		Game.get().setCurrentState(new SavesMenuState());
 	}
 	

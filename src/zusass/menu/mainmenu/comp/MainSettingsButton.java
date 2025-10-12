@@ -19,6 +19,7 @@ public class MainSettingsButton extends MainMenuButton{
 	
 	@Override
 	public void click(){
+		super.click();
 		ZusassGame.get().getCurrentState().setMenu(new SettingsMenu(() -> ZusassGame.get().getCurrentState().setMenu(new MainMenu())));
 	}
 }

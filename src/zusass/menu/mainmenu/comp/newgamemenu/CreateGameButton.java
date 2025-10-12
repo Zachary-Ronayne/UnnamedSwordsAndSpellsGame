@@ -23,6 +23,7 @@ public class CreateGameButton extends ZusassButton{
 	
 	@Override
 	public void click(){
+		super.click();
 		var levelName = this.popup.getLevelNameText();
 		if(levelName == null || levelName.isEmpty()) return;
 		

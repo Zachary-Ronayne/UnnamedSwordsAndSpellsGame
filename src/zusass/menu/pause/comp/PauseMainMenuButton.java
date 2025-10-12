@@ -17,6 +17,7 @@ public class PauseMainMenuButton extends PauseMenuButton{
 	
 	@Override
 	public void click(){
+		super.click();
 		ZusassGame.get().getPlayState().enterMainMenu();
 	}
 	

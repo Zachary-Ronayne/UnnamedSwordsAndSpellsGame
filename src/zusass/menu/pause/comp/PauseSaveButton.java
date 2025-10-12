@@ -16,6 +16,7 @@ public class PauseSaveButton extends PauseMenuButton{
 	
 	@Override
 	public void click(){
+		super.click();
 		this.getMenu().save();
 		this.getMenu().exitMenu();
 	}

@@ -16,6 +16,7 @@ public class PauseReturnButton extends PauseMenuButton{
 	
 	@Override
 	public void click(){
+		super.click();
 		getMenu().exitMenu();
 	}
 	

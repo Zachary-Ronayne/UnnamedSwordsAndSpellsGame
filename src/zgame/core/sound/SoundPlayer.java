@@ -73,6 +73,7 @@ public abstract class SoundPlayer<S extends Sound>{
 		// Ensure the source is appropriately muted, paused, and the correct volume, based on the current state of this sound player
 		source.setMuted(this.isMuted());
 		source.setPaused(this.isPaused());
+		source.setBaseVolume(this.playing.getVolume());
 		source.updateVolumeLevel();
 		if(this.isPaused()) alSourcef(source.getId(), AL_GAIN, 0.0f);
 		

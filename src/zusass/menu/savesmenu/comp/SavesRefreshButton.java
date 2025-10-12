@@ -16,6 +16,7 @@ public class SavesRefreshButton extends SavesMenuButton{
 	
 	@Override
 	public void click(){
+		super.click();
 		this.getMenu().getLoadButtons().populate();
 	}
 	

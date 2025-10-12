@@ -1,9 +1,14 @@
 package zusass.menu.comp;
 
+import zgame.core.Game;
+import zgame.core.sound.SoundSource;
 import zgame.menu.MenuButton;
 
 /** A {@link MenuButton} which is used by the ZusassGame */
 public abstract class ZusassButton extends MenuButton{
+	
+	/** The sound source for playing a click button sound */
+	private final SoundSource clickSound;
 	
 	/**
 	 * Create a {@link ZusassButton} with the appropriate parameters
@@ -23,6 +28,13 @@ public abstract class ZusassButton extends MenuButton{
 		ZusassStyle.applyStyleText(this);
 		this.setFontSize(40);
 		this.centerText();
+		this.clickSound = new SoundSource();
 	}
 	
+	@Override
+	public void click(){
+		super.click();
+		// TODO make this somehow a part of the button style, so that this applies to all kinds of ui buttons, or otherwise add this sound to appropriate places
+		Game.get().playEffect(clickSound, "click");
+	}
 }

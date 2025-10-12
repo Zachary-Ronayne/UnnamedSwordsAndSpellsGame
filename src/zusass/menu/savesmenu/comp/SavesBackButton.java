@@ -18,6 +18,7 @@ public class SavesBackButton extends SavesMenuButton{
 	
 	@Override
 	public void click(){
+		super.click();
 		ZusassGame.get().setCurrentState(new MainMenuState());
 	}
 	

@@ -20,6 +20,7 @@ public class SavesDeleteButton extends SavesMenuButton{
 	
 	@Override
 	public void click(){
+		super.click();
 		SavesMenu menu = this.getMenu();
 		LoadSaveButton button = menu.getLoadButtons().getSelected();
 		
