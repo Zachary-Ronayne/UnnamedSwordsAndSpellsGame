@@ -61,6 +61,12 @@ public abstract class NumberSettingsButton<N extends Number> extends ZusassTextB
 		else this.scroller = null;
 	}
 	
+	@Override
+	public void onWidthChange(){
+		super.onWidthChange();
+		if(this.scroller != null) this.scroller.setWidth(this.getWidth());
+	}
+	
 	/**
 	 * Get a string representing the given scroller value
 	 *

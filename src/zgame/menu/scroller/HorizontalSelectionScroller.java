@@ -61,6 +61,7 @@ public class HorizontalSelectionScroller extends HorizontalScroller{
 	@Override
 	public void scroll(double amount){
 		super.scroll(amount);
+		// TODO is this line even needed?
 		this.onScrollValueChange(this.getMin() + (this.getMax() - this.getMin()) * this.getPercent());
 	}
 	

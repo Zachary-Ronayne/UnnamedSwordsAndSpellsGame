@@ -38,7 +38,6 @@ public class SoundSettingsMenu extends BaseSettingsMenu{
 		 * @param menu The menu containing this button
 		 */
 		public SoundButton(int index, DoubleTypeSetting setting, String name, SoundSettingsMenu menu){
-			// TODO make the width set correctly here
 			// TODO fix the flickering back and forth slider button
 			super(10, 150 + 50 * index, setting, name, 0.0, 100.0, menu);
 			this.setWidth(500);
