@@ -124,6 +124,8 @@ import java.util.ArrayList;
  */
 public class MainTest extends Game{
 	
+	// TODO fix vertical scroll bars, or it may just be an issue with inverted scroll bars
+	
 	public static Game testerGame;
 	
 	public static final boolean CIRCLE_PLAYER = false;

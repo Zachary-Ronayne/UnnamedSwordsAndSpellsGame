@@ -79,11 +79,16 @@ public abstract class NumberSettingsButton<N extends Number> extends ZusassTextB
 	public void setCurrentText(String currentText){
 		super.setCurrentText(currentText);
 		
+		// Move the scroller position to the appropriate place
 		Number newValue = this.getSettingInputValue();
-		if(scroller != null){
+		if(this.scroller != null){
 			if(newValue == null) newValue = this.scroller.getMin();
-			this.scroller.setScrolledValue(newValue.doubleValue());
+			// TODO is a delta comparison the correct approach for a base case to avoid infinite recursion?
+			if(Math.abs(newValue.doubleValue() - this.scroller.getScrolledValue()) > 1E-8) this.scroller.setScrolledValue(newValue.doubleValue());
 		}
+		
+		// TODO fix the confirm button being disabled when going to 0 for the setting
+		
 		this.changeDisplayedSetting(this.menu);
 	}
 	
