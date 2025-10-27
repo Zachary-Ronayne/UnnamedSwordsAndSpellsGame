@@ -62,7 +62,7 @@ public abstract class MenuScrollerButton extends MenuButton{
 	public boolean mouseMoveFocused(double x, double y){
 		boolean input = super.mouseMoveFocused(x, y);
 		if(this.anchored){
-			this.scroller.setPercent(this.scrollToPercent(this.buttonPosition() + this.mouseOffset() - this.anchorOffset));
+			this.scroller.setPercent(this.scrollToPercent(this.buttonPosition() + this.mouseOffset() - this.anchorOffset - this.parentOffset()));
 			return true;
 		}
 		return input;
@@ -103,6 +103,9 @@ public abstract class MenuScrollerButton extends MenuButton{
 	
 	/** @return The distance the mouse is offset from this button */
 	public abstract double mouseOffset();
+	
+	/** @return The distance this component is from its parent on the relevant axis */
+	public abstract double parentOffset();
 	
 	/** @return The position this button is in, related to its absolute screen position, i.e. the real x or y coordinate */
 	public abstract double buttonPosition();

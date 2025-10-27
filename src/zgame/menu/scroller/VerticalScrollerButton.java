@@ -43,6 +43,11 @@ public class VerticalScrollerButton extends MenuScrollerButton{
 	}
 	
 	@Override
+	public double parentOffset(){
+		return this.getY() - this.getRelY();
+	}
+	
+	@Override
 	public double buttonPosition(){
 		return this.getY();
 	}

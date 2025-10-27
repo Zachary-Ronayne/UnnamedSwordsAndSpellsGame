@@ -124,8 +124,6 @@ import java.util.ArrayList;
  */
 public class MainTest extends Game{
 	
-	// TODO fix vertical scroll bars, or it may just be an issue with inverted scroll bars
-	
 	public static Game testerGame;
 	
 	public static final boolean CIRCLE_PLAYER = false;
@@ -911,7 +909,7 @@ public class MainTest extends Game{
 				}
 			};
 			
-			scrollY.setDefaultUseBuffer(true);
+			scrollY.setDefaultUseBuffer(false);
 			scrollY.getButton().setHighlightColor(new ZColor(0, 0, 1, .5));
 			scrollY.getButton().setFill(new ZColor(.5, .5, .5));
 			

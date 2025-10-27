@@ -43,6 +43,11 @@ public class HorizontalScrollerButton extends MenuScrollerButton{
 	}
 	
 	@Override
+	public double parentOffset(){
+		return this.getX() - this.getRelX();
+	}
+	
+	@Override
 	public double buttonPosition(){
 		return this.getX();
 	}
