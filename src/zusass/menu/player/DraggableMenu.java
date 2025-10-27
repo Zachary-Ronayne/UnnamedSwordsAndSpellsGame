@@ -1,5 +1,6 @@
 package zusass.menu.player;
 
+import zgame.core.Game;
 import zgame.core.graphics.ZColor;
 import zgame.menu.MenuThing;
 import zgame.menu.format.MenuFormatter;
@@ -57,8 +58,13 @@ public abstract class DraggableMenu extends ZusassMenu{
 		this.defaultFormatter = this.getDefaultFormatter();
 		this.defaultPosition();
 		
-		// issue#31 Stop the weird glitchy movement with the scroller when resizing the menu
-		this.menuScroller = new VerticalScroller(1, 1, 10, 100, 200);
+		this.menuScroller = new VerticalScroller(1, 1, 10, 100, 200){
+			@Override
+			public boolean mouseWheelMoveFocused(double amount){
+				if(!mouseOnMenu()) return false;
+				return super.mouseWheelMoveFocused(amount);
+			}
+		};
 		this.menuScroller.setScrollWheelEnabled(true);
 		this.menuScroller.setScrollWheelInverse(true);
 		this.menuScroller.setFormatter(new PixelFormatter(null, BORDER_SIZE, DRAGGABLE_HEIGHT * 1.4, 20.0));
@@ -74,6 +80,12 @@ public abstract class DraggableMenu extends ZusassMenu{
 		this.updateScrollAmount();
 		
 		movingThing.format();
+	}
+	
+	/** @return true if the mouse is currently on this menu, false otherwise */
+	public boolean mouseOnMenu(){
+		var game = Game.get();
+		return this.getBounds().contains(game.mouseSX(), game.mouseSY());
 	}
 	
 	/**
