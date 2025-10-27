@@ -87,8 +87,6 @@ public abstract class NumberSettingsButton<N extends Number> extends ZusassTextB
 			if(Math.abs(newValue.doubleValue() - this.scroller.getScrolledValue()) > 1E-8) this.scroller.setScrolledValue(newValue.doubleValue());
 		}
 		
-		// TODO fix the confirm button being disabled when going to 0 for the setting
-		
 		this.changeDisplayedSetting(this.menu);
 	}
 	

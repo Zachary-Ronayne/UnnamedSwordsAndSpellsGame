@@ -2,6 +2,9 @@ package zusass.menu.settings;
 
 import zgame.core.Game;
 import zgame.settings.DoubleTypeSetting;
+import zusass.menu.comp.ZusassStyle;
+
+import java.util.Objects;
 
 /** The menu used for displaying specific settings related to video options */
 public class SoundSettingsMenu extends BaseSettingsMenu{
@@ -12,16 +15,13 @@ public class SoundSettingsMenu extends BaseSettingsMenu{
 	 * @param settingsMenu The main menu using this menu
 	 */
 	public SoundSettingsMenu(SettingsMenu settingsMenu){
-		super("Sound Settings", settingsMenu, true);
+		// Sound menu will modify values every time, no confirm button needed
+		super("Sound Settings", settingsMenu, false);
 		this.getTitleThing().setFontSize(60);
 		
 		this.addThing(new SoundButton(0, DoubleTypeSetting.MUSIC_VOLUME, "Music Volume", this));
 		this.addThing(new SoundButton(1, DoubleTypeSetting.EFFECTS_VOLUME, "Effects Volume", this));
 	}
-	
-	// TODO fix the sound value not always using the updated value from the setting
-	
-	// TODO make releasing the effects button play an effect at the updated volume
 	
 	/** A button used to change sound volume levels */
 	private static class SoundButton extends DoubleSettingsButton{
@@ -38,7 +38,6 @@ public class SoundSettingsMenu extends BaseSettingsMenu{
 		 * @param menu The menu containing this button
 		 */
 		public SoundButton(int index, DoubleTypeSetting setting, String name, SoundSettingsMenu menu){
-			// TODO fix the flickering back and forth slider button
 			super(10, 150 + 50 * index, setting, name, 0.0, 100.0, menu);
 			this.setWidth(500);
 			this.setting = setting;
@@ -48,7 +47,15 @@ public class SoundSettingsMenu extends BaseSettingsMenu{
 		public void changeDisplayedSetting(BaseSettingsMenu menu){
 			super.changeDisplayedSetting(menu);
 			var inputValue = this.getSettingInputValue();
-			if(inputValue != null && this.setting != null) Game.get().set(this.setting, inputValue, true);
+			if(inputValue != null && this.setting != null) {
+				var oldValue = Game.get().get(this.setting);
+				Game.get().set(this.setting, inputValue, true);
+				
+				// Play a click sound when changing the effects volume
+				if(!Objects.equals(inputValue, oldValue) && this.setting.id() == DoubleTypeSetting.EFFECTS_VOLUME.id()){
+					ZusassStyle.playClickSound();
+				}
+			}
 		}
 		
 	}

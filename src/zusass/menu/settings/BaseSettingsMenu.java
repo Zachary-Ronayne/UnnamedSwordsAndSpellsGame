@@ -27,11 +27,8 @@ public class BaseSettingsMenu extends ZusassMenu{
 		};
 		this.addThing(backButton);
 		
-		if(addConfirmButton){
-			this.confirmButton = new SettingsConfirmButton();
-			this.addThing(confirmButton);
-		}
-		else confirmButton = null;
+		this.confirmButton = new SettingsConfirmButton();
+		if(addConfirmButton) this.addThing(confirmButton);
 	}
 	
 	/** @return See {@link #settingsMenu} */

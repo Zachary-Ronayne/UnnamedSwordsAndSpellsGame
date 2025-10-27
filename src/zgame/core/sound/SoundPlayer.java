@@ -2,7 +2,7 @@ package zgame.core.sound;
 
 import zgame.core.utils.ZConfig;
 
-import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.lwjgl.openal.AL11.*;
 
@@ -17,7 +17,7 @@ public abstract class SoundPlayer<S extends Sound>{
 	private final SoundMap playing;
 	
 	/** The queue of sounds which will begin playing on the next update */
-	private final LinkedList<SoundPair<S>> queue;
+	private final ConcurrentLinkedQueue<SoundPair<S>> queue;
 	
 	/** true if this {@link SoundPlayer} should not make any sound, but sounds should continue to play, false otherwise */
 	private boolean muted;
@@ -28,7 +28,7 @@ public abstract class SoundPlayer<S extends Sound>{
 	/** Create an empty {@link SoundPlayer} with no currently playing sounds */
 	public SoundPlayer(){
 		this.playing = new SoundMap();
-		this.queue = new LinkedList<>();
+		this.queue = new ConcurrentLinkedQueue<>();
 		this.unmute();
 		this.unpause();
 	}
@@ -49,7 +49,7 @@ public abstract class SoundPlayer<S extends Sound>{
 	 * @param sound The sound to play
 	 */
 	protected void playSound(SoundSource source, S sound){
-		this.queue.push(new SoundPair<>(source, sound));
+		this.queue.add(new SoundPair<>(source, sound));
 	}
 	
 	/**
@@ -97,7 +97,8 @@ public abstract class SoundPlayer<S extends Sound>{
 	 */
 	public void updateState(){
 		// Play all sounds and clear the queue
-		for(SoundPair<S> sp : this.queue) this.playSoundNow(sp.getSource(), sp.getSound());
+		var queuedSounds = this.queue.stream().toList();
+		for(var sp : queuedSounds) this.playSoundNow(sp.getSource(), sp.getSound());
 		this.queue.clear();
 		
 		// Update the states of the sounds
