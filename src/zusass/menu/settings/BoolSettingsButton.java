@@ -15,6 +15,9 @@ public class BoolSettingsButton extends ZusassBoolToggleButton implements ValueS
 	/** The setting used by this button */
 	private final BooleanTypeSetting setting;
 	
+	/** The value of this setting before any changes */
+	private Object initialValue;
+	
 	/**
 	 * @param x See {@link #getX()}
 	 * @param y See {@link #getY()}
@@ -26,6 +29,7 @@ public class BoolSettingsButton extends ZusassBoolToggleButton implements ValueS
 		super(x, y, 300, 45, ZusassGame.get().get(setting), trueValue, falseValue);
 		this.menu = menu;
 		this.setting = setting;
+		this.initialValue = Game.get().getAny(setting);
 		this.centerText();
 	}
 	
@@ -43,8 +47,18 @@ public class BoolSettingsButton extends ZusassBoolToggleButton implements ValueS
 	}
 	
 	@Override
-	public Boolean getSettingInputValue(){
+	public Boolean getSettingTextInputValue(){
 		return this.getSelectedValue().isTrue();
+	}
+	
+	@Override
+	public Object getInitialValue(){
+		return this.initialValue;
+	}
+	
+	@Override
+	public void updateInitialValue(){
+		this.initialValue = Game.get().get(this.setting);
 	}
 	
 	@Override

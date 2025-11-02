@@ -21,13 +21,13 @@ public class DoubleSettingsButton extends NumberSettingsButton<Double>{
 	}
 	
 	@Override
-	public Double getSettingInputValue(){
+	public Double getSettingTextInputValue(){
 		return this.getTextAsDouble();
 	}
 	
 	@Override
-	public String scrollPercentToText(double amount){
-		return String.format("%.2f", amount);
+	public String scrollPercentToText(double value){
+		return String.format("%.2f", value);
 	}
 	
 }

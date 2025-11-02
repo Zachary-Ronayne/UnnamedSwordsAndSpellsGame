@@ -50,7 +50,7 @@ public class HorizontalSelectionScroller extends HorizontalScroller{
 	/** @param value Set the numerical value which this should be scrolled to */
 	public void setScrolledValue(double value){
 		// Set the scroller amount to the amount of the way through the total range the given value is, divided by the total range
-		this.getButton().getScroller().setPercent((value - this.getMin()) / Math.abs(this.getMax() - this.getMin()));
+		this.getButton().getScroller().setPercent(this.valueToPerc(value));
 	}
 	
 	/** @param perc The percentage of the total width of the thing holding this scroller which this scroller should take up */
@@ -60,14 +60,24 @@ public class HorizontalSelectionScroller extends HorizontalScroller{
 	
 	@Override
 	public void scroll(double amount){
+		var oldAmount = this.getScrolledAmount();
 		super.scroll(amount);
-		this.onScrollValueChange(this.getScrolledValue());
+		this.onScrollValueChange(oldAmount, this.getScrolledValue());
 	}
 	
 	@Override
 	public void setPercent(double perc){
+		var oldAmount = this.getScrolledAmount();
 		super.setPercent(perc);
-		this.onScrollValueChange(this.getScrolledValue());
+		this.onScrollValueChange(oldAmount, this.getScrolledValue());
+	}
+	
+	/**
+	 * @param value Calls {@link #setPercent(double)} converting the given value to a percent without performing internal updates. Use only for things that separately manage
+	 * 		the state based on {@link #onScrollValueChange(double, double)}
+	 */
+	public void setValueWithoutUpdate(double value){
+		super.setPercent(this.valueToPerc(value));
 	}
 	
 	/** @return The current value which this selector has selected */
@@ -76,10 +86,20 @@ public class HorizontalSelectionScroller extends HorizontalScroller{
 	}
 	
 	/**
-	 * Called when this scroller scrolls. Does nothing by default, override for custom behavior
-	 * @param value The value between {@link #min} and {@link #max} where the scroller currently is
+	 * @param value The value to convert
+	 * @return Value as a percent of {@link #min} and {@link #max}
 	 */
-	public void onScrollValueChange(double value){}
+	public double valueToPerc(double value){
+		return (value - this.getMin()) / Math.abs(this.getMax() - this.getMin());
+	}
+	
+	/**
+	 * Called when this scroller scrolls. Does nothing by default, override for custom behavior
+	 *
+	 * @param oldValue The value between {@link #min} and {@link #max} where the scroller was before the change
+	 * @param newValue The value between {@link #min} and {@link #max} where the scroller currently is
+	 */
+	public void onScrollValueChange(double oldValue, double newValue){}
 	
 	/** @return See {@link #min} */
 	public double getMin(){

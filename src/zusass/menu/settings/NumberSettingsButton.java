@@ -3,24 +3,22 @@ package zusass.menu.settings;
 import zgame.core.Game;
 import zgame.menu.scroller.HorizontalSelectionScroller;
 import zgame.settings.SettingType;
-import zusass.ZusassGame;
 import zusass.menu.comp.ZusassTextBox;
+
+import java.util.Objects;
 
 /**
  * A button for selecting a number setting
  *
  * @param <N> The number type of this setting
  */
-public abstract class NumberSettingsButton<N extends Number> extends ZusassTextBox implements ValueSettingsButton{
-	
-	/** The menu holding this button */
-	private final BaseSettingsMenu menu;
-	
-	/** The setting which this button uses */
-	private final SettingType<N> setting;
+public abstract class NumberSettingsButton<N extends Number> extends SettingsButtonTextBox<SettingType<N>, N> implements ValueSettingsButton{
 	
 	/** The scroller used to change this setting */
 	private final HorizontalSelectionScroller scroller;
+	
+	/** The current value that this setting is expected to be across all inputs */
+	private double settingValue;
 	
 	/**
 	 * Create a new {@link ZusassTextBox} with the given values
@@ -33,9 +31,7 @@ public abstract class NumberSettingsButton<N extends Number> extends ZusassTextB
 	 * @param max The maximum value this setting can be scrolled to
 	 */
 	public NumberSettingsButton(double x, double y, SettingType<N> setting, String name, N min, N max, boolean allowDecimal, BaseSettingsMenu menu){
-		super(x, y, 300, 45);
-		this.menu = menu;
-		this.setting = setting;
+		super(x, y, 300, 45, setting, menu);
 		this.setHint(name + "...");
 		this.setLabel(name + ": ");
 		if(min != null && max != null){
@@ -44,21 +40,43 @@ public abstract class NumberSettingsButton<N extends Number> extends ZusassTextB
 		}
 		else this.setMode(allowDecimal ? Mode.FLOAT : Mode.INT);
 		
-		var currentValue = ZusassGame.get().getAny(this.setting);
-		this.setCurrentText(String.valueOf(currentValue));
-		
 		if(min != null && max != null){
 			this.scroller = new HorizontalSelectionScroller(min.doubleValue(), max.doubleValue(), this){
 				@Override
-				public void onScrollValueChange(double amount){
-					super.onScrollValueChange(amount);
-					setCurrentText(scrollPercentToText(amount));
+				public void onScrollValueChange(double oldValue, double newValue){
+					super.onScrollValueChange(oldValue, newValue);
+					setSettingValue(newValue);
+					onSettingScrollerChange(oldValue, newValue);
 				}
 			};
 			this.addThing(this.scroller);
-			this.scroller.setScrolledValue(currentValue.doubleValue());
 		}
 		else this.scroller = null;
+		
+		this.setSettingValue(Game.get().getAny(setting).doubleValue());
+	}
+	
+	/** @return See {@link #settingValue} */
+	public double getSettingValue(){
+		return this.settingValue;
+	}
+	
+	/** @param settingValue See {@link #settingValue} */
+	public void setSettingValue(double settingValue){
+		this.settingValue = settingValue;
+		this.updateFromSettingValue(this.settingValue);
+	}
+	
+	/** Update the ui things related to this button to account for the current value of {@link #settingValue} */
+	public void updateFromSettingValue(double value){
+		// Update the displayed value for the text
+		this.setCurrentTextWithoutUpdate(value);
+		
+		// Update the position of the scroller
+		if(this.scroller != null) this.setScrolledValueWithoutUpdate(value);
+		
+		// The setting was modified, do base operations for the settings button changing
+		this.changeDisplayedSetting(this.getMenu());
 	}
 	
 	@Override
@@ -70,39 +88,47 @@ public abstract class NumberSettingsButton<N extends Number> extends ZusassTextB
 	/**
 	 * Get a string representing the given scroller value
 	 *
-	 * @param amount The value of the scroller at its current position
+	 * @param value The value of the scroller at its current position
 	 * @return The string representing the value
 	 */
-	public abstract String scrollPercentToText(double amount);
+	public abstract String scrollPercentToText(double value);
+	
+	/** @param value The new value for this button's current text. Does not update the internal settings value, only the value internal to the ui things */
+	public void setCurrentTextWithoutUpdate(double value){
+		// If the current text's double value is the same as the new value, don't do anything
+		if(Objects.equals(value, this.getTextAsDouble())) return;
+		
+		super.setCurrentText(scrollPercentToText(value));
+	}
+	
+	/** @param value The new value for the scroller's setting value. Does not update the internal settings value, only the value internal to the scroller */
+	public void setScrolledValueWithoutUpdate(double value){
+		if(this.scroller != null) this.scroller.setValueWithoutUpdate(value);
+	}
+	
+	/**
+	 * Called when the scroller moves, not necessarily when the value changes. Does nothing by default, override for custom behavior
+	 * @param oldValue The old value before the scroll
+	 * @param newValue The new value after the scroll
+	 */
+	public void onSettingScrollerChange(double oldValue, double newValue){}
 	
 	@Override
 	public void setCurrentText(String currentText){
 		super.setCurrentText(currentText);
 		
-		// Move the scroller position to the appropriate place
-		Number newValue = this.getSettingInputValue();
-		if(this.scroller != null){
-			if(newValue == null) newValue = this.scroller.getMin();
-			// TODO is a delta comparison the correct approach for a base case to avoid infinite recursion?
-			if(Math.abs(newValue.doubleValue() - this.scroller.getScrolledValue()) > 1E-8) this.scroller.setScrolledValue(newValue.doubleValue());
-		}
-		
-		this.changeDisplayedSetting(this.menu);
-	}
-	
-	/** @return See {@link #setting} */
-	@Override
-	public SettingType<N> getSetting(){
-		return this.setting;
+		// Update the stored value to the one typed in
+		var textValue = this.getSettingTextInputValue();
+		if(textValue != null) this.setSettingValue(textValue.doubleValue());
 	}
 	
 	@Override
-	public abstract N getSettingInputValue();
+	public abstract N getSettingTextInputValue();
 	
 	@Override
 	public void updateSetting(){
-		var newValue = this.getSettingInputValue();
-		if(newValue != null) Game.get().setAny(this.setting, newValue, false);
+		var newValue = this.getSettingTextInputValue();
+		if(newValue != null) Game.get().setAny(this.getSetting(), newValue, false);
 	}
 	
 }

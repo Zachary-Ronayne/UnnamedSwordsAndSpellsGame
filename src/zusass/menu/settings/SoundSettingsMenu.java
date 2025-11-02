@@ -20,7 +20,15 @@ public class SoundSettingsMenu extends BaseSettingsMenu{
 		this.getTitleThing().setFontSize(60);
 		
 		this.addThing(new SoundButton(0, DoubleTypeSetting.MUSIC_VOLUME, "Music Volume", this));
-		this.addThing(new SoundButton(1, DoubleTypeSetting.EFFECTS_VOLUME, "Effects Volume", this));
+		this.addThing(new SoundButton(1, DoubleTypeSetting.EFFECTS_VOLUME, "Effects Volume", this){
+			@Override
+			public void onSettingScrollerChange(double oldValue, double newValue){
+				super.onSettingScrollerChange(oldValue, newValue);
+				
+				// Play a click sound when changing the effects volume
+				if(!Objects.equals(oldValue, newValue)) ZusassStyle.playClickSound();
+			}
+		});
 	}
 	
 	/** A button used to change sound volume levels */
@@ -46,18 +54,11 @@ public class SoundSettingsMenu extends BaseSettingsMenu{
 		@Override
 		public void changeDisplayedSetting(BaseSettingsMenu menu){
 			super.changeDisplayedSetting(menu);
-			var inputValue = this.getSettingInputValue();
-			if(inputValue != null && this.setting != null) {
-				var oldValue = Game.get().get(this.setting);
+			var inputValue = this.getSettingTextInputValue();
+			if(inputValue != null && this.setting != null){
 				Game.get().set(this.setting, inputValue, true);
-				
-				// Play a click sound when changing the effects volume
-				if(!Objects.equals(inputValue, oldValue) && this.setting.id() == DoubleTypeSetting.EFFECTS_VOLUME.id()){
-					ZusassStyle.playClickSound();
-				}
 			}
 		}
-		
 	}
 	
 	@Override

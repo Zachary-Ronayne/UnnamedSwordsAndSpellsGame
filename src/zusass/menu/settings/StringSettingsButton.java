@@ -1,18 +1,12 @@
 package zusass.menu.settings;
 
 import zgame.core.Game;
+import zgame.settings.SettingType;
 import zgame.settings.StringTypeSetting;
 import zusass.ZusassGame;
-import zusass.menu.comp.ZusassTextBox;
 
-/** A toggle button used for modifying boolean settings */
-public class StringSettingsButton extends ZusassTextBox implements ValueSettingsButton{
-	
-	/** The menu holding this button */
-	private final BaseSettingsMenu menu;
-	
-	/** The setting used by this button */
-	private final StringTypeSetting setting;
+/** A button used for typing in string settings */
+public class StringSettingsButton extends SettingsButtonTextBox<SettingType<String>, String> implements ValueSettingsButton{
 	
 	/**
 	 * @param x See {@link #getX()}
@@ -20,9 +14,7 @@ public class StringSettingsButton extends ZusassTextBox implements ValueSettings
 	 * @param setting The setting which this button modifies
 	 */
 	public StringSettingsButton(double x, double y, StringTypeSetting setting, String name, BaseSettingsMenu menu){
-		super(x, y, 600, 45);
-		this.menu = menu;
-		this.setting = setting;
+		super(x, y, 600, 45, setting, menu);
 		
 		this.setHint(name + "...");
 		this.setLabel(name + ": ");
@@ -32,22 +24,17 @@ public class StringSettingsButton extends ZusassTextBox implements ValueSettings
 	@Override
 	public void setCurrentText(String currentText){
 		super.setCurrentText(currentText);
-		this.changeDisplayedSetting(this.menu);
-	}
-	
-	/** @return See {@link #setting} */
-	@Override
-	public StringTypeSetting getSetting(){
-		return this.setting;
+		this.changeDisplayedSetting(this.getMenu());
 	}
 	
 	@Override
-	public String getSettingInputValue(){
+	public String getSettingTextInputValue(){
 		return this.getCurrentText();
 	}
-	
+
 	@Override
 	public void updateSetting(){
-		Game.get().set(this.setting, this.getSettingInputValue(), false);
+		Game.get().setAny(this.getSetting(), this.getSettingTextInputValue(), false);
 	}
+	
 }

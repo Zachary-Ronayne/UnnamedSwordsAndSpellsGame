@@ -11,7 +11,7 @@ import zgame.menu.MenuThing;
 public final class ZusassStyle{
 	
 	/** The sound source for playing a click button sound */
-	private static final SoundSource clickSound = new SoundSource();;
+	private static final SoundSource clickSound = new SoundSource();
 	
 	/** Generically apply styling for the given thing to be for Zusass */
 	public static void applyStyleThing(MenuThing thing){

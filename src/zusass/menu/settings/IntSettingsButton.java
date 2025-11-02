@@ -21,13 +21,13 @@ public class IntSettingsButton extends NumberSettingsButton<Integer>{
 	}
 	
 	@Override
-	public Integer getSettingInputValue(){
+	public Integer getSettingTextInputValue(){
 		return this.getTextAsInt();
 	}
 	
 	@Override
-	public String scrollPercentToText(double amount){
-		return String.valueOf((int)amount);
+	public String scrollPercentToText(double value){
+		return String.valueOf((int)value);
 	}
 	
 }

@@ -1,7 +1,6 @@
 package zusass.menu.settings;
 
 import zgame.settings.SettingType;
-import zusass.ZusassGame;
 
 import java.util.Objects;
 
@@ -16,7 +15,13 @@ public interface ValueSettingsButton{
 	SettingType<?> getSetting();
 	
 	/** @return The current value of the setting being input */
-	Object getSettingInputValue();
+	Object getSettingTextInputValue();
+	
+	/** @return The value of this setting before modifications to it were last saved */
+	Object getInitialValue();
+	
+	/** Update the value returned by {@link #getInitialValue()} so that it reflects the current setting */
+	void updateInitialValue();
 	
 	/**
 	 * Should be called any time the input value for a setting is modified
@@ -27,9 +32,8 @@ public interface ValueSettingsButton{
 		if(menu == null) return;
 		var confirmButton = menu.getConfirmButton();
 		if(confirmButton == null) return;
-		var setting = this.getSetting();
-		var currentValue = this.getSettingInputValue();
-		if(Objects.equals(ZusassGame.get().getAny(setting), currentValue)) confirmButton.removeSettingButton(this);
+		var currentValue = this.getSettingTextInputValue();
+		if(Objects.equals(this.getInitialValue(), currentValue)) confirmButton.removeSettingButton(this);
 		else confirmButton.addSettingButton(this);
 	}
 	

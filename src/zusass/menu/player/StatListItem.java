@@ -50,6 +50,7 @@ public class StatListItem extends ZusassButton{
 	 */
 	public StatListItem(double size, StatList statList, ZusassStat statType){
 		super(0, 0, 1, size, "");
+		this.setDisableClickSound(true);
 		this.statList = statList;
 		this.statType = statType;
 		this.setFormatter(new PercentFormatter(1.0, null, 0.5, null));

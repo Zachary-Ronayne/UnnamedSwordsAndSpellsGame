@@ -55,10 +55,16 @@ public class SettingsConfirmButton extends ZusassButton{
 	
 	/** Handle the confirmation of this button being pressed */
 	public void handleConfirm(){
+		// Update the settings in the game for each button
 		for(var button : this.buttons.values()) button.updateSetting();
 		// issue#33
+		// Persist those new settings to a file
 		Game.get().saveGlobalSettings();
 		
+		// Update the initial value to the new one
+		for(var button : this.buttons.values()) button.updateInitialValue();
+		
+		// Reset which buttons need updates
 		this.buttons.clear();
 		this.updateDisabled();
 	}
