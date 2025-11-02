@@ -304,8 +304,6 @@ public class GameDemo3D extends Game{
 			
 			// Toggle vsync
 			if(button == GLFW_KEY_V) game.toggle(BooleanTypeSetting.V_SYNC, false);
-			
-			// issue#39 allow for a third-person perspective and build it into the engine
 		}
 	}
 	
