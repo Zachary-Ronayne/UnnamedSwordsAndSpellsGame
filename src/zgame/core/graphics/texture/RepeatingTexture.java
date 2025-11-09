@@ -3,9 +3,9 @@ package zgame.core.graphics.texture;
 /** A class containing data used for rendering repeated textures */
 public class RepeatingTexture{
 	
-	/** The width of the rendered texture, in texture coordinates */
+	/** The width of the rendered texture, in pixel size */
 	private double texW;
-	/** The height of the rendered texture, in texture coordinates */
+	/** The height of the rendered texture, in pixel size */
 	private double texH;
 	/** An amount to shift the texture on the x axis */
 	private double shiftX;

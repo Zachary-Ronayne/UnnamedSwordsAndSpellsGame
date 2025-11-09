@@ -9,7 +9,7 @@ public class LoadGameButton extends MainMenuButton{
 	
 	public LoadGameButton(){
 		super(50, 200, "Load Game");
-		this.setFill(new ZColor(.45));
+		this.setFill(new ZColor(.9));
 	}
 	
 	@Override

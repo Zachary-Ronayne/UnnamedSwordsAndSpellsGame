@@ -124,6 +124,7 @@ public class ZusassGame extends Game{
 		// Load textures
 		var im = ImageManager.instance();
 		im.add("brickGrayscale");
+		im.add("smoothStoneGrayscale");
 		im.add("goblin");
 		im.add("zusassPlayer");
 		im.add("resourceBar");

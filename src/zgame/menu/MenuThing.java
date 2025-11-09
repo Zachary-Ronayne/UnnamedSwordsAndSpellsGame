@@ -1415,27 +1415,60 @@ public class MenuThing implements GameInteractable, Destroyable{
 	}
 	
 	/**
-	 * Draw the contents of just this menu thing, not anything in {@link #things} Anything drawn using this method should be drawn relative to the given bounds, not based on
-	 * this thing's position or relative position
+	 * Draw the section that fills in the background Anything drawn using this method should be drawn relative to the given bounds, not based on
+	 * this thing's position or relative position.
+	 * By default, renders solid colors for the fill based on {@link #fill}. Override for custom rendering
 	 *
 	 * @param r The renderer to use
 	 * @param bounds The bounds which this thing will be rendered relative to
 	 */
-	public void render(Renderer r, ZRect2D bounds){
+	public void renderFill(Renderer r, ZRect2D bounds){
+		double b = this.getBorderWidth();
+		r.setColor(this.getFill());
+		r.drawRectangle(new ZRect2D(bounds, -b));
+	}
+	
+	/**
+	 * Draw the border. Anything drawn using this method should be drawn relative to the given bounds, not based on
+	 * this thing's position or relative position.
+	 * By default, renders solid colors for the border based on {@link #border}. Override for custom rendering
+	 *
+	 * @param r The renderer to use
+	 * @param bounds The bounds which this thing will be rendered relative to
+	 */
+	public void renderBorder(Renderer r, ZRect2D bounds){
 		double b = this.getBorderWidth();
 		r.setColor(this.getBorder());
 		var x = bounds.getX();
 		var y = bounds.getY();
 		var w = bounds.getWidth();
 		var h = bounds.getHeight();
-		r.drawRectangle(x, y, w - b, b);
-		r.drawRectangle(x + w - b, y, b, h - b);
-		r.drawRectangle(x + b, y + h - b, w - b, b);
-		r.drawRectangle(x, y + b, b, h - b);
-		
-		r.setColor(this.getFill());
-		r.drawRectangle(new ZRect2D(bounds, -b));
-		
+		this.renderBorderBounds(r, new ZRect2D(x, y, w - b, b));
+		this.renderBorderBounds(r, new ZRect2D(x + w - b, y, b, h - b));
+		this.renderBorderBounds(r, new ZRect2D(x + b, y + h - b, w - b, b));
+		this.renderBorderBounds(r, new ZRect2D(x, y + b, b, h - b));
+	}
+	
+	/**
+	 * Draw a section of the border using the given bounds. Anything drawn using this method should be drawn relative to the given bounds, not based on
+	 * this thing's position or relative position.
+	 * By default, renders solid colors for the border based on {@link #border}. Override for custom rendering
+	 *
+	 * @param r The renderer to use
+	 * @param borderBounds The bounds which this portion of the border will be rendered at
+	 */
+	public void renderBorderBounds(Renderer r, ZRect2D borderBounds){
+		r.drawRectangle(borderBounds);
+	}
+	
+	/**
+	 * Draw the draggable visual parts of this thing. Anything drawn using this method should be drawn relative to the given bounds, not based on
+	 * this thing's position or relative position
+	 *
+	 * @param r The renderer to use
+	 * @param bounds The bounds which this thing will be rendered relative to
+	 */
+	public void renderDraggable(Renderer r, ZRect2D bounds){
 		if(this.isDisplayDraggableColor() && this.isDraggable()){
 			// #issue28 If this uses a buffer, the fill is solid, but this value is transparent and should be on top of the solid color, then this part is still transparent. Why?
 			r.setColor(this.getDraggableColor());
@@ -1447,6 +1480,19 @@ public class MenuThing implements GameInteractable, Destroyable{
 			d.y += d.getHeight();
 			r.drawRectangle(d.height(this.getBorderWidth()));
 		}
+	}
+	
+	/**
+	 * Draw the contents of just this menu thing, not anything in {@link #things} Anything drawn using this method should be drawn relative to the given bounds, not based on
+	 * this thing's position or relative position
+	 *
+	 * @param r The renderer to use
+	 * @param bounds The bounds which this thing will be rendered relative to
+	 */
+	public void render(Renderer r, ZRect2D bounds){
+		this.renderFill(r, bounds);
+		this.renderBorder(r, bounds);
+		this.renderDraggable(r, bounds);
 	}
 	
 	/**

@@ -14,7 +14,7 @@ public class MainSettingsButton extends MainMenuButton{
 		super(600, 500, "Settings");
 		this.setWidth(200);
 		this.centerText();
-		this.setFill(new ZColor(.5));
+		this.setFill(new ZColor(.9));
 	}
 	
 	@Override

@@ -1666,7 +1666,6 @@ public class Renderer implements Destroyable{
 		this.pushMatrix();
 		this.positionObject(x, y, w, h);
 		
-		
 		// Ensure the gpu has the current modelView and color
 		this.updateGpuColor();
 		this.updateGpuModelView();

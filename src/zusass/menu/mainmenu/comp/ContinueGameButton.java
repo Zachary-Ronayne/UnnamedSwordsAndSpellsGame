@@ -12,7 +12,7 @@ public class ContinueGameButton extends MainMenuButton{
 	/** Create the {@link ContinueGameButton} */
 	public ContinueGameButton(){
 		super(50, 50, "Continue");
-		this.setFill(new ZColor(.5));
+		this.setFill(new ZColor(.9));
 	}
 	
 	@Override

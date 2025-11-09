@@ -13,7 +13,7 @@ public class NewGameButton extends MainMenuButton{
 	 */
 	public NewGameButton(){
 		super(50, 350, "New Game");
-		this.setFill(new ZColor(.4));
+		this.setFill(new ZColor(.8));
 	}
 	
 	@Override

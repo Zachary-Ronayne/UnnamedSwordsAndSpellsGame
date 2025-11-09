@@ -17,6 +17,7 @@ public final class ZusassStyle{
 	public static void applyStyleThing(MenuThing thing){
 		thing.setBorderWidth(4);
 		thing.setBorder(new ZColor(.6));
+		thing.setFill(new ZColor(0.9));
 	}
 	
 	/** Generically apply styling for the given text to be for Zusass */
