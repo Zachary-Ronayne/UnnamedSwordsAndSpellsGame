@@ -1,5 +1,6 @@
 package zusass.menu.pause.comp;
 
+import zgame.core.graphics.ZColor;
 import zusass.menu.comp.ZusassButton;
 import zusass.menu.pause.PauseMenu;
 
@@ -19,6 +20,7 @@ public class PauseMenuButton extends ZusassButton{
 	public PauseMenuButton(double x, double y, String text, PauseMenu menu){
 		super(x, y, 250, 50, text);
 		this.centerText();
+		this.setFill(new ZColor(0.9));
 		this.menu = menu;
 	}
 	

@@ -1,14 +1,19 @@
 package zusass.menu.player;
 
 import zgame.core.Game;
+import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.utils.ZRect2D;
 import zgame.menu.MenuThing;
 import zgame.menu.format.MenuFormatter;
 import zgame.menu.format.PixelFormatter;
+import zgame.menu.scroller.MenuScrollerButton;
 import zgame.menu.scroller.VerticalScroller;
+import zgame.menu.scroller.VerticalScrollerButton;
 import zusass.ZusassGame;
 import zusass.game.things.entities.mobs.ZusassMob;
 import zusass.menu.ZusassMenu;
+import zusass.menu.comp.ZusassStyle;
 
 /** A menu which displays on top of the game for displaying information to the player, which can be dragged around */
 public abstract class DraggableMenu extends ZusassMenu{
@@ -45,8 +50,8 @@ public abstract class DraggableMenu extends ZusassMenu{
 		
 		this.makeDraggable(BORDER_SIZE, DRAGGABLE_HEIGHT);
 		this.setBorder(BORDER_COLOR);
-		this.setFill(new ZColor(.3, 0, 0, .8));
-		this.setDraggableColor(new ZColor(.8, .3));
+		this.setFill(new ZColor(.3, 0, 0));
+		this.setDraggableColor(new ZColor(.4, .3));
 		this.setMinWidth(120.0);
 		this.setMinHeight(75.0);
 	}
@@ -63,6 +68,34 @@ public abstract class DraggableMenu extends ZusassMenu{
 			public boolean mouseWheelMoveFocused(double amount){
 				if(!mouseOnMenu()) return false;
 				return super.mouseWheelMoveFocused(amount);
+			}
+			
+			@Override
+			public void renderFill(Renderer r, ZRect2D bounds){
+				ZusassStyle.renderGenericFill(this, r, bounds);
+			}
+			
+			@Override
+			public void renderBorderBounds(Renderer r, ZRect2D borderBounds){
+				ZusassStyle.renderGenericBorderBounds(this, r, borderBounds);
+			}
+			
+			@Override
+			public MenuScrollerButton generateButton(){
+				// TODO consider a way to make rendering easier to override without having to change methods entirely. Maybe make it a renderable object that can be overridden
+				var button = new VerticalScrollerButton(this, this.getWidth(), this.getWidth() * 2){
+					@Override
+					public void renderFill(Renderer r, ZRect2D bounds){
+						ZusassStyle.renderGenericFill(this, r, bounds);
+					}
+					
+					@Override
+					public void renderBorderBounds(Renderer r, ZRect2D borderBounds){
+						ZusassStyle.renderGenericBorderBounds(this, r, borderBounds);
+					}
+				};
+				button.setFullColor(new ZColor(0.4));
+				return button;
 			}
 		};
 		this.menuScroller.setScrollWheelEnabled(true);
@@ -86,6 +119,11 @@ public abstract class DraggableMenu extends ZusassMenu{
 	public boolean mouseOnMenu(){
 		var game = Game.get();
 		return this.getBounds().contains(game.mouseSX(), game.mouseSY());
+	}
+	
+	@Override
+	public void renderBorderBounds(Renderer r, ZRect2D borderBounds){
+		ZusassStyle.renderGenericBorderBounds(this, r, borderBounds);
 	}
 	
 	/**

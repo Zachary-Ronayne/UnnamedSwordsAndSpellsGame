@@ -1,6 +1,8 @@
 package zusass.menu.comp;
 
+import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.utils.ZRect2D;
 import zgame.menu.MenuText;
 
 /** A {@link MenuText} used by the Zusass game */
@@ -36,6 +38,16 @@ public class ZusassMenuText extends MenuText{
 			this.setBorder(new ZColor(0, 0, 0, 0));
 			this.setFill(new ZColor(0, 0, 0, 0));
 		}
+	}
+	
+	@Override
+	public void renderFill(Renderer r, ZRect2D bounds){
+		ZusassStyle.renderGenericFill(this, r, bounds);
+	}
+	
+	@Override
+	public void renderBorderBounds(Renderer r, ZRect2D borderBounds){
+		ZusassStyle.renderGenericBorderBounds(this, r, borderBounds);
 	}
 	
 }

@@ -1,5 +1,7 @@
 package zusass.menu.comp;
 
+import zgame.core.graphics.Renderer;
+import zgame.core.utils.ZRect2D;
 import zgame.menu.MenuTextBox;
 import zusass.ZusassGame;
 
@@ -18,6 +20,16 @@ public class ZusassTextBox extends MenuTextBox{
 		super(x, y, w, h);
 		ZusassStyle.applyStyleText(this);
 		this.bufferWidthToWindow(ZusassGame.window());
+	}
+	
+	@Override
+	public void renderFill(Renderer r, ZRect2D bounds){
+		ZusassStyle.renderGenericFill(this, r, bounds);
+	}
+	
+	@Override
+	public void renderBorderBounds(Renderer r, ZRect2D borderBounds){
+		ZusassStyle.renderGenericBorderBounds(this, r, borderBounds);
 	}
 	
 }

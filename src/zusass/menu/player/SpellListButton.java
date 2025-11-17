@@ -1,6 +1,7 @@
 package zusass.menu.player;
 
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.format.PercentFormatter;
 import zusass.ZusassGame;
@@ -36,6 +37,7 @@ public class SpellListButton extends ZusassButton{
 		
 		this.setFormatter(new PercentFormatter(1.0, null, 0.5, null));
 		this.setFontSize(24);
+		this.setFill(new ZColor(1.5));
 		
 		this.bufferWidthToWindow(ZusassGame.window());
 		this.updateTextPosition();
@@ -77,7 +79,7 @@ public class SpellListButton extends ZusassButton{
 		
 		// Draw a highlight if this button is the currently selected spell
 		if(ZusassGame.get().getPlayer().getSpells().getSelectedSpellIndex() == this.spellIndex){
-			r.setColor(.8, .8, 1, 0.5);
+			r.setColor(.8, .8, 1, 0.3);
 			r.drawRectangle(bounds);
 		}
 	}

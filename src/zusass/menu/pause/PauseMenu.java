@@ -47,7 +47,7 @@ public class PauseMenu extends ZusassMenu{
 		ZusassMenuText title = new ZusassMenuText(0, 20, 330, 120, "Pause", true);
 		title.setFontSize(100);
 		title.setFontColor(new ZColor(0));
-		title.setFill(new ZColor(.8, .5));
+		title.setFill(new ZColor(1));
 		title.setBorderWidth(2);
 		title.centerText();
 		

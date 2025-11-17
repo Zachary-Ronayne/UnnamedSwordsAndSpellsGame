@@ -187,7 +187,7 @@ public class SpellMakerMenu extends ZusassMenu{
 	
 	@Override
 	public ZColor getBackgroundTextureTint(){
-		return new ZColor(.9, .8, .6, 0.5);
+		return this.getFill().scale(1.5);
 	}
 	
 	/**

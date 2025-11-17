@@ -1,5 +1,7 @@
 package zusass.menu.comp;
 
+import zgame.core.graphics.Renderer;
+import zgame.core.utils.ZRect2D;
 import zgame.menu.togglebutton.EnumToggleButton;
 import zgame.menu.togglebutton.ToggleButton;
 import zgame.menu.togglebutton.ToggleButtonValue;
@@ -19,6 +21,16 @@ public class ZusassEnumToggleButton<E extends Enum<E> & ToggleButtonValue> exten
 		super(x, y, w, h, defaultSelected, values);
 		
 		ZusassStyle.applyStyleText(this);
+	}
+	
+	@Override
+	public void renderFill(Renderer r, ZRect2D bounds){
+		ZusassStyle.renderGenericFill(this, r, bounds);
+	}
+	
+	@Override
+	public void renderBorderBounds(Renderer r, ZRect2D borderBounds){
+		ZusassStyle.renderGenericBorderBounds(this, r, borderBounds);
 	}
 	
 }

@@ -39,6 +39,7 @@ public abstract class ZusassMenu extends Menu{
 		super(0, 0, ZusassGame.window().getScreenWidth(), ZusassGame.window().getScreenHeight(), false);
 		this.sendToTopOnClick = false;
 		this.setFill(new ZColor(0.2, 0.2, 0.2));
+		this.setBorder(new ZColor(0.5));
 		
 		var window = ZusassGame.window();
 		this.titleThing = new MenuText(0, 0, window.getScreenWidth(), window.getScreenHeight());
@@ -59,8 +60,7 @@ public abstract class ZusassMenu extends Menu{
 	}
 	
 	@Override
-	public void render(Renderer r, ZRect2D bounds){
-		super.render(r, bounds);
+	public void renderFill(Renderer r, ZRect2D bounds){
 		r.setColor(this.getBackgroundTextureTint());
 		r.pushTextureTintShader();
 		r.drawRepeatingTexture(bounds, new RepeatingTexture(128), ImageManager.image("brickGrayscale"));

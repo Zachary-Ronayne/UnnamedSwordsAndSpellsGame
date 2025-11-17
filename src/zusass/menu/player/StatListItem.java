@@ -58,6 +58,7 @@ public class StatListItem extends ZusassButton{
 		this.setFill(FILL_COLOR);
 		this.setBorderWidth(1);
 		this.setBorder(BORDER_COLOR);
+		this.setFill(new ZColor(1.5));
 		
 		this.bufferWidthToWindow(ZusassGame.window());
 	}

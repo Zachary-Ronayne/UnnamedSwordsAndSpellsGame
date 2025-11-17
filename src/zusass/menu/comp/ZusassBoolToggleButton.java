@@ -1,5 +1,7 @@
 package zusass.menu.comp;
 
+import zgame.core.graphics.Renderer;
+import zgame.core.utils.ZRect2D;
 import zgame.menu.togglebutton.BoolToggleButton;
 import zgame.menu.togglebutton.ToggleButton;
 
@@ -19,6 +21,16 @@ public class ZusassBoolToggleButton extends BoolToggleButton{
 		super(x, y, w, h, trueSelected, trueValue, falseValue);
 		
 		ZusassStyle.applyStyleText(this);
+	}
+	
+	@Override
+	public void renderFill(Renderer r, ZRect2D bounds){
+		ZusassStyle.renderGenericFill(this, r, bounds);
+	}
+	
+	@Override
+	public void renderBorderBounds(Renderer r, ZRect2D borderBounds){
+		ZusassStyle.renderGenericBorderBounds(this, r, borderBounds);
 	}
 	
 }
