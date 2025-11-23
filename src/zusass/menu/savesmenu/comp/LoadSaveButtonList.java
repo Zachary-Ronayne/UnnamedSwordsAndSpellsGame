@@ -27,6 +27,7 @@ public class LoadSaveButtonList extends MenuHolder{
 	 */
 	public LoadSaveButtonList(SavesMenu menu){
 		super(SavesMenuScroller.X, SavesMenuScroller.Y);
+		this.invisible();
 		this.getAllThings().addClass(SavesLoadButton.class);
 		this.menu = menu;
 		this.selected = null;
