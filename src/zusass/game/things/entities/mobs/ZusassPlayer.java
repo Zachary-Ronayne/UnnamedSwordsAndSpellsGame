@@ -328,7 +328,7 @@ public class ZusassPlayer extends ZusassMob{
 	@Override
 	public void render(Renderer r){
 		r.setColor(new ZColor(0.5));
-		this.renderAttackTimer(r);
+		this.renderAttackTimer(r, ImageManager.image("sword"));
 		
 		// Billboard rendering of the player
 		r.drawPlaneBufferSide(

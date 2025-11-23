@@ -118,7 +118,7 @@ public class Npc extends ZusassMob{
 	protected void render(Renderer r){
 		// Draw an attack timer
 		r.setColor(0, 0.7, 0);
-		this.renderAttackTimer(r);
+		this.renderAttackTimer(r, ImageManager.image("club"));
 		
 		double facingAngle = this.getMobilityData().getFacingYaw();
 		

@@ -3,6 +3,7 @@ package zusass.game.things.entities.mobs;
 import com.google.gson.JsonElement;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.*;
+import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.image.ImageManager;
 import zgame.core.graphics.texture.RepeatingTexture;
 import zgame.core.sound.SoundManager;
@@ -230,8 +231,9 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	 * Minimal method for drawing a basic attack timer for melee attacks
 	 *
 	 * @param r The renderer to draw the attack with
+	 * @param image The image to use for drawing the attack
 	 */
-	public void renderAttackTimer(Renderer r){
+	public void renderAttackTimer(Renderer r, GameImage image){
 		// Do nothing if not attacking
 		if(this.getAttackTime() < 0) return;
 		
@@ -240,7 +242,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		double attackPercent = 1 - time * speed;
 		// Scale the time until attacking to make the arm move slowly at first, then quick at the end
 		double anglePerc = Math.pow(1 - time * speed, 7);
-		double attackSize = this.stat(ATTACK_RANGE) * 0.5 * attackPercent + 0.5;
+		double attackSize = this.stat(ATTACK_RANGE);// * 0.5 * attackPercent + 0.5;
 		double attackYaw = this.getMobilityData().getFacingYaw();
 		
 		// Find the position where the arm will start
@@ -264,9 +266,14 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		double pitch = ZMath.atan2Normalized(dy, Math.sqrt(dx * dx + dz * dz)) + ZMath.atan2Normalized(armSize, 0) * anglePerc;
 		
 		// Draw the final rotated rect
-		var rect = new RectRender3D(basePoint.getX(), basePoint.getY(), basePoint.getZ(), armSize, attackSize, armSize, RotRender3D.euler(yaw, pitch, 0));
-		var c = r.getColor();
-		r.drawRectPrism(rect, c, c, c, c, c, c);
+		double armOffset = attackSize * -0.5;
+		r.drawPlaneBuffer(
+				basePoint.getX(), basePoint.getY(), basePoint.getZ() - armOffset,
+				armSize, attackSize,
+				RotRender3D.euler(
+						yaw, pitch - ZMath.PI_BY_2, ZMath.PI_BY_2,
+						0, 0, -armOffset
+				), image.getId());
 	}
 	
 	/**
