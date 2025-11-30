@@ -1,7 +1,10 @@
 package zusass.game.things;
 
+import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
+import zgame.core.sound.SoundManager;
+import zgame.core.sound.SoundSource;
 import zgame.core.state.MenuNode;
 import zgame.core.utils.ZRect3D;
 import zgame.things.still.StaticThing3D;
@@ -28,6 +31,9 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	/** The texture coordinates used for the spell maker */
 	private final ZusassTexCoordsRectPrism textureCoordinates;
 	
+	// TODO implement properly
+	private SoundSource sound;
+	
 	/**
 	 * Make a spell maker at the given position
 	 *
@@ -40,6 +46,7 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 		
 		this.menu = new SpellMakerMenu();
 		this.textureCoordinates = new ZusassTexCoordsRectPrism("spellMaker", this, 14.0 / 32.0, 7.0 / 32.0, 14.0 / 32.0, Direction3D.NORTH);
+		this.sound = SoundManager.get().createSource(x, y, z);
 	}
 	
 	@Override
@@ -62,8 +69,20 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 		c.popupMenu(MenuNode.withAll(this.menu));
 	}
 	
+	// TODO implement properly
+	private double timer = 0;
+	
 	@Override
 	public void tick(double dt){
+		timer += dt;
+		if(timer > 1){
+			timer = 0;
+			// TODO maybe keep this test sound, just as a passive background sound
+//			Game.get().playEffect(this.sound, "win");
+		}
+		
+		
+		
 		var zgame = ZusassGame.get();
 		var p = zgame.getPlayer();
 		var play = zgame.getPlayState();

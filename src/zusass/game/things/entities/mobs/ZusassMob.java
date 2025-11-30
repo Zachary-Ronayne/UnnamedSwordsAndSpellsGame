@@ -438,7 +438,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	 */
 	public boolean castSpell(){
 		var success = this.getSelectedSpell().castAttempt(this);
-		if(this.castSoundSource != null){
+		if(success && this.castSoundSource != null){
 			var zgame = ZusassGame.get();
 			var sm = zgame.getSounds();
 			sm.updateSourcePos(this.castSoundSource, this.getX(), this.getY(), this.getZ());

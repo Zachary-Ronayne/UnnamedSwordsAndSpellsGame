@@ -13,7 +13,8 @@ public class SoundListener extends SoundLocation{
 	 */
 	public SoundListener(){
 		super();
-		alListener3f(AL_POSITION, 0, 0, 0);
+		this.updatePosition(0, 0, 0);
+		this.updateOrientation(0, 0, 0, 0, 0, 0);
 		alListener3f(AL_VELOCITY, 0, 0, 0);
 	}
 	
@@ -24,6 +25,11 @@ public class SoundListener extends SoundLocation{
 	
 	@Override
 	public void updateDirection(double x, double y, double z){
-		alListener3f(AL_DIRECTION, (float)x, (float)y, (float)z);
+		// Listeners don't use a direction
+	}
+	
+	@Override
+	public void updateOrientation(double yx, double yy, double yz, double px, double py, double pz){
+		alListenerfv(AL_ORIENTATION, new float[] {(float)yz, (float)yy, (float)yz, (float)px, (float)py, (float)pz});
 	}
 }

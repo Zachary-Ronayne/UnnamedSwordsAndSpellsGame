@@ -169,8 +169,21 @@ public class ZusassPlayer extends ZusassMob{
 		if(SoundManager.initialized()){
 			var sm = SoundManager.get();
 			sm.updateListenerPos(this.getX(), this.getY(), this.getZ());
-			var soundVec = new ZVector3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), 1, false);
-			sm.updateListenerDirection(soundVec.getX(), soundVec.getY(), soundVec.getZ());
+			// TODO probably abstract / optimize these calculations into one call to ZVector3D
+			double yaw = mobilityData.getFacingYaw();
+			double pitch = mobilityData.getFacingPitch();
+			double cosP = Math.cos(pitch);
+			double cosY = Math.cos(yaw);
+			double sinP = Math.sin(pitch);
+			double sinY = Math.sin(yaw);
+			
+			double yx = cosP * cosY;
+			double yy = sinP;
+			double yz = cosP * sinY;
+			double px = -(yx * yy) / cosP;
+			double py =  cosP;
+			double pz = -(yy * yz) / cosP;
+			sm.updateListenerOrientation(yz, yy, yz, px, py, pz);
 		}
 	}
 	

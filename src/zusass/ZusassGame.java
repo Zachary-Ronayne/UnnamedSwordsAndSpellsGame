@@ -37,6 +37,26 @@ import java.io.File;
  */
 public class ZusassGame extends Game{
 	
+	/*
+	 * TODO sound effects to add
+	 *  	player
+	 * 			footsteps
+	 * 			sword swing
+	 * 			damage sound
+	 * 		enemy
+	 * 			footsteps
+	 * 			club swing
+	 * 			damage grunt
+	 * 		entity hitting the ground
+	 * 		open door sound
+	 * 		spell
+	 * 			created
+	 * 			projectile cast
+	 * 			self cast
+	 * 			projectile hit wall
+	 * 			projectile hit entity
+	 */
+	
 	/** The id used for the single window of the Zusass game */
 	public final static String ZUSASS_WINDOW_ID = "zusassMainWindow";
 	

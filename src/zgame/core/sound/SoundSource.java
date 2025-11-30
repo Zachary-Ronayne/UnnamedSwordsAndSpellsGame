@@ -88,9 +88,15 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	public void updateDirection(double x, double y, double z){
 		alSource3f(this.getId(), AL_DIRECTION, (float)x, (float)y, (float)z);
 		// issue#61 these values need a better way of being set up
-		alSourcef(this.getId(), AL_CONE_INNER_ANGLE, 1);
-		alSourcef(this.getId(), AL_CONE_OUTER_ANGLE, 1);
-		alSourcef(this.getId(), AL_CONE_OUTER_GAIN, 0.2f);
+		// For now, always use omi directional sounds
+		alSourcef(this.getId(), AL_CONE_INNER_ANGLE, 360);
+		alSourcef(this.getId(), AL_CONE_OUTER_ANGLE, 360);
+		alSourcef(this.getId(), AL_CONE_OUTER_GAIN, 1f);
+	}
+	
+	@Override
+	public void updateOrientation(double yx, double yy, double yz, double px, double py, double pz){
+		// Sources don't use orientation
 	}
 	
 	/** Should call this method when the state of a sound needs to be updated, i.e. each game loop */

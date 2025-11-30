@@ -27,4 +27,15 @@ public abstract class SoundLocation{
 	 * @param z The z vector component of the direction
 	 */
 	public abstract void updateDirection(double x, double y, double z);
+	
+	/**
+	 * Update the orientation which this sound is produced
+	 * @param yx The x vector component of the orientation for the yaw vector
+	 * @param yy The y vector component of the orientation for the yaw vector
+	 * @param yz The z vector component of the orientation for the yaw vector
+	 * @param px The x vector component of the orientation for the pitch vector
+	 * @param py The y vector component of the orientation for the pitch vector
+	 * @param pz The z vector component of the orientation for the pitch vector
+	 */
+	public abstract void updateOrientation(double yx, double yy, double yz, double px, double py, double pz);
 }

@@ -47,6 +47,7 @@ public class SoundManager implements Destroyable{
 	 */
 	private final List<SpeakerDevice> devices;
 	
+	// TODO probably remove dummy, or make the sounds not always initialized, forcing them on seemingly doesn't stop the glitchy sound problems
 	/** true if this should be a dummy manager that doesn't actually do anything, false for normal. Use true to replace the instance with a non-null object */
 	private final boolean dummy;
 	
@@ -329,15 +330,18 @@ public class SoundManager implements Destroyable{
 	}
 	
 	/**
-	 * Update the direction of the listener of this SoundManager
+	 * Update the orientation of the listener of this SoundManager
 	 *
-	 * @param x The new x vector direction component
-	 * @param y The new y vector direction component
-	 * @param z The new z vector direction component
+	 * @param yx The x vector component of the orientation for the yaw vector
+	 * @param yy The y vector component of the orientation for the yaw vector
+	 * @param yz The z vector component of the orientation for the yaw vector
+	 * @param px The x vector component of the orientation for the pitch vector
+	 * @param py The y vector component of the orientation for the pitch vector
+	 * @param pz The z vector component of the orientation for the pitch vector
 	 */
-	public void updateListenerDirection(double x, double y, double z){
+	public void updateListenerOrientation(double yx, double yy, double yz, double px, double py, double pz){
 		if(this.isDummy()) return;
-		this.updateSoundDirection(this.getListener(), x, y, z);
+		this.getListener().updateOrientation(yx, yy, yz, px, py, pz);
 	}
 	
 	/**
