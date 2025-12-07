@@ -1,5 +1,7 @@
 package zgame.core.sound;
 
+import zgame.physics.ForwardVector;
+
 import static org.lwjgl.openal.AL11.*;
 
 /**
@@ -14,7 +16,7 @@ public class SoundListener extends SoundLocation{
 	public SoundListener(){
 		super();
 		this.updatePosition(0, 0, 0);
-		this.updateOrientation(0, 0, 0, 0, 0, 0);
+		this.updateOrientation(new ForwardVector());
 		alListener3f(AL_VELOCITY, 0, 0, 0);
 	}
 	
@@ -29,7 +31,10 @@ public class SoundListener extends SoundLocation{
 	}
 	
 	@Override
-	public void updateOrientation(double yx, double yy, double yz, double px, double py, double pz){
-		alListenerfv(AL_ORIENTATION, new float[] {(float)yz, (float)yy, (float)yz, (float)px, (float)py, (float)pz});
+	public void updateOrientation(ForwardVector v){
+		alListenerfv(AL_ORIENTATION, new float[] {
+				(float)v.getYawX(), (float)v.getYawY(), (float)v.getYawZ(),
+				(float)v.getPitchX(), (float)v.getPitchY(), (float)v.getPitchZ()
+		});
 	}
 }

@@ -1,5 +1,7 @@
 package zgame.core.sound;
 
+import zgame.physics.ForwardVector;
+
 /**
  * A class that handles either a listener or source in OpenAL, which uses location information, and contains common functionality between the two
  */
@@ -30,12 +32,7 @@ public abstract class SoundLocation{
 	
 	/**
 	 * Update the orientation which this sound is produced
-	 * @param yx The x vector component of the orientation for the yaw vector
-	 * @param yy The y vector component of the orientation for the yaw vector
-	 * @param yz The z vector component of the orientation for the yaw vector
-	 * @param px The x vector component of the orientation for the pitch vector
-	 * @param py The y vector component of the orientation for the pitch vector
-	 * @param pz The z vector component of the orientation for the pitch vector
+	 * @param v The forward vector representing the orientation
 	 */
-	public abstract void updateOrientation(double yx, double yy, double yz, double px, double py, double pz);
+	public abstract void updateOrientation(ForwardVector v);
 }

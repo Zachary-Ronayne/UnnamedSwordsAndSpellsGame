@@ -14,6 +14,7 @@ import zgame.core.input.InputHandlers;
 import zgame.core.input.InputType;
 import zgame.core.sound.SoundManager;
 import zgame.core.utils.ZMath;
+import zgame.physics.ForwardVector;
 import zgame.physics.ZVector3D;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
@@ -169,21 +170,7 @@ public class ZusassPlayer extends ZusassMob{
 		if(SoundManager.initialized()){
 			var sm = SoundManager.get();
 			sm.updateListenerPos(this.getX(), this.getY(), this.getZ());
-			// TODO probably abstract / optimize these calculations into one call to ZVector3D
-			double yaw = mobilityData.getFacingYaw();
-			double pitch = mobilityData.getFacingPitch();
-			double cosP = Math.cos(pitch);
-			double cosY = Math.cos(yaw);
-			double sinP = Math.sin(pitch);
-			double sinY = Math.sin(yaw);
-			
-			double yx = cosP * cosY;
-			double yy = sinP;
-			double yz = cosP * sinY;
-			double px = -(yx * yy) / cosP;
-			double py =  cosP;
-			double pz = -(yy * yz) / cosP;
-			sm.updateListenerOrientation(yz, yy, yz, px, py, pz);
+			sm.updateListenerOrientation(new ForwardVector(mobilityData.getFacingYaw(), mobilityData.getFacingPitch()));
 		}
 	}
 	

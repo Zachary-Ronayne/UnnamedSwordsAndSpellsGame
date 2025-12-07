@@ -4,6 +4,7 @@ import static org.lwjgl.openal.AL11.*;
 
 import zgame.core.graphics.Destroyable;
 import zgame.core.utils.ZConfig;
+import zgame.physics.ForwardVector;
 
 /**
  * A class that tracks a single source in OpenAL
@@ -95,7 +96,7 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	}
 	
 	@Override
-	public void updateOrientation(double yx, double yy, double yz, double px, double py, double pz){
+	public void updateOrientation(ForwardVector v){
 		// Sources don't use orientation
 	}
 	

@@ -11,6 +11,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Destroyable;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZFilePaths;
+import zgame.physics.ForwardVector;
 
 /**
  * A class that handles multiple {@link SoundPlayer} objects, music and effects
@@ -307,15 +308,10 @@ public class SoundManager implements Destroyable{
 	/**
 	 * Update the orientation of the listener of this SoundManager
 	 *
-	 * @param yx The x vector component of the orientation for the yaw vector
-	 * @param yy The y vector component of the orientation for the yaw vector
-	 * @param yz The z vector component of the orientation for the yaw vector
-	 * @param px The x vector component of the orientation for the pitch vector
-	 * @param py The y vector component of the orientation for the pitch vector
-	 * @param pz The z vector component of the orientation for the pitch vector
+	 * @param v The vector representing the orientation
 	 */
-	public void updateListenerOrientation(double yx, double yy, double yz, double px, double py, double pz){
-		this.getListener().updateOrientation(yx, yy, yz, px, py, pz);
+	public void updateListenerOrientation(ForwardVector v){
+		this.getListener().updateOrientation(v);
 	}
 	
 	/**
