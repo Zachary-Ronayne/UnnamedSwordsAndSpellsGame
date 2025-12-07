@@ -22,7 +22,8 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	
 	/**
 	 * The volume of this sound before being modified by other sounds. So, if this {@link SoundSource} is part of a {@link SoundPlayer}, then the end result volume will be
-	 * this value multiplied by the volume of the player. This value cannot go below zero
+	 * this value multiplied by the volume of the player. This value cannot go below zero.
+	 * This is controlled by the sound manager
 	 */
 	private double baseVolume;
 	
@@ -98,6 +99,14 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	@Override
 	public void updateOrientation(ForwardVector v){
 		// Sources don't use orientation
+	}
+	
+	/**
+	 * Set the current pitch modification of this sound. Use 1 for no pitch change, otherwise this is a pitch multiplier
+	 * @param newPitch The new value of the pitch
+	 */
+	public void updatePitch(double newPitch){
+		alSourcef(this.getId(), AL_PITCH, (float)newPitch);
 	}
 	
 	/** Should call this method when the state of a sound needs to be updated, i.e. each game loop */

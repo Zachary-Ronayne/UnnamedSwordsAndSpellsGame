@@ -31,8 +31,12 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	/** The texture coordinates used for the spell maker */
 	private final ZusassTexCoordsRectPrism textureCoordinates;
 	
-	// TODO implement properly
-	private SoundSource sound;
+	/** A source for periodically playing a sound from the spell maker */
+	private final SoundSource ambientSoundSource;
+	/** The amount of time, in seconds, it has been since the last ambient sound was played */
+	private double timeSinceAmbient;
+	/** The amount of time, in seconds, to wait before playing the next ambient sound */
+	private double ambientTimeWait;
 	
 	/**
 	 * Make a spell maker at the given position
@@ -46,7 +50,10 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 		
 		this.menu = new SpellMakerMenu();
 		this.textureCoordinates = new ZusassTexCoordsRectPrism("spellMaker", this, 14.0 / 32.0, 7.0 / 32.0, 14.0 / 32.0, Direction3D.NORTH);
-		this.sound = SoundManager.get().createSource(x, y, z);
+		this.ambientSoundSource = SoundManager.get().createSource(x, y, z);
+		this.ambientSoundSource.setVolume(0.4);
+		this.timeSinceAmbient = 0;
+		this.ambientTimeWait = 1;
 	}
 	
 	@Override
@@ -69,19 +76,20 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 		c.popupMenu(MenuNode.withAll(this.menu));
 	}
 	
-	// TODO implement properly
-	private double timer = 0;
-	
 	@Override
 	public void tick(double dt){
-		timer += dt;
-		if(timer > 1){
-			timer = 0;
-			// TODO maybe keep this test sound, just as a passive background sound
-//			Game.get().playEffect(this.sound, "win");
+		this.timeSinceAmbient += dt;
+		if(this.timeSinceAmbient > this.ambientTimeWait){
+			// Play the sound again after some random amount of time
+			this.timeSinceAmbient = 0;
+			this.ambientTimeWait = 4 + Math.random() * 2;
+			
+			// Pick a random pitch to use
+			this.ambientSoundSource.updatePitch(0.9 + Math.random() * 0.2);
+			
+			// TODO move all asset names to string constants defined for ZusassGame
+			Game.get().playEffect(this.ambientSoundSource, "magicSound");
 		}
-		
-		
 		
 		var zgame = ZusassGame.get();
 		var p = zgame.getPlayer();
