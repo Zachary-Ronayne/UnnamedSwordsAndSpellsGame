@@ -176,13 +176,11 @@ public class MainTest extends Game{
 		ImageManager.instance().addAll();
 		
 		// Add sounds
-		if(SoundManager.initialized()){
-			var sm = SoundManager.get();
-			sm.addAllSounds();
-			
-			// Set the sound scaling distance
-			sm.setDistanceScalar(.04);
-		}
+		var sm = SoundManager.get();
+		sm.addAllSounds();
+		
+		// Set the sound scaling distance
+		sm.setDistanceScalar(.04);
 		
 		reset();
 	}

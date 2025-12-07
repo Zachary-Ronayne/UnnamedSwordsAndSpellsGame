@@ -92,6 +92,8 @@ public class Game implements Saveable, Destroyable{
 	private Thread soundThread;
 	/** The {@link Runnable} used by {@link #soundThread} to run its thread */
 	private SoundLoopTask soundTask;
+	/** true to initialize the sound engine when the game initializes, false otherwise. Defaults to init sound */
+	private boolean initSounds;
 	
 	/** true if the game should only update the state of the game when the game window has focus, false otherwise. If the game is not updating, this will also pause all sound */
 	private boolean focusedUpdate;
@@ -138,7 +140,6 @@ public class Game implements Saveable, Destroyable{
 		}
 	}
 	
-	
 	/**
 	 * Create a {@link Game}. This will not initialize anything related to OpenGL, OpenAL, or window management, call {@link #start()} for that
 	 */
@@ -158,6 +159,7 @@ public class Game implements Saveable, Destroyable{
 		this.effectsPaused = false;
 		this.musicPaused = false;
 		this.updateSoundState = false;
+		this.initSounds = true;
 		
 		this.currentState = new DefaultState();
 		this.nextCurrentState = null;
@@ -225,6 +227,9 @@ public class Game implements Saveable, Destroyable{
 		// Load fonts
 		FontManager.init();
 		
+		// Init sound on start
+		if(this.isInitSounds()) this.initSound();
+		
 		// Start the window
 		var window = this.getWindow();
 		window.setRenderFunc(this::renderAll);
@@ -247,9 +252,6 @@ public class Game implements Saveable, Destroyable{
 	 * thread, a second thread will run, which runs the game tick loop, and a third thread will run which updates the sounds
 	 */
 	public final void start(){
-		// Init sound on start
-		this.initSound();
-		
 		this.init();
 		
 		// Run the tick loop on its own thread first
@@ -912,6 +914,16 @@ public class Game implements Saveable, Destroyable{
 	/** Force the sound looper to stop running, should be used in shutdown */
 	public void stopSound(){
 		this.soundLooper.setKeepRunningFunc(() -> false);
+	}
+	
+	/** @return See {@link #initSounds} */
+	public boolean isInitSounds(){
+		return this.initSounds;
+	}
+	
+	/** @param initSounds See {@link #initSounds} */
+	public void setInitSounds(boolean initSounds){
+		this.initSounds = initSounds;
 	}
 	
 	/** @return Get the object tracking mouse input for this {@link Game} */
