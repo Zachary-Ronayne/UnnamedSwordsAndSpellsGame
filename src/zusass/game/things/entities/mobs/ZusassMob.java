@@ -1,6 +1,7 @@
 package zusass.game.things.entities.mobs;
 
 import com.google.gson.JsonElement;
+import zgame.core.Game;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.*;
 import zgame.core.graphics.image.GameImage;
@@ -25,6 +26,7 @@ import zgame.things.entity.projectile.Projectile3D;
 import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.CylinderClickable;
 import zgame.things.type.bounds.CylinderHitbox;
+import zgame.world.Room3D;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
 import zusass.game.magic.*;
@@ -115,6 +117,11 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	/** See {@link Mobility3D#isSprinting()} */
 	private boolean sprinting;
 	
+	/** Source of sound of the mob's footstep */
+	private SoundSource footstepSoundSource;
+	/** The last game time timestamp when a footstep was played */
+	private double lastFootstepTime;
+	
 	/**
 	 * Create a new mob with the given bounds
 	 *
@@ -194,9 +201,19 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	 * Initialize this mob for creating sounds, otherwise sounds will not play
 	 */
 	public void initSounds(){
-		if(this.castSoundSource == null) {
-			if(SoundManager.initialized()) this.castSoundSource = SoundManager.get().createSource(this.getX(), this.getY(), this.getZ());
+		if(this.castSoundSource == null){
+			this.castSoundSource = SoundManager.get().createSource(this.getX(), this.getY(), this.getZ());
 		}
+		if(this.footstepSoundSource == null){
+			this.footstepSoundSource = SoundManager.get().createSource(this.getX(), this.getY(), this.getZ());
+			this.lastFootstepTime = Game.get().getTotalTickTime();
+		}
+	}
+	
+	@Override
+	public void onRoomAdd(){
+		super.onRoomAdd();
+		this.initSounds();
 	}
 	
 	@Override
@@ -205,6 +222,8 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		if(this.castSoundSource != null){
 			this.castSoundSource.destroy();
 			this.castSoundSource = null;
+			this.footstepSoundSource.destroy();
+			this.footstepSoundSource = null;
 		}
 	}
 	
@@ -225,8 +244,58 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		// If running and moving, need to drain stamina
 		this.staminaRunDrain.setValue(this.isSprinting() && this.isTryingToMove() ? -35 : 0);
 		
+		this.updateFootstepSoundTimer(dt);
+		
 		// Do the normal game update
 		super.tick(dt);
+	}
+	
+	/**
+	 * Update the timer and play a footstep sound if needed
+	 * @param dt The amount of time, in seconds, passed in the tick updating this method
+	 */
+	private void updateFootstepSoundTimer(double dt){
+		// Do nothing if not on the ground
+		if(!this.isOnGround()) return;
+		
+		// Don't play sound if there's no movement
+		double speed = Math.abs(this.getHorizontalVel());
+		if(speed < this.getClampVelocity()) return;
+		
+		// Force play a footstep if getting on the ground for the first time
+		double footstepSoundThreshold = 1.0 / speed * 0.4;
+		var game = Game.get();
+		double gameTime = game.getTotalTickTime();
+		double timeSinceLastFootstep = gameTime - this.lastFootstepTime;
+		
+		// If it's been enough time, play the footstep sound
+		if(timeSinceLastFootstep > footstepSoundThreshold) this.playFootstepSound();
+	}
+	
+	/** Play the footstep sound and update last time the sound was played */
+	private void playFootstepSound(){
+		var game = Game.get();
+		var sm = game.getSounds();
+		// TODO make it more obvious when you need to use the sound manager vs the source itself
+		sm.updateSourcePos(this.footstepSoundSource, this.getX(), this.getY(), this.getZ());
+		sm.updateSourceDirection(this.footstepSoundSource, 0, 0, 0);
+		this.footstepSoundSource.updatePitch(this.getFootstepPitch());
+		this.footstepSoundSource.setVolume(this.getFootstepVolume());
+		game.playEffect(this.footstepSoundSource, ZusassSounds.FOOTSTEP);
+		
+		// Update the last time a footstep was played
+		this.lastFootstepTime = game.getTotalTickTime();
+	}
+	
+	// TODO probably make this a class to work with to make it more abstracted?
+	/** @return The volume level of footsteps */
+	public double getFootstepVolume(){
+		return 0.55;
+	}
+	
+	/** @return The pitch level of footsteps */
+	public double getFootstepPitch(){
+		return 1.05 + Math.random() * 0.13;
 	}
 	
 	/**

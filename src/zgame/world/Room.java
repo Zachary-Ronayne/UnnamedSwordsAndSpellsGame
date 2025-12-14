@@ -107,6 +107,7 @@ public abstract class Room<
 	 */
 	public void addThing(GameThing thing){
 		this.thingsMap.add(thing);
+		thing.onRoomAdd();
 	}
 	
 	/**

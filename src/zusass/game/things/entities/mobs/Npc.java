@@ -104,7 +104,7 @@ public class Npc extends ZusassMob{
 		// If sprinting and stamina is low, stop sprinting
 		var sprinting = this.isSprinting();
 		if(staminaPerc < .25 && sprinting || inRange) this.setSprinting(false);
-			// If stamina is above 75% and not sprinting, start sprinting
+		// If stamina is above 75% and not sprinting, start sprinting
 		else if(staminaPerc > .75 && !sprinting) this.setSprinting(true);
 	}
 	
@@ -138,4 +138,13 @@ public class Npc extends ZusassMob{
 				this.resourceBarBuffer.getTextureID());
 	}
 	
+	@Override
+	public double getFootstepVolume(){
+		return 10;
+	}
+	
+	@Override
+	public double getFootstepPitch(){
+		return 0.85 + Math.random() * 0.13;
+	}
 }

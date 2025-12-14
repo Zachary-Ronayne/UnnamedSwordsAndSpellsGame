@@ -7,7 +7,7 @@ public final class ZusassSounds{
 	public static final String WIN = "win";
 	public static final String CLICK = "click";
 	public static final String MAGIC_SOUND = "magicSound";
-	
+	public static final String FOOTSTEP = "footstep";
 	
 	/** Cannot instantiate {@link ZusassSounds} */
 	private ZusassSounds(){}

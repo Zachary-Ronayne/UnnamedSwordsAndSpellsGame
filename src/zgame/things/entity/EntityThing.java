@@ -70,6 +70,9 @@ public abstract class EntityThing<
 	/** The amount of time in seconds since this {@link EntityThing} last touched the ground, or -1 if it is currently on the ground */
 	private double groundTime;
 	
+	/** The amount of time in seconds this {@link EntityThing} has been on the ground, or -1 if it is not on the ground */
+	private double onGroundTime;
+	
 	/** The material which this {@link EntityThing} is standing on, or {@link Materials#NONE} if no material is being touched */
 	private Material floorMaterial;
 	
@@ -124,6 +127,7 @@ public abstract class EntityThing<
 		
 		this.floorMaterial = Materials.NONE;
 		this.groundTime = 0;
+		this.onGroundTime = 0;
 		this.ceilingMaterial = Materials.NONE;
 		this.ceilingTime = 0;
 		this.wallMaterial = Materials.NONE;
@@ -139,6 +143,7 @@ public abstract class EntityThing<
 	public void tick(double dt){
 		// Update the amount of time the entity has been on the ground, walls, and ceiling
 		if(this.groundTime != -1) this.groundTime += dt;
+		if(this.onGroundTime != -1) this.onGroundTime += dt;
 		if(this.ceilingTime != -1) this.ceilingTime += dt;
 		if(this.wallTime != -1) this.wallTime += dt;
 		
@@ -464,6 +469,11 @@ public abstract class EntityThing<
 		return this.groundTime;
 	}
 	
+	/** @return See {@link #onGroundTime} */
+	public double getOnGroundTime(){
+		return this.onGroundTime;
+	}
+	
 	/** @return See {@link #ceilingTime} */
 	public double getCeilingTime(){
 		return this.ceilingTime;
@@ -490,6 +500,7 @@ public abstract class EntityThing<
 	public void leaveFloor(){
 		this.floorMaterial = Materials.NONE;
 		this.groundTime = 0;
+		this.onGroundTime = -1;
 	}
 	
 	@Override
@@ -498,6 +509,7 @@ public abstract class EntityThing<
 		var touched = collision.material();
 		this.floorMaterial = touched;
 		this.groundTime = -1;
+		if(onGroundTime < 0) this.onGroundTime = 0;
 		
 		// Bounce off the floor, or reset the y velocity to 0 if either material has no floor bounciness
 		this.setVerticalVel(-this.getVerticalVel() * touched.getFloorBounce() * this.getMaterial().getFloorBounce());

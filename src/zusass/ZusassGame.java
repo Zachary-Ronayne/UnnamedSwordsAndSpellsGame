@@ -41,11 +41,9 @@ public class ZusassGame extends Game{
 	/*
 	 * TODO sound effects to add
 	 *  	player
-	 * 			footsteps
 	 * 			sword swing
 	 * 			damage sound
 	 * 		enemy
-	 * 			footsteps
 	 * 			club swing
 	 * 			damage grunt
 	 * 		entity hitting the ground
@@ -84,7 +82,6 @@ public class ZusassGame extends Game{
 	/** @param player See player. Note that this will not account for adding the player or removing the player from a room */
 	public void setPlayer(ZusassPlayer player){
 		this.player = player;
-		this.player.initSounds();
 	}
 	
 	/** The only instance of {@link ZusassGame} which can exist */

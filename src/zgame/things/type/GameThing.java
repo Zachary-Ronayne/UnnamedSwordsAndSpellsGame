@@ -55,6 +55,11 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	}
 	
 	/**
+	 * Called any time this game thing is added to a room, does nothing by default, override to provide custom behavior
+	 */
+	public void onRoomAdd(){}
+	
+	/**
 	 * Called any time this game thing is removed from a room, does nothing by default, override to provide custom behavior
 	 */
 	public void onRoomRemove(){}
@@ -78,7 +83,7 @@ public abstract class GameThing implements Comparable<GameThing>, Saveable, Dest
 	}
 	
 	/**
-	 * Remove this thing from the given game
+	 * Remove this thing from the current game
 	 */
 	public void removeFrom(){
 		Game.get().getCurrentRoom().removeThing(this);
