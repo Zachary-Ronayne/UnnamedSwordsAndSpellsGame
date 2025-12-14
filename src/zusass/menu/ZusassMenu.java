@@ -9,6 +9,7 @@ import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
 import zgame.menu.MenuText;
 import zusass.ZusassGame;
+import zusass.utils.ZusassImages;
 
 /** A base menu class for {@link Menu} in the {@link ZusassGame} */
 public abstract class ZusassMenu extends Menu{
@@ -63,7 +64,7 @@ public abstract class ZusassMenu extends Menu{
 	public void renderFill(Renderer r, ZRect2D bounds){
 		r.setColor(this.getBackgroundTextureTint());
 		r.pushTextureTintShader();
-		r.drawRepeatingTexture(bounds, new RepeatingTexture(128), ImageManager.image("brickGrayscale"));
+		r.drawRepeatingTexture(bounds, new RepeatingTexture(128), ImageManager.image(ZusassImages.BRICK_GRAYSCALE));
 		r.popShader();
 	}
 	

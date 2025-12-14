@@ -38,6 +38,8 @@ import zusass.game.stat.resources.Mana;
 import zusass.game.stat.resources.Stamina;
 import zusass.game.status.StatEffect;
 import zusass.game.things.ZThingClickDetector;
+import zusass.utils.ZusassImages;
+import zusass.utils.ZusassSounds;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -302,7 +304,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		double textureSize = 64;
 		double shiftX = -((System.currentTimeMillis() / 14.0) % width) / width + listIndex * listIndex * 0.5;
 		double shiftY = ((System.currentTimeMillis() / 300.0) % height) / height + listIndex * listIndex * 0.2;
-		var resourceBarImage = ImageManager.image("resourceBar");
+		var resourceBarImage = ImageManager.image(ZusassImages.RESOURCE_BAR);
 		var repeatingTexture = new RepeatingTexture(textureSize, textureSize, shiftX, shiftY);
 		r.drawRepeatingTexture(x, y + space, width, height, repeatingTexture, resourceBarImage);
 		r.setColor(color);
@@ -443,7 +445,9 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 			sm.updateSourcePos(this.castSoundSource, this.getX(), this.getY(), this.getZ());
 			sm.updateSourceDirection(this.castSoundSource, 0, 0, 0);
 			this.castSoundSource.setBaseVolume(0.2);
-			zgame.playEffect(this.castSoundSource, "win");
+			this.castSoundSource.updatePitch(1.4 + Math.random() * 0.4);
+			this.castSoundSource.setVolume(0.4);
+			zgame.playEffect(this.castSoundSource, ZusassSounds.MAGIC_SOUND);
 		}
 		return success;
 	}

@@ -16,6 +16,8 @@ import zusass.ZusassGame;
 import zusass.game.ZusassRoom;
 import zusass.graphics.ZusassTexCoordsRectPrism;
 import zusass.menu.spellmaker.SpellMakerMenu;
+import zusass.utils.ZusassSounds;
+import zusass.utils.ZusassTextureMappings;
 
 import java.util.UUID;
 
@@ -49,7 +51,7 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 		this.uuid = UUID.randomUUID().toString();
 		
 		this.menu = new SpellMakerMenu();
-		this.textureCoordinates = new ZusassTexCoordsRectPrism("spellMaker", this, 14.0 / 32.0, 7.0 / 32.0, 14.0 / 32.0, Direction3D.NORTH);
+		this.textureCoordinates = new ZusassTexCoordsRectPrism(ZusassTextureMappings.SPELL_MAKER, this, 14.0 / 32.0, 7.0 / 32.0, 14.0 / 32.0, Direction3D.NORTH);
 		this.ambientSoundSource = SoundManager.get().createSource(x, y, z);
 		this.ambientSoundSource.setVolume(0.4);
 		this.timeSinceAmbient = 0;
@@ -87,8 +89,8 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 			// Pick a random pitch to use
 			this.ambientSoundSource.updatePitch(0.9 + Math.random() * 0.2);
 			
-			// TODO move all asset names to string constants defined for ZusassGame
-			Game.get().playEffect(this.ambientSoundSource, "magicSound");
+			// Play the sound
+			Game.get().playEffect(this.ambientSoundSource, ZusassSounds.MAGIC_SOUND);
 		}
 		
 		var zgame = ZusassGame.get();

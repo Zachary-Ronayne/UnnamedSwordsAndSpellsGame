@@ -20,6 +20,7 @@ import zusass.game.things.entities.mobs.ZusassPlayer;
 import zusass.menu.mainmenu.MainMenuState;
 import zusass.setting.ZusassSetting;
 import zusass.utils.ZusassConfig;
+import zusass.utils.ZusassMusic;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -143,22 +144,13 @@ public class ZusassGame extends Game{
 		
 		// Load textures
 		var im = ImageManager.instance();
-		im.add("brickGrayscale");
-		im.add("smoothStoneGrayscale");
-		im.add("goblin");
-		im.add("zusassPlayer");
-		im.add("resourceBar");
-		im.add("door");
-		im.add("spellMaker");
-		im.add("sword");
-		im.add("club");
+		im.addAll();
 		
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		// Load mapped textures
 		var tmm = TextureMappingManager.instance();
-		tmm.add("door");
-		tmm.add("spellMaker");
+		tmm.addAll();
 		
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
@@ -175,7 +167,7 @@ public class ZusassGame extends Game{
 		music.setPaused(false);
 		music.setMuted(false);
 		music.setLoop(true);
-		this.playMusic("testSong");
+		this.playMusic(ZusassMusic.TEST_SONG);
 	}
 	
 	/**

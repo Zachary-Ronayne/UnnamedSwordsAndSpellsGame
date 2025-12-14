@@ -6,6 +6,7 @@ import zgame.things.still.tiles.threeDee.CubeTexTile;
 import zgame.things.still.tiles.threeDee.CubeTexTintTile;
 import zgame.things.still.tiles.threeDee.TileHitbox3D;
 import zgame.things.still.tiles.threeDee.TileType3D;
+import zusass.utils.ZusassImages;
 
 /** A class defining tiles used in the Zusass game */
 public final class ZusassTiles{
@@ -13,13 +14,13 @@ public final class ZusassTiles{
 	public static final String ORIGIN = "zusass";
 	
 	/** A solid tile used to vary the color of the walls of level rooms */
-	public static final CubeTexTintTile LEVEL_WALL_COLOR = solidTintTile("grayBrick", "brickGrayscale", new ZColor(0));
+	public static final CubeTexTintTile LEVEL_WALL_COLOR = solidTintTile("grayBrick", ZusassImages.BRICK_GRAYSCALE, new ZColor(0));
 	/** A solid tile used to vary the color of the ceiling of level rooms */
-	public static final CubeTexTintTile LEVEL_CEILING_COLOR = solidTintTile("grayBrick", "brickGrayscale", new ZColor(0.1));
+	public static final CubeTexTintTile LEVEL_CEILING_COLOR = solidTintTile("grayBrick", ZusassImages.BRICK_GRAYSCALE, new ZColor(0.1));
 	/** A solid tile used to vary the color of the floor of level rooms */
-	public static final CubeTexTintTile LEVEL_FLOOR_COLOR = solidTintTile("grayBrick", "brickGrayscale", new ZColor(0.2));
+	public static final CubeTexTintTile LEVEL_FLOOR_COLOR = solidTintTile("grayBrick", ZusassImages.BRICK_GRAYSCALE, new ZColor(0.2));
 	/** A generic brick tile */
-	public static final CubeTexTintTile GRAY_BRICK = solidTintTile("grayBrick", "brickGrayscale", new ZColor(1));
+	public static final CubeTexTintTile GRAY_BRICK = solidTintTile("grayBrick", ZusassImages.BRICK_GRAYSCALE, new ZColor(1));
 	
 	/**
 	 * Set the tint colors used by the levels

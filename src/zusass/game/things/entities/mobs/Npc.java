@@ -10,6 +10,7 @@ import zusass.ZusassGame;
 import zusass.game.magic.ProjectileSpell;
 import zusass.game.magic.Spell;
 import zusass.game.magic.effect.SpellEffectStatAdd;
+import zusass.utils.ZusassImages;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -118,14 +119,14 @@ public class Npc extends ZusassMob{
 	protected void render(Renderer r){
 		// Draw an attack timer
 		r.setColor(0, 0.7, 0);
-		this.renderAttackTimer(r, ImageManager.image("club"));
+		this.renderAttackTimer(r, ImageManager.image(ZusassImages.CLUB));
 		
 		double facingAngle = this.getMobilityData().getFacingYaw();
 		
 		// Render a billboard texture
 		r.drawPlaneBufferSide(
 				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(), this.getWidth(), this.getHeight(),
-				facingAngle, ImageManager.image("goblin").getId());
+				facingAngle, ImageManager.image(ZusassImages.GOBLIN).getId());
 		
 		// Draw bars to represent its remaining health, stamina, and mana
 		this.resourceBarBuffer.redraw(r);

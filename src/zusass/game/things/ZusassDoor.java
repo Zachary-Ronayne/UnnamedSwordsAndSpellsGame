@@ -12,6 +12,7 @@ import zgame.world.Room3D;
 import zusass.ZusassGame;
 import zusass.game.ZusassRoom;
 import zusass.graphics.ZusassTexCoordsRectPrism;
+import zusass.utils.ZusassImages;
 
 /** A {@link Door} specifically used by the Zusass game */
 public class ZusassDoor extends Door3D implements ZThingClickDetector, ModifiableRectDims3D{
@@ -38,7 +39,7 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 			direction = defaultDirection;
 		}
 		this.facingDirection = direction;
-		this.textureCoordinates = new ZusassTexCoordsRectPrism("door", this, 1.0 / 2.0, 1.0, 1.0 / 8.0, this.facingDirection);
+		this.textureCoordinates = new ZusassTexCoordsRectPrism(ZusassImages.DOOR, this, 1.0 / 2.0, 1.0, 1.0 / 8.0, this.facingDirection);
 	}
 	
 	/**

@@ -29,6 +29,7 @@ import zusass.game.magic.Spell;
 import zusass.game.magic.effect.SpellEffectStatusEffect;
 import zusass.game.status.StatEffect;
 import zusass.game.things.ZusassTags;
+import zusass.utils.ZusassImages;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -328,13 +329,13 @@ public class ZusassPlayer extends ZusassMob{
 	@Override
 	public void render(Renderer r){
 		r.setColor(new ZColor(0.5));
-		this.renderAttackTimer(r, ImageManager.image("sword"));
+		this.renderAttackTimer(r, ImageManager.image(ZusassImages.SWORD));
 		
 		// Billboard rendering of the player
 		r.drawPlaneBufferSide(
 				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(), this.getWidth(), this.getHeight(),
 				this.getMobilityData().getFacingYaw(),
-				ImageManager.image("zusassPlayer").getId());
+				ImageManager.image(ZusassImages.ZUSASS_PLAYER).getId());
 		
 		if(ZusassDebugFlags.PLAYER_LOOK_RANGER_MARKER){
 			var c = new ZColor(.5, 0, 0);

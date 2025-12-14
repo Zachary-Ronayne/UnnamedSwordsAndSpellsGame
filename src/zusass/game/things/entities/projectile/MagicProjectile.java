@@ -13,6 +13,7 @@ import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.SphereHitBox;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
+import zusass.utils.ZusassSounds;
 
 /** A {@link Projectile3D} which applies a magic effect when it hits something other than its caster */
 public class MagicProjectile extends Projectile3D implements SphereHitBox{
@@ -116,7 +117,7 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 		super.onRoomRemove();
 		if(this.removedSoundSource != null){
 			this.removedSoundSource.setBaseVolume(10);
-			Game.get().playEffect(this.removedSoundSource, "lose");
+			Game.get().playEffect(this.removedSoundSource, ZusassSounds.LOSE);
 		}
 	}
 	

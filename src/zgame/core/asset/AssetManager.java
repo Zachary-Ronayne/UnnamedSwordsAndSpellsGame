@@ -82,7 +82,9 @@ public abstract class AssetManager<A extends Asset> implements Destroyable{
 	 */
 	public void addAll(){
 		List<String> names = ZAssetUtils.getNames(this.folderLoc, true);
-		for(String s : names) if(s.endsWith(ZStringUtils.concat(".", this.fileFormat))) this.add(s.substring(0, s.length() - 4));
+		for(String s : names){
+			if(s.endsWith(ZStringUtils.concat(".", this.fileFormat))) this.add(s.substring(0, s.length() - this.fileFormat.length() - 1));
+		}
 	}
 	
 	/**

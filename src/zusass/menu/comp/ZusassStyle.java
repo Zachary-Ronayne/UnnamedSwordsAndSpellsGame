@@ -10,6 +10,8 @@ import zgame.core.sound.SoundSource;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.MenuText;
 import zgame.menu.MenuThing;
+import zusass.utils.ZusassImages;
+import zusass.utils.ZusassSounds;
 
 /** A utility class containing methods for styling Zusass components */
 public final class ZusassStyle{
@@ -46,7 +48,7 @@ public final class ZusassStyle{
 	public static void renderGenericFill(MenuThing thing, Renderer r, ZRect2D bounds){
 		r.pushColor(thing.getFill());
 		r.pushTextureTintShader();
-		r.drawRepeatingTexture(bounds, MENU_THING_TEXTURE, ImageManager.image("smoothStoneGrayscale"));
+		r.drawRepeatingTexture(bounds, MENU_THING_TEXTURE, ImageManager.image(ZusassImages.SMOOTH_STONE_GRAYSCALE));
 		r.popShader();
 		r.popColor();
 	}
@@ -60,14 +62,14 @@ public final class ZusassStyle{
 	public static void renderGenericBorderBounds(MenuThing thing, Renderer r, ZRect2D borderBounds){
 		r.pushColor(thing.getBorder());
 		r.pushTextureTintShader();
-		r.drawRepeatingTexture(borderBounds, MENU_THING_TEXTURE, ImageManager.image("smoothStoneGrayscale"));
+		r.drawRepeatingTexture(borderBounds, MENU_THING_TEXTURE, ImageManager.image(ZusassImages.SMOOTH_STONE_GRAYSCALE));
 		r.popShader();
 		r.popColor();
 	}
 	
 	/** Play the sound for clicking something */
 	public static void playClickSound(){
-		Game.get().playEffect(clickSound, "click");
+		Game.get().playEffect(clickSound, ZusassSounds.CLICK);
 	}
 	
 	/** Cannot instantiate {@link ZusassStyle} */
