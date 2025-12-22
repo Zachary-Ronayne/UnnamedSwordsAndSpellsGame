@@ -10,6 +10,13 @@ import static org.lwjgl.openal.AL11.*;
  */
 public class SoundListener extends SoundLocation{
 	
+	/** The current x position of the listener */
+	private double x;
+	/** The current y position of the listener */
+	private double y;
+	/** The current z position of the listener */
+	private double z;
+	
 	/**
 	 * Create a new empty {@link SoundListener}
 	 */
@@ -22,7 +29,17 @@ public class SoundListener extends SoundLocation{
 	
 	@Override
 	public void updatePosition(double x, double y, double z){
-		alListener3f(AL_POSITION, (float)x, (float)y, (float)z);
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.updatePosition();
+	}
+	
+	/** Call the appropriate OpenAL methods for updating the position of the listener based on its currently stored position values */
+	public void updatePosition(){
+		var sm = SoundManager.get();
+		double scalar = sm.getDistanceScalar();
+		alListener3f(AL_POSITION, (float)(this.getX() * scalar), (float)(this.getY() * scalar), (float)(this.getZ() * scalar));
 	}
 	
 	@Override
@@ -36,5 +53,20 @@ public class SoundListener extends SoundLocation{
 				(float)v.getYawX(), (float)v.getYawY(), (float)v.getYawZ(),
 				(float)v.getPitchX(), (float)v.getPitchY(), (float)v.getPitchZ()
 		});
+	}
+	
+	/** @return See {@link #x} */
+	public double getX(){
+		return this.x;
+	}
+	
+	/** @return See {@link #y} */
+	public double getY(){
+		return this.y;
+	}
+	
+	/** @return See {@link #z} */
+	public double getZ(){
+		return this.z;
 	}
 }

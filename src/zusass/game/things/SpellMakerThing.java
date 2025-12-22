@@ -52,7 +52,7 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 		
 		this.menu = new SpellMakerMenu();
 		this.textureCoordinates = new ZusassTexCoordsRectPrism(ZusassTextureMappings.SPELL_MAKER, this, 14.0 / 32.0, 7.0 / 32.0, 14.0 / 32.0, Direction3D.NORTH);
-		this.ambientSoundSource = SoundManager.get().createSource(x, y, z);
+		this.ambientSoundSource = new SoundSource(x, y, z);
 		this.ambientSoundSource.setVolume(0.4);
 		this.timeSinceAmbient = 0;
 		this.ambientTimeWait = 1;

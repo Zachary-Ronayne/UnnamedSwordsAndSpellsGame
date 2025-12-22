@@ -42,6 +42,13 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	/** The sound which this {@link SoundSource} is currently playing, can be null if no sound is playing */
 	private Sound current;
 	
+	/** The current x position of the source */
+	private double x;
+	/** The current y position of the source */
+	private double y;
+	/** The current z position of the source */
+	private double z;
+	
 	/**
 	 * Create and initialize a new {@link SoundSource} at (0, 0, 0)
 	 */
@@ -83,7 +90,17 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	
 	@Override
 	public void updatePosition(double x, double y, double z){
-		alSource3f(this.getId(), AL_POSITION, (float)x, (float)y, (float)z);
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.updatePosition();
+	}
+	
+	/** Call the appropriate OpenAL methods for updating the position of this source based on its currently stored position values */
+	public void updatePosition(){
+		var sm = SoundManager.get();
+		double scalar = sm.getDistanceScalar();
+		alSource3f(this.getId(), AL_POSITION, (float)(this.getX() * scalar), (float)(this.getY() * scalar), (float)(this.getZ() * scalar));
 	}
 	
 	@Override
@@ -254,4 +271,18 @@ public class SoundSource extends SoundLocation implements Destroyable{
 		this.current = current;
 	}
 	
+	/** @return See {@link #x} */
+	public double getX(){
+		return this.x;
+	}
+	
+	/** @return See {@link #y} */
+	public double getY(){
+		return this.y;
+	}
+	
+	/** @return See {@link #z} */
+	public double getZ(){
+		return this.z;
+	}
 }

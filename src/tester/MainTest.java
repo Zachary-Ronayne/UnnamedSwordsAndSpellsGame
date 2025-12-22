@@ -20,6 +20,7 @@ import zgame.core.sound.SoundSource;
 import zgame.core.state.GameState;
 import zgame.core.state.MenuState;
 import zgame.core.state.PlayState;
+import zgame.core.utils.ZMath;
 import zgame.core.utils.ZRect2D;
 import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GlfwWindow;
@@ -28,6 +29,7 @@ import zgame.menu.*;
 import zgame.menu.scroller.HorizontalScroller;
 import zgame.menu.scroller.MenuScroller;
 import zgame.menu.scroller.VerticalScroller;
+import zgame.physics.ForwardVector;
 import zgame.physics.material.MaterialConst;
 import zgame.physics.material.Materials;
 import zgame.things.entity.mobility.MobilityType;
@@ -198,8 +200,8 @@ public class MainTest extends Game{
 	}
 	
 	public static void reset(){
-//		testerGame.setCurrentState(new TesterGameState());
-		testerGame.setCurrentState(new TesterMenuState());
+		testerGame.setCurrentState(new TesterGameState());
+//		testerGame.setCurrentState(new TesterMenuState());
 //		testerGame.setCurrentState(new GameEngineState());
 		
 		playerX = 200;
@@ -210,9 +212,11 @@ public class MainTest extends Game{
 		if(winSource != null) winSource.destroy();
 		if(loseSource != null) loseSource.destroy();
 		if(SoundManager.initialized()){
-			var sm = SoundManager.get();
-			winSource = sm.createSource(playerX, playerY, 0);
-			loseSource = sm.createSource(0, 200, 0);
+			winSource = new SoundSource(playerX, playerY, 0);
+			winSource.updateDirection(0, 0, 0);
+			loseSource = new SoundSource(0, 200, 0);
+			loseSource.updateDirection(0, 0, 0);
+			SoundManager.get().updateListenerOrientation(new ForwardVector(0, ZMath.PI_BY_2));
 		}
 	}
 	
@@ -425,8 +429,14 @@ public class MainTest extends Game{
 			if(!press){
 				if(SoundManager.initialized()){
 					var s = game.getSounds();
-					if(key == GLFW_KEY_G) game.playEffect(winSource, "win");
-					else if(key == GLFW_KEY_H) game.playEffect(loseSource, "lose");
+					if(key == GLFW_KEY_G){
+						winSource.updatePosition();
+						game.playEffect(winSource, "win");
+					}
+					else if(key == GLFW_KEY_H){
+						loseSource.updatePosition();
+						game.playEffect(loseSource, "lose");
+					}
 					else if(key == GLFW_KEY_M){
 						if(shift) game.playMusic("song short");
 						else game.playMusic("song");

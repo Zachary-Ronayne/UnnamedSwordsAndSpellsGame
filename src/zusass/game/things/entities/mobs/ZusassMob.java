@@ -7,7 +7,6 @@ import zgame.core.graphics.*;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.image.ImageManager;
 import zgame.core.graphics.texture.RepeatingTexture;
-import zgame.core.sound.SoundManager;
 import zgame.core.sound.SoundSource;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint3D;
@@ -26,7 +25,6 @@ import zgame.things.entity.projectile.Projectile3D;
 import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.CylinderClickable;
 import zgame.things.type.bounds.CylinderHitbox;
-import zgame.world.Room3D;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
 import zusass.game.magic.*;
@@ -202,10 +200,10 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	 */
 	public void initSounds(){
 		if(this.castSoundSource == null){
-			this.castSoundSource = SoundManager.get().createSource(this.getX(), this.getY(), this.getZ());
+			this.castSoundSource = new SoundSource(this.getX(), this.getY(), this.getZ());
 		}
 		if(this.footstepSoundSource == null){
-			this.footstepSoundSource = SoundManager.get().createSource(this.getX(), this.getY(), this.getZ());
+			this.footstepSoundSource = new SoundSource(this.getX(), this.getY(), this.getZ());
 			this.lastFootstepTime = Game.get().getTotalTickTime();
 		}
 	}
@@ -275,10 +273,8 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	/** Play the footstep sound and update last time the sound was played */
 	private void playFootstepSound(){
 		var game = Game.get();
-		var sm = game.getSounds();
-		// TODO make it more obvious when you need to use the sound manager vs the source itself
-		sm.updateSourcePos(this.footstepSoundSource, this.getX(), this.getY(), this.getZ());
-		sm.updateSourceDirection(this.footstepSoundSource, 0, 0, 0);
+		this.footstepSoundSource.updatePosition(this.getX(), this.getY(), this.getZ());
+		this.footstepSoundSource.updateDirection(0, 0, 0);
 		this.footstepSoundSource.updatePitch(this.getFootstepPitch());
 		this.footstepSoundSource.setVolume(this.getFootstepVolume());
 		game.playEffect(this.footstepSoundSource, ZusassSounds.FOOTSTEP);
@@ -510,9 +506,8 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		var success = this.getSelectedSpell().castAttempt(this);
 		if(success && this.castSoundSource != null){
 			var zgame = ZusassGame.get();
-			var sm = zgame.getSounds();
-			sm.updateSourcePos(this.castSoundSource, this.getX(), this.getY(), this.getZ());
-			sm.updateSourceDirection(this.castSoundSource, 0, 0, 0);
+			this.castSoundSource.updatePosition(this.getX(), this.getY(), this.getZ());
+			this.castSoundSource.updateDirection(0, 0, 0);
 			this.castSoundSource.setBaseVolume(0.2);
 			this.castSoundSource.updatePitch(1.4 + Math.random() * 0.4);
 			this.castSoundSource.setVolume(0.4);

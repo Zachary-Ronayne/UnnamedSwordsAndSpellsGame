@@ -11,6 +11,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Destroyable;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZFilePaths;
+import zgame.core.utils.ZMath;
 import zgame.physics.ForwardVector;
 
 /**
@@ -31,7 +32,7 @@ public class SoundManager implements Destroyable{
 	private SoundSource musicSource;
 	
 	/** The single {@link SoundListener} which determines where sound is located */
-	private final SoundListener listener;
+	private SoundListener listener;
 	
 	/** The {@link SpeakerDevice} which is currently being used to play sounds */
 	private SpeakerDevice currentDevice;
@@ -49,7 +50,7 @@ public class SoundManager implements Destroyable{
 	private final List<SpeakerDevice> devices;
 	
 	/**
-	 * Initialize the {@link SoundManager} to its default state
+	 * Initialize the {@link SoundManager} to its default state without initializing the listener or any built in sources
 	 */
 	private SoundManager(){
 		this.distanceScalar = 1;
@@ -58,11 +59,14 @@ public class SoundManager implements Destroyable{
 		EffectsManager.init();
 		MusicManager.init();
 		this.scanDevices();
-		this.musicSource = new SoundSource();
-		this.listener = new SoundListener();
-		
 		this.effectsPlayer = new EffectsPlayer();
 		this.musicPlayer = new MusicPlayer();
+	}
+	
+	/** Initialize the state of the source for music and the main listener */
+	private void initSources(){
+		this.listener = new SoundListener();
+		this.musicSource = new SoundSource();
 	}
 	
 	/**
@@ -290,19 +294,7 @@ public class SoundManager implements Destroyable{
 	 * @param z The new z coordinate in game coordinates
 	 */
 	public void updateListenerPos(double x, double y, double z){
-		this.updateSoundPos(this.getListener(), x, y, z);
-	}
-	
-	/**
-	 * Update the position of the given source based on the scaling of this sound manager
-	 *
-	 * @param s The {@link SoundSource} to update
-	 * @param x The new x coordinate in game coordinates
-	 * @param y The new y coordinate in game coordinates
-	 * @param z The new z coordinate in game coordinates
-	 */
-	public void updateSourcePos(SoundSource s, double x, double y, double z){
-		this.updateSoundPos(s, x, y, z);
+		this.getListener().updatePosition(x, y, z);
 	}
 	
 	/**
@@ -312,56 +304,6 @@ public class SoundManager implements Destroyable{
 	 */
 	public void updateListenerOrientation(ForwardVector v){
 		this.getListener().updateOrientation(v);
-	}
-	
-	/**
-	 * Update the direction of the given source based on this SoundManager
-	 *
-	 * @param s The {@link SoundSource} to update
-	 * @param x The new x vector direction component
-	 * @param y The new y vector direction component
-	 * @param z The new z vector direction component
-	 */
-	public void updateSourceDirection(SoundSource s, double x, double y, double z){
-		this.updateSoundDirection(s, x, y, z);
-	}
-	
-	/**
-	 * Update the position of the given {@link SoundLocation} based on the scaling of this sound manager
-	 *
-	 * @param s The {@link SoundLocation} to update
-	 * @param x The new x coordinate in game coordinates
-	 * @param y The new y coordinate in game coordinates
-	 * @param z The new z coordinate in game coordinates
-	 */
-	private void updateSoundPos(SoundLocation s, double x, double y, double z){
-		s.updatePosition(x * this.getDistanceScalar(), y * this.getDistanceScalar(), z * this.getDistanceScalar());
-	}
-	
-	/**
-	 * Update the position of the given {@link SoundLocation} based on the scaling of this sound manager
-	 *
-	 * @param s The {@link SoundLocation} to update
-	 * @param x The new x vector direction component
-	 * @param y The new y vector direction component
-	 * @param z The new z vector direction component
-	 */
-	private void updateSoundDirection(SoundLocation s, double x, double y, double z){
-		s.updateDirection(x, y, z);
-	}
-	
-	/**
-	 * Create a {@link SoundSource} at the given coordinates which will be scaled by the scalar of this {@link SoundManager}
-	 *
-	 * @param x The new x coordinate in game coordinates
-	 * @param y The new y coordinate in game coordinates
-	 * @param z The new y coordinate in game coordinates
-	 * @return The source
-	 */
-	public SoundSource createSource(double x, double y, double z){
-		SoundSource s = new SoundSource(x, y, z);
-		this.updateSourcePos(s, x, y, z);
-		return s;
 	}
 	
 	/** @return See {@link #musicSource} */
@@ -409,16 +351,23 @@ public class SoundManager implements Destroyable{
 	}
 	
 	/**
-	 * @param distanceScalar See {@link #distanceScalar}. Must be set before any sound sources are created, otherwise those sources must have their positions updated after
-	 * 		this is called
+	 * @param distanceScalar See {@link #distanceScalar}
 	 */
 	public void setDistanceScalar(double distanceScalar){
 		this.distanceScalar = distanceScalar;
+		
+		// After updating the scalar, also update any existing sound positions
+		this.getListener().updatePosition();
+		for(var s : getMusicPlayer().getPlaying()) s.updatePosition();
+		for(var s : getEffectsPlayer().getPlaying()) s.updatePosition();
 	}
 	
 	/** Initialize the sound manager to its default state */
 	public static void init(){
 		instance = new SoundManager();
+		instance.initSources();
+		// Use a default orientation facing up
+		SoundManager.get().updateListenerOrientation(new ForwardVector(0, ZMath.PI_BY_2));
 	}
 	
 	/** @return true if {@link #instance} has been set up, false otherwise */

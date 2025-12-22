@@ -98,7 +98,7 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	 * e the sound will be played in
 	 */
 	public void initSounds(){
-		if(SoundManager.initialized()) this.removedSoundSource = SoundManager.get().createSource(this.getX(), this.getY(), this.getZ());
+		if(SoundManager.initialized()) this.removedSoundSource = new SoundSource(this.getX(), this.getY(), this.getZ());
 	}
 	
 	@Override
@@ -106,9 +106,8 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 		super.tick(dt);
 		// issue#61, Does updating the sound position here cause lag?
 		if(this.removedSoundSource != null){
-			var sm = Game.get().getSounds();
-			sm.updateSourcePos(this.removedSoundSource, this.getX(), this.getY(), this.getZ());
-			sm.updateSourceDirection(this.removedSoundSource, 0, 0, 0);
+			this.removedSoundSource.updatePosition(this.getX(), this.getY(), this.getZ());
+			this.removedSoundSource.updateDirection(0, 0, 0);
 		}
 	}
 	
