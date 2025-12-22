@@ -1,7 +1,6 @@
 package zusass.menu.comp;
 
 import zgame.core.graphics.Renderer;
-import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.MenuButton;
 

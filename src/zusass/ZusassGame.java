@@ -41,7 +41,6 @@ public class ZusassGame extends Game{
 	/*
 	 * TODO sound effects to add
 	 *  	player
-	 * 			sword swing
 	 * 			damage sound
 	 * 		enemy
 	 * 			club swing

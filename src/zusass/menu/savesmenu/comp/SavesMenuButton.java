@@ -1,6 +1,5 @@
 package zusass.menu.savesmenu.comp;
 
-import zgame.core.graphics.ZColor;
 import zusass.menu.comp.ZusassButton;
 import zusass.menu.savesmenu.SavesMenu;
 

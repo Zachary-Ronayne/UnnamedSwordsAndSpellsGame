@@ -4,10 +4,10 @@ package zusass.utils;
 public final class ZusassSounds{
 	
 	public static final String LOSE = "lose";
-	public static final String WIN = "win";
 	public static final String CLICK = "click";
 	public static final String MAGIC_SOUND = "magicSound";
 	public static final String FOOTSTEP = "footstep";
+	public static final String SWORD_SWING = "swordSwing";
 	
 	/** Cannot instantiate {@link ZusassSounds} */
 	private ZusassSounds(){}

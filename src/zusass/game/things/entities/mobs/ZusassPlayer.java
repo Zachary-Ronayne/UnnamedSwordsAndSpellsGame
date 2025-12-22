@@ -13,6 +13,7 @@ import zgame.core.input.InputHandler;
 import zgame.core.input.InputHandlers;
 import zgame.core.input.InputType;
 import zgame.core.sound.SoundManager;
+import zgame.core.sound.SoundSource;
 import zgame.core.utils.ZMath;
 import zgame.physics.ForwardVector;
 import zgame.physics.ZVector3D;
@@ -30,6 +31,7 @@ import zusass.game.magic.effect.SpellEffectStatusEffect;
 import zusass.game.status.StatEffect;
 import zusass.game.things.ZusassTags;
 import zusass.utils.ZusassImages;
+import zusass.utils.ZusassSounds;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -64,6 +66,7 @@ public class ZusassPlayer extends ZusassMob{
 			this.reverse = reverse;
 			this.forwardDistance = forwardDistance;
 		}
+		
 		/** @return See {@link #follow} */
 		public boolean isFollow(){
 			return this.follow;
@@ -93,6 +96,9 @@ public class ZusassPlayer extends ZusassMob{
 	private CameraState cameraState;
 	/** The state the camera was in last time */
 	private CameraState previousCameraState;
+	
+	/** The source for the player's sword swinging */
+	private final SoundSource swordSwingSound;
 	
 	/**
 	 * Create a new object from json
@@ -131,6 +137,9 @@ public class ZusassPlayer extends ZusassMob{
 				new ProjectileSpell(new SpellEffectStatusEffect(new StatEffect(5, new TypedModifier(new StatModifier(-10, ModifierType.ADD), HEALTH_REGEN))))),
 				new MultiSpell(Spell.selfEffect(MOVE_SPEED, 2, 2, ModifierType.MULT_MULT))).named("Bruh"));
 		spells.setSelectedSpellIndex(0);
+		
+		// Set up sounds
+		this.swordSwingSound = new SoundSource();
 	}
 	
 	/** Set the input buttons to be the default values */
@@ -199,7 +208,7 @@ public class ZusassPlayer extends ZusassMob{
 		
 		// If in free cam, move the camera instead
 		if(this.cameraState == CameraState.FREE_CAM) this.handleFreeCam(dt, cam.getCurrentYaw(), cam.getCurrentPitch(), left, right, forward, backward, up, down);
-		// Otherwise handle normal controls
+			// Otherwise handle normal controls
 		else this.handleMobilityControls(dt, cam.getYaw(), cam.getPitch(), left, right, forward, backward, up, down);
 		
 		// Turn sprinting on or off
@@ -209,20 +218,20 @@ public class ZusassPlayer extends ZusassMob{
 		if(this.inputHandlers.tick(GLFW_KEY_R)) this.toggleCasting();
 		
 		// Toggle camera perspectives
-		if(this.inputHandlers.tick(GLFW_KEY_F)) {
+		if(this.inputHandlers.tick(GLFW_KEY_F)){
 			if(this.cameraState == CameraState.FIRST_PERSON) this.setCameraState(CameraState.THIRD_PERSON);
 			else if(this.cameraState == CameraState.THIRD_PERSON) this.setCameraState(CameraState.THIRD_PERSON_REVERSE);
 			else if(this.cameraState == CameraState.THIRD_PERSON_REVERSE) this.setCameraState(CameraState.FIRST_PERSON);
 		}
 		
 		// Toggle following the camera
-		if(this.inputHandlers.tick(GLFW_KEY_F8)) {
+		if(this.inputHandlers.tick(GLFW_KEY_F8)){
 			if(this.cameraState == CameraState.FREEZE_CAMERA) this.setCameraState(this.previousCameraState);
 			else this.setCameraState(CameraState.FREEZE_CAMERA);
 		}
 		
 		// Enter free cam
-		if(this.inputHandlers.tick(GLFW_KEY_F4)) {
+		if(this.inputHandlers.tick(GLFW_KEY_F4)){
 			if(this.cameraState == CameraState.FREE_CAM) this.setCameraState(this.previousCameraState);
 			else this.setCameraState(CameraState.FREE_CAM);
 		}
@@ -286,11 +295,11 @@ public class ZusassPlayer extends ZusassMob{
 		
 		// Force move up and down on pitch if those are pressed
 		if(up != down){
-			if(up) {
+			if(up){
 				if(left != right || forward != backward) pitch = ZMath.PI_BY_4;
 				else pitch = ZMath.PI_BY_2;
 			}
-			else {
+			else{
 				if(left != right || forward != backward) pitch = -ZMath.PI_BY_4;
 				else pitch = -ZMath.PI_BY_2;
 			}
@@ -422,4 +431,15 @@ public class ZusassPlayer extends ZusassMob{
 		this.setCasting(!this.isCasting());
 	}
 	
+	@Override
+	public boolean beginAttack(){
+		boolean attacked = super.beginAttack();
+		if(attacked){
+			this.swordSwingSound.updatePosition(this.getX(), this.getY() + this.getEyeHeight(), this.getZ());
+			this.swordSwingSound.updateDirection(0, 0, 0);
+			this.swordSwingSound.updatePitch(0.98 + 0.04 * Math.random());
+			Game.get().playEffect(this.swordSwingSound, ZusassSounds.SWORD_SWING);
+		}
+		return attacked;
+	}
 }

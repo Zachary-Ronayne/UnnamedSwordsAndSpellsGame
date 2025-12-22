@@ -438,15 +438,18 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	
 	/**
 	 * Cause this mob to begin performing an attack in the direction it is facing
+	 *
+	 * @return true if an attack occurred, false otherwise
 	 */
-	public void beginAttack(){
+	public boolean beginAttack(){
 		// Do not allow attacking if an attack is taking place
-		if(this.attackTime > 0) return;
+		if(this.attackTime > 0) return false;
 		
 		this.attackTime = 1.0 / this.getAttacksPerSecond();
 		
 		// Also drain stamina from the thing
 		this.getStat(STAMINA).addValue(-20);
+		return true;
 	}
 	
 	/**

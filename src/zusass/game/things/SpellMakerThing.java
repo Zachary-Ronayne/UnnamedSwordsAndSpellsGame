@@ -3,7 +3,6 @@ package zusass.game.things;
 import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
-import zgame.core.sound.SoundManager;
 import zgame.core.sound.SoundSource;
 import zgame.core.state.MenuNode;
 import zgame.core.utils.ZRect3D;
