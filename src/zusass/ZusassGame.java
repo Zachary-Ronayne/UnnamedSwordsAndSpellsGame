@@ -44,7 +44,6 @@ public class ZusassGame extends Game{
 	 * 			damage sound
 	 * 		enemy
 	 * 			club swing
-	 * 			damage grunt
 	 * 		entity hitting the ground
 	 * 		open door sound
 	 * 		spell

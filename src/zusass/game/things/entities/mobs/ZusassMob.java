@@ -307,8 +307,8 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		double time = this.getAttackTime();
 		double speed = this.getAttacksPerSecond();
 		// Scale the time until attacking to make the arm move slowly at first, then quick at the end
-		double anglePerc = Math.pow(1 - time * speed, 7);
-		double attackSize = this.stat(ATTACK_RANGE);// * 0.5 * attackPercent + 0.5;
+		double anglePerc = Math.PI / 8.0 + Math.pow(1 - time * speed, 7) * 0.5;
+		double attackSize = this.stat(ATTACK_RANGE);
 		double attackYaw = this.getMobilityData().getFacingYaw();
 		
 		// Find the position where the arm will start

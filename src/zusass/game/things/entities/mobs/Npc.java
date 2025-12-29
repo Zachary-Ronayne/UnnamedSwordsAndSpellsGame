@@ -1,8 +1,11 @@
 package zusass.game.things.entities.mobs;
 
+import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.core.graphics.ZColor;
 import zgame.core.graphics.buffer.DrawableBuffer;
 import zgame.core.graphics.image.ImageManager;
+import zgame.core.sound.SoundSource;
 import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZMath;
 import zgame.stat.modifier.ModifierType;
@@ -11,6 +14,7 @@ import zusass.game.magic.ProjectileSpell;
 import zusass.game.magic.Spell;
 import zusass.game.magic.effect.SpellEffectStatAdd;
 import zusass.utils.ZusassImages;
+import zusass.utils.ZusassSounds;
 
 import static zusass.game.stat.ZusassStat.*;
 
@@ -22,6 +26,12 @@ public class Npc extends ZusassMob{
 	
 	/** The buffer for drawing this Npc's resource bar */
 	private final DrawableBuffer resourceBarBuffer;
+	
+	/** The source used to play the damage sound of this npc */
+	private final SoundSource damageSoundSource;
+	
+	/** The amount of time, in seconds, since this mob took damage */
+	private double lastDamageTime;
 	
 	/**
 	 * Create a new Npc with the given bounds
@@ -58,6 +68,10 @@ public class Npc extends ZusassMob{
 				drawResourceBars(r, 0, 0, barBufferWidth, barPixelHeight, false);
 			}
 		};
+		
+		this.damageSoundSource = new SoundSource();
+		// Default the last time to something large to not have taken damage by default
+		this.lastDamageTime = Integer.MAX_VALUE;
 	}
 	
 	@Override
@@ -67,8 +81,21 @@ public class Npc extends ZusassMob{
 	}
 	
 	@Override
+	public void damage(double amount){
+		super.damage(amount);
+		// TODO probably move some of this to ZusassMob
+		if(amount > 0){
+			this.lastDamageTime = 0;
+			this.damageSoundSource.updatePitch(0.8 + Math.random() * 0.1);
+			this.damageSoundSource.updatePosition(this.getX(), this.getY() + this.getEyeHeight(), this.getZ());
+			Game.get().playEffect(this.damageSoundSource, ZusassSounds.MONSTER_GROWL);
+		}
+	}
+	
+	@Override
 	public void tick(double dt){
 		super.tick(dt);
+		lastDamageTime += dt;
 		
 		var zgame = ZusassGame.get();
 		var player = zgame.getPlayer();
@@ -123,10 +150,22 @@ public class Npc extends ZusassMob{
 		
 		double facingAngle = this.getMobilityData().getFacingYaw();
 		
+		// If damaged, also render a red tint
+		boolean tintRed = this.lastDamageTime < 0.3;
+		if(tintRed){
+			r.pushTextureTintAddShader();
+			r.pushColor(new ZColor(0.5, 0, 0, 0));
+		}
+		
 		// Render a billboard texture
 		r.drawPlaneBufferSide(
 				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(), this.getWidth(), this.getHeight(),
 				facingAngle, ImageManager.image(ZusassImages.GOBLIN).getId());
+		
+		if(tintRed){
+			r.popShader();
+			r.popColor();
+		}
 		
 		// Draw bars to represent its remaining health, stamina, and mana
 		this.resourceBarBuffer.redraw(r);

@@ -38,6 +38,8 @@ public final class RenderObjects{
 	private ShaderProgram textureShader;
 	/** The shader used to draw textures, i.e. images, with a tint for the color. Textures sent to this shader are expected to be grayscale */
 	private ShaderProgram textureTintShader;
+	/** The shader used to draw textures, i.e. images, with a tint for the color computed additively */
+	private ShaderProgram textureTintAddShader;
 	/** The shader used to draw font, i.e. text */
 	private ShaderProgram fontShader;
 	/** The shader used to draw the frame buffer to the screen, as a texture */
@@ -53,6 +55,7 @@ public final class RenderObjects{
 		this.shapeShader = ShaderProgram.coreShader("default");
 		this.textureShader = ShaderProgram.coreShader("texture");
 		this.textureTintShader = ShaderProgram.coreShader("textureTint");
+		this.textureTintAddShader = ShaderProgram.coreShader("textureTintAdd");
 		this.fontShader = ShaderProgram.coreShader("font");
 		this.framebufferShader = ShaderProgram.coreShader("framebuffer");
 		this.rect3DShader = ShaderProgram.coreShader("default3D");
@@ -71,6 +74,11 @@ public final class RenderObjects{
 	/** @return See {@link #textureTintShader} */
 	public ShaderProgram getTextureTintShader(){
 		return this.textureTintShader;
+	}
+	
+	/** @return See {@link #textureTintAddShader} */
+	public ShaderProgram getTextureTintAddShader(){
+		return this.textureTintAddShader;
 	}
 	
 	/** @return See {@link #fontShader} */

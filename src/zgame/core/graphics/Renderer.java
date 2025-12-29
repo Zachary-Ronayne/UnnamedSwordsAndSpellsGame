@@ -1070,6 +1070,10 @@ public class Renderer implements Destroyable{
 	public void pushTextureTintShader(){
 		this.pushShader(RenderObjects.get().getTextureTintShader());
 	}
+	/** Override the default shader for all drawing operations with {@link RenderObjects#textureTintAddShader}, must call {@link #popShader()} once rendering with the custom shader is done */
+	public void pushTextureTintAddShader(){
+		this.pushShader(RenderObjects.get().getTextureTintAddShader());
+	}
 	/** Override the default shader for all drawing operations with {@link RenderObjects#fontShader}, must call {@link #popShader()} once rendering with the custom shader is done */
 	public void pushFontShader(){
 		this.pushShader(RenderObjects.get().getFontShader());
