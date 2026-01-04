@@ -72,6 +72,9 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	/** The amount of time, in seconds, until this mob will perform an attack, or a negative value if this mob is not preparing for an attack */
 	private double attackTime;
 	
+	/** The amount of time, in seconds, since this mob took damage */
+	private double lastDamageTime;
+	
 	/** The spells known to this mob */
 	private Spellbook spells;
 	
@@ -145,6 +148,9 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		this.height = height;
 		
 		this.attackTime = -1;
+		
+		// Default the last time to something large to not have taken damage by default
+		this.lastDamageTime = Integer.MAX_VALUE;
 		
 		// Create stats
 		this.stats = new Stats();
@@ -227,6 +233,8 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	
 	@Override
 	public void tick(double dt){
+		this.lastDamageTime += dt;
+		
 		// Update the state of the status effects
 		this.effects.tick(dt, this);
 		
@@ -488,6 +496,18 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	public void damage(double amount){
 		if(amount <= 0) return;
 		this.stats.get(HEALTH).addValue(-amount);
+		if(amount > 0){
+			this.lastDamageTime = 0;
+			this.playDamageSound();
+		}
+	}
+	
+	/** Tell this mob to play the sound for this mob taking damage. Does nothing by default, override to play a sound */
+	public void playDamageSound(){}
+	
+	/** @return See {@link #lastDamageTime} */
+	public double getLastDamageTime(){
+		return this.lastDamageTime;
 	}
 	
 	/** @return See {@link Spellbook#selectedSpell} */

@@ -100,6 +100,9 @@ public class ZusassPlayer extends ZusassMob{
 	/** The source for the player's sword swinging */
 	private final SoundSource swordSwingSound;
 	
+	/** The source used to play the damage sound of this player */
+	private final SoundSource damageSoundSource;
+	
 	/**
 	 * Create a new object from json
 	 *
@@ -140,6 +143,7 @@ public class ZusassPlayer extends ZusassMob{
 		
 		// Set up sounds
 		this.swordSwingSound = new SoundSource();
+		this.damageSoundSource = new SoundSource();
 	}
 	
 	/** Set the input buttons to be the default values */
@@ -375,6 +379,14 @@ public class ZusassPlayer extends ZusassMob{
 		var zgame = ZusassGame.get();
 		zgame.getPlayState().enterHub();
 		zgame.getData().checkAutoSave();
+	}
+	
+	@Override
+	public void playDamageSound(){
+		super.playDamageSound();
+		this.damageSoundSource.updatePitch(0.8 + Math.random() * 0.1);
+		this.damageSoundSource.updatePosition(this.getX(), this.getY() + this.getEyeHeight(), this.getZ());
+		Game.get().playEffect(this.damageSoundSource, ZusassSounds.PLAYER_HIT);
 	}
 	
 	@Override

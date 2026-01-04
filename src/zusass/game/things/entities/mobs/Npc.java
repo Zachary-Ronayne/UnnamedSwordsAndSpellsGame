@@ -27,11 +27,11 @@ public class Npc extends ZusassMob{
 	/** The buffer for drawing this Npc's resource bar */
 	private final DrawableBuffer resourceBarBuffer;
 	
+	/** The source used to play the attack swing sound of this npc */
+	private final SoundSource attackSoundSource;
+	
 	/** The source used to play the damage sound of this npc */
 	private final SoundSource damageSoundSource;
-	
-	/** The amount of time, in seconds, since this mob took damage */
-	private double lastDamageTime;
 	
 	/**
 	 * Create a new Npc with the given bounds
@@ -69,9 +69,8 @@ public class Npc extends ZusassMob{
 			}
 		};
 		
+		this.attackSoundSource = new SoundSource();
 		this.damageSoundSource = new SoundSource();
-		// Default the last time to something large to not have taken damage by default
-		this.lastDamageTime = Integer.MAX_VALUE;
 	}
 	
 	@Override
@@ -81,21 +80,28 @@ public class Npc extends ZusassMob{
 	}
 	
 	@Override
-	public void damage(double amount){
-		super.damage(amount);
-		// TODO probably move some of this to ZusassMob
-		if(amount > 0){
-			this.lastDamageTime = 0;
-			this.damageSoundSource.updatePitch(0.8 + Math.random() * 0.1);
-			this.damageSoundSource.updatePosition(this.getX(), this.getY() + this.getEyeHeight(), this.getZ());
-			Game.get().playEffect(this.damageSoundSource, ZusassSounds.MONSTER_GROWL);
+	public boolean beginAttack(){
+		boolean attacked = super.beginAttack();
+		if(attacked){
+			this.attackSoundSource.updatePosition(this.getX(), this.getY() + this.getEyeHeight(), this.getZ());
+			this.attackSoundSource.updateDirection(0, 0, 0);
+			this.attackSoundSource.updatePitch(0.4 + 0.04 * Math.random());
+			Game.get().playEffect(this.attackSoundSource, ZusassSounds.SWORD_SWING);
 		}
+		return attacked;
+	}
+	
+	@Override
+	public void playDamageSound(){
+		super.playDamageSound();
+		this.damageSoundSource.updatePitch(0.8 + Math.random() * 0.1);
+		this.damageSoundSource.updatePosition(this.getX(), this.getY() + this.getEyeHeight(), this.getZ());
+		Game.get().playEffect(this.damageSoundSource, ZusassSounds.MONSTER_GROWL);
 	}
 	
 	@Override
 	public void tick(double dt){
 		super.tick(dt);
-		lastDamageTime += dt;
 		
 		var zgame = ZusassGame.get();
 		var player = zgame.getPlayer();
@@ -151,7 +157,7 @@ public class Npc extends ZusassMob{
 		double facingAngle = this.getMobilityData().getFacingYaw();
 		
 		// If damaged, also render a red tint
-		boolean tintRed = this.lastDamageTime < 0.3;
+		boolean tintRed = this.getLastDamageTime() < 0.3;
 		if(tintRed){
 			r.pushTextureTintAddShader();
 			r.pushColor(new ZColor(0.5, 0, 0, 0));

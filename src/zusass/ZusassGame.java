@@ -40,10 +40,6 @@ public class ZusassGame extends Game{
 	
 	/*
 	 * TODO sound effects to add
-	 *  	player
-	 * 			damage sound
-	 * 		enemy
-	 * 			club swing
 	 * 		entity hitting the ground
 	 * 		open door sound
 	 * 		spell
