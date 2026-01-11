@@ -345,7 +345,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		double dy = attackPoint.getY() - basePoint.getY();
 		double dz = attackPoint.getZ() - basePoint.getZ();
 		double yaw = ZMath.atan2Normalized(dz, dx);
-		double pitch = ZMath.atan2Normalized(dy, Math.sqrt(dx * dx + dz * dz)) + ZMath.atan2Normalized(armSize, 0) * anglePerc;
+		double pitch = ZMath.atan2Normalized(dy, Math.sqrt(dx * dx + dz * dz)) + ZMath.atan2Normalized(armSize, 0) * anglePerc - this.getMobilityData().getFacingPitch();
 		
 		// Draw the final rotated rect
 		double armOffset = attackSize * -0.5;
