@@ -1,6 +1,8 @@
 package zusass.game.things;
 
+import zgame.core.Game;
 import zgame.core.graphics.*;
+import zgame.core.sound.SoundSource;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZRect3D;
 import zgame.things.entity.EntityThing3D;
@@ -13,6 +15,7 @@ import zusass.ZusassGame;
 import zusass.game.ZusassRoom;
 import zusass.graphics.ZusassTexCoordsRectPrism;
 import zusass.utils.ZusassImages;
+import zusass.utils.ZusassSounds;
 
 /** A {@link Door} specifically used by the Zusass game */
 public class ZusassDoor extends Door3D implements ZThingClickDetector, ModifiableRectDims3D{
@@ -22,6 +25,9 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 	
 	/** The direction this door should be facing towards */
 	private final Direction3D facingDirection;
+	
+	/** Source for playing a sound when the door opens */
+	private SoundSource doorOpenSound;
 	
 	/**
 	 * Create a new door at the given position
@@ -40,6 +46,8 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 		}
 		this.facingDirection = direction;
 		this.textureCoordinates = new ZusassTexCoordsRectPrism(ZusassImages.DOOR, this, 1.0 / 2.0, 1.0, 1.0 / 8.0, this.facingDirection);
+		
+		this.doorOpenSound = new SoundSource();
 	}
 	
 	/**
@@ -56,7 +64,16 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 	
 	@Override
 	public boolean enterRoom(Room3D r, EntityThing3D thing){
-		return super.enterRoom(r, thing);
+		var success = super.enterRoom(r, thing);
+		
+		if(success){
+			// Use the position of the thing that entered the room, rather than the door itself
+			this.doorOpenSound.updatePosition(thing.getX(), thing.centerY(), thing.getZ());
+			this.doorOpenSound.updatePitch(0.9 + 0.2 * Math.random());
+			Game.get().playEffect(this.doorOpenSound, ZusassSounds.DOOR_OPEN);
+		}
+		
+		return success;
 	}
 	
 	/** Convenience method that calls {@link #enterRoom(Room3D, EntityThing3D)} without a need to type cast */

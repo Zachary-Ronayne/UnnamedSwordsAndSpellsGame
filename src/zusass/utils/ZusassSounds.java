@@ -15,6 +15,8 @@ public final class ZusassSounds{
 	
 	public static final String MONSTER_GROWL = "monsterGrowl";
 	
+	public static final String DOOR_OPEN = "doorOpen";
+	
 	/** Cannot instantiate {@link ZusassSounds} */
 	private ZusassSounds(){}
 	
