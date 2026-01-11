@@ -41,7 +41,6 @@ public class ZusassGame extends Game{
 	/*
 	 * TODO sound effects to add
 	 * 		entity hitting the ground
-	 * 		open door sound
 	 * 		spell
 	 * 			created
 	 * 			projectile cast

@@ -11,6 +11,7 @@ import zgame.core.sound.SoundSource;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint3D;
 import zgame.physics.ZVector3D;
+import zgame.physics.collision.CollisionResult3D;
 import zgame.stat.Stat;
 import zgame.stat.ValueStat;
 import zgame.stat.modifier.ModifierType;
@@ -98,6 +99,12 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	/** The source of the sound for this mob casting a spell */
 	private SoundSource castSoundSource;
 	
+	/** Source of sound of the mob's footstep */
+	private SoundSource footstepSoundSource;
+	
+	/** Source of sound for the mob hitting the ground  */
+	private SoundSource groundHitSound;
+	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/** The {@link MobilityData} object used by this object's implementation of {@link Mobility3D} */
@@ -118,8 +125,6 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	/** See {@link Mobility3D#isSprinting()} */
 	private boolean sprinting;
 	
-	/** Source of sound of the mob's footstep */
-	private SoundSource footstepSoundSource;
 	/** The last game time timestamp when a footstep was played */
 	private double lastFootstepTime;
 	
@@ -211,6 +216,9 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		if(this.footstepSoundSource == null){
 			this.footstepSoundSource = new SoundSource(this.getX(), this.getY(), this.getZ());
 			this.lastFootstepTime = Game.get().getTotalTickTime();
+		}
+		if(this.groundHitSound == null){
+			this.groundHitSound = new SoundSource();
 		}
 	}
 	
@@ -859,6 +867,21 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	/** toggle the state of {@link #sprinting} */
 	public void toggleSprinting(){
 		this.setSprinting(!this.isSprinting());
+	}
+	
+	@Override
+	public void touchFloor(CollisionResult3D collision){
+		super.touchFloor(collision);
+		
+		// If colliding with enough displacement, make a sound for hitting the floor
+		double diff = Math.abs(collision.y()) - 0.02;
+		if(diff > 0){
+			// TODO why is this sound so delayed?
+			this.groundHitSound.updatePitch(0.5 + Math.random() * 0.2);
+			this.groundHitSound.updatePosition(this.getX(), this.getY(), this.getZ());
+			this.groundHitSound.setVolume(Math.max(Math.pow(diff, 0.3) * 2.0, 1.0));
+			Game.get().playEffect(this.groundHitSound, ZusassSounds.HIT_GROUND);
+		}
 	}
 	
 	@Override

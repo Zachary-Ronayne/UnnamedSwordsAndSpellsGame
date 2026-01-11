@@ -27,7 +27,7 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 	private final Direction3D facingDirection;
 	
 	/** Source for playing a sound when the door opens */
-	private SoundSource doorOpenSound;
+	private final SoundSource doorOpenSound;
 	
 	/**
 	 * Create a new door at the given position
