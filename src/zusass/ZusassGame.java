@@ -41,11 +41,8 @@ public class ZusassGame extends Game{
 	/*
 	 * TODO sound effects to add
 	 * 		spell
-	 * 			created
 	 * 			projectile cast
 	 * 			self cast
-	 * 			projectile hit wall
-	 * 			projectile hit entity
 	 */
 	
 	/** The id used for the single window of the Zusass game */

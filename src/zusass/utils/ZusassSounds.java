@@ -3,10 +3,10 @@ package zusass.utils;
 /** Class holding constants for sound effect file names */
 public final class ZusassSounds{
 	
-	public static final String LOSE = "lose";
 	public static final String CLICK = "click";
 	
 	public static final String MAGIC_SOUND = "magicSound";
+	public static final String MAGIC_DAMAGE = "magicDamage";
 	
 	public static final String FOOTSTEP = "footstep";
 	

@@ -84,7 +84,6 @@ public class ProjectileSpell extends Spell{
 		p.setRange(this.range);
 		p.setRadius(this.radius);
 		// Initialize the sound on the introduction of the projectile to the room
-		p.initSounds();
 		r.addThing(p);
 	}
 	

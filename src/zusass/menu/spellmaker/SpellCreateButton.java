@@ -1,16 +1,23 @@
 package zusass.menu.spellmaker;
 
+import zgame.core.Game;
+import zgame.core.sound.SoundManager;
+import zgame.core.sound.SoundSource;
 import zgame.menu.format.MultiFormatter;
 import zgame.menu.format.PercentFormatter;
 import zgame.menu.format.PixelFormatter;
 import zusass.ZusassGame;
 import zusass.menu.comp.ZusassButton;
+import zusass.utils.ZusassSounds;
 
 /** The button in the spell creation menu which performs the actual spell creation */
 public class SpellCreateButton extends ZusassButton{
 	
 	/** The menu using this button */
 	private final SpellMakerMenu menu;
+	
+	/** Source for the creation of a spell */
+	private final SoundSource creationSound;
 	
 	/**
 	 * Create a {@link SpellCreateButton} with the appropriate parameters
@@ -21,6 +28,8 @@ public class SpellCreateButton extends ZusassButton{
 		this.setFontSize(20);
 		this.centerText();
 		this.setFormatter(new MultiFormatter(new PixelFormatter(null, null, null, 40.0), new PercentFormatter(null, null, .5, null)));
+		
+		this.creationSound = new SoundSource();
 	}
 	
 	@Override
@@ -34,6 +43,13 @@ public class SpellCreateButton extends ZusassButton{
 		if(spell == null) return;
 		
 		player.getSpells().addSpell(spell);
+		
+		// Play a sound for the spell being made
+		this.creationSound.setVolume(0.5);
+		this.creationSound.updatePitch(2 + Math.random() * 0.5);
+		var listener = SoundManager.get().getListener();
+		this.creationSound.updatePosition(listener.getX(), listener.getY(), listener.getZ());
+		Game.get().playEffect(this.creationSound, ZusassSounds.MAGIC_SOUND);
 		
 		var inventoryMenu = zgame.getPlayState().getSpellListMenu();
 		inventoryMenu.regenerateThings();

@@ -89,26 +89,9 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 		this.addHitFunc(ZusassMob.class, m -> {
 			for(var ef : this.effects) ef.apply(sourceId, m);
 		});
-	}
-	
-	// issue#62
-	
-	/**
-	 * Initialize this mob for creating sounds, otherwise sounds will not play
-	 * e the sound will be played in
-	 */
-	public void initSounds(){
-		if(SoundManager.initialized()) this.removedSoundSource = new SoundSource(this.getX(), this.getY(), this.getZ());
-	}
-	
-	@Override
-	public void tick(double dt){
-		super.tick(dt);
-		// issue#61, Does updating the sound position here cause lag?
-		if(this.removedSoundSource != null){
-			this.removedSoundSource.updatePosition(this.getX(), this.getY(), this.getZ());
-			this.removedSoundSource.updateDirection(0, 0, 0);
-		}
+		
+		// issue#62
+		this.removedSoundSource = new SoundSource(this.getX(), this.getY(), this.getZ());
 	}
 	
 	@Override
@@ -116,7 +99,10 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 		super.onRoomRemove();
 		if(this.removedSoundSource != null){
 			this.removedSoundSource.setBaseVolume(10);
-			Game.get().playEffect(this.removedSoundSource, ZusassSounds.LOSE);
+			this.removedSoundSource.updatePosition(this.getX(), this.getY(), this.getZ());
+			this.removedSoundSource.updateDirection(0, 0, 0);
+			this.removedSoundSource.updatePitch(0.95 + Math.random() * 0.1);
+			Game.get().playEffect(this.removedSoundSource, ZusassSounds.MAGIC_DAMAGE);
 		}
 	}
 	
