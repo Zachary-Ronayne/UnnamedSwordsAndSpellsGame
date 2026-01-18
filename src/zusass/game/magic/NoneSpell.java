@@ -22,5 +22,10 @@ public class NoneSpell extends Spell{
 	}
 	
 	@Override
+	public SpellCastType getSpellCastType(){
+		return SpellCastType.NONE;
+	}
+	
+	@Override
 	protected void cast(ZusassMob caster){}
 }

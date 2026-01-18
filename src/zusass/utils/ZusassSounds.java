@@ -7,6 +7,8 @@ public final class ZusassSounds{
 	
 	public static final String MAGIC_SOUND = "magicSound";
 	public static final String MAGIC_DAMAGE = "magicDamage";
+	public static final String MAGIC_SELF_CAST = "magicSelfCast";
+	public static final String MAGIC_PROJECTILE_CAST = "magicProjectileCast";
 	
 	public static final String FOOTSTEP = "footstep";
 	

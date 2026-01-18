@@ -87,6 +87,11 @@ public class ProjectileSpell extends Spell{
 		r.addThing(p);
 	}
 	
+	@Override
+	public SpellCastType getSpellCastType(){
+		return SpellCastType.PROJECTILE;
+	}
+	
 	/** @return See {@link #range} */
 	public double getRange(){
 		return this.range;

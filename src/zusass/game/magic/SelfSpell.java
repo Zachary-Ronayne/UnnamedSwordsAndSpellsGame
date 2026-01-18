@@ -32,7 +32,13 @@ public class SelfSpell extends Spell{
 	}
 	
 	@Override
+	public SpellCastType getSpellCastType(){
+		return SpellCastType.SELF;
+	}
+	
+	@Override
 	protected void cast(ZusassMob caster){
 		for(var ef : this.getEffects()) ef.apply(caster.getUuid(), caster);
 	}
+	
 }

@@ -112,6 +112,9 @@ public abstract class Spell implements Saveable{
 		this.cost = totalCost;
 	}
 	
+	/** @return The way that this spell is cast */
+	public abstract SpellCastType getSpellCastType();
+	
 	/**
 	 * Cast this spell into the game, cast by the given mob. This method instantly casts the spell and does not account for things like current mana or the amount of time it
 	 * takes to cast the spell. Use {@link #castAttempt(ZusassMob)} for such cases

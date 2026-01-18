@@ -231,6 +231,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	@Override
 	public void destroy(){
 		super.destroy();
+		// TODO go through all sound source uses and make sure destroy is called properly
 		if(this.castSoundSource != null){
 			this.castSoundSource.destroy();
 			this.castSoundSource = null;
@@ -534,15 +535,25 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	 * @return true if the spell could be cast, false otherwise i.e. the caster doesn't have enough mana
 	 */
 	public boolean castSpell(){
-		var success = this.getSelectedSpell().castAttempt(this);
+		var selectedSpell = this.getSelectedSpell();
+		var success = selectedSpell.castAttempt(this);
 		if(success && this.castSoundSource != null){
 			var zgame = ZusassGame.get();
 			this.castSoundSource.updatePosition(this.getX(), this.getY(), this.getZ());
 			this.castSoundSource.updateDirection(0, 0, 0);
 			this.castSoundSource.setBaseVolume(0.2);
-			this.castSoundSource.updatePitch(1.4 + Math.random() * 0.4);
+			this.castSoundSource.updatePitch(1.1 + Math.random() * 0.2);
 			this.castSoundSource.setVolume(0.4);
-			zgame.playEffect(this.castSoundSource, ZusassSounds.MAGIC_SOUND);
+			
+			// TODO make a system for easily controlling many sounds per mob, and controlling volume, pitch, etc, depending on the type of mob
+			// Determine cast sound based on the kind of spell
+			var spellSound = switch(selectedSpell.getSpellCastType()){
+				case SELF -> ZusassSounds.MAGIC_SELF_CAST;
+				case PROJECTILE -> ZusassSounds.MAGIC_PROJECTILE_CAST;
+				default -> ZusassSounds.MAGIC_SOUND;
+			};
+			
+			zgame.playEffect(this.castSoundSource, spellSound);
 		}
 		return success;
 	}

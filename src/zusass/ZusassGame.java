@@ -38,13 +38,6 @@ import java.io.File;
  */
 public class ZusassGame extends Game{
 	
-	/*
-	 * TODO sound effects to add
-	 * 		spell
-	 * 			projectile cast
-	 * 			self cast
-	 */
-	
 	/** The id used for the single window of the Zusass game */
 	public final static String ZUSASS_WINDOW_ID = "zusassMainWindow";
 	

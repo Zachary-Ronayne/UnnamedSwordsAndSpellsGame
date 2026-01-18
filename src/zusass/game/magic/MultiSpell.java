@@ -58,6 +58,11 @@ public class MultiSpell extends Spell{
 	}
 	
 	@Override
+	public SpellCastType getSpellCastType(){
+		return SpellCastType.MULTI;
+	}
+	
+	@Override
 	public boolean save(JsonElement e){
 		// Don't need to call super, none of that information is needed for a multi spell, just save the name
 		var obj = e.getAsJsonObject();
