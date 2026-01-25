@@ -146,7 +146,8 @@ public class ZusassGame extends Game{
 		music.setPaused(false);
 		music.setMuted(false);
 		music.setLoop(true);
-		this.playMusic(ZusassMusic.TEST_SONG);
+		// TODO make this play a menu or dungeon song depending on where the game state is
+		this.playMusic(ZusassMusic.DUNGEON_SONG);
 	}
 	
 	/**

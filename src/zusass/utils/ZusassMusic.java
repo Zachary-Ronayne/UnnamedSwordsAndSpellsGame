@@ -5,6 +5,8 @@ public final class ZusassMusic{
 	
 	public static final String TEST_SONG = "testSong";
 	
+	public static final String DUNGEON_SONG = "dungeonSong";
+	
 	/** Cannot instantiate {@link ZusassMusic} */
 	private ZusassMusic(){}
 	
