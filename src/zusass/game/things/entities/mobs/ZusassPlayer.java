@@ -121,7 +121,7 @@ public class ZusassPlayer extends ZusassMob{
 		this.cameraState = CameraState.FIRST_PERSON;
 		
 		this.inputDisabled = false;
-		this.addTags(ZusassTags.CAN_ENTER_LEVEL_DOOR, ZusassTags.MUST_CLEAR_LEVEL_ROOM, ZusassTags.HUB_ENTER_RESTORE);
+		this.addTags(ZusassTags.CAN_ENTER_LEVEL_DOOR, ZusassTags.MUST_CLEAR_LEVEL_ROOM, ZusassTags.HUB_ENTER_RESTORE, ZusassTags.USE_ROOM_MUSIC);
 		
 		this.defaultControls();
 		

@@ -12,6 +12,7 @@ import zusass.game.things.SpellMakerThing;
 import zusass.game.things.ZusassTags;
 import zusass.game.things.entities.mobs.ZusassMob;
 import zusass.game.things.tiles.ZusassTiles;
+import zusass.utils.ZusassMusic;
 
 /** The {@link Room} which represents the main hub of the game, i.e. where the player can enter levels, make items, etc. */
 public class Hub extends ZusassRoom{
@@ -56,6 +57,9 @@ public class Hub extends ZusassRoom{
 		// Add the spell maker
 		var spellMaker = new SpellMakerThing(1, 1, 3);
 		this.addThing(spellMaker);
+		
+		// Set up music
+		this.setSongName(ZusassMusic.MENU_SONG);
 	}
 	
 	/**

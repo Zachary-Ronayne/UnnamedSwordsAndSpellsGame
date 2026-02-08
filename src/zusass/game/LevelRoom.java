@@ -20,6 +20,7 @@ import zusass.game.things.LevelDoor;
 import zusass.game.things.ZusassTags;
 import zusass.game.things.entities.mobs.Npc;
 import zusass.game.things.tiles.ZusassTiles;
+import zusass.utils.ZusassMusic;
 
 import java.util.Random;
 
@@ -138,6 +139,9 @@ public class LevelRoom extends ZusassRoom{
 		this.levelTextBuffer.setLength(LEVEL_TEXT_DISPLAY_WIDTH * (double)LEVEL_TEXT_BUFFER_LENGTH / (double)LEVEL_TEXT_BUFFER_WIDTH);
 		this.levelTextBuffer.setRotX(ZMath.PI_BY_2 * 3);
 		this.levelTextBuffer.setRotZ(NORTH.getYaw());
+		
+		// Set up music
+		this.setSongName(ZusassMusic.DUNGEON_SONG);
 	}
 	
 	/** @return true if this room is cleared and can be exited, false otherwise */

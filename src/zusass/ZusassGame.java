@@ -20,7 +20,6 @@ import zusass.game.things.entities.mobs.ZusassPlayer;
 import zusass.menu.mainmenu.MainMenuState;
 import zusass.setting.ZusassSetting;
 import zusass.utils.ZusassConfig;
-import zusass.utils.ZusassMusic;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -37,6 +36,9 @@ import java.io.File;
  * Sandbox
  */
 public class ZusassGame extends Game{
+	
+	// TODO figure out which settings should be global, i.e. fullscreen, volume, etc, and which ones should be save file based
+	// TODO figure out proper full screen and borderless windowed mode
 	
 	/** The id used for the single window of the Zusass game */
 	public final static String ZUSASS_WINDOW_ID = "zusassMainWindow";
@@ -141,14 +143,11 @@ public class ZusassGame extends Game{
 		sm.getEffectsPlayer().setPaused(false);
 		sm.getEffectsPlayer().setMuted(false);
 		
-		// Play a test song by default on a loop
+		// Set up music to loop
 		var music = sm.getMusicPlayer();
 		music.setPaused(false);
 		music.setMuted(false);
 		music.setLoop(true);
-		// TODO make this play a menu or dungeon song depending on where the game state is
-		// TODO make sure volume is consistent across loops
-		this.playMusic(ZusassMusic.MENU_SONG);
 	}
 	
 	/**

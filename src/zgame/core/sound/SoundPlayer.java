@@ -38,8 +38,13 @@ public abstract class SoundPlayer<S extends Sound>{
 		this.unmute();
 		this.unpause();
 		
-		this.playing.clearSound();
+		this.stopSounds();
 		this.queue.clear();
+	}
+	
+	/** Tell all sounds in this player to stop playing */
+	public void stopSounds(){
+		this.playing.clearSound();
 	}
 	
 	/**

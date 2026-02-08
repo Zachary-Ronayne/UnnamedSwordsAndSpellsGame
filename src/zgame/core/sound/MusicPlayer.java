@@ -61,33 +61,41 @@ public class MusicPlayer extends SoundPlayer<MusicSound>{
 	}
 	
 	@Override
+	protected void playSound(SoundSource source, MusicSound sound){
+		// Do nothing if the new song is the same as the one already being played
+		if(this.currentSong != null && this.getPlaying().length != 0 && this.currentSong.getSound().getPath().equals(sound.getPath())) return;
+		
+		super.playSound(source, sound);
+	}
+	
+	@Override
 	public void runUpdate(){
 		// Update the buffers
-		if(this.currentSong != null){
-			int sourceID = this.currentSong.getSource().getId();
-			int processed = alGetSourcei(sourceID, AL_BUFFERS_PROCESSED);
+		if(this.currentSong == null) return;
+		
+		int sourceID = this.currentSong.getSource().getId();
+		int processed = alGetSourcei(sourceID, AL_BUFFERS_PROCESSED);
+		
+		// Unqueue all finished buffers and load the next set of data
+		while(processed > 0){
+			IntBuffer idBuff = BufferUtils.createIntBuffer(1);
+			alSourceUnqueueBuffers(sourceID, idBuff);
+			processed--;
+			int id = idBuff.get(0);
+			this.currentSong.getSound().bufferDataChunk(id);
+			alSourceQueueBuffers(sourceID, id);
+		}
+		// Loop or stop the music if the sound has ended
+		if(this.isLoop()){
 			int state = alGetSourcei(sourceID, AL_SOURCE_STATE);
-			
-			// Unqueue all finished buffers and load the next set of data
-			while(processed > 0){
-				IntBuffer idBuff = BufferUtils.createIntBuffer(1);
-				alSourceUnqueueBuffers(sourceID, idBuff);
-				processed--;
-				int id = idBuff.get(0);
-				this.currentSong.getSound().bufferDataChunk(id);
-				alSourceQueueBuffers(sourceID, id);
+			if(state == AL_STOPPED){
+				MusicSound sound = this.currentSong.getSound();
+				this.removeFinishedSounds();
+				this.playSound(this.currentSong.getSource(), sound);
 			}
-			// Loop or stop the music if the sound has ended
-			if(this.isLoop()){
-				if(state == AL_STOPPED){
-					MusicSound sound = this.currentSong.getSound();
-					this.removeFinishedSounds();
-					this.playSound(this.currentSong.getSource(), sound);
-				}
-			}
-			else{
-				if(this.removeFinishedSounds()) this.currentSong = null;
-			}
+		}
+		else{
+			if(this.removeFinishedSounds()) this.currentSong = null;
 		}
 	}
 	

@@ -15,6 +15,8 @@ public enum ZusassTags implements Tag{
 	MUST_CLEAR_LEVEL_ROOM,
 	/** Tells a {@link ZusassMob} to restore all resources, i.e. health, stamina, and mana, to full when they enter the {@link Hub} */
 	HUB_ENTER_RESTORE,
+	/** Tells a {@link GameThing} that the music of the room should begin playing when the mob enters the room */
+	USE_ROOM_MUSIC,
 	
 	/** Tells a {@link Room} that it is a {@link LevelRoom} */
 	IS_LEVEL,
