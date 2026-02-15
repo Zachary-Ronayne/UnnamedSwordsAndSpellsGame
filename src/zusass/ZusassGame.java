@@ -38,7 +38,7 @@ import java.io.File;
 public class ZusassGame extends Game{
 	
 	// TODO figure out which settings should be global, i.e. fullscreen, volume, etc, and which ones should be save file based
-	// TODO figure out proper full screen and borderless windowed mode
+	// TODO make sure music starts again after changing the music volume from 0 to non-zero
 	
 	/** The id used for the single window of the Zusass game */
 	public final static String ZUSASS_WINDOW_ID = "zusassMainWindow";

@@ -7,8 +7,10 @@ import zgame.core.input.GLFWModUtils;
 import zgame.core.input.keyboard.GLFWKeyInput;
 import zgame.core.input.mouse.GLFWMouseInput;
 import zgame.core.utils.ZConfig;
-import zgame.core.utils.ZStringUtils;
 
+import org.lwjgl.glfw.GLFWNativeWin32;
+
+import static org.lwjgl.system.windows.User32.*;
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -23,10 +25,8 @@ import org.lwjgl.PointerBuffer;
 /** An implementation of {@link GameWindow} which uses GLFW methods */
 public class GlfwWindow extends GameWindow{
 	
-	/** The number used by glfw to track the normal window */
+	/** The number used by glfw to track the window */
 	private long windowID;
-	/** The number used by glfw to track the full screen window */
-	private long fullScreenID;
 	
 	/** The object tracking mouse input events */
 	private final GLFWMouseInput mouseInput;
@@ -39,6 +39,26 @@ public class GlfwWindow extends GameWindow{
 	
 	/** true if this window should be visible when it starts up, false otherwise */
 	private boolean showOnInit;
+	
+	/** The last windowed x coordinate before entering fullscreen */
+	private int lastWindowedX;
+	/** The last windowed y coordinate before entering fullscreen */
+	private int lastWindowedY;
+	/** The last windowed width before entering fullscreen */
+	private int lastWindowedWidth;
+	/** The last windowed height before entering fullscreen */
+	private int lastWindowedHeight;
+	/** Some magic pointer to a windows reference */
+	private long win32Id;
+	/** The value of GWL_STYLE before any changes */
+	private long originalStyle;
+	/** The value of GWL_EXSTYLE before any changes */
+	private long originalExStyle;
+	
+	// issue#66 make a formal full screen modes system, choosing between proper full screen, windowed full screen, accounting for other operating systems, maybe
+	// issue#66 finish making borderless windowed fullscreen actually work, windows is so stupid
+	/** true if this window should use borderless fullscreen, false for normal fullscreen. Borderless is not implemented properly */
+	private static final boolean BORDERLESS_FULLSCREEN = false;
 	
 	/**
 	 * Create an empty {@link GlfwWindow}. This does not initialize anything for GLFW or OpenGL, call {@link #init()} for that
@@ -83,6 +103,18 @@ public class GlfwWindow extends GameWindow{
 		// Create the window
 		this.windowID = glfwCreateWindow(this.getWidth(), this.getHeight(), this.getWindowTitle(), NULL, Game.get().getWindow().getLongId());
 		if(this.windowID == NULL) throw new RuntimeException("Failed to create the GLFW window");
+		
+		// Grab windows values from window creation
+		if(BORDERLESS_FULLSCREEN){
+			this.win32Id = GLFWNativeWin32.glfwGetWin32Window(this.windowID);
+			this.originalStyle = GetWindowLongPtr(this.win32Id, GWL_STYLE);
+			this.originalExStyle = GetWindowLongPtr(this.win32Id, GWL_EXSTYLE);
+		}
+		
+		// Save the current position
+		this.storeLastWindowBounds();
+		
+		// Don't show the window by default
 		this.hide();
 		
 		// Set up window context
@@ -91,8 +123,7 @@ public class GlfwWindow extends GameWindow{
 	
 	@Override
 	public void obtainContext(){
-		if(this.isInFullScreen()) glfwMakeContextCurrent(this.fullScreenID);
-		else glfwMakeContextCurrent(this.windowID);
+		glfwMakeContextCurrent(this.windowID);
 	}
 	
 	@Override
@@ -114,17 +145,11 @@ public class GlfwWindow extends GameWindow{
 		super.destroy();
 		// Remove old ids
 		var oldWindowId = this.getWindowID();
-		var oldFullscreenId = this.getFullScreenID();
 		this.windowID = NULL;
-		this.fullScreenID = NULL;
 		
 		// Free memory / destroy callbacks
 		glfwFreeCallbacks(oldWindowId);
 		glfwDestroyWindow(oldWindowId);
-		if(oldFullscreenId != NULL){
-			glfwFreeCallbacks(oldFullscreenId);
-			glfwDestroyWindow(oldFullscreenId);
-		}
 	}
 	
 	@Override
@@ -152,7 +177,6 @@ public class GlfwWindow extends GameWindow{
 	@Override
 	public long getLongId(){
 		if(!this.isInitialized()) return NULL;
-		if(this.isInFullScreen()) return this.fullScreenID;
 		return this.windowID;
 	}
 	
@@ -181,14 +205,12 @@ public class GlfwWindow extends GameWindow{
 	@Override
 	public void hide(){
 		if(this.getWindowID() != NULL) glfwHideWindow(this.getWindowID());
-		if(this.getFullScreenID() != NULL) glfwHideWindow(this.getFullScreenID());
 		this.showing = false;
 	}
 	
 	@Override
 	public void show(){
 		if(this.getWindowID() != NULL) glfwShowWindow(this.getWindowID());
-		if(this.getFullScreenID() != NULL) glfwShowWindow(this.getFullScreenID());
 		this.showing = true;
 	}
 	
@@ -278,6 +300,11 @@ public class GlfwWindow extends GameWindow{
 	 */
 	private void windowSizeChanged(long window, int w, int h){
 		try{
+			// Throw away if the size is zero, glfw is weird and sends zero size when in fullscreen and clicking on a different monitor
+			if(w == 0 || h == 0){
+				return;
+			}
+			
 			this.windowSizeChanged(w, h);
 		}catch(Exception e){
 			ZConfig.exception(e);
@@ -320,57 +347,86 @@ public class GlfwWindow extends GameWindow{
 	
 	@Override
 	protected boolean enterFullScreen(){
-		this.createFullScreenWindow();
-		if(this.fullScreenID == NULL) return false;
-		// Use the fullscreen window
-		glfwMakeContextCurrent(this.fullScreenID);
-		// Display the window again if it should be showing
-		if(this.isShowing()) glfwShowWindow(this.fullScreenID);
-		// Hide the old window
-		glfwHideWindow(this.windowID);
+		// Keep track of the last bounds the window was in
+		this.storeLastWindowBounds();
+		
+		long monitor = this.center();
+		
+		if(monitor == NULL){
+			ZConfig.error("Failed to find any monitors to create a fullscreen window");
+			return false;
+		}
+		// Put the found monitor in full screen on that window
+		var mode = glfwGetVideoMode(monitor);
+		if(mode == null){
+			ZConfig.error("Failed to get a video mode to create a fullscreen window");
+			return false;
+		}
+		
+		// Find where the monitor is
+		int[] mx = new int[1];
+		int[] my = new int[1];
+		glfwGetMonitorPos(monitor, mx, my);
+		
+		if(BORDERLESS_FULLSCREEN){
+			
+			// Magic setup for making borderless full screen work
+			long style = GetWindowLongPtr(this.win32Id, GWL_STYLE);
+			style &= ~WS_OVERLAPPEDWINDOW;
+			
+			// Magic windows crap to make borderless fullscreen a thing
+			SetWindowLongPtr(this.win32Id, GWL_STYLE, style);
+			SetWindowLongPtr(this.win32Id, GWL_EXSTYLE, this.originalExStyle);
+			// Position the full screen window at the top left of the monitor
+			SetWindowPos(this.win32Id, HWND_TOP, mx[0], my[0], mode.width(), mode.height(), SWP_FRAMECHANGED);
+		}
+		else{
+			glfwSetWindowAttrib(this.getWindowID(), GLFW_DECORATED, GLFW_FALSE);
+			
+			glfwSetWindowPos(this.getWindowID(), mx[0], my[0]);
+			glfwSetWindowSize(this.getWindowID(), mode.width(), mode.height());
+		}
 		
 		return true;
 	}
 	
 	@Override
 	protected boolean exitFullScreen(){
-		long fullScreen = this.getFullScreenID();
-		long window = this.getWindowID();
-		// Get rid of the fullscreen window
-		if(fullScreen != NULL){
-			glfwDestroyWindow(fullScreen);
-			this.fullScreenID = NULL;
+		if(BORDERLESS_FULLSCREEN){
+			SetWindowLongPtr(this.win32Id, GWL_STYLE, this.originalStyle);
+			SetWindowLongPtr(this.win32Id, GWL_EXSTYLE, this.originalExStyle);
+			
+			SetWindowPos(this.win32Id, HWND_TOP, this.lastWindowedX, this.lastWindowedY, this.lastWindowedWidth, this.lastWindowedHeight, SWP_FRAMECHANGED);
 		}
-		// Use the windowed window
-		glfwMakeContextCurrent(window);
-		// Display the window again if it should be showing
-		if(this.isShowing()) glfwShowWindow(window);
+		else{
+			glfwSetWindowAttrib(this.getWindowID(), GLFW_DECORATED, GLFW_TRUE);
+		}
+		
+		this.restoreLastWindowBounds();
 		
 		return true;
 	}
 	
-	/**
-	 * Create a window to use for the fullscreen. In the case of multiple monitors, the monitor which will be used is the one with the upper left hand corner of the window in
-	 * it The id is stored in {@link #fullScreenID}
-	 */
-	protected void createFullScreenWindow(){
-		// Find which monitor the window is on and center it, additionally, save the old position before entering fullscreen
-		long monitor = this.center();
+	/** Find the current position and size of this window and store the values in this class */
+	private void storeLastWindowBounds(){
+		var x = new int[1];
+		var y = new int[1];
+		var w = new int[1];
+		var h = new int[1];
 		
-		if(monitor == NULL){
-			ZConfig.error("Failed to find any monitors to create a fullscreen window");
-			return;
-		}
-		// Put the found monitor in full screen on that window
-		GLFWVidMode mode = glfwGetVideoMode(monitor);
-		if(mode == null){
-			ZConfig.error("Failed to get a video mode to create a fullscreen window");
-			return;
-		}
-		this.fullScreenID = glfwCreateWindow(mode.width(), mode.height(), ZStringUtils.concat(this.getWindowTitle(), " | Fullscreen"), monitor, this.getWindowID());
-		if(this.fullScreenID == NULL){
-			ZConfig.error("Failed to create a fullscreen window");
-		}
+		glfwGetWindowPos(this.windowID, x, y);
+		glfwGetWindowSize(this.windowID, w, h);
+		
+		this.lastWindowedX = x[0];
+		this.lastWindowedY = y[0];
+		this.lastWindowedWidth = w[0];
+		this.lastWindowedHeight= h[0];
+	}
+	
+	/** Set the current position and size of this window to values stored in this class */
+	private void restoreLastWindowBounds(){
+		glfwSetWindowSize(this.getWindowID(), this.lastWindowedWidth, this.lastWindowedHeight);
+		glfwSetWindowPos(this.getWindowID(), this.lastWindowedX, this.lastWindowedY);
 	}
 	
 	@Override
@@ -469,26 +525,19 @@ public class GlfwWindow extends GameWindow{
 		return this.windowID;
 	}
 	
-	/** @return See {@link #fullScreenID} */
-	public long getFullScreenID(){
-		return this.fullScreenID;
-	}
-	
 	/**
 	 * Get the ID of the currently used window, i.e. either the windowed version or the full screen version
 	 *
 	 * @return The id
 	 */
 	public long getCurrentWindowID(){
-		if(this.isInFullScreen()) return this.getFullScreenID();
-		else return this.getWindowID();
+		return this.getWindowID();
 	}
 	
 	@Override
 	public void setWindowTitle(String windowTitle){
 		super.setWindowTitle(windowTitle);
 		if(this.getWindowID() != NULL) glfwSetWindowTitle(this.getWindowID(), windowTitle);
-		else if(this.getFullScreenID() != NULL) glfwSetWindowTitle(this.getFullScreenID(), windowTitle);
 	}
 	
 	/** @return See {@link #mouseInput} */
