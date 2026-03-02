@@ -4,12 +4,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import zgame.core.Game;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 /** A {@link Setting} holding an integer See {@link SettingType} */
 public class IntTypeSetting extends SettingType<Integer>{
 	
-	public static final IntTypeSetting FPS_LIMIT = new IntTypeSetting("FPS_LIMIT", 100, d -> Game.get().setMaxFps(d));
+	public static final IntTypeSetting FPS_LIMIT = new IntTypeSetting("FPS_LIMIT", 100, (oldD, newD) -> Game.get().setMaxFps(newD));
 	
 	/**
 	 * Initialize a new int setting.
@@ -26,7 +26,7 @@ public class IntTypeSetting extends SettingType<Integer>{
 	 * @param defaultVal See {@link #defaultVal}
 	 * @param onChange See {@link #onChange}
 	 */
-	protected IntTypeSetting(String name, int defaultVal, Consumer<Integer> onChange){
+	protected IntTypeSetting(String name, int defaultVal, BiConsumer<Integer, Integer> onChange){
 		super(name, defaultVal, onChange);
 	}
 	

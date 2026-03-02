@@ -27,6 +27,9 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	 */
 	private double baseVolume;
 	
+	/** The last volume level this source was set to */
+	private float lastVolume;
+	
 	/** true if this {@link SoundSource} should make no sound, regardless of {@link #volume}, false otherwise */
 	private boolean muted;
 	
@@ -38,7 +41,6 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	
 	/** The sample position which the sound was at when it was initially paused, or -1 if the sound does not need to be stopped */
 	private float pausedSample;
-	
 	/** The sound which this {@link SoundSource} is currently playing, can be null if no sound is playing */
 	private Sound current;
 	
@@ -133,7 +135,7 @@ public class SoundSource extends SoundLocation implements Destroyable{
 			if(!this.isPaused()){
 				alSourcef(this.getId(), AL_SAMPLE_OFFSET, this.pausedSample);
 				alSourcePlay(this.getId());
-				if(!this.isMuted()) alSourcef(id, AL_GAIN, (float)this.getVolume());
+				if(!this.isMuted()) this.updateVolumeLevel();
 				this.currentPaused = false;
 			}
 		}
@@ -172,7 +174,18 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	
 	/** Based on the current state of the source, i.e. base volume, current volume, muted, set the correct volume level in OpenAL */
 	public void updateVolumeLevel(){
-		alSourcef(id, AL_GAIN, (float)this.getTotalVolume());
+		this.forceVolumeLevel(this.getTotalVolume());
+	}
+	
+	/** @param volume The new volume to force set this sound to */
+	public void forceVolumeLevel(double volume){
+		float newVolume = (float)volume;
+		
+		// Do nothing if no volume change happened
+		if(newVolume == this.lastVolume) return;
+		
+		this.lastVolume = newVolume;
+		alSourcef(this.getId(), AL_GAIN, this.lastVolume);
 	}
 	
 	/** @return See {@link #baseVolume} */
@@ -240,7 +253,7 @@ public class SoundSource extends SoundLocation implements Destroyable{
 		
 		// Track the sample position and then mute the sound immediately
 		this.pausedSample = this.getSamplePos();
-		alSourcef(this.getId(), AL_GAIN, 0);
+		this.forceVolumeLevel(0);
 	}
 	
 	/**

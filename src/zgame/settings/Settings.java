@@ -50,16 +50,18 @@ public class Settings implements Saveable{
 	 * Sets a value without checking that the types are the same. Generally should avoid using when not needed
 	 *
 	 * @param setting The value of the setting to set
-	 * @param value The new value
+	 * @param newValue The new value
 	 * @param shouldChange true if updating this setting should call the {@link SettingType#onChange} method
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> void setValue(SettingType<T> setting, Object value, boolean shouldChange){
-		this.values[setting.id()].setRaw(value);
+	public <T> void setValue(SettingType<T> setting, Object newValue, boolean shouldChange){
+		var s = this.values[setting.id()];
+		var oldValue = s.get();
+		
+		this.values[setting.id()].setRaw(newValue);
 		if(!shouldChange) return;
 		
-		var onChange = setting.getOnChange();
-		if(onChange != null) onChange.accept((T)value);
+		setting.runOnChange((T)oldValue, (T)newValue);
 	}
 	
 	/**

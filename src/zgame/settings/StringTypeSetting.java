@@ -3,12 +3,12 @@ package zgame.settings;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 /** A {@link Setting} holding a string. See {@link SettingType} */
 public class StringTypeSetting extends SettingType<String>{
 	
-	public static final StringTypeSetting STRING_TEST = new StringTypeSetting("STRING_TEST", "test value", (n) -> {});
+	public static final StringTypeSetting STRING_TEST = new StringTypeSetting("STRING_TEST", "test value");
 	
 	/**
 	 * Initialize a new boolean setting.
@@ -27,7 +27,7 @@ public class StringTypeSetting extends SettingType<String>{
 	 * @param defaultVal See {@link #defaultVal}
 	 * @param onChange See {@link #onChange}
 	 */
-	protected StringTypeSetting(String name, String defaultVal, Consumer<String> onChange){
+	protected StringTypeSetting(String name, String defaultVal, BiConsumer<String, String> onChange){
 		super(name, defaultVal, onChange);
 	}
 	

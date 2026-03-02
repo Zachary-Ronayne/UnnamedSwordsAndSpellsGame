@@ -5,27 +5,28 @@ import com.google.gson.JsonPrimitive;
 import zgame.core.Game;
 import zgame.core.sound.SoundManager;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 /** A {@link Setting} holding a double. See {@link SettingType} */
 public class DoubleTypeSetting extends SettingType<Double>{
 	
-	public static final DoubleTypeSetting FOV = new DoubleTypeSetting("FOV", 1, d -> Game.get().setFov(d));
+	public static final DoubleTypeSetting FOV = new DoubleTypeSetting("FOV", 1, (oldD, newD) -> Game.get().setFov(newD));
 	
 	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_X = new DoubleTypeSetting("CAMERA_LOOK_SPEED_X", 0.0009);
 	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_Y = new DoubleTypeSetting("CAMERA_LOOK_SPEED_Y", 0.0009);
 	
-	/** The volume the music player should be set to, 0 for muted, 1 for full volume */
-	public static final DoubleTypeSetting MUSIC_VOLUME = new DoubleTypeSetting("MUSIC_VOLUME", 100.0, d -> {
+	/** The volume the music player should be set to, 0 for muted, 100 for full volume */
+	public static final DoubleTypeSetting MUSIC_VOLUME = new DoubleTypeSetting("MUSIC_VOLUME", 100.0, (oldD, newD) -> {
 		var music = SoundManager.get().getMusicPlayer();
-		music.setMuted(d <= 0);
-		music.setPaused(d <= 0);
-		music.setVolume(d / 100.0);
+		music.setMuted(newD <= 0);
+		music.setPaused(newD <= 0);
+		music.setVolume(newD / 100.0);
 	});
-	public static final DoubleTypeSetting EFFECTS_VOLUME = new DoubleTypeSetting("EFFECTS_VOLUME", 100.0, d -> {
+	/** The volume the effects player should be set to, 0 for muted, 100 for full volume */
+	public static final DoubleTypeSetting EFFECTS_VOLUME = new DoubleTypeSetting("EFFECTS_VOLUME", 100.0, (oldD, newD) -> {
 		var effects = SoundManager.get().getEffectsPlayer();
-		effects.setMuted(d <= 0);
-		effects.setVolume(d / 100.0);
+		effects.setMuted(newD <= 0);
+		effects.setVolume(newD / 100.0);
 	});
 	
 	/**
@@ -45,7 +46,7 @@ public class DoubleTypeSetting extends SettingType<Double>{
 	 * @param defaultVal See {@link #defaultVal}
 	 * @param onChange See {@link #onChange}
 	 */
-	protected DoubleTypeSetting(String name, double defaultVal, Consumer<Double> onChange){
+	protected DoubleTypeSetting(String name, double defaultVal, BiConsumer<Double, Double> onChange){
 		super(name, defaultVal, onChange);
 	}
 	

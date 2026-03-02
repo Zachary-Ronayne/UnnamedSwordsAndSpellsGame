@@ -4,10 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import zgame.core.Game;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.*;
+import java.util.function.BiConsumer;
 
 /**
  * An interface to be used for generating settings, should be implemented by an enum.
@@ -34,8 +32,8 @@ public abstract class SettingType<T>{
 	private final int id;
 	/** The default value of the setting if it hasn't been overridden */
 	private final T defaultVal;
-	/** A function that runs each time the setting changes, or null to do nothing on change. The game is the game where the setting changed, the T is the new value */
-	private final Consumer<T> onChange;
+	/** Functions tp run each time the setting changes, can be an empty list to do nothing on change. First parameter is the old value, seond parameter is the new value */
+	private final ArrayList<BiConsumer<T, T>> onChange;
 	
 	/** A setting used to obtain as a generic instance of a setting, mostly used for initialization, and to ensure at least one setting exists */
 	public static final SettingType<?> ROOT = new SettingType<>("ROOT", null){
@@ -66,11 +64,12 @@ public abstract class SettingType<T>{
 	 * @param defaultVal See {@link #defaultVal}
 	 * @param onChange See {@link #onChange}
 	 */
-	protected SettingType(String name, T defaultVal, Consumer<T> onChange){
+	protected SettingType(String name, T defaultVal, BiConsumer<T, T> onChange){
 		this.name = name;
 		this.id = SettingId.next();
 		this.defaultVal = defaultVal;
-		this.onChange = onChange;
+		this.onChange = new ArrayList<>();
+		if(onChange != null) this.onChange.add(onChange);
 		
 		add(this);
 	}
@@ -90,9 +89,18 @@ public abstract class SettingType<T>{
 		return this.defaultVal;
 	}
 	
-	/** See {@link #onChange} */
-	public Consumer<T> getOnChange(){
-		return this.onChange;
+	/**
+	 * A function that should be run any time this setting's value is changed
+	 * @param newValue The new value of the setting
+	 */
+	public void runOnChange(T oldValue, T newValue){
+		for(var fun : this.onChange) fun.accept(oldValue, newValue);
+	}
+	
+	/** @param onChange An additional function to run when the setting changes */
+	public void registerOnChange(BiConsumer<T, T> onChange){
+		if(onChange == null) return;
+		this.onChange.add(onChange);
 	}
 	
 	/**

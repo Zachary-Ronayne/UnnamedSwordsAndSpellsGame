@@ -38,7 +38,6 @@ import java.io.File;
 public class ZusassGame extends Game{
 	
 	// TODO figure out which settings should be global, i.e. fullscreen, volume, etc, and which ones should be save file based
-	// TODO make sure music starts again after changing the music volume from 0 to non-zero
 	
 	/** The id used for the single window of the Zusass game */
 	public final static String ZUSASS_WINDOW_ID = "zusassMainWindow";
@@ -144,6 +143,12 @@ public class ZusassGame extends Game{
 		sm.getEffectsPlayer().setMuted(false);
 		
 		// Set up music to loop
+		this.startMusicLoop();
+	}
+	
+	/** Tell the music player to start looping */
+	public void startMusicLoop(){
+		var sm = this.getSounds();
 		var music = sm.getMusicPlayer();
 		music.setPaused(false);
 		music.setMuted(false);

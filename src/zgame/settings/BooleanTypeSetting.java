@@ -4,15 +4,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import zgame.core.Game;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 /** A {@link Setting} holding a boolean. See {@link SettingType} */
 public class BooleanTypeSetting extends SettingType<Boolean>{
 	
-	public static final BooleanTypeSetting V_SYNC = new BooleanTypeSetting("V_SYNC", true, n -> Game.get().getWindow().setUseVsync(n));
-	public static final BooleanTypeSetting FULLSCREEN = new BooleanTypeSetting("FULLSCREEN", false, n -> Game.get().getWindow().setFullscreen(n));
-	public static final BooleanTypeSetting PRINT_FPS = new BooleanTypeSetting("PRINT_FPS", true, n -> Game.get().getRenderLooper().setPrintRate(n));
-	public static final BooleanTypeSetting PRINT_TPS = new BooleanTypeSetting("PRINT_TPS", true, n -> Game.get().getTickLooper().setPrintRate(n));
+	public static final BooleanTypeSetting V_SYNC = new BooleanTypeSetting("V_SYNC", true, (oldB, newB) -> Game.get().getWindow().setUseVsync(newB));
+	public static final BooleanTypeSetting FULLSCREEN = new BooleanTypeSetting("FULLSCREEN", false, (oldB, newB) -> Game.get().getWindow().setFullscreen(newB));
+	public static final BooleanTypeSetting PRINT_FPS = new BooleanTypeSetting("PRINT_FPS", true, (oldB, newB) -> Game.get().getRenderLooper().setPrintRate(newB));
+	public static final BooleanTypeSetting PRINT_TPS = new BooleanTypeSetting("PRINT_TPS", true, (oldB, newB) -> Game.get().getTickLooper().setPrintRate(newB));
 	
 	public static final BooleanTypeSetting CAMERA_LOOK_INVERT_X = new BooleanTypeSetting("CAMERA_INVERT_X", false);
 	public static final BooleanTypeSetting CAMERA_LOOK_INVERT_Y = new BooleanTypeSetting("CAMERA_INVERT_Y", false);
@@ -34,7 +34,7 @@ public class BooleanTypeSetting extends SettingType<Boolean>{
 	 * @param defaultVal See {@link #defaultVal}
 	 * @param onChange See {@link #onChange}
 	 */
-	protected BooleanTypeSetting(String name, boolean defaultVal, Consumer<Boolean> onChange){
+	protected BooleanTypeSetting(String name, boolean defaultVal, BiConsumer<Boolean, Boolean> onChange){
 		super(name, defaultVal, onChange);
 	}
 	
