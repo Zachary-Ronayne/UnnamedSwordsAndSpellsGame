@@ -56,7 +56,7 @@ public class SoundSettingsMenu extends BaseSettingsMenu{
 			super.changeDisplayedSetting(menu);
 			var inputValue = this.getSettingTextInputValue();
 			if(inputValue != null && this.setting != null){
-				Game.get().set(this.setting, inputValue, true);
+				Game.get().set(this.setting, inputValue);
 			}
 		}
 	}

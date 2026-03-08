@@ -8,16 +8,17 @@ import java.util.function.BiConsumer;
 /** A {@link Setting} holding a string. See {@link SettingType} */
 public class StringTypeSetting extends SettingType<String>{
 	
-	public static final StringTypeSetting STRING_TEST = new StringTypeSetting("STRING_TEST", "test value");
+	public static final StringTypeSetting STRING_TEST = new StringTypeSetting("STRING_TEST", "test value", false);
 	
 	/**
 	 * Initialize a new boolean setting.
 	 *
 	 * @param name See {@link #name}
 	 * @param defaultVal See {@link #defaultVal}
+	 * @param exclusiveGlobal See {@link #exclusiveGlobal}
 	 */
-	protected StringTypeSetting(String name, String defaultVal){
-		super(name, defaultVal);
+	protected StringTypeSetting(String name, String defaultVal, boolean exclusiveGlobal){
+		super(name, defaultVal, exclusiveGlobal);
 	}
 	
 	/**
@@ -25,10 +26,11 @@ public class StringTypeSetting extends SettingType<String>{
 	 *
 	 * @param name See {@link #name}
 	 * @param defaultVal See {@link #defaultVal}
+	 * @param exclusiveGlobal See {@link #exclusiveGlobal}
 	 * @param onChange See {@link #onChange}
 	 */
-	protected StringTypeSetting(String name, String defaultVal, BiConsumer<String, String> onChange){
-		super(name, defaultVal, onChange);
+	protected StringTypeSetting(String name, String defaultVal, boolean exclusiveGlobal, BiConsumer<String, String> onChange){
+		super(name, defaultVal, exclusiveGlobal, onChange);
 	}
 	
 	@Override

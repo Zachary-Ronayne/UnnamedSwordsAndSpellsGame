@@ -10,20 +10,20 @@ import java.util.function.BiConsumer;
 /** A {@link Setting} holding a double. See {@link SettingType} */
 public class DoubleTypeSetting extends SettingType<Double>{
 	
-	public static final DoubleTypeSetting FOV = new DoubleTypeSetting("FOV", 1, (oldD, newD) -> Game.get().setFov(newD));
+	public static final DoubleTypeSetting FOV = new DoubleTypeSetting("FOV", 1, false, (oldD, newD) -> Game.get().setFov(newD));
 	
-	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_X = new DoubleTypeSetting("CAMERA_LOOK_SPEED_X", 0.0009);
-	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_Y = new DoubleTypeSetting("CAMERA_LOOK_SPEED_Y", 0.0009);
+	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_X = new DoubleTypeSetting("CAMERA_LOOK_SPEED_X", 0.0009, false);
+	public static final DoubleTypeSetting CAMERA_LOOK_SPEED_Y = new DoubleTypeSetting("CAMERA_LOOK_SPEED_Y", 0.0009, false);
 	
 	/** The volume the music player should be set to, 0 for muted, 100 for full volume */
-	public static final DoubleTypeSetting MUSIC_VOLUME = new DoubleTypeSetting("MUSIC_VOLUME", 100.0, (oldD, newD) -> {
+	public static final DoubleTypeSetting MUSIC_VOLUME = new DoubleTypeSetting("MUSIC_VOLUME", 100.0, true, (oldD, newD) -> {
 		var music = SoundManager.get().getMusicPlayer();
 		music.setMuted(newD <= 0);
 		music.setPaused(newD <= 0);
 		music.setVolume(newD / 100.0);
 	});
 	/** The volume the effects player should be set to, 0 for muted, 100 for full volume */
-	public static final DoubleTypeSetting EFFECTS_VOLUME = new DoubleTypeSetting("EFFECTS_VOLUME", 100.0, (oldD, newD) -> {
+	public static final DoubleTypeSetting EFFECTS_VOLUME = new DoubleTypeSetting("EFFECTS_VOLUME", 100.0, true, (oldD, newD) -> {
 		var effects = SoundManager.get().getEffectsPlayer();
 		effects.setMuted(newD <= 0);
 		effects.setVolume(newD / 100.0);
@@ -34,9 +34,10 @@ public class DoubleTypeSetting extends SettingType<Double>{
 	 *
 	 * @param name See {@link #name}
 	 * @param defaultVal See {@link #defaultVal}
+	 * @param exclusiveGlobal See {@link #exclusiveGlobal}
 	 */
-	protected DoubleTypeSetting(String name, double defaultVal){
-		super(name, defaultVal);
+	protected DoubleTypeSetting(String name, double defaultVal, boolean exclusiveGlobal){
+		super(name, defaultVal, exclusiveGlobal);
 	}
 	
 	/**
@@ -44,10 +45,11 @@ public class DoubleTypeSetting extends SettingType<Double>{
 	 *
 	 * @param name See {@link #name}
 	 * @param defaultVal See {@link #defaultVal}
+	 * @param exclusiveGlobal See {@link #exclusiveGlobal}
 	 * @param onChange See {@link #onChange}
 	 */
-	protected DoubleTypeSetting(String name, double defaultVal, BiConsumer<Double, Double> onChange){
-		super(name, defaultVal, onChange);
+	protected DoubleTypeSetting(String name, double defaultVal, boolean exclusiveGlobal, BiConsumer<Double, Double> onChange){
+		super(name, defaultVal, exclusiveGlobal, onChange);
 	}
 	
 	@Override

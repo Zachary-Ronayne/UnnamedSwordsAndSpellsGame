@@ -152,12 +152,15 @@ public class Settings implements Saveable{
 	 * Set this object's settings values to the ones in the given settings object which are not the default settings
 	 *
 	 * @param settings The settings to place into this settings
+	 * @param skipExclusiveGlobal true if exclusively global settings should not be updated, false otherwise
 	 * @param shouldChange true if updating this setting should call the {@link SettingType#onChange} method
 	 */
-	public void setNonDefault(Settings settings, boolean shouldChange){
+	public void setNonDefault(Settings settings, boolean skipExclusiveGlobal, boolean shouldChange){
 		for(var s : settings.values){
-			if(s.getType().isDefault(s.get())) continue;
-			this.setValue(s.getType(), s.get(), shouldChange);
+			var type = s.getType();
+			if(type.isDefault(s.get())) continue;
+			if(skipExclusiveGlobal && type.isExclusiveGlobal()) continue;
+			this.setValue(type, s.get(), shouldChange);
 		}
 	}
 	

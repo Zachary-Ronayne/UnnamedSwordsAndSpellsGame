@@ -2,6 +2,8 @@ package zusass.menu.settings;
 
 import zgame.core.Game;
 import zgame.menu.scroller.HorizontalSelectionScroller;
+import zgame.settings.DoubleTypeSetting;
+import zgame.settings.IntTypeSetting;
 import zgame.settings.SettingType;
 import zusass.menu.comp.ZusassTextBox;
 
@@ -20,6 +22,9 @@ public abstract class NumberSettingsButton<N extends Number> extends SettingsBut
 	/** The current value that this setting is expected to be across all inputs */
 	private double settingValue;
 	
+	/** true if this button is allowed to input decimal numbers, i.e. double settings, vs integer settings */
+	private final boolean allowDecimal;
+	
 	/**
 	 * Create a new {@link ZusassTextBox} with the given values
 	 *
@@ -32,6 +37,7 @@ public abstract class NumberSettingsButton<N extends Number> extends SettingsBut
 	 */
 	public NumberSettingsButton(double x, double y, SettingType<N> setting, String name, N min, N max, boolean allowDecimal, BaseSettingsMenu menu){
 		super(x, y, 300, 45, setting, menu);
+		this.allowDecimal = allowDecimal;
 		this.setHint(name + "...");
 		this.setLabel(name + ": ");
 		if(min != null && max != null){
@@ -128,7 +134,10 @@ public abstract class NumberSettingsButton<N extends Number> extends SettingsBut
 	@Override
 	public void updateSetting(){
 		var newValue = this.getSettingTextInputValue();
-		if(newValue != null) Game.get().setAny(this.getSetting(), newValue, false);
+		if(newValue != null){
+			if(this.allowDecimal) Game.get().set((DoubleTypeSetting)this.getSetting(), newValue.doubleValue());
+			else Game.get().set((IntTypeSetting)this.getSetting(), newValue.intValue());
+		}
 	}
 	
 }

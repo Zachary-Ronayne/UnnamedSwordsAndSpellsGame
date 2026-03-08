@@ -9,22 +9,23 @@ import java.util.function.BiConsumer;
 /** A {@link Setting} holding a boolean. See {@link SettingType} */
 public class BooleanTypeSetting extends SettingType<Boolean>{
 	
-	public static final BooleanTypeSetting V_SYNC = new BooleanTypeSetting("V_SYNC", true, (oldB, newB) -> Game.get().getWindow().setUseVsync(newB));
-	public static final BooleanTypeSetting FULLSCREEN = new BooleanTypeSetting("FULLSCREEN", false, (oldB, newB) -> Game.get().getWindow().setFullscreen(newB));
-	public static final BooleanTypeSetting PRINT_FPS = new BooleanTypeSetting("PRINT_FPS", true, (oldB, newB) -> Game.get().getRenderLooper().setPrintRate(newB));
-	public static final BooleanTypeSetting PRINT_TPS = new BooleanTypeSetting("PRINT_TPS", true, (oldB, newB) -> Game.get().getTickLooper().setPrintRate(newB));
+	public static final BooleanTypeSetting V_SYNC = new BooleanTypeSetting("V_SYNC", true, false, (oldB, newB) -> Game.get().getWindow().setUseVsync(newB));
+	public static final BooleanTypeSetting FULLSCREEN = new BooleanTypeSetting("FULLSCREEN", false, true, (oldB, newB) -> Game.get().getWindow().setFullscreen(newB));
+	public static final BooleanTypeSetting PRINT_FPS = new BooleanTypeSetting("PRINT_FPS", true, false, (oldB, newB) -> Game.get().getRenderLooper().setPrintRate(newB));
+	public static final BooleanTypeSetting PRINT_TPS = new BooleanTypeSetting("PRINT_TPS", true, false, (oldB, newB) -> Game.get().getTickLooper().setPrintRate(newB));
 	
-	public static final BooleanTypeSetting CAMERA_LOOK_INVERT_X = new BooleanTypeSetting("CAMERA_INVERT_X", false);
-	public static final BooleanTypeSetting CAMERA_LOOK_INVERT_Y = new BooleanTypeSetting("CAMERA_INVERT_Y", false);
+	public static final BooleanTypeSetting CAMERA_LOOK_INVERT_X = new BooleanTypeSetting("CAMERA_INVERT_X", false, false);
+	public static final BooleanTypeSetting CAMERA_LOOK_INVERT_Y = new BooleanTypeSetting("CAMERA_INVERT_Y", false, false);
 	
 	/**
 	 * Initialize a new boolean setting.
 	 *
 	 * @param name See {@link #name}
 	 * @param defaultVal See {@link #defaultVal}
+	 * @param exclusiveGlobal See {@link #exclusiveGlobal}
 	 */
-	protected BooleanTypeSetting(String name, boolean defaultVal){
-		super(name, defaultVal);
+	protected BooleanTypeSetting(String name, boolean defaultVal, boolean exclusiveGlobal){
+		super(name, defaultVal, exclusiveGlobal);
 	}
 	
 	/**
@@ -32,10 +33,11 @@ public class BooleanTypeSetting extends SettingType<Boolean>{
 	 *
 	 * @param name See {@link #name}
 	 * @param defaultVal See {@link #defaultVal}
+	 * @param exclusiveGlobal See {@link #exclusiveGlobal}
 	 * @param onChange See {@link #onChange}
 	 */
-	protected BooleanTypeSetting(String name, boolean defaultVal, BiConsumer<Boolean, Boolean> onChange){
-		super(name, defaultVal, onChange);
+	protected BooleanTypeSetting(String name, boolean defaultVal, boolean exclusiveGlobal, BiConsumer<Boolean, Boolean> onChange){
+		super(name, defaultVal, exclusiveGlobal, onChange);
 	}
 	
 	@Override

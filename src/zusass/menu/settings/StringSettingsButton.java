@@ -34,7 +34,7 @@ public class StringSettingsButton extends SettingsButtonTextBox<SettingType<Stri
 
 	@Override
 	public void updateSetting(){
-		Game.get().setAny(this.getSetting(), this.getSettingTextInputValue(), false);
+		Game.get().set((StringTypeSetting)this.getSetting(), this.getSettingTextInputValue());
 	}
 	
 }

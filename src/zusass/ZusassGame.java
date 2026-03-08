@@ -37,8 +37,6 @@ import java.io.File;
  */
 public class ZusassGame extends Game{
 	
-	// TODO figure out which settings should be global, i.e. fullscreen, volume, etc, and which ones should be save file based
-	
 	/** The id used for the single window of the Zusass game */
 	public final static String ZUSASS_WINDOW_ID = "zusassMainWindow";
 	
@@ -171,6 +169,8 @@ public class ZusassGame extends Game{
 		
 		MainPlay play = new MainPlay();
 		zgame.setCurrentState(play);
+		zgame.setLocalSettingsToGlobal();
+		ZusassGame.get().saveLoadedGame();
 		data.checkAutoSave();
 	}
 	
@@ -227,8 +227,8 @@ public class ZusassGame extends Game{
 		if(press) return;
 		
 		if(button == GLFW_KEY_F9){
-			this.toggle(BooleanTypeSetting.PRINT_FPS, true);
-			this.toggle(BooleanTypeSetting.PRINT_TPS, true);
+			this.toggle(BooleanTypeSetting.PRINT_FPS);
+			this.toggle(BooleanTypeSetting.PRINT_TPS);
 		}
 		else if(button == GLFW_KEY_F11) zgame.toggleFullscreen();
 	}

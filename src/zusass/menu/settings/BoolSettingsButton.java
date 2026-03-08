@@ -63,6 +63,6 @@ public class BoolSettingsButton extends ZusassBoolToggleButton implements ValueS
 	
 	@Override
 	public void updateSetting(){
-		Game.get().set(this.setting, this.getSelectedValue().isTrue(), false);
+		Game.get().set(this.setting, this.getSelectedValue().isTrue());
 	}
 }

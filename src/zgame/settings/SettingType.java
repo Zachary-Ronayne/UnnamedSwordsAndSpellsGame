@@ -32,11 +32,13 @@ public abstract class SettingType<T>{
 	private final int id;
 	/** The default value of the setting if it hasn't been overridden */
 	private final T defaultVal;
+	/** true if this setting should only ever be changed globally, never per save file, false otherwise */
+	private final boolean exclusiveGlobal;
 	/** Functions tp run each time the setting changes, can be an empty list to do nothing on change. First parameter is the old value, seond parameter is the new value */
 	private final ArrayList<BiConsumer<T, T>> onChange;
 	
 	/** A setting used to obtain as a generic instance of a setting, mostly used for initialization, and to ensure at least one setting exists */
-	public static final SettingType<?> ROOT = new SettingType<>("ROOT", null){
+	public static final SettingType<?> ROOT = new SettingType<>("ROOT", null, true){
 		@Override
 		public JsonElement toJson(Setting<Object> setting){
 			return new JsonPrimitive("");
@@ -53,8 +55,8 @@ public abstract class SettingType<T>{
 	 * @param name See {@link #name}
 	 * @param defaultVal See {@link #defaultVal}
 	 */
-	protected SettingType(String name, T defaultVal){
-		this(name, defaultVal, null);
+	protected SettingType(String name, T defaultVal, boolean exclusiveGlobal){
+		this(name, defaultVal, exclusiveGlobal, null);
 	}
 	
 	/**
@@ -62,12 +64,14 @@ public abstract class SettingType<T>{
 	 * Only direct implementations of this class are permitted to create settings, and all settings must be initialized before any instances of {@link Settings} are created
 	 * @param name See {@link #name}
 	 * @param defaultVal See {@link #defaultVal}
+	 * @param exclusiveGlobal See {@link #exclusiveGlobal}
 	 * @param onChange See {@link #onChange}
 	 */
-	protected SettingType(String name, T defaultVal, BiConsumer<T, T> onChange){
+	protected SettingType(String name, T defaultVal, boolean exclusiveGlobal, BiConsumer<T, T> onChange){
 		this.name = name;
 		this.id = SettingId.next();
 		this.defaultVal = defaultVal;
+		this.exclusiveGlobal = exclusiveGlobal;
 		this.onChange = new ArrayList<>();
 		if(onChange != null) this.onChange.add(onChange);
 		
@@ -87,6 +91,11 @@ public abstract class SettingType<T>{
 	/** @return The default value used by this setting */
 	public T getDefault(){
 		return this.defaultVal;
+	}
+	
+	/** @return See {@link #exclusiveGlobal} */
+	public boolean isExclusiveGlobal(){
+		return this.exclusiveGlobal;
 	}
 	
 	/**

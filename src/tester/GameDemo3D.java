@@ -76,8 +76,8 @@ public class GameDemo3D extends Game{
 	public static void main(String[] args){
 		game = new GameDemo3D();
 		
-		game.set(BooleanTypeSetting.V_SYNC, true, false);
-		game.set(IntTypeSetting.FPS_LIMIT, 0, false);
+		game.set(BooleanTypeSetting.V_SYNC, true);
+		game.set(IntTypeSetting.FPS_LIMIT, 0);
 		
 		game.setPrintTps(false);
 		game.setPrintFps(false);
@@ -256,8 +256,8 @@ public class GameDemo3D extends Game{
 			}
 			
 			// Modify FOV
-			if(button == GLFW_KEY_LEFT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) - .1, false);
-			else if(button == GLFW_KEY_RIGHT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) + .1, false);
+			if(button == GLFW_KEY_LEFT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) - .1);
+			else if(button == GLFW_KEY_RIGHT_BRACKET) game.set(DoubleTypeSetting.FOV, game.get(DoubleTypeSetting.FOV) + .1);
 				
 				// Toggle no clip for the player
 			else if(button == GLFW_KEY_N) player.setNoClip(!player.isNoClip());
@@ -303,7 +303,7 @@ public class GameDemo3D extends Game{
 			}
 			
 			// Toggle vsync
-			if(button == GLFW_KEY_V) game.toggle(BooleanTypeSetting.V_SYNC, false);
+			if(button == GLFW_KEY_V) game.toggle(BooleanTypeSetting.V_SYNC);
 		}
 	}
 	

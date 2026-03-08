@@ -43,7 +43,8 @@ public class CreateGameButton extends ZusassButton{
 			}
 		}
 		
-		ZusassGame.get().createNewGame(levelName, seed);
+		var zgame = ZusassGame.get();
+		zgame.createNewGame(levelName, seed);
 	}
 	
 }

@@ -80,5 +80,7 @@ public class SettingsMenu extends BaseSettingsMenu{
 	@Override
 	public void goBack(){
 		this.getGoBack().run();
+		var zgame = ZusassGame.get();
+		if(zgame.isSaveLoaded()) zgame.saveLoadedGame();
 	}
 }

@@ -665,7 +665,7 @@ public class Game implements Saveable, Destroyable{
 	 * Toggle full screen by changing the setting
 	 */
 	public void toggleFullscreen(){
-		this.toggle(BooleanTypeSetting.FULLSCREEN, false);
+		this.toggle(BooleanTypeSetting.FULLSCREEN);
 	}
 	
 	/**
@@ -683,13 +683,21 @@ public class Game implements Saveable, Destroyable{
 			this.localSettings.setDefaults();
 			var success = this.localSettings.load(data);
 			this.settings.setDefaults();
-			this.settings.setNonDefault(this.globalSettings, true);
-			this.settings.setNonDefault(this.localSettings, true);
+			this.settings.setNonDefault(this.globalSettings, false, true);
+			this.settings.setNonDefault(this.localSettings, false, true);
 			
 			success &= this.load(data);
 			if(success) this.saveLoaded = true;
 			return success;
 		});
+	}
+	
+	/**
+	 * Set all values of {@link #localSettings} to only be the values of {@link #globalSettings}, effectively load all global settings for the current local settings
+	 */
+	public void setLocalSettingsToGlobal(){
+		this.localSettings.setDefaults();
+		this.localSettings.setNonDefault(this.globalSettings, true, true);
 	}
 	
 	/**
@@ -709,7 +717,7 @@ public class Game implements Saveable, Destroyable{
 	/** Call this method to unload the current save file */
 	public void unloadGame(){
 		this.settings.setDefaults();
-		this.settings.setNonDefault(this.globalSettings, true);
+		this.settings.setNonDefault(this.globalSettings, false, true);
 		this.saveLoaded = false;
 	}
 	
@@ -746,7 +754,7 @@ public class Game implements Saveable, Destroyable{
 	}
 	
 	/**
-	 * Save {@link #settings} to the given path
+	 * Save {@link #globalSettings} to the global path
 	 *
 	 * @return true if the save was successful, false otherwise
 	 */
@@ -847,7 +855,7 @@ public class Game implements Saveable, Destroyable{
 	
 	/** @param print See {@link #isPrintFps()} */
 	public void setPrintFps(boolean print){
-		this.set(BooleanTypeSetting.PRINT_FPS, print, this.isSaveLoaded());
+		this.set(BooleanTypeSetting.PRINT_FPS, print);
 	}
 	
 	/** @return The number of times each second that this {@link Game} runs a game tick */
@@ -883,7 +891,7 @@ public class Game implements Saveable, Destroyable{
 	
 	/** @param print See {@link #isPrintTps()} */
 	public void setPrintTps(boolean print){
-		this.set(BooleanTypeSetting.PRINT_TPS, print, this.isSaveLoaded());
+		this.set(BooleanTypeSetting.PRINT_TPS, print);
 	}
 	
 	/** @return The number of times each second that the sound will update */
@@ -1118,14 +1126,19 @@ public class Game implements Saveable, Destroyable{
 	 *
 	 * @param setting The name of the setting to set
 	 * @param value The new setting's value
-	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
 	 */
-	public <T> void setAny(SettingType<T> setting, T value, boolean local){
+	private <T> void setAny(SettingType<T> setting, T value){
 		this.getSettings().setValue(setting, value, true);
-		if(local) this.getLocalSettings().setValue(setting, value, false);
-		else this.getGlobalSettings().setValue(setting, value, false);
+		
+		// If a save file isn't loaded, or the setting is exclusive to global, only change global settings
+		if(!this.isSaveLoaded() || setting.isExclusiveGlobal()){
+			this.getGlobalSettings().setValue(setting, value, false);
+		}
+		// Otherwise, only change local settings
+		else{
+			this.getLocalSettings().setValue(setting, value, false);
+		}
 	}
-	
 	
 	/**
 	 * Get a boolean value of a setting from {@link #settings}
@@ -1142,20 +1155,18 @@ public class Game implements Saveable, Destroyable{
 	 *
 	 * @param setting The name of the setting to set
 	 * @param value The new setting's value
-	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
 	 */
-	public void set(BooleanTypeSetting setting, boolean value, boolean local){
-		this.setAny(setting, value, local);
+	public void set(BooleanTypeSetting setting, boolean value){
+		this.setAny(setting, value);
 	}
 	
 	/**
 	 * Toggle the current value of a boolean setting in {@link #settings}
 	 *
 	 * @param setting The name of the setting to toggle
-	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
 	 */
-	public void toggle(BooleanTypeSetting setting, boolean local){
-		this.set(setting, !this.get(setting), local);
+	public void toggle(BooleanTypeSetting setting){
+		this.set(setting, !this.get(setting));
 	}
 	
 	/**
@@ -1173,10 +1184,9 @@ public class Game implements Saveable, Destroyable{
 	 *
 	 * @param setting The name of the setting to set
 	 * @param value The new setting's value
-	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
 	 */
-	public void set(IntTypeSetting setting, int value, boolean local){
-		this.setAny(setting, value, local);
+	public void set(IntTypeSetting setting, int value){
+		this.setAny(setting, value);
 	}
 	
 	/**
@@ -1194,10 +1204,9 @@ public class Game implements Saveable, Destroyable{
 	 *
 	 * @param setting The name of the setting to set
 	 * @param value The new setting's value
-	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
 	 */
-	public void set(DoubleTypeSetting setting, double value, boolean local){
-		this.setAny(setting, value, local);
+	public void set(DoubleTypeSetting setting, double value){
+		this.setAny(setting, value);
 	}
 	
 	/**
@@ -1215,10 +1224,9 @@ public class Game implements Saveable, Destroyable{
 	 *
 	 * @param setting The name of the setting to set
 	 * @param value The new setting's value
-	 * @param local true to change {@link #localSettings}, false to change {@link #globalSettings}
 	 */
-	public void set(StringTypeSetting setting, String value, boolean local){
-		this.setAny(setting, value, local);
+	public void set(StringTypeSetting setting, String value){
+		this.setAny(setting, value);
 	}
 	
 	/**
