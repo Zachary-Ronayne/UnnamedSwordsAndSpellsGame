@@ -72,6 +72,11 @@ public final class ZusassStyle{
 		Game.get().playEffect(clickSound, ZusassSounds.CLICK);
 	}
 	
+	/** Destroy any static resources managed by Zusass */
+	public static void destroy(){
+		clickSound.destroy();
+	}
+	
 	/** Cannot instantiate {@link ZusassStyle} */
 	private ZusassStyle(){
 	}

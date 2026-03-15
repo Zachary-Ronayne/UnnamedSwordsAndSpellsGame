@@ -1,11 +1,10 @@
 package zusass.game.things.entities.mobs;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.buffer.DrawableBuffer;
 import zgame.core.graphics.image.ImageManager;
-import zgame.core.sound.SoundSource;
+import zgame.core.sound.ManagedSoundSource;
 import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZMath;
 import zgame.stat.modifier.ModifierType;
@@ -27,11 +26,10 @@ public class Npc extends ZusassMob{
 	/** The buffer for drawing this Npc's resource bar */
 	private final DrawableBuffer resourceBarBuffer;
 	
-	/** The source used to play the attack swing sound of this npc */
-	private final SoundSource attackSoundSource;
-	
-	/** The source used to play the damage sound of this npc */
-	private final SoundSource damageSoundSource;
+	/** The name of the source used to play the attack swing sound of this npc */
+	private static final String SOUND_SOURCE_ATTACK = "attack";
+	/** The name of the source used to play the damage sound of this npc */
+	private static final String SOUND_SOURCE_TAKE_DAMAGE = "takeDamage";
 	
 	/**
 	 * Create a new Npc with the given bounds
@@ -68,9 +66,15 @@ public class Npc extends ZusassMob{
 				drawResourceBars(r, 0, 0, barBufferWidth, barPixelHeight, false);
 			}
 		};
+	}
+	
+	@Override
+	public void initSounds(){
+		super.initSounds();
 		
-		this.attackSoundSource = new SoundSource();
-		this.damageSoundSource = new SoundSource();
+		var sounds = this.getSounds();
+		sounds.add(SOUND_SOURCE_ATTACK, new ManagedSoundSource(ZusassSounds.SWORD_SWING, this, 0.4, 0.44, 1));
+		sounds.add(SOUND_SOURCE_TAKE_DAMAGE, new ManagedSoundSource(ZusassSounds.MONSTER_GROWL, this, 0.8, 0.9, 1));
 	}
 	
 	@Override
@@ -83,10 +87,7 @@ public class Npc extends ZusassMob{
 	public boolean beginAttack(){
 		boolean attacked = super.beginAttack();
 		if(attacked){
-			this.attackSoundSource.updatePosition(this.getX(), this.getY() + this.getEyeHeight(), this.getZ());
-			this.attackSoundSource.updateDirection(0, 0, 0);
-			this.attackSoundSource.updatePitch(0.4 + 0.04 * Math.random());
-			Game.get().playEffect(this.attackSoundSource, ZusassSounds.SWORD_SWING);
+			this.getSounds().updateAndPlay(SOUND_SOURCE_ATTACK, s -> s.setOffsetY(this.getEyeHeight()));
 		}
 		return attacked;
 	}
@@ -94,9 +95,7 @@ public class Npc extends ZusassMob{
 	@Override
 	public void playDamageSound(){
 		super.playDamageSound();
-		this.damageSoundSource.updatePitch(0.8 + Math.random() * 0.1);
-		this.damageSoundSource.updatePosition(this.getX(), this.getY() + this.getEyeHeight(), this.getZ());
-		Game.get().playEffect(this.damageSoundSource, ZusassSounds.MONSTER_GROWL);
+		this.getSounds().updateAndPlay(SOUND_SOURCE_TAKE_DAMAGE, s -> s.setOffsetY(this.getEyeHeight()));
 	}
 	
 	@Override
@@ -184,12 +183,8 @@ public class Npc extends ZusassMob{
 	}
 	
 	@Override
-	public double getFootstepVolume(){
-		return 10;
+	public ManagedSoundSource buildFootstepSource(){
+		return new ManagedSoundSource(ZusassSounds.FOOTSTEP, this, 0.85, 0.98, 10);
 	}
 	
-	@Override
-	public double getFootstepPitch(){
-		return 0.85 + Math.random() * 0.13;
-	}
 }

@@ -471,6 +471,15 @@ public final class ZMath{
 				in(b1, a2, b2);
 	}
 	
+	/**
+	 * @param min The minimum value to return
+	 * @param max The maximum value to return
+	 * @return A random value in the range [min, max)
+	 */
+	public static double randomRange(double min, double max){
+		return min + Math.random() * (max - min);
+	}
+	
 	/** Cannot instantiate {@link ZMath} */
 	private ZMath(){}
 	

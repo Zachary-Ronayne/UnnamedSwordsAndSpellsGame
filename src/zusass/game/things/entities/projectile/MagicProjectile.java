@@ -1,10 +1,8 @@
 package zusass.game.things.entities.projectile;
 
-import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
-import zgame.core.sound.SoundManager;
-import zgame.core.sound.SoundSource;
+import zgame.core.sound.ManagedSoundSource;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector3D;
 import zgame.things.BaseTags;
@@ -28,7 +26,7 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	private final ZColor color;
 	
 	/** The source of the sound for this projectile being removed from the game */
-	private SoundSource removedSoundSource;
+	private final ManagedSoundSource removedSoundSource;
 	
 	/**
 	 * Create a projectile at the specified location, moving at the given velocity
@@ -90,19 +88,14 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 			for(var ef : this.effects) ef.apply(sourceId, m);
 		});
 		
-		// issue#62
-		this.removedSoundSource = new SoundSource(this.getX(), this.getY(), this.getZ());
+		this.removedSoundSource = new ManagedSoundSource(ZusassSounds.MAGIC_DAMAGE, this, 0.95, 1.05, 10);
 	}
 	
 	@Override
 	public void onRoomRemove(){
 		super.onRoomRemove();
 		if(this.removedSoundSource != null){
-			this.removedSoundSource.setBaseVolume(10);
-			this.removedSoundSource.updatePosition(this.getX(), this.getY(), this.getZ());
-			this.removedSoundSource.updateDirection(0, 0, 0);
-			this.removedSoundSource.updatePitch(0.95 + Math.random() * 0.1);
-			Game.get().playEffect(this.removedSoundSource, ZusassSounds.MAGIC_DAMAGE);
+			this.removedSoundSource.playSound();
 		}
 	}
 	

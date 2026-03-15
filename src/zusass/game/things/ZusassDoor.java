@@ -1,8 +1,7 @@
 package zusass.game.things;
 
-import zgame.core.Game;
 import zgame.core.graphics.*;
-import zgame.core.sound.SoundSource;
+import zgame.core.sound.ManagedSoundSource;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZRect3D;
 import zgame.things.entity.EntityThing3D;
@@ -27,7 +26,7 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 	private final Direction3D facingDirection;
 	
 	/** Source for playing a sound when the door opens */
-	private final SoundSource doorOpenSound;
+	private final ManagedSoundSource doorOpenSource;
 	
 	/**
 	 * Create a new door at the given position
@@ -47,7 +46,13 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 		this.facingDirection = direction;
 		this.textureCoordinates = new ZusassTexCoordsRectPrism(ZusassImages.DOOR, this, 1.0 / 2.0, 1.0, 1.0 / 8.0, this.facingDirection);
 		
-		this.doorOpenSound = new SoundSource();
+		this.doorOpenSource = new ManagedSoundSource(ZusassSounds.DOOR_OPEN, this, 0.9, 1.1, 1);
+	}
+	
+	@Override
+	public void destroy(){
+		super.destroy();
+		if(this.doorOpenSource != null) this.doorOpenSource.destroy();
 	}
 	
 	/**
@@ -68,9 +73,8 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 		
 		if(success){
 			// Use the position of the thing that entered the room, rather than the door itself
-			this.doorOpenSound.updatePosition(thing.getX(), thing.centerY(), thing.getZ());
-			this.doorOpenSound.updatePitch(0.9 + 0.2 * Math.random());
-			Game.get().playEffect(this.doorOpenSound, ZusassSounds.DOOR_OPEN);
+			this.doorOpenSource.setPosition(thing);
+			this.doorOpenSource.playSound();
 		}
 		
 		return success;

@@ -7,7 +7,8 @@ import zgame.core.graphics.*;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.image.ImageManager;
 import zgame.core.graphics.texture.RepeatingTexture;
-import zgame.core.sound.SoundSource;
+import zgame.core.sound.ManagedSoundSource;
+import zgame.core.sound.SoundSourceGroup;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint3D;
 import zgame.physics.ZVector3D;
@@ -96,14 +97,16 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	private static final String ID_STAMINA_DRAIN = "staminaDrain";
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/** The source of the sound for this mob casting a spell */
-	private SoundSource castSoundSource;
 	
-	/** Source of sound of the mob's footstep */
-	private SoundSource footstepSoundSource;
+	/** All sounds this mob plays */
+	private final SoundSourceGroup sounds;
 	
-	/** Source of sound for the mob hitting the ground  */
-	private SoundSource groundHitSound;
+	/** The name of the sound source for this mob casting a spell */
+	private static final String SOUND_SOURCE_SPELL_CAST = "spellCast";
+	/** The name of the sound source for this mob's footsteps */
+	private static final String SOUND_SOURCE_FOOTSTEP = "footstep";
+	/** The name of the sound source for this mob hitting the ground */
+	private static final String SOUND_SOURCE_HIT_GROUND = "hitGround";
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -125,9 +128,6 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	/** See {@link Mobility3D#isSprinting()} */
 	private boolean sprinting;
 	
-	/** The last game time timestamp when a footstep was played */
-	private double lastFootstepTime;
-	
 	/**
 	 * Create a new mob with the given bounds
 	 *
@@ -139,6 +139,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	 */
 	public ZusassMob(double x, double y, double z, double radius, double height){
 		super(x, y, z, 1);
+		this.sounds = new SoundSourceGroup();
 		
 		this.jumpBuildTime = DEFAULT_JUMP_BUILD_TIME;
 		this.jumpAfterBuildUp = DEFAULT_JUMP_AFTER_BUILD_UP;
@@ -204,22 +205,29 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		this.staminaRunDrain = new StatModTracker(0, ModifierType.ADD, this.getStat(STAMINA_REGEN), ID_STAMINA_DRAIN);
 	}
 	
-	// issue#62, also make sure to destroy all sound resources once they are not needed anymore
-	
 	/**
 	 * Initialize this mob for creating sounds, otherwise sounds will not play
 	 */
 	public void initSounds(){
-		if(this.castSoundSource == null){
-			this.castSoundSource = new SoundSource(this.getX(), this.getY(), this.getZ());
-		}
-		if(this.footstepSoundSource == null){
-			this.footstepSoundSource = new SoundSource(this.getX(), this.getY(), this.getZ());
-			this.lastFootstepTime = Game.get().getTotalTickTime();
-		}
-		if(this.groundHitSound == null){
-			this.groundHitSound = new SoundSource();
-		}
+		this.sounds.destroy();
+		
+		var cast = new ManagedSoundSource(null, this, 1.1, 1.3, 0.2);
+		var footstep = this.buildFootstepSource();
+		var hitGround = new ManagedSoundSource(ZusassSounds.HIT_GROUND, this, 0.5, 0.7, 1);
+		
+		this.sounds.add(SOUND_SOURCE_SPELL_CAST, cast);
+		this.sounds.add(SOUND_SOURCE_FOOTSTEP, footstep);
+		this.sounds.add(SOUND_SOURCE_HIT_GROUND, hitGround);
+	}
+	
+	/** @return See {@link #sounds} */
+	public SoundSourceGroup getSounds(){
+		return this.sounds;
+	}
+	
+	/** @return The sound source for creating footstep sounds for this mob */
+	public ManagedSoundSource buildFootstepSource(){
+		return new ManagedSoundSource(ZusassSounds.FOOTSTEP, this, 1.05, 1.18, 0.55);
 	}
 	
 	@Override
@@ -231,13 +239,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	@Override
 	public void destroy(){
 		super.destroy();
-		// TODO go through all sound source uses and make sure destroy is called properly
-		if(this.castSoundSource != null){
-			this.castSoundSource.destroy();
-			this.castSoundSource = null;
-			this.footstepSoundSource.destroy();
-			this.footstepSoundSource = null;
-		}
+		this.sounds.destroy();
 	}
 	
 	@Override
@@ -281,34 +283,15 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		double footstepSoundThreshold = 1.0 / speed * 0.4;
 		var game = Game.get();
 		double gameTime = game.getTotalTickTime();
-		double timeSinceLastFootstep = gameTime - this.lastFootstepTime;
+		double timeSinceLastFootstep = gameTime - this.sounds.get(SOUND_SOURCE_FOOTSTEP).getLastPlayed();
 		
 		// If it's been enough time, play the footstep sound
 		if(timeSinceLastFootstep > footstepSoundThreshold) this.playFootstepSound();
 	}
 	
-	/** Play the footstep sound and update last time the sound was played */
+	/** Play the footstep sound */
 	private void playFootstepSound(){
-		var game = Game.get();
-		this.footstepSoundSource.updatePosition(this.getX(), this.getY(), this.getZ());
-		this.footstepSoundSource.updateDirection(0, 0, 0);
-		this.footstepSoundSource.updatePitch(this.getFootstepPitch());
-		this.footstepSoundSource.setVolume(this.getFootstepVolume());
-		game.playEffect(this.footstepSoundSource, ZusassSounds.FOOTSTEP);
-		
-		// Update the last time a footstep was played
-		this.lastFootstepTime = game.getTotalTickTime();
-	}
-	
-	// TODO probably make this a class to work with to make it more abstracted?
-	/** @return The volume level of footsteps */
-	public double getFootstepVolume(){
-		return 0.55;
-	}
-	
-	/** @return The pitch level of footsteps */
-	public double getFootstepPitch(){
-		return 1.05 + Math.random() * 0.13;
+		this.sounds.play(SOUND_SOURCE_FOOTSTEP);
 	}
 	
 	/**
@@ -537,15 +520,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	public boolean castSpell(){
 		var selectedSpell = this.getSelectedSpell();
 		var success = selectedSpell.castAttempt(this);
-		if(success && this.castSoundSource != null){
-			var zgame = ZusassGame.get();
-			this.castSoundSource.updatePosition(this.getX(), this.getY(), this.getZ());
-			this.castSoundSource.updateDirection(0, 0, 0);
-			this.castSoundSource.setBaseVolume(0.2);
-			this.castSoundSource.updatePitch(1.1 + Math.random() * 0.2);
-			this.castSoundSource.setVolume(0.4);
-			
-			// TODO make a system for easily controlling many sounds per mob, and controlling volume, pitch, etc, depending on the type of mob
+		if(success){
 			// Determine cast sound based on the kind of spell
 			var spellSound = switch(selectedSpell.getSpellCastType()){
 				case SELF -> ZusassSounds.MAGIC_SELF_CAST;
@@ -553,7 +528,11 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 				default -> ZusassSounds.MAGIC_SOUND;
 			};
 			
-			zgame.playEffect(this.castSoundSource, spellSound);
+			// Play the sound at eye level
+			this.sounds.updateAndPlay(SOUND_SOURCE_SPELL_CAST, s -> {
+				s.setOffsetY(this.getEyeHeight());
+				s.setSoundName(spellSound);
+			});
 		}
 		return success;
 	}
@@ -887,11 +866,10 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		// If colliding with enough displacement, make a sound for hitting the floor
 		double diff = Math.abs(collision.y()) - 0.02;
 		if(diff > 0){
+			double newVolume = Math.max(Math.pow(diff, 0.3) * 2.0, 1.0);
+			
 			// TODO why is this sound so delayed?
-			this.groundHitSound.updatePitch(0.5 + Math.random() * 0.2);
-			this.groundHitSound.updatePosition(this.getX(), this.getY(), this.getZ());
-			this.groundHitSound.setVolume(Math.max(Math.pow(diff, 0.3) * 2.0, 1.0));
-			Game.get().playEffect(this.groundHitSound, ZusassSounds.HIT_GROUND);
+			this.sounds.updateAndPlay(SOUND_SOURCE_HIT_GROUND, s -> s.setVolume(newVolume));
 		}
 	}
 	

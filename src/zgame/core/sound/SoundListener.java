@@ -1,6 +1,7 @@
 package zgame.core.sound;
 
 import zgame.physics.ForwardVector;
+import zgame.things.type.Position3D;
 
 import static org.lwjgl.openal.AL11.*;
 
@@ -8,7 +9,7 @@ import static org.lwjgl.openal.AL11.*;
  * A class tracking the central listener in OpenAL. This should primarily be used for the player, i.e. its position should be at the location of who hears the sound. More than
  * one instance of this class should not be used at a time, otherwise unexpected results could occur
  */
-public class SoundListener extends SoundLocation{
+public class SoundListener extends SoundLocation implements Position3D{
 	
 	/** The current x position of the listener */
 	private double x;
@@ -56,16 +57,19 @@ public class SoundListener extends SoundLocation{
 	}
 	
 	/** @return See {@link #x} */
+	@Override
 	public double getX(){
 		return this.x;
 	}
 	
 	/** @return See {@link #y} */
+	@Override
 	public double getY(){
 		return this.y;
 	}
 	
 	/** @return See {@link #z} */
+	@Override
 	public double getZ(){
 		return this.z;
 	}

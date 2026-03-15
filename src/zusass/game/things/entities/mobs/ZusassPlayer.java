@@ -12,8 +12,8 @@ import zgame.core.graphics.image.ImageManager;
 import zgame.core.input.InputHandler;
 import zgame.core.input.InputHandlers;
 import zgame.core.input.InputType;
+import zgame.core.sound.ManagedSoundSource;
 import zgame.core.sound.SoundManager;
-import zgame.core.sound.SoundSource;
 import zgame.core.utils.ZMath;
 import zgame.physics.ForwardVector;
 import zgame.physics.ZVector3D;
@@ -97,11 +97,10 @@ public class ZusassPlayer extends ZusassMob{
 	/** The state the camera was in last time */
 	private CameraState previousCameraState;
 	
-	/** The source for the player's sword swinging */
-	private final SoundSource swordSwingSound;
-	
-	/** The source used to play the damage sound of this player */
-	private final SoundSource damageSoundSource;
+	/** The name of the source used to play the attack swing sound of this player */
+	private static final String SOUND_SOURCE_ATTACK = "attack";
+	/** The name of the source used to play the damage sound of this player */
+	private static final String SOUND_SOURCE_TAKE_DAMAGE = "takeDamage";
 	
 	/**
 	 * Create a new object from json
@@ -140,10 +139,15 @@ public class ZusassPlayer extends ZusassMob{
 				new ProjectileSpell(new SpellEffectStatusEffect(new StatEffect(5, new TypedModifier(new StatModifier(-10, ModifierType.ADD), HEALTH_REGEN))))),
 				new MultiSpell(Spell.selfEffect(MOVE_SPEED, 2, 2, ModifierType.MULT_MULT))).named("Bruh"));
 		spells.setSelectedSpellIndex(0);
+	}
+	
+	@Override
+	public void initSounds(){
+		super.initSounds();
 		
-		// Set up sounds
-		this.swordSwingSound = new SoundSource();
-		this.damageSoundSource = new SoundSource();
+		var sounds = this.getSounds();
+		sounds.add(SOUND_SOURCE_ATTACK, new ManagedSoundSource(ZusassSounds.SWORD_SWING, this, 0.98, 1.02, 1));
+		sounds.add(SOUND_SOURCE_TAKE_DAMAGE, new ManagedSoundSource(ZusassSounds.PLAYER_HIT, this, 0.8, 0.9, 1));
 	}
 	
 	/** Set the input buttons to be the default values */
@@ -384,9 +388,7 @@ public class ZusassPlayer extends ZusassMob{
 	@Override
 	public void playDamageSound(){
 		super.playDamageSound();
-		this.damageSoundSource.updatePitch(0.8 + Math.random() * 0.1);
-		this.damageSoundSource.updatePosition(this.getX(), this.getY() + this.getEyeHeight(), this.getZ());
-		Game.get().playEffect(this.damageSoundSource, ZusassSounds.PLAYER_HIT);
+		this.getSounds().updateAndPlay(SOUND_SOURCE_TAKE_DAMAGE, s -> s.setOffsetY(this.getEyeHeight()));
 	}
 	
 	@Override
@@ -447,10 +449,7 @@ public class ZusassPlayer extends ZusassMob{
 	public boolean beginAttack(){
 		boolean attacked = super.beginAttack();
 		if(attacked){
-			this.swordSwingSound.updatePosition(this.getX(), this.getY() + this.getEyeHeight(), this.getZ());
-			this.swordSwingSound.updateDirection(0, 0, 0);
-			this.swordSwingSound.updatePitch(0.98 + 0.04 * Math.random());
-			Game.get().playEffect(this.swordSwingSound, ZusassSounds.SWORD_SWING);
+			this.getSounds().updateAndPlay(SOUND_SOURCE_ATTACK, s -> s.setOffsetY(this.getEyeHeight()));
 		}
 		return attacked;
 	}

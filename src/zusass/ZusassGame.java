@@ -17,6 +17,7 @@ import zusass.game.ZusassRoom;
 import zusass.game.stat.ZusassStat;
 import zusass.game.things.entities.mobs.ZusassMob;
 import zusass.game.things.entities.mobs.ZusassPlayer;
+import zusass.menu.comp.ZusassStyle;
 import zusass.menu.mainmenu.MainMenuState;
 import zusass.setting.ZusassSetting;
 import zusass.utils.ZusassConfig;
@@ -142,6 +143,14 @@ public class ZusassGame extends Game{
 		
 		// Set up music to loop
 		this.startMusicLoop();
+	}
+	
+	@Override
+	public void destroy(){
+		super.destroy();
+		
+		// Cleanup misc
+		ZusassStyle.destroy();
 	}
 	
 	/** Tell the music player to start looping */

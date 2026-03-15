@@ -1,9 +1,8 @@
 package zusass.game.things;
 
-import zgame.core.Game;
 import zgame.core.GameTickable;
 import zgame.core.graphics.Renderer;
-import zgame.core.sound.SoundSource;
+import zgame.core.sound.ManagedSoundSource;
 import zgame.core.state.MenuNode;
 import zgame.core.utils.ZRect3D;
 import zgame.things.still.StaticThing3D;
@@ -33,7 +32,7 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	private final ZusassTexCoordsRectPrism textureCoordinates;
 	
 	/** A source for periodically playing a sound from the spell maker */
-	private final SoundSource ambientSoundSource;
+	private final ManagedSoundSource ambientSoundSource;
 	/** The amount of time, in seconds, it has been since the last ambient sound was played */
 	private double timeSinceAmbient;
 	/** The amount of time, in seconds, to wait before playing the next ambient sound */
@@ -51,8 +50,7 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 		
 		this.menu = new SpellMakerMenu();
 		this.textureCoordinates = new ZusassTexCoordsRectPrism(ZusassTextureMappings.SPELL_MAKER, this, 14.0 / 32.0, 7.0 / 32.0, 14.0 / 32.0, Direction3D.NORTH);
-		this.ambientSoundSource = new SoundSource(x, y, z);
-		this.ambientSoundSource.setVolume(0.4);
+		this.ambientSoundSource = new ManagedSoundSource(ZusassSounds.MAGIC_SOUND, this, 0.9, 1.1, 0.4);
 		this.timeSinceAmbient = 0;
 		this.ambientTimeWait = 1;
 	}
@@ -61,6 +59,7 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 	public void destroy(){
 		super.destroy();
 		this.menu.destroy();
+		if(this.ambientSoundSource != null) this.ambientSoundSource.destroy();
 	}
 	
 	@Override
@@ -84,12 +83,7 @@ public class SpellMakerThing extends StaticThing3D implements ZThingClickDetecto
 			// Play the sound again after some random amount of time
 			this.timeSinceAmbient = 0;
 			this.ambientTimeWait = 4 + Math.random() * 2;
-			
-			// Pick a random pitch to use
-			this.ambientSoundSource.updatePitch(0.9 + Math.random() * 0.2);
-			
-			// Play the sound
-			Game.get().playEffect(this.ambientSoundSource, ZusassSounds.MAGIC_SOUND);
+			this.ambientSoundSource.playSound();
 		}
 		
 		var zgame = ZusassGame.get();
