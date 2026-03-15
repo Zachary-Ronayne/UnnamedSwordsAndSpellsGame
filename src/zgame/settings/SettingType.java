@@ -34,7 +34,7 @@ public abstract class SettingType<T>{
 	private final T defaultVal;
 	/** true if this setting should only ever be changed globally, never per save file, false otherwise */
 	private final boolean exclusiveGlobal;
-	/** Functions tp run each time the setting changes, can be an empty list to do nothing on change. First parameter is the old value, seond parameter is the new value */
+	/** Functions tp run each time the setting changes, can be an empty list to do nothing on change. First parameter is the old value, second parameter is the new value */
 	private final ArrayList<BiConsumer<T, T>> onChange;
 	
 	/** A setting used to obtain as a generic instance of a setting, mostly used for initialization, and to ensure at least one setting exists */

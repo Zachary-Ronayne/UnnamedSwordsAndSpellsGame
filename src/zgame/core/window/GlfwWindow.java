@@ -8,8 +8,6 @@ import zgame.core.input.keyboard.GLFWKeyInput;
 import zgame.core.input.mouse.GLFWMouseInput;
 import zgame.core.utils.ZConfig;
 
-import org.lwjgl.glfw.GLFWNativeWin32;
-
 import static org.lwjgl.system.windows.User32.*;
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
