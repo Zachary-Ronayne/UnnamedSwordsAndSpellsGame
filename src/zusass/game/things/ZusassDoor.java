@@ -46,7 +46,7 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 		this.facingDirection = direction;
 		this.textureCoordinates = new ZusassTexCoordsRectPrism(ZusassImages.DOOR, this, 1.0 / 2.0, 1.0, 1.0 / 8.0, this.facingDirection);
 		
-		this.doorOpenSource = new ManagedSoundSource(ZusassSounds.DOOR_OPEN, this, 0.9, 1.1, 1);
+		this.doorOpenSource = new ManagedSoundSource(ZusassSounds.DOOR_OPEN, this, 0.9, 1.1, 0.4);
 	}
 	
 	@Override

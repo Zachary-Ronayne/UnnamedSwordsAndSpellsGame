@@ -183,7 +183,6 @@ public class ZusassPlayer extends ZusassMob{
 		var game = Game.get();
 		this.updateCameraPos(game.getCamera3D());
 		
-		//issue#61
 		// Update the sound listener to the player
 		if(SoundManager.initialized()){
 			var sm = SoundManager.get();

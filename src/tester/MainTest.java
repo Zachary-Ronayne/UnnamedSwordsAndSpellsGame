@@ -430,11 +430,9 @@ public class MainTest extends Game{
 				if(SoundManager.initialized()){
 					var s = game.getSounds();
 					if(key == GLFW_KEY_G){
-						winSource.updatePosition();
 						game.playEffect(winSource, "win");
 					}
 					else if(key == GLFW_KEY_H){
-						loseSource.updatePosition();
 						game.playEffect(loseSource, "lose");
 					}
 					else if(key == GLFW_KEY_M){

@@ -15,7 +15,7 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	private final int id;
 	
 	/**
-	 * The current level of loudness of this {@link SoundSource}. 0 = muted, 1 = maximum volume without peaking. Value can be higher than 1, but could result in
+	 * The current level of loudness of this {@link SoundSource} before modification. 0 = muted, 1 = maximum volume without peaking. Value can be higher than 1, but could result in
 	 * unintentionally distorted audio
 	 */
 	private double volume;
@@ -26,9 +26,6 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	 * This is controlled by the sound manager
 	 */
 	private double baseVolume;
-	
-	/** The last volume level this source was set to */
-	private float lastVolume;
 	
 	/** true if this {@link SoundSource} should make no sound, regardless of {@link #volume}, false otherwise */
 	private boolean muted;
@@ -44,12 +41,28 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	/** The sound which this {@link SoundSource} is currently playing, can be null if no sound is playing */
 	private Sound current;
 	
-	/** The current x position of the source */
+	/** The current x position of the source in game coordinates */
 	private double x;
-	/** The current y position of the source */
+	/** The current y position of the source in game coordinates */
 	private double y;
-	/** The current z position of the source */
+	/** The current z position of the source in game coordinates */
 	private double z;
+	
+	/** The current position of the source in OpenAL */
+	private final SoundSourceVector position;
+	/** The current direction of the source in OpenAL */
+	private final SoundSourceVector direction;
+	
+	/** The value tracking the volume level of this sound */
+	private final SoundSourceValue gain;
+	/** The value tracking the pitch of this sound */
+	private final SoundSourceValue pitch;
+	/** The value tracking the inner angle of cone come producing this sound */
+	private final SoundSourceValue coneInnerAngle;
+	/** The value tracking the outer angle of the cone producing this sound */
+	private final SoundSourceValue coneOuterAngle;
+	/** The value tracking the outer gain of the cone producing this sound */
+	private final SoundSourceValue coneOuterGain;
 	
 	/**
 	 * Create and initialize a new {@link SoundSource} at (0, 0, 0)
@@ -82,11 +95,20 @@ public class SoundSource extends SoundLocation implements Destroyable{
 		this.muted = false;
 		this.paused = false;
 		this.currentPaused = false;
+		this.volume = 1;
 		this.setBaseVolume(baseVolume);
-		this.setVolume(1);
 		this.pausedSample = -1;
-		alSourcef(this.getId(), AL_PITCH, 1);
-		this.updatePosition(x, y, z);
+		
+		this.position = new SoundSourceVector(this.getId(), AL_POSITION, x, y, z);
+		this.direction = new SoundSourceVector(this.getId(), AL_DIRECTION, 0, 0, 0);
+		
+		this.gain = new SoundSourceValue(this.getId(), AL_GAIN, 1);
+		this.updateVolumeLevel();
+		this.pitch = new SoundSourceValue(this.getId(), AL_PITCH, 1);
+		this.coneInnerAngle = new SoundSourceValue(this.getId(), AL_CONE_INNER_ANGLE, 360);
+		this.coneOuterAngle = new SoundSourceValue(this.getId(), AL_CONE_OUTER_ANGLE, 360);
+		this.coneOuterGain = new SoundSourceValue(this.getId(), AL_CONE_OUTER_GAIN, 1);
+		
 		this.current = null;
 	}
 	
@@ -95,24 +117,24 @@ public class SoundSource extends SoundLocation implements Destroyable{
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		this.updatePosition();
-	}
-	
-	/** Call the appropriate OpenAL methods for updating the position of this source based on its currently stored position values */
-	public void updatePosition(){
 		var sm = SoundManager.get();
 		double scalar = sm.getDistanceScalar();
-		alSource3f(this.getId(), AL_POSITION, (float)(this.getX() * scalar), (float)(this.getY() * scalar), (float)(this.getZ() * scalar));
+		this.position.update(x * scalar, y * scalar, z * scalar);
+	}
+	
+	/** Perform any necessary internal OpenAL updates to the current position */
+	public void updatePosition(){
+		this.updatePosition(this.getX(), this.getY(), this.getZ());
 	}
 	
 	@Override
 	public void updateDirection(double x, double y, double z){
-		alSource3f(this.getId(), AL_DIRECTION, (float)x, (float)y, (float)z);
-		// issue#61 these values need a better way of being set up
+		this.direction.update(x, y, z);
+		
 		// For now, always use omi directional sounds
-		alSourcef(this.getId(), AL_CONE_INNER_ANGLE, 360);
-		alSourcef(this.getId(), AL_CONE_OUTER_ANGLE, 360);
-		alSourcef(this.getId(), AL_CONE_OUTER_GAIN, 1f);
+		this.coneInnerAngle.update();
+		this.coneOuterAngle.update();
+		this.coneOuterGain.update();
 	}
 	
 	@Override
@@ -121,11 +143,11 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	}
 	
 	/**
-	 * Set the current pitch modification of this sound. Use 1 for no pitch change, otherwise this is a pitch multiplier
+	 * Set the current pitch modification of this sound. Use 1 for the same pitch as the raw audio, otherwise this is a pitch multiplier
 	 * @param newPitch The new value of the pitch
 	 */
 	public void updatePitch(double newPitch){
-		alSourcef(this.getId(), AL_PITCH, (float)newPitch);
+		this.pitch.update(newPitch);
 	}
 	
 	/** Should call this method when the state of a sound needs to be updated, i.e. each game loop */
@@ -174,18 +196,7 @@ public class SoundSource extends SoundLocation implements Destroyable{
 	
 	/** Based on the current state of the source, i.e. base volume, current volume, muted, set the correct volume level in OpenAL */
 	public void updateVolumeLevel(){
-		this.forceVolumeLevel(this.getTotalVolume());
-	}
-	
-	/** @param volume The new volume to force set this sound to */
-	public void forceVolumeLevel(double volume){
-		float newVolume = (float)volume;
-		
-		// Do nothing if no volume change happened
-		if(newVolume == this.lastVolume) return;
-		
-		this.lastVolume = newVolume;
-		alSourcef(this.getId(), AL_GAIN, this.lastVolume);
+		this.gain.update(this.getTotalVolume());
 	}
 	
 	/** @return See {@link #baseVolume} */
@@ -253,7 +264,7 @@ public class SoundSource extends SoundLocation implements Destroyable{
 		
 		// Track the sample position and then mute the sound immediately
 		this.pausedSample = this.getSamplePos();
-		this.forceVolumeLevel(0);
+		this.gain.update(0);
 	}
 	
 	/**

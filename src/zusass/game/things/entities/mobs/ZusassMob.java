@@ -866,6 +866,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		// If colliding with enough displacement, make a sound for hitting the floor
 		double diff = Math.abs(collision.y()) - 0.02;
 		if(diff > 0){
+			// TODO make sure this new volume properly scales with distance
 			double newVolume = Math.max(Math.pow(diff, 0.3) * 2.0, 1.0);
 			
 			// TODO why is this sound so delayed?

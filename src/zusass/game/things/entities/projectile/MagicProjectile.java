@@ -88,7 +88,7 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 			for(var ef : this.effects) ef.apply(sourceId, m);
 		});
 		
-		this.removedSoundSource = new ManagedSoundSource(ZusassSounds.MAGIC_DAMAGE, this, 0.95, 1.05, 10);
+		this.removedSoundSource = new ManagedSoundSource(ZusassSounds.MAGIC_DAMAGE, this, 0.95, 1.05, 1);
 	}
 	
 	@Override
