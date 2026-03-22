@@ -511,6 +511,8 @@ public abstract class EntityThing<
 		this.groundTime = -1;
 		if(onGroundTime < 0) this.onGroundTime = 0;
 		
+		// TODO consider having two update phases, one to compute the new values, and one to apply them, so that all newly computed values are always done with the same values, regardless of where in the loop they occur
+		
 		// Bounce off the floor, or reset the y velocity to 0 if either material has no floor bounciness
 		this.setVerticalVel(-this.getVerticalVel() * touched.getFloorBounce() * this.getMaterial().getFloorBounce());
 	}

@@ -11,6 +11,7 @@ import zgame.core.sound.ManagedSoundSource;
 import zgame.core.sound.SoundSourceGroup;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint3D;
+import zgame.core.utils.ZStringUtils;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.stat.Stat;
@@ -863,14 +864,16 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	public void touchFloor(CollisionResult3D collision){
 		super.touchFloor(collision);
 		
+		// TODO consider doing this based on current velocity
 		// If colliding with enough displacement, make a sound for hitting the floor
 		double diff = Math.abs(collision.y()) - 0.02;
 		if(diff > 0){
-			// TODO make sure this new volume properly scales with distance
-			double newVolume = Math.max(Math.pow(diff, 0.3) * 2.0, 1.0);
+			double newVolume = Math.pow(diff, 0.3) * 2.0;
 			
-			// TODO why is this sound so delayed?
-			this.sounds.updateAndPlay(SOUND_SOURCE_HIT_GROUND, s -> s.setVolume(newVolume));
+			this.sounds.updateAndPlay(SOUND_SOURCE_HIT_GROUND, s -> {
+				s.setMinVolume(newVolume);
+				s.setMaxVolume(newVolume * 1.01);
+			});
 		}
 	}
 	

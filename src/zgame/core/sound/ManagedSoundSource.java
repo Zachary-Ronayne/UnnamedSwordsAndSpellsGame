@@ -206,4 +206,11 @@ public class ManagedSoundSource extends SoundSource{
 	public void setMaxVolume(double maxVolume){
 		this.maxVolume = maxVolume;
 	}
+	
+	@Override
+	public void setVolume(double volume){
+		super.setVolume(volume);
+		this.setMinVolume(volume);
+		this.setMaxVolume(volume);
+	}
 }
