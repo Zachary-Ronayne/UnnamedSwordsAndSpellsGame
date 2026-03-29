@@ -162,23 +162,24 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 		this.setVelocity(this.getVX(), y);
 	}
 	
-	/**
-	 * Add the given amount of velocity to the x component
-	 *
-	 * @param x The velocity to add
-	 */
-	public void addVX(double x){
-		this.addVelocity(new ZVector2D(x, 0));
-	}
-	
-	/**
-	 * Add the given amount of velocity to the y component
-	 *
-	 * @param y The velocity to add
-	 */
-	public void addVY(double y){
-		this.addVelocity(new ZVector2D(0, y));
-	}
+	// TODO consider if these should exist or not
+//	/**
+//	 * Add the given amount of velocity to the x component
+//	 *
+//	 * @param x The velocity to add
+//	 */
+//	public void addVX(double x){
+//		this.addVelocity(new ZVector2D(x, 0));
+//	}
+//
+//	/**
+//	 * Add the given amount of velocity to the y component
+//	 *
+//	 * @param y The velocity to add
+//	 */
+//	public void addVY(double y){
+//		this.addVelocity(new ZVector2D(0, y));
+//	}
 	
 	@Override
 	public double getGravityDragReferenceArea(){

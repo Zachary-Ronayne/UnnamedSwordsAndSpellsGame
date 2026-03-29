@@ -8,6 +8,7 @@ import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResult;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
+import zgame.things.entity.state.EntityState;
 import zgame.things.type.GameThing;
 import zgame.things.type.bounds.HitBox;
 import zgame.world.Room;
@@ -29,7 +30,8 @@ public abstract class EntityThing<
 		V extends ZVector<V>,
 		R extends Room<H, E, V, R, C>,
 		C extends CollisionResult<C>
-		> extends GameThing implements GameTickable, HitBox<H, C>{
+		// TODO consider if this is the best way to handle the game thign type parameter
+		> extends GameThing<EntityState<V>> implements GameTickable, HitBox<H, C>{
 	
 	/** The string used to identify the force of gravity in {@link #forces} */
 	public static final String FORCE_NAME_GRAVITY = "gravity";
@@ -42,9 +44,6 @@ public abstract class EntityThing<
 	
 	/** The uuid of this entity */
 	private final String uuid;
-	
-	/** The current velocity of this {@link EntityThing} */
-	private V velocity;
 	
 	/** true if velocity has been reset in this tick before applying movement, and movement should not happen for that tick, false otherwise */
 	private boolean velocityCleared;
@@ -105,7 +104,6 @@ public abstract class EntityThing<
 	public EntityThing(double mass){
 		this.uuid = UUID.randomUUID().toString();
 		
-		this.velocity = this.zeroVector();
 		this.velocityCleared = false;
 		
 		this.forces = new HashMap<>();
@@ -136,6 +134,17 @@ public abstract class EntityThing<
 		this.noClip = false;
 	}
 	
+	@Override
+	public EntityState<V> initState(){
+		return new EntityState<>(this);
+	}
+	
+	@Override
+	public EntityState<V> copyState(EntityState<V> target, EntityState<V> updated){
+		target.setVelocity(updated.getVelocity());
+		return target;
+	}
+	
 	/** @return A new empty vector, representing no motion, for use with this entity. Should always return a new instance */
 	public abstract V zeroVector();
 	
@@ -154,6 +163,7 @@ public abstract class EntityThing<
 		this.updateWallSideForce(dt);
 	}
 	
+	// TODO consolidate this into the current and next state system
 	/**
 	 * Update the position and velocity of this {@link EntityThing} based on its current forces and velocity
 	 *
@@ -166,15 +176,18 @@ public abstract class EntityThing<
 		// Find the current acceleration
 		var acceleration = this.getForce().scale(1.0 / this.getMass());
 		
+		// TODO everything here needs to account for current and next state properly
+		
 		// Add the acceleration to the current velocity
-		this.addVelocity(acceleration.scale(dt));
+		var newVelocity = this.getVelocity().add(acceleration.scale(dt));
+		this.setVelocity(newVelocity);
 		
 		// Account for clamping the velocity
-		double velMag = this.getVelocity().getMagnitude();
+		double velMag = newVelocity.getMagnitude();
 		if(velMag != 0 && velMag < this.getClampVelocity()) this.clearVelocity();
 		
 		// Apply the movement of the velocity
-		if(!this.velocityCleared) this.moveEntity(this.getVelocity().scale(dt).add(acceleration.scale(dt * dt * 0.5)));
+		if(!this.velocityCleared) this.moveEntity(newVelocity.scale(dt).add(acceleration.scale(dt * dt * 0.5)));
 		this.velocityCleared = false;
 	}
 	
@@ -390,9 +403,10 @@ public abstract class EntityThing<
 		return this.forces.get(name);
 	}
 	
+	// TODO update docs
 	/** @return See {@link #velocity} */
 	public V getVelocity(){
-		return this.velocity;
+		return this.getCurrent().getVelocity();
 	}
 	
 	/** @return See {@link #gravity} */
@@ -565,16 +579,20 @@ public abstract class EntityThing<
 	
 	/** @param velocity The new current velocity of this {@link EntityThing} */
 	public void setVelocity(V velocity){
-		this.velocity = velocity;
+		this.getNext().setVelocity(velocity);
 	}
 	
+	// TODO make proper doc
 	/**
 	 * Add the given velocity to {@link #velocity}
 	 *
 	 * @param vec The velocity to add
 	 */
-	public void addVelocity(V vec){
-		this.velocity = this.velocity.add(vec);
+	// TODO need to determine if this will actually be used or not
+	public void addVelocityOld(V vec){
+		// TODO how should adding an amount work? It can't reference current or next without violating state
+		// TODO this would have to apply as an action to be applied on the update tick
+		this.setVelocity(this.getVelocity().add(vec));
 	}
 	
 	/**

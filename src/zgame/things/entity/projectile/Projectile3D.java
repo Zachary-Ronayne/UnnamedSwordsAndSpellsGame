@@ -41,7 +41,7 @@ public abstract class Projectile3D extends EntityThing3D implements Projectile<H
 	 */
 	public Projectile3D(double x, double y, double z, ZVector3D launchVelocity){
 		super(x, y, z, 1);
-		this.addVelocity(launchVelocity);
+		this.setVelocity(launchVelocity);
 		this.mappedFuncs = new FunctionMap();
 		this.range = -1;
 		this.totalDistance = 0;

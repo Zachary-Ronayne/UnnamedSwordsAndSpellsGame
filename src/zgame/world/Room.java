@@ -30,13 +30,14 @@ public abstract class Room<
 		V extends ZVector<V>,
 		R extends Room<H, E, V, R, C>,
 		C extends CollisionResult<C>
-		> extends GameThing{
+		// TODO consider if a Room should have its own state object
+		> extends GameThing<Object>{
 	
 	/** All of the things in this room */
 	private final ClassMappedList thingsMap;
 	
 	/** All of the {@link GameThing} objects which will be removed on the next game tick */
-	private final List<GameThing> thingsToRemove;
+	private final List<GameThing<?>> thingsToRemove;
 	
 	/** A list of things to do the next time this room is ticked. Once the tick happens, this list will be emptied */
 	private final List<Runnable> nextTickFuncs;
@@ -66,9 +67,16 @@ public abstract class Room<
 		return this.thingsMap;
 	}
 	
+	// TODO consider a better way of handling type parameters for objects in the class map
 	/** @return A list of all the things in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
-	public NotNullList<GameThing> getThings(){
-		return this.thingsMap.get(GameThing.class);
+	private NotNullList<GameThing<?>> getThings(){
+		return getThingsForClass(GameThing.class);
+	}
+	
+	/** @return Same as {@link #getThings()}, but must provide a type for java weirdness */
+	@SuppressWarnings("unchecked")
+	private NotNullList<GameThing<?>> getThingsForClass(Class<?> clazz){
+		return (NotNullList<GameThing<?>>)(this.thingsMap.get(clazz));
 	}
 	
 	/** @return A list of all the entities in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
@@ -105,17 +113,18 @@ public abstract class Room<
 	 *
 	 * @param thing The {@link GameThing} to add
 	 */
-	public void addThing(GameThing thing){
+	public void addThing(GameThing<?> thing){
 		this.thingsMap.add(thing);
 		thing.onRoomAdd();
 	}
 	
+	// TODO make this happen using current and next
 	/**
 	 * Remove a {@link GameTickable} from this {@link Room} on the next tick
 	 *
 	 * @param thing The {@link GameTickable} to remove
 	 */
-	public final void removeThing(GameThing thing){
+	public final void removeThing(GameThing<?> thing){
 		this.thingsToRemove.add(thing);
 	}
 	
@@ -230,13 +239,15 @@ public abstract class Room<
 		// Update all updatable objects
 		var tickable = this.getTickableThings();
 		for(int i = 0; i < tickable.size(); i++){
-			GameTickable t = tickable.get(i);
+			var t = tickable.get(i);
 			t.tick(dt);
 		}
 		
 		// Update the position of all relevant objects
 		var entities = this.getEntities();
-		for(int i = 0; i < entities.size(); i++) entities.get(i).updatePosition(dt);
+		for(int i = 0; i < entities.size(); i++){
+			entities.get(i).updatePosition(dt);
+		}
 		
 		// Check the collision of this room for entities
 		for(int i = 0; i < entities.size(); i++){
@@ -247,15 +258,23 @@ public abstract class Room<
 			
 			// Check for entity collision, and apply appropriate forces based on what is currently colliding
 			this.checkEntityCollisions(e, dt);
+			
 		}
 		
+		// TODO consolidate this to the current and next state system
 		// Remove all things that need to be removed
-		for(GameThing thing : this.thingsToRemove) this.tickRemoveThing(thing);
+		for(var thing : this.thingsToRemove) this.tickRemoveThing(thing);
 		this.thingsToRemove.clear();
 		
+		// TODO consider consolidating this to the current and next state system
 		// Run any functions which need to happen
 		for(int i = 0; i < this.nextTickFuncs.size(); i++) this.nextTickFuncs.get(i).run();
 		this.nextTickFuncs.clear();
+		
+		// Move all things to the next state
+		for(var thing : this.getThings()){
+			thing.updateState();
+		}
 	}
 	
 	/**
@@ -263,7 +282,7 @@ public abstract class Room<
 	 *
 	 * @param thing The thing to remove
 	 */
-	private void tickRemoveThing(GameThing thing){
+	private void tickRemoveThing(GameThing<?> thing){
 		this.thingsMap.remove(thing);
 		thing.onRoomRemove();
 	}
@@ -285,7 +304,7 @@ public abstract class Room<
 	 * @param thing The thing to check for
 	 * @return true if it can enter, false otherwise. Always true by default, override to provide custom behavior
 	 */
-	public boolean canEnter(GameThing thing){
+	public boolean canEnter(GameThing<?> thing){
 		return true;
 	}
 	
@@ -295,7 +314,7 @@ public abstract class Room<
 	 * @param thing The thing to check for
 	 * @return true if it can leave, false otherwise. Always true by default, override to provide custom behavior
 	 */
-	public boolean canLeave(GameThing thing){
+	public boolean canLeave(GameThing<?> thing){
 		return true;
 	}
 	

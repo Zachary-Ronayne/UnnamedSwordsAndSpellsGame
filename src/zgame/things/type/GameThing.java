@@ -9,15 +9,60 @@ import zgame.things.Tag;
 import java.util.Arrays;
 import java.util.HashSet;
 
-/** An object which exists in the game */
-public abstract class GameThing implements Comparable<GameThing>, Saveable, Destroyable{
+/**
+ * An object which exists in the game
+ * @param <State> The type of object holding state for this thing
+ */
+// TODO make sure all GameThing references use a type parameter
+public abstract class GameThing<State> implements Comparable<GameThing<State>>, Saveable, Destroyable{
 	
 	/** Any arbitrary fields associated with this {@link GameThing} */
 	private final HashSet<Tag> tags;
 	
+	// TODO Incrementally move all fields to make their getters and setters modify next and read from current
+	/** The object holding all values representing the current state of this thing. This object should be treated as read only */
+	private State current;
+	/** The state which will become {@link #current} after a tick finishes running */
+	private State next;
+	
 	/** Create an empty {@link GameThing} */
 	public GameThing(){
 		this.tags = new HashSet<>();
+		
+		this.next = this.initState();
+		this.current = this.initState();
+		this.updateState();
+	}
+	
+	// TODO consider if this should be implemented in the GameTickable class
+	// TODO implement this as abstract and force implementations of GameThing to handle this
+	public State initState(){
+		return null;
+	}
+	
+	// TODO force this to be implemented per thing
+	// TODO should copying be handled here? Or every field must be explicitly overwritten
+	// TODO for now this will just have to be implemented per thing, need to find a real way to handle this
+	public State copyState(State target, State updated){
+		return target;
+	}
+	
+	/** Move the {@link #next} state on to the {@link #current} state */
+	public void updateState(){
+		var temp = this.current;
+		this.current = this.next;
+		this.next = this.copyState(temp, this.current);
+		// TODO need to either have a tick fully overwrite all state on current, or make this method copy the values of current onto next at this point
+	}
+	
+	/** @return See {@link #current} */
+	public State getCurrent(){
+		return this.current;
+	}
+	
+	/** @return See {@link #next} */
+	public State getNext(){
+		return this.next;
 	}
 	
 	/** Override this method if this {@link GameThing} uses any resources that must be freed when it is no longer in use */
