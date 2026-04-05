@@ -31,7 +31,6 @@ public abstract class GameThing<State> implements Comparable<GameThing<State>>, 
 		
 		this.next = this.initState();
 		this.current = this.initState();
-		this.updateState();
 	}
 	
 	// TODO consider if this should be implemented in the GameTickable class

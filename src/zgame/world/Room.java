@@ -243,13 +243,8 @@ public abstract class Room<
 			t.tick(dt);
 		}
 		
-		// Update the position of all relevant objects
-		var entities = this.getEntities();
-		for(int i = 0; i < entities.size(); i++){
-			entities.get(i).updatePosition(dt);
-		}
-		
 		// Check the collision of this room for entities
+		var entities = this.getEntities();
 		for(int i = 0; i < entities.size(); i++){
 			var e = entities.get(i);
 			if(e.isNoClip()) continue;

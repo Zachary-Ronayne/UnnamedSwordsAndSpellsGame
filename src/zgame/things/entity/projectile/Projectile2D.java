@@ -40,7 +40,7 @@ public abstract class Projectile2D extends EntityThing2D implements Projectile<H
 	 */
 	public Projectile2D(double x, double y, ZVector2D launchVelocity){
 		super(x, y, 1);
-		this.setVelocity(launchVelocity);
+		this.addVelocity(launchVelocity);
 		this.mappedFuncs = new FunctionMap();
 		this.range = -1;
 		this.totalDistance = 0;

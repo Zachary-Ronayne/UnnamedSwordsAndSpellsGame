@@ -92,7 +92,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 		var oldAngle = oldVel.getYaw();
 		var newVel = new ZVector3D(Math.cos(oldAngle) * v, oldVel.getY(), Math.sin(oldAngle) * v, true);
 		
-		this.setVelocity(newVel);
+		this.forceSetVelocity(newVel);
 	}
 	
 	@Override
@@ -103,7 +103,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	@Override
 	public void setVerticalVel(double v){
 		var vel = this.getVelocity();
-		this.setVelocity(new ZVector3D(vel.getX(), v, vel.getZ()));
+		this.forceSetVelocity(new ZVector3D(vel.getX(), v, vel.getZ()));
 	}
 	
 	@Override
@@ -133,7 +133,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 		double velX = velocityMag * Math.cos(bounceAngle);
 		double velZ = velocityMag * Math.sin(bounceAngle);
 		
-		this.setVelocity(new ZVector3D(velX, currentVel.getY(), velZ, true));
+		this.forceSetVelocity(new ZVector3D(velX, currentVel.getY(), velZ, true));
 	}
 	
 	@Override

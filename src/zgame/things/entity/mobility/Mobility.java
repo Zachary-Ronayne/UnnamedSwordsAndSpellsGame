@@ -105,12 +105,12 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			// If at or above max speed, just set the angle, and apply no force
 			if(currentVelMag >= maxSpeed){
 				walkForce = 0;
-				entity.setVelocity(this.createTryingToMoveVectorHorizontal(currentVelMag).modifyVerticalValue(currentVel.getVerticalValue()));
+				entity.forceSetVelocity(this.createTryingToMoveVectorHorizontal(currentVelMag).modifyVerticalValue(currentVel.getVerticalValue()));
 			}
 			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
 			else if(Math.abs(newVel) >= maxSpeed){
 				walkForce = 0;
-				entity.setVelocity(this.createTryingToMoveVectorHorizontal(maxSpeed).modifyVerticalValue(currentVel.getVerticalValue()));
+				entity.forceSetVelocity(this.createTryingToMoveVectorHorizontal(maxSpeed).modifyVerticalValue(currentVel.getVerticalValue()));
 			}
 		}
 		
@@ -149,12 +149,12 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			// If at or above max speed, just set the angle, apply no force
 			if(currentVelMag >= maxSpeed){
 				newFlyForce = 0;
-				this.getThing().setVelocity(this.createTryingToMoveVector(currentVelMag));
+				this.getThing().forceSetVelocity(this.createTryingToMoveVector(currentVelMag));
 			}
 			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
 			else if(Math.abs(currentVelMag + initialFlyForceVel) >= maxSpeed){
 				newFlyForce = 0;
-				this.getThing().setVelocity(this.createTryingToMoveVector(maxSpeed));
+				this.getThing().forceSetVelocity(this.createTryingToMoveVector(maxSpeed));
 			}
 			// Otherwise, just apply the already calculated full amount for newFlyForce
 		}

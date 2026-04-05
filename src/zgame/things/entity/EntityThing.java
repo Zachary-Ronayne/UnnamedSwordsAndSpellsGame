@@ -45,9 +45,6 @@ public abstract class EntityThing<
 	/** The uuid of this entity */
 	private final String uuid;
 	
-	/** true if velocity has been reset in this tick before applying movement, and movement should not happen for that tick, false otherwise */
-	private boolean velocityCleared;
-	
 	/** The current force of gravity on this {@link EntityThing} */
 	private V gravity;
 	
@@ -104,8 +101,6 @@ public abstract class EntityThing<
 	public EntityThing(double mass){
 		this.uuid = UUID.randomUUID().toString();
 		
-		this.velocityCleared = false;
-		
 		this.forces = new HashMap<>();
 		this.totalForce = this.zeroVector();
 		
@@ -141,7 +136,9 @@ public abstract class EntityThing<
 	
 	@Override
 	public EntityState<V> copyState(EntityState<V> target, EntityState<V> updated){
-		target.setVelocity(updated.getVelocity());
+		target.applyState(updated);
+		this.updatePosition(target.getTickTime());
+		
 		return target;
 	}
 	
@@ -150,6 +147,10 @@ public abstract class EntityThing<
 	
 	@Override
 	public void tick(double dt){
+		// TODO is this the way this should be done?
+		this.getCurrent().setTickTime(dt);
+		this.getNext().setTickTime(dt);
+		
 		// Update the amount of time the entity has been on the ground, walls, and ceiling
 		if(this.groundTime != -1) this.groundTime += dt;
 		if(this.onGroundTime != -1) this.onGroundTime += dt;
@@ -180,15 +181,14 @@ public abstract class EntityThing<
 		
 		// Add the acceleration to the current velocity
 		var newVelocity = this.getVelocity().add(acceleration.scale(dt));
-		this.setVelocity(newVelocity);
+		this.addVelocity(acceleration.scale(dt));
 		
+		// TODO does any of this work? Need to consider current vs next state
 		// Account for clamping the velocity
 		double velMag = newVelocity.getMagnitude();
 		if(velMag != 0 && velMag < this.getClampVelocity()) this.clearVelocity();
 		
-		// Apply the movement of the velocity
-		if(!this.velocityCleared) this.moveEntity(newVelocity.scale(dt).add(acceleration.scale(dt * dt * 0.5)));
-		this.velocityCleared = false;
+		this.moveEntity(newVelocity.scale(dt).add(acceleration.scale(dt * dt * 0.5)));
 	}
 	
 	/**
@@ -248,8 +248,7 @@ public abstract class EntityThing<
 			if(!currentForceExceedsFriction && currentVel.isOpposite(gravity)){
 				this.setFrictionForce(currentForce.sub(currentFriction).inverse());
 				// When friction exceeds current force, and on a surface, velocity must also be set to zero
-				if(currentVel.getMagnitude() >= clampVel) this.clearVelocity();
-				else this.flagVelocityCleared();
+				this.clearVelocity();
 				return;
 			}
 			// With no horizontal velocity, there is no friction
@@ -273,8 +272,7 @@ public abstract class EntityThing<
 		double mass = this.getMass();
 		if(currentVel.getMagnitude() < clampVel || currentVel.isOpposite(currentVel.add(newForce.scale(dt / mass)))){
 			this.setFrictionForce(this.zeroVector());
-			if(currentVel.getMagnitude() >= clampVel) this.clearVelocity();
-			else this.flagVelocityCleared();
+			this.clearVelocity();
 			return;
 		}
 		
@@ -403,8 +401,7 @@ public abstract class EntityThing<
 		return this.forces.get(name);
 	}
 	
-	// TODO update docs
-	/** @return See {@link #velocity} */
+	/** @return The velocity of the current state of this entity */
 	public V getVelocity(){
 		return this.getCurrent().getVelocity();
 	}
@@ -577,22 +574,18 @@ public abstract class EntityThing<
 	 */
 	public void checkEntityCollision(E entity, double dt){}
 	
-	/** @param velocity The new current velocity of this {@link EntityThing} */
-	public void setVelocity(V velocity){
-		this.getNext().setVelocity(velocity);
-	}
-	
-	// TODO make proper doc
 	/**
-	 * Add the given velocity to {@link #velocity}
+	 * Add the given velocity to this entity
 	 *
 	 * @param vec The velocity to add
 	 */
-	// TODO need to determine if this will actually be used or not
-	public void addVelocityOld(V vec){
-		// TODO how should adding an amount work? It can't reference current or next without violating state
-		// TODO this would have to apply as an action to be applied on the update tick
-		this.setVelocity(this.getVelocity().add(vec));
+	public void addVelocity(V vec){
+		this.getNext().addVelocity(vec);
+	}
+	
+	// TODO make doc, potentially remove
+	public void forceSetVelocity(V velocity){
+		this.getNext().forceSetVelocity(velocity);
 	}
 	
 	/**
@@ -622,15 +615,9 @@ public abstract class EntityThing<
 		this.updateGravity();
 	}
 	
-	/** Set the current velocity to nothing and flag {@link #velocityCleared} to true */
+	/** Instruct this entity that all of its velocity will be cleared on the next tick */
 	public void clearVelocity(){
-		this.flagVelocityCleared();
-		this.setVelocity(this.zeroVector());
-	}
-	
-	/** Set the {@link #velocityCleared} to true, indicating that movement should not be able to happen on the next tick */
-	public void flagVelocityCleared(){
-		this.velocityCleared = true;
+		this.getNext().clearVelocity();
 	}
 	
 	/**

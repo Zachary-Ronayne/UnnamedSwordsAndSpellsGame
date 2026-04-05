@@ -139,7 +139,7 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	 * @param y The new y velocity of this {@link EntityThing}
 	 */
 	public void setVelocity(double x, double y){
-		this.setVelocity(new ZVector2D(x, y));
+		this.forceSetVelocity(new ZVector2D(x, y));
 	}
 	
 	/** @return The velocity of this {@link EntityThing} on the x axis */
