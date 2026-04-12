@@ -51,6 +51,11 @@ public class ZVector2D extends ZVector<ZVector2D>{
 		}
 	}
 	
+	@Override
+	public ZVector2D zero(){
+		return new ZVector2D();
+	}
+	
 	/** Update the internal x and y values based on the current values of {@link #angle} and {@link #magnitude} */
 	@Override
 	public void calcComponents(){

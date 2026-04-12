@@ -28,6 +28,9 @@ public abstract class ZVector<V extends ZVector<V>>{
 		this.magnitude = magnitude;
 	}
 	
+	/** @return A zero vector for this vector type */
+	public abstract V zero();
+	
 	/** Update the internal component values based on the angles of this vector and {@link #magnitude} */
 	public abstract void calcComponents();
 	

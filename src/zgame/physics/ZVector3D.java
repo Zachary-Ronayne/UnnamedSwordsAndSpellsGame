@@ -39,6 +39,11 @@ public class ZVector3D extends ZVector<ZVector3D>{
 		this(x, y, z, true);
 	}
 	
+	@Override
+	public ZVector3D zero(){
+		return new ZVector3D();
+	}
+	
 	/**
 	 * Create a new ZVector with the given component values
 	 *

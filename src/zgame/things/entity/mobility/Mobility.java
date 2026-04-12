@@ -105,12 +105,14 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			// If at or above max speed, just set the angle, and apply no force
 			if(currentVelMag >= maxSpeed){
 				walkForce = 0;
-				entity.forceSetVelocity(this.createTryingToMoveVectorHorizontal(currentVelMag).modifyVerticalValue(currentVel.getVerticalValue()));
+				// TODO figure out how this should work formally in a state system
+				entity.attemptSetVelocity(this.createTryingToMoveVectorHorizontal(currentVelMag).modifyVerticalValue(currentVel.getVerticalValue()));
 			}
 			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
 			else if(Math.abs(newVel) >= maxSpeed){
 				walkForce = 0;
-				entity.forceSetVelocity(this.createTryingToMoveVectorHorizontal(maxSpeed).modifyVerticalValue(currentVel.getVerticalValue()));
+				// TODO figure out how this should work formally in a state system
+				entity.attemptSetVelocity(this.createTryingToMoveVectorHorizontal(maxSpeed).modifyVerticalValue(currentVel.getVerticalValue()));
 			}
 		}
 		
@@ -149,12 +151,14 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			// If at or above max speed, just set the angle, apply no force
 			if(currentVelMag >= maxSpeed){
 				newFlyForce = 0;
-				this.getThing().forceSetVelocity(this.createTryingToMoveVector(currentVelMag));
+				// TODO figure out how this should work formally in a state system
+				this.getThing().attemptSetVelocity(this.createTryingToMoveVector(currentVelMag));
 			}
 			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
 			else if(Math.abs(currentVelMag + initialFlyForceVel) >= maxSpeed){
 				newFlyForce = 0;
-				this.getThing().forceSetVelocity(this.createTryingToMoveVector(maxSpeed));
+				// TODO figure out how this should work formally in a state system
+				this.getThing().attemptSetVelocity(this.createTryingToMoveVector(maxSpeed));
 			}
 			// Otherwise, just apply the already calculated full amount for newFlyForce
 		}
@@ -231,6 +235,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		mobilityData.setJumpTimeBuilt(0);
 	}
 	
+	// TODO make jumping, and probably forces, work with the new state system
 	/**
 	 * Update the value of {@link MobilityData#jumpingForce} based on the current state of {@link #getThing()}
 	 *
@@ -268,7 +273,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 				 */
 				if(!invert && vy > newStopJumpVel || invert && vy < newStopJumpVel){
 					mobilityData.setJumpingForce(0);
-					entity.setVerticalVel(0);
+					entity.getNext().clearVelocityVertical();
 					return;
 				}
 				

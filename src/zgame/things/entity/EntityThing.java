@@ -522,10 +522,8 @@ public abstract class EntityThing<
 		this.groundTime = -1;
 		if(onGroundTime < 0) this.onGroundTime = 0;
 		
-		// TODO consider having two update phases, one to compute the new values, and one to apply them, so that all newly computed values are always done with the same values, regardless of where in the loop they occur
-		
 		// Bounce off the floor, or reset the y velocity to 0 if either material has no floor bounciness
-		this.setVerticalVel(-this.getVerticalVel() * touched.getFloorBounce() * this.getMaterial().getFloorBounce());
+		this.getNext().scaleVelocityVertical(-1 * touched.getFloorBounce() * this.getMaterial().getFloorBounce());
 	}
 	
 	@Override
@@ -541,7 +539,7 @@ public abstract class EntityThing<
 		this.ceilingTime = -1;
 		
 		// Bounce off the ceiling, or reset the y velocity to 0 if either material has no ceiling bounciness
-		this.setVerticalVel(-this.getVerticalVel() * touched.getCeilingBounce() * this.getMaterial().getCeilingBounce());
+		this.getNext().scaleVelocityVertical(-1 * touched.getCeilingBounce() * this.getMaterial().getCeilingBounce());
 	}
 	
 	@Override
@@ -584,8 +582,8 @@ public abstract class EntityThing<
 	}
 	
 	// TODO make doc, potentially remove
-	public void forceSetVelocity(V velocity){
-		this.getNext().forceSetVelocity(velocity);
+	public void attemptSetVelocity(V velocity){
+		this.getNext().attemptSetVelocity(velocity);
 	}
 	
 	/**
@@ -660,14 +658,8 @@ public abstract class EntityThing<
 	/** @return The total magnitude of horizontal velocity of this entity */
 	public abstract double getHorizontalVel();
 	
-	/** @param v The new total magnitude horizontal velocity of this entity */
-	public abstract void setHorizontalVel(double v);
-	
 	/** @return The total vertical velocity of this entity */
 	public abstract double getVerticalVel();
-	
-	/** @param v The new total vertical velocity of this entity */
-	public abstract void setVerticalVel(double v);
 	
 	/**
 	 * @return If the absolute value of the magnitude of velocity ever reaches a value greater than zero and less than this value,

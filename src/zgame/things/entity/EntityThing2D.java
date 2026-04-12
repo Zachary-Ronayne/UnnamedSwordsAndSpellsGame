@@ -104,7 +104,9 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	@Override
 	public void touchWall(CollisionResult2D result){
 		super.touchWall(result);
-		this.setHorizontalVel(-this.getHorizontalVel() * result.material().getWallBounce() * this.getMaterial().getWallBounce());
+		// TODO test this formally and make sure this new approach makes sense
+//		this.setHorizontalVel(-this.getHorizontalVel() * result.material().getWallBounce() * this.getMaterial().getWallBounce());
+		this.getNext().scaleVelocity(-1 * result.material().getWallBounce() * this.getMaterial().getWallBounce());
 	}
 	
 	@Override
@@ -134,14 +136,6 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 		return this.setForce(name, new ZVector2D(x, y));
 	}
 	
-	/**
-	 * @param x The new x velocity of this {@link EntityThing}
-	 * @param y The new y velocity of this {@link EntityThing}
-	 */
-	public void setVelocity(double x, double y){
-		this.forceSetVelocity(new ZVector2D(x, y));
-	}
-	
 	/** @return The velocity of this {@link EntityThing} on the x axis */
 	public double getVX(){
 		return this.getVelocity().getX();
@@ -150,16 +144,6 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	/** @return The velocity of this {@link EntityThing} on the y axis */
 	public double getVY(){
 		return this.getVelocity().getY();
-	}
-	
-	/** @param x the new x velocity of this {@link EntityThing} */
-	public void setVX(double x){
-		this.setVelocity(x, this.getVY());
-	}
-	
-	/** @param y the new y velocity of this {@link EntityThing} */
-	public void setVY(double y){
-		this.setVelocity(this.getVX(), y);
 	}
 	
 	// TODO consider if these should exist or not
@@ -218,18 +202,8 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	}
 	
 	@Override
-	public void setHorizontalVel(double v){
-		this.setVX(v);
-	}
-	
-	@Override
 	public double getVerticalVel(){
 		return this.getVY();
-	}
-	
-	@Override
-	public void setVerticalVel(double v){
-		this.setVY(v);
 	}
 	
 	@Override
