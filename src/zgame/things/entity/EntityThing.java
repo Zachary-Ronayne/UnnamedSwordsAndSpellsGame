@@ -30,39 +30,12 @@ public abstract class EntityThing<
 		V extends ZVector<V>,
 		R extends Room<H, E, V, R, C>,
 		C extends CollisionResult<C>
-		// TODO consider if this is the best way to handle the game thign type parameter
+		// TODO consider if this is the best way to handle the game thing type parameter
 		> extends GameThing<EntityState<V>> implements GameTickable, HitBox<H, C>{
-	
-	/** The string used to identify the force of gravity in {@link #forces} */
-	public static final String FORCE_NAME_GRAVITY = "gravity";
-	/** The string used to identify the force of friction in {@link #forces} */
-	public static final String FORCE_NAME_FRICTION = "friction";
-	/** The string used to identify the force of friction in {@link #forces} */
-	public static final String FORCE_NAME_GRAVITY_DRAG = "gravityDrag";
-	/** The string used to identify the force of sticking to a wall in {@link #forces} */
-	public static final String FORCE_NAME_WALL_SLIDE = "wallSlide";
 	
 	/** The uuid of this entity */
 	private final String uuid;
-	
-	/** The current force of gravity on this {@link EntityThing} */
-	private V gravity;
-	
-	/** The percentage of gravity that applies to this {@link EntityThing}, defaults to 1, i.e. 100% */
-	private double gravityLevel;
-	
-	/** The current force of friction on this {@link EntityThing}. */
-	private V frictionForce;
-	
-	/** The current force of drag acting against gravity on this {@link EntityThing} */
-	private V gravityDragForce;
-	
-	/** Every force currently acting on this {@link EntityThing}, mapped by a name */
-	private final Map<String, V> forces;
-	
-	/** A {@link ZVector} representing the total force acting on this {@link EntityThing} */
-	private V totalForce;
-	
+
 	/** The amount of time in seconds since this {@link EntityThing} last touched the ground, or -1 if it is currently on the ground */
 	private double groundTime;
 	
@@ -84,9 +57,6 @@ public abstract class EntityThing<
 	/** The material which this {@link EntityThing} is holding on a wall, or {@link Materials#NONE} if no wall is touched */
 	private Material wallMaterial;
 	
-	/** The mass, i.e. weight, of this {@link EntityThing} */
-	private double mass;
-	
 	/** The Material which this {@link EntityThing} is made of */
 	private Material material;
 	
@@ -96,27 +66,16 @@ public abstract class EntityThing<
 	/**
 	 * Create a new empty entity with the given mass
 	 *
-	 * @param mass See {@link #mass}
+	 * @param mass The initial mass of this thing
 	 */
 	public EntityThing(double mass){
+		super();
 		this.uuid = UUID.randomUUID().toString();
 		
-		this.forces = new HashMap<>();
-		this.totalForce = this.zeroVector();
-		
-		this.gravity = this.zeroVector();
-		this.setForce(FORCE_NAME_GRAVITY, gravity);
-		this.setGravityLevel(1);
-		this.setMass(mass);
+		// TODO update mass properly, also probably remove it from the constructor
+		this.getCurrent().setMass(mass);
+		this.getNext().setMass(mass);
 		this.material = Materials.DEFAULT_ENTITY;
-		
-		this.frictionForce = this.zeroVector();
-		this.setForce(FORCE_NAME_FRICTION, this.frictionForce);
-		
-		this.gravityDragForce = this.zeroVector();
-		this.setForce(FORCE_NAME_GRAVITY_DRAG, this.gravityDragForce);
-		
-		this.setForce(FORCE_NAME_WALL_SLIDE, this.zeroVector());
 		
 		this.floorMaterial = Materials.NONE;
 		this.groundTime = 0;
@@ -131,7 +90,7 @@ public abstract class EntityThing<
 	
 	@Override
 	public EntityState<V> initState(){
-		return new EntityState<>(this);
+		return new EntityState<>(this, this.getGravityAcceleration());
 	}
 	
 	@Override
@@ -285,13 +244,14 @@ public abstract class EntityThing<
 		return this.getFrictionConstant() * this.getFloorMaterial().getFriction() * this.getForce().getVertical();
 	}
 	
+	// TODO handle this using an update system
 	/**
 	 * Set the current vector for friction
 	 *
 	 * @param newForce The vector
 	 */
 	private void setFrictionForce(V newForce){
-		this.frictionForce = this.setForce(FORCE_NAME_FRICTION, newForce);
+		this.getCurrent().setFrictionForce(newForce);
 	}
 	
 	/**
@@ -307,12 +267,12 @@ public abstract class EntityThing<
 		if(this.getVerticalVel() >= terminalVelocity && terminalVelocity > 0){
 			// Only set the value if it is not equal and opposite to gravity
 			double gravityForce = -this.getGravity().getVerticalValue();
-			if(this.getGravityDragForce().getVertical() != gravityForce) this.gravityDragForce = this.setVerticalForce(FORCE_NAME_GRAVITY_DRAG, gravityForce);
+			if(this.getGravityDragForce().getVertical() != gravityForce) this.setVerticalForce(EntityState.FORCE_NAME_GRAVITY_DRAG, gravityForce);
 		}
 		// Otherwise, remove the force
 		else{
 			// Only remove the force if it is not already zero
-			if(this.getGravityDragForce().getVertical() != 0) this.gravityDragForce = this.setVerticalForce(FORCE_NAME_GRAVITY_DRAG, 0);
+			if(this.getGravityDragForce().getVertical() != 0) this.setVerticalForce(EntityState.FORCE_NAME_GRAVITY_DRAG, 0);
 		}
 	}
 	
@@ -328,18 +288,18 @@ public abstract class EntityThing<
 		// The maximum speed that can be slid down the wall
 		double maxSlideVel = wall.getSlipperinessSpeed() * mat.getSlipperinessSpeed();
 		// The amount of force used to slow down
+		double mass = this.getCurrent().getMass();
 		double slideStopForce = wall.getSlipperinessAcceleration() * mat.getSlipperinessAcceleration() / mass;
 		
 		// The slide force is always zero if the entity is not on a wall or is slower than the max slide velocity
 		// or the max slide velocity is negative or the slideStopForce is negative
 		double vy = this.getVerticalVel();
 		if(maxSlideVel < 0 || slideStopForce < 0 || vy <= maxSlideVel || !this.isOnWall()){
-			this.setVerticalForce(FORCE_NAME_WALL_SLIDE, 0);
+			this.setVerticalForce(EntityState.FORCE_NAME_WALL_SLIDE, 0);
 			return;
 		}
 		// The base amount of force to apply for sliding is the opposite of gravity
 		double slideForce = -this.getGravity().getVerticalValue();
-		double mass = this.getMass();
 		// If we get to this point, then we are falling faster than the maximum sliding speed, increase the slide force to slow the falling (slideForce will be a negative number)
 		slideForce -= slideStopForce;
 		
@@ -347,7 +307,7 @@ public abstract class EntityThing<
 		double newVel = vy + slideForce / mass * dt;
 		if(newVel < maxSlideVel) slideForce = (maxSlideVel - vy) / dt * mass;
 		// Set the force
-		this.setVerticalForce(FORCE_NAME_WALL_SLIDE, slideForce);
+		this.setVerticalForce(EntityState.FORCE_NAME_WALL_SLIDE, slideForce);
 	}
 	
 	/**
@@ -390,15 +350,7 @@ public abstract class EntityThing<
 	
 	/** @return A {@link ZVector} representing the total of all forces on this object */
 	public V getForce(){
-		return this.totalForce;
-	}
-	
-	/**
-	 * @param name The name of the force to get. This method assumes the force exists
-	 * @return The {@link ZVector} representing the force on this object with the given name, or null if none exists for that force
-	 */
-	public V getForce(String name){
-		return this.forces.get(name);
+		return this.getCurrent().getForce();
 	}
 	
 	/** @return The velocity of the current state of this entity */
@@ -406,49 +358,33 @@ public abstract class EntityThing<
 		return this.getCurrent().getVelocity();
 	}
 	
-	/** @return See {@link #gravity} */
+	/** @return The current force of gravity on this entity */
 	public V getGravity(){
-		return this.gravity;
+		return this.getCurrent().getForce(EntityState.FORCE_NAME_GRAVITY);
 	}
 	
-	/** Update the amount of gravitational force being applied to this {@link EntityThing} */
-	private void updateGravity(){
-		this.gravity = this.setVerticalForce(FORCE_NAME_GRAVITY, this.getGravityAcceleration() * this.getMass() * this.getGravityLevel());
-	}
-	
-	/** @return See {@link #gravityLevel} */
-	public double getGravityLevel(){
-		return this.gravityLevel;
-	}
-	
+	// TODO should this be in EntityThing? Probably should be defined as a global?
 	/** @return The acceleration of gravity */
 	public abstract double getGravityAcceleration();
 	
-	/** @param gravityLevel See {@link #gravityLevel} */
-	public void setGravityLevel(double gravityLevel){
-		this.gravityLevel = gravityLevel;
-		this.updateGravity();
-	}
 	
-	/** @return See {@link #frictionForce} */
+	/** @return The current force of friction on this entity */
 	public V getFriction(){
-		return this.frictionForce;
+		return this.getCurrent().getForce(EntityState.FORCE_NAME_FRICTION);
 	}
 	
-	/** @return SEE {@link #gravityDragForce} */
+	/** @return The current drag force acting against gravity */
 	public V getGravityDragForce(){
-		return this.gravityDragForce;
+		return this.getCurrent().getForce(EntityState.FORCE_NAME_GRAVITY_DRAG);
 	}
 	
-	/** @return See {@link #mass} */
 	public double getMass(){
-		return this.mass;
+		return this.getCurrent().getMass();
 	}
 	
-	/** @param mass See {@link #mass} */
+	// TODO make docs and move this to an update system
 	public void setMass(double mass){
-		this.mass = mass;
-		this.updateGravity();
+		this.getCurrent().setMass(mass);
 	}
 	
 	/** @return See {@link #floorMaterial} */
@@ -547,7 +483,8 @@ public abstract class EntityThing<
 		this.wallMaterial = Materials.NONE;
 		this.wallTime = 0;
 		
-		this.setVerticalForce(FORCE_NAME_WALL_SLIDE, 0);
+		// TODO handle this with an update system
+		this.getCurrent().setVerticalForce(EntityState.FORCE_NAME_WALL_SLIDE, 0);
 	}
 	
 	@Override
@@ -586,31 +523,12 @@ public abstract class EntityThing<
 		this.getNext().attemptSetVelocity(velocity);
 	}
 	
-	/**
-	 * Determine if this {@link EntityThing} has the force object mapped to the given name
-	 *
-	 * @param name The object to check for
-	 * @return true if this {@link EntityThing} has the given force, false otherwise
-	 */
-	public boolean hasForce(String name){
-		return this.forces.containsKey(name);
-	}
-	
-	/**
-	 * @return A list of all forces acting on this thing. This returned list does not reflect actual the collection of forces applied to this thing
-	 * 		and should be treated as read only
-	 */
-	public Collection<Map.Entry<String, V>> getForces(){
-		return this.forces.entrySet().stream().toList();
-	}
-	
+	// TODO handle this using an update system
 	/**
 	 * Set the velocity of this thing to zero on all axes and set the current applied for forces to 0
 	 */
 	public void clearMotion(){
-		this.clearVelocity();
-		for(var f : this.getForces()) this.setForce(f.getKey(), this.zeroVector());
-		this.updateGravity();
+		this.getCurrent().clearMotion();
 	}
 	
 	/** Instruct this entity that all of its velocity will be cleared on the next tick */
@@ -618,34 +536,7 @@ public abstract class EntityThing<
 		this.getNext().clearVelocity();
 	}
 	
-	/**
-	 * Remove the {@link ZVector} with the specified name object from this {@link EntityThing}'s forces
-	 *
-	 * @param name The name of the force to remove
-	 * @return The removed force vector, or null if the given force was not found
-	 */
-	public V removeForce(String name){
-		var removed = this.forces.remove(name);
-		if(removed == null) return null;
-		this.totalForce = this.totalForce.add(removed.scale(-1));
-		return removed;
-	}
-	
-	/**
-	 * Set the given force name to the given force. If the given name doesn't have a force mapped to it yet, then this method automatically adds it to the
-	 * map
-	 *
-	 * @param name The name of the force to set
-	 * @param force The force object to set
-	 * @return force
-	 */
-	public V setForce(String name, V force){
-		this.removeForce(name);
-		this.forces.put(name, force);
-		this.totalForce = this.totalForce.add(force);
-		return force;
-	}
-	
+	// TODO handle this using an update system
 	/**
 	 * Set a force on the vertical, i.e. gravitational, axis.
 	 *
@@ -653,7 +544,9 @@ public abstract class EntityThing<
 	 * @param f The quantity of the force, positive means down and negative means up
 	 * @return The vector representing the added force
 	 */
-	public abstract V setVerticalForce(String name, double f);
+	public V setVerticalForce(String name, double f){
+		return this.getCurrent().setVerticalForce(name, f);
+	}
 	
 	/** @return The total magnitude of horizontal velocity of this entity */
 	public abstract double getHorizontalVel();

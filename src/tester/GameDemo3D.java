@@ -446,7 +446,7 @@ public class GameDemo3D extends Game{
 			super(1);
 			this.speed = speed;
 			this.movingLeft = false;
-			this.setGravityLevel(0);
+			this.getCurrent().setGravityLevel(0);
 			this.intersecting = false;
 		}
 		

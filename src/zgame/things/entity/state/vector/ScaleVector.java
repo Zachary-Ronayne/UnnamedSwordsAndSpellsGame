@@ -1,15 +1,15 @@
-package zgame.things.entity.state.velocity;
+package zgame.things.entity.state.vector;
 
 import zgame.physics.ZVector;
 
 /** A velocity update to scale the existing velocity by some amount, can include inverting */
-public class ScaleVelocity<V extends ZVector<V>> implements VelocityUpdate<V>{
+public class ScaleVector<V extends ZVector<V>> implements VectorUpdate<V>{
 	
 	/** The amount to scale the velocity by */
 	private final double scalar;
 	
 	/** @param scalar See {@link #scalar} */
-	public ScaleVelocity(double scalar){
+	public ScaleVector(double scalar){
 		this.scalar = scalar;
 	}
 	

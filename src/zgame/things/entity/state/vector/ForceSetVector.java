@@ -1,15 +1,15 @@
-package zgame.things.entity.state.velocity;
+package zgame.things.entity.state.vector;
 
 import zgame.physics.ZVector;
 
 /** A velocity update to force velocity to be some amount */
-public class ForceSetVelocity<V extends ZVector<V>> implements VelocityUpdate<V>{
+public class ForceSetVector<V extends ZVector<V>> implements VectorUpdate<V>{
 	
 	/** The velocity to set to. Priority will be dictated by the magnitude, higher magnitude means being applied last */
 	private final V newVelocity;
 	
 	/** @param newVelocity See {@link #newVelocity} */
-	public ForceSetVelocity(V newVelocity){
+	public ForceSetVector(V newVelocity){
 		this.newVelocity = newVelocity;
 	}
 	

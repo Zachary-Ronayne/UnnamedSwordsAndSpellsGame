@@ -1,15 +1,15 @@
-package zgame.things.entity.state.velocity;
+package zgame.things.entity.state.vector;
 
 import zgame.physics.ZVector;
 
 /** A velocity update to add some amount of velocity */
-public class AddVelocity<V extends ZVector<V>> implements VelocityUpdate<V>{
+public class AddVector<V extends ZVector<V>> implements VectorUpdate<V>{
 	
 	/** The amount of velocity to add for the update */
 	private final V amount;
 	
 	/** @param amount See {@link #amount} */
-	public AddVelocity(V amount){
+	public AddVector(V amount){
 		this.amount = amount;
 	}
 	

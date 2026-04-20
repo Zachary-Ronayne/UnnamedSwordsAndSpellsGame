@@ -261,15 +261,16 @@ public abstract class Room<
 		for(var thing : this.thingsToRemove) this.tickRemoveThing(thing);
 		this.thingsToRemove.clear();
 		
+		// Move all things to the next state
+		for(var thing : this.getThings()){
+			thing.updateState();
+		}
+		
 		// TODO consider consolidating this to the current and next state system
 		// Run any functions which need to happen
 		for(int i = 0; i < this.nextTickFuncs.size(); i++) this.nextTickFuncs.get(i).run();
 		this.nextTickFuncs.clear();
 		
-		// Move all things to the next state
-		for(var thing : this.getThings()){
-			thing.updateState();
-		}
 	}
 	
 	/**

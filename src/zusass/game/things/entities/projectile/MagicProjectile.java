@@ -81,7 +81,7 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 		this.addTags(BaseTags.PROJECTILE_NOT_COLLIDE);
 		
 		// Turn off gravity
-		this.setGravityLevel(0);
+		this.getCurrent().setGravityLevel(0);
 		
 		// Add a function to effect a hit mob with magic
 		this.addHitFunc(ZusassMob.class, m -> {

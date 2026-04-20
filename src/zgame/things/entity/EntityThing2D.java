@@ -46,7 +46,7 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	 *
 	 * @param x The x coordinate of the entity
 	 * @param y The y coordinate of the entity
-	 * @param mass See {@link EntityThing#mass}
+	 * @param mass The initial mass of the entity
 	 */
 	public EntityThing2D(double x, double y, double mass){
 		super(mass);
@@ -133,7 +133,7 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	 * @return The newly set vector object
 	 */
 	public ZVector2D setForce(String name, double x, double y){
-		return this.setForce(name, new ZVector2D(x, y));
+		return this.getCurrent().setForce(name, new ZVector2D(x, y));
 	}
 	
 	/** @return The velocity of this {@link EntityThing} on the x axis */

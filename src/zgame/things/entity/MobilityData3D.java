@@ -116,7 +116,8 @@ public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVecto
 	
 	@Override
 	public void updateWalkingForce(double force){
-		this.setWalkingForce(this.getEntity().setForce(FORCE_NAME_WALKING, new ZVector3D(this.movingYaw, 0, this.tryingToMove ? force : 0, false)));
+		// TODO replace with update system
+		this.setWalkingForce(this.getEntity().getCurrent().setForce(FORCE_NAME_WALKING, new ZVector3D(this.movingYaw, 0, this.tryingToMove ? force : 0, false)));
 	}
 	
 	@Override

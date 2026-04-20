@@ -1,9 +1,9 @@
-package zgame.things.entity.state.velocity;
+package zgame.things.entity.state.vector;
 
 import zgame.physics.ZVector;
 
 /** A velocity update to clear all velocity to zero */
-public class ClearVelocity<V extends ZVector<V>> implements VelocityUpdate<V>{
+public class ClearVector<V extends ZVector<V>> implements VectorUpdate<V>{
 	
 	@Override
 	public V apply(V existing){

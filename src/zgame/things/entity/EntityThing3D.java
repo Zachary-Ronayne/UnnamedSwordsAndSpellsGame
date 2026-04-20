@@ -28,7 +28,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	/**
 	 * Create a new empty entity with the given mass
 	 *
-	 * @param mass See {@link #mass}
+	 * @param mass The initial mass of the entity
 	 */
 	public EntityThing3D(double mass){
 		this(0, 0, 0, mass);
@@ -40,7 +40,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 * @param z See {@link #z}
-	 * @param mass See {@link #mass}
+	 * @param mass The initial mass of the entity
 	 */
 	public EntityThing3D(double x, double y, double z, double mass){
 		super(mass);
@@ -73,7 +73,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	 * @return The newly set vector object
 	 */
 	public ZVector3D setForce(String name, double x, double y, double z){
-		return this.setForce(name, new ZVector3D(x, y, z));
+		return this.getCurrent().setForce(name, new ZVector3D(x, y, z));
 	}
 	
 	@Override

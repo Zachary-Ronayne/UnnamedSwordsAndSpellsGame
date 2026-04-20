@@ -71,6 +71,7 @@ public class Hub extends ZusassRoom{
 		player.setX(2);
 		player.setY(1);
 		player.setZ(3);
+		player.clearVelocity();
 		this.addThing(player);
 		player.updateCameraPos(zgame.getCamera3D());
 	}

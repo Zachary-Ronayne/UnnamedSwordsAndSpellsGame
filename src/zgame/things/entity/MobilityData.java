@@ -77,9 +77,10 @@ public abstract class MobilityData<H extends HitBox<H, C>, E extends EntityThing
 		this.wallJumpAvailable = false;
 		this.groundedSinceLastJump = false;
 		
-		this.walkingForce = entity.setForce(FORCE_NAME_WALKING, this.entity.zeroVector());
-		this.flyingForce = entity.setForce(FORCE_NAME_FLYING, this.entity.zeroVector());
-		this.jumpingForce = entity.setForce(FORCE_NAME_JUMPING, this.entity.zeroVector());
+		// TODO replace with update system
+		this.walkingForce = entity.getCurrent().setForce(FORCE_NAME_WALKING, this.entity.zeroVector());
+		this.flyingForce = entity.getCurrent().setForce(FORCE_NAME_FLYING, this.entity.zeroVector());
+		this.jumpingForce = entity.getCurrent().setForce(FORCE_NAME_JUMPING, this.entity.zeroVector());
 		
 		this.setType(MobilityType.WALKING);
 	}
@@ -176,7 +177,8 @@ public abstract class MobilityData<H extends HitBox<H, C>, E extends EntityThing
 			return;
 		}
 		
-		this.walkingForce = this.getEntity().setForce(FORCE_NAME_WALKING, walkingForce);
+		// TODO replace with update system
+		this.walkingForce = this.getEntity().getCurrent().setForce(FORCE_NAME_WALKING, walkingForce);
 	}
 	
 	/** @return See {@link #flyingForce} */
@@ -192,7 +194,8 @@ public abstract class MobilityData<H extends HitBox<H, C>, E extends EntityThing
 			return;
 		}
 		
-		this.flyingForce = this.getEntity().setForce(FORCE_NAME_FLYING, flyingForce);
+		// TODO replace with update system
+		this.flyingForce = this.getEntity().getCurrent().setForce(FORCE_NAME_FLYING, flyingForce);
 	}
 	
 	/** @return See {@link #jumpingForce} */
@@ -228,22 +231,24 @@ public abstract class MobilityData<H extends HitBox<H, C>, E extends EntityThing
 	/** Update all necessary forces to make {@link #entity} able to walk and not other forms of movement */
 	public void updateWalkForces(){
 		var thing = this.getEntity();
-		thing.removeForce(FORCE_NAME_FLYING);
+		// TODO replace with update system
+		thing.getCurrent().removeForce(FORCE_NAME_FLYING);
 		
-		thing.setForce(FORCE_NAME_WALKING, this.walkingForce);
+		thing.getCurrent().setForce(FORCE_NAME_WALKING, this.walkingForce);
 		this.jumpingForce = thing.zeroVector();
-		thing.setForce(FORCE_NAME_JUMPING, this.jumpingForce);
-		thing.setGravityLevel(1);
+		thing.getCurrent().setForce(FORCE_NAME_JUMPING, this.jumpingForce);
+		thing.getCurrent().setGravityLevel(1);
 	}
 	
 	/** Update all necessary forces to make {@link #entity} able to fly and not other forms of movement */
 	public void updateFlyForces(){
 		var thing = this.getEntity();
-		thing.removeForce(FORCE_NAME_WALKING);
-		thing.removeForce(FORCE_NAME_JUMPING);
+		// TODO replace with update system
+		thing.getCurrent().removeForce(FORCE_NAME_WALKING);
+		thing.getCurrent().removeForce(FORCE_NAME_JUMPING);
 		
-		thing.setForce(FORCE_NAME_FLYING, this.flyingForce);
-		thing.setGravityLevel(0);
+		thing.getCurrent().setForce(FORCE_NAME_FLYING, this.flyingForce);
+		thing.getCurrent().setGravityLevel(0);
 	}
 	
 }

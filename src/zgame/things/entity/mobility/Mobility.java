@@ -236,6 +236,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	}
 	
 	// TODO make jumping, and probably forces, work with the new state system
+	// TODO fix player floating randomly and properly move all force tracking to use an update system
 	/**
 	 * Update the value of {@link MobilityData#jumpingForce} based on the current state of {@link #getThing()}
 	 *
