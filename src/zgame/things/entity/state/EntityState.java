@@ -21,10 +21,12 @@ public class EntityState<V extends ZVector<V>>{
 	/** The current velocity of the associated {@link EntityThing} */
 	private V velocity;
 	
-	private final ArrayList<VectorUpdate<V>> velocityUpdates;
+	private final VectorUpdateList<V> velocityUpdates;
+	
+	private final VectorUpdateMap<String, V> forceUpdates;
 	
 	/** Every force currently acting on this {@link EntityThing}, mapped by a name */
-	private final Map<String, V> forces;
+	private final HashMap<String, V> forces;
 	
 	// TODO consider if this should be here or not, or maybe it should be in the generic state
 	/** The amount of time a single tick will take */
@@ -42,27 +44,30 @@ public class EntityState<V extends ZVector<V>>{
 	/** The current acceleration of gravity */
 	private double gravityAcceleration;
 	
+	// TODO consider if this should be a variable like this
+	private final double clampVelocity;
 	
-	// TODO use proper type parameters
-	// TODO probably don't make this pass in thing unless it's actually needed
-	public EntityState(EntityThing<?, ? ,V, ?, ?> thing, double gravityAcceleration){
+	public EntityState(V zeroVector, double gravityAcceleration, double clampVelocity){
+		this.clampVelocity = clampVelocity;
+		
 		// General misc fields
 		this.setGravityLevel(1);
 		this.setGravityAcceleration(gravityAcceleration);
 		
 		// Init main tracked velocity
-		this.velocity = thing.zeroVector();
-		this.velocityUpdates = new ArrayList<>();
+		this.velocity = zeroVector;
+		this.velocityUpdates = new VectorUpdateList<>();
+		this.forceUpdates = new VectorUpdateMap<>();
 		
 		// Init tracker for total force and main set of forces
-		this.totalForce = thing.zeroVector();
+		this.totalForce = zeroVector;
 		this.forces = new HashMap<>();
 		
 		// Init individual forces
-		this.setForce(FORCE_NAME_GRAVITY, thing.zeroVector());
-		this.setForce(FORCE_NAME_FRICTION, thing.zeroVector());
-		this.setForce(FORCE_NAME_GRAVITY_DRAG, thing.zeroVector());
-		this.setForce(FORCE_NAME_WALL_SLIDE, thing.zeroVector());
+		this.setForce(FORCE_NAME_GRAVITY, zeroVector);
+		this.setForce(FORCE_NAME_FRICTION, zeroVector);
+		this.setForce(FORCE_NAME_GRAVITY_DRAG, zeroVector);
+		this.setForce(FORCE_NAME_WALL_SLIDE, zeroVector);
 	}
 	
 	// TODO is passing in the previous state needed? Where should it be used that it isn't being used?
@@ -76,8 +81,12 @@ public class EntityState<V extends ZVector<V>>{
 		// TODO only update gravity if something has changed with its computation
 		this.setVerticalForce(FORCE_NAME_GRAVITY, this.getGravityAcceleration() * this.getMass() * this.getGravityLevel());
 		
+		// Compute updated forces
+		this.forceUpdates.applyAll(this.forces);
+		
 		// Compute new force
 		// No forces, there is no force
+		// TODO only recompute force if it changes?
 		if(this.forces.size() == 0) this.totalForce = this.totalForce.zero();
 		// Sum all forces
 		else{
@@ -89,18 +98,22 @@ public class EntityState<V extends ZVector<V>>{
 		}
 		
 		// Compute new velocity
-		var newVelocity = this.velocity;
-		var sortedUpdates = this.velocityUpdates.stream().sorted(Comparator.comparingDouble(VectorUpdate::priority)).toList();
-		for(var update : sortedUpdates){
-			newVelocity = update.apply(newVelocity);
-		}
-		this.velocity = newVelocity;
-		this.velocityUpdates.clear();
+		this.velocity = this.velocityUpdates.apply(this.velocity);
+		
+		// Find the current acceleration
+		var acceleration = this.getForce().scale(1.0 / this.getMass());
+		
+		// Add the acceleration to the current velocity
+		this.velocity = velocity.add(acceleration.scale(this.getTickTime()));
+		
+		// Account for clamping the velocity
+		double velMag = this.velocity.getMagnitude();
+		if(velMag != 0 && velMag < this.clampVelocity) this.velocity = this.velocity.zero();
 	}
 	
 	/** @param update A scheduled update to happen to velocity on the next tick */
 	public void updateVelocity(VectorUpdate<V> update){
-		this.velocityUpdates.add(update);
+		this.velocityUpdates.update(update);
 	}
 	
 	/** @return See {@link #velocity} */
@@ -149,12 +162,6 @@ public class EntityState<V extends ZVector<V>>{
 	public void setTickTime(double tickTime){
 		this.tickTime = tickTime;
 	}
-	
-	// TODO handle these using an update system, probably make it a mapping of updates and split it into separate classes for tracking each force vector
-	public void setFrictionForce(V newForce){
-		this.setForce(FORCE_NAME_FRICTION, newForce);
-	}
-	
 	// TODO make docs and potentially better name
 	public V setVerticalForce(String name, double f){
 		var oldForce = this.getForce(name);
@@ -191,6 +198,11 @@ public class EntityState<V extends ZVector<V>>{
 	/** @param gravityAcceleration See {@link #gravityAcceleration} */
 	public void setGravityAcceleration(double gravityAcceleration){
 		this.gravityAcceleration = gravityAcceleration;
+	}
+	
+	// TODO need to make all forces apply changes via udpate system, remove all of these methods
+	public void setFrictionForce(V newForce){
+		this.setForce(FORCE_NAME_FRICTION, newForce);
 	}
 	
 	/**

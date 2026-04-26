@@ -42,8 +42,8 @@ public abstract class GameThing<State> implements Comparable<GameThing<State>>, 
 	// TODO force this to be implemented per thing
 	// TODO should copying be handled here? Or every field must be explicitly overwritten
 	// TODO for now this will just have to be implemented per thing, need to find a real way to handle this
-	public State copyState(State target, State updated){
-		return target;
+	public State copyState(State current, State next){
+		return current;
 	}
 	
 	/** Move the {@link #next} state on to the {@link #current} state */

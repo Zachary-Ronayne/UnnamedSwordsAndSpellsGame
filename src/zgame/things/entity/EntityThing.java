@@ -88,17 +88,29 @@ public abstract class EntityThing<
 		this.noClip = false;
 	}
 	
+	// TODO make proper docs explaining the stages of updating state in each section
+	
 	@Override
 	public EntityState<V> initState(){
-		return new EntityState<>(this, this.getGravityAcceleration());
+		return new EntityState<>(this.zeroVector(), this.getGravityAcceleration(), this.getClampVelocity());
 	}
 	
 	@Override
-	public EntityState<V> copyState(EntityState<V> target, EntityState<V> updated){
-		target.applyState(updated);
-		this.updatePosition(target.getTickTime());
+	public void updateState(){
+		// TODO does doing it this way make sense?
 		
-		return target;
+		// Update state
+		super.updateState();
+		
+		// After finding the new state, move the entity
+		this.moveEntity(this.getVelocity());
+	}
+	
+	@Override
+	public EntityState<V> copyState(EntityState<V> current, EntityState<V> next){
+		current.applyState(next);
+		
+		return current;
 	}
 	
 	/** @return A new empty vector, representing no motion, for use with this entity. Should always return a new instance */
@@ -121,33 +133,9 @@ public abstract class EntityThing<
 		
 		// Account for sliding down walls
 		this.updateWallSideForce(dt);
-	}
-	
-	// TODO consolidate this into the current and next state system
-	/**
-	 * Update the position and velocity of this {@link EntityThing} based on its current forces and velocity
-	 *
-	 * @param dt The amount of time, in seconds, which passed in the tick where this update took place
-	 */
-	public void updatePosition(double dt){
+		
 		// Account for frictional force based on current ground material, must be updated directly before applying any movement
 		this.updateFrictionForce(dt);
-		
-		// Find the current acceleration
-		var acceleration = this.getForce().scale(1.0 / this.getMass());
-		
-		// TODO everything here needs to account for current and next state properly
-		
-		// Add the acceleration to the current velocity
-		var newVelocity = this.getVelocity().add(acceleration.scale(dt));
-		this.addVelocity(acceleration.scale(dt));
-		
-		// TODO does any of this work? Need to consider current vs next state
-		// Account for clamping the velocity
-		double velMag = newVelocity.getMagnitude();
-		if(velMag != 0 && velMag < this.getClampVelocity()) this.clearVelocity();
-		
-		this.moveEntity(newVelocity.scale(dt).add(acceleration.scale(dt * dt * 0.5)));
 	}
 	
 	/**

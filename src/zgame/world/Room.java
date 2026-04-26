@@ -243,6 +243,7 @@ public abstract class Room<
 			t.tick(dt);
 		}
 		
+		// TODO attempt to implement this properly again
 		// Check the collision of this room for entities
 		var entities = this.getEntities();
 		for(int i = 0; i < entities.size(); i++){
@@ -270,7 +271,6 @@ public abstract class Room<
 		// Run any functions which need to happen
 		for(int i = 0; i < this.nextTickFuncs.size(); i++) this.nextTickFuncs.get(i).run();
 		this.nextTickFuncs.clear();
-		
 	}
 	
 	/**
