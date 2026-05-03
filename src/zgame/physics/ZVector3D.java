@@ -50,6 +50,7 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	 * @param a If comps is true, see {@link #x}, otherwise see {@link #yaw}
 	 * @param b If comps is true, See {@link #y}, otherwise see {@link #pitch}
 	 * @param c If comps is true, See {@link #z}, otherwise see {@link #magnitude}
+	 * TODO probably remove this comps flag with private constructors using static to avoid awkwardly passing in a boolean
 	 * @param comps true if a, b, and c represent the x, y, and z components of this {@link ZVector2D}, otherwise, they represent the angles and magnitude
 	 */
 	public ZVector3D(double a, double b, double c, boolean comps){

@@ -2,62 +2,44 @@ package zgame.things.entity.mobility;
 
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
-import zgame.physics.collision.CollisionResult;
-import zgame.things.entity.EntityThing;
-import zgame.things.entity.MobilityData;
-import zgame.things.type.bounds.HitBox;
-import zgame.world.Room;
+import zgame.things.entity.MobilityState;
 
 /**
  * The base interface for defining how things move, walk, fly, etc
  *
- * @param <H> The type of hitbox which uses this class
- * @param <E> The type of entity which uses this class
  * @param <V> The type of vector which uses this class
- * @param <R> The type of room which E uses
  */
-public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V, R, C>, V extends ZVector<V>, R extends Room<H, E, V, R, C>, C extends CollisionResult<C>>{
+public interface Mobility<V extends ZVector<V>>{
 	
-	/** @return The {@link EntityThing} using this object */
-	default E getThing(){
-		return this.getMobilityData().getEntity();
-	}
-	
-	/** @return The {@link MobilityData} object holding the data for this interface */
-	MobilityData<H, E, V, R, C> getMobilityData();
+	/** @return The {@link MobilityState} object holding the data for this interface */
+	MobilityState<V> getMobilityState();
 	
 	/**
-	 * Perform the game update actions handling {@link #getThing()}'s walking and jumping
-	 *
-	 * @param dt The amount of time that passed in the update
+	 * Perform the game update actions handling mobility related actions
 	 */
-	default void mobilityTick(double dt){
-		this.getMobilityData().getType().tick(this, dt);
+	default void mobilityTick(){
+		this.getMobilityState().getType().tick(this);
 	}
 	
 	/**
 	 * Perform all actions needed to happen in a tick to make this thing walk
-	 *
-	 * @param dt The amount of time that passed in the tick
 	 */
-	default void walkingTick(double dt){
+	default void walkingTick(){
 		// After doing the normal tick and update with this entity's position and velocity and adding the jump velocity, reset the jump force to 0
-		this.getMobilityData().setJumpingForce(0);
+		this.getMobilityState().clearForce(MobilityState.FORCE_JUMPING);
 		
 		// Determine the new walking force
-		this.updateWalkForce(dt);
+		this.updateWalkForce();
 		
 		// Update the state of the jumping force
-		this.updateJumpState(dt);
+		this.updateJumpState();
 	}
 	
 	/**
 	 * Perform all actions needed to happen in a tick to make this thing fly
-	 *
-	 * @param dt The amount of time that passed in the tick
 	 */
-	default void flyingTick(double dt){
-		this.updateFlyForce(dt);
+	default void flyingTick(){
+		this.updateFlyForce();
 	}
 	
 	/** @return true if this object represents currently walking or running, false otherwise i.e. not moving */
@@ -65,19 +47,19 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	
 	/** Tell this entity to stop walking */
 	default void stopWalking(){
-		this.getMobilityData().setWalkingForce(this.getThing().zeroVector());
+		this.getMobilityState().clearForce(MobilityState.FORCE_WALKING);
 	}
 	
 	/**
 	 * Calculate and then update the current walking force based on the next instance of time
-	 *
-	 * @param dt The amount of time that will pass in the next tick when{@link #getThing()} walks
 	 */
-	default void updateWalkForce(double dt){
+	default void updateWalkForce(){
+		var mobilityState = this.getMobilityState();
+		double dt = mobilityState.getTickTime();
+		
 		// issue#55 fix having too much control of movement while in the air, changing walking direction should decelerate and accelerate
 		
-		var entity = this.getThing();
-		double mass = entity.getMass();
+		double mass = mobilityState.getMass();
 		double walkForce = this.getWalkPower() / dt;
 		// See if trying to walk before doing any modifications to the walk force
 		boolean walking = walkForce != 0;
@@ -87,7 +69,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		if(this.isSprinting()) maxSpeed *= this.getSprintingRatio();
 		
 		// If the current velocity is greater than the max speed, and entity is trying to walk in the same direction as the current velocity, walk force will always be zero
-		var currentVel = entity.getVelocity();
+		var currentVel = mobilityState.getVelocity();
 		var currentVelMag = currentVel.getHorizontal();
 		double tryRatio = this.getMobilityTryingRatio();
 		if(currentVelMag > maxSpeed && walkForce > 0 && tryRatio > 0) {
@@ -106,13 +88,13 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			if(currentVelMag >= maxSpeed){
 				walkForce = 0;
 				// TODO figure out how this should work formally in a state system
-				entity.attemptSetVelocity(this.createTryingToMoveVectorHorizontal(currentVelMag).modifyVerticalValue(currentVel.getVerticalValue()));
+				mobilityState.attemptSetVelocity(this.createTryingToMoveVectorHorizontal(currentVelMag).modifyVerticalValue(currentVel.getVerticalValue()));
 			}
 			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
 			else if(Math.abs(newVel) >= maxSpeed){
 				walkForce = 0;
 				// TODO figure out how this should work formally in a state system
-				entity.attemptSetVelocity(this.createTryingToMoveVectorHorizontal(maxSpeed).modifyVerticalValue(currentVel.getVerticalValue()));
+				mobilityState.attemptSetVelocity(this.createTryingToMoveVectorHorizontal(maxSpeed).modifyVerticalValue(currentVel.getVerticalValue()));
 			}
 		}
 		
@@ -129,14 +111,14 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	
 	/**
 	 * Calculate and then update the current flying force based on the next instance of time
-	 *
-	 * @param dt The amount of time that will pass in the next tick when{@link #getThing()} flies
 	 */
-	default void updateFlyForce(double dt){
-		var entity = this.getThing();
-		var currentVel = entity.getVelocity();
+	default void updateFlyForce(){
+		var state = this.getMobilityState();
+		var dt = state.getTickTime();
 		
-		double mass = entity.getMass();
+		var currentVel = state.getVelocity();
+		
+		double mass = state.getMass();
 		double newFlyForce = this.getFlyPower() / dt;
 		double maxSpeed = this.getFlySpeedMax();
 		double currentVelMag = currentVel.getMagnitude();
@@ -152,13 +134,13 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			if(currentVelMag >= maxSpeed){
 				newFlyForce = 0;
 				// TODO figure out how this should work formally in a state system
-				this.getThing().attemptSetVelocity(this.createTryingToMoveVector(currentVelMag));
+				state.attemptSetVelocity(this.createTryingToMoveVector(currentVelMag));
 			}
 			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
 			else if(Math.abs(currentVelMag + initialFlyForceVel) >= maxSpeed){
 				newFlyForce = 0;
 				// TODO figure out how this should work formally in a state system
-				this.getThing().attemptSetVelocity(this.createTryingToMoveVector(maxSpeed));
+				state.attemptSetVelocity(this.createTryingToMoveVector(maxSpeed));
 			}
 			// Otherwise, just apply the already calculated full amount for newFlyForce
 		}
@@ -169,7 +151,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			
 			// If applying the force would move the velocity below 0, then hard set velocity to 0 and apply no force
 			if(stopVel < 0){
-				entity.clearVelocity();
+				state.clearVelocity();
 				newFlyForce = 0;
 			}
 			else{
@@ -185,7 +167,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	}
 	
 	/**
-	 * Create a vector for {@link #getThing()} with the given magnitude, and in the direction this thing is trying to move in
+	 * Create a vector with the given magnitude, and in the direction this thing is trying to move in
 	 *
 	 * @param magnitude The magnitude
 	 * @return The vector
@@ -193,7 +175,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	V createTryingToMoveVector(double magnitude);
 	
 	/**
-	 * Create a vector for {@link #getThing()} with the given magnitude, and in the direction this thing is trying to move in, exclusively on the horizontal axis
+	 * Create a vector with the given magnitude, and in the direction this thing is trying to move in, exclusively on the horizontal axis
 	 *
 	 * @param magnitude The magnitude
 	 * @return The vector
@@ -214,36 +196,33 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	 */
 	double getMobilityTryingRatio();
 	
-	/** @return true if {@link #getThing()} is able to perform a normal jump off the ground based on the amount of time since it last touched a wall, false otherwise */
+	/** @return true if able to perform a normal jump off the ground based on the amount of time since it last touched a wall, false otherwise */
 	default boolean hasTimeToFloorJump(){
-		var entity = this.getThing();
-		if(this.getNormalJumpTime() == -1) return entity.getGroundTime() == -1;
-		return entity.getGroundTime() <= this.getNormalJumpTime();
+		var state = this.getMobilityState();
+		if(this.getNormalJumpTime() == -1) return state.getGroundTime() == -1;
+		return state.getGroundTime() <= this.getNormalJumpTime();
 	}
 	
-	/** @return true if this {@link #getThing()} is able to perform a wall jump based on the amount of time since it last touched a wall, false otherwise */
+	/** @return true if able to perform a wall jump based on the amount of time since it last touched a wall, false otherwise */
 	default boolean hasTimeToWallJump(){
-		var entity = this.getThing();
-		if(this.getWallJumpTime() == -1) return entity.getWallTime() == -1;
-		return entity.getWallTime() <= this.getWallJumpTime();
+		var state = this.getMobilityState();
+		if(this.getWallJumpTime() == -1) return state.getWallTime() == -1;
+		return state.getWallTime() <= this.getWallJumpTime();
 	}
 	
 	/** Remove any jump time built up */
 	default void cancelJump(){
-		var mobilityData = this.getMobilityData();
+		var mobilityData = this.getMobilityState();
 		mobilityData.setBuildingJump(false);
 		mobilityData.setJumpTimeBuilt(0);
 	}
 	
-	// TODO make jumping, and probably forces, work with the new state system
-	// TODO fix player floating randomly and properly move all force tracking to use an update system
 	/**
-	 * Update the value of {@link MobilityData#jumpingForce} based on the current state of {@link #getThing()}
-	 *
-	 * @param dt The amount of time, in seconds, that will pass in the next tick when {@link #getThing()} stops jumping
+	 * Update the value of the jumping force
 	 */
-	default void updateJumpState(double dt){
-		var mobilityData = this.getMobilityData();
+	default void updateJumpState(){
+		var mobilityData = this.getMobilityState();
+		double dt = mobilityData.getTickTime();
 		
 		// This entity can jump if it's on the ground, or if it can wall jump and is on a wall
 		mobilityData.setCanJump(
@@ -258,12 +237,12 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		if(mobilityData.isStoppingJump()){
 			// Can only stop jumping if it's allowed
 			if(!this.isCanStopJump()) return;
-			var entity = this.getThing();
+			var state = this.getMobilityState();
 			// Only need to stop jumping if this entity is moving up
-			double vy = entity.getVerticalVel();
+			double vy = state.getVelocity().getVertical();
 			boolean invert = this.jumpingInverted();
 			if(invert && vy < 0 || !invert && vy > 0){
-				double mass = entity.getMass();
+				double mass = state.getMass();
 				double power = this.getJumpStopPower();
 				double newStopJumpVel = power / mass;
 				double newStopJumpForce = -power / dt;
@@ -273,20 +252,20 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 				 apply no force and set vertical velocity to 0
 				 */
 				if(!invert && vy > newStopJumpVel || invert && vy < newStopJumpVel){
-					mobilityData.setJumpingForce(0);
-					entity.getNext().clearVelocityVertical();
+					mobilityData.clearForce(MobilityState.FORCE_JUMPING);
+					state.clearVelocityVertical();
 					return;
 				}
 				
 				// Account for inverted jumping axis
 				if(invert) newStopJumpForce = -newStopJumpForce;
 				
-				mobilityData.setJumpingForce(newStopJumpForce);
+				mobilityData.attemptSetVerticalForce(MobilityState.FORCE_JUMPING, newStopJumpForce);
 			}
 			// Otherwise it is no longer stopping its jump, so remove the stopping force amount
 			else{
 				mobilityData.setStoppingJump(false);
-				mobilityData.setJumpingForce(0);
+				mobilityData.clearForce(MobilityState.FORCE_JUMPING);
 			}
 		}
 	}
@@ -299,7 +278,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	 * @return true if the jump occurred or started building up, false otherwise
 	 */
 	default boolean jump(double dt){
-		var mobilityData = this.getMobilityData();
+		var mobilityData = this.getMobilityState();
 		if(!mobilityData.isCanJump() || mobilityData.getJumpTimeBuilt() > 0 || mobilityData.isJumping()) return false;
 		
 		// If it takes no time to jump, jump right away
@@ -317,10 +296,9 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	 * @param dt The amount of time, in seconds, that will pass in one tick after the entity jumps off the ground
 	 */
 	default void jumpFromBuiltUp(double dt){
-		var mobilityData = this.getMobilityData();
+		var mobilityData = this.getMobilityState();
 		
 		if(!mobilityData.isCanJump()) return;
-		var entity = this.getThing();
 		
 		mobilityData.setJumping(true);
 		mobilityData.setGroundedSinceLastJump(false);
@@ -335,8 +313,9 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		if(invert) jumpAmount = -jumpAmount;
 		
 		// If falling downwards, add additional force so that the jump force will counteract the current downwards force
-		double vy = entity.getVerticalVel();
-		double mass = entity.getMass();
+		var state = this.getMobilityState();
+		double vy = state.getVelocity().getVertical();
+		double mass = state.getMass();
 		if(invert && vy > 0 || !invert && vy < 0){
 			double adjust = vy / dt * mass;
 			if(invert) jumpAmount += adjust;
@@ -348,17 +327,17 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 			jumpAmount = 0;
 		}
 		
-		mobilityData.setJumpingForce(jumpAmount);
+		mobilityData.attemptSetVerticalForce(MobilityState.FORCE_JUMPING, jumpAmount);
 		mobilityData.setJumpTimeBuilt(0);
 		mobilityData.setBuildingJump(false);
 	}
 	
-	/** Cause this {@link #getThing()} to stop jumping. Does nothing if this entity is not currently jumping */
+	/** Stop all jumping. Does nothing if not currently jumping */
 	default void stopJump(){
-		var mobilityData = this.getMobilityData();
+		var mobilityData = this.getMobilityState();
 		
 		if(!mobilityData.isJumping()) return;
-		mobilityData.setJumpingForce(0);
+		mobilityData.clearForce(MobilityState.FORCE_JUMPING);
 		mobilityData.setJumping(false);
 		mobilityData.setStoppingJump(true);
 	}
@@ -370,7 +349,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	 */
 	default void checkPerformOrStopJump(double dt){
 		// if jumps should be instant, or no jump time is being built up, then stop the jump
-		if(this.jumpsAreInstant() || this.getMobilityData().getJumpTimeBuilt() == 0){
+		if(this.jumpsAreInstant() || this.getMobilityState().getJumpTimeBuilt() == 0){
 			this.stopJump();
 		}
 		// Otherwise, perform the built up jump
@@ -382,7 +361,7 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 		return false;
 	}
 	
-	/** @return true if {@link #getThing()} jumps instantly, false if it has to build up a jump */
+	/** @return true jumps are instant, false if jumps must be built up */
 	default boolean jumpsAreInstant(){
 		return this.getJumpBuildTime() == 0;
 	}
@@ -471,9 +450,9 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	}
 	
 	/** This method should be called when the associated entity touches a floor */
-	default void mobilityTouchFloor(C collision){
-		var mobilityData = this.getMobilityData();
-		mobilityData.setJumpingForce(0);
+	default void mobilityTouchFloor(){
+		var mobilityData = this.getMobilityState();
+		mobilityData.clearForce(MobilityState.FORCE_JUMPING);
 		mobilityData.setJumping(false);
 		mobilityData.setWallJumpAvailable(true);
 	}
@@ -492,9 +471,9 @@ public interface Mobility<H extends HitBox<H, C>, E extends EntityThing<H, E, V,
 	
 	/** @return The friction constant that this thing should have, based on its current walking state */
 	default double getWalkFrictionConstant(){
-		var entity = this.getThing();
+		var state = this.getMobilityState();
 		// If not on the ground, use the normal amount of friction, otherwise, if currently trying to move, return walk friction, otherwise, return stop friction
-		return !entity.isOnGround() ? 1 : (this.isTryingToMove()) ? this.getWalkFriction() : this.getWalkStopFriction();
+		return !state.isOnGround() ? 1 : (this.isTryingToMove()) ? this.getWalkFriction() : this.getWalkStopFriction();
 	}
 	
 }

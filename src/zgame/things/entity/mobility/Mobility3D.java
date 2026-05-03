@@ -2,39 +2,35 @@ package zgame.things.entity.mobility;
 
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector3D;
-import zgame.physics.collision.CollisionResult3D;
-import zgame.things.entity.EntityThing3D;
-import zgame.things.entity.MobilityData3D;
-import zgame.things.type.bounds.HitBox3D;
-import zgame.world.Room3D;
+import zgame.things.entity.MobilityState;
+import zgame.things.entity.MobilityState3D;
 
 /** An interface used to control movement in 3D */
-public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D>{
+public interface Mobility3D extends Mobility<ZVector3D>{
 	
 	@Override
-	MobilityData3D getMobilityData();
+	MobilityState3D getMobilityState();
 	
 	@Override
 	default void applyWalkForce(double newWalkForce){
-		this.getMobilityData().updateWalkingForce(newWalkForce);
+		this.getMobilityState().updateWalkingForce(newWalkForce);
 	}
 	
 	@Override
 	default void applyFlyForce(double newFlyForce, boolean applyFacing){
-		this.getMobilityData().updateFlyingForce(newFlyForce, applyFacing);
+		this.getMobilityState().updateFlyingForce(newFlyForce, applyFacing);
 	}
 	
 	@Override
 	default double getMobilityTryingRatio(){
-		var mobilityData = this.getMobilityData();
-		double movingH = mobilityData.getMovingYaw();
-		double movingV = mobilityData.getMovingPitch();
+		var state = this.getMobilityState();
+		double movingH = state.getMovingYaw();
+		double movingV = state.getMovingPitch();
 		
-		var thing = this.getThing();
-		var totalVel = thing.getVelocity();
-		double threshold = thing.getClampVelocity();
+		var totalVel = state.getVelocity();
+		double threshold = state.getClampVelocity();
 		double currentH = (totalVel.getHorizontal() > threshold) ? totalVel.getYaw() : movingH;
-		double currentV = (mobilityData.isTryingToMoveVertical() && totalVel.getVertical() > threshold) ? totalVel.getPitch() : movingV;
+		double currentV = (state.isTryingToMoveVertical() && totalVel.getVertical() > threshold) ? totalVel.getPitch() : movingV;
 		
 		double diffH = ZMath.angleDiff(movingH, currentH);
 		double diffV = ZMath.angleDiff(movingV, currentV);
@@ -56,7 +52,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	 * @param down true if this object is moving down, false otherwise. Only does anything if flying is true
 	 */
 	default void handleMobilityControls(double dt, double yaw, double pitch, boolean left, boolean right, boolean forward, boolean backward, boolean up, boolean down){
-		var mobilityData = this.getMobilityData();
+		var mobilityState = this.getMobilityState();
 		/*
 		This random rotation by half pi doesn't really make sense, and there's probably somewhere in the engine that is effectively
 		rotating everything by 90 degrees. The adjustment accounts for the weird offset with the camera, so that
@@ -64,13 +60,13 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 		 */
 		double adjustedYaw = yaw - ZMath.PI_BY_2;
 		double adjustedPitch = -pitch;
-		mobilityData.setFacingYaw(adjustedYaw);
-		mobilityData.setFacingPitch(adjustedPitch);
+		mobilityState.setFacingYaw(adjustedYaw);
+		mobilityState.setFacingPitch(adjustedPitch);
 		
-		var mobilityType = mobilityData.getType();
+		var mobilityType = mobilityState.getType();
 		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){
 			// issue#37 fix flying feeling borked when trying to move in more than one direction at once, i.e. left, up, and back
-			mobilityData.setTryingToMove(left != right || up != down || forward != backward);
+			mobilityState.setTryingToMove(left != right || up != down || forward != backward);
 			double movingPitch;
 			double movingYaw = adjustedYaw;
 			
@@ -96,20 +92,20 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 			// Only the vertical axis needs to be inverted here because only one axis needs to be inverted
 			if(backward && !forward) movingPitch = movingPitch + Math.PI;
 			
-			mobilityData.setMovingYaw(ZMath.angleNormalized(movingYaw));
-			mobilityData.setMovingPitch(ZMath.angleNormalized(movingPitch));
+			mobilityState.setMovingYaw(ZMath.angleNormalized(movingYaw));
+			mobilityState.setMovingPitch(ZMath.angleNormalized(movingPitch));
 		}
 		else if(mobilityType == MobilityType.WALKING){
-			mobilityData.setTryingToMove(left != right || forward != backward);
+			mobilityState.setTryingToMove(left != right || forward != backward);
 			
-			if(mobilityData.isTryingToMove()){
+			if(mobilityState.isTryingToMove()){
 				double movingYaw = adjustedYaw;
 				// Account for moving backwards
 				if(backward && !forward) movingYaw = ZMath.angleNormalized(movingYaw + Math.PI);
 				
 				// Account for strafing
 				movingYaw += this.calculateStrafeModifier(left, right, forward, backward);
-				mobilityData.setMovingYaw(movingYaw);
+				mobilityState.setMovingYaw(movingYaw);
 			}
 			
 			// Jump if holding the jump button
@@ -119,7 +115,7 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 			// For not holding the button
 			else this.checkPerformOrStopJump(dt);
 			
-			if(!left && !right && !forward && !backward && mobilityData.getWalkingForce().getMagnitude() != 0) this.stopWalking();
+			if(!left && !right && !forward && !backward && mobilityState.getForce(MobilityState.FORCE_WALKING).getMagnitude() != 0) this.stopWalking();
 		}
 	}
 	
@@ -152,18 +148,18 @@ public interface Mobility3D extends Mobility<HitBox3D, EntityThing3D, ZVector3D,
 	
 	@Override
 	default boolean isTryingToMove(){
-		return this.getMobilityData().isTryingToMove();
+		return this.getMobilityState().isTryingToMove();
 	}
 	
 	@Override
 	default ZVector3D createTryingToMoveVector(double magnitude){
-		var data = this.getMobilityData();
+		var data = this.getMobilityState();
 		return new ZVector3D(data.getMovingYaw(), data.getMovingPitch(), magnitude, false);
 	}
 	
 	@Override
 	default ZVector3D createTryingToMoveVectorHorizontal(double magnitude){
-		var data = this.getMobilityData();
+		var data = this.getMobilityState();
 		double movingAngle = data.getMovingYaw();
 		return new ZVector3D(Math.cos(movingAngle) * magnitude, 0, Math.sin(movingAngle) * magnitude);
 	}

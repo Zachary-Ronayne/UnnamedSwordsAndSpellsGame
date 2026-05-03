@@ -179,7 +179,7 @@ public class MainPlay extends PlayState{
 		// Draw the debug info of the player
 		if(debugInfo){
 			r.setFontSize(22);
-			var mobilityData = p.getMobilityData();
+			var mobilityData = p.getMobilityState();
 			double ty = ZusassGame.window().getHeight() - 5;
 			var yaw = mobilityData.getFacingYaw();
 			var velocity = p.getVelocity();

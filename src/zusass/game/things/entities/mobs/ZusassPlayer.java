@@ -173,7 +173,7 @@ public class ZusassPlayer extends ZusassMob{
 		
 		if(!this.isInputDisabled()) this.checkInput(dt);
 		
-		var mobilityData = this.getMobilityData();
+		var mobilityData = this.getMobilityState();
 		
 		// Move the camera to the player after repositioning the player
 		/*
@@ -350,12 +350,12 @@ public class ZusassPlayer extends ZusassMob{
 		// Billboard rendering of the player
 		r.drawPlaneBufferSide(
 				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(), this.getWidth(), this.getHeight(),
-				this.getMobilityData().getFacingYaw(),
+				this.getMobilityState().getFacingYaw(),
 				ImageManager.image(ZusassImages.ZUSASS_PLAYER).getId());
 		
 		if(ZusassDebugFlags.PLAYER_LOOK_RANGER_MARKER){
 			var c = new ZColor(.5, 0, 0);
-			var facing = new ZVector3D(this.getMobilityData().getFacingYaw(), this.getMobilityData().getFacingPitch(), this.getClickRange(), false);
+			var facing = new ZVector3D(this.getMobilityState().getFacingYaw(), this.getMobilityState().getFacingPitch(), this.getClickRange(), false);
 			var sx = this.getClickX() + facing.getX();
 			var sy = this.getClickY() + facing.getY();
 			var sz = this.getClickZ() + facing.getZ();

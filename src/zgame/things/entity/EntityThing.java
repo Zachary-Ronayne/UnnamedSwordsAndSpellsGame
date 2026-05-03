@@ -36,6 +36,7 @@ public abstract class EntityThing<
 	/** The uuid of this entity */
 	private final String uuid;
 
+	// TODO move most of these variables into the entity state
 	/** The amount of time in seconds since this {@link EntityThing} last touched the ground, or -1 if it is currently on the ground */
 	private double groundTime;
 	
@@ -72,7 +73,7 @@ public abstract class EntityThing<
 		super();
 		this.uuid = UUID.randomUUID().toString();
 		
-		// TODO update mass properly, also probably remove it from the constructor
+		// TODO update mass properly, also probably remove it from the constructor, just default the value to 1, and anything that needs to set mass can do it in its constructor
 		this.getCurrent().setMass(mass);
 		this.getNext().setMass(mass);
 		this.material = Materials.DEFAULT_ENTITY;
@@ -91,8 +92,13 @@ public abstract class EntityThing<
 	// TODO make proper docs explaining the stages of updating state in each section
 	
 	@Override
-	public EntityState<V> initState(){
-		return new EntityState<>(this.zeroVector(), this.getGravityAcceleration(), this.getClampVelocity());
+	public final EntityState<V> initState(){
+		return this.initEntityState(this.zeroVector(), this.getGravityAcceleration(), this.getClampVelocity());
+	}
+	
+	// TODO maybe make a better way of doing this than making each child class have to pass along all of these fields, for now making initState final so that these values are passed to mobility entity
+	protected EntityState<V> initEntityState(V zeroVector, double gravityAcceleration, double clampVelocity){
+		return new EntityState<>(zeroVector, gravityAcceleration, clampVelocity);
 	}
 	
 	@Override
@@ -268,7 +274,7 @@ public abstract class EntityThing<
 		// or the max slide velocity is negative or the slideStopForce is negative
 		double vy = this.getVerticalVel();
 		if(maxSlideVel < 0 || slideStopForce < 0 || vy <= maxSlideVel || !this.isOnWall()){
-			this.setVerticalForce(EntityState.FORCE_WALL_SLIDE, 0);
+			this.getNext().clearForce(EntityState.FORCE_WALL_SLIDE);
 			return;
 		}
 		// The base amount of force to apply for sliding is the opposite of gravity
@@ -456,8 +462,8 @@ public abstract class EntityThing<
 		this.wallMaterial = Materials.NONE;
 		this.wallTime = 0;
 		
-		// TODO handle this with an update system
-		this.getCurrent().setVerticalForce(EntityState.FORCE_WALL_SLIDE, 0);
+		// On leaving a wall, there is no more wall slide force
+		this.getNext().clearForce(EntityState.FORCE_WALL_SLIDE);
 	}
 	
 	@Override

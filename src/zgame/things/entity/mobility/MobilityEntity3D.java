@@ -1,14 +1,13 @@
 package zgame.things.entity.mobility;
 
 import zgame.core.graphics.camera.GameCamera3D;
+import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.things.entity.*;
+import zgame.things.entity.state.EntityState;
 
 /** A 3D entity which uses mobility capabilities */
 public abstract class MobilityEntity3D extends EntityThing3D implements Mobility3D{
-	
-	/** The {@link MobilityData} object used by this object's implementation of {@link Mobility3D} */
-	private final MobilityData3D mobilityData;
 	
 	/** An amount of distance this entity's vision begins from in front of its normal vision position */
 	private double visionForwardDistance;
@@ -16,7 +15,7 @@ public abstract class MobilityEntity3D extends EntityThing3D implements Mobility
 	/**
 	 * Create a new empty entity with the given mass
 	 *
-	 * @param mass See {@link #mass}
+	 * @param mass The initial mass of the entity
 	 */
 	public MobilityEntity3D(double mass){
 		this(0, 0, 0, mass);
@@ -28,13 +27,16 @@ public abstract class MobilityEntity3D extends EntityThing3D implements Mobility
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
 	 * @param z See {@link #z}
-	 * @param mass See {@link #mass}
+	 * @param mass The initial mass of the entity
 	 */
 	public MobilityEntity3D(double x, double y, double z, double mass){
 		super(x, y, z, mass);
 		this.visionForwardDistance = 0;
-		
-		this.mobilityData = new MobilityData3D(this);
+	}
+	
+	@Override
+	protected EntityState<ZVector3D> initEntityState(ZVector3D zeroVector, double gravityAcceleration, double clampVelocity){
+		return new MobilityState3D(gravityAcceleration, clampVelocity);
 	}
 	
 	/** @return See {@link #visionForwardDistance} */
@@ -49,20 +51,22 @@ public abstract class MobilityEntity3D extends EntityThing3D implements Mobility
 	
 	@Override
 	public void tick(double dt){
-		this.mobilityTick(dt);
+		this.mobilityTick();
 		super.tick(dt);
 	}
 	
+	// TODO should the state be obtained this way? Probably replace this with using next or current where applicable
 	@Override
-	public MobilityData3D getMobilityData(){
-		return this.mobilityData;
+	public MobilityState3D getMobilityState(){
+		// TODO probably avoid having to cast this
+		return (MobilityState3D)this.getCurrent();
 	}
 	
 	@Override
 	public void touchFloor(CollisionResult3D collision){
 		super.touchFloor(collision);
-		this.mobilityTouchFloor(collision);
-		this.getMobilityData().setGroundedSinceLastJump(true);
+		this.mobilityTouchFloor();
+		this.getMobilityState().setGroundedSinceLastJump(true);
 	}
 	
 	@Override
@@ -87,6 +91,6 @@ public abstract class MobilityEntity3D extends EntityThing3D implements Mobility
 		 It is a little weird that roll is updated here but pitch and yaw are updated directly by the look method.
 		 The look method in the Game class maybe shouldn't directly affect the camera, but call a method the game can use to update some
 		 */
-		camera.setRoll(this.getMobilityData().getFacingRoll());
+		camera.setRoll(this.getMobilityState().getFacingRoll());
 	}
 }

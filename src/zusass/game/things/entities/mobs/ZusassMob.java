@@ -11,7 +11,6 @@ import zgame.core.sound.ManagedSoundSource;
 import zgame.core.sound.SoundSourceGroup;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint3D;
-import zgame.core.utils.ZStringUtils;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
 import zgame.stat.Stat;
@@ -21,7 +20,6 @@ import zgame.stat.modifier.StatModTracker;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.status.StatusEffect;
 import zgame.stat.status.StatusEffects;
-import zgame.things.entity.*;
 import zgame.things.entity.mobility.Mobility3D;
 import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.projectile.Projectile3D;
@@ -111,9 +109,6 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	/** The {@link MobilityData} object used by this object's implementation of {@link Mobility3D} */
-	private final MobilityData3D mobilityData;
-	
 	/** See {@link Mobility3D#getJumpBuildTime()} */
 	private double jumpBuildTime;
 	
@@ -147,7 +142,6 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		this.walkFriction = DEFAULT_WALK_FRICTION;
 		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
 		this.sprinting = false;
-		this.mobilityData = new MobilityData3D(this);
 		
 		this.stopWalking();
 		
@@ -310,11 +304,11 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		// Scale the time until attacking to make the arm move slowly at first, then quick at the end
 		double anglePerc = Math.PI / 8.0 + Math.pow(1 - time * speed, 7) * 0.5;
 		double attackSize = this.stat(ATTACK_RANGE);
-		double attackYaw = this.getMobilityData().getFacingYaw();
+		double attackYaw = this.getMobilityState().getFacingYaw();
 		
 		// Find the position where the arm will start
 		var attackDirectionVec = new ZVector3D(attackYaw, 0, attackSize, false);
-		var armBaseVec = new ZVector3D(this.getMobilityData().getFacingYaw() + ZMath.PI_BY_2, 0, this.getWidth() * 0.5, false);
+		var armBaseVec = new ZVector3D(this.getMobilityState().getFacingYaw() + ZMath.PI_BY_2, 0, this.getWidth() * 0.5, false);
 		
 		// Find the position where the arm will attack to
 		var basePoint = this.center();
@@ -330,7 +324,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		double dy = attackPoint.getY() - basePoint.getY();
 		double dz = attackPoint.getZ() - basePoint.getZ();
 		double yaw = ZMath.atan2Normalized(dz, dx);
-		double pitch = ZMath.atan2Normalized(dy, Math.sqrt(dx * dx + dz * dz)) + ZMath.atan2Normalized(armSize, 0) * anglePerc - this.getMobilityData().getFacingPitch();
+		double pitch = ZMath.atan2Normalized(dy, Math.sqrt(dx * dx + dz * dz)) + ZMath.atan2Normalized(armSize, 0) * anglePerc - this.getMobilityState().getFacingPitch();
 		
 		// Draw the final rotated rect
 		double armOffset = attackSize * -0.5;
@@ -697,12 +691,12 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	
 	@Override
 	public double getClickYaw(){
-		return this.getMobilityData().getFacingYaw();
+		return this.getMobilityState().getFacingYaw();
 	}
 	
 	@Override
 	public double getClickPitch(){
-		return this.getMobilityData().getFacingPitch();
+		return this.getMobilityState().getFacingPitch();
 	}
 	
 	@Override
@@ -715,11 +709,6 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		var jumped = super.jump(dt);
 		if(jumped) this.getStat(STAMINA).addValue(-6);
 		return jumped;
-	}
-	
-	@Override
-	public MobilityData3D getMobilityData(){
-		return this.mobilityData;
 	}
 	
 	@Override

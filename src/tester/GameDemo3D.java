@@ -298,7 +298,7 @@ public class GameDemo3D extends Game{
 			
 			// Toggle fly
 			if(button == GLFW_KEY_F){
-				var mobilityData = player.getMobilityData();
+				var mobilityData = player.getMobilityState();
 				mobilityData.setType(mobilityData.getType() == MobilityType.WALKING ? (shift ? MobilityType.FLYING_AXIS : MobilityType.FLYING) : MobilityType.WALKING);
 			}
 			
@@ -347,7 +347,7 @@ public class GameDemo3D extends Game{
 			super.tick(dt);
 			var ki = game.getKeyInput();
 			
-			var mobilityData = player.getMobilityData();
+			var mobilityData = player.getMobilityState();
 			
 			// Tilting the camera to the side
 			var tiltLeft = ki.pressed(GLFW_KEY_COMMA);
@@ -399,7 +399,7 @@ public class GameDemo3D extends Game{
 				player.setZ(2);
 				
 				player.clearMotion();
-				var m = player.getMobilityData();
+				var m = player.getMobilityState();
 				m.setFacingYaw(0);
 				m.setFacingPitch(0);
 				m.setFacingRoll(0);

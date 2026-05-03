@@ -54,6 +54,7 @@ public abstract class GameThing<State> implements Comparable<GameThing<State>>, 
 		// TODO need to either have a tick fully overwrite all state on current, or make this method copy the values of current onto next at this point
 	}
 	
+	// TODO potentially make current and next private or protected, if anything must modify or maybe even read the state, it should have to come from the class itself
 	/** @return See {@link #current} */
 	public State getCurrent(){
 		return this.current;

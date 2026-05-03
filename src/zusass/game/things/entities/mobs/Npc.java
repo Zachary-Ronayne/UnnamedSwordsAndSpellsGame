@@ -153,7 +153,7 @@ public class Npc extends ZusassMob{
 		r.setColor(0, 0.7, 0);
 		this.renderAttackTimer(r, ImageManager.image(ZusassImages.CLUB));
 		
-		double facingAngle = this.getMobilityData().getFacingYaw();
+		double facingAngle = this.getMobilityState().getFacingYaw();
 		
 		// If damaged, also render a red tint
 		boolean tintRed = this.getLastDamageTime() < 0.3;

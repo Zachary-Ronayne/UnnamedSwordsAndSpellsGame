@@ -2,81 +2,76 @@ package zgame.things.entity.mobility;
 
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector2D;
-import zgame.physics.collision.CollisionResult2D;
-import zgame.things.entity.EntityThing;
-import zgame.things.entity.EntityThing2D;
-import zgame.things.entity.MobilityData2D;
-import zgame.things.type.bounds.HitBox2D;
-import zgame.world.Room2D;
+import zgame.things.entity.MobilityState;
+import zgame.things.entity.MobilityState2D;
 
-/** A class that handles an {@link EntityThing} moving by walking and jumping */
-public interface Mobility2D extends Mobility<HitBox2D, EntityThing2D, ZVector2D, Room2D, CollisionResult2D>{
+/** A class that handles mobility actions like walking and jumping */
+public interface Mobility2D extends Mobility<ZVector2D>{
 	
 	@Override
-	MobilityData2D getMobilityData();
+	MobilityState2D getMobilityState();
 	
 	@Override
 	default boolean isTryingToMove(){
-		return this.getMobilityData().getWalkingDirection() != 0;
+		return this.getMobilityState().getWalkingDirection() != 0;
 	}
 	
 	/** Tell this entity to start walking to the left */
 	default void walkLeft(){
-		this.getMobilityData().setWalkingDirection(-1);
+		this.getMobilityState().setWalkingDirection(-1);
 	}
 	
 	/** Tell this entity to start walking to the right */
 	default void walkRight(){
-		this.getMobilityData().setWalkingDirection(1);
+		this.getMobilityState().setWalkingDirection(1);
 	}
 	
-	/** @return true {@link #getThing()} is walking to the left, false otherwise */
+	/** @return true if walking to the left, false otherwise */
 	default boolean walkingLeft(){
-		return this.getMobilityData().getWalkingDirection() < 0;
+		return this.getMobilityState().getWalkingDirection() < 0;
 	}
 	
-	/** @return true {@link #getThing()} is walking to the right, false otherwise */
+	/** @return true if walking to the right, false otherwise */
 	default boolean walkingRight(){
-		return this.getMobilityData().getWalkingDirection() > 0;
+		return this.getMobilityState().getWalkingDirection() > 0;
 	}
 	
 	@Override
 	default void stopWalking(){
-		this.getMobilityData().setWalkingDirection(0);
+		this.getMobilityState().setWalkingDirection(0);
 	}
 	
 	@Override
 	default boolean isSprinting(){
 		// -1 or 1 mean trying to walk in a particular direction, 0 means not trying to walk
-		return this.getMobilityData().getWalkingDirection() == 0;
+		return this.getMobilityState().getWalkingDirection() == 0;
 	}
 	
 	@Override
 	default void applyWalkForce(double newWalkForce){
-		var dir = this.getMobilityData().getWalkingDirection();
-		if(dir == 0) this.getMobilityData().setWalkingForce(0);
-		else this.getMobilityData().setWalkingForce(dir == 1 ? newWalkForce : -newWalkForce);
+		var dir = this.getMobilityState().getWalkingDirection();
+		if(dir == 0) this.getMobilityState().clearForce(MobilityState.FORCE_WALKING);
+		else this.getMobilityState().updateWalkingForce(dir == 1 ? newWalkForce : -newWalkForce);
 	}
 	
 	@Override
 	default void applyFlyForce(double newFlyForce, boolean applyFacing){
-		this.getMobilityData().updateFlyingForce(newFlyForce, applyFacing);
+		this.getMobilityState().updateFlyingForce(newFlyForce, applyFacing);
 	}
 	
 	@Override
 	default double getMobilityTryingRatio(){
-		var mobilityData = this.getMobilityData();
-		var mobilityType = mobilityData.getType();
+		var state = this.getMobilityState();
+		var mobilityType = state.getType();
 		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){
-			var thing = this.getThing();
-			var velocity = thing.getVelocity();
-			double angleDiff = ZMath.angleDiff(mobilityData.getFlyingAngle(), velocity.getAngle());
+			var velocity = state.getVelocity();
+			double angleDiff = ZMath.angleDiff(state.getFlyingAngle(), velocity.getAngle());
 			return angleDiff / ZMath.PI_BY_2 - 1;
 		}
 		else if(mobilityType == MobilityType.WALKING){
-			double walkingDirection = mobilityData.getWalkingDirection();
+			double walkingDirection = state.getWalkingDirection();
 			if(walkingDirection == 0) return 0;
-			double currentVel = this.getThing().getVX();
+			double currentVel = state.getVelocity().getX();
 			return ZMath.sameSign(currentVel, walkingDirection) ? 1 : -1;
 		}
 		return 0;
@@ -93,8 +88,8 @@ public interface Mobility2D extends Mobility<HitBox2D, EntityThing2D, ZVector2D,
 	 * @param dt The amount of time that passed during this instance of time
 	 */
 	default void handleMobilityControls(boolean moveLeft, boolean moveRight, boolean moveUp, boolean moveDown, boolean jump, double dt){
-		var data = this.getMobilityData();
-		var mobilityType = data.getType();
+		var state = this.getMobilityState();
+		var mobilityType = state.getType();
 		// Flying types don't matter for 2D, just has to be one of them
 		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){
 			int xDir;
@@ -108,10 +103,10 @@ public interface Mobility2D extends Mobility<HitBox2D, EntityThing2D, ZVector2D,
 			else yDir = 0;
 			
 			boolean tryingToMove = moveLeft != moveRight || moveDown != moveUp;
-			if(tryingToMove) data.setFlyingAngle(ZMath.atan2Normalized(yDir, xDir));
-			else data.setFlyingAngle(this.getThing().getVelocity().getAngle());
+			if(tryingToMove) state.setFlyingAngle(ZMath.atan2Normalized(yDir, xDir));
+			else state.setFlyingAngle(state.getVelocity().getAngle());
 			// 0 for not moving, 1 for moving
-			data.setWalkingDirection(tryingToMove ? 1 : 0);
+			state.setWalkingDirection(tryingToMove ? 1 : 0);
 		}
 		else if(mobilityType == MobilityType.WALKING){
 			// Move left and right
@@ -133,7 +128,7 @@ public interface Mobility2D extends Mobility<HitBox2D, EntityThing2D, ZVector2D,
 	
 	@Override
 	default ZVector2D createTryingToMoveVector(double magnitude){
-		var data = this.getMobilityData();
+		var data = this.getMobilityState();
 		var mobilityType = data.getType();
 		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){
 			return new ZVector2D(data.getFlyingAngle(), magnitude, false);

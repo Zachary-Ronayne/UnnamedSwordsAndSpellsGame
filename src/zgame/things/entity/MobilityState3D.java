@@ -1,40 +1,35 @@
 package zgame.things.entity;
 
 import zgame.physics.ZVector3D;
-import zgame.physics.collision.CollisionResult3D;
 import zgame.things.entity.mobility.Mobility3D;
 import zgame.things.entity.mobility.MobilityType;
-import zgame.things.type.bounds.HitBox3D;
-import zgame.world.Room3D;
 
-/** A type of {@link MobilityData} that exists in 3D space */
-public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D>{
+/** A type of {@link MobilityState} that exists in 3D space */
+public class MobilityState3D extends MobilityState<ZVector3D>{
 	
-	/** The angle, in radians, on the x z plane that {@link #entity} is attempting to move in, i.e. trying to move on the horizontal axis */
+	/** The angle, in radians, on the x z plane attempting to move in, i.e. trying to move on the horizontal axis */
 	private double movingYaw;
 	
-	/** The angle on the y axis where {@link #entity} is trying to move */
+	/** The angle on the y axis trying to move */
 	private double movingPitch;
 	
-	/** The angle, in radians, on the x z plane that {@link #entity} is facing in, i.e. facing on the horizontal axis */
+	/** The angle, in radians, on the x z plane is facing in, i.e. facing on the horizontal axis */
 	private double facingYaw;
 	
-	/** The angle on the y axis where {@link #entity} is facing */
+	/** The angle on the y axis facing */
 	private double facingPitch;
 	
-	/** The angle {@link #entity} has been rolled at with its perspective */
+	/** The angle rolled at with its perspective */
 	private double facingRoll;
 	
-	/** true if {@link #entity} wants to walk, false otherwise */
+	/** true if wanting to walk, false otherwise */
 	private boolean tryingToMove;
 	
 	/**
 	 * Create a new walk object for use in {@link Mobility3D}
-	 *
-	 * @param entity The entity which this walk object will hold data for
 	 */
-	public MobilityData3D(EntityThing3D entity){
-		super(entity);
+	public MobilityState3D(double gravityAcceleration, double clampVelocity){
+		super(new ZVector3D(), gravityAcceleration, clampVelocity);
 		
 		this.movingYaw = 0;
 		this.movingPitch = 0;
@@ -104,7 +99,7 @@ public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVecto
 		return this.tryingToMove;
 	}
 	
-	/** @return true if {@link #getEntity()} is trying to move vertically, false otherwise */
+	/** @return true if trying to move vertically, false otherwise */
 	public boolean isTryingToMoveVertical(){
 		return this.tryingToMove && this.getType() != MobilityType.WALKING;
 	}
@@ -116,8 +111,7 @@ public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVecto
 	
 	@Override
 	public void updateWalkingForce(double force){
-		// TODO replace with update system
-		this.setWalkingForce(this.getEntity().getCurrent().setForce(FORCE_NAME_WALKING, new ZVector3D(this.movingYaw, 0, this.tryingToMove ? force : 0, false)));
+		this.attemptSetForce(FORCE_WALKING, new ZVector3D(this.movingYaw, 0, this.tryingToMove ? force : 0, false));
 	}
 	
 	@Override
@@ -131,11 +125,11 @@ public class MobilityData3D extends MobilityData<HitBox3D, EntityThing3D, ZVecto
 		}
 		// When not trying to move, go based on the direction that movement is happening in
 		else{
-			var currentVel = this.getEntity().getVelocity();
+			var currentVel = this.getVelocity();
 			yaw = currentVel.getYaw();
 			pitch = currentVel.getPitch();
 		}
 		
-		this.setFlyingForce(new ZVector3D(yaw, pitch, force, false));
+		this.attemptSetForce(FORCE_FLYING, new ZVector3D(yaw, pitch, force, false));
 	}
 }

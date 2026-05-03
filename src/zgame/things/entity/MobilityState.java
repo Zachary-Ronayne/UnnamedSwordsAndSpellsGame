@@ -1,28 +1,24 @@
 package zgame.things.entity;
 
 import zgame.physics.ZVector;
-import zgame.physics.collision.CollisionResult;
 import zgame.things.entity.mobility.Mobility;
 import zgame.things.entity.mobility.Mobility2D;
 import zgame.things.entity.mobility.MobilityType;
-import zgame.things.type.bounds.HitBox;
-import zgame.world.Room;
+import zgame.things.entity.state.EntityState;
 
 /**
  * A data object used for storing values related to {@link Mobility}
  *
- * @param <H> The type of hitbox which uses this class
- * @param <E> The type of entity which uses this class
  * @param <V> The type of vectors using this class
  */
-public abstract class MobilityData<H extends HitBox<H, C>, E extends EntityThing<H, E, V, R, C>, V extends ZVector<V>, R extends Room<H, E, V, R, C>, C extends CollisionResult<C>>{
+public abstract class MobilityState<V extends ZVector<V>> extends EntityState<V>{
 	
 	/** The string used to identify the force used to make this walk */
-	public static final String FORCE_NAME_WALKING = "walking";
+	public static final String FORCE_WALKING = "walking";
 	/** The string used to identify the force used to make this fly */
-	public static final String FORCE_NAME_FLYING = "flying";
+	public static final String FORCE_FLYING = "flying";
 	/** The string used to identify the force used to make this jump */
-	public static final String FORCE_NAME_JUMPING = "jumping";
+	public static final String FORCE_JUMPING = "jumping";
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -34,15 +30,6 @@ public abstract class MobilityData<H extends HitBox<H, C>, E extends EntityThing
 	
 	/** true if this mob is able to wall jump, i.e. it has touched the ground since its last wall jump */
 	private boolean wallJumpAvailable;
-	
-	/** The vector keeping track of the force of this walking */
-	private V walkingForce;
-	
-	/** The force of jumping on this */
-	private V jumpingForce;
-	
-	/** The force applied to this thing to modify its movement based on flying */
-	private V flyingForce;
 	
 	/** The amount of time, in seconds, this has built up their jump height */
 	private double jumpTimeBuilt;
@@ -56,19 +43,18 @@ public abstract class MobilityData<H extends HitBox<H, C>, E extends EntityThing
 	/** true if this has hit the ground since it last jumped */
 	private boolean groundedSinceLastJump;
 	
-	/** The {@link EntityThing} using this walk object */
-	private final E entity;
-	
-	/** The current state describing the type of {@link #entity}'s mobility */
+	/** The current state describing the type of mobility */
 	private MobilityType type;
 	
 	/**
 	 * Create a new walk object for use in {@link Mobility2D}
 	 *
-	 * @param entity See {@link #entity}
+	 * @param zeroVector A vector with magnitude zero
+	 * @param gravityAcceleration The acceleration of gravity
+	 * @param clampVelocity A velocity where if velocity magnitude reaches a value below this, velocity will be zero
 	 */
-	public MobilityData(E entity){
-		this.entity = entity;
+	public MobilityState(V zeroVector, double gravityAcceleration, double clampVelocity){
+		super(zeroVector, gravityAcceleration, clampVelocity);
 		
 		this.canJump = false;
 		this.jumping = false;
@@ -77,17 +63,13 @@ public abstract class MobilityData<H extends HitBox<H, C>, E extends EntityThing
 		this.wallJumpAvailable = false;
 		this.groundedSinceLastJump = false;
 		
-		// TODO replace with update system
-		this.walkingForce = entity.getCurrent().setForce(FORCE_NAME_WALKING, this.entity.zeroVector());
-		this.flyingForce = entity.getCurrent().setForce(FORCE_NAME_FLYING, this.entity.zeroVector());
-		this.jumpingForce = entity.getCurrent().setForce(FORCE_NAME_JUMPING, this.entity.zeroVector());
+		// Init forces
+		// TODO should these be initialized like this?
+		this.setForce(FORCE_WALKING, zeroVector);
+		this.setForce(FORCE_FLYING, zeroVector);
+		this.setForce(FORCE_JUMPING, zeroVector);
 		
 		this.setType(MobilityType.WALKING);
-	}
-	
-	/** @return See {@link #entity} */
-	public E getEntity(){
-		return this.entity;
 	}
 	
 	/** @return true if this is in a position where it is allowed to jump, false otherwise */
@@ -165,55 +147,12 @@ public abstract class MobilityData<H extends HitBox<H, C>, E extends EntityThing
 		this.groundedSinceLastJump = groundedSinceLastJump;
 	}
 	
-	/** @return See {@link #walkingForce} */
-	public V getWalkingForce(){
-		return this.walkingForce;
-	}
-	
-	/** @param walkingForce See {@link #walkingForce} */
-	public void setWalkingForce(V walkingForce){
-		if(this.getType() != MobilityType.WALKING){
-			this.walkingForce = walkingForce;
-			return;
-		}
-		
-		// TODO replace with update system
-		this.walkingForce = this.getEntity().getCurrent().setForce(FORCE_NAME_WALKING, walkingForce);
-	}
-	
-	/** @return See {@link #flyingForce} */
-	public V getFlyingForce(){
-		return this.flyingForce;
-	}
-	
-	/** @param flyingForce See {@link #flyingForce} */
-	public void setFlyingForce(V flyingForce){
-		var type = this.getType();
-		if(type != MobilityType.FLYING && type != MobilityType.FLYING_AXIS){
-			this.flyingForce = flyingForce;
-			return;
-		}
-		
-		// TODO replace with update system
-		this.flyingForce = this.getEntity().getCurrent().setForce(FORCE_NAME_FLYING, flyingForce);
-	}
-	
-	/** @return See {@link #jumpingForce} */
-	public V getJumpingForce(){
-		return this.jumpingForce;
-	}
-	
-	/** @param jumpForce The amount of force applied to the y axis while this mob is jumping */
-	public void setJumpingForce(double jumpForce){
-		this.jumpingForce = this.getEntity().setVerticalForce(FORCE_NAME_JUMPING, jumpForce);
-	}
-	
 	/** @param force The amount of force moving during walking */
 	public abstract void updateWalkingForce(double force);
 	
 	/**
 	 * @param force The amount of force moving during flying
-	 * @param applyFacing true to apply the force in the direction {@link #entity} is facing, false for the movement direction
+	 * @param applyFacing true to apply the force in the facing direction, false for the movement direction
 	 */
 	public abstract void updateFlyingForce(double force, boolean applyFacing);
 	
@@ -228,27 +167,21 @@ public abstract class MobilityData<H extends HitBox<H, C>, E extends EntityThing
 		this.type.updateForces(this);
 	}
 	
-	/** Update all necessary forces to make {@link #entity} able to walk and not other forms of movement */
+	/** Update all necessary forces to walk and no other forms of movement */
 	public void updateWalkForces(){
-		var thing = this.getEntity();
-		// TODO replace with update system
-		thing.getCurrent().removeForce(FORCE_NAME_FLYING);
-		
-		thing.getCurrent().setForce(FORCE_NAME_WALKING, this.walkingForce);
-		this.jumpingForce = thing.zeroVector();
-		thing.getCurrent().setForce(FORCE_NAME_JUMPING, this.jumpingForce);
-		thing.getCurrent().setGravityLevel(1);
+		this.clearForce(FORCE_FLYING);
+		this.clearForce(FORCE_WALKING);
+		this.clearForce(FORCE_JUMPING);
+		this.setGravityLevel(1);
 	}
 	
-	/** Update all necessary forces to make {@link #entity} able to fly and not other forms of movement */
+	/** Update all necessary forces to fly and no other forms of movement */
 	public void updateFlyForces(){
-		var thing = this.getEntity();
-		// TODO replace with update system
-		thing.getCurrent().removeForce(FORCE_NAME_WALKING);
-		thing.getCurrent().removeForce(FORCE_NAME_JUMPING);
-		
-		thing.getCurrent().setForce(FORCE_NAME_FLYING, this.flyingForce);
-		thing.getCurrent().setGravityLevel(0);
+		this.clearForce(FORCE_FLYING);
+		this.clearForce(FORCE_WALKING);
+		this.clearForce(FORCE_JUMPING);
+		// TODO probably avoid setting gravity level directly here in case something else affects it, maybe just remove the gravity vector
+		this.setGravityLevel(0);
 	}
 	
 }

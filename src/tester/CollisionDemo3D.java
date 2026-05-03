@@ -43,7 +43,7 @@ public class CollisionDemo3D extends Game{
 		
 		public Player(){
 			super(1);
-			this.getMobilityData().setType(MobilityType.FLYING_AXIS);
+			this.getMobilityState().setType(MobilityType.FLYING_AXIS);
 		}
 		
 		@Override

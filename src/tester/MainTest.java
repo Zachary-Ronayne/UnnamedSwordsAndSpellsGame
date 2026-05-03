@@ -330,7 +330,7 @@ public class MainTest extends Game{
 			else if(button == GLFW_KEY_S) r.makeWallState(Room2D.WALL_FLOOR, !r.isSolid(Room2D.WALL_FLOOR));
 			else if(button == GLFW_KEY_D) r.makeWallState(Room2D.WALL_RIGHT, !r.isSolid(Room2D.WALL_RIGHT));
 			else if(button == GLFW_KEY_F) {
-				var mobilityData = player.getMobilityData();
+				var mobilityData = player.getMobilityState();
 				var mobilityType = mobilityData.getType();
 				if(mobilityType == MobilityType.WALKING) mobilityData.setType(shift ? MobilityType.FLYING_AXIS : MobilityType.FLYING);
 				else mobilityData.setType(MobilityType.WALKING);

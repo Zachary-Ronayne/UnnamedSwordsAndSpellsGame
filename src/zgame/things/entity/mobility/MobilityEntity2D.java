@@ -1,16 +1,13 @@
 package zgame.things.entity.mobility;
 
+import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResult2D;
-import zgame.things.entity.EntityThing;
 import zgame.things.entity.EntityThing2D;
-import zgame.things.entity.MobilityData;
-import zgame.things.entity.MobilityData2D;
+import zgame.things.entity.MobilityState2D;
+import zgame.things.entity.state.EntityState;
 
 /** A 2D entity which uses mobility capabilities */
 public abstract class MobilityEntity2D extends EntityThing2D implements Mobility2D{
-	
-	/** The {@link MobilityData} object used by this object's implementation of {@link Mobility2D} */
-	private final MobilityData2D mobilityData;
 	
 	/**
 	 * Create a new empty entity at (0, 0) with a mass of 100
@@ -34,30 +31,34 @@ public abstract class MobilityEntity2D extends EntityThing2D implements Mobility
 	 *
 	 * @param x The x coordinate of the entity
 	 * @param y The y coordinate of the entity
-	 * @param mass See {@link EntityThing#mass}
+	 * @param mass The initial mass of the entity
 	 */
 	public MobilityEntity2D(double x, double y, double mass){
 		super(x, y, mass);
-		
-		this.mobilityData = new MobilityData2D(this);
+	}
+	
+	@Override
+	protected EntityState<ZVector2D> initEntityState(ZVector2D zeroVector, double gravityAcceleration, double clampVelocity){
+		return new MobilityState2D(gravityAcceleration, clampVelocity);
 	}
 	
 	@Override
 	public void tick(double dt){
-		this.mobilityTick(dt);
+		this.mobilityTick();
 		super.tick(dt);
 	}
 	
+	// TODO should the state be obtained this way? Probably replace this with using next or current where applicable
 	@Override
-	public MobilityData2D getMobilityData(){
-		return this.mobilityData;
+	public MobilityState2D getMobilityState(){
+		return (MobilityState2D)this.getCurrent();
 	}
 	
 	@Override
 	public void touchFloor(CollisionResult2D collision){
 		super.touchFloor(collision);
-		this.mobilityTouchFloor(collision);
-		this.getMobilityData().setGroundedSinceLastJump(true);
+		this.mobilityTouchFloor();
+		this.getMobilityState().setGroundedSinceLastJump(true);
 	}
 	
 	@Override

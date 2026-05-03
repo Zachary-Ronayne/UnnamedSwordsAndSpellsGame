@@ -1,27 +1,25 @@
 package zgame.things.entity;
 
 import zgame.physics.ZVector2D;
-import zgame.physics.collision.CollisionResult2D;
 import zgame.things.entity.mobility.Mobility2D;
-import zgame.things.type.bounds.HitBox2D;
-import zgame.world.Room2D;
 
-/** A type of {@link MobilityData} that exists in 2D space */
-public class MobilityData2D extends MobilityData<HitBox2D, EntityThing2D, ZVector2D, Room2D, CollisionResult2D>{
+/** A type of {@link MobilityState} that exists in 2D space */
+public class MobilityState2D extends MobilityState<ZVector2D>{
 	
-	/** The direction {@link #entity} walking. -1 for walking to the left, 0 for not walking, 1 for walking to the right */
+	/** The direction walking. -1 for walking to the left, 0 for not walking, 1 for walking to the right */
 	private int walkingDirection;
 	
-	/** The angle, in radians that {@link #entity} is trying to fly at */
+	/** The angle, in radians, trying to fly at */
 	private double flyingAngle;
 	
 	/**
 	 * Create a new walk object for use in {@link Mobility2D}
 	 *
-	 * @param entity See {@link #entity}
+	 * @param gravityAcceleration The acceleration of gravity
+	 * @param clampVelocity A velocity where if velocity magnitude reaches a value below this, velocity will be zero
 	 */
-	public MobilityData2D(EntityThing2D entity){
-		super(entity);
+	public MobilityState2D(double gravityAcceleration, double clampVelocity){
+		super(new ZVector2D(), gravityAcceleration, clampVelocity);
 		
 		this.setWalkingDirection(0);
 		this.setFlyingAngle(0);
@@ -37,14 +35,9 @@ public class MobilityData2D extends MobilityData<HitBox2D, EntityThing2D, ZVecto
 		this.walkingDirection = direction;
 	}
 	
-	/** @param force The amount of force applied to the x axis when this mob is walking */
-	public void setWalkingForce(double force){
-		this.updateWalkingForce(force);
-	}
-	
 	@Override
 	public void updateWalkingForce(double force){
-		this.setWalkingForce(this.getEntity().setHorizontalForce(FORCE_NAME_WALKING, force));
+		this.attemptSetForce(FORCE_WALKING, new ZVector2D(force, 0));
 	}
 	
 	/** @return See {@link #flyingAngle} */
@@ -60,6 +53,6 @@ public class MobilityData2D extends MobilityData<HitBox2D, EntityThing2D, ZVecto
 	@Override
 	public void updateFlyingForce(double force, boolean applyFacing){
 		// For 2D, apply facing is irrelevant
-		this.setFlyingForce(new ZVector2D(this.getFlyingAngle(), force, false));
+		this.attemptSetForce(FORCE_FLYING, new ZVector2D(this.getFlyingAngle(), force, false));
 	}
 }

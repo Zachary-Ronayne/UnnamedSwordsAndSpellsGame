@@ -84,7 +84,7 @@ public class EntityState<V extends ZVector<V>>{
 		this.gravityAcceleration = updated.getGravityAcceleration();
 		
 		// TODO only update gravity if something has changed with its computation
-		this.setVerticalForce(FORCE_GRAVITY, this.getGravityAcceleration() * this.getMass() * this.getGravityLevel());
+		this.attemptSetVerticalForce(FORCE_GRAVITY, this.getGravityAcceleration() * this.getMass() * this.getGravityLevel());
 		
 		// Compute updated forces
 		this.forceUpdates.applyAll(this.forces);
@@ -159,6 +159,11 @@ public class EntityState<V extends ZVector<V>>{
 		this.updateVelocity(new ScaleVectorVertical<>(scalar));
 	}
 	
+	/** @return See {@link #clampVelocity} */
+	public double getClampVelocity(){
+		return this.clampVelocity;
+	}
+	
 	/** @return See {@link #tickTime} */
 	public double getTickTime(){
 		return this.tickTime;
@@ -231,13 +236,11 @@ public class EntityState<V extends ZVector<V>>{
 	}
 	
 	/**
-	 * Remove the {@link ZVector} with the specified name object from this {@link EntityThing}'s forces
-	 *
-	 * @param name The name of the force to remove
-	 * @return The removed force vector, or null if the given force was not found
+	 * @param name The name of the force that should be affected
+	 * @param force The new value for the vertical force
 	 */
-	public V removeForce(String name){
-		return this.forces.remove(name);
+	public void attemptSetVerticalForce(String name, double force){
+		this.forceUpdates.update(name, new ForceSetVector<>(this.zeroVec().modifyVerticalMagnitude(force)));
 	}
 	
 	/**

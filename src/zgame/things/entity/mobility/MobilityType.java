@@ -1,20 +1,20 @@
 package zgame.things.entity.mobility;
 
-import zgame.things.entity.MobilityData;
+import zgame.things.entity.MobilityState;
 
 /** An enum describing different kinds of movement */
 public enum MobilityType{
 	/** Normal mobility on the ground where gravity applies */
-	WALKING(Mobility::walkingTick, MobilityData::updateWalkForces),
+	WALKING(Mobility::walkingTick, MobilityState::updateWalkForces),
 	/** Mobility where gravity does not apply and movement on the y axis is allowed, movement is based on the direction facing on both axes */
-	FLYING(Mobility::flyingTick, MobilityData::updateFlyForces),
+	FLYING(Mobility::flyingTick, MobilityState::updateFlyForces),
 	/** Mobility where gravity does not apply and movement on the y axis is allowed, facing direction only effects horizontal movement */
-	FLYING_AXIS(Mobility::flyingTick, MobilityData::updateFlyForces);
+	FLYING_AXIS(Mobility::flyingTick, MobilityState::updateFlyForces);
 	
 	/** The function in the {@link Mobility} class to call when this type of movement happens */
 	private final TickFunc tickFunc;
 	
-	/** The function in the {@link MobilityData} class to call when this type of movement is selected, cleaning up any necessary forces */
+	/** The function in the {@link MobilityState} class to call when this type of movement is selected, cleaning up any necessary forces */
 	private final MobilityDataFunc mobilityDataFunc;
 	
 	/**
@@ -29,17 +29,16 @@ public enum MobilityType{
 	/**
 	 * Apply {@link #tickFunc}
 	 * @param m The {@link Mobility} object to apply
-	 * @param dt The amount of time in seconds passed in the tick
 	 */
-	public void tick(Mobility<?, ?, ?, ?, ?> m, double dt){
-		this.tickFunc.tick(m, dt);
+	public void tick(Mobility<?> m){
+		this.tickFunc.tick(m);
 	}
 	
 	/**
 	 * Apply {@link #mobilityDataFunc}
-	 * @param m The {@link MobilityData} object to update
+	 * @param m The {@link MobilityState} object to update
 	 */
-	public void updateForces(MobilityData<?, ?, ?, ?, ?> m){
+	public void updateForces(MobilityState<?> m){
 		this.mobilityDataFunc.run(m);
 	}
 	
@@ -48,18 +47,17 @@ public enum MobilityType{
 		/**
 		 * Perform one tick on the given {@link Mobility}
 		 * @param m The object to perform the tick on
-		 * @param dt The amount of time in seconds passed in the tick
 		 */
-		void tick(Mobility<?, ?, ?, ?, ?> m, double dt);
+		void tick(Mobility<?> m);
 	}
 	
-	/** A shortcut interface for a function that consumes the data needed to process updating something on a {@link MobilityData} object */
+	/** A shortcut interface for a function that consumes the data needed to process updating something on a {@link MobilityState} object */
 	public interface MobilityDataFunc{
 		/**
 		 * Perform the action on the given {@link Mobility}
 		 * @param m The object to perform on
 		 */
-		void run(MobilityData<?, ?, ?, ?, ?> m);
+		void run(MobilityState<?> m);
 	}
 	
 }
