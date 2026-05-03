@@ -156,7 +156,7 @@ public abstract class EntityThing<
 		var currentFriction = this.getFriction();
 		if(!onSurface){
 			// Don't bother changing friction if it's already 0
-			if(currentFriction.getMagnitude() != 0) this.setFrictionForce(this.zeroVector());
+			if(currentFriction.getMagnitude() != 0) this.getNext().clearForce(EntityState.FORCE_FRICTION);
 			return;
 		}
 		double clampVel = this.getClampVelocity();
@@ -172,7 +172,7 @@ public abstract class EntityThing<
 		 then there will be no friction
 		 */
 		if((!ZMath.sameSign(gravityVert, forceNoGravityVert) || gravityVert == forceNoGravityVert) && Math.abs(forceNoGravityVert) > clampVel){
-			this.setFrictionForce(this.zeroVector());
+			this.getNext().clearForce(EntityState.FORCE_FRICTION);
 			return;
 		}
 		
@@ -180,12 +180,12 @@ public abstract class EntityThing<
 		var currentVel = this.getVelocity();
 		double velVert = currentVel.getVerticalValue();
 		if(Math.abs(velVert) > clampVel && !ZMath.sameSign(velVert, gravityVert)){
-			this.setFrictionForce(this.zeroVector());
+			this.getNext().clearForce(EntityState.FORCE_FRICTION);
 			return;
 		}
 		
 		// Find the total force for friction, i.e. the amount of acceleration from friction, based on the surface and the entity's friction
-		double newFrictionForce = this.calculateFrictionForce();
+		double newFrictionForce = this.getFrictionConstant() * this.getFloorMaterial().getFriction() * this.getForce().getVertical();
 		
 		var hasHorizontalVel = currentVel.getHorizontal() >= clampVel;
 		boolean currentForceExceedsFriction = currentForce.getMagnitude() > newFrictionForce;
@@ -193,14 +193,14 @@ public abstract class EntityThing<
 		if(!hasHorizontalVel || currentForceExceedsFriction){
 			// If the frictional force exceeds the current force, and velocity is moving opposite of gravity, then there will be equal and opposite frictional force
 			if(!currentForceExceedsFriction && currentVel.isOpposite(gravity)){
-				this.setFrictionForce(currentForce.sub(currentFriction).inverse());
+				this.getNext().addForce(EntityState.FORCE_FRICTION, currentFriction.inverse());
 				// When friction exceeds current force, and on a surface, velocity must also be set to zero
 				this.clearVelocity();
 				return;
 			}
 			// With no horizontal velocity, there is no friction
 			else if(!hasHorizontalVel){
-				if(currentFriction.getMagnitude() != 0) this.setFrictionForce(this.zeroVector());
+				if(currentFriction.getMagnitude() != 0) this.getNext().clearForce(EntityState.FORCE_FRICTION);
 				return;
 			}
 		}
@@ -218,28 +218,13 @@ public abstract class EntityThing<
 		 */
 		double mass = this.getMass();
 		if(currentVel.getMagnitude() < clampVel || currentVel.isOpposite(currentVel.add(newForce.scale(dt / mass)))){
-			this.setFrictionForce(this.zeroVector());
+			this.getNext().clearForce(EntityState.FORCE_FRICTION);
 			this.clearVelocity();
 			return;
 		}
 		
 		// Otherwise, apply the full amount of friction
-		this.setFrictionForce(newFriction);
-	}
-	
-	/** @return The current magnitude which friction should have on this entity */
-	public double calculateFrictionForce(){
-		return this.getFrictionConstant() * this.getFloorMaterial().getFriction() * this.getForce().getVertical();
-	}
-	
-	// TODO handle this using an update system
-	/**
-	 * Set the current vector for friction
-	 *
-	 * @param newForce The vector
-	 */
-	private void setFrictionForce(V newForce){
-		this.getCurrent().setFrictionForce(newForce);
+		this.getNext().attemptSetForce(EntityState.FORCE_FRICTION, newFriction);
 	}
 	
 	/**
@@ -255,12 +240,12 @@ public abstract class EntityThing<
 		if(this.getVerticalVel() >= terminalVelocity && terminalVelocity > 0){
 			// Only set the value if it is not equal and opposite to gravity
 			double gravityForce = -this.getGravity().getVerticalValue();
-			if(this.getGravityDragForce().getVertical() != gravityForce) this.setVerticalForce(EntityState.FORCE_NAME_GRAVITY_DRAG, gravityForce);
+			if(this.getGravityDragForce().getVertical() != gravityForce) this.setVerticalForce(EntityState.FORCE_GRAVITY_DRAG, gravityForce);
 		}
 		// Otherwise, remove the force
 		else{
 			// Only remove the force if it is not already zero
-			if(this.getGravityDragForce().getVertical() != 0) this.setVerticalForce(EntityState.FORCE_NAME_GRAVITY_DRAG, 0);
+			if(this.getGravityDragForce().getVertical() != 0) this.setVerticalForce(EntityState.FORCE_GRAVITY_DRAG, 0);
 		}
 	}
 	
@@ -283,7 +268,7 @@ public abstract class EntityThing<
 		// or the max slide velocity is negative or the slideStopForce is negative
 		double vy = this.getVerticalVel();
 		if(maxSlideVel < 0 || slideStopForce < 0 || vy <= maxSlideVel || !this.isOnWall()){
-			this.setVerticalForce(EntityState.FORCE_NAME_WALL_SLIDE, 0);
+			this.setVerticalForce(EntityState.FORCE_WALL_SLIDE, 0);
 			return;
 		}
 		// The base amount of force to apply for sliding is the opposite of gravity
@@ -295,7 +280,7 @@ public abstract class EntityThing<
 		double newVel = vy + slideForce / mass * dt;
 		if(newVel < maxSlideVel) slideForce = (maxSlideVel - vy) / dt * mass;
 		// Set the force
-		this.setVerticalForce(EntityState.FORCE_NAME_WALL_SLIDE, slideForce);
+		this.setVerticalForce(EntityState.FORCE_WALL_SLIDE, slideForce);
 	}
 	
 	/**
@@ -348,7 +333,7 @@ public abstract class EntityThing<
 	
 	/** @return The current force of gravity on this entity */
 	public V getGravity(){
-		return this.getCurrent().getForce(EntityState.FORCE_NAME_GRAVITY);
+		return this.getCurrent().getForce(EntityState.FORCE_GRAVITY);
 	}
 	
 	// TODO should this be in EntityThing? Probably should be defined as a global?
@@ -358,12 +343,12 @@ public abstract class EntityThing<
 	
 	/** @return The current force of friction on this entity */
 	public V getFriction(){
-		return this.getCurrent().getForce(EntityState.FORCE_NAME_FRICTION);
+		return this.getCurrent().getForce(EntityState.FORCE_FRICTION);
 	}
 	
 	/** @return The current drag force acting against gravity */
 	public V getGravityDragForce(){
-		return this.getCurrent().getForce(EntityState.FORCE_NAME_GRAVITY_DRAG);
+		return this.getCurrent().getForce(EntityState.FORCE_GRAVITY_DRAG);
 	}
 	
 	public double getMass(){
@@ -472,7 +457,7 @@ public abstract class EntityThing<
 		this.wallTime = 0;
 		
 		// TODO handle this with an update system
-		this.getCurrent().setVerticalForce(EntityState.FORCE_NAME_WALL_SLIDE, 0);
+		this.getCurrent().setVerticalForce(EntityState.FORCE_WALL_SLIDE, 0);
 	}
 	
 	@Override

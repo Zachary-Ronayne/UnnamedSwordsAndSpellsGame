@@ -10,13 +10,13 @@ import java.util.*;
 public class EntityState<V extends ZVector<V>>{
 	
 	/** The string used to identify the force of gravity in {@link #forces} */
-	public static final String FORCE_NAME_GRAVITY = "gravity";
+	public static final String FORCE_GRAVITY = "gravity";
 	/** The string used to identify the force of friction in {@link #forces} */
-	public static final String FORCE_NAME_FRICTION = "friction";
+	public static final String FORCE_FRICTION = "friction";
 	/** The string used to identify the force of friction in {@link #forces} */
-	public static final String FORCE_NAME_GRAVITY_DRAG = "gravityDrag";
+	public static final String FORCE_GRAVITY_DRAG = "gravityDrag";
 	/** The string used to identify the force of sticking to a wall in {@link #forces} */
-	public static final String FORCE_NAME_WALL_SLIDE = "wallSlide";
+	public static final String FORCE_WALL_SLIDE = "wallSlide";
 	
 	/** The current velocity of the associated {@link EntityThing} */
 	private V velocity;
@@ -64,22 +64,27 @@ public class EntityState<V extends ZVector<V>>{
 		this.forces = new HashMap<>();
 		
 		// Init individual forces
-		this.setForce(FORCE_NAME_GRAVITY, zeroVector);
-		this.setForce(FORCE_NAME_FRICTION, zeroVector);
-		this.setForce(FORCE_NAME_GRAVITY_DRAG, zeroVector);
-		this.setForce(FORCE_NAME_WALL_SLIDE, zeroVector);
+		this.setForce(FORCE_GRAVITY, zeroVector);
+		this.setForce(FORCE_FRICTION, zeroVector);
+		this.setForce(FORCE_GRAVITY_DRAG, zeroVector);
+		this.setForce(FORCE_WALL_SLIDE, zeroVector);
+	}
+	
+	/** @return A zero vector for this entity state */
+	private V zeroVec(){
+		return this.velocity.zero();
 	}
 	
 	// TODO is passing in the previous state needed? Where should it be used that it isn't being used?
 	public void applyState(EntityState<V> updated){
-		// TODO this should be removed and handled with an update system, copy individual fields
+		// TODO avoid having to copy these every time if nothing changes
 		this.tickTime = updated.getTickTime();
 		this.mass = updated.getMass();
 		this.gravityLevel = updated.getGravityLevel();
 		this.gravityAcceleration = updated.getGravityAcceleration();
 		
 		// TODO only update gravity if something has changed with its computation
-		this.setVerticalForce(FORCE_NAME_GRAVITY, this.getGravityAcceleration() * this.getMass() * this.getGravityLevel());
+		this.setVerticalForce(FORCE_GRAVITY, this.getGravityAcceleration() * this.getMass() * this.getGravityLevel());
 		
 		// Compute updated forces
 		this.forceUpdates.applyAll(this.forces);
@@ -87,8 +92,8 @@ public class EntityState<V extends ZVector<V>>{
 		// Compute new force
 		// No forces, there is no force
 		// TODO only recompute force if it changes?
-		if(this.forces.size() == 0) this.totalForce = this.totalForce.zero();
-		// Sum all forces
+		if(this.forces.size() == 0) this.totalForce = this.zeroVec();
+			// Sum all forces
 		else{
 			var allForces = this.getForces();
 			this.totalForce = allForces.get(0).getValue();
@@ -103,12 +108,13 @@ public class EntityState<V extends ZVector<V>>{
 		// Find the current acceleration
 		var acceleration = this.getForce().scale(1.0 / this.getMass());
 		
+		// TODO should this part be in applyState? Maybe it should be in the same place position is updated
 		// Add the acceleration to the current velocity
 		this.velocity = velocity.add(acceleration.scale(this.getTickTime()));
 		
 		// Account for clamping the velocity
 		double velMag = this.velocity.getMagnitude();
-		if(velMag != 0 && velMag < this.clampVelocity) this.velocity = this.velocity.zero();
+		if(velMag != 0 && velMag < this.clampVelocity) this.velocity = this.zeroVec();
 	}
 	
 	/** @param update A scheduled update to happen to velocity on the next tick */
@@ -162,6 +168,7 @@ public class EntityState<V extends ZVector<V>>{
 	public void setTickTime(double tickTime){
 		this.tickTime = tickTime;
 	}
+	
 	// TODO make docs and potentially better name
 	public V setVerticalForce(String name, double f){
 		var oldForce = this.getForce(name);
@@ -174,6 +181,7 @@ public class EntityState<V extends ZVector<V>>{
 	}
 	
 	// TODO handle with an update system
+	
 	/** @param gravityLevel See {@link #gravityLevel} */
 	public void setGravityLevel(double gravityLevel){
 		this.gravityLevel = gravityLevel;
@@ -185,6 +193,7 @@ public class EntityState<V extends ZVector<V>>{
 	}
 	
 	// TODO handle with an update system
+	
 	/** @param mass See {@link #mass} */
 	public void setMass(double mass){
 		this.mass = mass;
@@ -200,9 +209,25 @@ public class EntityState<V extends ZVector<V>>{
 		this.gravityAcceleration = gravityAcceleration;
 	}
 	
-	// TODO need to make all forces apply changes via udpate system, remove all of these methods
-	public void setFrictionForce(V newForce){
-		this.setForce(FORCE_NAME_FRICTION, newForce);
+	/** @param name The name of the force that should be reset to zero */
+	public void clearForce(String name){
+		this.forceUpdates.update(name, new ClearVector<>());
+	}
+	
+	/**
+	 * @param name The name of the force that should be affected
+	 * @param force The amount of force to add
+	 */
+	public void addForce(String name, V force){
+		this.forceUpdates.update(name, new AddVector<>(force));
+	}
+	
+	/**
+	 * @param name The name of the force that should be affected
+	 * @param force The new value of the given force
+	 */
+	public void attemptSetForce(String name, V force){
+		this.forceUpdates.update(name, new ForceSetVector<>(force));
 	}
 	
 	/**
@@ -212,8 +237,7 @@ public class EntityState<V extends ZVector<V>>{
 	 * @return The removed force vector, or null if the given force was not found
 	 */
 	public V removeForce(String name){
-		var removed = this.forces.remove(name);
-		return removed;
+		return this.forces.remove(name);
 	}
 	
 	/**
@@ -233,26 +257,26 @@ public class EntityState<V extends ZVector<V>>{
 	 * @return force
 	 */
 	public V setForce(String name, V force){
-		this.removeForce(name);
 		this.forces.put(name, force);
 		return force;
 	}
 	
 	/**
-	 * @return A list of all forces acting on this thing. This returned list does not reflect actual the collection of forces applied to this thing and should be treated as immutable
-	 * 		and should be treated as read only
+	 * @return A list of all forces acting on this thing. This returned list does not reflect actual the collection of forces applied to this thing,
+	 * 		and should be treated as immutable and read only
 	 */
 	public List<Map.Entry<String, V>> getForces(){
 		return this.forces.entrySet().stream().toList();
 	}
 	
 	// TODO handle this with an update system
+	
 	/**
 	 * Set the velocity of this thing to zero on all axes and set the current applied for forces to 0
 	 */
 	public void clearMotion(){
 		this.clearVelocity();
-		for(var f : this.getForces()) this.setForce(f.getKey(), this.totalForce.zero());
+		for(var f : this.getForces()) this.setForce(f.getKey(), this.zeroVec());
 	}
 	
 }
