@@ -149,15 +149,18 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D, Col
 		boolean touchedWall = false;
 		// Keep the object inside the game bounds, if the walls are enabled
 		if(this.isSolid(WALL_LEFT)){
-			double dist = obj.keepRight(this.getX());
+			double newX = obj.keepRight(this.getX());
+			double dist = Math.abs(obj.getX() - newX);
 			if(dist != 0){
 				left = true;
+				// TODO maybe make touching a wall/ceiling/floor also adjust the position? For now just doing nothing, will need to reimplement this
 				obj.touchWall(new CollisionResult2D(-dist, 0, true, false, false, false, this.getWallMaterial()));
 				touchedWall = true;
 			}
 		}
 		if(this.isSolid(WALL_RIGHT)){
-			double dist = obj.keepLeft(this.maxX());
+			double newX = obj.keepLeft(this.maxX());
+			double dist = Math.abs(obj.getX() - newX);
 			if(dist != 0){
 				right = true;
 				obj.touchWall(new CollisionResult2D(dist, 0, false, true, false, false, this.getWallMaterial()));
@@ -165,7 +168,8 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D, Col
 			}
 		}
 		if(this.isSolid(WALL_CEILING)){
-			double dist = obj.keepBelow(this.getY());
+			double newY = obj.keepBelow(this.getY());
+			double dist = Math.abs(obj.getY() - newY);
 			if(dist != 0){
 				top = true;
 				obj.touchCeiling(new CollisionResult2D(0, dist, false, false, true, false, this.getWallMaterial()));
@@ -173,7 +177,8 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D, Col
 			}
 		}
 		if(this.isSolid(WALL_FLOOR)){
-			double dist = obj.keepAbove(this.maxY());
+			double newY = obj.keepAbove(this.maxY());
+			double dist = Math.abs(obj.getY() - newY);
 			if(dist != 0){
 				bot = true;
 				obj.touchFloor(new CollisionResult2D(0, -dist, false, false, false, true, this.getWallMaterial()));

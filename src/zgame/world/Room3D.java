@@ -326,13 +326,14 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		boolean touchedCeiling = false;
 		boolean touchedWall = false;
 		
+		// TODO need to reimplement setting coordinates, maybe these should be set based on collisions?
+		// TODO maybe combine all collisions into one delta?
 		// x axis, i.e. east west
 		boolean touchedAxisX = false;
 		if(this.boundaryEnabled(WEST)){
 			double boundary = this.getBoundary(WEST) - (obj.getWidth() * 0.5);
 			double objX = obj.getX();
 			if(objX > boundary){
-				obj.setX(boundary);
 				obj.touchWall(new CollisionResult3D(-Math.abs(boundary - objX), 0, 0, true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
 				touchedAxisX = true;
 			}
@@ -341,7 +342,6 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = -this.getBoundary(EAST) + (obj.getWidth() * 0.5);
 			double objX = obj.getX();
 			if(objX < boundary){
-				obj.setX(boundary);
 				obj.touchWall(new CollisionResult3D(Math.abs(boundary - objX), 0, 0, true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
 				touchedAxisX = true;
 			}
@@ -354,7 +354,6 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = this.getBoundary(NORTH) - (obj.getLength() * 0.5);
 			double objZ = obj.getZ();
 			if(objZ > boundary){
-				obj.setZ(boundary);
 				obj.touchWall(new CollisionResult3D(0, 0, Math.abs(boundary - objZ), true, false, false, this.getBoundaryMaterial(), 0));
 				touchedAxisZ = true;
 			}
@@ -363,7 +362,6 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = -this.getBoundary(SOUTH) + (obj.getLength() * 0.5);
 			double objZ = obj.getZ();
 			if(objZ < boundary){
-				obj.setZ(boundary);
 				obj.touchWall(new CollisionResult3D(0, 0, -Math.abs(boundary - objZ), true, false, false, this.getBoundaryMaterial(), 0));
 				touchedAxisZ = true;
 			}
@@ -375,7 +373,6 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = this.getBoundary(Direction3D.UP) - obj.getHeight();
 			double objY = obj.getY();
 			if(objY > boundary){
-				obj.setY(boundary);
 				obj.touchCeiling(new CollisionResult3D(0, Math.abs(boundary - objY), 0, false, true, false, this.getBoundaryMaterial(), 0));
 				touchedCeiling = true;
 			}
@@ -384,7 +381,6 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = -this.getBoundary(Direction3D.DOWN);
 			double objY = obj.getY();
 			if(objY < boundary){
-				obj.setY(boundary);
 				obj.touchFloor(new CollisionResult3D(0, -Math.abs(boundary - objY), 0, false, false, true, this.getBoundaryMaterial(), 0));
 				touchedFloor = true;
 			}

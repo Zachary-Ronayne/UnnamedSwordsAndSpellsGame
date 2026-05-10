@@ -57,13 +57,11 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 		return this.getPosition().getY();
 	}
 	
-	@Override
 	public void setX(double x){
 		this.getNext().attemptSetSingleCoord(new ForceSetElement.X2D(x));
 	}
 	
 	/** @param y New y coordinate of this thing */
-	@Override
 	public void setY(double y){
 		this.getNext().attemptSetSingleCoord(new ForceSetElement.Y2D(y));
 	}

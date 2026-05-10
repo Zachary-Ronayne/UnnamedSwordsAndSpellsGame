@@ -9,13 +9,6 @@ import zgame.things.entity.projectile.Projectile2D;
  */
 public interface HitBox2D extends HitBox<HitBox2D, CollisionResult2D>, Bounds2D{
 	
-	// TODO probably remove setting from hitboxes entirely, make the interface just define how to obtain and potentially transform values, but not affect state
-	/** @param x The new x coordinate for this object */
-	void setX(double x);
-	
-	/** @param y The new y coordinate for this object */
-	void setY(double y);
-	
 	@Override
 	default double maxX(){
 		return this.getX() + this.getWidth();
@@ -93,65 +86,57 @@ public interface HitBox2D extends HitBox<HitBox2D, CollisionResult2D>, Bounds2D{
 	default void hitBy(Projectile2D p){}
 	
 	/**
-	 * Reposition this object so that it is to the left of the given x coordinate.
-	 * If the object is already to the left of the coordinate, this method should do nothing.
-	 * If the object will be moved, it should be positioned such that it is as close to its original position as possible, while still being to the left of the given
+	 * Provide a coordinate to reposition this object so that it is to the left of the given x coordinate.
+	 * If the object is already to the left of the coordinate, this method returns {@link #getX()}
+	 * If the object needs to be moved, its position should be such that it is as close to its original position as possible, while still being to the left of the given
 	 * coordinate
 	 *
 	 * @param x The coordinate
-	 * @return The amount of distance the object was moved, 0 for no movement
+	 * @return The new value the coordinate should be
 	 */
 	default double keepLeft(double x){
-		if(this.getX() + this.getWidth() <= x) return 0;
-		double oldX = this.getX();
-		this.setX(x - this.getWidth());
-		return Math.abs(x - oldX);
+		if(this.getX() + this.getWidth() <= x) return this.getX();
+		return x - this.getWidth();
 	}
 	
 	/**
-	 * Reposition this object so that it is to the right of the given x coordinate.
-	 * If the object is already to the right of the coordinate, this method should do nothing.
-	 * If the object will be moved, it should be positioned such that it is as close to its original position as possible, while still being to the right of the given
+	 * Provide a coordinate to reposition this object so that it is to the right of the given x coordinate.
+	 * If the object is already to the right of the coordinate, this method returns {@link #getX()}
+	 * If the object needs to be moved, its position should be such that it is as close to its original position as possible, while still being to the right of the given
 	 * coordinate
 	 *
 	 * @param x The coordinate
-	 * @return The amount of distance the object was moved, 0 for no movement
+	 * @return The new value the coordinate should be
 	 */
 	default double keepRight(double x){
-		if(this.getX() >= x) return 0;
-		double oldX = this.getX();
-		this.setX(x);
-		return Math.abs(x - oldX);
+		return Math.max(this.getX(), x);
 	}
 	
 	/**
-	 * Reposition this object so that it is above the given y coordinate.
-	 * If the object is already above the coordinate, this method should do nothing.
-	 * If the object will be moved, it should be positioned such that it is as close to its original position as possible, while still being above the given coordinate
+	 * Provide a coordinate to reposition this object so that it is above the given y coordinate.
+	 * If the object is already above the coordinate, this method returns {@link #getY()}
+	 * If the object needs to be moved, its position should be such that it is as close to its original position as possible, while still being above of the given
+	 * coordinate
 	 *
 	 * @param y The coordinate
-	 * @return The amount of distance the object was moved, 0 for no movement
+	 * @return The new value the coordinate should be
 	 */
 	default double keepAbove(double y){
-		if(this.getY() + this.getHeight() <= y) return 0;
-		double oldY = this.getY();
-		this.setY(y - this.getHeight());
-		return Math.abs(y - oldY);
+		if(this.getY() + this.getHeight() <= y) return this.getY();
+		return y - this.getHeight();
 	}
 	
 	/**
-	 * Reposition this object so that it is below the given y coordinate.
-	 * If the object is already below the coordinate, this method should do nothing.
-	 * If the object will be moved, it should be positioned such that it is as close to its original position as possible, while still being below the given coordinate
+	 * Provide a coordinate to reposition this object so that it is below the given y coordinate.
+	 * If the object is already below the coordinate, this method returns {@link #getY()}
+	 * If the object needs to be moved, its position should be such that it is as close to its original position as possible, while still being below of the given
+	 * coordinate
 	 *
 	 * @param y The coordinate
-	 * @return The amount of distance the object was moved, 0 for no movement
+	 * @return The new value the coordinate should be
 	 */
 	default double keepBelow(double y){
-		if(this.getY() >= y) return 0;
-		double oldY = this.getY();
-		this.setY(y);
-		return Math.abs(y - oldY);
+		return Math.max(this.getY(), y);
 	}
 	
 	/** @return The previous value of {@link #getX()} before the last time it was moved with velocity */

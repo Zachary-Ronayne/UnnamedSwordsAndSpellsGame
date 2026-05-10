@@ -8,15 +8,6 @@ import zgame.world.Direction3D;
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
 public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	
-	/** @param x The new x coordinate for this object */
-	void setX(double x);
-	
-	/** @param y The new y coordinate for this object */
-	void setY(double y);
-	
-	/** @param z The new z coordinate for this object */
-	void setZ(double z);
-	
 	/**
 	 * Called when this {@link HitBox3D} is hit by a projectile. Does nothing by default, implement to provide custom behavior
 	 *

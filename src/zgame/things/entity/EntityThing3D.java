@@ -124,19 +124,16 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	// TODO need to figure out where this inheritance is used for setting and what relies on it, restructure so that setting is not relied on, just a delta
 	// TODO do the same fixes to EntityThing2D
 	/** @param x New x coordinate of this thing */
-	@Override
 	public void setX(double x){
 		this.getNext().attemptSetSingleCoord(new ForceSetElement.X3D(x));
 	}
 	
 	/** @param y New y coordinate of this thing */
-	@Override
 	public void setY(double y){
 		this.getNext().attemptSetSingleCoord(new ForceSetElement.Y3D(y));
 	}
 	
 	/** @param z New z coordinate of this thing */
-	@Override
 	public void setZ(double z){
 		this.getNext().attemptSetSingleCoord(new ForceSetElement.Z3D(z));
 	}
