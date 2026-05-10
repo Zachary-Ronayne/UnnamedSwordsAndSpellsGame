@@ -420,6 +420,11 @@ public abstract class EntityThing<
 		if(r.floor()) this.touchFloor(r);
 	}
 	
+	/** @return The current position of this entity */
+	public V getPosition(){
+		return this.getCurrent().getPosition();
+	}
+	
 	/**
 	 * Called each this {@link EntityThing} has its entity collision handled.
 	 * Does nothing by default, override to add custom behavior

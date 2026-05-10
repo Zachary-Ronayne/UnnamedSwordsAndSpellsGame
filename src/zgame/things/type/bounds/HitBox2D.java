@@ -9,6 +9,7 @@ import zgame.things.entity.projectile.Projectile2D;
  */
 public interface HitBox2D extends HitBox<HitBox2D, CollisionResult2D>, Bounds2D{
 	
+	// TODO probably remove setting from hitboxes entirely, make the interface just define how to obtain and potentially transform values, but not affect state
 	/** @param x The new x coordinate for this object */
 	void setX(double x);
 	

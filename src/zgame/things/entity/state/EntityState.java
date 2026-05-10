@@ -73,6 +73,12 @@ public class EntityState<V extends ZVector<V>>{
 	// TODO consider if this should be a variable like this
 	private final double clampVelocity;
 	
+	// TODO probably avoid having to recompute all vector values every time for position, for now just using a simple vector
+	/** Current game position of this */
+	private V position;
+	/** All updates to apply to the position */
+	private final VectorUpdateList<V> positionUpdates;
+	
 	public EntityState(V zeroVector, double gravityAcceleration, double clampVelocity){
 		this.clampVelocity = clampVelocity;
 		
@@ -107,6 +113,9 @@ public class EntityState<V extends ZVector<V>>{
 		this.noClip = false;
 		
 		this.stateUpdates = new ArrayList<>();
+		
+		this.position = zeroVector;
+		this.positionUpdates = new VectorUpdateList<>();
 	}
 	
 	/** @return A zero vector for this entity state */
@@ -153,7 +162,7 @@ public class EntityState<V extends ZVector<V>>{
 		
 		// TODO should this part be in applyState? Maybe it should be in the same place position is updated
 		// Add the acceleration to the current velocity
-		this.velocity = velocity.add(acceleration.scale(this.getTickTime()));
+		this.velocity = this.velocity.add(acceleration.scale(this.getTickTime()));
 		
 		// TODO should this be in applyState?
 		// Update the amount of time the entity has been on the ground, walls, and ceiling
@@ -162,6 +171,9 @@ public class EntityState<V extends ZVector<V>>{
 		if(this.onGroundTime != -1) this.onGroundTime += dt;
 		if(this.ceilingTime != -1) this.ceilingTime += dt;
 		if(this.wallTime != -1) this.wallTime += dt;
+		
+		// TODO when should position be updated?
+		this.position = this.positionUpdates.apply(this.position);
 		
 		// Account for clamping the velocity
 		double velMag = this.velocity.getMagnitude();
@@ -176,6 +188,11 @@ public class EntityState<V extends ZVector<V>>{
 	 */
 	public V initForce(String name){
 		return this.forces.put(name, this.zeroVec());
+	}
+	
+	/** @return See {@link #position} */
+	public V getPosition(){
+		return this.position;
 	}
 	
 	/** @param update A scheduled update to happen to velocity on the next tick */
@@ -453,5 +470,23 @@ public class EntityState<V extends ZVector<V>>{
 			this.noClip = noClip;
 		});
 	}
+	
+	public void schedulePosition(VectorUpdate<V> update){
+		this.positionUpdates.update(update);
+	}
+	
+	public void attemptSetPosition(V position){
+		this.schedulePosition(new ForceSetVector<>(position));
+	}
+	
+	// TODO this really shouldn't need to exist
+	public void attemptSetSingleCoord(ForceSetElement<V> update){
+		this.schedulePosition(update);
+	}
+	
+	public void addPosition(V delta){
+		this.schedulePosition(new AddVector<>(delta));
+	}
+	
 	
 }

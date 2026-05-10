@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResult2D;
+import zgame.things.entity.state.vector.ForceSetElement;
 import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room2D;
 
@@ -13,16 +14,6 @@ import zgame.world.Room2D;
 public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D, ZVector2D, Room2D, CollisionResult2D> implements HitBox2D{
 	
 	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
-	
-	/** The x coordinate of this {@link EntityThing2D}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link EntityThing2D} */
-	private double x;
-	/** The y coordinate of this {@link EntityThing2D}. Do not use this value to simulate movement via physics, for that, use velocity with an {@link EntityThing2D} */
-	private double y;
-	
-	/** The value of the x coordinate from the last tick */
-	private double px;
-	/** The value of the y coordinate from the last tick */
-	private double py;
 	
 	/**
 	 * Create a new empty entity at (0, 0) with a mass of 100
@@ -54,44 +45,43 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 		this.setY(y);
 	}
 	
-	/** @return See {@link #x} */
+	/** @return Current x coordinate of this thing */
 	@Override
 	public double getX(){
-		return this.x;
+		return this.getPosition().getX();
 	}
 	
-	/** @param x See {@link #x} */
-	public void setX(double x){
-		this.x = x;
-	}
-	
-	/**
-	 * Add the given value to {@link #x}
-	 *
-	 * @param x The value to add
-	 */
-	public void addX(double x){
-		this.setX(this.getX() + x);
-	}
-	
-	/** @return See {@link #y} */
+	/** @return Current y coordinate of this thing */
 	@Override
 	public double getY(){
-		return this.y;
+		return this.getPosition().getY();
 	}
 	
-	/** @param y See {@link #y} */
+	@Override
+	public void setX(double x){
+		this.getNext().attemptSetSingleCoord(new ForceSetElement.X2D(x));
+	}
+	
+	/** @param y New y coordinate of this thing */
+	@Override
 	public void setY(double y){
-		this.y = y;
+		this.getNext().attemptSetSingleCoord(new ForceSetElement.Y2D(y));
 	}
 	
 	/**
-	 * Add the given value to {@link #y}
-	 *
-	 * @param y The value to add
+	 * Add the given value to the x coordinate
+	 * @param x The amount to add
+	 */
+	public void addX(double x){
+		this.getCurrent().addPosition(new ZVector2D(x, 0));
+	}
+	
+	/**
+	 * Add the given value to the y coordinate
+	 * @param y The amount to add
 	 */
 	public void addY(double y){
-		this.setY(this.getY() + y);
+		this.getCurrent().addPosition(new ZVector2D(0, y));
 	}
 	
 	@Override
@@ -117,8 +107,6 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	@Override
 	public void moveEntity(ZVector2D distance){
 		// Move the entity based on the current velocity and acceleration
-		this.px = this.getX();
-		this.py = this.getY();
 		this.addX(distance.getX());
 		this.addY(distance.getY());
 	}
@@ -157,14 +145,15 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 		return this.getWidth();
 	}
 	
+	// TODO for now just returning x and y, should these be used?
 	/** @return The x coordinate of this {@link EntityThing2D} where it was in the previous instance of time, based on its current velocity */
 	public double getPX(){
-		return px;
+		return this.getX();
 	}
 	
 	/** @return The y coordinate of this {@link EntityThing2D} where it was in the previous instance of time, based on its current velocity */
 	public double getPY(){
-		return py;
+		return this.getY();
 	}
 	
 	@Override

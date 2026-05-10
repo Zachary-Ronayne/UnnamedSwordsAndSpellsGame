@@ -408,6 +408,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		}
 		
 		if(wasOnWall){
+			// TODO should this be looking at previous x and z as well?
 			if(obj.getPX() == obj.getX() || wall){
 				if(!touchedWall) obj.touchWall(new CollisionResult3D(0, 0, 0, true, false, false, obj.getWallMaterial(), res.wallAngle()));
 			}

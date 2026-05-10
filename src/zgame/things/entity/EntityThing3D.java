@@ -3,6 +3,7 @@ package zgame.things.entity;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
+import zgame.things.entity.state.vector.ForceSetElement;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.world.Room3D;
 
@@ -10,21 +11,6 @@ import zgame.world.Room3D;
  * An {@link EntityThing} in 3D
  */
 public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D> implements HitBox3D{
-	
-	// TODO move position and last position to update system
-	/** The x coordinate of the bottom center of this entity thing */
-	private double x;
-	/** The y coordinate of the bottom center of this entity thing */
-	private double y;
-	/** The z coordinate of the bottom center of this entity thing */
-	private double z;
-	
-	/** The value of the x coordinate from the last tick */
-	private double px;
-	/** The value of the y coordinate from the last tick */
-	private double py;
-	/** The value of the z coordinate from the last tick */
-	private double pz;
 	
 	/**
 	 * Create a new empty entity with the given mass
@@ -38,26 +24,18 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	/**
 	 * Create a new empty entity with the given mass
 	 *
-	 * @param x See {@link #x}
-	 * @param y See {@link #y}
-	 * @param z See {@link #z}
+	 * @param x Initial x coordinate of this thing
+	 * @param y Initial x coordinate of this thing
+	 * @param z Initial x coordinate of this thing
 	 * @param mass The initial mass of the entity
 	 */
 	public EntityThing3D(double x, double y, double z, double mass){
 		super(mass);
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.px = x;
-		this.py = y;
-		this.pz = z;
+		this.getNext().attemptSetPosition(new ZVector3D(x, y, z));
 	}
 	
 	@Override
 	public void moveEntity(ZVector3D distance){
-		this.px = this.getX();
-		this.py = this.getY();
-		this.pz = this.getZ();
 		this.addX(distance.getX());
 		this.addY(distance.getY());
 		this.addZ(distance.getZ());
@@ -106,31 +84,61 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 //		this.getNext().scaleVelocity(-1 * result.material().getWallBounce() * this.getMaterial().getWallBounce());
 	}
 	
+	// TODO figure out if it even makes sense to have previous and next x y z, for now just returning same thing as current x y z
 	@Override
 	public double getPX(){
-		return this.px;
+		return this.getX();
 	}
 	
 	@Override
 	public double getPY(){
-		return this.py;
+		return this.getY();
 	}
 	
 	@Override
 	public double getPZ(){
-		return this.pz;
+		return this.getZ();
 	}
 	
-	/** @return See {@link #x} */
+	/** @return Current x coordinate of this thing */
 	@Override
 	public double getX(){
-		return this.x;
+		return this.getPosition().getX();
 	}
 	
-	/** @param x See {@link #x} */
+	/** @return Current y coordinate of this thing */
+	@Override
+	public double getY(){
+		return this.getPosition().getY();
+	}
+	
+	/** @return Current z coordinate of this thing */
+	@Override
+	public double getZ(){
+		return this.getPosition().getZ();
+	}
+	
+	// TODO consolidate calls to add and set to be on all axes into one update
+	// TODO change all add and set position values to use updates
+	// TODO have a formal way to initialize position without having to go through the state system
+	// TODO need to figure out where this inheritance is used for setting and what relies on it, restructure so that setting is not relied on, just a delta
+	// TODO do the same fixes to EntityThing2D
+	/** @param x New x coordinate of this thing */
 	@Override
 	public void setX(double x){
-		this.x = x;
+		this.getNext().attemptSetSingleCoord(new ForceSetElement.X3D(x));
+	}
+	
+	/** @param y New y coordinate of this thing */
+	@Override
+	public void setY(double y){
+		this.getNext().attemptSetSingleCoord(new ForceSetElement.Y3D(y));
+	}
+	
+	/** @param z New z coordinate of this thing */
+	@Override
+	public void setZ(double z){
+		this.getNext().attemptSetSingleCoord(new ForceSetElement.Z3D(z));
 	}
 	
 	/**
@@ -138,19 +146,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	 * @param x The amount to add
 	 */
 	public void addX(double x){
-		this.setX(this.getX() + x);
-	}
-	
-	/** @return See {@link #y} */
-	@Override
-	public double getY(){
-		return this.y;
-	}
-	
-	/** @param y See {@link #y} */
-	@Override
-	public void setY(double y){
-		this.y = y;
+		this.getCurrent().addPosition(new ZVector3D(x, 0, 0));
 	}
 	
 	/**
@@ -158,19 +154,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	 * @param y The amount to add
 	 */
 	public void addY(double y){
-		this.setY(this.getY() + y);
-	}
-	
-	/** @return See {@link #z} */
-	@Override
-	public double getZ(){
-		return this.z;
-	}
-	
-	/** @param z See {@link #z} */
-	@Override
-	public void setZ(double z){
-		this.z = z;
+		this.getCurrent().addPosition(new ZVector3D(0, y, 0));
 	}
 	
 	/**
@@ -178,7 +162,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	 * @param z The amount to add
 	 */
 	public void addZ(double z){
-		this.setZ(this.getZ() + z);
+		this.getCurrent().addPosition(new ZVector3D(0, 0, z));
 	}
 	
 	/** @return The height from the bottom of this entity where it should be able to "see" from, height of the entity by default */
