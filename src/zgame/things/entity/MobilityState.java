@@ -64,10 +64,9 @@ public abstract class MobilityState<V extends ZVector<V>> extends EntityState<V>
 		this.groundedSinceLastJump = false;
 		
 		// Init forces
-		// TODO should these be initialized like this?
-		this.setForce(FORCE_WALKING, zeroVector);
-		this.setForce(FORCE_FLYING, zeroVector);
-		this.setForce(FORCE_JUMPING, zeroVector);
+		this.initForce(FORCE_WALKING);
+		this.initForce(FORCE_FLYING);
+		this.initForce(FORCE_JUMPING);
 		
 		this.setType(MobilityType.WALKING);
 	}

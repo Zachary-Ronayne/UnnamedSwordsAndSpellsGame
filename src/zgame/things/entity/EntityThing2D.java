@@ -123,19 +123,6 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 		this.addY(distance.getY());
 	}
 	
-	/**
-	 * Set the given force name with a force built from the given components.
-	 * If the given name doesn't have a force mapped to it yet, then this method automatically adds it to the map
-	 *
-	 * @param name The name of the force to set
-	 * @param x The x component
-	 * @param y The y component
-	 * @return The newly set vector object
-	 */
-	public ZVector2D setForce(String name, double x, double y){
-		return this.getCurrent().setForce(name, new ZVector2D(x, y));
-	}
-	
 	/** @return The velocity of this {@link EntityThing} on the x axis */
 	public double getVX(){
 		return this.getVelocity().getX();
@@ -178,22 +165,6 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	/** @return The y coordinate of this {@link EntityThing2D} where it was in the previous instance of time, based on its current velocity */
 	public double getPY(){
 		return py;
-	}
-	
-	/**
-	 * Set a frictional force on the horizontal, i.e. non-gravitational, axis
-	 *
-	 * @param name The string identifying the force
-	 * @param f The quantity of the force, negative or positive to use direction
-	 * @return The vector representing the added force
-	 */
-	public ZVector2D setHorizontalForce(String name, double f){
-		return this.setForce(name, f, 0);
-	}
-	
-	@Override
-	public ZVector2D setVerticalForce(String name, double f){
-		return this.setForce(name, 0, f);
 	}
 	
 	@Override

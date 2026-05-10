@@ -54,12 +54,12 @@ public interface Mobility<V extends ZVector<V>>{
 	 * Calculate and then update the current walking force based on the next instance of time
 	 */
 	default void updateWalkForce(){
-		var mobilityState = this.getMobilityState();
-		double dt = mobilityState.getTickTime();
+		var state = this.getMobilityState();
+		double dt = state.getTickTime();
 		
 		// issue#55 fix having too much control of movement while in the air, changing walking direction should decelerate and accelerate
 		
-		double mass = mobilityState.getMass();
+		double mass = state.getMass();
 		double walkForce = this.getWalkPower() / dt;
 		// See if trying to walk before doing any modifications to the walk force
 		boolean walking = walkForce != 0;
@@ -69,7 +69,7 @@ public interface Mobility<V extends ZVector<V>>{
 		if(this.isSprinting()) maxSpeed *= this.getSprintingRatio();
 		
 		// If the current velocity is greater than the max speed, and entity is trying to walk in the same direction as the current velocity, walk force will always be zero
-		var currentVel = mobilityState.getVelocity();
+		var currentVel = state.getVelocity();
 		var currentVelMag = currentVel.getHorizontal();
 		double tryRatio = this.getMobilityTryingRatio();
 		if(currentVelMag > maxSpeed && walkForce > 0 && tryRatio > 0) {
@@ -77,7 +77,7 @@ public interface Mobility<V extends ZVector<V>>{
 		}
 		
 		// If the entity is not on the ground, it's movement force is modified by the air control
-		if(!entity.isOnGround()) walkForce *= this.getWalkAirControl();
+		if(!state.isOnGround()) walkForce *= this.getWalkAirControl();
 		
 		// Only check the walking speed if there is any walking force
 		if(walking && this.isTryingToMove()){
@@ -88,13 +88,13 @@ public interface Mobility<V extends ZVector<V>>{
 			if(currentVelMag >= maxSpeed){
 				walkForce = 0;
 				// TODO figure out how this should work formally in a state system
-				mobilityState.attemptSetVelocity(this.createTryingToMoveVectorHorizontal(currentVelMag).modifyVerticalValue(currentVel.getVerticalValue()));
+				state.attemptSetVelocity(this.createTryingToMoveVectorHorizontal(currentVelMag).modifyVerticalValue(currentVel.getVerticalValue()));
 			}
 			// If the new velocity would exceed or meet the maximum speed, hard set the velocity and angle, and apply no force
 			else if(Math.abs(newVel) >= maxSpeed){
 				walkForce = 0;
 				// TODO figure out how this should work formally in a state system
-				mobilityState.attemptSetVelocity(this.createTryingToMoveVectorHorizontal(maxSpeed).modifyVerticalValue(currentVel.getVerticalValue()));
+				state.attemptSetVelocity(this.createTryingToMoveVectorHorizontal(maxSpeed).modifyVerticalValue(currentVel.getVerticalValue()));
 			}
 		}
 		

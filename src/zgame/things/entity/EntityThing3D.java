@@ -11,6 +11,7 @@ import zgame.world.Room3D;
  */
 public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D> implements HitBox3D{
 	
+	// TODO move position and last position to update system
 	/** The x coordinate of the bottom center of this entity thing */
 	private double x;
 	/** The y coordinate of the bottom center of this entity thing */
@@ -62,25 +63,6 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 		this.addZ(distance.getZ());
 	}
 	
-	/**
-	 * Set the given force name with a force built from the given components.
-	 * If the given name doesn't have a force mapped to it yet, then this method automatically adds it to the map
-	 *
-	 * @param name The name of the force to set
-	 * @param x The x component
-	 * @param y The y component
-	 * @param z The z component
-	 * @return The newly set vector object
-	 */
-	public ZVector3D setForce(String name, double x, double y, double z){
-		return this.getCurrent().setForce(name, new ZVector3D(x, y, z));
-	}
-	
-	@Override
-	public ZVector3D setVerticalForce(String name, double f){
-		return this.setForce(name, 0, f, 0);
-	}
-	
 	@Override
 	public double getHorizontalVel(){
 		return this.getVelocity().getHorizontal();
@@ -103,25 +85,25 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	public void touchWall(CollisionResult3D result){
 		super.touchWall(result);
 		// TODO test this formally and make sure this new approach makes sense
-//		var currentVel = this.getVelocity();
-//
-//		// Determine the amount of velocity on each axis
-//		double wallAngle = result.wallAngle();
-//		double currentAngle = currentVel.getYaw();
-//		/*
-//		I don't really understand how to explain in an intuitive way why this works for finding the bounce angle,
-//		but see the bottom of this file for the working out I did by looking for patterns in the 8 scenarios of hitting axis aligned walls
-//		 */
-//		double bounceAngle = wallAngle * 2 - currentAngle;
-//
-//		// The new horizontal velocity will be the bounce factor times the current velocity
-//		double velocityMag = currentVel.getHorizontal() * result.material().getWallBounce() * this.getMaterial().getWallBounce();
-//		double velX = velocityMag * Math.cos(bounceAngle);
-//		double velZ = velocityMag * Math.sin(bounceAngle);
-//
-//		this.attemptSetVelocity(new ZVector3D(velX, currentVel.getY(), velZ, true));
+		var currentVel = this.getVelocity();
+
+		// Determine the amount of velocity on each axis
+		double wallAngle = result.wallAngle();
+		double currentAngle = currentVel.getYaw();
+		/*
+		I don't really understand how to explain in an intuitive way why this works for finding the bounce angle,
+		but see the bottom of this file for the working out I did by looking for patterns in the 8 scenarios of hitting axis aligned walls
+		 */
+		double bounceAngle = wallAngle * 2 - currentAngle;
+
+		// The new horizontal velocity will be the bounce factor times the current velocity
+		double velocityMag = currentVel.getHorizontal() * result.material().getWallBounce() * this.getMaterial().getWallBounce();
+		double velX = velocityMag * Math.cos(bounceAngle);
+		double velZ = velocityMag * Math.sin(bounceAngle);
+
+		this.getNext().attemptSetVelocity(new ZVector3D(velX, currentVel.getY(), velZ, true));
 		// TODO potentially move this to the abstract parent method if 3D and 2D don't need a distinction
-		this.getNext().scaleVelocity(-1 * result.material().getWallBounce() * this.getMaterial().getWallBounce());
+//		this.getNext().scaleVelocity(-1 * result.material().getWallBounce() * this.getMaterial().getWallBounce());
 	}
 	
 	@Override

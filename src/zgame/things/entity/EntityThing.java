@@ -7,7 +7,6 @@ import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
 import zgame.physics.collision.CollisionResult;
 import zgame.physics.material.Material;
-import zgame.physics.material.Materials;
 import zgame.things.entity.state.EntityState;
 import zgame.things.type.GameThing;
 import zgame.things.type.bounds.HitBox;
@@ -37,32 +36,6 @@ public abstract class EntityThing<
 	private final String uuid;
 
 	// TODO move most of these variables into the entity state
-	/** The amount of time in seconds since this {@link EntityThing} last touched the ground, or -1 if it is currently on the ground */
-	private double groundTime;
-	
-	/** The amount of time in seconds this {@link EntityThing} has been on the ground, or -1 if it is not on the ground */
-	private double onGroundTime;
-	
-	/** The material which this {@link EntityThing} is standing on, or {@link Materials#NONE} if no material is being touched */
-	private Material floorMaterial;
-	
-	/** The amount of time in seconds since this {@link EntityThing} last touched a ceiling, or -1 if it is currently touching a ceiling */
-	private double ceilingTime;
-	
-	/** The material which this {@link EntityThing} is holding onto from the ceiling, or {@link Materials#NONE} if no ceiling is touched */
-	private Material ceilingMaterial;
-	
-	/** The amount of time in seconds since this {@link EntityThing} last touched a wall, or -1 if it is currently touching a wall */
-	private double wallTime;
-	
-	/** The material which this {@link EntityThing} is holding on a wall, or {@link Materials#NONE} if no wall is touched */
-	private Material wallMaterial;
-	
-	/** The Material which this {@link EntityThing} is made of */
-	private Material material;
-	
-	/** true if collision should be disabled, false otherwise */
-	private boolean noClip;
 	
 	/**
 	 * Create a new empty entity with the given mass
@@ -76,17 +49,6 @@ public abstract class EntityThing<
 		// TODO update mass properly, also probably remove it from the constructor, just default the value to 1, and anything that needs to set mass can do it in its constructor
 		this.getCurrent().setMass(mass);
 		this.getNext().setMass(mass);
-		this.material = Materials.DEFAULT_ENTITY;
-		
-		this.floorMaterial = Materials.NONE;
-		this.groundTime = 0;
-		this.onGroundTime = 0;
-		this.ceilingMaterial = Materials.NONE;
-		this.ceilingTime = 0;
-		this.wallMaterial = Materials.NONE;
-		this.wallTime = 0;
-		
-		this.noClip = false;
 	}
 	
 	// TODO make proper docs explaining the stages of updating state in each section
@@ -127,12 +89,6 @@ public abstract class EntityThing<
 		// TODO is this the way this should be done?
 		this.getCurrent().setTickTime(dt);
 		this.getNext().setTickTime(dt);
-		
-		// Update the amount of time the entity has been on the ground, walls, and ceiling
-		if(this.groundTime != -1) this.groundTime += dt;
-		if(this.onGroundTime != -1) this.onGroundTime += dt;
-		if(this.ceilingTime != -1) this.ceilingTime += dt;
-		if(this.wallTime != -1) this.wallTime += dt;
 		
 		// Account for drag going down for terminal velocity
 		this.updateGravityDragForce(dt);
@@ -246,12 +202,12 @@ public abstract class EntityThing<
 		if(this.getVerticalVel() >= terminalVelocity && terminalVelocity > 0){
 			// Only set the value if it is not equal and opposite to gravity
 			double gravityForce = -this.getGravity().getVerticalValue();
-			if(this.getGravityDragForce().getVertical() != gravityForce) this.setVerticalForce(EntityState.FORCE_GRAVITY_DRAG, gravityForce);
+			if(this.getGravityDragForce().getVertical() != gravityForce) this.getNext().attemptSetVerticalForce(EntityState.FORCE_GRAVITY_DRAG, gravityForce);
 		}
 		// Otherwise, remove the force
 		else{
 			// Only remove the force if it is not already zero
-			if(this.getGravityDragForce().getVertical() != 0) this.setVerticalForce(EntityState.FORCE_GRAVITY_DRAG, 0);
+			if(this.getGravityDragForce().getVertical() != 0) this.getNext().clearForce(EntityState.FORCE_GRAVITY_DRAG);
 		}
 	}
 	
@@ -286,7 +242,7 @@ public abstract class EntityThing<
 		double newVel = vy + slideForce / mass * dt;
 		if(newVel < maxSlideVel) slideForce = (maxSlideVel - vy) / dt * mass;
 		// Set the force
-		this.setVerticalForce(EntityState.FORCE_WALL_SLIDE, slideForce);
+		this.getNext().attemptSetVerticalForce(EntityState.FORCE_WALL_SLIDE, slideForce);
 	}
 	
 	/**
@@ -319,12 +275,7 @@ public abstract class EntityThing<
 	
 	@Override
 	public Material getMaterial(){
-		return this.material;
-	}
-	
-	/** @param material See {@link #material} */
-	public void setMaterial(Material material){
-		this.material = material;
+		return this.getCurrent().getMaterial();
 	}
 	
 	/** @return A {@link ZVector} representing the total of all forces on this object */
@@ -366,76 +317,68 @@ public abstract class EntityThing<
 		this.getCurrent().setMass(mass);
 	}
 	
-	/** @return See {@link #floorMaterial} */
 	@Override
 	public Material getFloorMaterial(){
-		return this.floorMaterial;
+		return this.getCurrent().getFloorMaterial();
 	}
 	
-	/** @return See {@link #ceilingMaterial} */
 	@Override
 	public Material getCeilingMaterial(){
-		return this.ceilingMaterial;
+		return this.getCurrent().getCeilingMaterial();
 	}
 	
-	/** @return See {@link #wallMaterial} */
 	@Override
 	public Material getWallMaterial(){
-		return this.wallMaterial;
+		return this.getCurrent().getWallMaterial();
 	}
 	
 	/** @return true if this {@link EntityThing} was on the ground in the past {@link #tick(double)}, false otherwise */
 	@Override
 	public boolean isOnGround(){
-		return this.groundTime == -1;
+		return this.getCurrent().isOnGround();
 	}
 	
-	/** @return See {@link #groundTime} */
+	/** @return The number of seconds since this entity has been on the ground, -1 if currently on the ground */
 	public double getGroundTime(){
-		return this.groundTime;
+		return this.getCurrent().getGroundTime();
 	}
 	
-	/** @return See {@link #onGroundTime} */
+	/** @return The number of seconds this entity has been on the ground, -1 if not on the ground */
 	public double getOnGroundTime(){
-		return this.onGroundTime;
+		return this.getCurrent().getOnGroundTime();
 	}
 	
-	/** @return See {@link #ceilingTime} */
+	/** @return The number of seconds since this entity has touched a ceiling, -1 if currently touching a ceiling */
 	public double getCeilingTime(){
-		return this.ceilingTime;
+		return this.getCurrent().getCeilingTime();
 	}
 	
-	/** @return See {@link #wallTime} */
+	/** @return The number of seconds since this entity has touched a wall, -1 if currently touching a wall */
 	public double getWallTime(){
-		return this.wallTime;
+		return this.getCurrent().getWallTime();
 	}
 	
 	/** @return true if this {@link EntityThing} was on a ceiling in the past {@link #tick(double)}, false otherwise */
 	@Override
 	public boolean isOnCeiling(){
-		return this.ceilingTime == -1;
+		return this.getCeilingTime() == -1;
 	}
 	
 	/** @return true if this {@link EntityThing} was touching a wall in the past {@link #tick(double)}, false otherwise */
 	@Override
 	public boolean isOnWall(){
-		return this.wallTime == -1;
+		return this.getWallTime() == -1;
 	}
 	
 	@Override
 	public void leaveFloor(){
-		this.floorMaterial = Materials.NONE;
-		this.groundTime = 0;
-		this.onGroundTime = -1;
+		this.getNext().leaveFloor();
 	}
 	
 	@Override
 	public void touchFloor(C collision){
-		// Touching a floor means this entity is on the ground
 		var touched = collision.material();
-		this.floorMaterial = touched;
-		this.groundTime = -1;
-		if(onGroundTime < 0) this.onGroundTime = 0;
+		this.getNext().touchFloor(touched);
 		
 		// Bounce off the floor, or reset the y velocity to 0 if either material has no floor bounciness
 		this.getNext().scaleVelocityVertical(-1 * touched.getFloorBounce() * this.getMaterial().getFloorBounce());
@@ -443,15 +386,13 @@ public abstract class EntityThing<
 	
 	@Override
 	public void leaveCeiling(){
-		this.ceilingMaterial = Materials.NONE;
-		this.ceilingTime = 0;
+		this.getNext().leaveCeiling();
 	}
 	
 	@Override
 	public void touchCeiling(C collision){
 		var touched = collision.material();
-		this.ceilingMaterial = touched;
-		this.ceilingTime = -1;
+		this.getNext().touchCeiling(touched);
 		
 		// Bounce off the ceiling, or reset the y velocity to 0 if either material has no ceiling bounciness
 		this.getNext().scaleVelocityVertical(-1 * touched.getCeilingBounce() * this.getMaterial().getCeilingBounce());
@@ -459,8 +400,7 @@ public abstract class EntityThing<
 	
 	@Override
 	public void leaveWall(){
-		this.wallMaterial = Materials.NONE;
-		this.wallTime = 0;
+		this.getNext().leaveWall();
 		
 		// On leaving a wall, there is no more wall slide force
 		this.getNext().clearForce(EntityState.FORCE_WALL_SLIDE);
@@ -468,8 +408,9 @@ public abstract class EntityThing<
 	
 	@Override
 	public void touchWall(C collision){
-		this.wallMaterial = collision.material();
-		this.wallTime = -1;
+		var touched = collision.material();
+		this.getNext().touchWall(touched);
+		// TODO potentially move wall bounce to here instead of having to have it in 2D/3D separately
 	}
 	
 	@Override
@@ -507,24 +448,12 @@ public abstract class EntityThing<
 	 * Set the velocity of this thing to zero on all axes and set the current applied for forces to 0
 	 */
 	public void clearMotion(){
-		this.getCurrent().clearMotion();
+		this.getNext().clearMotion();
 	}
 	
 	/** Instruct this entity that all of its velocity will be cleared on the next tick */
 	public void clearVelocity(){
 		this.getNext().clearVelocity();
-	}
-	
-	// TODO handle this using an update system
-	/**
-	 * Set a force on the vertical, i.e. gravitational, axis.
-	 *
-	 * @param name The string identifying the force
-	 * @param f The quantity of the force, positive means down and negative means up
-	 * @return The vector representing the added force
-	 */
-	public V setVerticalForce(String name, double f){
-		return this.getCurrent().setVerticalForce(name, f);
 	}
 	
 	/** @return The total magnitude of horizontal velocity of this entity */
@@ -541,14 +470,14 @@ public abstract class EntityThing<
 		return 1E-13;
 	}
 	
-	/** @return See {@link #noClip} */
+	/** @return true if this thing is ignoring collision, false otherwise */
 	public boolean isNoClip(){
-		return this.noClip;
+		return this.getCurrent().isNoClip();
 	}
 	
-	/** @param noClip See {@link #noClip} */
+	/** @param noClip The new value to set {@link #isNoClip()} to */
 	public void setNoClip(boolean noClip){
-		this.noClip = noClip;
+		this.getNext().scheduleNoClip(noClip);
 	}
 	
 	@Override

@@ -1,6 +1,8 @@
 package zgame.things.entity.state;
 
 import zgame.physics.ZVector;
+import zgame.physics.material.Material;
+import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.state.vector.*;
 
@@ -21,6 +23,7 @@ public class EntityState<V extends ZVector<V>>{
 	/** The current velocity of the associated {@link EntityThing} */
 	private V velocity;
 	
+	// TODO probably consolidate this concept of updates into an interface or abstract class to make them easier to add and schedule
 	private final VectorUpdateList<V> velocityUpdates;
 	
 	private final VectorUpdateMap<String, V> forceUpdates;
@@ -44,6 +47,29 @@ public class EntityState<V extends ZVector<V>>{
 	/** The current acceleration of gravity */
 	private double gravityAcceleration;
 	
+	/** The amount of time in seconds since this last touched the ground, or -1 if it is currently on the ground */
+	private double groundTime;
+	/** The amount of time in seconds this has been on the ground, or -1 if it is not on the ground */
+	private double onGroundTime;
+	/** The material which this {@link EntityThing} is standing on, or {@link Materials#NONE} if no material is being touched */
+	private Material floorMaterial;
+	/** The amount of time in seconds since this {@link EntityThing} last touched a ceiling, or -1 if it is currently touching a ceiling */
+	private double ceilingTime;
+	/** The material which this {@link EntityThing} is holding onto from the ceiling, or {@link Materials#NONE} if no ceiling is touched */
+	private Material ceilingMaterial;
+	/** The amount of time in seconds since this {@link EntityThing} last touched a wall, or -1 if it is currently touching a wall */
+	private double wallTime;
+	/** The material which this {@link EntityThing} is holding on a wall, or {@link Materials#NONE} if no wall is touched */
+	private Material wallMaterial;
+	// TODO implement updates for allowing material to change
+	/** The Material which this {@link EntityThing} is made of */
+	private final Material material;
+	/** true if collision should be disabled, false otherwise */
+	private boolean noClip;
+	
+	/** All updates that must occur on the next state update */
+	private final ArrayList<Runnable> stateUpdates;
+	
 	// TODO consider if this should be a variable like this
 	private final double clampVelocity;
 	
@@ -64,10 +90,23 @@ public class EntityState<V extends ZVector<V>>{
 		this.forces = new HashMap<>();
 		
 		// Init individual forces
-		this.setForce(FORCE_GRAVITY, zeroVector);
-		this.setForce(FORCE_FRICTION, zeroVector);
-		this.setForce(FORCE_GRAVITY_DRAG, zeroVector);
-		this.setForce(FORCE_WALL_SLIDE, zeroVector);
+		this.initForce(FORCE_GRAVITY);
+		this.initForce(FORCE_FRICTION);
+		this.initForce(FORCE_GRAVITY_DRAG);
+		this.initForce(FORCE_WALL_SLIDE);
+		
+		// Init state for environment interaction
+		this.material = Materials.DEFAULT_ENTITY;
+		this.floorMaterial = Materials.NONE;
+		this.groundTime = 0;
+		this.onGroundTime = 0;
+		this.ceilingMaterial = Materials.NONE;
+		this.ceilingTime = 0;
+		this.wallMaterial = Materials.NONE;
+		this.wallTime = 0;
+		this.noClip = false;
+		
+		this.stateUpdates = new ArrayList<>();
 	}
 	
 	/** @return A zero vector for this entity state */
@@ -82,6 +121,10 @@ public class EntityState<V extends ZVector<V>>{
 		this.mass = updated.getMass();
 		this.gravityLevel = updated.getGravityLevel();
 		this.gravityAcceleration = updated.getGravityAcceleration();
+		
+		// Update general state
+		for(var update : this.stateUpdates) update.run();
+		this.stateUpdates.clear();
 		
 		// TODO only update gravity if something has changed with its computation
 		this.attemptSetVerticalForce(FORCE_GRAVITY, this.getGravityAcceleration() * this.getMass() * this.getGravityLevel());
@@ -112,9 +155,27 @@ public class EntityState<V extends ZVector<V>>{
 		// Add the acceleration to the current velocity
 		this.velocity = velocity.add(acceleration.scale(this.getTickTime()));
 		
+		// TODO should this be in applyState?
+		// Update the amount of time the entity has been on the ground, walls, and ceiling
+		var dt = this.getTickTime();
+		if(this.groundTime != -1) this.groundTime += dt;
+		if(this.onGroundTime != -1) this.onGroundTime += dt;
+		if(this.ceilingTime != -1) this.ceilingTime += dt;
+		if(this.wallTime != -1) this.wallTime += dt;
+		
 		// Account for clamping the velocity
 		double velMag = this.velocity.getMagnitude();
 		if(velMag != 0 && velMag < this.clampVelocity) this.velocity = this.zeroVec();
+	}
+	
+	/**
+	 * Initialize the given force to a zero vector
+	 *
+	 * @param name The name of the force to init
+	 * @return The initialized force
+	 */
+	public V initForce(String name){
+		return this.forces.put(name, this.zeroVec());
 	}
 	
 	/** @param update A scheduled update to happen to velocity on the next tick */
@@ -172,12 +233,6 @@ public class EntityState<V extends ZVector<V>>{
 	/** @param tickTime See {@link #tickTime} */
 	public void setTickTime(double tickTime){
 		this.tickTime = tickTime;
-	}
-	
-	// TODO make docs and potentially better name
-	public V setVerticalForce(String name, double f){
-		var oldForce = this.getForce(name);
-		return this.setForce(name, oldForce.modifyVerticalMagnitude(f));
 	}
 	
 	/** @return See {@link #gravityLevel} */
@@ -252,19 +307,6 @@ public class EntityState<V extends ZVector<V>>{
 	}
 	
 	/**
-	 * Set the given force name to the given force. If the given name doesn't have a force mapped to it yet, then this method automatically adds it to the
-	 * map
-	 *
-	 * @param name The name of the force to set
-	 * @param force The force object to set
-	 * @return force
-	 */
-	public V setForce(String name, V force){
-		this.forces.put(name, force);
-		return force;
-	}
-	
-	/**
 	 * @return A list of all forces acting on this thing. This returned list does not reflect actual the collection of forces applied to this thing,
 	 * 		and should be treated as immutable and read only
 	 */
@@ -279,7 +321,137 @@ public class EntityState<V extends ZVector<V>>{
 	 */
 	public void clearMotion(){
 		this.clearVelocity();
-		for(var f : this.getForces()) this.setForce(f.getKey(), this.zeroVec());
+		for(var f : this.getForces()) this.clearForce(f.getKey());
+	}
+	
+	/** @return See {@link #material} */
+	public Material getMaterial(){
+		return this.material;
+	}
+	
+	/** @return See {@link #floorMaterial} */
+	public Material getFloorMaterial(){
+		return this.floorMaterial;
+	}
+	
+	/** @return See {@link #ceilingMaterial} */
+	public Material getCeilingMaterial(){
+		return this.ceilingMaterial;
+	}
+	
+	/** @return See {@link #wallMaterial} */
+	public Material getWallMaterial(){
+		return this.wallMaterial;
+	}
+	
+	// TODO potentially consolidate or rename, or remove some of these fields
+	
+	/** @return See {@link #groundTime} */
+	public double getGroundTime(){
+		return this.groundTime;
+	}
+	
+	/** @return See {@link #onGroundTime} */
+	public double getOnGroundTime(){
+		return this.onGroundTime;
+	}
+	
+	/** @return true if this was on the ground in the past tick, false otherwise */
+	public boolean isOnGround(){
+		return this.getGroundTime() == -1;
+	}
+	
+	/** @return See {@link #ceilingTime} */
+	public double getCeilingTime(){
+		return this.ceilingTime;
+	}
+	
+	/** @return See {@link #wallTime} */
+	public double getWallTime(){
+		return this.wallTime;
+	}
+	
+	/** @return See {@link #noClip} */
+	public boolean isNoClip(){
+		return this.noClip;
+	}
+	
+	/** @param update An update to schedule to run on the next state update */
+	private void scheduleUpdate(Runnable update){
+		this.stateUpdates.add(update);
+	}
+	
+	// TODO should these updates go directly to this state, or accept the next state to set it to?
+	// TODO need to have some priority system for which update to set if leave/touch methods are called in the same tick
+	/** Schedule that this has left a floor */
+	public void leaveFloor(){
+		this.scheduleUpdate(() -> {
+			this.floorMaterial = Materials.NONE;
+			this.groundTime = 0;
+			this.onGroundTime = -1;
+		});
+	}
+	
+	/**
+	 * Schedule that this touched a floor
+	 *
+	 * @param touched The material the floor is made of
+	 */
+	public void touchFloor(Material touched){
+		this.scheduleUpdate(() -> {
+			// Touching a floor means this entity is on the ground
+			this.floorMaterial = touched;
+			this.groundTime = -1;
+			if(onGroundTime < 0) this.onGroundTime = 0;
+		});
+	}
+	
+	/** Schedule that this has left a ceiling */
+	public void leaveCeiling(){
+		this.scheduleUpdate(() -> {
+			this.ceilingMaterial = Materials.NONE;
+			this.ceilingTime = 0;
+		});
+	}
+	
+	/**
+	 * Schedule that this touched a ceiling
+	 *
+	 * @param touched The material the floor is made of
+	 */
+	public void touchCeiling(Material touched){
+		this.scheduleUpdate(() -> {
+			this.ceilingMaterial = touched;
+			this.ceilingTime = -1;
+		});
+	}
+	
+	/** Schedule that this has left a wall */
+	public void leaveWall(){
+		this.scheduleUpdate(() -> {
+			this.wallMaterial = Materials.NONE;
+			this.wallTime = 0;
+		});
+	}
+	
+	/**
+	 * Schedule that this touchWall a wall
+	 *
+	 * @param touched The material the floor is made of
+	 */
+	public void touchWall(Material touched){
+		this.scheduleUpdate(() -> {
+			this.wallMaterial = touched;
+			this.wallTime = -1;
+		});
+	}
+	
+	// TODO this will need to be deterministic, probably just always prefer setting no clip as false by default, only set it to true if nothing else sets it to false
+	/** @param noClip The new value to set {@link #noClip} */
+	public void scheduleNoClip(boolean noClip){
+		this.scheduleUpdate(() -> {
+			this.noClip = noClip;
+		});
 	}
 	
 }
