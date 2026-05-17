@@ -105,8 +105,7 @@ public class Door2D extends StaticThing2D implements Door<Room2D, HitBox2D, Enti
 	
 	@Override
 	public void onEntityEnter(EntityThing2D thing){
-		thing.setX(this.roomX);
-		thing.setY(this.roomY);
+		thing.setPos(this.roomX, this.roomY);
 	}
 	
 	@Override

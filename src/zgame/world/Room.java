@@ -108,6 +108,7 @@ public abstract class Room<
 	/** @return The type of entities used by this class */
 	public abstract Class<E> getEntityClass();
 	
+	// TODO consider if initial coordinates should be set when adding a thing to a room or not
 	/**
 	 * Add a {@link GameThing} to this {@link Room}
 	 *
@@ -134,7 +135,8 @@ public abstract class Room<
 	 * @param obj The object to collide
 	 * @return The CollisionResponse representing the final collision that took place, where the collision material is the floor collision, if one took place
 	 */
-	public abstract C collide(H obj);
+	// TODO should this have to be an entity? Or is it enough to have collisions happen only for hit boxes? The problem is needing to be able to schedule a state update
+	public abstract C collide(E obj);
 	
 	/**
 	 * Collide the given {@link EntityThing} with the entities in the given room
@@ -244,15 +246,11 @@ public abstract class Room<
 		}
 		
 		// TODO attempt to implement this properly again
-		// Check the collision of this room for entities
+		// Check the collisions between entities for this room
 		var entities = this.getEntities();
 		for(int i = 0; i < entities.size(); i++){
 			var e = entities.get(i);
 			if(e.isNoClip()) continue;
-			// Check for tile collisions
-			this.collide(e.get());
-			
-			// Check for entity collision, and apply appropriate forces based on what is currently colliding
 			this.checkEntityCollisions(e, dt);
 			
 		}
@@ -271,6 +269,15 @@ public abstract class Room<
 		// Run any functions which need to happen
 		for(int i = 0; i < this.nextTickFuncs.size(); i++) this.nextTickFuncs.get(i).run();
 		this.nextTickFuncs.clear();
+		
+		// Finally, force update positions to account for collisions
+		for(int i = 0; i < entities.size(); i++){
+			var e = entities.get(i);
+			if(e.isNoClip()) continue;
+			// Check for tile collisions
+			this.collide(e);
+			// TODO does this also need entity collision?
+		}
 	}
 	
 	/**

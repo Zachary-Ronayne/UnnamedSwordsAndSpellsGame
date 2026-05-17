@@ -3,7 +3,6 @@ package zgame.things.entity;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.physics.ZVector3D;
 import zgame.physics.collision.CollisionResult3D;
-import zgame.things.entity.state.vector.ForceSetElement;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.world.Room3D;
 
@@ -31,14 +30,12 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	 */
 	public EntityThing3D(double x, double y, double z, double mass){
 		super(mass);
-		this.getNext().attemptSetPosition(new ZVector3D(x, y, z));
+		this.getCurrent().initPosition(new ZVector3D(x, y, z));
 	}
 	
 	@Override
 	public void moveEntity(ZVector3D distance){
-		this.addX(distance.getX());
-		this.addY(distance.getY());
-		this.addZ(distance.getZ());
+		this.addPos(distance.getX(), distance.getY(), distance.getZ());
 	}
 	
 	@Override
@@ -54,9 +51,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	@Override
 	public void collide(CollisionResult3D r){
 		super.collide(r);
-		this.addX(r.x());
-		this.addY(r.y());
-		this.addZ(r.z());
+		this.addPos(r.x(), r.y(), r.z());
 	}
 	
 	@Override
@@ -64,7 +59,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 		super.touchWall(result);
 		// TODO test this formally and make sure this new approach makes sense
 		var currentVel = this.getVelocity();
-
+		
 		// Determine the amount of velocity on each axis
 		double wallAngle = result.wallAngle();
 		double currentAngle = currentVel.getYaw();
@@ -73,12 +68,12 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 		but see the bottom of this file for the working out I did by looking for patterns in the 8 scenarios of hitting axis aligned walls
 		 */
 		double bounceAngle = wallAngle * 2 - currentAngle;
-
+		
 		// The new horizontal velocity will be the bounce factor times the current velocity
 		double velocityMag = currentVel.getHorizontal() * result.material().getWallBounce() * this.getMaterial().getWallBounce();
 		double velX = velocityMag * Math.cos(bounceAngle);
 		double velZ = velocityMag * Math.sin(bounceAngle);
-
+		
 		this.getNext().attemptSetVelocity(new ZVector3D(velX, currentVel.getY(), velZ, true));
 		// TODO potentially move this to the abstract parent method if 3D and 2D don't need a distinction
 //		this.getNext().scaleVelocity(-1 * result.material().getWallBounce() * this.getMaterial().getWallBounce());
@@ -118,28 +113,21 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 		return this.getPosition().getZ();
 	}
 	
-	// TODO consolidate calls to add and set to be on all axes into one update
 	// TODO change all add and set position values to use updates
 	// TODO have a formal way to initialize position without having to go through the state system
 	// TODO need to figure out where this inheritance is used for setting and what relies on it, restructure so that setting is not relied on, just a delta
-	// TODO do the same fixes to EntityThing2D
-	/** @param x New x coordinate of this thing */
-	public void setX(double x){
-		this.getNext().attemptSetSingleCoord(new ForceSetElement.X3D(x));
-	}
-	
-	/** @param y New y coordinate of this thing */
-	public void setY(double y){
-		this.getNext().attemptSetSingleCoord(new ForceSetElement.Y3D(y));
-	}
-	
-	/** @param z New z coordinate of this thing */
-	public void setZ(double z){
-		this.getNext().attemptSetSingleCoord(new ForceSetElement.Z3D(z));
+	/**
+	 * @param x New x coordinate of this thing
+	 * @param y New y coordinate of this thing
+	 * @param z New z coordinate of this thing
+	 */
+	public void setPos(double x, double y, double z){
+		this.getNext().attemptSetPosition(new ZVector3D(x, y, z));
 	}
 	
 	/**
 	 * Add the given value to the x coordinate
+	 *
 	 * @param x The amount to add
 	 */
 	public void addX(double x){
@@ -148,6 +136,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	
 	/**
 	 * Add the given value to the y coordinate
+	 *
 	 * @param y The amount to add
 	 */
 	public void addY(double y){
@@ -156,10 +145,22 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	
 	/**
 	 * Add the given value to the z coordinate
+	 *
 	 * @param z The amount to add
 	 */
 	public void addZ(double z){
 		this.getCurrent().addPosition(new ZVector3D(0, 0, z));
+	}
+
+	/**
+	 * Add the given values to the coordinate
+	 *
+	 * @param x The amount to add
+	 * @param y The amount to add
+	 * @param z The amount to add
+	 */
+	public void addPos(double x, double y, double z){
+		this.getCurrent().addPosition(new ZVector3D(x, y, z));
 	}
 	
 	/** @return The height from the bottom of this entity where it should be able to "see" from, height of the entity by default */
@@ -169,6 +170,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	
 	/**
 	 * Set the position of this camera to the top center of this thing
+	 *
 	 * @param camera The camera to set
 	 */
 	public void updateCameraPos(GameCamera3D camera){

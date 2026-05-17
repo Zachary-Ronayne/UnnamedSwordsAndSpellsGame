@@ -94,9 +94,7 @@ public class Door3D extends StaticThing3D implements Door<Room3D, HitBox3D, Enti
 	
 	@Override
 	public void onEntityEnter(EntityThing3D thing){
-		thing.setX(this.roomX);
-		thing.setY(this.roomY);
-		thing.setZ(this.roomZ);
+		thing.setPos(this.roomX, this.roomY, this.roomZ);
 	}
 	
 	@Override

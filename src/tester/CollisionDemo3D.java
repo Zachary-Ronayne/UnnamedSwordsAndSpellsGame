@@ -41,8 +41,8 @@ public class CollisionDemo3D extends Game{
 	
 	public static class Player extends MobilityEntity3D implements SphereHitBox{
 		
-		public Player(){
-			super(1);
+		public Player(double x, double y, double z){
+			super(x, y, z, 1);
 			this.getMobilityState().setType(MobilityType.FLYING_AXIS);
 		}
 		
@@ -161,10 +161,7 @@ public class CollisionDemo3D extends Game{
 			super(new Room3D(0, 0, 0));
 			
 			var room = new Room3D(1, 1, 1);
-			var player = new Player();
-			player.setX(1.5);
-			player.setY(0);
-			player.setZ(1.5);
+			var player = new Player(1.5, 0, 1.5);
 			room.addThing(player);
 			room.setAllBoundaries(false);
 			game.getCamera3D().setYaw(Math.PI * 1.75);

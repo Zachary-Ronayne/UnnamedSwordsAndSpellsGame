@@ -101,7 +101,7 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D, Col
 	}
 	
 	@Override
-	public CollisionResult2D collide(HitBox2D obj){
+	public CollisionResult2D collide(EntityThing2D obj){
 		// Find touching tiles and collide with them
 		int minX = this.tileX(obj.getX());
 		int minY = this.tileY(obj.getY());
@@ -144,6 +144,7 @@ public class Room2D extends Room<HitBox2D, EntityThing2D, ZVector2D, Room2D, Col
 		// Determine the final collision
 		var res = new CollisionResult2D(mx, my, left, right, top, bot, material);
 		
+		// TODO need to account for updating position, same as 3D
 		boolean touchedFloor = false;
 		boolean touchedCeiling = false;
 		boolean touchedWall = false;

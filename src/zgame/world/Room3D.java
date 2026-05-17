@@ -259,7 +259,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	}
 	
 	@Override
-	public CollisionResult3D collide(HitBox3D obj){
+	public CollisionResult3D collide(EntityThing3D obj){
 		boolean wasOnGround = obj.isOnGround();
 		boolean wasOnCeiling = obj.isOnCeiling();
 		boolean wasOnWall = obj.isOnWall();
@@ -334,7 +334,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = this.getBoundary(WEST) - (obj.getWidth() * 0.5);
 			double objX = obj.getX();
 			if(objX > boundary){
-				obj.touchWall(new CollisionResult3D(-Math.abs(boundary - objX), 0, 0, true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
+				obj.collide(new CollisionResult3D(-Math.abs(boundary - objX), 0, 0, true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
 				touchedAxisX = true;
 			}
 		}
@@ -342,7 +342,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = -this.getBoundary(EAST) + (obj.getWidth() * 0.5);
 			double objX = obj.getX();
 			if(objX < boundary){
-				obj.touchWall(new CollisionResult3D(Math.abs(boundary - objX), 0, 0, true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
+				obj.collide(new CollisionResult3D(Math.abs(boundary - objX), 0, 0, true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
 				touchedAxisX = true;
 			}
 		}
@@ -354,7 +354,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = this.getBoundary(NORTH) - (obj.getLength() * 0.5);
 			double objZ = obj.getZ();
 			if(objZ > boundary){
-				obj.touchWall(new CollisionResult3D(0, 0, Math.abs(boundary - objZ), true, false, false, this.getBoundaryMaterial(), 0));
+				obj.collide(new CollisionResult3D(0, 0, Math.abs(boundary - objZ), true, false, false, this.getBoundaryMaterial(), 0));
 				touchedAxisZ = true;
 			}
 		}
@@ -362,7 +362,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = -this.getBoundary(SOUTH) + (obj.getLength() * 0.5);
 			double objZ = obj.getZ();
 			if(objZ < boundary){
-				obj.touchWall(new CollisionResult3D(0, 0, -Math.abs(boundary - objZ), true, false, false, this.getBoundaryMaterial(), 0));
+				obj.collide(new CollisionResult3D(0, 0, -Math.abs(boundary - objZ), true, false, false, this.getBoundaryMaterial(), 0));
 				touchedAxisZ = true;
 			}
 		}
@@ -373,7 +373,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = this.getBoundary(Direction3D.UP) - obj.getHeight();
 			double objY = obj.getY();
 			if(objY > boundary){
-				obj.touchCeiling(new CollisionResult3D(0, Math.abs(boundary - objY), 0, false, true, false, this.getBoundaryMaterial(), 0));
+				obj.collide(new CollisionResult3D(0, Math.abs(boundary - objY), 0, false, true, false, this.getBoundaryMaterial(), 0));
 				touchedCeiling = true;
 			}
 		}
@@ -381,7 +381,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = -this.getBoundary(Direction3D.DOWN);
 			double objY = obj.getY();
 			if(objY < boundary){
-				obj.touchFloor(new CollisionResult3D(0, -Math.abs(boundary - objY), 0, false, false, true, this.getBoundaryMaterial(), 0));
+				obj.collide(new CollisionResult3D(0, -Math.abs(boundary - objY), 0, false, false, true, this.getBoundaryMaterial(), 0));
 				touchedFloor = true;
 			}
 		}
@@ -389,7 +389,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		if(wasOnGround){
 			// If the hitbox was on the ground, but no y axis movement happened, then the hitbox is still on the ground, so touch the floor
 			if(obj.getPY() == obj.getY() || bot){
-				if(!touchedFloor) obj.touchFloor(new CollisionResult3D(0, 0, 0, false, false, true, obj.getFloorMaterial(), res.wallAngle()));
+				if(!touchedFloor) obj.collide(new CollisionResult3D(0, 0, 0, false, false, true, obj.getFloorMaterial(), res.wallAngle()));
 			}
 			// Otherwise, leave the floor
 			else obj.leaveFloor();
@@ -398,7 +398,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		// Same thing, but for the walls and for the ceiling
 		if(wasOnCeiling){
 			if(obj.getPY() == obj.getY() || top){
-				if(!touchedCeiling) obj.touchCeiling(new CollisionResult3D(0, 0, 0, false, true, false, obj.getCeilingMaterial(), res.wallAngle()));
+				if(!touchedCeiling) obj.collide(new CollisionResult3D(0, 0, 0, false, true, false, obj.getCeilingMaterial(), res.wallAngle()));
 			}
 			else obj.leaveCeiling();
 		}
@@ -406,7 +406,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		if(wasOnWall){
 			// TODO should this be looking at previous x and z as well?
 			if(obj.getPX() == obj.getX() || wall){
-				if(!touchedWall) obj.touchWall(new CollisionResult3D(0, 0, 0, true, false, false, obj.getWallMaterial(), res.wallAngle()));
+				if(!touchedWall) obj.collide(new CollisionResult3D(0, 0, 0, true, false, false, obj.getWallMaterial(), res.wallAngle()));
 			}
 			else obj.leaveWall();
 		}

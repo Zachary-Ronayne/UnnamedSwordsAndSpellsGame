@@ -91,50 +91,31 @@ public class GameDemo3D extends Game{
 		
 		updatePaused(true);
 		
-		player = new Player3D();
-		player.setZ(2);
+		player = new Player3D(0, 0, 2);
 		dummyRoom.addThing(player);
 		
-		var movingRect = new Rect(2){
+		var movingRect = new Rect(-1.9, 2, 0, 2){
 			@Override
 			public void tick(double dt){
 				super.tick(dt);
 			}
 		};
-		movingRect.setY(2);
-		movingRect.setX(-1.9);
-		var movingCylinder = new Cylinder(2);
+		var movingCylinder = new Cylinder(1.9, 3, 0, 2);
 		dummyRoom.addThing(movingRect);
-		movingCylinder.setY(3);
-		movingCylinder.setX(1.9);
 		dummyRoom.addThing(movingCylinder);
 		
-		var staticRect = new Rect(0);
-		staticRect.setX(0.75);
-		staticRect.setY(2.85);
-		var staticCylinder = new Cylinder(0);
-		staticCylinder.setX(-0.75);
-		staticCylinder.setY(2.85);
+		var staticRect = new Rect(0.75, 2.85, 0, 0);
+		var staticCylinder = new Cylinder(-0.75, 2.85, 0, 0);
 		dummyRoom.addThing(staticRect);
 		dummyRoom.addThing(staticCylinder);
 		
-		staticRect = new Rect(0);
-		staticRect.setX(0.75);
-		staticRect.setY(2.3);
-		staticCylinder = new Cylinder(0);
-		staticCylinder.setX(-0.75);
-		staticCylinder.setY(2.3);
+		staticRect = new Rect(0.75, 2.3, 0, 0);
+		staticCylinder = new Cylinder(-0.75, 2.3, 0, 0);
 		dummyRoom.addThing(staticRect);
 		dummyRoom.addThing(staticCylinder);
 		
-		staticRect = new Rect(0);
-		staticRect.setX(-2);
-		staticRect.setY(1);
-		staticRect.setZ(-2);
-		staticCylinder = new Cylinder(0);
-		staticCylinder.setX(-2);
-		staticCylinder.setY(1);
-		staticCylinder.setZ(-3);
+		staticRect = new Rect(-2, 1, -2, 0);
+		staticCylinder = new Cylinder(-2, 1, -3, 0);
 		dummyRoom.addThing(staticRect);
 		dummyRoom.addThing(staticCylinder);
 		
@@ -394,9 +375,7 @@ public class GameDemo3D extends Game{
 				yRot = 0;
 				zRot = 0;
 				
-				player.setX(0);
-				player.setY(0);
-				player.setZ(2);
+				player.setPos(0, 0, 2);
 				
 				player.clearMotion();
 				var m = player.getMobilityState();
@@ -442,8 +421,8 @@ public class GameDemo3D extends Game{
 		private final double speed;
 		private boolean intersecting;
 		
-		public MovingThing(double speed){
-			super(1);
+		public MovingThing(double x, double y, double z, double speed){
+			super(x, y, z, 1);
 			this.speed = speed;
 			this.movingLeft = false;
 			this.getCurrent().setGravityLevel(0);
@@ -506,8 +485,8 @@ public class GameDemo3D extends Game{
 	}
 	
 	private static class Rect extends MovingThing implements RectPrismHitbox{
-		public Rect(double speed){
-			super(speed);
+		public Rect(double x, double y, double z, double speed){
+			super(x, y, z, speed);
 		}
 		
 		@Override
@@ -520,8 +499,8 @@ public class GameDemo3D extends Game{
 	}
 	
 	private static class Cylinder extends MovingThing implements CylinderHitbox{
-		public Cylinder(double speed){
-			super(speed);
+		public Cylinder(double x, double y, double z, double speed){
+			super(x, y, z, speed);
 		}
 		
 		@Override
@@ -568,8 +547,8 @@ public class GameDemo3D extends Game{
 	
 	public static class Player3D extends MobilityEntity3D implements CylinderHitbox{
 		
-		public Player3D(){
-			super(100);
+		public Player3D(double x, double y, double z){
+			super(x, y, z, 100);
 		}
 		
 		@Override

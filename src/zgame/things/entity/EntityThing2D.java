@@ -4,7 +4,6 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector2D;
 import zgame.physics.collision.CollisionResult2D;
-import zgame.things.entity.state.vector.ForceSetElement;
 import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room2D;
 
@@ -41,8 +40,7 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	 */
 	public EntityThing2D(double x, double y, double mass){
 		super(mass);
-		this.setX(x);
-		this.setY(y);
+		this.getCurrent().initPosition(new ZVector2D(x, y));
 	}
 	
 	/** @return Current x coordinate of this thing */
@@ -57,17 +55,17 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 		return this.getPosition().getY();
 	}
 	
-	public void setX(double x){
-		this.getNext().attemptSetSingleCoord(new ForceSetElement.X2D(x));
-	}
-	
-	/** @param y New y coordinate of this thing */
-	public void setY(double y){
-		this.getNext().attemptSetSingleCoord(new ForceSetElement.Y2D(y));
+	/**
+	 * @param x New x coordinate of this thing
+	 * @param y New y coordinate of this thing
+	 */
+	public void setPos(double x, double y){
+		this.getNext().attemptSetPosition(new ZVector2D(x, y));
 	}
 	
 	/**
 	 * Add the given value to the x coordinate
+	 *
 	 * @param x The amount to add
 	 */
 	public void addX(double x){
@@ -76,17 +74,11 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	
 	/**
 	 * Add the given value to the y coordinate
+	 *
 	 * @param y The amount to add
 	 */
 	public void addY(double y){
 		this.getCurrent().addPosition(new ZVector2D(0, y));
-	}
-	
-	@Override
-	public void collide(CollisionResult2D r){
-		super.collide(r);
-		this.addX(r.x());
-		this.addY(r.y());
 	}
 	
 	@Override
@@ -118,25 +110,6 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	public double getVY(){
 		return this.getVelocity().getY();
 	}
-	
-	// TODO consider if these should exist or not
-//	/**
-//	 * Add the given amount of velocity to the x component
-//	 *
-//	 * @param x The velocity to add
-//	 */
-//	public void addVX(double x){
-//		this.addVelocity(new ZVector2D(x, 0));
-//	}
-//
-//	/**
-//	 * Add the given amount of velocity to the y component
-//	 *
-//	 * @param y The velocity to add
-//	 */
-//	public void addVY(double y){
-//		this.addVelocity(new ZVector2D(0, y));
-//	}
 	
 	@Override
 	public double getGravityDragReferenceArea(){

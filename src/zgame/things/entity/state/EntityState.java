@@ -8,7 +8,11 @@ import zgame.things.entity.state.vector.*;
 
 import java.util.*;
 
-// TODO add docs and update copied over docs
+/**
+ * The state of an entity, accounting for position, velocity, and forces
+ *
+ * @param <V> The type of vector that this state uses
+ */
 public class EntityState<V extends ZVector<V>>{
 	
 	/** The string used to identify the force of gravity in {@link #forces} */
@@ -20,28 +24,29 @@ public class EntityState<V extends ZVector<V>>{
 	/** The string used to identify the force of sticking to a wall in {@link #forces} */
 	public static final String FORCE_WALL_SLIDE = "wallSlide";
 	
-	/** The current velocity of the associated {@link EntityThing} */
+	/** The current velocity of this state */
 	private V velocity;
 	
-	// TODO probably consolidate this concept of updates into an interface or abstract class to make them easier to add and schedule
+	/** Pending updates that must occur to the current velocity */
 	private final VectorUpdateList<V> velocityUpdates;
 	
+	/** Pending updates that must occur to specific forces, mapped by their names */
 	private final VectorUpdateMap<String, V> forceUpdates;
 	
-	/** Every force currently acting on this {@link EntityThing}, mapped by a name */
+	/** Every force currently acting on this, mapped by its name */
 	private final HashMap<String, V> forces;
 	
 	// TODO consider if this should be here or not, or maybe it should be in the generic state
 	/** The amount of time a single tick will take */
 	private double tickTime;
 	
-	/** A {@link ZVector} representing the total force acting on this {@link EntityThing} */
+	/** A {@link ZVector} representing the total force acting on this */
 	private V totalForce;
 	
-	/** The percentage of gravity that applies to this {@link EntityThing}, defaults to 1, i.e. 100% */
+	/** The percentage of gravity that applies to this, defaults to 1, i.e. 100% */
 	private double gravityLevel;
 	
-	/** The mass, i.e. weight, of this {@link EntityThing} */
+	/** The mass, i.e. weight, of this */
 	private double mass;
 	
 	/** The current acceleration of gravity */
@@ -70,7 +75,7 @@ public class EntityState<V extends ZVector<V>>{
 	/** All updates that must occur on the next state update */
 	private final ArrayList<Runnable> stateUpdates;
 	
-	// TODO consider if this should be a variable like this
+	// TODO consider if this should be a variable like this, or a method like it was with entities
 	private final double clampVelocity;
 	
 	// TODO probably avoid having to recompute all vector values every time for position, for now just using a simple vector
@@ -123,6 +128,14 @@ public class EntityState<V extends ZVector<V>>{
 		return this.velocity.zero();
 	}
 	
+	/**
+	 * Initialize the position of this state directly to the given value
+	 * @param pos The initial position to use
+	 */
+	public void initPosition(V pos){
+		this.position = pos;
+	}
+	
 	// TODO is passing in the previous state needed? Where should it be used that it isn't being used?
 	public void applyState(EntityState<V> updated){
 		// TODO avoid having to copy these every time if nothing changes
@@ -145,7 +158,7 @@ public class EntityState<V extends ZVector<V>>{
 		// No forces, there is no force
 		// TODO only recompute force if it changes?
 		if(this.forces.size() == 0) this.totalForce = this.zeroVec();
-			// Sum all forces
+		// Sum all forces
 		else{
 			var allForces = this.getForces();
 			this.totalForce = allForces.get(0).getValue();
@@ -173,7 +186,7 @@ public class EntityState<V extends ZVector<V>>{
 		if(this.wallTime != -1) this.wallTime += dt;
 		
 		// TODO when should position be updated?
-		this.position = this.positionUpdates.apply(this.position);
+		this.position = this.positionUpdates.apply(updated.position);
 		
 		// Account for clamping the velocity
 		double velMag = this.velocity.getMagnitude();
@@ -312,7 +325,7 @@ public class EntityState<V extends ZVector<V>>{
 	 * @param force The new value for the vertical force
 	 */
 	public void attemptSetVerticalForce(String name, double force){
-		this.forceUpdates.update(name, new ForceSetVector<>(this.zeroVec().modifyVerticalMagnitude(force)));
+		this.forceUpdates.update(name, new ForceSetVector<>(this.zeroVec().modifyVerticalValue(force)));
 	}
 	
 	/**
@@ -400,6 +413,7 @@ public class EntityState<V extends ZVector<V>>{
 	
 	// TODO should these updates go directly to this state, or accept the next state to set it to?
 	// TODO need to have some priority system for which update to set if leave/touch methods are called in the same tick
+	
 	/** Schedule that this has left a floor */
 	public void leaveFloor(){
 		this.scheduleUpdate(() -> {
@@ -479,14 +493,8 @@ public class EntityState<V extends ZVector<V>>{
 		this.schedulePosition(new ForceSetVector<>(position));
 	}
 	
-	// TODO this really shouldn't need to exist
-	public void attemptSetSingleCoord(ForceSetElement<V> update){
-		this.schedulePosition(update);
-	}
-	
 	public void addPosition(V delta){
 		this.schedulePosition(new AddVector<>(delta));
 	}
-	
 	
 }
