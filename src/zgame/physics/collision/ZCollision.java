@@ -26,12 +26,12 @@ public final class ZCollision{
 	 * @param w The width of the bounds to collide
 	 * @param h The height of the bounds to collide
 	 * @param m The {@link Material} which was collided with
-	 * @return A {@link CollisionResult2D} representing the collision
+	 * @return A {@link Collision2D} representing the collision
 	 */
-	public static CollisionResult2D rectToRectBasic(double cx, double cy, double cw, double ch, double x, double y, double w, double h, Material m){
+	public static Collision2D rectToRectBasic(double cx, double cy, double cw, double ch, double x, double y, double w, double h, Material m){
 		// If the rectangles do not intersect, then there was no collision
 		ZRect2D unmoving = new ZRect2D(cx, cy, cw, ch);
-		if(!unmoving.intersects(x, y, w, h)) return new CollisionResult2D();
+		if(!unmoving.intersects(x, y, w, h)) return new Collision2D();
 		// Initial Variable values
 		double xDis;
 		double yDis;
@@ -115,7 +115,7 @@ public final class ZCollision{
 			left = false;
 			right = false;
 		}
-		return new CollisionResult2D(xDis, yDis, left, right, top, bottom, m);
+		return new Collision2D(xDis, yDis, left, right, top, bottom, m);
 	}
 	
 	/**
@@ -135,9 +135,9 @@ public final class ZCollision{
 	 * @param px The x coordinate of the location of the bounds in the previous instance of time
 	 * @param py The y coordinate of the location of the bounds in the previous instance of time
 	 * @param m The {@link Material} which was collided with
-	 * @return A {@link CollisionResult2D} representing the collision
+	 * @return A {@link Collision2D} representing the collision
 	 */
-	public static CollisionResult2D rectToRect(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, Material m){
+	public static Collision2D rectToRect(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, Material m){
 		// If the current and previous positions of the colliding bounds are the same, then use the basic algorithm
 		boolean onlyX = x == px;
 		boolean onlyY = y == py;
@@ -145,7 +145,7 @@ public final class ZCollision{
 		
 		// If the rectangles do not intersect, then there was no collision
 		ZRect2D unmoving = new ZRect2D(cx, cy, cw, ch);
-		if(!unmoving.intersects(x, y, w, h)) return new CollisionResult2D();
+		if(!unmoving.intersects(x, y, w, h)) return new Collision2D();
 		// Initial Variable values
 		double xDis = 0;
 		double yDis = 0;
@@ -224,7 +224,7 @@ public final class ZCollision{
 			yDis += movePoint.y - y;
 		}
 		// Return response
-		return new CollisionResult2D(xDis, yDis, left, right, top, bottom, m);
+		return new Collision2D(xDis, yDis, left, right, top, bottom, m);
 	}
 	
 	/**
@@ -253,7 +253,7 @@ public final class ZCollision{
 	}
 	
 	/** @return {@link #rectToRectAprox(double, double, double, double, double, double, double, double, double, double, int, Material)}  with a default of 5 iterations. */
-	public static CollisionResult2D rectToRectAprox(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, Material m){
+	public static Collision2D rectToRectAprox(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, Material m){
 		return rectToRectAprox(cx, cy, cw, ch, x, y, w, h, px, py, 5, m);
 	}
 	
@@ -278,9 +278,9 @@ public final class ZCollision{
 	 * @param py The y coordinate of the location of the bounds in the previous instance of time
 	 * @param iterations The number of times to apply the algorithm to approximate the new position
 	 * @param m The {@link Material} which was collided with
-	 * @return A {@link CollisionResult2D} representing the collision
+	 * @return A {@link Collision2D} representing the collision
 	 */
-	public static CollisionResult2D rectToRectAprox(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, int iterations, Material m){
+	public static Collision2D rectToRectAprox(double cx, double cy, double cw, double ch, double x, double y, double w, double h, double px, double py, int iterations, Material m){
 		// If the new and old positions are the same, use the basic collision
 		if(x == px && y == py) return rectToRectBasic(cx, cy, cw, ch, x, y, w, h, m);
 		
@@ -290,7 +290,7 @@ public final class ZCollision{
 		ZRect2D colliding = new ZRect2D(cx, cy, cw, ch);
 		
 		// If the colliding and moving bounds do not touch, then return an empty response
-		if(!moving.intersects(colliding)) return new CollisionResult2D();
+		if(!moving.intersects(colliding)) return new Collision2D();
 		
 		// Initial Variable values
 		double xDis;
@@ -346,7 +346,7 @@ public final class ZCollision{
 			if(toRight) right = true;
 		}
 		// Return response
-		return new CollisionResult2D(xDis, yDis, left, right, top, bottom, m);
+		return new Collision2D(xDis, yDis, left, right, top, bottom, m);
 		
 	}
 	
@@ -434,11 +434,11 @@ public final class ZCollision{
 	 * @param circleY The center y coordinate of the circle to collide
 	 * @param radius The radius of the circle to collide
 	 * @param m The {@link Material} which was collided with
-	 * @return A {@link CollisionResult2D} representing the collision
+	 * @return A {@link Collision2D} representing the collision
 	 */
-	public static CollisionResult2D rectToCircleBasic(double rx, double ry, double rw, double rh, double circleX, double circleY, double radius, Material m){
+	public static Collision2D rectToCircleBasic(double rx, double ry, double rw, double rh, double circleX, double circleY, double radius, Material m){
 		// If the shapes do not intersect, then there was no collision
-		if(!ZMath.circleIntersectsRect(circleX, circleY, radius, rx, ry, rw, rh)) return new CollisionResult2D();
+		if(!ZMath.circleIntersectsRect(circleX, circleY, radius, rx, ry, rw, rh)) return new Collision2D();
 		
 		// Initial Variable values
 		double xDis;
@@ -541,7 +541,7 @@ public final class ZCollision{
 			left = false;
 			right = false;
 		}
-		return new CollisionResult2D(xDis, yDis, left, right, top, bottom, m);
+		return new Collision2D(xDis, yDis, left, right, top, bottom, m);
 	}
 	
 	/**
@@ -601,17 +601,17 @@ public final class ZCollision{
 	 * @param m The material of the object collided with
 	 * @return The response
 	 */
-	public static CollisionResult2D circleToCircleBasic(double cx, double cy, double cr, double x, double y, double r, Material m){
+	public static Collision2D circleToCircleBasic(double cx, double cy, double cr, double x, double y, double r, Material m){
 		var dist = Math.sqrt((cx - x) * (cx - x) + (cy - y) * (cy - y));
 		var radi = cr + r;
-		if(radi < dist) return new CollisionResult2D();
+		if(radi < dist) return new Collision2D();
 		
 		var offset = radi - dist;
 		var angle = ZMath.lineAngle(cx, cy, x, y);
 		var cos = Math.cos(angle);
 		var sin = Math.sin(angle);
 		
-		return new CollisionResult2D(cos * offset, sin * offset, cos > 0, cos < 0, sin > 0, sin < 0, m);
+		return new Collision2D(cos * offset, sin * offset, cos > 0, cos < 0, sin > 0, sin < 0, m);
 	}
 	
 	/**
@@ -632,10 +632,10 @@ public final class ZCollision{
 	 * @param collisionFaces The faces of the rect which should be enabled for collision checks
 	 * @return A collision result representing how the cylinder should move
 	 */
-	public static CollisionResult3D rectToCylinderBasic(double rx, double ry, double rz, double rw, double rh, double rl, double cx, double cy, double cz, double cr, double ch,
-														Material m, boolean[] collisionFaces){
+	public static Collision3D rectToCylinderBasic(double rx, double ry, double rz, double rw, double rh, double rl, double cx, double cy, double cz, double cr, double ch,
+												  Material m, boolean[] collisionFaces){
 		// With no intersection, there is no collision
-		if(!rectIntersectsCylinder(rx, ry, rz, rw, rh, rl, cx, cy, cz, cr, ch)) return new CollisionResult3D();
+		if(!rectIntersectsCylinder(rx, ry, rz, rw, rh, rl, cx, cy, cz, cr, ch)) return new Collision3D();
 		
 		double moveX = 0;
 		double moveY = 0;
@@ -699,7 +699,7 @@ public final class ZCollision{
 		}
 		
 		// If no movement is needed, there is no collision, though this should always be false at this point
-		if(moveX == 0 && moveY == 0 && moveZ == 0) return new CollisionResult3D();
+		if(moveX == 0 && moveY == 0 && moveZ == 0) return new Collision3D();
 		
 		double dx = moveX;
 		double dy = moveY;
@@ -739,7 +739,7 @@ public final class ZCollision{
 		else wallAngle = 0;
 		
 		// Set the flags appropriately for which sides were touched and return the result
-		return new CollisionResult3D(dx, dy, dz, dx != 0 || dz != 0, touchCeiling, touchFloor, m, wallAngle);
+		return new Collision3D(dx, dy, dz, dx != 0 || dz != 0, touchCeiling, touchFloor, m, wallAngle);
 	}
 	
 	/**
@@ -826,11 +826,11 @@ public final class ZCollision{
 	 * @param m The material of the rectangular prism
 	 * @return A collision result representing how the sphere should move
 	 */
-	public static CollisionResult3D rectToSphereBasic(double rx, double ry, double rz, double rw, double rh, double rl, double sx, double sy, double sz, double sr,
-													  Material m, boolean[] collisionFaces){
+	public static Collision3D rectToSphereBasic(double rx, double ry, double rz, double rw, double rh, double rl, double sx, double sy, double sz, double sr,
+												Material m, boolean[] collisionFaces){
 		// With no intersection, there is no collision
 		if(!rectIntersectsSphere(rx, ry - rh * 0.5, rz, rw, rh, rl, sx, sy, sz, sr)){
-			return new CollisionResult3D();
+			return new Collision3D();
 		}
 		
 		// Set up variables for how long they need to move
@@ -893,7 +893,7 @@ public final class ZCollision{
 		}
 		
 		// Build the final collision result
-		return new CollisionResult3D(move[X], move[Y], move[Z], hitWall, hitCeiling, hitFloor, m, wallAngle);
+		return new Collision3D(move[X], move[Y], move[Z], hitWall, hitCeiling, hitFloor, m, wallAngle);
 	}
 	
 	/**

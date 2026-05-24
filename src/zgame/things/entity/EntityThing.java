@@ -5,7 +5,7 @@ import java.util.*;
 import zgame.core.GameTickable;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
-import zgame.physics.collision.CollisionResult;
+import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
 import zgame.things.entity.state.EntityState;
 import zgame.things.type.GameThing;
@@ -16,21 +16,11 @@ import zgame.world.Room;
  * A thing is an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
  * This is for things like creatures, dropped items, projectiles, etc.
  *
- * @param <H> The hitbox implementation used by this entity
- * @param <E> The entity implementation of this entity
  * @param <V> The vector implementation used by this entity
- * @param <R> The room implementation which this entity can exist in
- * @param <C> The type of collisions used by this entity
  */
+// TODO resolve issue#50 if this is actually fixed
 // issue#50 find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
-public abstract class EntityThing<
-		H extends HitBox<H, C>,
-		E extends EntityThing<H, E, V, R, C>,
-		V extends ZVector<V>,
-		R extends Room<H, E, V, R, C>,
-		C extends CollisionResult<C>
-		// TODO consider if this is the best way to handle the game thing type parameter
-		> extends GameThing<EntityState<V>> implements GameTickable, HitBox<H, C>{
+public abstract class EntityThing<V extends ZVector<V>> extends GameThing<EntityState<V>> implements GameTickable, HitBox<V>{
 	
 	/** The uuid of this entity */
 	private final String uuid;
@@ -62,20 +52,9 @@ public abstract class EntityThing<
 	protected EntityState<V> initEntityState(V zeroVector, double gravityAcceleration, double clampVelocity){
 		return new EntityState<>(zeroVector, gravityAcceleration, clampVelocity);
 	}
-	
-	@Override
-	public void updateState(){
-		// TODO does doing it this way make sense?
-		
-		// Update state
-		super.updateState();
-		
-		// After finding the new state, move the entity
-		this.moveEntity(this.getVelocity());
-	}
-	
 	@Override
 	public EntityState<V> copyState(EntityState<V> current, EntityState<V> next){
+		// TODO applyState should probably be part of the abstract method call in GameThing
 		current.applyState(next);
 		
 		return current;
@@ -99,13 +78,6 @@ public abstract class EntityThing<
 		// Account for frictional force based on current ground material, must be updated directly before applying any movement
 		this.updateFrictionForce(dt);
 	}
-	
-	/**
-	 * Move the entity by the given amount
-	 *
-	 * @param distance The distance to move this entity by
-	 */
-	public abstract void moveEntity(V distance);
 	
 	/**
 	 * Determine the current amount of friction on this {@link EntityThing} and update the force
@@ -376,7 +348,7 @@ public abstract class EntityThing<
 	}
 	
 	@Override
-	public void touchFloor(C collision){
+	public void touchFloor(Collision<V> collision){
 		var touched = collision.material();
 		this.getNext().touchFloor(touched);
 		
@@ -390,7 +362,7 @@ public abstract class EntityThing<
 	}
 	
 	@Override
-	public void touchCeiling(C collision){
+	public void touchCeiling(Collision<V> collision){
 		var touched = collision.material();
 		this.getNext().touchCeiling(touched);
 		
@@ -407,14 +379,15 @@ public abstract class EntityThing<
 	}
 	
 	@Override
-	public void touchWall(C collision){
+	public void touchWall(Collision<V> collision){
 		var touched = collision.material();
 		this.getNext().touchWall(touched);
 		// TODO potentially move wall bounce to here instead of having to have it in 2D/3D separately
 	}
 	
+	// TODO how should this be called when collision results are applied?
 	@Override
-	public void collide(C r){
+	public void collide(Collision<V> r){
 		if(r.wall()) this.touchWall(r);
 		if(r.ceiling()) this.touchCeiling(r);
 		if(r.floor()) this.touchFloor(r);
@@ -432,7 +405,7 @@ public abstract class EntityThing<
 	 * @param entity The entity that was collided with this entity
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
-	public void checkEntityCollision(E entity, double dt){}
+	public void checkEntityCollision(EntityThing<V> entity, double dt){}
 	
 	/**
 	 * Add the given velocity to this entity
@@ -496,7 +469,8 @@ public abstract class EntityThing<
 	 * @param from The room to move the thing from, i.e. the thing was in this room. Can be null if the thing didn't come from a room
 	 * @param to The room to move the thing to, i.e. the thing is now in this room. Can be null if the thing isn't going to a room
 	 */
-	public void enterRoom(R from, R to){
+	// TODO does this need to know the types?
+	public void enterRoom(Room<V, ?, ?> from, Room<V, ?, ?> to){
 		if(from != null) from.removeThing(this);
 		if(to != null) to.addThing(this);
 	}

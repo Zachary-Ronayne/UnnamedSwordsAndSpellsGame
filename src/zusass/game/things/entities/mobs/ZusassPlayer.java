@@ -16,7 +16,7 @@ import zgame.core.sound.ManagedSoundSource;
 import zgame.core.sound.SoundManager;
 import zgame.core.utils.ZMath;
 import zgame.physics.ForwardVector;
-import zgame.physics.ZVector3D;
+import zgame.physics.V3D;
 import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.modifier.TypedModifier;
@@ -314,7 +314,7 @@ public class ZusassPlayer extends ZusassMob{
 		// If not moving up or down, but sprinting, force movement on the same axis
 		else if(this.isSprinting()) pitch = 0;
 		
-		var movement = new ZVector3D(yaw, pitch, dt * 3, false);
+		var movement = new V3D(yaw, pitch, dt * 3, false);
 		cam.addX(movement.getX());
 		cam.addY(movement.getY());
 		cam.addZ(movement.getZ());
@@ -355,7 +355,7 @@ public class ZusassPlayer extends ZusassMob{
 		
 		if(ZusassDebugFlags.PLAYER_LOOK_RANGER_MARKER){
 			var c = new ZColor(.5, 0, 0);
-			var facing = new ZVector3D(this.getMobilityState().getFacingYaw(), this.getMobilityState().getFacingPitch(), this.getClickRange(), false);
+			var facing = new V3D(this.getMobilityState().getFacingYaw(), this.getMobilityState().getFacingPitch(), this.getClickRange(), false);
 			var sx = this.getClickX() + facing.getX();
 			var sy = this.getClickY() + facing.getY();
 			var sz = this.getClickZ() + facing.getZ();

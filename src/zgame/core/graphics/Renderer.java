@@ -22,7 +22,7 @@ import zgame.core.utils.ZMath;
 import zgame.core.utils.ZRect2D;
 import zgame.core.utils.ZStringUtils;
 import zgame.core.window.GameWindow;
-import zgame.physics.ZVector3D;
+import zgame.physics.V3D;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -987,7 +987,7 @@ public class Renderer implements Destroyable{
 		 camera is facing essentially moves the offset to the side instead of directly behind, so rotate the offset to be behind instead of to the side.
 		 There's probably a better explanation, and I could probably get rid of a lot of the seemingly random PI_BY_2 uses if I knew better how these angles work.
 		 */
-		var offsetVec = new ZVector3D(yaw + ZMath.PI_BY_2, pitch, camera.getPositionOffset(), false);
+		var offsetVec = new V3D(yaw + ZMath.PI_BY_2, pitch, camera.getPositionOffset(), false);
 		double x = offsetVec.getX();
 		double y = offsetVec.getY();
 		double z = offsetVec.getZ();

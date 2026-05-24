@@ -3,7 +3,7 @@ package zusass.game.magic;
 import com.google.gson.JsonElement;
 import zgame.core.file.Saveable;
 import zgame.core.utils.NotNullList;
-import zgame.physics.ZVector3D;
+import zgame.physics.V3D;
 import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
@@ -78,7 +78,7 @@ public class ProjectileSpell extends Spell{
 	protected void cast(ZusassMob caster){
 		var r = ZusassGame.get().getCurrentRoom();
 		var mobilityData = caster.getMobilityState();
-		var vel = new ZVector3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), this.getSpeed(), false);
+		var vel = new V3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), this.getSpeed(), false);
 		var castPoint = caster.getSpellCastPont();
 		var p = new MagicProjectile(castPoint.getX(), castPoint.getY(), castPoint.getZ(), caster.getUuid(), vel, this.getEffects());
 		p.setRange(this.range);

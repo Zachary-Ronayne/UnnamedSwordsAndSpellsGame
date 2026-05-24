@@ -1,12 +1,11 @@
-package zgame.things.still.tiles.threeDee;
+package zgame.things.still.tiles;
 
-import zgame.physics.collision.CollisionResult3D;
+import zgame.physics.V3D;
 import zgame.physics.material.Material;
-import zgame.things.still.tiles.TileType;
-import zgame.things.type.bounds.HitBox3D;
+import zgame.things.still.tiles.threeDee.TileHitbox3D;
 
 /** A simple tile which has a constant material */
-public abstract class TileType3D extends TileType<HitBox3D, Tile3D, TileHitbox3D, CollisionResult3D>{
+public non-sealed abstract class TileType3D extends TileType<V3D>{
 	
 	/**
 	 * Create a new {@link TileType3D} using the given data
@@ -16,8 +15,12 @@ public abstract class TileType3D extends TileType<HitBox3D, Tile3D, TileHitbox3D
 	 * @param hitbox See {@link #getHitbox()}
 	 * @param material See {@link #getMaterial()}
 	 */
-	public TileType3D(String id, String origin, TileHitbox3D hitbox, Material material){
+	public TileType3D(String id, String origin, TileHitbox<V3D> hitbox, Material material){
 		super(id, origin, hitbox, material);
 	}
 	
+	@Override
+	public TileHitbox3D getHitbox(){
+		return (TileHitbox3D)super.getHitbox();
+	}
 }

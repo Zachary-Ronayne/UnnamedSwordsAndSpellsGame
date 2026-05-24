@@ -4,7 +4,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.sound.ManagedSoundSource;
 import zgame.core.utils.NotNullList;
-import zgame.physics.ZVector3D;
+import zgame.physics.V3D;
 import zgame.things.BaseTags;
 import zgame.things.entity.projectile.Projectile3D;
 import zgame.things.type.bounds.HitBox3D;
@@ -38,7 +38,7 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	 * @param launchVelocity The initial velocity of the projectile
 	 * @param effects See {@link #effects}
 	 */
-	public MagicProjectile(double x, double y, double z, String sourceId, ZVector3D launchVelocity, NotNullList<SpellEffect> effects){
+	public MagicProjectile(double x, double y, double z, String sourceId, V3D launchVelocity, NotNullList<SpellEffect> effects){
 		this(x, y, z, 0.2, sourceId, launchVelocity, effects);
 	}
 	
@@ -53,7 +53,7 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	 * @param launchVelocity The initial velocity of the projectile
 	 * @param effects See {@link #effects}
 	 */
-	public MagicProjectile(double x, double y, double z, double radius, String sourceId, ZVector3D launchVelocity, NotNullList<SpellEffect> effects){
+	public MagicProjectile(double x, double y, double z, double radius, String sourceId, V3D launchVelocity, NotNullList<SpellEffect> effects){
 		this(x, y, z, radius, -1, sourceId, launchVelocity, effects);
 	}
 	
@@ -69,7 +69,7 @@ public class MagicProjectile extends Projectile3D implements SphereHitBox{
 	 * @param launchVelocity The initial velocity of the projectile
 	 * @param effects See {@link #effects}
 	 */
-	public MagicProjectile(double x, double y, double z, double radius, double range, String sourceId, ZVector3D launchVelocity, NotNullList<SpellEffect> effects){
+	public MagicProjectile(double x, double y, double z, double radius, double range, String sourceId, V3D launchVelocity, NotNullList<SpellEffect> effects){
 		super(x, y, z, launchVelocity);
 		this.color = new ZColor(Math.random(), Math.random(), Math.random(), 0.4 * Math.random() + 0.4);
 		

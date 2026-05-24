@@ -7,7 +7,7 @@ import zgame.core.utils.ZMath;
  *
  * @param <V> The type of vector used by this vector
  */
-public abstract class ZVector<V extends ZVector<V>>{
+public sealed abstract class ZVector<V extends ZVector<V>> permits V2D, V3D{
 	
 	// issue#54 implement lazy component calculation for vectors
 	

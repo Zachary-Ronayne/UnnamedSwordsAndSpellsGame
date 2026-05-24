@@ -1,16 +1,15 @@
 package zgame.things.still.tiles;
 
 import zgame.core.graphics.Renderer;
-import zgame.physics.collision.CollisionResult;
+import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 import zgame.things.type.Materialable;
-import zgame.things.type.bounds.HitBox;
 
 /** An enum that defines tiles that can exist. Extend this enum to add new tile types */
-public abstract class TileType<H extends HitBox<H, C>, T extends Tile<H, C>, TH extends TileHitbox<H, T, C>, C extends CollisionResult<C>> implements Materialable{
+public sealed abstract class TileType<V extends ZVector<V>> implements Materialable permits TileType3D, TileType2D{
 	
 	/** The hitbox of this tile type */
-	private final TH hitbox;
+	private final TileHitbox<V> hitbox;
 	
 	/** The unique string that identifies this {@link TileType} from others with the same {@link #origin} */
 	private final String id;
@@ -30,7 +29,7 @@ public abstract class TileType<H extends HitBox<H, C>, T extends Tile<H, C>, TH 
 	 * @param id See {@link #id}
 	 * @param hitbox See {@link #hitbox}
 	 */
-	protected TileType(String id, String origin, TH hitbox, Material material){
+	protected TileType(String id, String origin, TileHitbox<V> hitbox, Material material){
 		this.id = id;
 		this.origin = origin;
 		this.hitbox = hitbox;
@@ -53,7 +52,7 @@ public abstract class TileType<H extends HitBox<H, C>, T extends Tile<H, C>, TH 
 	}
 	
 	/** @return See {@link TileHitbox} */
-	public TH getHitbox(){
+	public TileHitbox<V> getHitbox(){
 		return this.hitbox;
 	}
 	
@@ -63,7 +62,7 @@ public abstract class TileType<H extends HitBox<H, C>, T extends Tile<H, C>, TH 
 	 * @param t The tile to draw
 	 * @param r The renderer to use for drawing
 	 */
-	public abstract void render(T t, Renderer r);
+	public abstract void render(Tile<V> t, Renderer r);
 	
 	@Override
 	public Material getMaterial(){

@@ -1,7 +1,7 @@
 package zgame.things.entity.mobility;
 
-import zgame.physics.ZVector2D;
-import zgame.physics.collision.CollisionResult2D;
+import zgame.physics.V2D;
+import zgame.physics.collision.Collision2D;
 import zgame.things.entity.EntityThing2D;
 import zgame.things.entity.MobilityState2D;
 import zgame.things.entity.state.EntityState;
@@ -38,7 +38,7 @@ public abstract class MobilityEntity2D extends EntityThing2D implements Mobility
 	}
 	
 	@Override
-	protected EntityState<ZVector2D> initEntityState(ZVector2D zeroVector, double gravityAcceleration, double clampVelocity){
+	protected EntityState<V2D> initEntityState(V2D zeroVector, double gravityAcceleration, double clampVelocity){
 		return new MobilityState2D(gravityAcceleration, clampVelocity);
 	}
 	
@@ -55,7 +55,7 @@ public abstract class MobilityEntity2D extends EntityThing2D implements Mobility
 	}
 	
 	@Override
-	public void touchFloor(CollisionResult2D collision){
+	public void touchFloor(Collision2D collision){
 		super.touchFloor(collision);
 		this.mobilityTouchFloor();
 		this.getMobilityState().setGroundedSinceLastJump(true);

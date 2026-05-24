@@ -3,29 +3,19 @@ package zgame.things.entity.projectile;
 import zgame.core.GameTickable;
 import zgame.core.utils.FunctionMap;
 import zgame.physics.ZVector;
-import zgame.physics.collision.CollisionResult;
+import zgame.physics.collision.Collision;
 import zgame.things.BaseTags;
 import zgame.things.entity.EntityThing;
 import zgame.things.type.bounds.HitBox;
-import zgame.world.Room;
 
 import java.util.function.Consumer;
 
 /**
  * An interface for abstracting common functionality for projectile entities
  *
- * @param <H> The type of hitbox of the projectile
- * @param <E> The type of entity of the projectile
  * @param <V> The type of vector used by the projectile
- * @param <R> The type of room which the projectile can exist in
- * @param <C> The type of collision results used by the projectile
  */
-public interface Projectile<H extends HitBox<H, C>,
-		E extends EntityThing<H, E, V, R, C>,
-		V extends ZVector<V>,
-		R extends Room<H, E, V, R, C>,
-		C extends CollisionResult<C>
-		> extends GameTickable, HitBox<H, C>{
+public interface Projectile<V extends ZVector<V>> extends GameTickable, HitBox<V>{
 	
 	/**
 	 * Called to check this projectile's collision with the given entity
@@ -33,10 +23,10 @@ public interface Projectile<H extends HitBox<H, C>,
 	 * @param entity The entity being potentially collided with
 	 * @param dt The amount of time passed in a tick
 	 */
-	default void checkEntityCollision(E entity, double dt){
+	default void checkEntityCollision(EntityThing<V> entity, double dt){
 		// Ignore the current thing if the projectile will not hit it, or if the entity should not collide with projectiles
-		if(!this.willHit(entity.get()) || entity.hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
-		this.hit(entity.get());
+		if(!this.willHit(entity) || entity.hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
+		this.hit(entity);
 		if(this.isOnHit()) this.removeNext();
 	}
 	
@@ -70,7 +60,7 @@ public interface Projectile<H extends HitBox<H, C>,
 	}
 	
 	@Override
-	default void touchFloor(C result){
+	default void touchFloor(Collision<V> result){
 		if(this.isOnHit()) this.removeNext();
 	}
 	
@@ -79,12 +69,12 @@ public interface Projectile<H extends HitBox<H, C>,
 	default void leaveFloor(){}
 	
 	@Override
-	default void touchCeiling(C result){
+	default void touchCeiling(Collision<V> result){
 		if(this.isOnHit()) this.removeNext();
 	}
 	
 	@Override
-	default void touchWall(C result){
+	default void touchWall(Collision<V> result){
 		if(this.isOnHit()) this.removeNext();
 	}
 	
@@ -93,7 +83,7 @@ public interface Projectile<H extends HitBox<H, C>,
 	default void leaveWall(){}
 	
 	@Override
-	default void collide(C result){
+	default void collide(Collision<V> result){
 		// OnHit projectiles are removed on collision
 		if(this.isOnHit() && result.isCollided()) this.removeNext();
 	}
@@ -103,7 +93,7 @@ public interface Projectile<H extends HitBox<H, C>,
 	 *
 	 * @param thing The {@link HitBox} which was hit
 	 */
-	void hit(H thing);
+	void hit(HitBox<V> thing);
 	
 	/**
 	 * Determine if this {@link Projectile} will hit the given {@link HitBox} thing when their hitboxes intersect
@@ -111,7 +101,7 @@ public interface Projectile<H extends HitBox<H, C>,
 	 * @param thing The hitbox to check
 	 * @return true thing will hit this, false otherwise
 	 */
-	default boolean willHit(H thing){
+	default boolean willHit(HitBox<V> thing){
 		// A projectile should not hit itself
 		if(this == thing) return false;
 		
@@ -155,6 +145,6 @@ public interface Projectile<H extends HitBox<H, C>,
 	}
 	
 	/** @return The entity thing which is this projectile, all projectiles should be an entity. Must never return null, should always return this */
-	E getEntity();
+	EntityThing<V> getEntity();
 	
 }

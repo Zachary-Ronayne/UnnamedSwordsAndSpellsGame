@@ -2,9 +2,12 @@ package zgame.things.still.tiles.twoDee;
 
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.physics.V2D;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
+import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType;
+import zgame.things.still.tiles.TileType2D;
 
 /** A {@link TileType} which renders tiles as a solid color */
 public class ColorTile extends TileType2D{
@@ -53,7 +56,7 @@ public class ColorTile extends TileType2D{
 	}
 	
 	@Override
-	public void render(Tile2D t, Renderer r){
+	public void render(Tile<V2D> t, Renderer r){
 		r.setColor(this.getColor());
 		r.drawRectangle(t.getX(), t.getY(), t.getWidth(), t.getHeight());
 	}

@@ -1,11 +1,11 @@
 package zgame.things.entity;
 
-import zgame.physics.ZVector3D;
+import zgame.physics.V3D;
 import zgame.things.entity.mobility.Mobility3D;
 import zgame.things.entity.mobility.MobilityType;
 
 /** A type of {@link MobilityState} that exists in 3D space */
-public class MobilityState3D extends MobilityState<ZVector3D>{
+public class MobilityState3D extends MobilityState<V3D>{
 	
 	/** The angle, in radians, on the x z plane attempting to move in, i.e. trying to move on the horizontal axis */
 	private double movingYaw;
@@ -29,7 +29,7 @@ public class MobilityState3D extends MobilityState<ZVector3D>{
 	 * Create a new walk object for use in {@link Mobility3D}
 	 */
 	public MobilityState3D(double gravityAcceleration, double clampVelocity){
-		super(new ZVector3D(), gravityAcceleration, clampVelocity);
+		super(new V3D(), gravityAcceleration, clampVelocity);
 		
 		this.movingYaw = 0;
 		this.movingPitch = 0;
@@ -111,7 +111,7 @@ public class MobilityState3D extends MobilityState<ZVector3D>{
 	
 	@Override
 	public void updateWalkingForce(double force){
-		this.attemptSetForce(FORCE_WALKING, new ZVector3D(this.movingYaw, 0, this.tryingToMove ? force : 0, false));
+		this.attemptSetForce(FORCE_WALKING, new V3D(this.movingYaw, 0, this.tryingToMove ? force : 0, false));
 	}
 	
 	@Override
@@ -130,6 +130,6 @@ public class MobilityState3D extends MobilityState<ZVector3D>{
 			pitch = currentVel.getPitch();
 		}
 		
-		this.attemptSetForce(FORCE_FLYING, new ZVector3D(yaw, pitch, force, false));
+		this.attemptSetForce(FORCE_FLYING, new V3D(yaw, pitch, force, false));
 	}
 }

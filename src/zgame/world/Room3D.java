@@ -3,15 +3,17 @@ package zgame.world;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.utils.ZMath;
-import zgame.physics.ZVector3D;
-import zgame.physics.collision.CollisionResult3D;
+import zgame.physics.V3D;
+import zgame.physics.collision.Collision;
+import zgame.physics.collision.Collision3D;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.ThingClickDetector3D;
+import zgame.things.entity.EntityThing;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.still.tiles.threeDee.BaseTiles3D;
 import zgame.things.still.tiles.threeDee.Tile3D;
-import zgame.things.still.tiles.threeDee.TileType3D;
+import zgame.things.still.tiles.TileType3D;
 import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.RectPrismBounds;
@@ -19,10 +21,11 @@ import zgame.things.type.bounds.RectPrismBounds;
 import static zgame.world.Direction3D.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 /** A {@link Room} which is made of 3D tiles */
-public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D> implements RectPrismBounds{
+public class Room3D extends Room<V3D> implements RectPrismBounds{
 	
 	/** An array of 6 elements representing which of the 6 boundary walls are enabled for collision */
 	private final boolean[] enabledBoundaries;
@@ -259,18 +262,10 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 	}
 	
 	@Override
-	public CollisionResult3D collide(EntityThing3D obj){
+	public List<Collision<V3D>> collideInside(EntityThing<V3D> obj){
 		boolean wasOnGround = obj.isOnGround();
 		boolean wasOnCeiling = obj.isOnCeiling();
 		boolean wasOnWall = obj.isOnWall();
-		double mx = 0;
-		double my = 0;
-		double mz = 0;
-		boolean wall = false;
-		boolean top = false;
-		boolean bot = false;
-		double wallAngle = 0;
-		Material material = null;
 		double tileSize = Tile3D.size();
 		int tilesX = this.getTilesX() - 1;
 		int tilesY = this.getTilesY() - 1;
@@ -288,39 +283,10 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			for(int x = minX; x <= maxX; x++){
 				for(int z = minZ; z <= maxZ; z++){
 					var t = this.tiles[x][y][z];
-					var res = t.collide(obj);
-					
-					// Keep track of if a tile was touched
-					boolean currentCollided = res.x() != 0 || res.y() != 0 || res.z() != 0;
-					
-					mx += res.x();
-					my += res.y();
-					mz += res.z();
-					if(res.wall()){
-						wall = true;
-						wallAngle = res.wallAngle();
-					}
-					if(res.ceiling()) top = true;
-					if(res.floor()) bot = true;
-					obj.collide(res);
-					
-					// Record the material collided with, only if this tile was collided with
-					if(currentCollided){
-						// Set the material if there is none yet, or the floor
-						if(material == null || bot) material = res.material();
-					}
+					obj.collide(t.collide(obj));
 				}
 			}
 		}
-		// If no material was selected, and the thing was on the ground, us the ground material, same goes for walls and then ceilings
-		if(material == null){
-			if(wasOnGround) material = obj.getFloorMaterial();
-			if(wasOnWall) material = obj.getWallMaterial();
-			if(wasOnCeiling) material = obj.getCeilingMaterial();
-		}
-		
-		// Determine the final collision
-		var res = new CollisionResult3D(mx, my, mz, wall, top, bot, material, wallAngle);
 		
 		boolean touchedFloor = false;
 		boolean touchedCeiling = false;
@@ -334,7 +300,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = this.getBoundary(WEST) - (obj.getWidth() * 0.5);
 			double objX = obj.getX();
 			if(objX > boundary){
-				obj.collide(new CollisionResult3D(-Math.abs(boundary - objX), 0, 0, true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
+				obj.collide(new Collision3D(-Math.abs(boundary - objX), 0, 0, true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
 				touchedAxisX = true;
 			}
 		}
@@ -342,7 +308,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = -this.getBoundary(EAST) + (obj.getWidth() * 0.5);
 			double objX = obj.getX();
 			if(objX < boundary){
-				obj.collide(new CollisionResult3D(Math.abs(boundary - objX), 0, 0, true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
+				obj.collide(new Collision3D(Math.abs(boundary - objX), 0, 0, true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
 				touchedAxisX = true;
 			}
 		}
@@ -354,7 +320,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = this.getBoundary(NORTH) - (obj.getLength() * 0.5);
 			double objZ = obj.getZ();
 			if(objZ > boundary){
-				obj.collide(new CollisionResult3D(0, 0, Math.abs(boundary - objZ), true, false, false, this.getBoundaryMaterial(), 0));
+				obj.collide(new Collision3D(0, 0, Math.abs(boundary - objZ), true, false, false, this.getBoundaryMaterial(), 0));
 				touchedAxisZ = true;
 			}
 		}
@@ -362,7 +328,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = -this.getBoundary(SOUTH) + (obj.getLength() * 0.5);
 			double objZ = obj.getZ();
 			if(objZ < boundary){
-				obj.collide(new CollisionResult3D(0, 0, -Math.abs(boundary - objZ), true, false, false, this.getBoundaryMaterial(), 0));
+				obj.collide(new Collision3D(0, 0, -Math.abs(boundary - objZ), true, false, false, this.getBoundaryMaterial(), 0));
 				touchedAxisZ = true;
 			}
 		}
@@ -373,7 +339,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = this.getBoundary(Direction3D.UP) - obj.getHeight();
 			double objY = obj.getY();
 			if(objY > boundary){
-				obj.collide(new CollisionResult3D(0, Math.abs(boundary - objY), 0, false, true, false, this.getBoundaryMaterial(), 0));
+				obj.collide(new Collision3D(0, Math.abs(boundary - objY), 0, false, true, false, this.getBoundaryMaterial(), 0));
 				touchedCeiling = true;
 			}
 		}
@@ -381,7 +347,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 			double boundary = -this.getBoundary(Direction3D.DOWN);
 			double objY = obj.getY();
 			if(objY < boundary){
-				obj.collide(new CollisionResult3D(0, -Math.abs(boundary - objY), 0, false, false, true, this.getBoundaryMaterial(), 0));
+				obj.collide(new Collision3D(0, -Math.abs(boundary - objY), 0, false, false, true, this.getBoundaryMaterial(), 0));
 				touchedFloor = true;
 			}
 		}
@@ -389,7 +355,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		if(wasOnGround){
 			// If the hitbox was on the ground, but no y axis movement happened, then the hitbox is still on the ground, so touch the floor
 			if(obj.getPY() == obj.getY() || bot){
-				if(!touchedFloor) obj.collide(new CollisionResult3D(0, 0, 0, false, false, true, obj.getFloorMaterial(), res.wallAngle()));
+				if(!touchedFloor) obj.collide(new Collision3D(0, 0, 0, false, false, true, obj.getFloorMaterial(), res.wallAngle()));
 			}
 			// Otherwise, leave the floor
 			else obj.leaveFloor();
@@ -398,7 +364,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		// Same thing, but for the walls and for the ceiling
 		if(wasOnCeiling){
 			if(obj.getPY() == obj.getY() || top){
-				if(!touchedCeiling) obj.collide(new CollisionResult3D(0, 0, 0, false, true, false, obj.getCeilingMaterial(), res.wallAngle()));
+				if(!touchedCeiling) obj.collide(new Collision3D(0, 0, 0, false, true, false, obj.getCeilingMaterial(), res.wallAngle()));
 			}
 			else obj.leaveCeiling();
 		}
@@ -406,11 +372,12 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		if(wasOnWall){
 			// TODO should this be looking at previous x and z as well?
 			if(obj.getPX() == obj.getX() || wall){
-				if(!touchedWall) obj.collide(new CollisionResult3D(0, 0, 0, true, false, false, obj.getWallMaterial(), res.wallAngle()));
+				if(!touchedWall) obj.collide(new Collision3D(0, 0, 0, true, false, false, obj.getWallMaterial(), res.wallAngle()));
 			}
 			else obj.leaveWall();
 		}
 		
+		// TODO make this method return all collisions that need to happen so they are applied to the entity, and then make sure that entity repositions properly based on all collisions
 		return res;
 	}
 	
@@ -471,7 +438,7 @@ public class Room3D extends Room<HitBox3D, EntityThing3D, ZVector3D, Room3D, Col
 		int tz = Tile3D.tileIndex(rz);
 		
 		// Find the direction the ray is going
-		var clickDirection = new ZVector3D(clicker.getClickYaw(), clicker.getClickPitch(), 1, false);
+		var clickDirection = new V3D(clicker.getClickYaw(), clicker.getClickPitch(), 1, false);
 		double dx = clickDirection.getX();
 		double dy = clickDirection.getY();
 		double dz = clickDirection.getZ();

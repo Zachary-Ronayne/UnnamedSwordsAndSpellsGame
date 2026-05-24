@@ -1,6 +1,7 @@
 package zgame.things.entity.state;
 
 import zgame.physics.ZVector;
+import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing;
@@ -84,6 +85,9 @@ public class EntityState<V extends ZVector<V>>{
 	/** All updates to apply to the position */
 	private final VectorUpdateList<V> positionUpdates;
 	
+	/** Collisions that the entity encountered that must be applied */
+	private final ArrayList<Collision<V>> collisionUpdates;
+	
 	public EntityState(V zeroVector, double gravityAcceleration, double clampVelocity){
 		this.clampVelocity = clampVelocity;
 		
@@ -121,6 +125,8 @@ public class EntityState<V extends ZVector<V>>{
 		
 		this.position = zeroVector;
 		this.positionUpdates = new VectorUpdateList<>();
+		
+		this.collisionUpdates = new ArrayList<>();
 	}
 	
 	/** @return A zero vector for this entity state */
@@ -138,6 +144,13 @@ public class EntityState<V extends ZVector<V>>{
 	
 	// TODO is passing in the previous state needed? Where should it be used that it isn't being used?
 	public void applyState(EntityState<V> updated){
+		// First update position based on velocity
+		var newPos = updated.position.add(this.velocity);
+		
+		// Now apply position updates
+		this.position = this.positionUpdates.apply(newPos);
+		
+		// Update misc fields
 		// TODO avoid having to copy these every time if nothing changes
 		this.tickTime = updated.getTickTime();
 		this.mass = updated.getMass();
@@ -185,12 +198,34 @@ public class EntityState<V extends ZVector<V>>{
 		if(this.ceilingTime != -1) this.ceilingTime += dt;
 		if(this.wallTime != -1) this.wallTime += dt;
 		
-		// TODO when should position be updated?
-		this.position = this.positionUpdates.apply(updated.position);
-		
 		// Account for clamping the velocity
 		double velMag = this.velocity.getMagnitude();
 		if(velMag != 0 && velMag < this.clampVelocity) this.velocity = this.zeroVec();
+		
+		// Apply collision updates
+		this.applyCollisions();
+	}
+	
+	private void applyCollisions(){
+		// No collisions, do nothing
+		if(this.collisionUpdates.isEmpty()) return;
+		
+		// Sort collisions, by shortest distance first
+		// TODO then sort shortest by vector implementation, i.e. smallest y, then x, then z
+		var sortedCollisions = collisionUpdates.stream().sorted(Comparator.comparingDouble((Collision<V> c) -> c.change().getMagnitude())).toList();
+		
+		// For the first collision, fully apply it
+		this.position = sortedCollisions.get(0).newPos();
+		
+		// For the rest of the collisions, find the new collision based on the new position of this state, and collide based on that
+		for(int i = 1; i < sortedCollisions.size(); i++){
+			var oldCollision = sortedCollisions.get(i);
+			var newCollision = oldCollision.collide();
+			this.position = newCollision.newPos();
+		}
+		
+		// All collisions are applied
+		this.collisionUpdates.clear();
 	}
 	
 	/**
@@ -489,12 +524,19 @@ public class EntityState<V extends ZVector<V>>{
 		this.positionUpdates.update(update);
 	}
 	
+	// TODO change this to reflect language of something like a teleport
 	public void attemptSetPosition(V position){
 		this.schedulePosition(new ForceSetVector<>(position));
 	}
 	
-	public void addPosition(V delta){
-		this.schedulePosition(new AddVector<>(delta));
+	/** @param c A collision that should happen for the entity */
+	public void collide(Collision<V> c){
+		this.collisionUpdates.add(c);
+	}
+	
+	/** @param c Collisions that should happen for the entity */
+	public void collide(List<Collision<V>> c){
+		this.collisionUpdates.addAll(c);
 	}
 	
 }

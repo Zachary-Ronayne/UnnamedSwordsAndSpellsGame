@@ -5,26 +5,26 @@ import zgame.core.utils.ZMath;
 /**
  * A Vector with an x, y, and z component. The internal values of this object cannot be modified after the object is created, i.e. this object is immutable
  */
-public class ZVector3D extends ZVector<ZVector3D>{
+public final class V3D extends ZVector<V3D>{
 	
-	/** The x component of this {@link ZVector3D} */
+	/** The x component of this {@link V3D} */
 	private double x;
-	/** The y component of this {@link ZVector3D} */
+	/** The y component of this {@link V3D} */
 	private double y;
-	/** The z component of this {@link ZVector3D} */
+	/** The z component of this {@link V3D} */
 	private double z;
 	
-	/** The angle, in radians, of this {@link ZVector3D}, along the horizontal axis, i.e. the x z plane */
+	/** The angle, in radians, of this {@link V3D}, along the horizontal axis, i.e. the x z plane */
 	private double yaw;
 	
-	/** The angle, in radians, of this {@link ZVector3D}, along the vertical axis, i.e. the y axis */
+	/** The angle, in radians, of this {@link V3D}, along the vertical axis, i.e. the y axis */
 	private double pitch;
 	
 	/** The magnitude on the horizontal axis, i.e. x z plane */
 	private double horizontalMag;
 	
-	/** Create a {@link ZVector3D} with a magnitude of 0 */
-	public ZVector3D(){
+	/** Create a {@link V3D} with a magnitude of 0 */
+	public V3D(){
 		this(0, 0, 0);
 	}
 	
@@ -35,13 +35,13 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	 * @param y See {@link #y}
 	 * @param z See {@link #z}
 	 */
-	public ZVector3D(double x, double y, double z){
+	public V3D(double x, double y, double z){
 		this(x, y, z, true);
 	}
 	
 	@Override
-	public ZVector3D zero(){
-		return new ZVector3D();
+	public V3D zero(){
+		return new V3D();
 	}
 	
 	/**
@@ -51,9 +51,9 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	 * @param b If comps is true, See {@link #y}, otherwise see {@link #pitch}
 	 * @param c If comps is true, See {@link #z}, otherwise see {@link #magnitude}
 	 * TODO probably remove this comps flag with private constructors using static to avoid awkwardly passing in a boolean
-	 * @param comps true if a, b, and c represent the x, y, and z components of this {@link ZVector2D}, otherwise, they represent the angles and magnitude
+	 * @param comps true if a, b, and c represent the x, y, and z components of this {@link V2D}, otherwise, they represent the angles and magnitude
 	 */
-	public ZVector3D(double a, double b, double c, boolean comps){
+	public V3D(double a, double b, double c, boolean comps){
 		super();
 		if(comps){
 			this.x = a;
@@ -148,15 +148,15 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	}
 	
 	/**
-	 * Add the given {@link ZVector2D} to this ZVector and return the result.
+	 * Add the given {@link V2D} to this ZVector and return the result.
 	 * This method does not modify either vector
 	 *
 	 * @param newV The ZVector to add
 	 * @return The result of adding both vectors
 	 */
 	@Override
-	public ZVector3D add(ZVector3D newV){
-		return new ZVector3D(this.getX() + newV.getX(), this.getY() + newV.getY(), this.getZ() + newV.getZ());
+	public V3D add(V3D newV){
+		return new V3D(this.getX() + newV.getX(), this.getY() + newV.getY(), this.getZ() + newV.getZ());
 	}
 	
 	/**
@@ -167,32 +167,32 @@ public class ZVector3D extends ZVector<ZVector3D>{
 	 * @return The result of scaling the vector
 	 */
 	@Override
-	public ZVector3D scale(double scalar){
-		return new ZVector3D(this.getX() * scalar, this.getY() * scalar, this.getZ() * scalar);
+	public V3D scale(double scalar){
+		return new V3D(this.getX() * scalar, this.getY() * scalar, this.getZ() * scalar);
 	}
 	
 	@Override
-	public ZVector3D modifyMagnitude(double magnitude){
-		return new ZVector3D(this.getYaw(), this.getPitch(), magnitude, false);
+	public V3D modifyMagnitude(double magnitude){
+		return new V3D(this.getYaw(), this.getPitch(), magnitude, false);
 	}
 	
 	@Override
-	public ZVector3D modifyHorizontalMagnitude(double magnitude){
-		return new ZVector3D(Math.cos(this.getYaw()) * magnitude, this.getY(), Math.sin(this.getYaw()) * magnitude);
+	public V3D modifyHorizontalMagnitude(double magnitude){
+		return new V3D(Math.cos(this.getYaw()) * magnitude, this.getY(), Math.sin(this.getYaw()) * magnitude);
 	}
 	
 	@Override
-	public ZVector3D modifyVerticalMagnitude(double magnitude){
-		return new ZVector3D(this.getX(), this.getY() > 0 ? magnitude : -magnitude, this.getZ());
+	public V3D modifyVerticalMagnitude(double magnitude){
+		return new V3D(this.getX(), this.getY() > 0 ? magnitude : -magnitude, this.getZ());
 	}
 	
 	@Override
-	public ZVector3D modifyVerticalValue(double value){
-		return new ZVector3D(this.getX(), value, this.getZ());
+	public V3D modifyVerticalValue(double value){
+		return new V3D(this.getX(), value, this.getZ());
 	}
 	
 	@Override
-	public boolean isOpposite(ZVector3D vector){
+	public boolean isOpposite(V3D vector){
 		return ZVector.isOpposite(this.getYaw(), vector.getYaw()) || ZVector.isOpposite(this.getPitch(), vector.getPitch());
 	}
 	

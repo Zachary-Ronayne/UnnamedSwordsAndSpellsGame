@@ -1,14 +1,14 @@
 package zgame.things.entity.projectile;
 
 import zgame.core.utils.FunctionMap;
-import zgame.physics.ZVector3D;
-import zgame.physics.collision.CollisionResult3D;
+import zgame.physics.V3D;
+import zgame.physics.collision.Collision3D;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.world.Room3D;
 
 /** A 3D implementation of a projectile which represents a thing flying through the air */
-public abstract class Projectile3D extends EntityThing3D implements Projectile<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D>{
+public abstract class Projectile3D extends EntityThing3D implements Projectile<HitBox3D, EntityThing3D, V3D, Room3D, Collision3D>{
 	
 	/**
 	 * A mapping of the functions to call when certain object types are hit. This essentially replaces manually defining abstract functions in this class, allowing a specific
@@ -39,7 +39,7 @@ public abstract class Projectile3D extends EntityThing3D implements Projectile<H
 	 * @param z The initial z position of the projectile
 	 * @param launchVelocity The initial velocity of the projectile
 	 */
-	public Projectile3D(double x, double y, double z, ZVector3D launchVelocity){
+	public Projectile3D(double x, double y, double z, V3D launchVelocity){
 		super(x, y, z, 1);
 		this.addVelocity(launchVelocity);
 		this.mappedFuncs = new FunctionMap();
@@ -129,25 +129,25 @@ public abstract class Projectile3D extends EntityThing3D implements Projectile<H
 	}
 	
 	@Override
-	public void touchFloor(CollisionResult3D result){
+	public void touchFloor(Collision3D result){
 		super.touchFloor(result);
 		Projectile.super.touchFloor(result);
 	}
 	
 	@Override
-	public void touchCeiling(CollisionResult3D result){
+	public void touchCeiling(Collision3D result){
 		super.touchCeiling(result);
 		Projectile.super.touchCeiling(result);
 	}
 	
 	@Override
-	public void touchWall(CollisionResult3D result){
+	public void touchWall(Collision3D result){
 		super.touchWall(result);
 		Projectile.super.touchWall(result);
 	}
 	
 	@Override
-	public void collide(CollisionResult3D result){
+	public void collide(Collision3D result){
 		super.collide(result);
 		Projectile.super.collide(result);
 	}

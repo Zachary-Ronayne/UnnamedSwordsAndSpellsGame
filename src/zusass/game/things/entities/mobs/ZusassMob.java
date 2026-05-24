@@ -11,8 +11,8 @@ import zgame.core.sound.ManagedSoundSource;
 import zgame.core.sound.SoundSourceGroup;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint3D;
-import zgame.physics.ZVector3D;
-import zgame.physics.collision.CollisionResult3D;
+import zgame.physics.V3D;
+import zgame.physics.collision.Collision3D;
 import zgame.stat.Stat;
 import zgame.stat.ValueStat;
 import zgame.stat.modifier.ModifierType;
@@ -307,8 +307,8 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		double attackYaw = this.getMobilityState().getFacingYaw();
 		
 		// Find the position where the arm will start
-		var attackDirectionVec = new ZVector3D(attackYaw, 0, attackSize, false);
-		var armBaseVec = new ZVector3D(this.getMobilityState().getFacingYaw() + ZMath.PI_BY_2, 0, this.getWidth() * 0.5, false);
+		var attackDirectionVec = new V3D(attackYaw, 0, attackSize, false);
+		var armBaseVec = new V3D(this.getMobilityState().getFacingYaw() + ZMath.PI_BY_2, 0, this.getWidth() * 0.5, false);
 		
 		// Find the position where the arm will attack to
 		var basePoint = this.center();
@@ -850,7 +850,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 	}
 	
 	@Override
-	public void touchFloor(CollisionResult3D collision){
+	public void touchFloor(Collision3D collision){
 		super.touchFloor(collision);
 		
 		// TODO consider doing this based on current velocity

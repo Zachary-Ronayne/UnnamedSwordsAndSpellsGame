@@ -1,19 +1,22 @@
 package zgame.things.still.tiles.threeDee;
 
 import zgame.core.graphics.Renderer;
-import zgame.physics.collision.CollisionResult3D;
+import zgame.physics.V3D;
+import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
 import zgame.things.still.tiles.Tile;
+import zgame.things.still.tiles.TileType3D;
 import zgame.things.type.GameThing;
 import zgame.things.type.Materialable;
 import zgame.things.type.bounds.Bounds3D;
-import zgame.things.type.bounds.HitBox3D;
+import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.RectPrismBounds;
 import zgame.world.Direction3D;
 import zgame.world.Room3D;
 
 /** A {@link GameThing} with a cube hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
-public class Tile3D extends GameThing implements Tile<HitBox3D, CollisionResult3D>, Bounds3D, RectPrismBounds, Materialable{
+// TODO make a formal object for tile state even though there shouldn't be a tile state, maybe state doesn't exist on all game things
+public class Tile3D extends GameThing<Object> implements Tile<V3D>, Bounds3D, RectPrismBounds, Materialable{
 	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 1;
@@ -87,7 +90,7 @@ public class Tile3D extends GameThing implements Tile<HitBox3D, CollisionResult3
 	}
 	
 	/** @return See {@link #zIndex} */
-	public int getzIndex(){
+	public int getZIndex(){
 		return this.zIndex;
 	}
 	
@@ -107,7 +110,7 @@ public class Tile3D extends GameThing implements Tile<HitBox3D, CollisionResult3
 	}
 	
 	@Override
-	public CollisionResult3D collide(HitBox3D obj){
+	public Collision<V3D> collide(HitBox<V3D> obj){
 		return this.getType().getHitbox().collide(this, obj);
 	}
 	

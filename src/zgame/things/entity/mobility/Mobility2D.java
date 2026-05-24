@@ -1,12 +1,12 @@
 package zgame.things.entity.mobility;
 
 import zgame.core.utils.ZMath;
-import zgame.physics.ZVector2D;
+import zgame.physics.V2D;
 import zgame.things.entity.MobilityState;
 import zgame.things.entity.MobilityState2D;
 
 /** A class that handles mobility actions like walking and jumping */
-public interface Mobility2D extends Mobility<ZVector2D>{
+public interface Mobility2D extends Mobility<V2D>{
 	
 	@Override
 	MobilityState2D getMobilityState();
@@ -127,24 +127,24 @@ public interface Mobility2D extends Mobility<ZVector2D>{
 	}
 	
 	@Override
-	default ZVector2D createTryingToMoveVector(double magnitude){
+	default V2D createTryingToMoveVector(double magnitude){
 		var data = this.getMobilityState();
 		var mobilityType = data.getType();
 		if(mobilityType == MobilityType.FLYING || mobilityType == MobilityType.FLYING_AXIS){
-			return new ZVector2D(data.getFlyingAngle(), magnitude, false);
+			return new V2D(data.getFlyingAngle(), magnitude, false);
 		}
 		else if(mobilityType == MobilityType.WALKING){
-			if(this.walkingLeft()) return new ZVector2D(Math.PI, magnitude, false);
-			else if(this.walkingRight()) return new ZVector2D(0, magnitude, false);
+			if(this.walkingLeft()) return new V2D(Math.PI, magnitude, false);
+			else if(this.walkingRight()) return new V2D(0, magnitude, false);
 		}
 		
-		return new ZVector2D();
+		return new V2D();
 	}
 	
 	@Override
-	default ZVector2D createTryingToMoveVectorHorizontal(double magnitude){
-		if(this.walkingLeft()) return new ZVector2D(-magnitude, 0);
-		else if(this.walkingRight()) return new ZVector2D(magnitude, 0);
-		return new ZVector2D();
+	default V2D createTryingToMoveVectorHorizontal(double magnitude){
+		if(this.walkingLeft()) return new V2D(-magnitude, 0);
+		else if(this.walkingRight()) return new V2D(magnitude, 0);
+		return new V2D();
 	}
 }

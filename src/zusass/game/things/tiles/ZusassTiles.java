@@ -5,7 +5,7 @@ import zgame.physics.material.Materials;
 import zgame.things.still.tiles.threeDee.CubeTexTile;
 import zgame.things.still.tiles.threeDee.CubeTexTintTile;
 import zgame.things.still.tiles.threeDee.TileHitbox3D;
-import zgame.things.still.tiles.threeDee.TileType3D;
+import zgame.things.still.tiles.TileType3D;
 import zusass.utils.ZusassImages;
 
 /** A class defining tiles used in the Zusass game */

@@ -1,6 +1,6 @@
 package zgame.things;
 
-import zgame.physics.ZVector3D;
+import zgame.physics.V3D;
 import zgame.things.type.bounds.Clickable3D;
 import zgame.things.type.bounds.ClickerBounds;
 import zgame.world.Room3D;
@@ -23,7 +23,7 @@ public interface ThingClickDetector3D extends Clickable3D{
 	 */
 	default double findClickDistance(ClickerBounds clickerBounds){
 		// Determine if the clicker is in range of the thing to click
-		var clickDirection = new ZVector3D(clickerBounds.getClickYaw(), clickerBounds.getClickPitch(), 1, false);
+		var clickDirection = new V3D(clickerBounds.getClickYaw(), clickerBounds.getClickPitch(), 1, false);
 		return this.rayDistance(clickerBounds.getClickX(), clickerBounds.getClickY(), clickerBounds.getClickZ(),
 				clickDirection.getX(), clickDirection.getY(), clickDirection.getZ());
 	}

@@ -1,12 +1,13 @@
 package zgame.things.type.bounds;
 
-import zgame.physics.collision.CollisionResult3D;
+import zgame.physics.V3D;
+import zgame.physics.collision.Collision3D;
 import zgame.physics.material.Material;
 import zgame.things.entity.projectile.Projectile3D;
 import zgame.world.Direction3D;
 
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
-public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
+public interface HitBox3D extends HitBox<V3D>, Bounds3D{
 	
 	/**
 	 * Called when this {@link HitBox3D} is hit by a projectile. Does nothing by default, implement to provide custom behavior
@@ -25,12 +26,7 @@ public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	double getPZ();
 	
 	@Override
-	default HitBox3D get(){
-		return this;
-	}
-	
-	@Override
-	default boolean intersects(HitBox3D hitBox){
+	default boolean intersects(HitBox<V3D> hitBox){
 		return switch(hitBox.getHitboxType()){
 			case RECT_PRISM -> this.intersectsRect(hitBox.getX(), hitBox.getY(), hitBox.getZ(), hitBox.getWidth(), hitBox.getHeight(), hitBox.getLength());
 			case CYLINDER -> this.intersectsCylinder(hitBox.getX(), hitBox.getY(), hitBox.getZ(), hitBox.getWidth() * 0.5, hitBox.getHeight());
@@ -76,7 +72,7 @@ public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	boolean intersectsSphere(double x, double y, double z, double radius);
 	
 	/**
-	 * Determine a {@link CollisionResult3D} from colliding this object with the given rectangular prism bounds. Essentially, move this object so that it no longer
+	 * Determine a {@link Collision3D} from colliding this object with the given rectangular prism bounds. Essentially, move this object so that it no longer
 	 * intersecting with the given bounds. This method should not change the state of this object, it should only return an object representing how the collision should
 	 * happen.
 	 *
@@ -90,6 +86,6 @@ public interface HitBox3D extends HitBox<HitBox3D, CollisionResult3D>, Bounds3D{
 	 * @param collisionFaces The faces of the rectangular prism which can cause collisions, indexed using {@link Direction3D}, true for allowing collision, false for no collision.
 	 * @return The information about the collision
 	 */
-	CollisionResult3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m, boolean[] collisionFaces);
+	Collision3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m, boolean[] collisionFaces);
 	
 }

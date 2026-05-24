@@ -2,8 +2,8 @@ package zgame.things.still;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.physics.ZVector2D;
-import zgame.physics.collision.CollisionResult2D;
+import zgame.physics.V2D;
+import zgame.physics.collision.Collision2D;
 import zgame.things.entity.EntityThing2D;
 import zgame.things.type.GameThing;
 import zgame.things.type.bounds.HitBox2D;
@@ -13,7 +13,7 @@ import zgame.world.Room2D;
 /**
  * An object that allows other {@link GameThing}s to enter another {@link Room}
  */
-public class Door2D extends StaticThing2D implements Door<Room2D, HitBox2D, EntityThing2D, ZVector2D, CollisionResult2D>{
+public class Door2D extends StaticThing2D implements Door<Room2D, HitBox2D, EntityThing2D, V2D, Collision2D>{
 	
 	/** The default value of {@link #width} */
 	public static final double WIDTH = 70;

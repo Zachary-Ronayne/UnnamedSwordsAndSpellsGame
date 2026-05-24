@@ -1,15 +1,16 @@
 package zgame.things.still.tiles.threeDee;
 
 import zgame.core.utils.ZMath;
-import zgame.physics.ZVector3D;
-import zgame.physics.collision.CollisionResult3D;
+import zgame.physics.V3D;
+import zgame.physics.collision.Collision3D;
+import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileHitbox;
 import zgame.things.type.bounds.ClickerBounds;
-import zgame.things.type.bounds.HitBox3D;
+import zgame.things.type.bounds.HitBox;
 import zgame.world.Direction3D;
 
 /** An object that represents the hitbox of a tile, i.e., what parts of the tile have collision */
-public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResult3D>{
+public interface TileHitbox3D extends TileHitbox<V3D>{
 	
 	/** See {@link None} */
 	None NONE = new None();
@@ -35,8 +36,9 @@ public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResu
 	/** For tiles with no collision */
 	class None implements TileHitbox3D{
 		@Override
-		public CollisionResult3D collide(Tile3D t, HitBox3D obj){
-			return new CollisionResult3D();
+		public Collision3D collide(Tile<V3D> t, HitBox<V3D> obj){
+			// TODO get object's current position
+			return new Collision3D();
 		}
 		
 		@Override
@@ -45,6 +47,7 @@ public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResu
 			return -1;
 		}
 		
+		// TODO figure out where canCollide is supposed to be called
 		@Override
 		public boolean canCollide(Direction3D face){
 			return false;
@@ -54,7 +57,7 @@ public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResu
 	/** For tiles whose hitbox takes up the entire tile */
 	class Full implements TileHitbox3D{
 		@Override
-		public CollisionResult3D collide(Tile3D t, HitBox3D obj){
+		public Collision3D collide(Tile<V3D> t, HitBox<V3D> obj){
 			return obj.calculateRectCollision(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength(), t.getMaterial(), t.getCollisionFaces());
 		}
 		
@@ -69,7 +72,7 @@ public interface TileHitbox3D extends TileHitbox<HitBox3D, Tile3D, CollisionResu
 				return 0;
 			}
 			
-			var clickDirection = new ZVector3D(clicker.getClickYaw(), clicker.getClickPitch(), 1, false);
+			var clickDirection = new V3D(clicker.getClickYaw(), clicker.getClickPitch(), 1, false);
 			return ZMath.rayDistanceToRectPrism(clicker.getClickX(), clicker.getClickY(), clicker.getClickZ(),
 					clickDirection.getX(), clickDirection.getY(), clickDirection.getZ(),
 					t.minX(), t.minY(), t.minZ(), t.maxX(), t.maxY(), t.maxZ());

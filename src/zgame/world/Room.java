@@ -8,7 +8,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.utils.ClassMappedList;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector;
-import zgame.physics.collision.CollisionResult;
+import zgame.physics.collision.Collision;
 import zgame.things.entity.EntityThing;
 import zgame.things.still.Door;
 import zgame.things.type.GameThing;
@@ -20,18 +20,11 @@ import zgame.things.type.bounds.HitBox;
  * @param <H> The hitbox implementation used by entities in the room
  * @param <E> The type of entities in this room
  * @param <V> The vectors used by entities in this room
- * @param <R> The room implementation
- * @param <C> The type of collisions which occur in this room
  */
+// TODO consider if a Room should have its own state object
 // issue#50 find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
-public abstract class Room<
-		H extends HitBox<H, C>,
-		E extends EntityThing<H, E, V, R, C>,
-		V extends ZVector<V>,
-		R extends Room<H, E, V, R, C>,
-		C extends CollisionResult<C>
-		// TODO consider if a Room should have its own state object
-		> extends GameThing<Object>{
+// TODO consider if HitBox and EntityThing really have to be their own type parameters here
+public abstract class Room<V extends ZVector<V>, H extends HitBox<V>, E extends EntityThing<V>> extends GameThing<Object>{
 	
 	/** All of the things in this room */
 	private final ClassMappedList thingsMap;
@@ -129,14 +122,14 @@ public abstract class Room<
 		this.thingsToRemove.add(thing);
 	}
 	
+	// TODO should this accept hitboxes?
 	/**
-	 * Collide the given {@link EntityThing} with this room. Essentially, attempt to move the given object so that it no longer intersects with anything in this room.
+	 * Compute the collisions the given {@link EntityThing} will encounter in this room, i.e. find all the things that will cause a collision to happen
 	 *
 	 * @param obj The object to collide
-	 * @return The CollisionResponse representing the final collision that took place, where the collision material is the floor collision, if one took place
+	 * @return The {@link Collision}s representing the collisions needed
 	 */
-	// TODO should this have to be an entity? Or is it enough to have collisions happen only for hit boxes? The problem is needing to be able to schedule a state update
-	public abstract C collide(E obj);
+	public abstract List<Collision<V>> collideInside(EntityThing<V> obj);
 	
 	/**
 	 * Collide the given {@link EntityThing} with the entities in the given room
@@ -144,7 +137,7 @@ public abstract class Room<
 	 * @param checkEntity The entity to check collision for
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
-	public void checkEntityCollisions(E checkEntity, double dt){
+	public List<Collision<V>> checkEntityCollisions(EntityThing<V> checkEntity, double dt){
 		// issue#21 make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
 		// Probably just rewrite the actual entity collision outside of on intersection, the commented out code is copied and modified from the EntityThing class, which was originally just for 2D
 		
@@ -167,9 +160,10 @@ public abstract class Room<
 		// Iterate through all entities, ignoring the given entity, and find the ones intersecting the given entity
 		for(int i = 0; i < entities.size(); i++){
 			var e = entities.get(i);
-			if(e == checkEntity || !checkEntity.get().intersects(e.get())) continue;
+			if(e == checkEntity || e.isNoClip() || !checkEntity.intersects(e)) continue;
 			checkEntity.checkEntityCollision(e, dt);
 
+			// TODO make a real attempt at entity collision again
 //			// If they intersect, determine the force they should have against each other, and apply it to both entities
 //			String eUuid = e.getUuid();
 //			ZPoint checkEntityP = new ZPoint(checkEntity.centerX(), checkEntity.maxY());
@@ -220,7 +214,10 @@ public abstract class Room<
 //			checkEntity.collidingUuids.add(eUuid);
 //			e.setForce(checkEntity.getUuid(), newForce.scale(-1));
 //			e.collidingUuids.add(checkEntity.getUuid());
+			// TODO call the generic hitbox and or entity collide method?
 		}
+		
+		return List.of();
 	}
 	
 	/**
@@ -245,14 +242,19 @@ public abstract class Room<
 			t.tick(dt);
 		}
 		
-		// TODO attempt to implement this properly again
-		// Check the collisions between entities for this room
+		// TODO should this just be entities, or also collisions?
+		// Check the collisions for entities
 		var entities = this.getEntities();
 		for(int i = 0; i < entities.size(); i++){
+			// Skip if entity has no collision
 			var e = entities.get(i);
 			if(e.isNoClip()) continue;
-			this.checkEntityCollisions(e, dt);
 			
+			// Check entity collision
+			e.getNext().collide(this.checkEntityCollisions(e, dt));
+			
+			// Check for room collisions
+			e.getNext().collide(this.collideInside(e));
 		}
 		
 		// TODO consolidate this to the current and next state system
@@ -260,23 +262,14 @@ public abstract class Room<
 		for(var thing : this.thingsToRemove) this.tickRemoveThing(thing);
 		this.thingsToRemove.clear();
 		
-		// Move all things to the next state
-		for(var thing : this.getThings()){
-			thing.updateState();
-		}
-		
 		// TODO consider consolidating this to the current and next state system
 		// Run any functions which need to happen
 		for(int i = 0; i < this.nextTickFuncs.size(); i++) this.nextTickFuncs.get(i).run();
 		this.nextTickFuncs.clear();
 		
-		// Finally, force update positions to account for collisions
-		for(int i = 0; i < entities.size(); i++){
-			var e = entities.get(i);
-			if(e.isNoClip()) continue;
-			// Check for tile collisions
-			this.collide(e);
-			// TODO does this also need entity collision?
+		// Move all things to the next state
+		for(var thing : this.getThings()){
+			thing.updateState();
 		}
 	}
 	

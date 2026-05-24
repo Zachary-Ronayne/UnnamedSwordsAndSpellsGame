@@ -2,15 +2,14 @@ package zgame.things.entity;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
-import zgame.physics.ZVector2D;
-import zgame.physics.collision.CollisionResult2D;
+import zgame.physics.V2D;
+import zgame.physics.collision.Collision;
 import zgame.things.type.bounds.HitBox2D;
-import zgame.world.Room2D;
 
 /**
  * An {@link EntityThing} in 2D
  */
-public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D, ZVector2D, Room2D, CollisionResult2D> implements HitBox2D{
+public abstract class EntityThing2D extends EntityThing<V2D> implements HitBox2D{
 	
 	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
 	
@@ -40,7 +39,7 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	 */
 	public EntityThing2D(double x, double y, double mass){
 		super(mass);
-		this.getCurrent().initPosition(new ZVector2D(x, y));
+		this.getCurrent().initPosition(new V2D(x, y));
 	}
 	
 	/** @return Current x coordinate of this thing */
@@ -55,34 +54,17 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 		return this.getPosition().getY();
 	}
 	
+	// TODO remove/rename this to reflect that it's effectively for teleporting
 	/**
 	 * @param x New x coordinate of this thing
 	 * @param y New y coordinate of this thing
 	 */
 	public void setPos(double x, double y){
-		this.getNext().attemptSetPosition(new ZVector2D(x, y));
-	}
-	
-	/**
-	 * Add the given value to the x coordinate
-	 *
-	 * @param x The amount to add
-	 */
-	public void addX(double x){
-		this.getCurrent().addPosition(new ZVector2D(x, 0));
-	}
-	
-	/**
-	 * Add the given value to the y coordinate
-	 *
-	 * @param y The amount to add
-	 */
-	public void addY(double y){
-		this.getCurrent().addPosition(new ZVector2D(0, y));
+		this.getNext().attemptSetPosition(new V2D(x, y));
 	}
 	
 	@Override
-	public void touchWall(CollisionResult2D result){
+	public void touchWall(Collision<V2D> result){
 		super.touchWall(result);
 		// TODO test this formally and make sure this new approach makes sense
 //		this.setHorizontalVel(-this.getHorizontalVel() * result.material().getWallBounce() * this.getMaterial().getWallBounce());
@@ -90,15 +72,8 @@ public abstract class EntityThing2D extends EntityThing<HitBox2D, EntityThing2D,
 	}
 	
 	@Override
-	public ZVector2D zeroVector(){
-		return new ZVector2D();
-	}
-	
-	@Override
-	public void moveEntity(ZVector2D distance){
-		// Move the entity based on the current velocity and acceleration
-		this.addX(distance.getX());
-		this.addY(distance.getY());
+	public V2D zeroVector(){
+		return new V2D();
 	}
 	
 	/** @return The velocity of this {@link EntityThing} on the x axis */

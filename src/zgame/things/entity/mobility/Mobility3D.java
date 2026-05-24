@@ -1,12 +1,12 @@
 package zgame.things.entity.mobility;
 
 import zgame.core.utils.ZMath;
-import zgame.physics.ZVector3D;
+import zgame.physics.V3D;
 import zgame.things.entity.MobilityState;
 import zgame.things.entity.MobilityState3D;
 
 /** An interface used to control movement in 3D */
-public interface Mobility3D extends Mobility<ZVector3D>{
+public interface Mobility3D extends Mobility<V3D>{
 	
 	@Override
 	MobilityState3D getMobilityState();
@@ -152,15 +152,15 @@ public interface Mobility3D extends Mobility<ZVector3D>{
 	}
 	
 	@Override
-	default ZVector3D createTryingToMoveVector(double magnitude){
+	default V3D createTryingToMoveVector(double magnitude){
 		var data = this.getMobilityState();
-		return new ZVector3D(data.getMovingYaw(), data.getMovingPitch(), magnitude, false);
+		return new V3D(data.getMovingYaw(), data.getMovingPitch(), magnitude, false);
 	}
 	
 	@Override
-	default ZVector3D createTryingToMoveVectorHorizontal(double magnitude){
+	default V3D createTryingToMoveVectorHorizontal(double magnitude){
 		var data = this.getMobilityState();
 		double movingAngle = data.getMovingYaw();
-		return new ZVector3D(Math.cos(movingAngle) * magnitude, 0, Math.sin(movingAngle) * magnitude);
+		return new V3D(Math.cos(movingAngle) * magnitude, 0, Math.sin(movingAngle) * magnitude);
 	}
 }

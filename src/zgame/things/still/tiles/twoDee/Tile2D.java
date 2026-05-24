@@ -1,16 +1,17 @@
 package zgame.things.still.tiles.twoDee;
 
 import zgame.core.graphics.Renderer;
-import zgame.physics.collision.CollisionResult2D;
+import zgame.physics.V2D;
+import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
 import zgame.things.still.tiles.Tile;
+import zgame.things.still.tiles.TileType2D;
 import zgame.things.type.*;
 import zgame.things.type.bounds.Bounds2D;
 import zgame.things.type.bounds.HitBox;
-import zgame.things.type.bounds.HitBox2D;
 
 /** A {@link GameThing} with a rectangular hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
-public class Tile2D extends GameThing implements Tile<HitBox2D, CollisionResult2D>, Bounds2D, Materialable{
+public class Tile2D extends GameThing<Object> implements Tile<V2D>, Bounds2D, Materialable{
 	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 64;
@@ -107,8 +108,8 @@ public class Tile2D extends GameThing implements Tile<HitBox2D, CollisionResult2
 		return this.getFrontType().getMaterial();
 	}
 	
-	/** See {@link TileHitbox2D#collide(Tile, HitBox)} */
-	public CollisionResult2D collide(HitBox2D obj){
+	@Override
+	public Collision<V2D> collide(HitBox<V2D> obj){
 		return this.getFrontType().getHitbox().collide(this, obj);
 	}
 	

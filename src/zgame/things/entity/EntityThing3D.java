@@ -1,15 +1,14 @@
 package zgame.things.entity;
 
 import zgame.core.graphics.camera.GameCamera3D;
-import zgame.physics.ZVector3D;
-import zgame.physics.collision.CollisionResult3D;
+import zgame.physics.V3D;
+import zgame.physics.collision.Collision;
 import zgame.things.type.bounds.HitBox3D;
-import zgame.world.Room3D;
 
 /**
  * An {@link EntityThing} in 3D
  */
-public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D, ZVector3D, Room3D, CollisionResult3D> implements HitBox3D{
+public abstract class EntityThing3D extends EntityThing<V3D> implements HitBox3D{
 	
 	/**
 	 * Create a new empty entity with the given mass
@@ -30,12 +29,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	 */
 	public EntityThing3D(double x, double y, double z, double mass){
 		super(mass);
-		this.getCurrent().initPosition(new ZVector3D(x, y, z));
-	}
-	
-	@Override
-	public void moveEntity(ZVector3D distance){
-		this.addPos(distance.getX(), distance.getY(), distance.getZ());
+		this.getCurrent().initPosition(new V3D(x, y, z));
 	}
 	
 	@Override
@@ -49,17 +43,17 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	}
 	
 	@Override
-	public void collide(CollisionResult3D r){
+	public void collide(Collision<V3D> r){
 		super.collide(r);
-		this.addPos(r.x(), r.y(), r.z());
 	}
 	
 	@Override
-	public void touchWall(CollisionResult3D result){
+	public void touchWall(Collision<V3D> result){
 		super.touchWall(result);
 		// TODO test this formally and make sure this new approach makes sense
 		var currentVel = this.getVelocity();
 		
+		// TODO should entity thing need to know about the wall angle? Should this logic be part of the room when it schedules a collision?
 		// Determine the amount of velocity on each axis
 		double wallAngle = result.wallAngle();
 		double currentAngle = currentVel.getYaw();
@@ -74,7 +68,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 		double velX = velocityMag * Math.cos(bounceAngle);
 		double velZ = velocityMag * Math.sin(bounceAngle);
 		
-		this.getNext().attemptSetVelocity(new ZVector3D(velX, currentVel.getY(), velZ, true));
+		this.getNext().attemptSetVelocity(new V3D(velX, currentVel.getY(), velZ, true));
 		// TODO potentially move this to the abstract parent method if 3D and 2D don't need a distinction
 //		this.getNext().scaleVelocity(-1 * result.material().getWallBounce() * this.getMaterial().getWallBounce());
 	}
@@ -122,45 +116,7 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	 * @param z New z coordinate of this thing
 	 */
 	public void setPos(double x, double y, double z){
-		this.getNext().attemptSetPosition(new ZVector3D(x, y, z));
-	}
-	
-	/**
-	 * Add the given value to the x coordinate
-	 *
-	 * @param x The amount to add
-	 */
-	public void addX(double x){
-		this.getCurrent().addPosition(new ZVector3D(x, 0, 0));
-	}
-	
-	/**
-	 * Add the given value to the y coordinate
-	 *
-	 * @param y The amount to add
-	 */
-	public void addY(double y){
-		this.getCurrent().addPosition(new ZVector3D(0, y, 0));
-	}
-	
-	/**
-	 * Add the given value to the z coordinate
-	 *
-	 * @param z The amount to add
-	 */
-	public void addZ(double z){
-		this.getCurrent().addPosition(new ZVector3D(0, 0, z));
-	}
-
-	/**
-	 * Add the given values to the coordinate
-	 *
-	 * @param x The amount to add
-	 * @param y The amount to add
-	 * @param z The amount to add
-	 */
-	public void addPos(double x, double y, double z){
-		this.getCurrent().addPosition(new ZVector3D(x, y, z));
+		this.getNext().attemptSetPosition(new V3D(x, y, z));
 	}
 	
 	/** @return The height from the bottom of this entity where it should be able to "see" from, height of the entity by default */
@@ -180,8 +136,8 @@ public abstract class EntityThing3D extends EntityThing<HitBox3D, EntityThing3D,
 	}
 	
 	@Override
-	public ZVector3D zeroVector(){
-		return new ZVector3D();
+	public V3D zeroVector(){
+		return new V3D();
 	}
 	
 	@Override

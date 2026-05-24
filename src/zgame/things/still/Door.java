@@ -2,7 +2,7 @@ package zgame.things.still;
 
 import zgame.core.GameTickable;
 import zgame.physics.ZVector;
-import zgame.physics.collision.CollisionResult;
+import zgame.physics.collision.Collision;
 import zgame.things.entity.EntityThing;
 import zgame.things.type.GameThing;
 import zgame.things.type.bounds.HitBox;
@@ -23,7 +23,7 @@ public interface Door<
 		H extends HitBox<H, C>,
 		E extends EntityThing<H, E, V, R, C>,
 		V extends ZVector<V>,
-		C extends CollisionResult<C>
+		C extends Collision<C>
 		> extends GameTickable{
 	
 	/** @return The {@link Room} which this door leads to. Can be null to make this a real fake door */

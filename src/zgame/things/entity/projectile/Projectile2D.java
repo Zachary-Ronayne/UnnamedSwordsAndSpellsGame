@@ -1,14 +1,14 @@
 package zgame.things.entity.projectile;
 
 import zgame.core.utils.FunctionMap;
-import zgame.physics.ZVector2D;
-import zgame.physics.collision.CollisionResult2D;
+import zgame.physics.V2D;
+import zgame.physics.collision.Collision2D;
 import zgame.things.entity.EntityThing2D;
 import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room2D;
 
 /** A 2D implementation of a projectile which represents a thing flying through the air */
-public abstract class Projectile2D extends EntityThing2D implements Projectile<HitBox2D, EntityThing2D, ZVector2D, Room2D, CollisionResult2D>{
+public abstract class Projectile2D extends EntityThing2D implements Projectile<HitBox2D, EntityThing2D, V2D, Room2D, Collision2D>{
 	
 	/**
 	 * A mapping of the functions to call when certain object types are hit. This essentially replaces manually defining abstract functions in this class, allowing a specific
@@ -38,7 +38,7 @@ public abstract class Projectile2D extends EntityThing2D implements Projectile<H
 	 * @param y The initial y position of the projectile
 	 * @param launchVelocity The initial velocity of the projectile
 	 */
-	public Projectile2D(double x, double y, ZVector2D launchVelocity){
+	public Projectile2D(double x, double y, V2D launchVelocity){
 		super(x, y, 1);
 		this.addVelocity(launchVelocity);
 		this.mappedFuncs = new FunctionMap();
@@ -128,25 +128,25 @@ public abstract class Projectile2D extends EntityThing2D implements Projectile<H
 	}
 	
 	@Override
-	public void touchFloor(CollisionResult2D result){
+	public void touchFloor(Collision2D result){
 		super.touchFloor(result);
 		Projectile.super.touchFloor(result);
 	}
 	
 	@Override
-	public void touchCeiling(CollisionResult2D result){
+	public void touchCeiling(Collision2D result){
 		super.touchCeiling(result);
 		Projectile.super.touchCeiling(result);
 	}
 	
 	@Override
-	public void touchWall(CollisionResult2D result){
+	public void touchWall(Collision2D result){
 		super.touchWall(result);
 		Projectile.super.touchWall(result);
 	}
 	
 	@Override
-	public void collide(CollisionResult2D result){
+	public void collide(Collision2D result){
 		super.collide(result);
 		Projectile.super.collide(result);
 	}

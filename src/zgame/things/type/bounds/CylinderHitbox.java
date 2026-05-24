@@ -1,7 +1,7 @@
 package zgame.things.type.bounds;
 
 import zgame.core.utils.ZMath;
-import zgame.physics.collision.CollisionResult3D;
+import zgame.physics.collision.Collision3D;
 import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
 
@@ -62,7 +62,7 @@ public interface CylinderHitbox extends HitBox3D{
 	}
 	
 	@Override
-	default CollisionResult3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m, boolean[] collisionFaces){
+	default Collision3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m, boolean[] collisionFaces){
 		return ZCollision.rectToCylinderBasic(x, y, z, width, height, length, this.getX(), this.getY(), this.getZ(), this.getRadius(), this.getHeight(), m, collisionFaces);
 	}
 	
