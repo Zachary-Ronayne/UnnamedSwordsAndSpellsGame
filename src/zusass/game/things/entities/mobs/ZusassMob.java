@@ -311,7 +311,7 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitb
 		var armBaseVec = new V3D(this.getMobilityState().getFacingYaw() + ZMath.PI_BY_2, 0, this.getWidth() * 0.5, false);
 		
 		// Find the position where the arm will attack to
-		var basePoint = this.center();
+		var basePoint = this.getCenterPosition();
 		basePoint.setX(basePoint.getX() + armBaseVec.getX());
 		basePoint.setZ(basePoint.getZ() + armBaseVec.getZ());
 		var attackPoint = basePoint.copy();

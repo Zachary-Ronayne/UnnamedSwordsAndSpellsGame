@@ -4,6 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.V2D;
 import zgame.physics.collision.Collision;
+import zgame.things.entity.state.EntityState;
 import zgame.things.type.bounds.HitBox2D;
 
 /**
@@ -89,17 +90,6 @@ public abstract class EntityThing2D extends EntityThing<V2D> implements HitBox2D
 	@Override
 	public double getGravityDragReferenceArea(){
 		return this.getWidth();
-	}
-	
-	// TODO for now just returning x and y, should these be used?
-	/** @return The x coordinate of this {@link EntityThing2D} where it was in the previous instance of time, based on its current velocity */
-	public double getPX(){
-		return this.getX();
-	}
-	
-	/** @return The y coordinate of this {@link EntityThing2D} where it was in the previous instance of time, based on its current velocity */
-	public double getPY(){
-		return this.getY();
 	}
 	
 	@Override

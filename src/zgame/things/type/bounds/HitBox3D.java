@@ -16,21 +16,22 @@ public interface HitBox3D extends HitBox<V3D>, Bounds3D{
 	 */
 	default void hitBy(Projectile3D p){}
 	
-	/** @return The previous value of {@link #getX()} before the last time it was moved with velocity */
-	double getPX();
-	
-	/** @return The previous value of {@link #getY()} before the last time it was moved with velocity */
-	double getPY();
-	
-	/** @return The previous value of {@link #getZ()} before the last time it was moved with velocity */
-	double getPZ();
-	
 	@Override
 	default boolean intersects(HitBox<V3D> hitBox){
+		var pos = hitBox.getPosition();
+		double x = pos.getX();
+		double y = pos.getY();
+		double z = pos.getZ();
+		
+		var dims = hitBox.getDimensions();
+		double w = dims.getWidth();
+		double h = dims.getHeight();
+		double l = dims.getLength();
+		
 		return switch(hitBox.getHitboxType()){
-			case RECT_PRISM -> this.intersectsRect(hitBox.getX(), hitBox.getY(), hitBox.getZ(), hitBox.getWidth(), hitBox.getHeight(), hitBox.getLength());
-			case CYLINDER -> this.intersectsCylinder(hitBox.getX(), hitBox.getY(), hitBox.getZ(), hitBox.getWidth() * 0.5, hitBox.getHeight());
-			case SPHERE -> this.intersectsSphere(hitBox.getX(), hitBox.getY(), hitBox.getZ(), hitBox.getWidth() * 0.5);
+			case RECT_PRISM -> this.intersectsRect(x, y, z, w, h, l);
+			case CYLINDER -> this.intersectsCylinder(x, y, z, w * 0.5, h);
+			case SPHERE -> this.intersectsSphere(x, y, z, w * 0.5);
 			default -> false;
 		};
 	}

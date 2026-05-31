@@ -6,7 +6,7 @@ import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 
 /** An object containing values for what should happen to an object when it collides with something in 2D */
-public class Collision2D extends Collision<V2D>{
+public non-sealed class Collision2D extends Collision<V2D>{
 	
 	/** true if the collision was into a wall to the left, false otherwise */
 	private final boolean left;
@@ -88,8 +88,14 @@ public class Collision2D extends Collision<V2D>{
 	
 	@Override
 	public String toString(){
-		return ZStringUtils.concat("[CollisionResponse: newPos: ", this.newPos(), ", change: ", this.change(), ", left: ", this.left(), ", right: ", this.right(), ", ceiling: ", this.ceiling(),
+		return ZStringUtils.concat("[CollisionResponse: newPos: ", this.newPos(), ", left: ", this.left(), ", right: ", this.right(), ", ceiling: ", this.ceiling(),
 				", floor: ", this.floor(), ", material: ", this.material(), "]");
 	}
 	
+	// TODO probably do this in a better way to avoid casting
+	@SuppressWarnings("unchecked")
+	@Override
+	public <C extends Collision<V2D>> C asCollision(Class<C> clazz){
+		return (C)this;
+	}
 }

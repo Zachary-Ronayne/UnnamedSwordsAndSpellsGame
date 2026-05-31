@@ -20,13 +20,12 @@ import zgame.world.Room;
  */
 // TODO resolve issue#50 if this is actually fixed
 // issue#50 find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
+// TODO probably remove hitbox from entity entirely, the main abstraction instead will sit in the entity state
 public abstract class EntityThing<V extends ZVector<V>> extends GameThing<EntityState<V>> implements GameTickable, HitBox<V>{
 	
 	/** The uuid of this entity */
 	private final String uuid;
 
-	// TODO move most of these variables into the entity state
-	
 	/**
 	 * Create a new empty entity with the given mass
 	 *
@@ -50,8 +49,10 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 	
 	// TODO maybe make a better way of doing this than making each child class have to pass along all of these fields, for now making initState final so that these values are passed to mobility entity
 	protected EntityState<V> initEntityState(V zeroVector, double gravityAcceleration, double clampVelocity){
+		// TODO implement per 2D and 3D entities
 		return new EntityState<>(zeroVector, gravityAcceleration, clampVelocity);
 	}
+	
 	@Override
 	public EntityState<V> copyState(EntityState<V> current, EntityState<V> next){
 		// TODO applyState should probably be part of the abstract method call in GameThing

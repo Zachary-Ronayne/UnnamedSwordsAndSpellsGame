@@ -63,20 +63,31 @@ public interface HitBox2D extends HitBox<V2D>, Bounds2D{
 	boolean intersectsCircle(double x, double y, double r);
 	
 	/**
-	 * @param h The hitbox to check, must be 2D
+	 * @param hitbox The hitbox to check
 	 * @return true if this hitbox intersects the given hitbox, false otherwise
 	 */
 	@Override
-	default boolean intersects(HitBox<V2D> h){
-		switch(h.getHitboxType()){
+	default boolean intersects(HitBox<V2D> hitbox){
+		
+		var dims = hitbox.getDimensions();
+		double w = dims.getWidth();
+		double h = dims.getHeight();
+		
+		return switch(hitbox.getHitboxType()){
 			case CIRCLE -> {
-				return this.intersectsCircle(h.centerX(), h.centerY(), h.getWidth() * 0.5);
+				var pos = hitbox.getCenterPosition();
+				double x = pos.getX();
+				double y = pos.getY();
+				yield this.intersectsCircle(x, y, w * 0.5);
 			}
 			case RECT -> {
-				return this.intersectsRect(h.getX(), h.getY(), h.getWidth(), h.getHeight());
+				var pos = hitbox.getMinPosition();
+				double x = pos.getX();
+				double y = pos.getY();
+				yield this.intersectsRect(x, y, w, h);
 			}
-		}
-		return false;
+			default -> false;
+		};
 	}
 	
 	/**
@@ -138,17 +149,6 @@ public interface HitBox2D extends HitBox<V2D>, Bounds2D{
 	 */
 	default double keepBelow(double y){
 		return Math.max(this.getY(), y);
-	}
-	
-	/** @return The previous value of {@link #getX()} before the last time it was moved with velocity */
-	double getPX();
-	
-	/** @return The previous value of {@link #getY()} before the last time it was moved with velocity */
-	double getPY();
-	
-	@Override
-	default HitBox2D get(){
-		return this;
 	}
 	
 }

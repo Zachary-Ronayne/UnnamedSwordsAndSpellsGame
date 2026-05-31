@@ -15,11 +15,13 @@ import zgame.things.still.tiles.threeDee.BaseTiles3D;
 import zgame.things.still.tiles.threeDee.Tile3D;
 import zgame.things.still.tiles.TileType3D;
 import zgame.things.type.bounds.ClickerBounds;
+import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.RectPrismBounds;
 
 import static zgame.world.Direction3D.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
@@ -263,122 +265,117 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 	
 	@Override
 	public List<Collision<V3D>> collideInside(EntityThing<V3D> obj){
-		boolean wasOnGround = obj.isOnGround();
-		boolean wasOnCeiling = obj.isOnCeiling();
-		boolean wasOnWall = obj.isOnWall();
 		double tileSize = Tile3D.size();
 		int tilesX = this.getTilesX() - 1;
 		int tilesY = this.getTilesY() - 1;
 		int tilesZ = this.getTilesZ() - 1;
 		
-		int minX = (int)ZMath.minMax(0, tilesX, Math.floor(obj.minX() / tileSize));
-		int maxX = (int)ZMath.minMax(0, tilesX, Math.floor(obj.maxX() / tileSize));
-		int minY = (int)ZMath.minMax(0, tilesY, Math.floor(obj.minY() / tileSize));
-		int maxY = (int)ZMath.minMax(0, tilesY, Math.floor(obj.maxY() / tileSize));
-		int minZ = (int)ZMath.minMax(0, tilesZ, Math.floor(obj.minZ() / tileSize));
-		int maxZ = (int)ZMath.minMax(0, tilesZ, Math.floor(obj.maxZ() / tileSize));
+		var minPos = obj.getMinPosition();
+		var maxPos = obj.getMinPosition();
 		
-		// Go through each horizontal layer, and if any y movement happens on that layer, it should override any xz plane movement
-		for(int y = minY; y <= maxY; y++){
-			for(int x = minX; x <= maxX; x++){
-				for(int z = minZ; z <= maxZ; z++){
+		double minX = minPos.getX();
+		double maxX = maxPos.getX();
+		double minY = minPos.getY();
+		double maxY = maxPos.getY();
+		double minZ = minPos.getZ();
+		double maxZ = maxPos.getZ();
+		
+		int tMinX = (int)ZMath.minMax(0, tilesX, Math.floor(minX / tileSize));
+		int tMaxX = (int)ZMath.minMax(0, tilesX, Math.floor(maxX / tileSize));
+		int tMinY = (int)ZMath.minMax(0, tilesY, Math.floor(minY / tileSize));
+		int tMaxY = (int)ZMath.minMax(0, tilesY, Math.floor(maxY / tileSize));
+		int tMinZ = (int)ZMath.minMax(0, tilesZ, Math.floor(minZ / tileSize));
+		int tMaxZ = (int)ZMath.minMax(0, tilesZ, Math.floor(maxZ / tileSize));
+		
+		ArrayList<Collision<V3D>> collisions = new ArrayList<>();
+		
+		// Go through all tiles, and record all collisions
+		for(int x = tMinX; x <= tMaxX; x++){
+			for(int y = tMinY; y <= tMaxY; y++){
+				for(int z = tMinZ; z <= tMaxZ; z++){
 					var t = this.tiles[x][y][z];
-					obj.collide(t.collide(obj));
+					collisions.add(t.collide(obj));
 				}
 			}
 		}
 		
-		boolean touchedFloor = false;
-		boolean touchedCeiling = false;
-		boolean touchedWall = false;
-		
-		// TODO need to reimplement setting coordinates, maybe these should be set based on collisions?
-		// TODO maybe combine all collisions into one delta?
+		// Check for collisions with all boundaries
+		// TODO consider if this should all be consolidated to a single collision object
 		// x axis, i.e. east west
-		boolean touchedAxisX = false;
 		if(this.boundaryEnabled(WEST)){
-			double boundary = this.getBoundary(WEST) - (obj.getWidth() * 0.5);
-			double objX = obj.getX();
-			if(objX > boundary){
-				obj.collide(new Collision3D(-Math.abs(boundary - objX), 0, 0, true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
-				touchedAxisX = true;
+			double boundary = this.getBoundary(WEST);
+			if(minX > boundary){
+				collisions.add(new Collision3D(obj,
+						// TODO make some kind of convenience method for this to avoid this mess, also probably make it that it's possible to get individual coordinates
+						(HitBox<V3D> hitbox) -> {
+							var pos = hitbox.getPosition();
+							return new V3D(boundary - Math.abs(hitbox.getMaxPosition().getX() - pos.getX()), pos.getY(), pos.getZ());
+						},
+						true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
 			}
 		}
-		if(this.boundaryEnabled(EAST) && !touchedAxisX){
-			double boundary = -this.getBoundary(EAST) + (obj.getWidth() * 0.5);
-			double objX = obj.getX();
-			if(objX < boundary){
-				obj.collide(new Collision3D(Math.abs(boundary - objX), 0, 0, true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
-				touchedAxisX = true;
+		if(this.boundaryEnabled(EAST)){
+			// TODO probably make boundaries absolute coordinates instead of using negative and positive differently
+			double boundary = -this.getBoundary(EAST);
+			if(maxX < boundary){
+				collisions.add(new Collision3D(obj,
+						(HitBox<V3D> hitbox) -> {
+							var pos = hitbox.getPosition();
+							return new V3D(boundary + Math.abs(hitbox.getMinPosition().getX() - pos.getX()), pos.getY(), pos.getZ());
+						},
+						true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
 			}
 		}
-		if(touchedAxisX) touchedWall = true;
 		
 		// z axis, i.e. north south
-		boolean touchedAxisZ = false;
 		if(this.boundaryEnabled(NORTH)){
-			double boundary = this.getBoundary(NORTH) - (obj.getLength() * 0.5);
-			double objZ = obj.getZ();
-			if(objZ > boundary){
-				obj.collide(new Collision3D(0, 0, Math.abs(boundary - objZ), true, false, false, this.getBoundaryMaterial(), 0));
-				touchedAxisZ = true;
+			double boundary = this.getBoundary(NORTH);
+			if(minZ > boundary){
+				collisions.add(new Collision3D(obj,
+						(HitBox<V3D> hitbox) -> {
+							var pos = hitbox.getPosition();
+							return new V3D(pos.getX(), pos.getY(), boundary + Math.abs(hitbox.getMaxPosition().getZ() - pos.getZ()));
+						},
+						true, false, false, this.getBoundaryMaterial(), 0));
 			}
 		}
-		if(this.boundaryEnabled(SOUTH) && !touchedAxisZ){
-			double boundary = -this.getBoundary(SOUTH) + (obj.getLength() * 0.5);
-			double objZ = obj.getZ();
-			if(objZ < boundary){
-				obj.collide(new Collision3D(0, 0, -Math.abs(boundary - objZ), true, false, false, this.getBoundaryMaterial(), 0));
-				touchedAxisZ = true;
+		if(this.boundaryEnabled(SOUTH)){
+			double boundary = -this.getBoundary(SOUTH);
+			if(maxZ < boundary){
+				collisions.add(new Collision3D(obj,
+						(HitBox<V3D> hitbox) -> {
+							var pos = hitbox.getPosition();
+							return new V3D(pos.getX(), pos.getY(), boundary - Math.abs(hitbox.getMinPosition().getZ() - pos.getZ()));
+						},
+						true, false, false, this.getBoundaryMaterial(), 0));
 			}
 		}
-		if(touchedAxisZ) touchedWall = true;
 		
 		// y axis, i.e. up down
 		if(this.boundaryEnabled(Direction3D.UP)){
-			double boundary = this.getBoundary(Direction3D.UP) - obj.getHeight();
-			double objY = obj.getY();
-			if(objY > boundary){
-				obj.collide(new Collision3D(0, Math.abs(boundary - objY), 0, false, true, false, this.getBoundaryMaterial(), 0));
-				touchedCeiling = true;
+			double boundary = this.getBoundary(Direction3D.UP);
+			if(minY > boundary){
+				collisions.add(new Collision3D(obj,
+						(HitBox<V3D> hitbox) -> {
+							var pos = hitbox.getPosition();
+							return new V3D(pos.getX(), boundary + Math.abs(hitbox.getMaxPosition().getY() - pos.getY()), pos.getZ());
+						},
+						false, true, false, this.getBoundaryMaterial(), 0));
 			}
 		}
-		if(this.boundaryEnabled(Direction3D.DOWN) && obj.getY() < -this.getBoundary(Direction3D.DOWN)){
+		if(this.boundaryEnabled(Direction3D.DOWN)){
 			double boundary = -this.getBoundary(Direction3D.DOWN);
-			double objY = obj.getY();
-			if(objY < boundary){
-				obj.collide(new Collision3D(0, -Math.abs(boundary - objY), 0, false, false, true, this.getBoundaryMaterial(), 0));
-				touchedFloor = true;
+			if(maxY < boundary){
+				collisions.add(new Collision3D(obj,
+						(HitBox<V3D> hitbox) -> {
+							var pos = hitbox.getPosition();
+							return new V3D(pos.getX(), boundary - Math.abs(hitbox.getMinPosition().getY() - pos.getY()), pos.getZ());
+						},
+						false, false, true, this.getBoundaryMaterial(), 0));
 			}
 		}
 		
-		if(wasOnGround){
-			// If the hitbox was on the ground, but no y axis movement happened, then the hitbox is still on the ground, so touch the floor
-			if(obj.getPY() == obj.getY() || bot){
-				if(!touchedFloor) obj.collide(new Collision3D(0, 0, 0, false, false, true, obj.getFloorMaterial(), res.wallAngle()));
-			}
-			// Otherwise, leave the floor
-			else obj.leaveFloor();
-		}
-		
-		// Same thing, but for the walls and for the ceiling
-		if(wasOnCeiling){
-			if(obj.getPY() == obj.getY() || top){
-				if(!touchedCeiling) obj.collide(new Collision3D(0, 0, 0, false, true, false, obj.getCeilingMaterial(), res.wallAngle()));
-			}
-			else obj.leaveCeiling();
-		}
-		
-		if(wasOnWall){
-			// TODO should this be looking at previous x and z as well?
-			if(obj.getPX() == obj.getX() || wall){
-				if(!touchedWall) obj.collide(new Collision3D(0, 0, 0, true, false, false, obj.getWallMaterial(), res.wallAngle()));
-			}
-			else obj.leaveWall();
-		}
-		
-		// TODO make this method return all collisions that need to happen so they are applied to the entity, and then make sure that entity repositions properly based on all collisions
-		return res;
+		return collisions;
 	}
 	
 	/**
@@ -673,6 +670,7 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 	
 	/**
 	 * Render the given function, using a tint the given clickable can be clicked by the clicker
+	 *
 	 * @param r The renderer used
 	 * @param render The function to render the object, true if something was rendered, false otherwise
 	 * @param clickable The thing which can be clicked on

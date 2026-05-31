@@ -12,7 +12,7 @@ import zgame.things.type.Materialable;
  * An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds
  * @param <V> The type of dimension this hitbox interacts with
  */
-public interface HitBox<V extends ZVector<V>> extends Materialable, Uuidable {
+public interface HitBox<V extends ZVector<V>> extends Materialable, Uuidable, Bounds<V> {
 	
 	/** @return The type of this hitbox, for determining how it will collide with other hitboxes */
 	HitboxType getHitboxType();
@@ -23,11 +23,14 @@ public interface HitBox<V extends ZVector<V>> extends Materialable, Uuidable {
 	 */
 	boolean intersects(HitBox<V> h);
 	
+	// TODO do any of these methods even make sense to have here?
+	
 	/**
 	 * Called when this {@link HitBox} is hit by a projectile. Does nothing by default, implement to provide custom behavior
 	 *
 	 * @param p The projectile which hit this {@link HitBox}
 	 */
+	// TODO why is this 2D always?
 	default void hitBy(Projectile2D p){}
 	
 	/**

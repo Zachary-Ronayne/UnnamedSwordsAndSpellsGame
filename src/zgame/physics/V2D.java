@@ -96,6 +96,16 @@ public final class V2D extends ZVector<V2D>{
 		return this.y;
 	}
 	
+	/** @return Same as {@link #x}, for clarity when this vector is a dimension */
+	public double getWidth(){
+		return this.x;
+	}
+	
+	/** @return Same as {@link #y}, for clarity when this vector is a dimension */
+	public double getHeight(){
+		return this.y;
+	}
+	
 	/** @return See {@link #angle} */
 	public double getAngle(){
 		return this.angle;

@@ -137,6 +137,21 @@ public final class V3D extends ZVector<V3D>{
 		return this.z;
 	}
 	
+	/** @return Same as {@link #x}, for clarity when this vector is a dimension */
+	public double getWidth(){
+		return this.x;
+	}
+	
+	/** @return Same as {@link #y}, for clarity when this vector is a dimension */
+	public double getHeight(){
+		return this.y;
+	}
+	
+	/** @return Same as {@link #z}, for clarity when this vector is a dimension */
+	public double getLength(){
+		return this.z;
+	}
+	
 	/** @return See {@link #yaw} */
 	public double getYaw(){
 		return this.yaw;

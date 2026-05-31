@@ -3,6 +3,7 @@ package zgame.things.entity;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.physics.V3D;
 import zgame.physics.collision.Collision;
+import zgame.physics.collision.Collision3D;
 import zgame.things.type.bounds.HitBox3D;
 
 /**
@@ -55,7 +56,7 @@ public abstract class EntityThing3D extends EntityThing<V3D> implements HitBox3D
 		
 		// TODO should entity thing need to know about the wall angle? Should this logic be part of the room when it schedules a collision?
 		// Determine the amount of velocity on each axis
-		double wallAngle = result.wallAngle();
+		double wallAngle = result.asCollision(Collision3D.class).wallAngle();
 		double currentAngle = currentVel.getYaw();
 		/*
 		I don't really understand how to explain in an intuitive way why this works for finding the bounce angle,
@@ -71,22 +72,6 @@ public abstract class EntityThing3D extends EntityThing<V3D> implements HitBox3D
 		this.getNext().attemptSetVelocity(new V3D(velX, currentVel.getY(), velZ, true));
 		// TODO potentially move this to the abstract parent method if 3D and 2D don't need a distinction
 //		this.getNext().scaleVelocity(-1 * result.material().getWallBounce() * this.getMaterial().getWallBounce());
-	}
-	
-	// TODO figure out if it even makes sense to have previous and next x y z, for now just returning same thing as current x y z
-	@Override
-	public double getPX(){
-		return this.getX();
-	}
-	
-	@Override
-	public double getPY(){
-		return this.getY();
-	}
-	
-	@Override
-	public double getPZ(){
-		return this.getZ();
 	}
 	
 	/** @return Current x coordinate of this thing */

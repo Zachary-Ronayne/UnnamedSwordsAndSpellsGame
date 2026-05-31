@@ -6,6 +6,7 @@ import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.state.vector.*;
+import zgame.things.type.bounds.HitBox;
 
 import java.util.*;
 
@@ -14,7 +15,7 @@ import java.util.*;
  *
  * @param <V> The type of vector that this state uses
  */
-public class EntityState<V extends ZVector<V>>{
+public abstract class EntityState<V extends ZVector<V>> implements HitBox<V>{
 	
 	/** The string used to identify the force of gravity in {@link #forces} */
 	public static final String FORCE_GRAVITY = "gravity";
@@ -211,17 +212,15 @@ public class EntityState<V extends ZVector<V>>{
 		if(this.collisionUpdates.isEmpty()) return;
 		
 		// Sort collisions, by shortest distance first
-		// TODO then sort shortest by vector implementation, i.e. smallest y, then x, then z
-		var sortedCollisions = collisionUpdates.stream().sorted(Comparator.comparingDouble((Collision<V> c) -> c.change().getMagnitude())).toList();
+		// TODO then sort shortest by vector implementation, i.e. smallest y, then x, then z, or may want to prioritize vertical vs horizontal collisions
+		var sortedCollisions = collisionUpdates.stream().sorted(Comparator.comparingDouble((Collision<V> c) -> c.initialChange().getMagnitude())).toList();
 		
 		// For the first collision, fully apply it
-		this.position = sortedCollisions.get(0).newPos();
+		this.position = sortedCollisions.get(0).newPos(this);
 		
-		// For the rest of the collisions, find the new collision based on the new position of this state, and collide based on that
+		// For the rest of the collisions, find where it would be collided based on this object's current position
 		for(int i = 1; i < sortedCollisions.size(); i++){
-			var oldCollision = sortedCollisions.get(i);
-			var newCollision = oldCollision.collide();
-			this.position = newCollision.newPos();
+			this.position = sortedCollisions.get(i).newPos(this);
 		}
 		
 		// All collisions are applied
@@ -538,5 +537,4 @@ public class EntityState<V extends ZVector<V>>{
 	public void collide(List<Collision<V>> c){
 		this.collisionUpdates.addAll(c);
 	}
-	
 }
