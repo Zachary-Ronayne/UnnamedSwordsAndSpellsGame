@@ -1,7 +1,6 @@
 package zgame.things.entity.state;
 
 import zgame.physics.V3D;
-import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision3D;
 import zgame.physics.material.Material;
 import zgame.things.entity.EntityThing3D;
@@ -90,31 +89,6 @@ public class EntityState3D extends EntityState<V3D> implements HitBox3D{
 	@Override
 	public String getUuid(){
 		return this.entity.getUuid();
-	}
-	
-	@Override
-	public void touchFloor(Collision<V3D> collision){
-		this.entity.touchFloor(collision);
-	}
-	
-	@Override
-	public void touchCeiling(Collision<V3D> collision){
-		this.entity.touchCeiling(collision);
-	}
-	
-	@Override
-	public void touchWall(Collision<V3D> collision){
-		this.entity.touchWall(collision);
-	}
-	
-	@Override
-	public boolean isOnCeiling(){
-		return this.entity.isOnCeiling();
-	}
-	
-	@Override
-	public boolean isOnWall(){
-		return this.entity.isOnWall();
 	}
 	
 	@Override

@@ -32,7 +32,7 @@ public sealed abstract class Collision<V extends ZVector<V>> permits Collision2D
 	/**
 	 * Create a new {@link Collision} with the given material
 	 *
-	 * @param hitBox The object which collided
+	 * @param hitBox The object which collided TODO consider if it makes sense to include this parameter
 	 * @param computeNewPosition See {@link #computeNewPosition}
 	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
 	 * @param wall See {@link #wall}
@@ -90,7 +90,7 @@ public sealed abstract class Collision<V extends ZVector<V>> permits Collision2D
 	public abstract boolean hit();
 	
 	/**
-	 * Helper method for converting this collision to the correct type, implement as returning this casted to the correct type
+	 * Helper method for converting this collision to the correct type, implement as returning this cast to the correct type
 	 * @param clazz The type of collision to convert to
 	 * @return This, but as the correct type
 	 * @param <C> The type to convert to

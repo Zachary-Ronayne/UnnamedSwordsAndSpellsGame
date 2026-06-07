@@ -4,6 +4,7 @@ import zgame.core.utils.ZStringUtils;
 import zgame.physics.V3D;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
+import zgame.things.type.Position;
 import zgame.things.type.bounds.HitBox;
 
 import java.util.function.Function;
@@ -17,10 +18,10 @@ public non-sealed class Collision3D extends Collision<V3D>{
 	// TODO update constructor docs
 	/**
 	 * A response representing no collision occurring
-	 * @param originalPos The existing position of the colliding hitbox
+	 * @param hitBox The hitbox the collision applies to
 	 */
-	public Collision3D(HitBox<V3D> hitBox, Function<HitBox<V3D>, V3D> computeNewPosition){
-		this(hitBox, computeNewPosition, null);
+	public Collision3D(HitBox<V3D> hitBox){
+		this(hitBox, Position::getPosition, Materials.NONE);
 	}
 	
 	/**

@@ -14,7 +14,11 @@ import zgame.things.still.tiles.twoDee.BaseTiles2D;
 import zgame.things.still.tiles.twoDee.Tile2D;
 import zgame.things.still.tiles.TileType2D;
 import zgame.things.type.bounds.Bounds2D;
+import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.HitBox2D;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /** A {@link Room} which is made of 2D tiles */
 public class Room2D extends Room<V2D, HitBox2D, EntityThing2D> implements Bounds2D{
@@ -103,117 +107,76 @@ public class Room2D extends Room<V2D, HitBox2D, EntityThing2D> implements Bounds
 	}
 	
 	@Override
-	public Collision<V2D> collideInside(EntityThing<V2D> obj){
+	public List<Collision<V2D>> collideInside(EntityThing<V2D> obj){
+		var minPos = obj.getMinPosition();
+		var maxPos = obj.getMinPosition();
+		
+		double minX = minPos.getX();
+		double maxX = maxPos.getX();
+		double minY = minPos.getY();
+		double maxY = maxPos.getY();
+		
 		// Find touching tiles and collide with them
-		int minX = this.tileX(obj.getX());
-		int minY = this.tileY(obj.getY());
-		int maxX = this.tileX(obj.maxX());
-		int maxY = this.tileY(obj.maxY());
+		int tMinX = this.tileX(minX);
+		int tMinY = this.tileY(minY);
+		int tMaxX = this.tileX(maxX);
+		int tMaxY = this.tileY(maxY);
 		
-		boolean wasOnGround = obj.isOnGround();
-		boolean wasOnCeiling = obj.isOnCeiling();
-		boolean wasOnWall = obj.isOnWall();
-		double mx = 0;
-		double my = 0;
-		boolean left = false;
-		boolean right = false;
-		boolean top = false;
-		boolean bot = false;
-		Material material = null;
+		ArrayList<Collision<V2D>> collisions = new ArrayList<>();
 		
-		for(int x = minX; x <= maxX; x++){
-			for(int y = minY; y <= maxY; y++){
-				Tile2D t = this.tiles[x][y];
-				var res = t.collide(obj);
-				// Keep track of if a tile was touched
-				boolean currentCollided = res.x() != 0 || res.y() != 0;
-				
-				mx += res.x();
-				my += res.y();
-				if(res.left()) left = true;
-				if(res.right()) right = true;
-				if(res.ceiling()) top = true;
-				if(res.floor()) bot = true;
-				obj.collide(res);
-				
-				// Record the material collided with, only if this tile was collided with
-				if(currentCollided){
-					// Set the material if there is none yet, or the floor
-					if(material == null || bot) material = res.material();
-				}
+		// Go through all tiles, and record all collisions
+		for(int x = tMinX; x <= tMaxX; x++){
+			for(int y = tMinY; y <= tMaxY; y++){
+				var t = this.tiles[x][y];
+				collisions.add(t.collide(obj));
 			}
 		}
-		// Determine the final collision
-		var res = new Collision2D(mx, my, left, right, top, bot, material);
 		
-		// TODO need to account for updating position, same as 3D
-		boolean touchedFloor = false;
-		boolean touchedCeiling = false;
-		boolean touchedWall = false;
+		// TODO make this not so clumsy, abstract similar to 3D
 		// Keep the object inside the game bounds, if the walls are enabled
+		var objHitbox = obj.asHitbox(HitBox2D.class);
 		if(this.isSolid(WALL_LEFT)){
-			double newX = obj.keepRight(this.getX());
-			double dist = Math.abs(obj.getX() - newX);
+			double newX = objHitbox.keepRight(this.getX());
+			double dist = Math.abs(objHitbox.getX() - newX);
 			if(dist != 0){
-				left = true;
-				// TODO maybe make touching a wall/ceiling/floor also adjust the position? For now just doing nothing, will need to reimplement this
-				obj.touchWall(new Collision2D(-dist, 0, true, false, false, false, this.getWallMaterial()));
-				touchedWall = true;
+				obj.touchWall(new Collision2D(obj, (HitBox<V2D> hitbox) -> {
+					var pos = hitbox.getPosition();
+					return new V2D(hitbox.asHitbox(HitBox2D.class).keepRight(this.getX()), pos.getY());
+				}, true, false, false, false, this.getWallMaterial()));
 			}
 		}
 		if(this.isSolid(WALL_RIGHT)){
-			double newX = obj.keepLeft(this.maxX());
-			double dist = Math.abs(obj.getX() - newX);
+			double newX = objHitbox.keepLeft(this.maxX());
+			double dist = Math.abs(objHitbox.getX() - newX);
 			if(dist != 0){
-				right = true;
-				obj.touchWall(new Collision2D(dist, 0, false, true, false, false, this.getWallMaterial()));
-				touchedWall = true;
+				obj.touchWall(new Collision2D(obj, (HitBox<V2D> hitbox) -> {
+					var pos = hitbox.getPosition();
+					return new V2D(hitbox.asHitbox(HitBox2D.class).keepLeft(this.maxX()), pos.getY());
+				}, false, true, false, false, this.getWallMaterial()));
 			}
 		}
 		if(this.isSolid(WALL_CEILING)){
-			double newY = obj.keepBelow(this.getY());
-			double dist = Math.abs(obj.getY() - newY);
+			double newY = objHitbox.keepBelow(this.getY());
+			double dist = Math.abs(objHitbox.getY() - newY);
 			if(dist != 0){
-				top = true;
-				obj.touchCeiling(new Collision2D(0, dist, false, false, true, false, this.getWallMaterial()));
-				touchedCeiling = true;
+				obj.touchCeiling(new Collision2D(obj, (HitBox<V2D> hitbox) -> {
+					var pos = hitbox.getPosition();
+					return new V2D(pos.getX(), hitbox.asHitbox(HitBox2D.class).keepBelow(this.getY()));
+				}, false, false, true, false, this.getWallMaterial()));
 			}
 		}
 		if(this.isSolid(WALL_FLOOR)){
-			double newY = obj.keepAbove(this.maxY());
-			double dist = Math.abs(obj.getY() - newY);
+			double newY = objHitbox.keepAbove(this.maxY());
+			double dist = Math.abs(objHitbox.getY() - newY);
 			if(dist != 0){
-				bot = true;
-				obj.touchFloor(new Collision2D(0, -dist, false, false, false, true, this.getWallMaterial()));
-				touchedFloor = true;
+				obj.touchFloor(new Collision2D(obj, (HitBox<V2D> hitbox) -> {
+					var pos = hitbox.getPosition();
+					return new V2D(pos.getX(), hitbox.asHitbox(HitBox2D.class).keepAbove(this.maxY()));
+				}, false, false, false, true, this.getWallMaterial()));
 			}
 		}
 		
-		// If the hitbox was on the ground, but no y axis movement happened, then the hitbox is still on the ground, so touch the floor
-		if(wasOnGround){
-			if(obj.getPY() == obj.getY() || bot){
-				if(!touchedFloor) obj.touchFloor(new Collision2D(0, 0, false, false, false, true, obj.getFloorMaterial()));
-			}
-			// Otherwise, leave the floor
-			else obj.leaveFloor();
-		}
-		
-		// Same thing, but for the walls and for the ceiling
-		if(wasOnCeiling){
-			if(obj.getPY() == obj.getY() || top){
-				if(!touchedCeiling) obj.touchCeiling(new Collision2D(0, 0, false, false, true, false, obj.getCeilingMaterial()));
-			}
-			else obj.leaveCeiling();
-		}
-		
-		if(wasOnWall){
-			if(obj.getPX() == obj.getX() || left || right){
-				if(!touchedWall) obj.touchWall(new Collision2D(0, 0, left, right, false, false, obj.getCeilingMaterial()));
-			}
-			else obj.leaveWall();
-		}
-		
-		return res;
+		return collisions;
 	}
 	
 	/**

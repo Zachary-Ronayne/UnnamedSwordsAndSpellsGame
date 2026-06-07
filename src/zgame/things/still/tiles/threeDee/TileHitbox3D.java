@@ -7,6 +7,7 @@ import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileHitbox;
 import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.HitBox;
+import zgame.things.type.bounds.HitBox3D;
 import zgame.world.Direction3D;
 
 /** An object that represents the hitbox of a tile, i.e., what parts of the tile have collision */
@@ -37,8 +38,7 @@ public interface TileHitbox3D extends TileHitbox<V3D>{
 	class None implements TileHitbox3D{
 		@Override
 		public Collision3D collide(Tile<V3D> t, HitBox<V3D> obj){
-			// TODO get object's current position
-			return new Collision3D();
+			return new Collision3D(obj);
 		}
 		
 		@Override
@@ -58,7 +58,15 @@ public interface TileHitbox3D extends TileHitbox<V3D>{
 	class Full implements TileHitbox3D{
 		@Override
 		public Collision3D collide(Tile<V3D> t, HitBox<V3D> obj){
-			return obj.calculateRectCollision(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength(), t.getMaterial(), t.getCollisionFaces());
+			var tPos = t.getPosition();
+			var tDims = t.getDimensions();
+			
+			return obj.asHitbox(HitBox3D.class)
+					.calculateRectCollision(
+							tPos.getX(), tPos.getY(), tPos.getZ(),
+							tDims.getWidth(), tDims.getHeight(), tDims.getLength(),
+							t.getMaterial(), t.asTile(Tile3D.class).getCollisionFaces()
+					);
 		}
 		
 		@Override

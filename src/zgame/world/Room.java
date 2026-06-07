@@ -23,7 +23,7 @@ import zgame.things.type.bounds.HitBox;
  */
 // TODO consider if a Room should have its own state object
 // issue#50 find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
-// TODO consider if HitBox and EntityThing really have to be their own type parameters here
+// TODO remove hitbox and entity as type parameters here
 public abstract class Room<V extends ZVector<V>, H extends HitBox<V>, E extends EntityThing<V>> extends GameThing<Object>{
 	
 	/** All of the things in this room */
@@ -41,6 +41,7 @@ public abstract class Room<V extends ZVector<V>, H extends HitBox<V>, E extends 
 	public Room(){
 		this.thingsMap = new ClassMappedList();
 		this.thingsMap.addClass(GameThing.class);
+		// TODO should hitboxes be added here by default? It should probably just be the entity level that is looked at for collisions
 		this.thingsMap.addClass(this.getHitBoxType());
 		this.thingsMap.addClass(GameTickable.class);
 		this.thingsMap.addClass(this.getEntityClass());
@@ -242,7 +243,6 @@ public abstract class Room<V extends ZVector<V>, H extends HitBox<V>, E extends 
 			t.tick(dt);
 		}
 		
-		// TODO should this just be entities, or also collisions?
 		// Check the collisions for entities
 		var entities = this.getEntities();
 		for(int i = 0; i < entities.size(); i++){
@@ -253,7 +253,8 @@ public abstract class Room<V extends ZVector<V>, H extends HitBox<V>, E extends 
 			// Check entity collision
 			e.getNext().collide(this.checkEntityCollisions(e, dt));
 			
-			// Check for room collisions
+			// TODO maybe make this two separate method calls
+			// Check for tile and boundary collisions
 			e.getNext().collide(this.collideInside(e));
 		}
 		

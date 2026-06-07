@@ -304,6 +304,7 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 		// x axis, i.e. east west
 		if(this.boundaryEnabled(WEST)){
 			double boundary = this.getBoundary(WEST);
+			// TODO need to have the individual hitbox implementation determine how it will remain inside the boundary, not just always the min and max coordinates
 			if(minX > boundary){
 				collisions.add(new Collision3D(obj,
 						// TODO make some kind of convenience method for this to avoid this mess, also probably make it that it's possible to get individual coordinates

@@ -4,7 +4,7 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.V2D;
 import zgame.physics.collision.Collision;
-import zgame.things.entity.state.EntityState;
+import zgame.things.entity.state.vector.EntityState2D;
 import zgame.things.type.bounds.HitBox2D;
 
 /**
@@ -41,6 +41,11 @@ public abstract class EntityThing2D extends EntityThing<V2D> implements HitBox2D
 	public EntityThing2D(double x, double y, double mass){
 		super(mass);
 		this.getCurrent().initPosition(new V2D(x, y));
+	}
+	
+	@Override
+	protected EntityState2D initEntityState(V2D zeroVector, double gravityAcceleration, double clampVelocity){
+		return new EntityState2D(this, zeroVector, gravityAcceleration, clampVelocity);
 	}
 	
 	/** @return Current x coordinate of this thing */

@@ -151,4 +151,10 @@ public interface HitBox2D extends HitBox<V2D>, Bounds2D{
 		return Math.max(this.getY(), y);
 	}
 	
+	// TODO probably do this in a better way to avoid casting
+	@SuppressWarnings("unchecked")
+	@Override
+	default <H extends HitBox<V2D>> H asHitbox(Class<H> clazz){
+		return (H)this;
+	}
 }

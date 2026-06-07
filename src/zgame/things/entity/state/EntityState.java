@@ -15,6 +15,7 @@ import java.util.*;
  *
  * @param <V> The type of vector that this state uses
  */
+// TODO Decide if entity state really should implement hitbox or not
 public abstract class EntityState<V extends ZVector<V>> implements HitBox<V>{
 	
 	/** The string used to identify the force of gravity in {@link #forces} */

@@ -10,6 +10,7 @@ import zgame.things.type.bounds.HitBox;
 
 import java.util.function.Consumer;
 
+// TODO probably implement Projectile as an extension of entity states?
 /**
  * An interface for abstracting common functionality for projectile entities
  *

@@ -7,6 +7,8 @@ import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
+import zgame.physics.material.Materials;
+import zgame.things.entity.projectile.Projectile;
 import zgame.things.entity.state.EntityState;
 import zgame.things.type.GameThing;
 import zgame.things.type.bounds.HitBox;
@@ -48,10 +50,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 	}
 	
 	// TODO maybe make a better way of doing this than making each child class have to pass along all of these fields, for now making initState final so that these values are passed to mobility entity
-	protected EntityState<V> initEntityState(V zeroVector, double gravityAcceleration, double clampVelocity){
-		// TODO implement per 2D and 3D entities
-		return new EntityState<>(zeroVector, gravityAcceleration, clampVelocity);
-	}
+	protected abstract EntityState<V> initEntityState(V zeroVector, double gravityAcceleration, double clampVelocity);
 	
 	@Override
 	public EntityState<V> copyState(EntityState<V> current, EntityState<V> next){
@@ -290,23 +289,22 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 		this.getCurrent().setMass(mass);
 	}
 	
-	@Override
+	/** @return The material of the ground that this thing is on, or {@link Materials#NONE} if not on ground */
 	public Material getFloorMaterial(){
 		return this.getCurrent().getFloorMaterial();
 	}
 	
-	@Override
+	/** @return The material of the ceiling that this thing is on, or {@link Materials#NONE} if not on ground */
 	public Material getCeilingMaterial(){
 		return this.getCurrent().getCeilingMaterial();
 	}
 	
-	@Override
+	/** @return The material of the wall that this thing is on, or {@link Materials#NONE} if not on ground */
 	public Material getWallMaterial(){
 		return this.getCurrent().getWallMaterial();
 	}
 	
 	/** @return true if this {@link EntityThing} was on the ground in the past {@link #tick(double)}, false otherwise */
-	@Override
 	public boolean isOnGround(){
 		return this.getCurrent().isOnGround();
 	}
@@ -332,23 +330,33 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 	}
 	
 	/** @return true if this {@link EntityThing} was on a ceiling in the past {@link #tick(double)}, false otherwise */
-	@Override
 	public boolean isOnCeiling(){
 		return this.getCeilingTime() == -1;
 	}
 	
 	/** @return true if this {@link EntityThing} was touching a wall in the past {@link #tick(double)}, false otherwise */
-	@Override
 	public boolean isOnWall(){
 		return this.getWallTime() == -1;
 	}
 	
-	@Override
+	// TODO abstract this into a better system than having projectiles be part of entity handling
+	/**
+	 * Called when this is hit by a projectile. Does nothing by default, implement to provide custom behavior
+	 *
+	 * @param p The projectile which hit this
+	 */
+	private void hitBy(Projectile<V> p){}
+	
+	/** A method that defines what this object does when it leaves the floor, i.e. it goes from touching the floor to not touching the floor */
 	public void leaveFloor(){
 		this.getNext().leaveFloor();
 	}
 	
-	@Override
+	/**
+	 * A method that defines what this object does when it touches a floor
+	 *
+	 * @param collision The collision resulting in the floor being touched
+	 */
 	public void touchFloor(Collision<V> collision){
 		var touched = collision.material();
 		this.getNext().touchFloor(touched);
@@ -357,12 +365,16 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 		this.getNext().scaleVelocityVertical(-1 * touched.getFloorBounce() * this.getMaterial().getFloorBounce());
 	}
 	
-	@Override
+	/** A method that defines what this object does when it leaves a ceiling, i.e. it goes from touching a wall to not touching a ceiling */
 	public void leaveCeiling(){
 		this.getNext().leaveCeiling();
 	}
 	
-	@Override
+	/**
+	 * A method that defines what this object does when it touches a ceiling
+	 *
+	 * @param collision The collision resulting in the ceiling being touched
+	 */
 	public void touchCeiling(Collision<V> collision){
 		var touched = collision.material();
 		this.getNext().touchCeiling(touched);
@@ -371,7 +383,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 		this.getNext().scaleVelocityVertical(-1 * touched.getCeilingBounce() * this.getMaterial().getCeilingBounce());
 	}
 	
-	@Override
+	/** A method that defines what this object does when it leaves a wall, i.e. it goes from touching a wall to not touching a wall */
 	public void leaveWall(){
 		this.getNext().leaveWall();
 		
@@ -379,7 +391,11 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 		this.getNext().clearForce(EntityState.FORCE_WALL_SLIDE);
 	}
 	
-	@Override
+	/**
+	 * A method that defines what this object does when it touches a wall
+	 *
+	 * @param collision The collision resulting in the wall being touched
+	 */
 	public void touchWall(Collision<V> collision){
 		var touched = collision.material();
 		this.getNext().touchWall(touched);
@@ -387,12 +403,12 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 	}
 	
 	// TODO how should this be called when collision results are applied?
-	@Override
-	public void collide(Collision<V> r){
-		if(r.wall()) this.touchWall(r);
-		if(r.ceiling()) this.touchCeiling(r);
-		if(r.floor()) this.touchFloor(r);
-	}
+//	@Override
+//	public void collide(Collision<V> r){
+//		if(r.wall()) this.touchWall(r);
+//		if(r.ceiling()) this.touchCeiling(r);
+//		if(r.floor()) this.touchFloor(r);
+//	}
 	
 	/** @return The current position of this entity */
 	public V getPosition(){

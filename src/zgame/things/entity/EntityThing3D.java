@@ -4,6 +4,7 @@ import zgame.core.graphics.camera.GameCamera3D;
 import zgame.physics.V3D;
 import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision3D;
+import zgame.things.entity.state.EntityState3D;
 import zgame.things.type.bounds.HitBox3D;
 
 /**
@@ -34,6 +35,11 @@ public abstract class EntityThing3D extends EntityThing<V3D> implements HitBox3D
 	}
 	
 	@Override
+	protected EntityState3D initEntityState(V3D zeroVector, double gravityAcceleration, double clampVelocity){
+		return new EntityState3D(this, zeroVector, gravityAcceleration, clampVelocity);
+	}
+	
+	@Override
 	public double getHorizontalVel(){
 		return this.getVelocity().getHorizontal();
 	}
@@ -43,10 +49,11 @@ public abstract class EntityThing3D extends EntityThing<V3D> implements HitBox3D
 		return this.getVelocity().getY();
 	}
 	
-	@Override
-	public void collide(Collision<V3D> r){
-		super.collide(r);
-	}
+	// TODO implement?
+//	@Override
+//	public void collide(Collision<V3D> r){
+//		super.collide(r);
+//	}
 	
 	@Override
 	public void touchWall(Collision<V3D> result){

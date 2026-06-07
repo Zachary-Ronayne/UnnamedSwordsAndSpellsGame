@@ -89,4 +89,11 @@ public interface HitBox3D extends HitBox<V3D>, Bounds3D{
 	 */
 	Collision3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m, boolean[] collisionFaces);
 	
+	// TODO probably do this in a better way to avoid casting
+	@SuppressWarnings("unchecked")
+	@Override
+	default <H extends HitBox<V3D>> H asHitbox(Class<H> clazz){
+		return (H)this;
+	}
+	
 }

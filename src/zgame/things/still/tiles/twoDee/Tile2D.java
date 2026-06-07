@@ -158,4 +158,10 @@ public class Tile2D extends GameThing<Object> implements Tile<V2D>, Bounds2D, Ma
 	public double maxY(){
 		return this.getY() + this.getHeight();
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends Tile<V2D>> T asTile(Class<T> clazz){
+		return (T)this;
+	}
 }
