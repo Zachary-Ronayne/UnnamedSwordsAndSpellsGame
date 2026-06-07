@@ -3,17 +3,15 @@ package zgame.things.still;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.V2D;
-import zgame.physics.collision.Collision2D;
-import zgame.things.entity.EntityThing2D;
+import zgame.things.entity.EntityThing;
 import zgame.things.type.GameThing;
-import zgame.things.type.bounds.HitBox2D;
 import zgame.world.Room;
 import zgame.world.Room2D;
 
 /**
  * An object that allows other {@link GameThing}s to enter another {@link Room}
  */
-public class Door2D extends StaticThing2D implements Door<Room2D, HitBox2D, EntityThing2D, V2D, Collision2D>{
+public class Door2D extends StaticThing2D implements Door<V2D>{
 	
 	/** The default value of {@link #width} */
 	public static final double WIDTH = 70;
@@ -104,7 +102,8 @@ public class Door2D extends StaticThing2D implements Door<Room2D, HitBox2D, Enti
 	}
 	
 	@Override
-	public void onEntityEnter(EntityThing2D thing){
+	public void onEntityEnter(EntityThing<V2D> thing){
+		// TODO schedule position update/teleport, or make updating the position a part of the logic for entering a room
 		thing.setPos(this.roomX, this.roomY);
 	}
 	

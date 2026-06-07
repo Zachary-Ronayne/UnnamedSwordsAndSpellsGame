@@ -4,11 +4,14 @@ import zgame.core.graphics.*;
 import zgame.core.sound.ManagedSoundSource;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZRect3D;
+import zgame.physics.V3D;
+import zgame.things.entity.EntityThing;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.still.Door;
 import zgame.things.still.Door3D;
 import zgame.things.type.bounds.ModifiableRectDims3D;
 import zgame.world.Direction3D;
+import zgame.world.Room;
 import zgame.world.Room3D;
 import zusass.ZusassGame;
 import zusass.game.ZusassRoom;
@@ -68,7 +71,7 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 	}
 	
 	@Override
-	public boolean enterRoom(Room3D r, EntityThing3D thing){
+	public boolean enterRoom(Room<V3D> r, EntityThing<V3D> thing){
 		var success = super.enterRoom(r, thing);
 		
 		if(success){
@@ -80,7 +83,7 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 		return success;
 	}
 	
-	/** Convenience method that calls {@link #enterRoom(Room3D, EntityThing3D)} without a need to type cast */
+	/** Convenience method that calls {@link #enterRoom(Room, EntityThing)} without a need to type cast */
 	public boolean enterRoom(ZusassRoom r, EntityThing3D thing){
 		return this.enterRoom((Room3D)r, thing);
 	}

@@ -137,15 +137,6 @@ public interface Mobility3D extends Mobility<V3D>{
 		return 0;
 	}
 	
-	/** @param x The amount to move on the x axis */
-	void addX(double x);
-	
-	/** @param y The amount to move on the y axis */
-	void addY(double y);
-	
-	/** @param z The amount to move on the z axis */
-	void addZ(double z);
-	
 	@Override
 	default boolean isTryingToMove(){
 		return this.getMobilityState().isTryingToMove();

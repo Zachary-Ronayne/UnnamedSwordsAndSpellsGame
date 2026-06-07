@@ -8,6 +8,8 @@ import zgame.core.graphics.font.FontManager;
 import zgame.core.graphics.font.TextBuffer;
 import zgame.core.utils.ZArrayUtils;
 import zgame.core.utils.ZMath;
+import zgame.physics.V3D;
+import zgame.things.entity.EntityThing;
 import zgame.things.entity.EntityThing3D;
 import zgame.things.still.Door;
 import zgame.world.Direction3D;
@@ -103,7 +105,7 @@ public class LevelDoor extends ZusassDoor{
 	}
 	
 	@Override
-	public boolean canEnter(EntityThing3D thing){
+	public boolean canEnter(EntityThing<V3D> thing){
 		return thing.canEnterRooms() && thing.hasTag(ZusassTags.CAN_ENTER_LEVEL_DOOR);
 	}
 	

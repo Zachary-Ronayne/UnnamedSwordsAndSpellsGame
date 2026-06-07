@@ -10,13 +10,11 @@ import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.ThingClickDetector3D;
 import zgame.things.entity.EntityThing;
-import zgame.things.entity.EntityThing3D;
 import zgame.things.still.tiles.threeDee.BaseTiles3D;
 import zgame.things.still.tiles.threeDee.Tile3D;
 import zgame.things.still.tiles.TileType3D;
 import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.HitBox;
-import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.RectPrismBounds;
 
 import static zgame.world.Direction3D.*;
@@ -552,16 +550,19 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 		return -1;
 	}
 	
+	// TODO probably do this in a better way to avoid casting
 	@Override
-	public Class<HitBox3D> getHitBoxType(){
-		return HitBox3D.class;
+	@SuppressWarnings("unchecked")
+	public Class<HitBox<V3D>> getHitBoxType(){
+		return (Class<HitBox<V3D>>) (Class<?>) HitBox.class;
 	}
 	
+	// TODO probably do this in a better way to avoid casting
 	@Override
-	public Class<EntityThing3D> getEntityClass(){
-		return EntityThing3D.class;
+	@SuppressWarnings("unchecked")
+	public Class<EntityThing<V3D>> getEntityClass(){
+		return (Class<EntityThing<V3D>>) (Class<?>) EntityThing.class;
 	}
-	
 	/**
 	 * Get the tile at the specified index
 	 *

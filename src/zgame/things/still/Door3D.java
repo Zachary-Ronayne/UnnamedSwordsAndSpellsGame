@@ -4,10 +4,8 @@ import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.physics.V3D;
-import zgame.physics.collision.Collision3D;
-import zgame.things.entity.EntityThing3D;
+import zgame.things.entity.EntityThing;
 import zgame.things.type.GameThing;
-import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.RectPrismClickable;
 import zgame.world.Room;
 import zgame.world.Room3D;
@@ -15,7 +13,7 @@ import zgame.world.Room3D;
 /**
  * An object that allows other {@link GameThing}s to enter another {@link Room}
  */
-public class Door3D extends StaticThing3D implements Door<Room3D, HitBox3D, EntityThing3D, V3D, Collision3D>, RectPrismClickable{
+public class Door3D extends StaticThing3D implements Door<V3D>, RectPrismClickable{
 	
 	/** The {@link Room} which this door leads to. Can be null to make this a real fake door */
 	private Room3D leadRoom;
@@ -93,7 +91,8 @@ public class Door3D extends StaticThing3D implements Door<Room3D, HitBox3D, Enti
 	}
 	
 	@Override
-	public void onEntityEnter(EntityThing3D thing){
+	public void onEntityEnter(EntityThing<V3D> thing){
+		// TODO schedule position update/teleport, or make updating the position a part of the logic for entering a room
 		thing.setPos(this.roomX, this.roomY, this.roomZ);
 	}
 	

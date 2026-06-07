@@ -17,14 +17,11 @@ import zgame.things.type.bounds.HitBox;
 /**
  * An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc.
  *
- * @param <H> The hitbox implementation used by entities in the room
- * @param <E> The type of entities in this room
  * @param <V> The vectors used by entities in this room
  */
 // TODO consider if a Room should have its own state object
 // issue#50 find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
-// TODO remove hitbox and entity as type parameters here
-public abstract class Room<V extends ZVector<V>, H extends HitBox<V>, E extends EntityThing<V>> extends GameThing<Object>{
+public abstract class Room<V extends ZVector<V>> extends GameThing<Object>{
 	
 	/** All of the things in this room */
 	private final ClassMappedList thingsMap;
@@ -74,7 +71,7 @@ public abstract class Room<V extends ZVector<V>, H extends HitBox<V>, E extends 
 	}
 	
 	/** @return A list of all the entities in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
-	public NotNullList<E> getEntities(){
+	public NotNullList<EntityThing<V>> getEntities(){
 		return this.thingsMap.get(this.getEntityClass());
 	}
 	
@@ -82,7 +79,7 @@ public abstract class Room<V extends ZVector<V>, H extends HitBox<V>, E extends 
 	 * @param uuid The uuid of the entity to get
 	 * @return The entity, or null if no entity with that uuid exists in this room
 	 */
-	public E getEntity(String uuid){
+	public EntityThing<V> getEntity(String uuid){
 		return this.thingsMap.getMap(this.getEntityClass()).get(uuid);
 	}
 	
@@ -92,15 +89,15 @@ public abstract class Room<V extends ZVector<V>, H extends HitBox<V>, E extends 
 	}
 	
 	/** @return All the hitbox things in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
-	public NotNullList<H> getHitBoxThings(){
+	public NotNullList<HitBox<V>> getHitBoxThings(){
 		return this.thingsMap.get(this.getHitBoxType());
 	}
 	
 	/** @return The type of hitboxes used in this room should just return the class of H */
-	public abstract Class<H> getHitBoxType();
+	public abstract Class<HitBox<V>> getHitBoxType();
 	
 	/** @return The type of entities used by this class */
-	public abstract Class<E> getEntityClass();
+	public abstract Class<EntityThing<V>> getEntityClass();
 	
 	// TODO consider if initial coordinates should be set when adding a thing to a room or not
 	/**

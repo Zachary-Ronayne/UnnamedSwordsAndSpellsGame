@@ -9,7 +9,6 @@ import zgame.physics.collision.Collision2D;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.entity.EntityThing;
-import zgame.things.entity.EntityThing2D;
 import zgame.things.still.tiles.twoDee.BaseTiles2D;
 import zgame.things.still.tiles.twoDee.Tile2D;
 import zgame.things.still.tiles.TileType2D;
@@ -21,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** A {@link Room} which is made of 2D tiles */
-public class Room2D extends Room<V2D, HitBox2D, EntityThing2D> implements Bounds2D{
+public class Room2D extends Room<V2D> implements Bounds2D{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -458,13 +457,18 @@ public class Room2D extends Room<V2D, HitBox2D, EntityThing2D> implements Bounds
 		this.wallMaterial = wallMaterial;
 	}
 	
+	// TODO probably do this in a better way to avoid casting
 	@Override
-	public Class<HitBox2D> getHitBoxType(){
-		return HitBox2D.class;
+	@SuppressWarnings("unchecked")
+	public Class<HitBox<V2D>> getHitBoxType(){
+		return (Class<HitBox<V2D>>) (Class<?>) HitBox.class;
 	}
 	
+	// TODO probably do this in a better way to avoid casting
 	@Override
-	public Class<EntityThing2D> getEntityClass(){
-		return EntityThing2D.class;
+	@SuppressWarnings("unchecked")
+	public Class<EntityThing<V2D>> getEntityClass(){
+		return (Class<EntityThing<V2D>>) (Class<?>) EntityThing.class;
 	}
+	
 }

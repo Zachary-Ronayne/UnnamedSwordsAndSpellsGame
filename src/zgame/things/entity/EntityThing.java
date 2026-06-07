@@ -487,7 +487,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 	 * @param to The room to move the thing to, i.e. the thing is now in this room. Can be null if the thing isn't going to a room
 	 */
 	// TODO does this need to know the types?
-	public void enterRoom(Room<V, ?, ?> from, Room<V, ?, ?> to){
+	public void enterRoom(Room<V> from, Room<V> to){
 		if(from != null) from.removeThing(this);
 		if(to != null) to.addThing(this);
 	}

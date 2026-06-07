@@ -21,7 +21,7 @@ import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.modifier.TypedModifier;
 import zgame.things.entity.mobility.MobilityEntity3D;
-import zgame.world.Room3D;
+import zgame.world.Room;
 import zusass.ZusassDebugFlags;
 import zusass.ZusassGame;
 import zusass.game.magic.MultiSpell;
@@ -391,7 +391,7 @@ public class ZusassPlayer extends ZusassMob{
 	}
 	
 	@Override
-	public void enterRoom(Room3D from, Room3D to){
+	public void enterRoom(Room<V3D> from, Room<V3D> to){
 		super.enterRoom(from, to);
 		if(to != null){
 			// If this is setting the room to a new room, remove the player from that room, and set the new room
