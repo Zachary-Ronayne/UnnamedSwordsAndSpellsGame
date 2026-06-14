@@ -2,6 +2,7 @@ package zgame.things.type.bounds;
 
 import zgame.core.utils.ZRect3D;
 
+// TODO probably remove this as far as being "movable" or move the movable part to the state
 /** An object with methods that allow for setting the dimensions of an object, as well as obtaining the current sedimentation */
 public interface ModifiableRectDims3D{
 	

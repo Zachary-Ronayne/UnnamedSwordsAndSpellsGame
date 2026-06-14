@@ -3,6 +3,7 @@ package zgame.things.entity;
 import java.util.*;
 
 import zgame.core.GameTickable;
+import zgame.core.annotations.PackagePrivate;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
@@ -27,7 +28,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 	
 	/** The uuid of this entity */
 	private final String uuid;
-
+	
 	/**
 	 * Create a new empty entity with the given mass
 	 *
@@ -266,6 +267,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 	}
 	
 	// TODO should this be in EntityThing? Probably should be defined as a global?
+	
 	/** @return The acceleration of gravity */
 	public abstract double getGravityAcceleration();
 	
@@ -340,6 +342,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 	}
 	
 	// TODO abstract this into a better system than having projectiles be part of entity handling
+	
 	/**
 	 * Called when this is hit by a projectile. Does nothing by default, implement to provide custom behavior
 	 *
@@ -439,6 +442,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 	}
 	
 	// TODO handle this using an update system
+	
 	/**
 	 * Set the velocity of this thing to zero on all axes and set the current applied for forces to 0
 	 */
@@ -480,14 +484,20 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 		return this.uuid;
 	}
 	
+	/*
+	 TODO for this kind of thing, make these methods final in 2D and 3D implementations,
+	  	and make other methods that accept and return the proper types without parameters
+	  	also if possible, hide the type parameter methods to only the direct implementations in 2D and 3D, i.e. actual game logic outside the engine cannot see the type parameters
+	 */
+	
 	/**
-	 * Take this {@link EntityThing} from the given room, and place it in the other given room
+	 * Take this {@link EntityThing} from the given room, and place it in the other given room.
 	 *
 	 * @param from The room to move the thing from, i.e. the thing was in this room. Can be null if the thing didn't come from a room
 	 * @param to The room to move the thing to, i.e. the thing is now in this room. Can be null if the thing isn't going to a room
 	 */
-	// TODO does this need to know the types?
-	public void enterRoom(Room<V> from, Room<V> to){
+	@PackagePrivate
+	void enterRoom(Room<V> from, Room<V> to){
 		if(from != null) from.removeThing(this);
 		if(to != null) to.addThing(this);
 	}

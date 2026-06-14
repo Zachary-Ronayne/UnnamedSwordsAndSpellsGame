@@ -1,9 +1,10 @@
 package zgame.things.still;
 
+import zgame.physics.V3D;
 import zgame.things.type.bounds.Bounds3D;
 
 /** A 3D thing which does not move as an entity would, and generally doesn't move, but can be at an arbitrary position */
-public abstract class StaticThing3D extends StaticThing implements Bounds3D{
+public abstract class StaticThingState3D extends StaticThingState<V3D> implements Bounds3D{
 	
 	/** The bottom middle x coordinate of this thing */
 	private double x;
@@ -27,7 +28,7 @@ public abstract class StaticThing3D extends StaticThing implements Bounds3D{
 	 * @param h See {@link #height}
 	 * @param l See {@link #length}
 	 */
-	public StaticThing3D(double x, double y, double z, double w, double h, double l){
+	public StaticThingState3D(double x, double y, double z, double w, double h, double l){
 		super();
 		this.setX(x);
 		this.setY(y);
@@ -41,10 +42,6 @@ public abstract class StaticThing3D extends StaticThing implements Bounds3D{
 	@Override
 	public double getX(){
 		return this.x;
-	}
-	
-	public double getPX(){
-		return this.getX();
 	}
 	
 	/** @param x See {@link #x} */

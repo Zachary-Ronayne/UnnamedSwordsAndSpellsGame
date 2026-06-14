@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import zgame.core.GameTickable;
+import zgame.core.annotations.PackagePrivate;
 import zgame.core.graphics.Renderer;
 import zgame.core.utils.ClassMappedList;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
 import zgame.things.entity.EntityThing;
-import zgame.things.still.Door;
+import zgame.things.entity.state.GameThingState;
+import zgame.things.still.door.DoorState;
 import zgame.things.type.GameThing;
 import zgame.things.type.bounds.HitBox;
 
@@ -21,7 +23,7 @@ import zgame.things.type.bounds.HitBox;
  */
 // TODO consider if a Room should have its own state object
 // issue#50 find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
-public abstract class Room<V extends ZVector<V>> extends GameThing<Object>{
+public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingState>{
 	
 	/** All of the things in this room */
 	private final ClassMappedList thingsMap;
@@ -71,7 +73,8 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<Object>{
 	}
 	
 	/** @return A list of all the entities in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
-	public NotNullList<EntityThing<V>> getEntities(){
+	@PackagePrivate
+	NotNullList<EntityThing<V>> getEntities(){
 		return this.thingsMap.get(this.getEntityClass());
 	}
 	
@@ -271,6 +274,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<Object>{
 		}
 	}
 	
+	// TODO add type parameter for GameThing<?>
 	/**
 	 * Called each time a thing is removed via {@link #tick(double)}, i.e. the thing was added to {@link #thingsToRemove}, and now it's being removed
 	 *
@@ -293,7 +297,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<Object>{
 	}
 	
 	/**
-	 * Determine if the given {@link GameThing} is allowed to enter this {@link Room} using a {@link Door}
+	 * Determine if the given {@link GameThing} is allowed to enter this {@link Room} using a {@link DoorState}
 	 *
 	 * @param thing The thing to check for
 	 * @return true if it can enter, false otherwise. Always true by default, override to provide custom behavior
@@ -303,7 +307,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<Object>{
 	}
 	
 	/**
-	 * Determine if the given {@link GameThing} is allowed to leave this {@link Room} using a {@link Door}
+	 * Determine if the given {@link GameThing} is allowed to leave this {@link Room} using a {@link DoorState}
 	 *
 	 * @param thing The thing to check for
 	 * @return true if it can leave, false otherwise. Always true by default, override to provide custom behavior

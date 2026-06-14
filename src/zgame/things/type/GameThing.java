@@ -5,6 +5,7 @@ import zgame.core.file.Saveable;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
 import zgame.things.Tag;
+import zgame.things.entity.state.GameThingState;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -14,7 +15,7 @@ import java.util.HashSet;
  * @param <State> The type of object holding state for this thing
  */
 // TODO make sure all GameThing references use a type parameter
-public abstract class GameThing<State> implements Comparable<GameThing<State>>, Saveable, Destroyable{
+public abstract class GameThing<State extends GameThingState> implements Comparable<GameThing<State>>, Saveable, Destroyable{
 	
 	/** Any arbitrary fields associated with this {@link GameThing} */
 	private final HashSet<Tag> tags;

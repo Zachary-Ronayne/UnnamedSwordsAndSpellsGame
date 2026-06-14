@@ -12,45 +12,34 @@ public interface Bounds2D extends Position2D, Bounds<V2D>{
 		return this.getPosition();
 	}
 	
-	@Override
-	default V2D getMaxPosition(){
-		return new V2D(this.maxX(), this.maxY());
-	}
-	
-	@Override
-	default V2D getCenterPosition(){
-		return new V2D(this.centerX(), this.centerY());
-	}
-	
-	@Override
-	default V2D getDimensions(){
-		return new V2D(this.getWidth(), this.getHeight());
-	}
-	
 	/** @return The maximum x coordinate of this bounds */
-	double maxX();
+	default double maxX(){
+		return this.getMaxPosition().getX();
+	}
 	
 	/** @return The maximum y coordinate of this bounds */
-	double maxY();
+	default double maxY(){
+		return this.getMaxPosition().getY();
+	}
 	
 	/** @return The width this bounds takes up */
 	default double getWidth(){
-		return this.maxX() - this.getX();
+		return this.getDimensions().getWidth();
 	}
 	
 	/** @return The height this bounds takes up */
 	default double getHeight(){
-		return this.maxX() - this.getX();
+		return this.getDimensions().getHeight();
 	}
 	
 	/** @return The center x coordinate of this bounds */
 	default double centerX(){
-		return this.getX() + getWidth() * 0.5;
+		return this.getX() + this.getWidth() * 0.5;
 	}
 	
 	/** @return The center y coordinate of this bounds */
 	default double centerY(){
-		return this.getY() + getHeight() * 0.5;
+		return this.getY() + this.getHeight() * 0.5;
 	}
 	
 	/** @return A rectangle representing the full bounds which this {@link Bounds2D} takes up */

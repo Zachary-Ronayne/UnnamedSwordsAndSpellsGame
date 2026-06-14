@@ -10,16 +10,6 @@ import zgame.things.entity.projectile.Projectile2D;
  */
 public interface HitBox2D extends HitBox<V2D>, Bounds2D{
 	
-	@Override
-	default double maxX(){
-		return this.getX() + this.getWidth();
-	}
-	
-	@Override
-	default double maxY(){
-		return this.getY() + this.getHeight();
-	}
-	
 	/**
 	 * Determine a {@link Collision2D} from colliding this object with the given rectangular bounds. Essentially, move this object so that it no longer intersecting with
 	 * the given bounds. This method should not change the state of this object, it should only return an object representing how the collision should happen.

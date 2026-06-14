@@ -5,7 +5,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.sound.ManagedSoundSource;
 import zgame.core.state.MenuNode;
 import zgame.core.utils.ZRect3D;
-import zgame.things.still.StaticThing3D;
+import zgame.things.still.StaticThingState3D;
 import zgame.things.type.GameThing;
 import zgame.things.type.bounds.ModifiableRectDims3D;
 import zgame.things.type.bounds.RectPrismClickable;
@@ -20,7 +20,7 @@ import zusass.utils.ZusassTextureMappings;
 import java.util.UUID;
 
 /** A {@link GameThing} used as a station for the player to click on to open the spell making interface */
-public class SpellMakerThing extends StaticThing3D implements ZThingClickDetector, GameTickable, RectPrismClickable, ModifiableRectDims3D{
+public class SpellMakerThing extends StaticThingState3D implements ZThingClickDetector, GameTickable, RectPrismClickable, ModifiableRectDims3D{
 	
 	/** The uuid of this thing */
 	private final String uuid;

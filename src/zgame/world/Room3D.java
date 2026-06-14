@@ -2,6 +2,7 @@ package zgame.world;
 
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
+import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZMath;
 import zgame.physics.V3D;
 import zgame.physics.collision.Collision;
@@ -10,6 +11,7 @@ import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.ThingClickDetector3D;
 import zgame.things.entity.EntityThing;
+import zgame.things.entity.EntityThing3D;
 import zgame.things.still.tiles.threeDee.BaseTiles3D;
 import zgame.things.still.tiles.threeDee.Tile3D;
 import zgame.things.still.tiles.TileType3D;
@@ -563,6 +565,12 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 	public Class<EntityThing<V3D>> getEntityClass(){
 		return (Class<EntityThing<V3D>>) (Class<?>) EntityThing.class;
 	}
+	
+	// TODO figure out the correct way to do this
+	public NotNullList<EntityThing3D> getEntities(){
+		return super.getEntities();
+	}
+	
 	/**
 	 * Get the tile at the specified index
 	 *

@@ -11,14 +11,14 @@ import zgame.core.utils.ZMath;
 import zgame.physics.V3D;
 import zgame.things.entity.EntityThing;
 import zgame.things.entity.EntityThing3D;
-import zgame.things.still.Door;
+import zgame.things.still.door.DoorState;
 import zgame.world.Direction3D;
+import zgame.world.Room3D;
 import zusass.ZusassData;
 import zusass.ZusassGame;
 import zusass.game.LevelRoom;
-import zusass.game.ZusassRoom;
 
-/** A {@link Door} used by the infinitely generating levels */
+/** A {@link DoorState} used by the infinitely generating levels */
 public class LevelDoor extends ZusassDoor{
 	
 	/** The level of the room that this door will lead to */
@@ -88,10 +88,10 @@ public class LevelDoor extends ZusassDoor{
 	}
 	
 	@Override
-	public boolean enterRoom(ZusassRoom r, EntityThing3D thing){
+	public boolean enterRoom(Room3D r, EntityThing3D thing){
 		// Generate the new room, then enter it
 		var levelRoom = new LevelRoom(this.getLevel());
-		this.setLeadRoom(levelRoom, 2, 1, 2);
+		this.setLeadRoom(levelRoom, new V3D(2, 1, 2));
 		levelRoom.initRandom();
 		boolean success = super.enterRoom(r, thing);
 		

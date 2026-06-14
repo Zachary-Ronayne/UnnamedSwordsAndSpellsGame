@@ -6,6 +6,8 @@ import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision3D;
 import zgame.things.entity.state.EntityState3D;
 import zgame.things.type.bounds.HitBox3D;
+import zgame.world.Room;
+import zgame.world.Room3D;
 
 /**
  * An {@link EntityThing} in 3D
@@ -140,6 +142,11 @@ public abstract class EntityThing3D extends EntityThing<V3D> implements HitBox3D
 	@Override
 	public double getClampVelocity(){
 		return 1E-12;
+	}
+	
+	/** See {@link #enterRoom(Room, Room)} */
+	public void enterRoom(Room3D from, Room3D to){
+		super.enterRoom(from, to);
 	}
 }
 

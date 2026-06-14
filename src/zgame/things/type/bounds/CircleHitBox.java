@@ -2,6 +2,7 @@ package zgame.things.type.bounds;
 
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint2D;
+import zgame.physics.V2D;
 import zgame.physics.collision.Collision2D;
 import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
@@ -18,22 +19,13 @@ public interface CircleHitBox extends HitBox2D{
 	double getRadius();
 	
 	@Override
-	default double getWidth(){
-		return this.getRadius() * 2;
-	}
-	@Override
-	default double getHeight(){
-		return this.getRadius() * 2;
+	default V2D getDimensions(){
+		return new V2D(this.getRadius() * 2, this.getRadius() * 2);
 	}
 	
 	@Override
-	default double centerX(){
-		return this.getX() + this.getRadius();
-	}
-	
-	@Override
-	default double centerY(){
-		return this.getY() + this.getRadius();
+	default V2D getCenterPosition(){
+		return new V2D(this.getX() + this.getRadius(), this.getY() + this.getRadius());
 	}
 	
 	@Override

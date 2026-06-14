@@ -1,19 +1,13 @@
 package zgame.things.type.bounds;
 
 import zgame.core.utils.ZMath;
+import zgame.physics.V3D;
 import zgame.physics.collision.Collision3D;
 import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
 
 /** A hitbox with a vertical cylinder shape in 3D, which cannot be rotated */
 public interface CylinderHitbox extends HitBox3D{
-
-	/** @return The bottom center x coordinate of this hitbox */
-	double getX();
-	/** @return The bottom center y coordinate of this hitbox */
-	double getY();
-	/** @return The bottom center z coordinate of this hitbox */
-	double getZ();
 	
 	/** @return The radius of the circular base of this cylinder */
 	double getRadius();
@@ -21,39 +15,24 @@ public interface CylinderHitbox extends HitBox3D{
 	/** @return The total height of the circular base of this cylinder */
 	double getHeight();
 	
+	@Override
+	default V3D getDimensions(){
+		return new V3D(this.getRadius() * 2.0, this.getHeight(), this.getRadius() * 2.0);
+	}
+	
 	/** @return The total width of this cylinder */
 	default double getWidth(){
 		return this.getRadius() * 2.0;
 	}
 	
-	/** @return The total length of this cylinder */
-	default double getLength(){
-		return this.getRadius() * 2.0;
+	@Override
+	default V3D getMaxPosition(){
+		return new V3D(this.getX() + this.getRadius(), this.getY() + this.getHeight(), this.getZ() + this.getRadius());
 	}
 	
 	@Override
-	default double maxX(){
-		return this.getX() + this.getRadius();
-	}
-	@Override
-	default double minX(){
-		return this.getX() - this.getRadius();
-	}
-	@Override
-	default double maxY(){
-		return this.getY() + this.getHeight();
-	}
-	@Override
-	default double minY(){
-		return this.getY();
-	}
-	@Override
-	default double maxZ(){
-		return this.getZ() + this.getRadius();
-	}
-	@Override
-	default double minZ(){
-		return this.getZ() - this.getRadius();
+	default V3D getMinPosition(){
+		return new V3D(this.getX() - this.getRadius(), this.getY(), this.getZ() - this.getRadius());
 	}
 	
 	@Override

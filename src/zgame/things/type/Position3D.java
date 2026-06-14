@@ -6,16 +6,17 @@ import zgame.physics.V3D;
 public interface Position3D extends Position<V3D>{
 	
 	/** @return The x coordinate of this object */
-	double getX();
+	default double getX(){
+		return this.getPosition().getX();
+	}
 	
 	/** @return The y coordinate of this object */
-	double getY();
+	default double getY(){
+		return this.getPosition().getY();
+	}
 	
 	/** @return The z coordinate of this object */
-	double getZ();
-	
-	@Override
-	default V3D getPosition(){
-		return new V3D(this.getX(), this.getY(), this.getZ());
+	default double getZ(){
+		return this.getPosition().getZ();
 	}
 }

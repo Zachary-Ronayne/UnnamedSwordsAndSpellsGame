@@ -1,9 +1,10 @@
 package zgame.things.still;
 
+import zgame.physics.V2D;
 import zgame.things.type.bounds.Bounds2D;
 
 /** A 2D thing which does not move as an entity would, and generally doesn't move, but can be at an arbitrary position */
-public abstract class StaticThing2D extends StaticThing implements Bounds2D{
+public abstract class StaticThingState2D extends StaticThingState<V2D> implements Bounds2D{
 	
 	/** The upper left hand x coordinate of this thing */
 	private double x;
@@ -21,7 +22,7 @@ public abstract class StaticThing2D extends StaticThing implements Bounds2D{
 	 * @param w See {@link #width}
 	 * @param h See {@link #height}
 	 */
-	public StaticThing2D(double x, double y, double w, double h){
+	public StaticThingState2D(double x, double y, double w, double h){
 		super();
 		this.setX(x);
 		this.setY(y);

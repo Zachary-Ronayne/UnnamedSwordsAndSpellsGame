@@ -1,29 +1,14 @@
 package zgame.things.still;
 
-import zgame.core.utils.Uuidable;
+import zgame.core.GameTickable;
+import zgame.physics.ZVector;
 import zgame.things.type.GameThing;
 
-import java.util.UUID;
-
-/** A thing which does not move as an entity would, and generally doesn't move, but can be at an arbitrary position */
-public abstract class StaticThing extends GameThing implements Uuidable{
+// TODO add docs
+public abstract class StaticThing<V extends ZVector<V>, State extends StaticThingState<V>> extends GameThing<State> implements GameTickable{
 	
-	/** The uuid representing this thing */
-	private final String uuid;
-	
-	/**
-	 * Create a new empty static thing
-	 */
-	public StaticThing(){
-		super();
-		
-		this.uuid = UUID.randomUUID().toString();
-	}
-	
-	/** @return See {@link #uuid} */
 	@Override
 	public String getUuid(){
-		return this.uuid;
+		return this.getCurrent().getUuid();
 	}
-	
 }

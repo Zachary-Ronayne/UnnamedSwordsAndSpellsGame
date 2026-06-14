@@ -1,52 +1,23 @@
 package zgame.things.type.bounds;
 
+import zgame.physics.V3D;
+
 /** An object with the bounds of an axis aligned rectangular prism */
 public interface RectPrismBounds extends Bounds3D{
 	
-	/** @return The bottom center x coordinate of this bounds */
-	double getX();
-	/** @return The bottom center y coordinate of this bounds */
-	double getY();
-	/** @return The bottom center z coordinate of this bounds */
-	double getZ();
-	
-	/** @return The width, i.e. x axis size, of this bounds */
-	double getWidth();
-	
-	/** @return The height, i.e. y axis size, of this bounds */
-	double getHeight();
-	
-	/** @return The length, i.e. z axis size, of this bounds */
-	double getLength();
-	
 	@Override
-	default double maxX(){
-		return this.getX() + this.getWidth() * 0.5;
+	default V3D getMaxPosition(){
+		return new V3D(this.getX() + this.getWidth() * 0.5, this.getY() + this.getHeight(), this.getZ() + this.getLength() * 0.5);
 	}
 	
 	@Override
-	default double minX(){
-		return this.getX() - this.getWidth() * 0.5;
+	default V3D getMinPosition(){
+		return new V3D(this.getX() - this.getWidth() * 0.5, this.getY(), this.getZ() - this.getLength() * 0.5);
 	}
 	
 	@Override
-	default double maxY(){
-		return this.getY() + this.getHeight();
-	}
-	
-	@Override
-	default double minY(){
-		return this.getY();
-	}
-	
-	@Override
-	default double maxZ(){
-		return this.getZ() + this.getLength() * 0.5;
-	}
-	
-	@Override
-	default double minZ(){
-		return this.getZ() - this.getLength() * 0.5;
+	default V3D getCenterPosition(){
+		return new V3D(this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ());
 	}
 	
 }

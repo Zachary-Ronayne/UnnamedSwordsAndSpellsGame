@@ -5,7 +5,6 @@ import zgame.things.entity.EntityThing2D;
 import zgame.things.entity.state.EntityState;
 import zgame.things.type.bounds.HitBox2D;
 
-// TODO is the the correct pattern to follow?
 public class EntityState2D extends EntityState<V2D> implements HitBox2D{
 	
 	private final EntityThing2D entity;

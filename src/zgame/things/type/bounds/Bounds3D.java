@@ -7,53 +7,50 @@ import zgame.things.type.Position3D;
 /** An object which has a bounds that can be defined in a 3D space */
 public interface Bounds3D extends Position3D, Bounds<V3D>{
 	
-	@Override
-	default V3D getMinPosition(){
-		return new V3D(this.minX(), this.minY(), this.minZ());
-	}
-	
-	@Override
-	default V3D getMaxPosition(){
-		return new V3D(this.maxX(), this.maxY(), this.maxZ());
-	}
-	
-	@Override
-	default V3D getCenterPosition(){
-		return new V3D(this.centerX(), this.centerY(), this.centerZ());
-	}
-	
-	@Override
-	default V3D getDimensions(){
-		return new V3D(this.getWidth(), this.getHeight(), this.getLength());
-	}
-	
-	// TODO consider if any of these methods in 2D or 3D should be removed and consolidate everything down
 	/** @return The maximum x coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
-	double maxX();
+	default double maxX(){
+		return this.getMaxPosition().getX();
+	}
 	
 	/** @return The minimum x coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
-	double minX();
+	default double minX(){
+		return this.getMinPosition().getX();
+	}
 	
 	/** @return The maximum y coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
-	double maxY();
+	default double maxY(){
+		return this.getMaxPosition().getY();
+	}
 	
 	/** @return The minimum y coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
-	double minY();
+	default double minY(){
+		return this.getMinPosition().getY();
+	}
 	
 	/** @return The maximum z coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
-	double maxZ();
+	default double maxZ(){
+		return this.getMaxPosition().getZ();
+	}
 	
 	/** @return The minimum z coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
-	double minZ();
+	default double minZ(){
+		return this.getMinPosition().getZ();
+	}
 	
 	/** @return The width this bounds takes up */
-	double getWidth();
+	default double getWidth(){
+		return this.getDimensions().getWidth();
+	}
 	
 	/** @return The height this bounds takes up */
-	double getHeight();
+	default double getHeight(){
+		return this.getDimensions().getHeight();
+	}
 	
 	/** @return The length this bounds takes up */
-	double getLength();
+	default double getLength(){
+		return this.getDimensions().getLength();
+	}
 	
 	/** @return The center x coordinate of this bounds */
 	default double centerX(){
