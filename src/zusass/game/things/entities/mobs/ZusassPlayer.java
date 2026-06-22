@@ -21,7 +21,7 @@ import zgame.stat.modifier.ModifierType;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.modifier.TypedModifier;
 import zgame.things.entity.mobility.MobilityEntity3D;
-import zgame.world.Room3D;
+import zgame.things.core.Room3D;
 import zusass.ZusassDebugFlags;
 import zusass.ZusassGame;
 import zusass.game.magic.MultiSpell;

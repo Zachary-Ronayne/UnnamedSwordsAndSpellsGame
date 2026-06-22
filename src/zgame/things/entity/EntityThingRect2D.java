@@ -1,5 +1,6 @@
 package zgame.things.entity;
 
+import zgame.things.core.EntityThing2D;
 import zgame.things.type.bounds.RectangleHitBox;
 
 /** A 2D entity with a rectangle hitbox */

@@ -1,13 +1,12 @@
-package zgame.things.entity;
+package zgame.things.core;
 
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.physics.V3D;
+import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision3D;
 import zgame.things.entity.state.EntityState3D;
 import zgame.things.type.bounds.HitBox3D;
-import zgame.world.Room;
-import zgame.world.Room3D;
 
 /**
  * An {@link EntityThing} in 3D
@@ -144,10 +143,16 @@ public abstract class EntityThing3D extends EntityThing<V3D> implements HitBox3D
 		return 1E-12;
 	}
 	
-	/** See {@link #enterRoom(Room, Room)} */
-	public void enterRoom(Room3D from, Room3D to){
-		super.enterRoom(from, to);
+	@Override
+	final <V extends ZVector<V>> void onThingRoomAdd(Room<V> to){
+		this.onRoomAdd((Room3D)to);
 	}
+	
+	/**
+	 * Run when this thing enters a room, does nothing by default, provide custom implementation for behavior
+	 * @param to The room this was added to
+	 */
+	public void onRoomAdd(Room3D to){}
 }
 
 /*

@@ -3,7 +3,7 @@ package tester;
 import zgame.core.Game;
 import zgame.things.entity.mobility.Mobility2D;
 import zgame.things.entity.mobility.MobilityEntity2D;
-import zgame.world.Room2D;
+import zgame.things.core.Room2D;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -122,9 +122,9 @@ public abstract class PlayerTester extends MobilityEntity2D{
 	}
 	
 	@Override
-	public void enterRoom(Room2D from, Room2D to){
-		super.enterRoom(from, to);
-		if(to != null) Game.get().getPlayState().setCurrentRoom(to);
+	public void onRoomAdd(Room2D to){
+		super.onRoomAdd(to);
+		Game.get().getPlayState().setCurrentRoom(to);
 		
 		// Center the camera to the player
 		this.checkCenterCamera();

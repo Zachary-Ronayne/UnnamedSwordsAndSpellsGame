@@ -4,7 +4,7 @@ import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
-import zgame.things.entity.EntityThing;
+import zgame.things.core.EntityThing;
 import zgame.things.entity.state.vector.*;
 import zgame.things.type.bounds.HitBox;
 

@@ -1,11 +1,11 @@
 package zusass.game;
 
 import zgame.things.still.tiles.threeDee.BaseTiles3D;
-import zgame.things.type.GameThing;
+import zgame.things.core.GameThing;
 
 import static zgame.world.Direction3D.*;
 
-import zgame.world.Room;
+import zgame.things.core.Room;
 import zusass.ZusassGame;
 import zusass.game.things.LevelDoor;
 import zusass.game.things.SpellMakerThing;

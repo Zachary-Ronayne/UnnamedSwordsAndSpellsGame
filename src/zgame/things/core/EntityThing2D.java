@@ -1,13 +1,12 @@
-package zgame.things.entity;
+package zgame.things.core;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.V2D;
+import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
 import zgame.things.entity.state.vector.EntityState2D;
 import zgame.things.type.bounds.HitBox2D;
-import zgame.world.Room;
-import zgame.world.Room2D;
 
 /**
  * An {@link EntityThing} in 2D
@@ -126,8 +125,15 @@ public abstract class EntityThing2D extends EntityThing<V2D> implements HitBox2D
 		Game.get().centerCamera(this.centerX(), this.centerY());
 	}
 	
-	/** See {@link #enterRoom(Room, Room)} */
-	public void enterRoom(Room2D from, Room2D to){
-		super.enterRoom(from, to);
+	@Override
+	final <V extends ZVector<V>> void onThingRoomAdd(Room<V> to){
+		this.onRoomAdd((Room2D)to);
 	}
+	
+	/**
+	 * Run when this thing enters a room, does nothing by default, provide custom implementation for behavior
+	 * @param to The room this was added to
+	 */
+	public void onRoomAdd(Room2D to){}
+	
 }

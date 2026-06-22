@@ -1,6 +1,7 @@
-package zgame.things.still;
+package zgame.things.core;
 
 import zgame.physics.V3D;
+import zgame.things.still.StaticThingState;
 import zgame.things.type.bounds.Bounds3D;
 
 /** A 3D thing which does not move as an entity would, and generally doesn't move, but can be at an arbitrary position */

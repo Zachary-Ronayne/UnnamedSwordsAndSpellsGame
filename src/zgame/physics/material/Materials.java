@@ -1,7 +1,7 @@
 package zgame.physics.material;
 
-import zgame.things.entity.EntityThing;
-import zgame.world.Room;
+import zgame.things.core.EntityThing;
+import zgame.things.core.Room;
 
 /** A class containing instances of {@link Material} for ease of use */
 public final class Materials{

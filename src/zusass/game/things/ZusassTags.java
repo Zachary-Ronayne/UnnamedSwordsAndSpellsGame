@@ -1,8 +1,8 @@
 package zusass.game.things;
 
 import zgame.things.Tag;
-import zgame.things.type.GameThing;
-import zgame.world.Room;
+import zgame.things.core.GameThing;
+import zgame.things.core.Room;
 import zusass.game.Hub;
 import zusass.game.LevelRoom;
 import zusass.game.things.entities.mobs.ZusassMob;

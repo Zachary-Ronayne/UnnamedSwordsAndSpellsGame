@@ -15,7 +15,7 @@ import zgame.physics.material.Materials;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
 import zgame.settings.IntTypeSetting;
-import zgame.things.entity.EntityThing3D;
+import zgame.things.core.EntityThing3D;
 import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.mobility.MobilityType;
 import zgame.things.still.tiles.threeDee.BaseTiles3D;
@@ -26,7 +26,7 @@ import zgame.things.type.bounds.RectPrismHitbox;
 
 import static zgame.world.Direction3D.*;
 
-import zgame.world.Room3D;
+import zgame.things.core.Room3D;
 
 import static org.lwjgl.glfw.GLFW.*;
 

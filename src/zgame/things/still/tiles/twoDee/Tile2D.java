@@ -4,6 +4,7 @@ import zgame.core.graphics.Renderer;
 import zgame.physics.V2D;
 import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
+import zgame.things.core.GameThing;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType2D;
 import zgame.things.type.*;

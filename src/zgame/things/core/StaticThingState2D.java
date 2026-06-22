@@ -1,6 +1,7 @@
-package zgame.things.still;
+package zgame.things.core;
 
 import zgame.physics.V2D;
+import zgame.things.still.StaticThingState;
 import zgame.things.type.bounds.Bounds2D;
 
 /** A 2D thing which does not move as an entity would, and generally doesn't move, but can be at an arbitrary position */

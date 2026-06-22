@@ -1,7 +1,7 @@
 package zusass.game.things;
 
 import zgame.things.ThingClickDetector3D;
-import zgame.world.Room3D;
+import zgame.things.core.Room3D;
 import zusass.game.ZusassRoom;
 
 /** A {@link ThingClickDetector3D} used for the Zusass game */

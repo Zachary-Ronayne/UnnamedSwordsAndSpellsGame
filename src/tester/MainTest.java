@@ -35,7 +35,7 @@ import zgame.physics.material.Materials;
 import zgame.things.entity.mobility.MobilityType;
 import zgame.things.still.door.DoorState2D;
 import zgame.things.still.tiles.twoDee.BaseTiles2D;
-import zgame.world.Room2D;
+import zgame.things.core.Room2D;
 
 import static org.lwjgl.glfw.GLFW.*;
 

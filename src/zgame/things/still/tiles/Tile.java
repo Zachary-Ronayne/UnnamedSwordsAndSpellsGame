@@ -2,7 +2,7 @@ package zgame.things.still.tiles;
 
 import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
-import zgame.things.type.GameThing;
+import zgame.things.core.GameThing;
 import zgame.things.type.bounds.HitBox;
 
 /** A {@link GameThing} with a hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */

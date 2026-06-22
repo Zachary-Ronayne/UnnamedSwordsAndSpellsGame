@@ -6,12 +6,12 @@ import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType3D;
-import zgame.things.type.GameThing;
+import zgame.things.core.GameThing;
 import zgame.things.type.bounds.Bounds3D;
 import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.RectPrismBounds;
 import zgame.world.Direction3D;
-import zgame.world.Room3D;
+import zgame.things.core.Room3D;
 
 /** A {@link GameThing} with a cube hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
 // TODO make a formal object for tile state even though there shouldn't be a tile state, maybe state doesn't exist on all game things

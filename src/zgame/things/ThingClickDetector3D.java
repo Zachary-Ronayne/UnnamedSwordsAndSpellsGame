@@ -3,7 +3,7 @@ package zgame.things;
 import zgame.physics.V3D;
 import zgame.things.type.bounds.Clickable3D;
 import zgame.things.type.bounds.ClickerBounds;
-import zgame.world.Room3D;
+import zgame.things.core.Room3D;
 
 /** A utility interface for handling clicking on a game thing when a click happens on it */
 public interface ThingClickDetector3D extends Clickable3D{

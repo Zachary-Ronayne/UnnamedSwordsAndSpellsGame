@@ -10,7 +10,7 @@ import zgame.things.ThingClickDetector3D;
 import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.ModifiableRectDims3D;
 import zgame.world.Direction3D;
-import zgame.world.Room3D;
+import zgame.things.core.Room3D;
 
 /**
  * An object holding texture coordinates for a rectangular prism

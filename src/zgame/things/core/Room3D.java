@@ -1,4 +1,4 @@
-package zgame.world;
+package zgame.things.core;
 
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
@@ -10,14 +10,13 @@ import zgame.physics.collision.Collision3D;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.ThingClickDetector3D;
-import zgame.things.entity.EntityThing;
-import zgame.things.entity.EntityThing3D;
 import zgame.things.still.tiles.threeDee.BaseTiles3D;
 import zgame.things.still.tiles.threeDee.Tile3D;
 import zgame.things.still.tiles.TileType3D;
 import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.RectPrismBounds;
+import zgame.world.Direction3D;
 
 import static zgame.world.Direction3D.*;
 

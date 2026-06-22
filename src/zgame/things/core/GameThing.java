@@ -1,9 +1,11 @@
-package zgame.things.type;
+package zgame.things.core;
 
 import zgame.core.Game;
+import zgame.core.annotations.PackagePrivate;
 import zgame.core.file.Saveable;
 import zgame.core.graphics.Destroyable;
 import zgame.core.graphics.Renderer;
+import zgame.physics.ZVector;
 import zgame.things.Tag;
 import zgame.things.entity.state.GameThingState;
 
@@ -102,8 +104,10 @@ public abstract class GameThing<State extends GameThingState> implements Compara
 	
 	/**
 	 * Called any time this game thing is added to a room, does nothing by default, override to provide custom behavior
+	 * @param to The room that this thing was added to
 	 */
-	public void onRoomAdd(){}
+	@PackagePrivate
+	abstract <V extends ZVector<V>> void onThingRoomAdd(Room<V> to);
 	
 	/**
 	 * Called any time this game thing is removed from a room, does nothing by default, override to provide custom behavior

@@ -1,9 +1,9 @@
 package zusass.game;
 
 import zgame.core.utils.NotNullList;
-import zgame.things.type.GameThing;
-import zgame.world.Room;
-import zgame.world.Room3D;
+import zgame.things.core.GameThing;
+import zgame.things.core.Room;
+import zgame.things.core.Room3D;
 import zusass.ZusassGame;
 import zusass.game.things.ZThingClickDetector;
 import zusass.game.things.ZusassTags;

@@ -14,7 +14,7 @@ import zgame.physics.material.Materials;
 import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.mobility.MobilityType;
 import zgame.things.type.bounds.SphereHitBox;
-import zgame.world.Room3D;
+import zgame.things.core.Room3D;
 
 public class CollisionDemo3D extends Game{
 	

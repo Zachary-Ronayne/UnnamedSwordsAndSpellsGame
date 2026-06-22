@@ -5,7 +5,7 @@ import zgame.core.utils.FunctionMap;
 import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
 import zgame.things.BaseTags;
-import zgame.things.entity.EntityThing;
+import zgame.things.core.EntityThing;
 import zgame.things.type.bounds.HitBox;
 
 import java.util.function.Consumer;

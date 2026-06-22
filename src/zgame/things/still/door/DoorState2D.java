@@ -1,13 +1,14 @@
 package zgame.things.still.door;
 
-import zgame.things.still.StaticThingState2D;
-import zgame.things.type.GameThing;
-import zgame.world.Room;
+import zgame.physics.V2D;
+import zgame.things.core.GameThing;
+import zgame.things.type.bounds.Bounds2D;
+import zgame.things.core.Room;
 
 /**
  * An object that allows other {@link GameThing}s to enter another {@link Room}
  */
-public class DoorState2D extends StaticThingState2D{
+public class DoorState2D extends DoorState<V2D> implements Bounds2D{
 	
 	/** The default value of {@link #width */
 	public static final double WIDTH = 70;

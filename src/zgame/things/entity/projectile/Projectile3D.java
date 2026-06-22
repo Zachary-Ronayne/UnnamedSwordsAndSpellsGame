@@ -3,9 +3,9 @@ package zgame.things.entity.projectile;
 import zgame.core.utils.FunctionMap;
 import zgame.physics.V3D;
 import zgame.physics.collision.Collision3D;
-import zgame.things.entity.EntityThing3D;
+import zgame.things.core.EntityThing3D;
 import zgame.things.type.bounds.HitBox3D;
-import zgame.world.Room3D;
+import zgame.things.core.Room3D;
 
 /** A 3D implementation of a projectile which represents a thing flying through the air */
 public abstract class Projectile3D extends EntityThing3D implements Projectile<HitBox3D, EntityThing3D, V3D, Room3D, Collision3D>{

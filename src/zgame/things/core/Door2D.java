@@ -1,15 +1,12 @@
-package zgame.things.still.door;
+package zgame.things.core;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.V2D;
-import zgame.things.entity.EntityThing;
-import zgame.things.entity.EntityThing2D;
-import zgame.world.Room;
-import zgame.world.Room2D;
+import zgame.things.still.door.DoorState2D;
 
 // TODO add docs
-public class Door2D extends Door<V2D, DoorState2D>{
+public class Door2D extends Door<V2D, DoorState2D> implements {
 	
 	@Override
 	public void tick(double dt){
@@ -46,4 +43,15 @@ public class Door2D extends Door<V2D, DoorState2D>{
 	public boolean enterRoom(Room2D r, EntityThing2D thing){
 		return super.enterRoom(r, thing);
 	}
+	
+	@Override
+	void onRoomAdd(Room<V2D> to){
+		this.onRoomAdd((Room2D)to);
+	}
+	
+	/**
+	 * Run when this thing enters a room, does nothing by default, provide custom implementation for behavior
+	 * @param to The room this was added to
+	 */
+	public void onRoomAdd(Room2D to){}
 }

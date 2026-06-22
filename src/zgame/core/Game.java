@@ -23,7 +23,7 @@ import zgame.core.window.GameWindow;
 import zgame.core.window.WindowManager;
 import zgame.settings.*;
 import zgame.stat.DefaultStatType;
-import zgame.world.Room;
+import zgame.things.core.Room;
 
 import java.io.File;
 import java.io.IOException;

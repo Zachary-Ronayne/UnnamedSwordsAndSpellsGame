@@ -2,7 +2,7 @@ package zgame.things.entity.mobility;
 
 import zgame.physics.V2D;
 import zgame.physics.collision.Collision2D;
-import zgame.things.entity.EntityThing2D;
+import zgame.things.core.EntityThing2D;
 import zgame.things.entity.MobilityState2D;
 import zgame.things.entity.state.EntityState;
 

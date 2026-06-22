@@ -1,4 +1,4 @@
-package zgame.world;
+package zgame.things.core;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
@@ -9,8 +9,6 @@ import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision2D;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
-import zgame.things.entity.EntityThing;
-import zgame.things.entity.EntityThing2D;
 import zgame.things.still.tiles.twoDee.BaseTiles2D;
 import zgame.things.still.tiles.twoDee.Tile2D;
 import zgame.things.still.tiles.TileType2D;
@@ -477,4 +475,6 @@ public class Room2D extends Room<V2D> implements Bounds2D{
 	public NotNullList<EntityThing2D> getEntities(){
 		return super.getEntities();
 	}
+	
+	
 }

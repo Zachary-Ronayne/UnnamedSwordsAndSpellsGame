@@ -3,7 +3,7 @@ package zgame.things.entity.state;
 import zgame.physics.V3D;
 import zgame.physics.collision.Collision3D;
 import zgame.physics.material.Material;
-import zgame.things.entity.EntityThing3D;
+import zgame.things.core.EntityThing3D;
 import zgame.things.type.bounds.HitBox3D;
 import zgame.things.type.bounds.HitboxType;
 

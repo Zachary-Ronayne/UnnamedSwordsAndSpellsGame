@@ -5,6 +5,7 @@ import zgame.physics.V3D;
 import zgame.physics.collision.Collision3D;
 import zgame.things.entity.*;
 import zgame.things.entity.state.EntityState;
+import zgame.things.core.EntityThing3D;
 
 /** A 3D entity which uses mobility capabilities */
 public abstract class MobilityEntity3D extends EntityThing3D implements Mobility3D{

@@ -9,16 +9,15 @@ import zgame.core.graphics.font.TextBuffer;
 import zgame.core.utils.ZArrayUtils;
 import zgame.core.utils.ZMath;
 import zgame.physics.V3D;
-import zgame.things.entity.EntityThing;
-import zgame.things.entity.EntityThing3D;
-import zgame.things.still.door.DoorState;
+import zgame.things.core.EntityThing;
+import zgame.things.core.EntityThing3D;
 import zgame.world.Direction3D;
-import zgame.world.Room3D;
+import zgame.things.core.Room3D;
 import zusass.ZusassData;
 import zusass.ZusassGame;
 import zusass.game.LevelRoom;
 
-/** A {@link DoorState} used by the infinitely generating levels */
+/** A {@link LevelDoor} used by the infinitely generating levels */
 public class LevelDoor extends ZusassDoor{
 	
 	/** The level of the room that this door will lead to */

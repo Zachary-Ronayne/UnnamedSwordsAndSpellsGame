@@ -1,4 +1,4 @@
-package zgame.world;
+package zgame.things.core;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +10,7 @@ import zgame.core.utils.ClassMappedList;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
-import zgame.things.entity.EntityThing;
 import zgame.things.entity.state.GameThingState;
-import zgame.things.still.door.DoorState;
-import zgame.things.type.GameThing;
 import zgame.things.type.bounds.HitBox;
 
 /**
@@ -110,7 +107,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 	 */
 	public void addThing(GameThing<?> thing){
 		this.thingsMap.add(thing);
-		thing.onRoomAdd();
+		thing.onThingRoomAdd(this);
 	}
 	
 	// TODO make this happen using current and next
@@ -297,7 +294,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 	}
 	
 	/**
-	 * Determine if the given {@link GameThing} is allowed to enter this {@link Room} using a {@link DoorState}
+	 * Determine if the given {@link GameThing} is allowed to enter this {@link Room} using a {@link Door}
 	 *
 	 * @param thing The thing to check for
 	 * @return true if it can enter, false otherwise. Always true by default, override to provide custom behavior
@@ -307,7 +304,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 	}
 	
 	/**
-	 * Determine if the given {@link GameThing} is allowed to leave this {@link Room} using a {@link DoorState}
+	 * Determine if the given {@link GameThing} is allowed to leave this {@link Room} using a {@link Door}
 	 *
 	 * @param thing The thing to check for
 	 * @return true if it can leave, false otherwise. Always true by default, override to provide custom behavior

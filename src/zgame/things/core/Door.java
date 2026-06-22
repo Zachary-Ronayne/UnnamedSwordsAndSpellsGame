@@ -1,18 +1,31 @@
-package zgame.things.still.door;
+package zgame.things.core;
 
 import zgame.core.annotations.PackagePrivate;
 import zgame.physics.ZVector;
-import zgame.things.entity.EntityThing;
-import zgame.things.still.StaticThing;
-import zgame.world.Room;
+import zgame.things.still.door.DoorState;
+import zgame.things.type.bounds.Bounds;
 
-// TODO add docs
-public abstract class Door<V extends ZVector<V>, State extends DoorState<V>> extends StaticThing<V, State>{
+/**
+ * A door that can be interacted with to enter another {@link Room}
+ * @param <V> The type of vectors this door uses
+ * @param <State> The type of state that this door uses
+ */
+public abstract class Door<V extends ZVector<V>, State extends DoorState<V>> extends StaticThing<V, State> implements Bounds<V>{
 	
 	/** The {@link Room} which this door leads to. Can be null to make this a real fake door */
-	private Room<V> leadRoom;
+	private final Room<V> leadRoom;
 	/** The position to place objects which go through this door */
-	private V roomPos;
+	private final V roomPos;
+	
+	/**
+	 * Initialize this door to lead to the given room
+	 * @param leadRoom See {@link #leadRoom}
+	 * @param roomPos See {@link #roomPos}
+	 */
+	public Door(Room<V> leadRoom, V roomPos){
+		this.leadRoom = leadRoom;
+		this.roomPos = roomPos;
+	}
 	
 	/** @return See {@link #leadRoom} */
 	public Room<V> getLeadRoom(){
@@ -22,17 +35,6 @@ public abstract class Door<V extends ZVector<V>, State extends DoorState<V>> ext
 	/** @return See {@link #roomPos} */
 	public V getRoomPos(){
 		return this.roomPos;
-	}
-	
-	/**
-	 * Set the place this {@link Door} leads to
-	 *
-	 * @param r See {@link #leadRoom}
-	 * @param roomPos See roomPos
-	 */
-	public void setLeadRoom(Room<V> r, V roomPos){
-		this.leadRoom = r;
-		this.roomPos = roomPos;
 	}
 	
 	/**
@@ -46,7 +48,6 @@ public abstract class Door<V extends ZVector<V>, State extends DoorState<V>> ext
 		return thing.canEnterRooms();
 	}
 	
-	
 	/**
 	 * Move the given {@link EntityThing} from the given room to {@link #getLeadRoom()}, only if it's able to enter this door
 	 *
@@ -56,35 +57,29 @@ public abstract class Door<V extends ZVector<V>, State extends DoorState<V>> ext
 	 */
 	@PackagePrivate
 	boolean enterRoom(Room<V> r, EntityThing<V> thing){
-		// TODO need to figure out how this should interact with state
+		// Do nothing if the thing cannot enter the room
 		var leadRoom = this.getLeadRoom();
-		
 		if(leadRoom != null && !leadRoom.canEnter(thing)) return false;
 		
+		// Do nothing if this thing cannot enter the door
 		if(!this.canEnter(thing)) return false;
+		
 		// If the thing can leave the room, remove it
 		if(r != null && r.canLeave(thing)) r.removeThing(thing);
-			// Otherwise, do not allow the thing to enter the room
-		else{
-			return false;
-		}
+		// Otherwise, do not allow the thing to enter the room
+		else return false;
+		
+		// After leaving the given room, move it to the lead room
 		if(leadRoom != null){
-			this.onEntityEnter(thing);
-			// TODO figure out how this should work with being accessible without exposing it to actual game logic for a specific implementation
-			thing.enterRoom(r, leadRoom);
+			// TODO schedule position update/teleport, or make updating the position a part of the logic for entering a room
+			thing.setPos(this.getRoomPos());
+			
+			leadRoom.addThing(thing);
 		}
 		else return false;
 		
 		return true;
 	}
 	
-	/**
-	 * Run when an entity enters {@link #getLeadRoom()} of this door
-	 * @param thing The entity moved
-	 */
-	public void onEntityEnter(EntityThing<V> thing){
-		// TODO schedule position update/teleport, or make updating the position a part of the logic for entering a room
-		thing.setPos(this.getRoomPos());
-	}
 	
 }

@@ -22,19 +22,19 @@ public enum Direction3D{
 	DOWN(5, false, true, 0, ZMath.PI_BY_2 + Math.PI);
 	
 	/** The expected index in an array for this direction */
-	final int index;
+	private final int index;
 	
 	/** true if this is a cardinal direction, north, south, east, west, false otherwise */
-	final boolean cardinal;
+	private final boolean cardinal;
 	
 	/** true if this points in the negative direction, false otherwise */
-	final boolean negative;
+	private final boolean negative;
 	
 	/** The yaw, in radians, that this direction points in, always 0 for non cardinal directions */
-	final double yaw;
+	private final double yaw;
 	
 	/** The yaw, in radians, that this direction points in, always 0 for cardinal directions */
-	final double pitch;
+	private final double pitch;
 	
 	/** @param index See {@link #index} */
 	Direction3D(int index, boolean cardinal, boolean negative, double yaw, double pitch){

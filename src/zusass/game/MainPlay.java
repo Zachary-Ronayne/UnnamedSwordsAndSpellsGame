@@ -7,7 +7,7 @@ import zgame.core.state.MenuNode;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZMath;
 import zgame.world.Direction3D;
-import zgame.world.Room3D;
+import zgame.things.core.Room3D;
 import zusass.ZusassGame;
 import zusass.game.things.entities.mobs.ZusassPlayer;
 import zusass.menu.player.SpellListMenu;

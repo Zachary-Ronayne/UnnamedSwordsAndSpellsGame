@@ -1,9 +1,8 @@
-package zgame.things.entity;
+package zgame.things.core;
 
 import java.util.*;
 
 import zgame.core.GameTickable;
-import zgame.core.annotations.PackagePrivate;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
@@ -11,9 +10,7 @@ import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.entity.projectile.Projectile;
 import zgame.things.entity.state.EntityState;
-import zgame.things.type.GameThing;
 import zgame.things.type.bounds.HitBox;
-import zgame.world.Room;
 
 /**
  * A thing is an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
@@ -482,24 +479,6 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 	@Override
 	public String getUuid(){
 		return this.uuid;
-	}
-	
-	/*
-	 TODO for this kind of thing, make these methods final in 2D and 3D implementations,
-	  	and make other methods that accept and return the proper types without parameters
-	  	also if possible, hide the type parameter methods to only the direct implementations in 2D and 3D, i.e. actual game logic outside the engine cannot see the type parameters
-	 */
-	
-	/**
-	 * Take this {@link EntityThing} from the given room, and place it in the other given room.
-	 *
-	 * @param from The room to move the thing from, i.e. the thing was in this room. Can be null if the thing didn't come from a room
-	 * @param to The room to move the thing to, i.e. the thing is now in this room. Can be null if the thing isn't going to a room
-	 */
-	@PackagePrivate
-	void enterRoom(Room<V> from, Room<V> to){
-		if(from != null) from.removeThing(this);
-		if(to != null) to.addThing(this);
 	}
 	
 	/** @return true if this thing can enter a rom, false otherwise, always returns true by default */
