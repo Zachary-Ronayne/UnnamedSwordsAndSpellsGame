@@ -18,8 +18,7 @@ import zgame.things.type.bounds.HitBox;
  *
  * @param <V> The vector implementation used by this entity
  */
-// TODO resolve issue#50 if this is actually fixed
-// issue#50 find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
+// TODO resolve issue#50 find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
 // TODO probably remove hitbox from entity entirely, the main abstraction instead will sit in the entity state
 public abstract class EntityThing<V extends ZVector<V>> extends GameThing<EntityState<V>> implements GameTickable, HitBox<V>{
 	
