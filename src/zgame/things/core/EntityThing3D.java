@@ -50,12 +50,6 @@ public abstract class EntityThing3D extends EntityThing<V3D> implements HitBox3D
 		return this.getVelocity().getY();
 	}
 	
-	// TODO implement?
-//	@Override
-//	public void collide(Collision<V3D> r){
-//		super.collide(r);
-//	}
-	
 	@Override
 	public void touchWall(Collision<V3D> result){
 		super.touchWall(result);
@@ -98,18 +92,6 @@ public abstract class EntityThing3D extends EntityThing<V3D> implements HitBox3D
 	@Override
 	public double getZ(){
 		return this.getPosition().getZ();
-	}
-	
-	// TODO change all add and set position values to use updates
-	// TODO have a formal way to initialize position without having to go through the state system
-	// TODO need to figure out where this inheritance is used for setting and what relies on it, restructure so that setting is not relied on, just a delta
-	/**
-	 * @param x New x coordinate of this thing
-	 * @param y New y coordinate of this thing
-	 * @param z New z coordinate of this thing
-	 */
-	public void setPos(double x, double y, double z){
-		this.getNext().attemptSetPosition(new V3D(x, y, z));
 	}
 	
 	/** @return The height from the bottom of this entity where it should be able to "see" from, height of the entity by default */

@@ -164,7 +164,7 @@ public class LevelRoom extends ZusassRoom{
 	}
 	
 	@Override
-	public boolean canLeave(GameThing thing){
+	public boolean canLeave(GameThing<?> thing){
 		// Players cannot leave the room if it is not cleared
 		return !thing.hasTag(ZusassTags.MUST_CLEAR_LEVEL_ROOM) || this.isRoomCleared();
 	}

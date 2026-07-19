@@ -59,7 +59,7 @@ public class ZusassRoom extends Room3D{
 	}
 	
 	@Override
-	public void addThing(GameThing thing){
+	public void addThing(GameThing<?> thing){
 		super.addThing(thing);
 		if(thing.hasTag(ZusassTags.USE_ROOM_MUSIC)) this.updateSong();
 	}

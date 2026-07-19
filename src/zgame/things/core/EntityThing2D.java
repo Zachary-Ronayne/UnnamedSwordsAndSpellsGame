@@ -61,15 +61,6 @@ public abstract class EntityThing2D extends EntityThing<V2D> implements HitBox2D
 		return this.getPosition().getY();
 	}
 	
-	// TODO remove/rename this to reflect that it's effectively for teleporting
-	/**
-	 * @param x New x coordinate of this thing
-	 * @param y New y coordinate of this thing
-	 */
-	public void setPos(double x, double y){
-		this.getNext().attemptSetPosition(new V2D(x, y));
-	}
-	
 	@Override
 	public void touchWall(Collision<V2D> result){
 		super.touchWall(result);

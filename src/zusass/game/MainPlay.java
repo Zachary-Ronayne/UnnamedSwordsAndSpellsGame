@@ -6,6 +6,7 @@ import zgame.core.graphics.ZColor;
 import zgame.core.state.MenuNode;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZMath;
+import zgame.physics.V3D;
 import zgame.world.Direction3D;
 import zgame.things.core.Room3D;
 import zusass.ZusassGame;
@@ -24,7 +25,7 @@ import static org.lwjgl.glfw.GLFW.*;
  * The main {@link PlayState} used by the Zusass game
  * I initially called this ZusassPlay, but I um... changed it
  */
-public class MainPlay extends PlayState{
+public class MainPlay extends PlayState<V3D>{
 	
 	/** The {@link PauseMenu} to display */
 	private final PauseMenu pauseMenu;

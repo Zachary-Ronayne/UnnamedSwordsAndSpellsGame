@@ -155,7 +155,7 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 	 * @return true if the boundary is enabled, false otherwise
 	 */
 	public boolean boundaryEnabled(Direction3D direction){
-		return this.enabledBoundaries[direction.index];
+		return this.enabledBoundaries[direction.i()];
 	}
 	
 	/**
@@ -555,14 +555,14 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 	@Override
 	@SuppressWarnings("unchecked")
 	public Class<HitBox<V3D>> getHitBoxType(){
-		return (Class<HitBox<V3D>>) (Class<?>) HitBox.class;
+		return (Class<HitBox<V3D>>)(Class<?>)HitBox.class;
 	}
 	
 	// TODO probably do this in a better way to avoid casting
 	@Override
 	@SuppressWarnings("unchecked")
 	public Class<EntityThing<V3D>> getEntityClass(){
-		return (Class<EntityThing<V3D>>) (Class<?>) EntityThing.class;
+		return (Class<EntityThing<V3D>>)(Class<?>)EntityThing.class;
 	}
 	
 	// TODO figure out the correct way to do this

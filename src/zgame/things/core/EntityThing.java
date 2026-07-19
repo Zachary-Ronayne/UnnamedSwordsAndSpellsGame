@@ -18,7 +18,6 @@ import zgame.things.type.bounds.HitBox;
  *
  * @param <V> The vector implementation used by this entity
  */
-// TODO resolve issue#50 find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
 // TODO probably remove hitbox from entity entirely, the main abstraction instead will sit in the entity state
 public abstract class EntityThing<V extends ZVector<V>> extends GameThing<EntityState<V>> implements GameTickable, HitBox<V>{
 	
@@ -431,13 +430,6 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 	public void addVelocity(V vec){
 		this.getNext().addVelocity(vec);
 	}
-	
-	// TODO make doc, potentially remove
-	public void attemptSetVelocity(V velocity){
-		this.getNext().attemptSetVelocity(velocity);
-	}
-	
-	// TODO handle this using an update system
 	
 	/**
 	 * Set the velocity of this thing to zero on all axes and set the current applied for forces to 0

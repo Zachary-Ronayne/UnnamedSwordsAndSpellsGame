@@ -172,7 +172,7 @@ public abstract class EntityState<V extends ZVector<V>> extends GameThingState i
 		// Compute new force
 		// No forces, there is no force
 		// TODO only recompute force if it changes?
-		if(this.forces.size() == 0) this.totalForce = this.zeroVec();
+		if(this.forces.isEmpty()) this.totalForce = this.zeroVec();
 		// Sum all forces
 		else{
 			var allForces = this.getForces();

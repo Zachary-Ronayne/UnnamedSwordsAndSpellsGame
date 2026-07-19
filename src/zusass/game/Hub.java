@@ -75,7 +75,7 @@ public class Hub extends ZusassRoom{
 	}
 	
 	@Override
-	public void addThing(GameThing thing){
+	public void addThing(GameThing<?> thing){
 		super.addThing(thing);
 		if(thing.hasTag(ZusassTags.HUB_ENTER_RESTORE)) ((ZusassMob)thing).setResourcesMax();
 	}

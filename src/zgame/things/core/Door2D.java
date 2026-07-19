@@ -5,7 +5,7 @@ import zgame.core.graphics.Renderer;
 import zgame.physics.V2D;
 import zgame.things.still.door.DoorState2D;
 
-// TODO add docs
+/** A door for 2D rooms */
 public class Door2D extends Door<V2D, DoorState2D> implements {
 	
 	@Override
@@ -13,7 +13,7 @@ public class Door2D extends Door<V2D, DoorState2D> implements {
 		if(!this.getCurrent().isAutoEnter()) return;
 		
 		// Check every entity and if it touches this door, move it to this Room
-		var room = (Room2D)Game.get().getCurrentRoom();
+		var room = Game.get().getCurrentRoom2D();
 		var entities = room.getEntities();
 		for(var entity : entities){
 			// issue#49 avoid needing this double check call to canEnter

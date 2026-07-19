@@ -5,7 +5,12 @@ import zgame.core.annotations.PackagePrivate;
 import zgame.physics.ZVector;
 import zgame.things.still.StaticThingState;
 
-// TODO add docs
+/**
+ * A positioned {@link GameThing} that does not move
+ *
+ * @param <V> The type of vector this thing uses
+ * @param <State> The object holding this thing's state
+ */
 public abstract class StaticThing<V extends ZVector<V>, State extends StaticThingState<V>> extends GameThing<State> implements GameTickable{
 	
 	@Override

@@ -16,7 +16,6 @@ import java.util.HashSet;
  * An object which exists in the game
  * @param <State> The type of object holding state for this thing
  */
-// TODO make sure all GameThing references use a type parameter
 public abstract class GameThing<State extends GameThingState> implements Comparable<GameThing<State>>, Saveable, Destroyable{
 	
 	/** Any arbitrary fields associated with this {@link GameThing} */

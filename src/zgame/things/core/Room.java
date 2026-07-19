@@ -18,11 +18,9 @@ import zgame.things.type.bounds.HitBox;
  *
  * @param <V> The vectors used by entities in this room
  */
-// TODO consider if a Room should have its own state object
-// issue#50 find a way to avoid having to do this comical amount of type parameters without having to resort to weird type casting or instanceof checks
 public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingState>{
 	
-	/** All of the things in this room */
+	/** All the things in this room */
 	private final ClassMappedList thingsMap;
 	
 	/** All of the {@link GameThing} objects which will be removed on the next game tick */

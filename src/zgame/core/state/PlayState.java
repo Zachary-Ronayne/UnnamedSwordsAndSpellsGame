@@ -2,16 +2,17 @@ package zgame.core.state;
 
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
+import zgame.physics.ZVector;
 import zgame.things.core.Room;
 
 /**
  * A {@link GameState} which is designed for game play, i.e. controlling a character in a world, not a menu
+ * @param <V> The type of vector this play state will hold
  */
-public class PlayState extends GameState{
+public class PlayState<V extends ZVector<V>> extends GameState{
 	
-	// TODO consider if it makes sense to give this a type parameter, maybe play state needs a vector type parameter
 	/** The {@link Room} which is currently used by this {@link PlayState}. The system assumes this will always be an appropriate type of room for the game played */
-	private Room<?> currentRoom;
+	private Room<V> currentRoom;
 	
 	/** true if this {@link PlayState} is paused and should not perform tick updates, false otherwise */
 	private boolean paused;
@@ -23,7 +24,7 @@ public class PlayState extends GameState{
 	 *
 	 * @param room The room to use for the play state
 	 */
-	public PlayState(Room<?> room){
+	public PlayState(Room<V> room){
 		super(true);
 		this.currentRoom = room;
 		this.paused = false;
@@ -36,8 +37,8 @@ public class PlayState extends GameState{
 		this.getCurrentRoom().destroy();
 	}
 	
-	/** @return See {@link #currentRoom} */
-	public Room<?> getCurrentRoom(){
+	/** @return See {@link #currentRoom}. The returned room is expected to be the vector type for what it is declared as */
+	public Room<V> getCurrentRoom(){
 		return this.currentRoom;
 	}
 	
@@ -47,7 +48,7 @@ public class PlayState extends GameState{
 	 * @param r See {@link #currentRoom}
 	 * @return true if the room was set, false otherwise
 	 */
-	public boolean setCurrentRoom(Room<?> r){
+	public boolean setCurrentRoom(Room<V> r){
 		if(r == null) return false;
 		this.currentRoom = r;
 		return true;
@@ -170,7 +171,7 @@ public class PlayState extends GameState{
 	}
 	
 	@Override
-	public PlayState asPlay(){
+	public PlayState<V> asPlay(){
 		return this;
 	}
 	

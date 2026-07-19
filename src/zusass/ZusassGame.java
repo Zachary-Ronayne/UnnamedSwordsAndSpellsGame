@@ -253,13 +253,15 @@ public class ZusassGame extends Game{
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public MainPlay getPlayState(){
 		return (MainPlay)super.getPlayState();
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public ZusassRoom getCurrentRoom(){
-		return (ZusassRoom)(super.getCurrentRoom());
+		return (ZusassRoom)(super.getCurrentRoom3D());
 	}
 	
 	@Override

@@ -21,9 +21,12 @@ import zgame.core.utils.ZConfig;
 import zgame.core.window.GlfwWindow;
 import zgame.core.window.GameWindow;
 import zgame.core.window.WindowManager;
+import zgame.physics.ZVector;
 import zgame.settings.*;
 import zgame.stat.DefaultStatType;
 import zgame.things.core.Room;
+import zgame.things.core.Room2D;
+import zgame.things.core.Room3D;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,7 +69,7 @@ public class Game implements Saveable, Destroyable{
 	/** The {@link GameState} which this game will update to in the next tick, or null if the state will not update */
 	private GameState nextCurrentState;
 	/** The {@link PlayState} of this game, can be null if there is currently no play state */
-	private PlayState playState;
+	private PlayState<?> playState;
 	/** A {@link GameState} that needs to be destroyed on the next OpenGL loop, or null if one doesn't need to be destroyed */
 	private GameState destroyState;
 	
@@ -986,19 +989,40 @@ public class Game implements Saveable, Destroyable{
 		this.nextCurrentState = null;
 	}
 	
-	/** @return See {@link #playState} */
-	public PlayState getPlayState(){
-		return this.playState;
+	/** @return See {@link #playState}. The returned play state is expected to be the vector type for what it is declared as */
+	@SuppressWarnings("unchecked")
+	public <V extends ZVector<V>> PlayState<V> getPlayState(){
+		return (PlayState<V>)this.playState;
 	}
 	
 	/**
 	 * @return The {@link Room} that the current {@link #playState} is using, or null if there is no play state. The system assumes the room will always be an appropriate
-	 * 		type for the game
+	 * 		type for the game. The returned room is expected to be the vector type for what it is declared as
 	 */
-	public Room<?> getCurrentRoom(){
+	@SuppressWarnings("unchecked")
+	public <V extends ZVector<V>> Room<V> getCurrentRoom(){
 		var p = this.getPlayState();
 		if(p == null) return null;
-		return p.getCurrentRoom();
+		return (Room<V>)p.getCurrentRoom();
+	}
+	
+	/**
+	 * @return The {@link Room} that the current {@link #playState} is using, or null if there is no play state. The system assumes the room will always be an appropriate
+	 * 		type for the game. This call expects the current room to already be 2D, if it is not, an exception will be thrown
+	 */
+	public Room2D getCurrentRoom2D(){
+		var p = this.getPlayState();
+		if(p == null) return null;
+		return (Room2D)p.getCurrentRoom();
+	}
+	
+	/**
+	 * @return The {@link Room} that the current {@link #playState} is using, or null if there is no play state. This call expects the current room to already be 3D, if it is not, an exception will be thrown
+	 */
+	public Room3D getCurrentRoom3D(){
+		var p = this.getPlayState();
+		if(p == null) return null;
+		return (Room3D)p.getCurrentRoom();
 	}
 	
 	/**
