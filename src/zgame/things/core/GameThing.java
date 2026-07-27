@@ -106,7 +106,7 @@ public abstract class GameThing<State extends GameThingState> implements Compara
 	 * @param to The room that this thing was added to
 	 */
 	@PackagePrivate
-	abstract <V extends ZVector<V>> void onThingRoomAdd(Room<V> to);
+	<V extends ZVector<V>> void onThingRoomAdd(Room<V> to){}
 	
 	/**
 	 * Called any time this game thing is removed from a room, does nothing by default, override to provide custom behavior

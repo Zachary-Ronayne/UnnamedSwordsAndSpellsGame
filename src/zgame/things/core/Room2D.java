@@ -261,18 +261,6 @@ public class Room2D extends Room<V2D> implements Bounds2D{
 		return this.wallSolid[wall];
 	}
 	
-	/** @return See {@link #width} */
-	@Override
-	public double getWidth(){
-		return this.width;
-	}
-	
-	/** @return See {@link #height} */
-	@Override
-	public double getHeight(){
-		return this.height;
-	}
-	
 	/** @return See {@link #xTiles} */
 	public int getXTiles(){
 		return this.xTiles;
@@ -284,33 +272,28 @@ public class Room2D extends Room<V2D> implements Bounds2D{
 	}
 	
 	@Override
-	public double getX(){
-		return 0;
+	public V2D getPosition(){
+		return new V2D();
 	}
 	
 	@Override
-	public double maxX(){
-		return this.getWidth();
+	public V2D getMaxPosition(){
+		return this.getDimensions();
 	}
 	
 	@Override
-	public double getY(){
-		return 0;
+	public V2D getDimensions(){
+		return new V2D(this.getWidth(), this.getHeight());
 	}
 	
 	@Override
-	public double maxY(){
-		return this.getHeight();
+	public double getWidth(){
+		return this.width;
 	}
 	
 	@Override
-	public double centerX(){
-		return this.getWidth() * 0.5;
-	}
-	
-	@Override
-	public double centerY(){
-		return this.getHeight() * 0.5;
+	public double getHeight(){
+		return this.height;
 	}
 	
 	/**
@@ -318,7 +301,7 @@ public class Room2D extends Room<V2D> implements Bounds2D{
 	 *
 	 * @param x The tile index on the x axis
 	 * @param y The tile on the y axis
-	 * @return The tile, or null if the tile is outside of the range of the grid
+	 * @return The tile, or null if the tile is outside the range of the grid
 	 */
 	public Tile2D getTile(int x, int y){
 		if(!ZMath.in(0, x, this.tiles.length - 1) || !ZMath.in(0, y, this.tiles[x].length - 1)) return null;
@@ -457,24 +440,28 @@ public class Room2D extends Room<V2D> implements Bounds2D{
 		this.wallMaterial = wallMaterial;
 	}
 	
-	// TODO probably do this in a better way to avoid casting
 	@Override
 	@SuppressWarnings("unchecked")
-	public Class<HitBox<V2D>> getHitBoxType(){
+	public Class<HitBox<V2D>> initHitBoxType(){
 		return (Class<HitBox<V2D>>) (Class<?>) HitBox.class;
 	}
 	
-	// TODO probably do this in a better way to avoid casting
 	@Override
 	@SuppressWarnings("unchecked")
-	public Class<EntityThing<V2D>> getEntityClass(){
+	public Class<EntityThing<V2D>> initEntityClass(){
 		return (Class<EntityThing<V2D>>) (Class<?>) EntityThing.class;
 	}
 	
-	// TODO figure out the correct way to do this
+	/**
+	 * @return A copy of all the entities in this room
+	 */
 	public NotNullList<EntityThing2D> getEntities(){
-		return super.getEntities();
+		var entities = super.getClassEntities();
+		
+		// This is dumb, copying each individual entity one by one in a list, this is only done for type conversion safety, can probably find a way to improve this
+		var copy = new NotNullList<EntityThing2D>();
+		for(var entity : entities) copy.add((EntityThing2D)entity);
+		return copy;
 	}
-	
 	
 }

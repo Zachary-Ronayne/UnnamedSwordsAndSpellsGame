@@ -32,6 +32,10 @@ public interface Bounds2D extends Position2D, Bounds<V2D>{
 		return this.getDimensions().getHeight();
 	}
 	
+	default V2D getCenterPosition(){
+		return new V2D(this.centerX(), this.centerY());
+	}
+	
 	/** @return The center x coordinate of this bounds */
 	default double centerX(){
 		return this.getX() + this.getWidth() * 0.5;

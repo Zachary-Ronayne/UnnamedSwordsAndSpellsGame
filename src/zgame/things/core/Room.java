@@ -11,6 +11,7 @@ import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
 import zgame.things.entity.state.GameThingState;
+import zgame.things.type.bounds.Bounds;
 import zgame.things.type.bounds.HitBox;
 
 /**
@@ -18,7 +19,7 @@ import zgame.things.type.bounds.HitBox;
  *
  * @param <V> The vectors used by entities in this room
  */
-public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingState>{
+public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingState> implements Bounds<V>{
 	
 	/** All the things in this room */
 	private final ClassMappedList thingsMap;
@@ -29,16 +30,24 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 	/** A list of things to do the next time this room is ticked. Once the tick happens, this list will be emptied */
 	private final List<Runnable> nextTickFuncs;
 	
+	/** The type of entities used by this room */
+	private final Class<EntityThing<V>> entityClass;
+	/** The type of hitboxes used by this room */
+	private final Class<HitBox<V>> hitBoxClass;
+	
 	/**
 	 * Create a new empty {@link Room}
 	 */
 	public Room(){
+		this.entityClass = this.initEntityClass();
+		this.hitBoxClass = this.initHitBoxType();
+		
 		this.thingsMap = new ClassMappedList();
 		this.thingsMap.addClass(GameThing.class);
 		// TODO should hitboxes be added here by default? It should probably just be the entity level that is looked at for collisions
-		this.thingsMap.addClass(this.getHitBoxType());
+		this.thingsMap.addClass(this.hitBoxClass);
 		this.thingsMap.addClass(GameTickable.class);
-		this.thingsMap.addClass(this.getEntityClass());
+		this.thingsMap.addClass(this.entityClass);
 		
 		this.thingsToRemove = new ArrayList<>();
 		this.nextTickFuncs = new ArrayList<>();
@@ -69,8 +78,8 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 	
 	/** @return A list of all the entities in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
 	@PackagePrivate
-	NotNullList<EntityThing<V>> getEntities(){
-		return this.thingsMap.get(this.getEntityClass());
+	NotNullList<EntityThing<V>> getClassEntities(){
+		return this.thingsMap.get(this.entityClass);
 	}
 	
 	/**
@@ -78,7 +87,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 	 * @return The entity, or null if no entity with that uuid exists in this room
 	 */
 	public EntityThing<V> getEntity(String uuid){
-		return this.thingsMap.getMap(this.getEntityClass()).get(uuid);
+		return this.thingsMap.getMap(this.entityClass).get(uuid);
 	}
 	
 	/** @return All the tickable things in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
@@ -88,14 +97,14 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 	
 	/** @return All the hitbox things in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
 	public NotNullList<HitBox<V>> getHitBoxThings(){
-		return this.thingsMap.get(this.getHitBoxType());
+		return this.thingsMap.get(this.hitBoxClass);
 	}
 	
-	/** @return The type of hitboxes used in this room should just return the class of H */
-	public abstract Class<HitBox<V>> getHitBoxType();
+	/** @return The type of hitboxes used in this room. Used only for initialization, should always return a constant value */
+	public abstract Class<HitBox<V>> initHitBoxType();
 	
-	/** @return The type of entities used by this class */
-	public abstract Class<EntityThing<V>> getEntityClass();
+	/** @return The type of entities used in this room. Used only for initialization, should always return a constant value */
+	public abstract Class<EntityThing<V>> initEntityClass();
 	
 	// TODO consider if initial coordinates should be set when adding a thing to a room or not
 	/**
@@ -151,7 +160,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 //			if(removed != null) checkEntity.addVelocity(removed.scale(-dt / checkEntity.getMass()));
 //		}
 		// Get all entities
-		var entities = this.getEntities();
+		var entities = this.getClassEntities();
 		
 		// Iterate through all entities, ignoring the given entity, and find the ones intersecting the given entity
 		for(int i = 0; i < entities.size(); i++){
@@ -239,7 +248,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 		}
 		
 		// Check the collisions for entities
-		var entities = this.getEntities();
+		var entities = this.getClassEntities();
 		for(int i = 0; i < entities.size(); i++){
 			// Skip if entity has no collision
 			var e = entities.get(i);

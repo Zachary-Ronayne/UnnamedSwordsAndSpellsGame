@@ -100,35 +100,31 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 	
 	/** The position of a room will always be the origin (0, 0, 0) */
 	@Override
-	public final double getX(){
-		return 0;
+	public V3D getPosition(){
+		return new V3D();
 	}
 	
-	/** The position of a room will always be the origin (0, 0, 0) */
+	// TODO probably do some of this logical implementation in a rectangular bounds interface, allowing this class to only need to implement position and dimensions
 	@Override
-	public final double getY(){
-		return 0;
-	}
-	
-	/** The position of a room will always be the origin (0, 0, 0) */
-	@Override
-	public final double getZ(){
-		return 0;
+	public V3D getMinPosition(){
+		return new V3D(-this.boundarySizes[EAST.i()], -this.boundarySizes[DOWN.i()], -this.boundarySizes[SOUTH.i()]);
 	}
 	
 	@Override
-	public double getWidth(){
-		return this.boundarySizes[WEST.i()] + this.boundarySizes[EAST.i()];
+	public V3D getMaxPosition(){
+		return new V3D(this.boundarySizes[WEST.i()], this.boundarySizes[UP.i()], this.boundarySizes[NORTH.i()]);
 	}
 	
 	@Override
-	public double getHeight(){
-		return this.boundarySizes[UP.i()] + this.boundarySizes[DOWN.i()];
-	}
-	
-	@Override
-	public double getLength(){
-		return this.boundarySizes[Direction3D.NORTH.i()] + this.boundarySizes[SOUTH.i()];
+	public V3D getDimensions(){
+		var min = this.getMinPosition();
+		var max = this.getMaxPosition();
+		
+		return new V3D(
+				Math.abs(min.getX() - max.getX()),
+				Math.abs(min.getY() - max.getY()),
+				Math.abs(min.getZ() - max.getZ())
+		);
 	}
 	
 	/**
@@ -551,23 +547,28 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 		return -1;
 	}
 	
-	// TODO probably do this in a better way to avoid casting
 	@Override
 	@SuppressWarnings("unchecked")
-	public Class<HitBox<V3D>> getHitBoxType(){
+	public Class<HitBox<V3D>> initHitBoxType(){
 		return (Class<HitBox<V3D>>)(Class<?>)HitBox.class;
 	}
 	
-	// TODO probably do this in a better way to avoid casting
 	@Override
 	@SuppressWarnings("unchecked")
-	public Class<EntityThing<V3D>> getEntityClass(){
+	public Class<EntityThing<V3D>> initEntityClass(){
 		return (Class<EntityThing<V3D>>)(Class<?>)EntityThing.class;
 	}
 	
-	// TODO figure out the correct way to do this
+	/**
+	 * @return A copy of all the entities in this room
+	 */
 	public NotNullList<EntityThing3D> getEntities(){
-		return super.getEntities();
+		var entities = super.getClassEntities();
+		
+		// This is dumb, copying each individual entity one by one in a list, this is only done for type conversion safety, can probably find a way to improve this
+		var copy = new NotNullList<EntityThing3D>();
+		for(var entity : entities) copy.add((EntityThing3D)entity);
+		return copy;
 	}
 	
 	/**
@@ -576,7 +577,7 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 	 * @param x The tile index on the x axis
 	 * @param y The tile index on the y axis
 	 * @param z The tile index on the z axis
-	 * @return The tile, or null if the tile is outside of the range of the grid
+	 * @return The tile, or null if the tile is outside the range of the grid
 	 */
 	public Tile3D getTile(int x, int y, int z){
 		if(!ZMath.in(0, x, this.tilesX) || !ZMath.in(0, y, this.tilesY) || !ZMath.in(0, z, this.tilesZ)) return null;
