@@ -4,7 +4,7 @@ import zgame.physics.V2D;
 import zgame.things.entity.mobility.Mobility2D;
 
 /** A type of {@link MobilityState} that exists in 2D space */
-public class MobilityState2D extends MobilityState<V2D>{
+public abstract class MobilityState2D extends MobilityState<V2D>{
 	
 	/** The direction walking. -1 for walking to the left, 0 for not walking, 1 for walking to the right */
 	private int walkingDirection;

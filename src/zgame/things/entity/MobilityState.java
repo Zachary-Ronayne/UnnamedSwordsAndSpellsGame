@@ -5,13 +5,14 @@ import zgame.things.entity.mobility.Mobility;
 import zgame.things.entity.mobility.Mobility2D;
 import zgame.things.entity.mobility.MobilityType;
 import zgame.things.entity.state.EntityState;
+import zgame.things.type.bounds.HitBox;
 
 /**
  * A data object used for storing values related to {@link Mobility}
  *
  * @param <V> The type of vectors using this class
  */
-public abstract class MobilityState<V extends ZVector<V>> extends EntityState<V>{
+public abstract class MobilityState<V extends ZVector<V>> extends EntityState<V> implements HitBox<V>{
 	
 	/** The string used to identify the force used to make this walk */
 	public static final String FORCE_WALKING = "walking";

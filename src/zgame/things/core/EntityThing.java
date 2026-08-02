@@ -10,7 +10,6 @@ import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.entity.projectile.Projectile;
 import zgame.things.entity.state.EntityState;
-import zgame.things.type.bounds.HitBox;
 
 /**
  * A thing is an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
@@ -19,7 +18,7 @@ import zgame.things.type.bounds.HitBox;
  * @param <V> The vector implementation used by this entity
  */
 // TODO probably remove hitbox from entity entirely, the main abstraction instead will sit in the entity state
-public abstract class EntityThing<V extends ZVector<V>> extends GameThing<EntityState<V>> implements GameTickable, HitBox<V>{
+public abstract class EntityThing<V extends ZVector<V>, ES extends EntityState<V>> extends GameThing<ES> implements GameTickable{
 	
 	/** The uuid of this entity */
 	private final String uuid;
@@ -38,18 +37,23 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 		this.getNext().setMass(mass);
 	}
 	
+	@Override
+	public ES getCurrent(){
+		return super.getCurrent();
+	}
+	
 	// TODO make proper docs explaining the stages of updating state in each section
 	
 	@Override
-	public final EntityState<V> initState(){
+	public final ES initState(){
 		return this.initEntityState(this.zeroVector(), this.getGravityAcceleration(), this.getClampVelocity());
 	}
 	
 	// TODO maybe make a better way of doing this than making each child class have to pass along all of these fields, for now making initState final so that these values are passed to mobility entity
-	protected abstract EntityState<V> initEntityState(V zeroVector, double gravityAcceleration, double clampVelocity);
+	protected abstract ES initEntityState(V zeroVector, double gravityAcceleration, double clampVelocity);
 	
 	@Override
-	public EntityState<V> copyState(EntityState<V> current, EntityState<V> next){
+	public ES copyState(ES current, ES next){
 		// TODO applyState should probably be part of the abstract method call in GameThing
 		current.applyState(next);
 		
@@ -214,17 +218,17 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 	}
 	
 	/**
-	 * @return The terminal velocity of this {@link EntityThing}. By default, based on the mass, the acceleration of gravity, the value of {@link #getGravityDragReferenceArea()},
+	 * @return The terminal velocity of this {@link EntityThing}. By default, based on the mass, the acceleration of gravity, the value of {@link EntityState#getGravityDragReferenceArea()},
 	 * 		and the friction of the ground material, which is also the air material when this {@link EntityThing} is not on the ground.
 	 * 		Returns 0 if this {@link EntityThing} is on the ground.
-	 * 		If {@link #getGravityDragReferenceArea()} returns 0, or is negative, then the value is ignored in the calculation.
+	 * 		If {@link EntityState#getGravityDragReferenceArea()} returns 0, or is negative, then the value is ignored in the calculation.
 	 * 		If this method is made to return a negative value, terminal velocity is removed, i.e. the force of gravity will continue to accelerate
 	 */
 	public double getTerminalVelocity(){
 		if(this.isOnGround()) return 0;
 		
 		Material m = this.getFloorMaterial();
-		double s = this.getGravityDragReferenceArea();
+		double s = this.getCurrent().getGravityDragReferenceArea();
 		double surfaceArea = (s <= 0) ? 1 : s;
 		
 		// Multiplied by 2.0 because the internet says that constant is there for the equation is for terminal velocity
@@ -241,7 +245,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 	 */
 	public abstract double getFrictionConstant();
 	
-	@Override
+	/** @return The material this entity is currently made of */
 	public Material getMaterial(){
 		return this.getCurrent().getMaterial();
 	}
@@ -420,7 +424,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing<Entity
 	 * @param entity The entity that was collided with this entity
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
-	public void checkEntityCollision(EntityThing<V> entity, double dt){}
+	public void checkEntityCollision(EntityThing<V, ES> entity, double dt){}
 	
 	/**
 	 * Add the given velocity to this entity

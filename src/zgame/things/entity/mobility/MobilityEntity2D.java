@@ -7,7 +7,7 @@ import zgame.things.entity.MobilityState2D;
 import zgame.things.entity.state.EntityState;
 
 /** A 2D entity which uses mobility capabilities */
-public abstract class MobilityEntity2D extends EntityThing2D implements Mobility2D{
+public abstract class MobilityEntity2D<ES extends MobilityState2D> extends EntityThing2D<ES> implements Mobility2D{
 	
 	/**
 	 * Create a new empty entity at (0, 0) with a mass of 100
@@ -46,12 +46,6 @@ public abstract class MobilityEntity2D extends EntityThing2D implements Mobility
 	public void tick(double dt){
 		this.mobilityTick();
 		super.tick(dt);
-	}
-	
-	// TODO should the state be obtained this way? Probably replace this with using next or current where applicable
-	@Override
-	public MobilityState2D getMobilityState(){
-		return (MobilityState2D)this.getCurrent();
 	}
 	
 	@Override

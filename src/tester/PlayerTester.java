@@ -7,7 +7,7 @@ import zgame.things.core.Room2D;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public abstract class PlayerTester extends MobilityEntity2D{
+public abstract class PlayerTester extends MobilityEntity2D<PlayerTesterState>{
 	
 	/** The width of this mob */
 	private double width;

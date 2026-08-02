@@ -101,6 +101,7 @@ public abstract class GameThing<State extends GameThingState> implements Compara
 		return true;
 	}
 	
+	// TODO move this to an interface for anything that can be added to a room?
 	/**
 	 * Called any time this game thing is added to a room, does nothing by default, override to provide custom behavior
 	 * @param to The room that this thing was added to

@@ -15,7 +15,6 @@ import java.util.*;
  *
  * @param <V> The type of vector that this state uses
  */
-// TODO Decide if entity state really should implement hitbox or not
 public abstract class EntityState<V extends ZVector<V>> extends GameThingState implements HitBox<V>{
 	
 	/** The string used to identify the force of gravity in {@link #forces} */
@@ -515,9 +514,7 @@ public abstract class EntityState<V extends ZVector<V>> extends GameThingState i
 	// TODO this will need to be deterministic, probably just always prefer setting no clip as false by default, only set it to true if nothing else sets it to false
 	/** @param noClip The new value to set {@link #noClip} */
 	public void scheduleNoClip(boolean noClip){
-		this.scheduleUpdate(() -> {
-			this.noClip = noClip;
-		});
+		this.scheduleUpdate(() -> this.noClip = noClip);
 	}
 	
 	public void schedulePosition(VectorUpdate<V> update){

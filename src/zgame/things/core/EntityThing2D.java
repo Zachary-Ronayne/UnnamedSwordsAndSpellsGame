@@ -1,17 +1,17 @@
 package zgame.things.core;
 
 import zgame.core.Game;
+import zgame.core.annotations.PackagePrivate;
 import zgame.core.graphics.Renderer;
 import zgame.physics.V2D;
 import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
 import zgame.things.entity.state.vector.EntityState2D;
-import zgame.things.type.bounds.HitBox2D;
 
 /**
  * An {@link EntityThing} in 2D
  */
-public abstract class EntityThing2D extends EntityThing<V2D> implements HitBox2D{
+public abstract class EntityThing2D<ES extends EntityState2D<ES>> extends EntityThing<V2D, ES>{
 	
 	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
 	
@@ -44,22 +44,18 @@ public abstract class EntityThing2D extends EntityThing<V2D> implements HitBox2D
 		this.getCurrent().initPosition(new V2D(x, y));
 	}
 	
+	// TODO is this how this should be handled?
 	@Override
-	protected EntityState2D initEntityState(V2D zeroVector, double gravityAcceleration, double clampVelocity){
-		return new EntityState2D(this, zeroVector, gravityAcceleration, clampVelocity);
+	@SuppressWarnings("unchecked")
+	public ES getCurrent(){
+		return (ES)super.getCurrent();
 	}
 	
-	/** @return Current x coordinate of this thing */
-	@Override
-	public double getX(){
-		return this.getPosition().getX();
-	}
-	
-	/** @return Current y coordinate of this thing */
-	@Override
-	public double getY(){
-		return this.getPosition().getY();
-	}
+	// TODO implement proper
+//	@Override
+//	protected ES initEntityState(V2D zeroVector, double gravityAcceleration, double clampVelocity){
+//		return new EntityState2D(this, zeroVector, gravityAcceleration, clampVelocity);
+//	}
 	
 	@Override
 	public void touchWall(Collision<V2D> result){
@@ -85,11 +81,6 @@ public abstract class EntityThing2D extends EntityThing<V2D> implements HitBox2D
 	}
 	
 	@Override
-	public double getGravityDragReferenceArea(){
-		return this.getWidth();
-	}
-	
-	@Override
 	public double getHorizontalVel(){
 		return this.getVX();
 	}
@@ -106,18 +97,20 @@ public abstract class EntityThing2D extends EntityThing<V2D> implements HitBox2D
 	
 	@Override
 	public boolean shouldRender(Renderer r){
-		return Game.get().getWindow().gameBoundsInScreen(this.getBounds());
+		return Game.get().getWindow().gameBoundsInScreen(this.getCurrent().getBounds());
 	}
 	
 	/**
 	 * Center the camera of the given {@link Game} to the center of this object
 	 */
 	public void centerCamera(){
-		Game.get().centerCamera(this.centerX(), this.centerY());
+		var center = this.getCurrent().getCenterPosition();
+		Game.get().centerCamera(center.getX(), center.getY());
 	}
 	
 	@Override
-	final <V extends ZVector<V>> void onThingRoomAdd(Room<V> to){
+	@PackagePrivate
+	final <V extends  ZVector<V>> void onThingRoomAdd(Room<V> to){
 		this.onRoomAdd((Room2D)to);
 	}
 	
