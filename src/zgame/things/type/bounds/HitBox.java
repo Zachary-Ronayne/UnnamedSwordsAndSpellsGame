@@ -20,6 +20,7 @@ public interface HitBox<V extends ZVector<V>> extends Materialable, Uuidable, Bo
 	 */
 	boolean intersects(HitBox<V> h);
 	
+	// TODO does this value need to be defined as a part of entity state?
 	/** @return The surface area of this hitbox as it moves down */
 	double getGravityDragReferenceArea();
 	

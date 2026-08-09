@@ -10,7 +10,6 @@ import zgame.core.utils.ClassMappedList;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
-import zgame.things.entity.state.GameThingState;
 import zgame.things.type.bounds.Bounds;
 import zgame.things.type.bounds.HitBox;
 
@@ -19,13 +18,13 @@ import zgame.things.type.bounds.HitBox;
  *
  * @param <V> The vectors used by entities in this room
  */
-public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingState> implements Bounds<V>{
+public abstract class Room<V extends ZVector<V>> extends GameThing implements Bounds<V>{
 	
 	/** All the things in this room */
 	private final ClassMappedList thingsMap;
 	
 	/** All of the {@link GameThing} objects which will be removed on the next game tick */
-	private final List<GameThing<?>> thingsToRemove;
+	private final List<GameThing> thingsToRemove;
 	
 	/** A list of things to do the next time this room is ticked. Once the tick happens, this list will be emptied */
 	private final List<Runnable> nextTickFuncs;
@@ -44,10 +43,10 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 		
 		this.thingsMap = new ClassMappedList();
 		this.thingsMap.addClass(GameThing.class);
-		// TODO should hitboxes be added here by default? It should probably just be the entity level that is looked at for collisions
 		this.thingsMap.addClass(this.hitBoxClass);
 		this.thingsMap.addClass(GameTickable.class);
 		this.thingsMap.addClass(this.entityClass);
+		this.thingsMap.addClass(Stateable.class);
 		
 		this.thingsToRemove = new ArrayList<>();
 		this.nextTickFuncs = new ArrayList<>();
@@ -66,14 +65,15 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 	
 	// TODO consider a better way of handling type parameters for objects in the class map
 	/** @return A list of all the things in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
-	private NotNullList<GameThing<?>> getThings(){
+	private NotNullList<GameThing> getThings(){
 		return getThingsForClass(GameThing.class);
 	}
 	
+	// TODO is this necessary now?
 	/** @return Same as {@link #getThings()}, but must provide a type for java weirdness */
 	@SuppressWarnings("unchecked")
-	private NotNullList<GameThing<?>> getThingsForClass(Class<?> clazz){
-		return (NotNullList<GameThing<?>>)(this.thingsMap.get(clazz));
+	private <T extends GameThing> NotNullList<GameThing> getThingsForClass(Class<T> clazz){
+		return (NotNullList<GameThing>)(this.thingsMap.get(clazz));
 	}
 	
 	/** @return A list of all the entities in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
@@ -95,6 +95,11 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 		return this.thingsMap.get(GameTickable.class);
 	}
 	
+	/** @return All the things in this room which use state. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
+	public NotNullList<Stateable> getStateThings(){
+		return this.thingsMap.get(Stateable.class);
+	}
+	
 	/** @return All the hitbox things in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
 	public NotNullList<HitBox<V>> getHitBoxThings(){
 		return this.thingsMap.get(this.hitBoxClass);
@@ -112,7 +117,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 	 *
 	 * @param thing The {@link GameThing} to add
 	 */
-	public void addThing(GameThing<?> thing){
+	public void addThing(GameThing thing){
 		this.thingsMap.add(thing);
 		thing.onThingRoomAdd(this);
 	}
@@ -123,7 +128,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 	 *
 	 * @param thing The {@link GameTickable} to remove
 	 */
-	public final void removeThing(GameThing<?> thing){
+	public final void removeThing(GameThing thing){
 		this.thingsToRemove.add(thing);
 	}
 	
@@ -255,11 +260,11 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 			if(e.isNoClip()) continue;
 			
 			// Check entity collision
-			e.getNext().collide(this.checkEntityCollisions(e, dt));
+			e.collide(this.checkEntityCollisions(e, dt));
 			
 			// TODO maybe make this two separate method calls
 			// Check for tile and boundary collisions
-			e.getNext().collide(this.collideInside(e));
+			e.collide(this.collideInside(e));
 		}
 		
 		// TODO consolidate this to the current and next state system
@@ -273,18 +278,18 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 		this.nextTickFuncs.clear();
 		
 		// Move all things to the next state
-		for(var thing : this.getThings()){
+		for(var thing : this.getStateThings()){
 			thing.updateState();
 		}
 	}
 	
-	// TODO add type parameter for GameThing<?>
+	// TODO move this concept of removing on the tick to the state system
 	/**
 	 * Called each time a thing is removed via {@link #tick(double)}, i.e. the thing was added to {@link #thingsToRemove}, and now it's being removed
 	 *
 	 * @param thing The thing to remove
 	 */
-	private void tickRemoveThing(GameThing<?> thing){
+	private void tickRemoveThing(GameThing thing){
 		this.thingsMap.remove(thing);
 		thing.onRoomRemove();
 	}
@@ -306,7 +311,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 	 * @param thing The thing to check for
 	 * @return true if it can enter, false otherwise. Always true by default, override to provide custom behavior
 	 */
-	public boolean canEnter(GameThing<?> thing){
+	public boolean canEnter(GameThing thing){
 		return true;
 	}
 	
@@ -316,7 +321,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing<GameThingStat
 	 * @param thing The thing to check for
 	 * @return true if it can leave, false otherwise. Always true by default, override to provide custom behavior
 	 */
-	public boolean canLeave(GameThing<?> thing){
+	public boolean canLeave(GameThing thing){
 		return true;
 	}
 	

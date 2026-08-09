@@ -32,7 +32,7 @@ public abstract class EntityThing3D extends EntityThing<V3D> implements HitBox3D
 	 */
 	public EntityThing3D(double x, double y, double z, double mass){
 		super(mass);
-		this.getCurrent().initPosition(new V3D(x, y, z));
+		this.initPosition(new V3D(x, y, z));
 	}
 	
 	@Override
@@ -71,7 +71,7 @@ public abstract class EntityThing3D extends EntityThing<V3D> implements HitBox3D
 		double velX = velocityMag * Math.cos(bounceAngle);
 		double velZ = velocityMag * Math.sin(bounceAngle);
 		
-		this.getNext().attemptSetVelocity(new V3D(velX, currentVel.getY(), velZ, true));
+		this.attemptSetVelocity(new V3D(velX, currentVel.getY(), velZ, true));
 		// TODO potentially move this to the abstract parent method if 3D and 2D don't need a distinction
 //		this.getNext().scaleVelocity(-1 * result.material().getWallBounce() * this.getMaterial().getWallBounce());
 	}

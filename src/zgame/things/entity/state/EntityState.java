@@ -5,6 +5,7 @@ import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.core.EntityThing;
+import zgame.things.core.GameThingState;
 import zgame.things.entity.state.vector.*;
 import zgame.things.type.bounds.HitBox;
 
@@ -15,7 +16,7 @@ import java.util.*;
  *
  * @param <V> The type of vector that this state uses
  */
-public abstract class EntityState<V extends ZVector<V>> extends GameThingState implements HitBox<V>{
+public abstract class EntityState<V extends ZVector<V>> extends GameThingState{
 	
 	/** The string used to identify the force of gravity in {@link #forces} */
 	public static final String FORCE_GRAVITY = "gravity";

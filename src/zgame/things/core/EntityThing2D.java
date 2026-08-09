@@ -3,15 +3,17 @@ package zgame.things.core;
 import zgame.core.Game;
 import zgame.core.annotations.PackagePrivate;
 import zgame.core.graphics.Renderer;
+import zgame.core.utils.ZRect2D;
 import zgame.physics.V2D;
 import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
+import zgame.things.entity.state.EntityState;
 import zgame.things.entity.state.vector.EntityState2D;
 
 /**
  * An {@link EntityThing} in 2D
  */
-public abstract class EntityThing2D<ES extends EntityState2D<ES>> extends EntityThing<V2D, ES>{
+public abstract class EntityThing2D extends EntityThing<V2D>{
 	
 	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
 	
@@ -41,28 +43,20 @@ public abstract class EntityThing2D<ES extends EntityState2D<ES>> extends Entity
 	 */
 	public EntityThing2D(double x, double y, double mass){
 		super(mass);
-		this.getCurrent().initPosition(new V2D(x, y));
+		this.initPosition(new V2D(x, y));
 	}
 	
-	// TODO is this how this should be handled?
 	@Override
-	@SuppressWarnings("unchecked")
-	public ES getCurrent(){
-		return (ES)super.getCurrent();
+	protected EntityState<V2D> initEntityState(V2D zeroVector, double gravityAcceleration, double clampVelocity){
+		return new EntityState2D(this, zeroVector, gravityAcceleration, clampVelocity){};
 	}
-	
-	// TODO implement proper
-//	@Override
-//	protected ES initEntityState(V2D zeroVector, double gravityAcceleration, double clampVelocity){
-//		return new EntityState2D(this, zeroVector, gravityAcceleration, clampVelocity);
-//	}
 	
 	@Override
 	public void touchWall(Collision<V2D> result){
 		super.touchWall(result);
 		// TODO test this formally and make sure this new approach makes sense
 //		this.setHorizontalVel(-this.getHorizontalVel() * result.material().getWallBounce() * this.getMaterial().getWallBounce());
-		this.getNext().scaleVelocity(-1 * result.material().getWallBounce() * this.getMaterial().getWallBounce());
+		this.scaleVelocity(-1 * result.material().getWallBounce() * this.getMaterial().getWallBounce());
 	}
 	
 	@Override
@@ -97,14 +91,14 @@ public abstract class EntityThing2D<ES extends EntityState2D<ES>> extends Entity
 	
 	@Override
 	public boolean shouldRender(Renderer r){
-		return Game.get().getWindow().gameBoundsInScreen(this.getCurrent().getBounds());
+		return Game.get().getWindow().gameBoundsInScreen(this.getBounds());
 	}
 	
 	/**
 	 * Center the camera of the given {@link Game} to the center of this object
 	 */
 	public void centerCamera(){
-		var center = this.getCurrent().getCenterPosition();
+		var center = this.getCenterPosition();
 		Game.get().centerCamera(center.getX(), center.getY());
 	}
 	
@@ -119,5 +113,12 @@ public abstract class EntityThing2D<ES extends EntityState2D<ES>> extends Entity
 	 * @param to The room this was added to
 	 */
 	public void onRoomAdd(Room2D to){}
+	
+	// TODO potentially move this to an abstract get bounds method
+	public ZRect2D getBounds(){
+		var pos = this.getPosition();
+		var dims = this.getDimensions();
+		return new ZRect2D(pos.getX(), pos.getY(), dims.getWidth(), pos.getHeight());
+	}
 	
 }

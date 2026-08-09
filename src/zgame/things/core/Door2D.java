@@ -8,6 +8,8 @@ import zgame.things.still.door.DoorState2D;
 /** A door for 2D rooms */
 public class Door2D extends Door<V2D, DoorState2D> implements {
 	
+	// TODO follow pattern, move DoorState to a separate object here
+	
 	@Override
 	public void tick(double dt){
 		if(!this.getCurrent().isAutoEnter()) return;

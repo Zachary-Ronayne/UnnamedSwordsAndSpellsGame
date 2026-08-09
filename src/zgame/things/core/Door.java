@@ -72,7 +72,7 @@ public abstract class Door<V extends ZVector<V>, State extends DoorState<V>> ext
 		// After leaving the given room, move it to the lead room
 		if(leadRoom != null){
 			// TODO schedule position update/teleport, or make updating the position a part of the logic for entering a room
-			thing.setPos(this.getRoomPos());
+			thing.initPosition(this.getRoomPos());
 			
 			leadRoom.addThing(thing);
 		}
