@@ -3,16 +3,32 @@ package zgame.things.core;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.V2D;
-import zgame.things.still.door.DoorState2D;
 
+// TODO needs to implement a RectBounds, or make this abstract to define bounds, make a RectDoor class
 /** A door for 2D rooms */
-public class Door2D extends Door<V2D, DoorState2D> implements {
+public class Door2D extends Door<V2D>{
 	
-	// TODO follow pattern, move DoorState to a separate object here
+	/** The default value of {@link #width */
+	public static final double WIDTH = 70;
+	/** The default value of {@link #height} */
+	public static final double HEIGHT = 150;
+	
+	/** true if entities which touch this door should automatically enter it, false otherwise */
+	private final boolean autoEnter;
+	
+	/**
+	 * @param leadRoom The room this door leads to
+	 * @param roomPos The position in the room this door leads to
+	 * @param autoEnter See {@link #autoEnter}
+	 */
+	public Door2D(Room<V2D> leadRoom, V2D roomPos, boolean autoEnter){
+		super(leadRoom, roomPos);
+		this.autoEnter = autoEnter;
+	}
 	
 	@Override
 	public void tick(double dt){
-		if(!this.getCurrent().isAutoEnter()) return;
+		if(!this.isAutoEnter()) return;
 		
 		// Check every entity and if it touches this door, move it to this Room
 		var room = Game.get().getCurrentRoom2D();

@@ -2,15 +2,13 @@ package zgame.things.core;
 
 import zgame.core.annotations.PackagePrivate;
 import zgame.physics.ZVector;
-import zgame.things.still.door.DoorState;
 import zgame.things.type.bounds.Bounds;
 
 /**
  * A door that can be interacted with to enter another {@link Room}
  * @param <V> The type of vectors this door uses
- * @param <State> The type of state that this door uses
  */
-public abstract class Door<V extends ZVector<V>, State extends DoorState<V>> extends StaticThing<V, State> implements Bounds<V>{
+public abstract class Door<V extends ZVector<V>> extends StaticThing<V> implements Bounds<V>{
 	
 	/** The {@link Room} which this door leads to. Can be null to make this a real fake door */
 	private final Room<V> leadRoom;

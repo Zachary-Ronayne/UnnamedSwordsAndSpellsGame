@@ -7,11 +7,11 @@ import zgame.things.type.bounds.Bounds;
 
 import java.util.UUID;
 
+// TODO is this object needed? Probably can delete this
+
 /** The state of a thing which does not move as an entity would, and generally doesn't move, but can be at an arbitrary position */
 public abstract class StaticThingState<V extends ZVector<V>> extends GameThingState implements Uuidable, Bounds<V>{
 	
-	/** The uuid representing this thing */
-	private final String uuid;
 	
 	/**
 	 * Create a new empty static thing
@@ -22,10 +22,5 @@ public abstract class StaticThingState<V extends ZVector<V>> extends GameThingSt
 		this.uuid = UUID.randomUUID().toString();
 	}
 	
-	/** @return See {@link #uuid} */
-	@Override
-	public String getUuid(){
-		return this.uuid;
-	}
 	
 }
