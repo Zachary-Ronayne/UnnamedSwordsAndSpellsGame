@@ -54,7 +54,6 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 	}
 	
 	// TODO make proper docs explaining the stages of updating state in each section
-	
 	private EntityState<V> initState(){
 		return this.initEntityState(this.zeroVector(), this.getGravityAcceleration(), this.getClampVelocity());
 	}

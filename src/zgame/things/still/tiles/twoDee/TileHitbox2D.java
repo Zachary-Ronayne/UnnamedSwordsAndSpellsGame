@@ -5,7 +5,6 @@ import zgame.physics.collision.Collision2D;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileHitbox;
 import zgame.things.type.bounds.HitBox;
-import zgame.things.type.bounds.HitBox2D;
 
 /** An object that represents the hitbox of a tile, i.e., what parts of the tile have collision */
 public interface TileHitbox2D extends TileHitbox<V2D>{

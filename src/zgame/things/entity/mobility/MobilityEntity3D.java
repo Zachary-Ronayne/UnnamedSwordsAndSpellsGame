@@ -2,13 +2,18 @@ package zgame.things.entity.mobility;
 
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.physics.V3D;
-import zgame.physics.collision.Collision3D;
+import zgame.physics.collision.Collision;
+import zgame.things.core.StateHolder;
 import zgame.things.entity.*;
-import zgame.things.entity.state.EntityState;
 import zgame.things.core.EntityThing3D;
 
 /** A 3D entity which uses mobility capabilities */
-public abstract class MobilityEntity3D extends EntityThing3D implements Mobility3D{
+public abstract class MobilityEntity3D extends EntityThing3D{
+	
+	// TODO allow entities to register their states collectively instead of everything having to manage state like this
+	// TODO make proper methods in mobility entity 2D and 3D to access and set state appropriately for mobility
+	/** State holding the mobility data for this entity */
+	private final StateHolder<MobilityState3D> mobilityState;
 	
 	/** An amount of distance this entity's vision begins from in front of its normal vision position */
 	private double visionForwardDistance;
@@ -33,11 +38,8 @@ public abstract class MobilityEntity3D extends EntityThing3D implements Mobility
 	public MobilityEntity3D(double x, double y, double z, double mass){
 		super(x, y, z, mass);
 		this.visionForwardDistance = 0;
-	}
-	
-	@Override
-	protected EntityState<V3D> initEntityState(V3D zeroVector, double gravityAcceleration, double clampVelocity){
-		return new MobilityState3D(gravityAcceleration, clampVelocity);
+		
+		this.mobilityState = new StateHolder<>(this::initMobilityState);
 	}
 	
 	/** @return See {@link #visionForwardDistance} */
@@ -56,15 +58,9 @@ public abstract class MobilityEntity3D extends EntityThing3D implements Mobility
 		super.tick(dt);
 	}
 	
-	// TODO should the state be obtained this way? Probably replace this with using next or current where applicable
+	// TODO should all of these things to call mobility touch floor methods be here?
 	@Override
-	public MobilityState3D getMobilityState(){
-		// TODO probably avoid having to cast this
-		return (MobilityState3D)this.getCurrent();
-	}
-	
-	@Override
-	public void touchFloor(Collision3D collision){
+	public void touchFloor(Collision<V3D> collision){
 		super.touchFloor(collision);
 		this.mobilityTouchFloor();
 		this.getMobilityState().setGroundedSinceLastJump(true);

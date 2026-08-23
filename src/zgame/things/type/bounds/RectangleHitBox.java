@@ -1,12 +1,20 @@
 package zgame.things.type.bounds;
 
 import zgame.core.utils.ZMath;
+import zgame.physics.V2D;
 import zgame.physics.collision.Collision2D;
 import zgame.physics.collision.ZCollision;
 import zgame.physics.material.Material;
 
-/** An interface which describe a simple hitbox with a width and height, representing a non rotating rectangle */
+/** An interface which describe a simple hitbox with a width and height, representing a non-rotating rectangle */
 public interface RectangleHitBox extends HitBox2D{
+	
+	@Override
+	default V2D getMaxPosition(){
+		var pos = this.getPosition();
+		var dims = this.getDimensions();
+		return new V2D(pos.getX() + dims.getWidth(), pos.getY() + dims.getHeight());
+	}
 	
 	@Override
 	default HitboxType getHitboxType(){
@@ -31,5 +39,10 @@ public interface RectangleHitBox extends HitBox2D{
 	@Override
 	default boolean intersectsCircle(double x, double y, double r){
 		return ZMath.circleIntersectsRect(x, y, r, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+	}
+	
+	@Override
+	default double getGravityDragReferenceArea(){
+		return this.getWidth();
 	}
 }

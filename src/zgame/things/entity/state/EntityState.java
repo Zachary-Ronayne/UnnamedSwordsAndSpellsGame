@@ -7,7 +7,6 @@ import zgame.physics.material.Materials;
 import zgame.things.core.EntityThing;
 import zgame.things.core.GameThingState;
 import zgame.things.entity.state.vector.*;
-import zgame.things.type.bounds.HitBox;
 
 import java.util.*;
 
@@ -216,6 +215,7 @@ public abstract class EntityState<V extends ZVector<V>> extends GameThingState{
 		// TODO then sort shortest by vector implementation, i.e. smallest y, then x, then z, or may want to prioritize vertical vs horizontal collisions
 		var sortedCollisions = collisionUpdates.stream().sorted(Comparator.comparingDouble((Collision<V> c) -> c.initialChange().getMagnitude())).toList();
 		
+		// TODO should the state or the entity be passed into this?
 		// For the first collision, fully apply it
 		this.position = sortedCollisions.get(0).newPos(this);
 		

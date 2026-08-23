@@ -1,6 +1,5 @@
 package zgame.things.entity.state.vector;
 
-import zgame.core.utils.ZRect2D;
 import zgame.physics.V2D;
 import zgame.things.core.EntityThing2D;
 import zgame.things.entity.state.EntityState;

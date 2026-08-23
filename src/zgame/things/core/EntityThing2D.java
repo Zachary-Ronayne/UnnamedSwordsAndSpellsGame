@@ -9,11 +9,12 @@ import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
 import zgame.things.entity.state.EntityState;
 import zgame.things.entity.state.vector.EntityState2D;
+import zgame.things.type.bounds.HitBox2D;
 
 /**
  * An {@link EntityThing} in 2D
  */
-public abstract class EntityThing2D extends EntityThing<V2D>{
+public abstract class EntityThing2D extends EntityThing<V2D> implements HitBox2D{
 	
 	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
 	
