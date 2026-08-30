@@ -1,4 +1,4 @@
-package zgame.things.core;
+package zgame.things.core.state;
 
 /** The base object representing a game thing's state */
 public abstract class GameThingState{
@@ -11,6 +11,7 @@ public abstract class GameThingState{
 	 * @param source The state to copy data from
 	 */
 	public void copyState(GameThingState source){
+		// TODO figure out what processing should be here
 	}
 	
 }

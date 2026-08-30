@@ -1,18 +1,15 @@
 package zgame.things.entity;
 
 import zgame.physics.ZVector;
-import zgame.things.entity.mobility.Mobility;
-import zgame.things.entity.mobility.Mobility2D;
 import zgame.things.entity.mobility.MobilityType;
 import zgame.things.entity.state.EntityState;
-import zgame.things.type.bounds.HitBox;
 
 /**
- * A data object used for storing values related to {@link Mobility}
+ * A data object used for storing values related to {@link MobilityState}
  *
  * @param <V> The type of vectors using this class
  */
-public abstract class MobilityState<V extends ZVector<V>> extends EntityState<V> implements HitBox<V>{
+public abstract class MobilityState<V extends ZVector<V>> extends EntityState<V>{
 	
 	/** The string used to identify the force used to make this walk */
 	public static final String FORCE_WALKING = "walking";
@@ -48,7 +45,7 @@ public abstract class MobilityState<V extends ZVector<V>> extends EntityState<V>
 	private MobilityType type;
 	
 	/**
-	 * Create a new walk object for use in {@link Mobility2D}
+	 * Create a new mobility state object
 	 *
 	 * @param zeroVector A vector with magnitude zero
 	 * @param gravityAcceleration The acceleration of gravity

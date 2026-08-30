@@ -1,7 +1,6 @@
 package zgame.things.entity;
 
 import zgame.physics.V3D;
-import zgame.things.entity.mobility.Mobility3D;
 import zgame.things.entity.mobility.MobilityType;
 
 /** A type of {@link MobilityState} that exists in 3D space */
@@ -25,8 +24,9 @@ public class MobilityState3D extends MobilityState<V3D>{
 	/** true if wanting to walk, false otherwise */
 	private boolean tryingToMove;
 	
+	// TODO update docs
 	/**
-	 * Create a new walk object for use in {@link Mobility3D}
+	 * Create a new walk object for use in {@link MobilityState3D}
 	 */
 	public MobilityState3D(double gravityAcceleration, double clampVelocity){
 		super(new V3D(), gravityAcceleration, clampVelocity);
@@ -38,6 +38,8 @@ public class MobilityState3D extends MobilityState<V3D>{
 		this.facingRoll = 0;
 		this.tryingToMove = false;
 	}
+	
+	// TODO move all of these values to an update system following the state pattern
 	
 	/** @return See {@link #movingYaw} */
 	public double getMovingYaw(){

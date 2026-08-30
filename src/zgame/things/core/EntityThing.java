@@ -1,6 +1,7 @@
 package zgame.things.core;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import zgame.core.GameTickable;
 import zgame.core.utils.ZMath;
@@ -8,6 +9,10 @@ import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
+import zgame.things.core.state.GameThingState;
+import zgame.things.core.state.StateHolder;
+import zgame.things.core.state.StateList;
+import zgame.things.core.state.Stateable;
 import zgame.things.entity.projectile.Projectile;
 import zgame.things.entity.state.EntityState;
 import zgame.things.type.bounds.HitBox;
@@ -23,9 +28,11 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 	/** The uuid of this entity */
 	private final String uuid;
 	
-	// TODO probably move this to an object that tracks a list of states for each level of abstraction for the game thing
 	/** Tracks the current state of this entity */
 	private final StateHolder<EntityState<V>> entityState;
+	
+	/** The state objects associated with this entity */
+	private final StateList stateList;
 	
 	/**
 	 * Create a new empty entity with the given mass
@@ -36,11 +43,22 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 		super();
 		this.uuid = UUID.randomUUID().toString();
 		
-		this.entityState = new StateHolder<>(this::initState);
+		this.stateList = new StateList();
+		this.entityState = this.registerState(this::initState);
 		
 		// TODO update mass properly, also probably remove it from the constructor, just default the value to 1, and anything that needs to set mass can do it in its constructor
 		this.entityStateCurrent().setMass(mass);
 		this.entityStateNext().setMass(mass);
+		
+	}
+	
+	/**
+	 * @param initState A state holder that should be managed by this entity
+	 * @return The function used to initialize the state
+	 * @param <T> The type of state to manage
+	 */
+	protected <T extends GameThingState> StateHolder<T> registerState(Supplier<T> initState){
+		return this.stateList.register(initState);
 	}
 	
 	/** @return The state object to read data from, never write */
@@ -53,7 +71,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 		return this.entityState.getNext();
 	}
 	
-	// TODO make proper docs explaining the stages of updating state in each section
+	/** @return A state with the default values of an entity */
 	private EntityState<V> initState(){
 		return this.initEntityState(this.zeroVector(), this.getGravityAcceleration(), this.getClampVelocity());
 	}
@@ -82,8 +100,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 	
 	@Override
 	public void updateState(){
-		// TODO make this happen for all states in the abstraction layer
-		this.entityState.updateState();
+		this.stateList.updateStates();
 	}
 	
 	/**

@@ -2,15 +2,12 @@ package zgame.things.entity.mobility;
 
 import zgame.physics.V2D;
 import zgame.physics.collision.Collision;
-import zgame.physics.collision.Collision2D;
 import zgame.things.core.EntityThing2D;
-import zgame.things.core.StateHolder;
-import zgame.things.entity.MobilityState;
+import zgame.things.core.state.StateHolder;
 import zgame.things.entity.MobilityState2D;
-import zgame.things.entity.state.EntityState;
 
 /** A 2D entity which uses mobility capabilities */
-public abstract class MobilityEntity2D extends EntityThing2D{
+public abstract class MobilityEntity2D extends EntityThing2D implements Mobility2D{
 	
 	/** State holding the mobility data for this entity */
 	private final StateHolder<MobilityState2D> mobilityState;
@@ -41,11 +38,11 @@ public abstract class MobilityEntity2D extends EntityThing2D{
 	 */
 	public MobilityEntity2D(double x, double y, double mass){
 		super(x, y, mass);
-		this.mobilityState = new StateHolder<>(this::initState);
+		this.mobilityState = this.registerState(this::initMobilityState);
 	}
 	
 	// TODO make proper docs explaining the stages of updating state in each section
-	private MobilityState2D initState(){
+	private MobilityState2D initMobilityState(){
 		return new MobilityState2D(this.getGravityAcceleration(), this.getClampVelocity());
 	}
 	

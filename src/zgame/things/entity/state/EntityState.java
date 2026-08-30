@@ -5,7 +5,7 @@ import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.core.EntityThing;
-import zgame.things.core.GameThingState;
+import zgame.things.core.state.GameThingState;
 import zgame.things.entity.state.vector.*;
 
 import java.util.*;
@@ -304,8 +304,6 @@ public abstract class EntityState<V extends ZVector<V>> extends GameThingState{
 	public double getGravityLevel(){
 		return this.gravityLevel;
 	}
-	
-	// TODO handle with an update system
 	
 	/** @param gravityLevel See {@link #gravityLevel} */
 	public void setGravityLevel(double gravityLevel){

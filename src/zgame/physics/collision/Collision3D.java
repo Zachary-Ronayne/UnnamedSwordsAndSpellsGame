@@ -27,8 +27,6 @@ public non-sealed class Collision3D extends Collision<V3D>{
 	/**
 	 * Create a new {@link Collision3D} with the given amount of movement, where no walls were collided with
 	 *
-	 * @param originalPos The position of the hitbox before the collision
-	 * @param newPos The new position the hitbox should have after the collision
 	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
 	 */
 	public Collision3D(HitBox<V3D> hitBox, Function<HitBox<V3D>, V3D> computeNewPosition, Material material){
@@ -38,8 +36,6 @@ public non-sealed class Collision3D extends Collision<V3D>{
 	/**
 	 * Create a new {@link Collision3D} with the given values
 	 *
-	 * @param originalPos The position of the hitbox before the collision
-	 * @param newPos The new position the hitbox should have after the collision
 	 * @param wall See {@link #wall}
 	 * @param ceiling See {@link #ceiling}
 	 * @param floor See {@link #floor}

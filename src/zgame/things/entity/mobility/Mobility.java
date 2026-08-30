@@ -35,6 +35,9 @@ public interface Mobility<V extends ZVector<V>>{
 		this.updateJumpState();
 	}
 	
+	/** @return The mass of the thing using this mobility */
+	double getMass();
+	
 	/**
 	 * Perform all actions needed to happen in a tick to make this thing fly
 	 */
@@ -58,8 +61,7 @@ public interface Mobility<V extends ZVector<V>>{
 		double dt = state.getTickTime();
 		
 		// issue#55 fix having too much control of movement while in the air, changing walking direction should decelerate and accelerate
-		
-		double mass = state.getMass();
+		double mass = this.getMass();
 		double walkForce = this.getWalkPower() / dt;
 		// See if trying to walk before doing any modifications to the walk force
 		boolean walking = walkForce != 0;
@@ -118,7 +120,7 @@ public interface Mobility<V extends ZVector<V>>{
 		
 		var currentVel = state.getVelocity();
 		
-		double mass = state.getMass();
+		double mass = this.getMass();
 		double newFlyForce = this.getFlyPower() / dt;
 		double maxSpeed = this.getFlySpeedMax();
 		double currentVelMag = currentVel.getMagnitude();
@@ -242,7 +244,7 @@ public interface Mobility<V extends ZVector<V>>{
 			double vy = state.getVelocity().getVertical();
 			boolean invert = this.jumpingInverted();
 			if(invert && vy < 0 || !invert && vy > 0){
-				double mass = state.getMass();
+				double mass = this.getMass();
 				double power = this.getJumpStopPower();
 				double newStopJumpVel = power / mass;
 				double newStopJumpForce = -power / dt;
@@ -315,7 +317,7 @@ public interface Mobility<V extends ZVector<V>>{
 		// If falling downwards, add additional force so that the jump force will counteract the current downwards force
 		var state = this.getMobilityState();
 		double vy = state.getVelocity().getVertical();
-		double mass = state.getMass();
+		double mass = this.getMass();
 		if(invert && vy > 0 || !invert && vy < 0){
 			double adjust = vy / dt * mass;
 			if(invert) jumpAmount += adjust;

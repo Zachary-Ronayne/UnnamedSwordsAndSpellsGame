@@ -2,7 +2,7 @@ package zgame.things.still;
 
 import zgame.core.utils.Uuidable;
 import zgame.physics.ZVector;
-import zgame.things.core.GameThingState;
+import zgame.things.core.state.GameThingState;
 import zgame.things.type.bounds.Bounds;
 
 import java.util.UUID;

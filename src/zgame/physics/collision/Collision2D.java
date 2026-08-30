@@ -26,8 +26,6 @@ public non-sealed class Collision2D extends Collision<V2D>{
 	/**
 	 * Create a new {@link Collision2D} with the given amount of movement, where no walls were collided with
 	 *
-	 * @param originalPos The position of the hitbox before the collision
-	 * @param newPos The new position the hitbox should have after the collision
 	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
 	 */
 	public Collision2D(HitBox<V2D> hitBox, Function<HitBox<V2D>, V2D> computeNewPosition, Material material){
@@ -37,8 +35,6 @@ public non-sealed class Collision2D extends Collision<V2D>{
 	/**
 	 * Create a new {@link Collision2D} with the given values
 	 *
-	 * @param originalPos The position of the hitbox before the collision
-	 * @param newPos The new position the hitbox should have after the collision
 	 * @param left See {@link #left}
 	 * @param right See {@link #right}
 	 * @param ceiling See {@link #ceiling}

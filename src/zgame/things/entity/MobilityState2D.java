@@ -12,6 +12,8 @@ public class MobilityState2D extends MobilityState<V2D>{
 	/** The angle, in radians, trying to fly at */
 	private double flyingAngle;
 	
+	// TODO move all of these values to an update system following the state pattern
+	
 	/**
 	 * Create a new walk object for use in {@link Mobility2D}
 	 *

@@ -26,12 +26,10 @@ public class LevelDoor extends ZusassDoor{
 	/** A buffer holding the text to display the level of this door, initialized on the first frame of rendering */
 	private final DrawableBuffer3D levelTextBuffer;
 	
+	// TODO udpate docs
 	/**
 	 * Create a new LevelDoor at the given location
 	 *
-	 * @param x See {@link #x}
-	 * @param y See {@link #y}
-	 * @param z See {@link #z}
 	 * @param level See {@link #level}
 	 * @param direction See {@link #getFacingDirection()}
 	 */

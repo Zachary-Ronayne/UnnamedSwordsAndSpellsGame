@@ -10,6 +10,7 @@ import zgame.core.utils.ClassMappedList;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
+import zgame.things.core.state.Stateable;
 import zgame.things.type.bounds.Bounds;
 import zgame.things.type.bounds.HitBox;
 

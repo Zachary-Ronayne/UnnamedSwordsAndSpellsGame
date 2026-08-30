@@ -1,8 +1,10 @@
-package zgame.things.core;
+package zgame.things.core.state;
 
 import zgame.core.GameTickable;
 import zgame.core.annotations.PackagePrivate;
 import zgame.physics.ZVector;
+import zgame.things.core.GameThing;
+import zgame.things.core.Room;
 
 import java.util.UUID;
 

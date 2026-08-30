@@ -1,4 +1,4 @@
-package zgame.things.core;
+package zgame.things.core.state;
 
 import java.util.function.Supplier;
 

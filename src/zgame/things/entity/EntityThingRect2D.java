@@ -11,13 +11,11 @@ public abstract class EntityThingRect2D extends EntityThing2D implements Rectang
 	/** The height of this thing */
 	private double height;
 	
+	// TODO update docs
 	/**
 	 * Create a new entity with the given values
-	 * @param x See {@link #x}
-	 * @param y See {@link #y}
 	 * @param w See {@link #width}
 	 * @param h See {@link #height}
-	 * @param mass See {@link #mass}
 	 */
 	public EntityThingRect2D(double x, double y, double w, double h, double mass){
 		super(x, y, mass);

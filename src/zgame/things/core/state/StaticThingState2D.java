@@ -1,46 +1,37 @@
-package zgame.things.core;
+package zgame.things.core.state;
 
-import zgame.physics.V3D;
+import zgame.physics.V2D;
 import zgame.things.still.StaticThingState;
-import zgame.things.type.bounds.Bounds3D;
+import zgame.things.type.bounds.Bounds2D;
 
-/** A 3D thing which does not move as an entity would, and generally doesn't move, but can be at an arbitrary position */
-public abstract class StaticThingState3D extends StaticThingState<V3D> implements Bounds3D{
+/** A 2D thing which does not move as an entity would, and generally doesn't move, but can be at an arbitrary position */
+public abstract class StaticThingState2D extends StaticThingState<V2D> implements Bounds2D{
 	
-	/** The bottom middle x coordinate of this thing */
+	/** The upper left hand x coordinate of this thing */
 	private double x;
-	/** The bottom middle y coordinate of this thing */
+	/** The upper left hand y coordinate of this thing */
 	private double y;
-	/** The bottom middle z coordinate of this thing */
-	private double z;
 	/** The width of this thing */
 	private double width;
 	/** The height of this thing */
 	private double height;
-	/** The length of this thing */
-	private double length;
 	
 	/**
 	 * Create a new entity with the given values
 	 * @param x See {@link #x}
 	 * @param y See {@link #y}
-	 * @param z See {@link #z}
 	 * @param w See {@link #width}
 	 * @param h See {@link #height}
-	 * @param l See {@link #length}
 	 */
-	public StaticThingState3D(double x, double y, double z, double w, double h, double l){
+	public StaticThingState2D(double x, double y, double w, double h){
 		super();
 		this.setX(x);
 		this.setY(y);
-		this.setZ(z);
 		this.setWidth(w);
 		this.setHeight(h);
-		this.setLength(l);
 	}
 	
 	/** @return See {@link #x} */
-	@Override
 	public double getX(){
 		return this.x;
 	}
@@ -51,7 +42,6 @@ public abstract class StaticThingState3D extends StaticThingState<V3D> implement
 	}
 	
 	/** @return See {@link #y} */
-	@Override
 	public double getY(){
 		return this.y;
 	}
@@ -61,19 +51,7 @@ public abstract class StaticThingState3D extends StaticThingState<V3D> implement
 		this.y = y;
 	}
 	
-	/** @return See {@link #z} */
-	@Override
-	public double getZ(){
-		return this.z;
-	}
-	
-	/** @param z See {@link #z} */
-	public void setZ(double z){
-		this.z = z;
-	}
-	
 	/** @return See {@link #width} */
-	@Override
 	public double getWidth(){
 		return this.width;
 	}
@@ -84,7 +62,6 @@ public abstract class StaticThingState3D extends StaticThingState<V3D> implement
 	}
 	
 	/** @return See {@link #height} */
-	@Override
 	public double getHeight(){
 		return this.height;
 	}
@@ -94,15 +71,14 @@ public abstract class StaticThingState3D extends StaticThingState<V3D> implement
 		this.height = height;
 	}
 	
-	/** @return See {@link #length} */
 	@Override
-	public double getLength(){
-		return this.length;
+	public double maxX(){
+		return this.getX() + this.getWidth();
 	}
 	
-	/** @param length See {@link #length} */
-	public void setLength(double length){
-		this.length = length;
+	@Override
+	public double maxY(){
+		return this.getY() + this.getHeight();
 	}
 	
 }

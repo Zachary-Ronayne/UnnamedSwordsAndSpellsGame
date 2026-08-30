@@ -3,14 +3,13 @@ package zgame.things.entity.mobility;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.physics.V3D;
 import zgame.physics.collision.Collision;
-import zgame.things.core.StateHolder;
+import zgame.things.core.state.StateHolder;
 import zgame.things.entity.*;
 import zgame.things.core.EntityThing3D;
 
 /** A 3D entity which uses mobility capabilities */
-public abstract class MobilityEntity3D extends EntityThing3D{
+public abstract class MobilityEntity3D extends EntityThing3D implements Mobility3D{
 	
-	// TODO allow entities to register their states collectively instead of everything having to manage state like this
 	// TODO make proper methods in mobility entity 2D and 3D to access and set state appropriately for mobility
 	/** State holding the mobility data for this entity */
 	private final StateHolder<MobilityState3D> mobilityState;
@@ -27,20 +26,24 @@ public abstract class MobilityEntity3D extends EntityThing3D{
 		this(0, 0, 0, mass);
 	}
 	
+	// TODO udpate docs
 	/**
 	 * Create a new empty entity with the given mass
 	 *
-	 * @param x See {@link #x}
-	 * @param y See {@link #y}
-	 * @param z See {@link #z}
 	 * @param mass The initial mass of the entity
 	 */
 	public MobilityEntity3D(double x, double y, double z, double mass){
 		super(x, y, z, mass);
 		this.visionForwardDistance = 0;
 		
-		this.mobilityState = new StateHolder<>(this::initMobilityState);
+		this.mobilityState = this.registerState(this::initMobilityState);
 	}
+	
+	// TODO make proper docs explaining the stages of updating state in each section
+	private MobilityState3D initMobilityState(){
+		return new MobilityState3D(this.getGravityAcceleration(), this.getClampVelocity());
+	}
+	
 	
 	/** @return See {@link #visionForwardDistance} */
 	public double getVisionForwardDistance(){

@@ -2,6 +2,7 @@ package zgame.things.core;
 
 import zgame.core.annotations.PackagePrivate;
 import zgame.physics.ZVector;
+import zgame.things.core.state.StaticThing;
 import zgame.things.type.bounds.Bounds;
 
 /**

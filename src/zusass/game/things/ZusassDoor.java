@@ -30,9 +30,6 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 	/**
 	 * Create a new door at the given position
 	 *
-	 * @param x See {@link #x}
-	 * @param y See {@link #y}
-	 * @param z See {@link #z}
 	 * @param direction The facing direction of the door, must be one of the cardinal directions
 	 */
 	public ZusassDoor(double x, double y, double z, Direction3D direction){

@@ -1,4 +1,4 @@
-package zgame.things.core;
+package zgame.things.core.state;
 
 /** Ab object which has a state that can be updated */
 public interface Stateable{
