@@ -2,12 +2,6 @@ package zgame.physics.collision;
 
 import zgame.core.utils.ZStringUtils;
 import zgame.physics.V2D;
-import zgame.physics.material.Material;
-import zgame.physics.material.Materials;
-import zgame.things.type.Position;
-import zgame.things.type.bounds.HitBox;
-
-import java.util.function.Function;
 
 /** An object containing values for what should happen to an object when it collides with something in 2D */
 public non-sealed class Collision2D extends Collision<V2D>{
@@ -18,18 +12,12 @@ public non-sealed class Collision2D extends Collision<V2D>{
 	private final boolean right;
 	
 	// TODO update constructor docs
-	/** A response representing no collision occurring */
-	public Collision2D(HitBox<V2D> hitBox){
-		this(hitBox, Position::getPosition, Materials.NONE);
-	}
-	
 	/**
 	 * Create a new {@link Collision2D} with the given amount of movement, where no walls were collided with
 	 *
-	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
 	 */
-	public Collision2D(HitBox<V2D> hitBox, Function<HitBox<V2D>, V2D> computeNewPosition, Material material){
-		this(hitBox, computeNewPosition, false, false, false, false, material);
+	public Collision2D(){
+		this(new V2D(), false, false, false, false);
 	}
 	
 	/**
@@ -39,10 +27,9 @@ public non-sealed class Collision2D extends Collision<V2D>{
 	 * @param right See {@link #right}
 	 * @param ceiling See {@link #ceiling}
 	 * @param floor See {@link #floor}
-	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
 	 */
-	public Collision2D(HitBox<V2D> hitBox, Function<HitBox<V2D>, V2D> computeNewPosition, boolean left, boolean right, boolean ceiling, boolean floor, Material material){
-		super(hitBox, computeNewPosition, material, left || right, ceiling, floor);
+	public Collision2D(V2D newPos, boolean left, boolean right, boolean ceiling, boolean floor){
+		super(newPos, left || right, ceiling, floor);
 		this.left = left;
 		this.right = right;
 	}
@@ -85,13 +72,13 @@ public non-sealed class Collision2D extends Collision<V2D>{
 					this.material()
 			);
 		}
-		return new Collision2D(s * this.x(), s * this.y(), this.left(), this.right(), this.ceiling(), this.floor(), this.material());
+		return new Collision2D(s * this.x(), s * this.y(), this.left(), this.right(), this.ceiling(), this.floor());
 	}
 	
 	@Override
 	public String toString(){
 		return ZStringUtils.concat("[CollisionResponse: newPos: ", this.newPos(), ", left: ", this.left(), ", right: ", this.right(), ", ceiling: ", this.ceiling(),
-				", floor: ", this.floor(), ", material: ", this.material(), "]");
+				", floor: ", this.floor(), "]");
 	}
 	
 	// TODO probably do this in a better way to avoid casting

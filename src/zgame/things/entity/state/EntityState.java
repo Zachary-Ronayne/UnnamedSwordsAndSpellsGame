@@ -6,6 +6,7 @@ import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.core.EntityThing;
 import zgame.things.core.state.GameThingState;
+import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.entity.state.vector.*;
 
 import java.util.*;
@@ -87,7 +88,7 @@ public abstract class EntityState<V extends ZVector<V>> extends GameThingState{
 	private final VectorUpdateList<V> positionUpdates;
 	
 	/** Collisions that the entity encountered that must be applied */
-	private final ArrayList<Collision<V>> collisionUpdates;
+	private final ArrayList<CollisionUpdate<V>> collisionUpdates;
 	
 	public EntityState(V zeroVector, double gravityAcceleration, double clampVelocity){
 		this.clampVelocity = clampVelocity;
@@ -143,6 +144,7 @@ public abstract class EntityState<V extends ZVector<V>> extends GameThingState{
 		this.position = pos;
 	}
 	
+	// TODO make sure this gets called as a part of copyState from GameThingState
 	// TODO is passing in the previous state needed? Where should it be used that it isn't being used?
 	public void applyState(EntityState<V> updated){
 		// First update position based on velocity
@@ -151,7 +153,7 @@ public abstract class EntityState<V extends ZVector<V>> extends GameThingState{
 		// Now apply position updates
 		this.position = this.positionUpdates.apply(newPos);
 		
-		// Update misc fields
+		// Update misc fieldsCollision
 		// TODO avoid having to copy these every time if nothing changes
 		this.tickTime = updated.getTickTime();
 		this.mass = updated.getMass();
@@ -213,15 +215,15 @@ public abstract class EntityState<V extends ZVector<V>> extends GameThingState{
 		
 		// Sort collisions, by shortest distance first
 		// TODO then sort shortest by vector implementation, i.e. smallest y, then x, then z, or may want to prioritize vertical vs horizontal collisions
-		var sortedCollisions = collisionUpdates.stream().sorted(Comparator.comparingDouble((Collision<V> c) -> c.initialChange().getMagnitude())).toList();
+		var sortedCollisions = collisionUpdates.stream().sorted(Comparator.comparingDouble((CollisionUpdate<V> c) -> c.getCollision().newPos().getMagnitude())).toList();
 		
 		// TODO should the state or the entity be passed into this?
 		// For the first collision, fully apply it
-		this.position = sortedCollisions.get(0).newPos(this);
+		this.position = sortedCollisions.get(0).getCollision().computeNewPos(this);
 		
 		// For the rest of the collisions, find where it would be collided based on this object's current position
 		for(int i = 1; i < sortedCollisions.size(); i++){
-			this.position = sortedCollisions.get(i).newPos(this);
+			this.position = sortedCollisions.get(i).getCollision().computeNewPos(this);
 		}
 		
 		// All collisions are applied
@@ -525,6 +527,7 @@ public abstract class EntityState<V extends ZVector<V>> extends GameThingState{
 		this.schedulePosition(new ForceSetVector<>(position));
 	}
 	
+	// TODO figure out how these will be given updates
 	/** @param c A collision that should happen for the entity */
 	public void collide(Collision<V> c){
 		this.collisionUpdates.add(c);

@@ -299,6 +299,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 		this.entityStateNext().leaveFloor();
 	}
 	
+	// TODO make these methods consume collision udpates
 	/**
 	 * A method that defines what this object does when it touches a floor
 	 *

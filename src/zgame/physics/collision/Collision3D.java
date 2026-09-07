@@ -2,12 +2,6 @@ package zgame.physics.collision;
 
 import zgame.core.utils.ZStringUtils;
 import zgame.physics.V3D;
-import zgame.physics.material.Material;
-import zgame.physics.material.Materials;
-import zgame.things.type.Position;
-import zgame.things.type.bounds.HitBox;
-
-import java.util.function.Function;
 
 /** An object containing values for what should happen to an object when it collides with something in 3D */
 public non-sealed class Collision3D extends Collision<V3D>{
@@ -17,20 +11,16 @@ public non-sealed class Collision3D extends Collision<V3D>{
 	
 	// TODO update constructor docs
 	/**
-	 * A response representing no collision occurring
-	 * @param hitBox The hitbox the collision applies to
 	 */
-	public Collision3D(HitBox<V3D> hitBox){
-		this(hitBox, Position::getPosition, Materials.NONE);
+	public Collision3D(){
+		this(new V3D());
 	}
 	
 	/**
 	 * Create a new {@link Collision3D} with the given amount of movement, where no walls were collided with
-	 *
-	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
 	 */
-	public Collision3D(HitBox<V3D> hitBox, Function<HitBox<V3D>, V3D> computeNewPosition, Material material){
-		this(hitBox, computeNewPosition, false, false, false, material, 0);
+	public Collision3D(V3D newPos){
+		this(newPos, false, false, false);
 	}
 	
 	/**
@@ -39,11 +29,10 @@ public non-sealed class Collision3D extends Collision<V3D>{
 	 * @param wall See {@link #wall}
 	 * @param ceiling See {@link #ceiling}
 	 * @param floor See {@link #floor}
-	 * @param material See {@link #material}. Can use null to set to {@link Materials#NONE}
 	 * @param wallAngle See {@link #wallAngle}
 	 */
-	public Collision3D(HitBox<V3D> hitBox, Function<HitBox<V3D>, V3D> computeNewPosition, boolean wall, boolean ceiling, boolean floor, Material material, double wallAngle){
-		super(hitBox, computeNewPosition, material, wall, ceiling, floor);
+	public Collision3D(V3D newPos, boolean wall, boolean ceiling, boolean floor, double wallAngle){
+		super(newPos, wall, ceiling, floor);
 		this.wallAngle = wallAngle;
 	}
 	
@@ -61,7 +50,7 @@ public non-sealed class Collision3D extends Collision<V3D>{
 	@Override
 	public String toString(){
 		return ZStringUtils.concat("[CollisionResponse: change: ", this.initialChange(), ", wall: ", this.wall(), ", ceiling: ", this.ceiling(),
-				", floor: ", this.floor(), ", material: ", this.material(), ", wallAngle: ", this.wallAngle(), "]");
+				", floor: ", this.floor(), ", wallAngle: ", this.wallAngle(), "]");
 	}
 	
 	// TODO probably do this in a better way to avoid casting
