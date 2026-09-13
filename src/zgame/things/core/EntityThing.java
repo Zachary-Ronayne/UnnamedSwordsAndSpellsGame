@@ -15,6 +15,7 @@ import zgame.things.core.state.StateList;
 import zgame.things.core.state.Stateable;
 import zgame.things.entity.projectile.Projectile;
 import zgame.things.entity.state.EntityState;
+import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.type.bounds.HitBox;
 
 /**
@@ -305,7 +306,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 	 *
 	 * @param collision The collision resulting in the floor being touched
 	 */
-	public void touchFloor(Collision<V> collision){
+	public void touchFloor(CollisionUpdate<V> collision){
 		var touched = collision.material();
 		this.entityStateNext().touchFloor(touched);
 		
@@ -323,7 +324,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 	 *
 	 * @param collision The collision resulting in the ceiling being touched
 	 */
-	public void touchCeiling(Collision<V> collision){
+	public void touchCeiling(CollisionUpdate<V> collision){
 		var touched = collision.material();
 		this.entityStateNext().touchCeiling(touched);
 		
@@ -344,7 +345,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 	 *
 	 * @param collision The collision resulting in the wall being touched
 	 */
-	public void touchWall(Collision<V> collision){
+	public void touchWall(CollisionUpdate<V> collision){
 		var touched = collision.material();
 		this.entityStateNext().touchWall(touched);
 		// TODO potentially move wall bounce to here instead of having to have it in 2D/3D separately
@@ -561,11 +562,12 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 	
 	// TODO add docs or remove this
 	public void scaleVelocity(double scalar){
-		removeFrom();this.entityStateNext().scaleVelocity(scalar);
+		removeFrom();
+		this.entityStateNext().scaleVelocity(scalar);
 	}
 	
 	// TODO add docs
-	public void collide(List<Collision<V>> c){
+	public void collide(List<CollisionUpdate<V>> c){
 		this.entityStateNext().collide(c);
 	}
 	

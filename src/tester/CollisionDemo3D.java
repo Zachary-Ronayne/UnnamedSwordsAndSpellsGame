@@ -9,8 +9,8 @@ import zgame.core.graphics.ZColor;
 import zgame.core.state.PlayState;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint3D;
+import zgame.physics.V3D;
 import zgame.physics.collision.ZCollision;
-import zgame.physics.material.Materials;
 import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.mobility.MobilityType;
 import zgame.things.type.bounds.SphereHitBox;
@@ -155,7 +155,7 @@ public class CollisionDemo3D extends Game{
 		}
 	}
 	
-	public static class Play extends PlayState{
+	public static class Play extends PlayState<V3D>{
 		
 		public Play(){
 			super(new Room3D(0, 0, 0));
@@ -226,18 +226,20 @@ public class CollisionDemo3D extends Game{
 			var sphereB = new RectRender3D(sphere.getX(), sphere.getY(), sphere.getZ(), sRadius * 2, sRadius * 2, sRadius * 2);
 			var collision = ZCollision.rectToSphereBasic(
 					RECT.getX(), RECT.getY() + RECT.getHeight() * 0.5, RECT.getZ(), RECT.getWidth(), RECT.getHeight(), RECT.getLength(),
-					sphere.getX(), sphere.getY(), sphere.getZ(), sRadius, Materials.NONE, new boolean[]{true, true, true, true, true, true}
+					sphere.getX(), sphere.getY(), sphere.getZ(), sRadius, new boolean[]{true, true, true, true, true, true}
 			);
 			
+			// TODO retest this
 			var moveSphereB = new RectRender3D(sphereB);
-			moveSphereB.setX(sphereB.getX() + collision.x());
-			moveSphereB.setY(sphereB.getY() + collision.y());
-			moveSphereB.setZ(sphereB.getZ() + collision.z());
+			var change = collision.changePos();
+			moveSphereB.setX(sphereB.getX() + change.getX());
+			moveSphereB.setY(sphereB.getY() + change.getY());
+			moveSphereB.setZ(sphereB.getZ() + change.getZ());
 			
 			r.setColor(new ZColor(0, 1, 0, 0.5));
 			r.drawSphere(moveSphereB.getX(), moveSphereB.getY(), moveSphereB.getZ(), sRadius);
 			
-			r.setColor(new ZColor(collision.hit() ? 1 : 0, 0, 0.5, 0.5));
+			r.setColor(new ZColor(collision.isCollided() ? 1 : 0, 0, 0.5, 0.5));
 			r.drawSphere(sphereB.getX(), sphereB.getY(), sphereB.getZ(), sRadius);
 			
 			drawSampleCube(r, true, true, true);

@@ -24,6 +24,7 @@ public interface HitBox<V extends ZVector<V>> extends Materialable, Uuidable, Bo
 	/** @return The surface area of this hitbox as it moves down */
 	double getGravityDragReferenceArea();
 	
+	// TODO figure out if this is actually necessary
 	/**
 	 * Helper method for converting this hitbox to the correct type, implement as returning this cast to the correct type
 	 * @param clazz The type of hitbox to convert to

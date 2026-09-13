@@ -46,13 +46,15 @@ public class DebugGame extends Game{
 		else r.setColor(0, 0, 1, .7);
 		r.drawCircle(circle.x, circle.y, radius);
 		
-		var c = ZCollision.rectToCircleBasic(rect.x, rect.y, rect.width, rect.height, circle.x, circle.y, radius, null);
+		var c = ZCollision.rectToCircleBasic(rect.x, rect.y, rect.width, rect.height, circle.x, circle.y, radius);
+		var change = c.changePos();
 		r.setColor(1, 1, 0, .5);
-		r.drawCircle(circle.x + c.x(), circle.y + c.y(), radius);
+		r.drawCircle(circle.x + change.getX(), circle.y + change.getY(), radius);
 		
-		c = ZCollision.rectToRectBasic(rect.x, rect.y, rect.width, rect.height, circle.x - radius, circle.y - radius, radius * 2, radius * 2, null);
+		c = ZCollision.rectToRectBasic(rect.x, rect.y, rect.width, rect.height, circle.x - radius, circle.y - radius, radius * 2, radius * 2);
+		change = c.changePos();
 		r.setColor(0, 1, 1, .5);
-		r.drawRectangle(circle.x - radius + c.x(), circle.y - radius + c.y(), radius * 2, radius * 2);
+		r.drawRectangle(circle.x - radius + change.getX(), circle.y - radius + change.getY(), radius * 2, radius * 2);
 		
 		r.setColor(0, 0, 1, .8);
 		r.drawRectangle(px - 3, 0, 6, game.getScreenHeight());
@@ -72,9 +74,11 @@ public class DebugGame extends Game{
 		
 		r.setColor(0, 1, 1);
 		r.drawCircle(circle2.x, circle2.y, radius2);
-		c = ZCollision.circleToCircleBasic(circle2.x, circle2.y, radius2, circle.x, circle.y, radius, null);
+		c = ZCollision.circleToCircleBasic(circle2.x, circle2.y, radius2, circle.x, circle.y, radius);
+		change = c.changePos();
 		r.setColor(1, 1, 0, .5);
-		r.drawCircle(circle.x + c.x(), circle.y + c.y(), radius);
+		// TODO retest this
+		r.drawCircle(circle.x + change.getX(), circle.y + change.getY(), radius);
 	}
 	
 	@Override

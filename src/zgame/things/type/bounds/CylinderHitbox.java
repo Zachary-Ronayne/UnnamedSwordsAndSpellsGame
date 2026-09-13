@@ -4,7 +4,6 @@ import zgame.core.utils.ZMath;
 import zgame.physics.V3D;
 import zgame.physics.collision.Collision3D;
 import zgame.physics.collision.ZCollision;
-import zgame.physics.material.Material;
 
 /** A hitbox with a vertical cylinder shape in 3D, which cannot be rotated */
 public interface CylinderHitbox extends HitBox3D{
@@ -41,8 +40,8 @@ public interface CylinderHitbox extends HitBox3D{
 	}
 	
 	@Override
-	default Collision3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m, boolean[] collisionFaces){
-		return ZCollision.rectToCylinderBasic(x, y, z, width, height, length, this.getX(), this.getY(), this.getZ(), this.getRadius(), this.getHeight(), m, collisionFaces);
+	default Collision3D calculateRectCollision(double x, double y, double z, double width, double height, double length, boolean[] collisionFaces){
+		return ZCollision.rectToCylinderBasic(x, y, z, width, height, length, this.getX(), this.getY(), this.getZ(), this.getRadius(), this.getHeight(), collisionFaces);
 	}
 	
 	@Override

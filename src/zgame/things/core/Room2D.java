@@ -5,10 +5,10 @@ import zgame.core.graphics.Renderer;
 import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZMath;
 import zgame.physics.V2D;
-import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision2D;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
+import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.still.tiles.twoDee.BaseTiles2D;
 import zgame.things.still.tiles.twoDee.Tile2D;
 import zgame.things.still.tiles.TileType2D;
@@ -106,7 +106,7 @@ public class Room2D extends Room<V2D> implements Bounds2D{
 	}
 	
 	@Override
-	public List<Collision<V2D>> collideInside(EntityThing<V2D> obj){
+	public List<CollisionUpdate<V2D>> collideInside(EntityThing<V2D> obj){
 		var minPos = obj.getMinPosition();
 		var maxPos = obj.getMinPosition();
 		
@@ -121,7 +121,7 @@ public class Room2D extends Room<V2D> implements Bounds2D{
 		int tMaxX = this.tileX(maxX);
 		int tMaxY = this.tileY(maxY);
 		
-		ArrayList<Collision<V2D>> collisions = new ArrayList<>();
+		ArrayList<CollisionUpdate<V2D>> collisions = new ArrayList<>();
 		
 		// Go through all tiles, and record all collisions
 		for(int x = tMinX; x <= tMaxX; x++){

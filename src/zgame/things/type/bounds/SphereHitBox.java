@@ -2,7 +2,6 @@ package zgame.things.type.bounds;
 
 import zgame.physics.collision.Collision3D;
 import zgame.physics.collision.ZCollision;
-import zgame.physics.material.Material;
 
 /** An object representing a circle  */
 public interface SphereHitBox extends HitBox3D{
@@ -70,8 +69,8 @@ public interface SphereHitBox extends HitBox3D{
 	}
 	
 	@Override
-	default Collision3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m, boolean[] collisionFaces){
-		return ZCollision.rectToSphereBasic(x, y + height * 0.5, z, width, height, length, this.getX(), this.getY(), this.getZ(), this.getRadius(), m, collisionFaces);
+	default Collision3D calculateRectCollision(double x, double y, double z, double width, double height, double length, boolean[] collisionFaces){
+		return ZCollision.rectToSphereBasic(x, y + height * 0.5, z, width, height, length, this.getX(), this.getY(), this.getZ(), this.getRadius(), collisionFaces);
 	}
 	
 	@Override

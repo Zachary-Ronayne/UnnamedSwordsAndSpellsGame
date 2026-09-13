@@ -5,7 +5,6 @@ import zgame.core.utils.ZPoint2D;
 import zgame.physics.V2D;
 import zgame.physics.collision.Collision2D;
 import zgame.physics.collision.ZCollision;
-import zgame.physics.material.Material;
 
 /** An object representing a circle  */
 public interface CircleHitBox extends HitBox2D{
@@ -29,13 +28,13 @@ public interface CircleHitBox extends HitBox2D{
 	}
 	
 	@Override
-	default Collision2D calculateRectCollision(double x, double y, double w, double h, Material m){
-		return ZCollision.rectToCircleBasic(x, y, w, h, this.centerX(), this.centerY(), this.getRadius(), m);
+	default Collision2D calculateRectCollision(double x, double y, double w, double h){
+		return ZCollision.rectToCircleBasic(x, y, w, h, this.centerX(), this.centerY(), this.getRadius());
 	}
 	
 	@Override
-	default Collision2D calculateCircleCollision(double x, double y, double r, Material m){
-		return ZCollision.circleToCircleBasic(x, y, r, this.centerX(), this.centerY(), this.getRadius(), m);
+	default Collision2D calculateCircleCollision(double x, double y, double r){
+		return ZCollision.circleToCircleBasic(x, y, r, this.centerX(), this.centerY(), this.getRadius());
 	}
 	
 	@Override

@@ -38,7 +38,7 @@ public interface TileHitbox3D extends TileHitbox<V3D>{
 	class None implements TileHitbox3D{
 		@Override
 		public Collision3D collide(Tile<V3D> t, HitBox<V3D> obj){
-			return new Collision3D(obj);
+			return new Collision3D(obj.getPosition());
 		}
 		
 		@Override
@@ -64,8 +64,7 @@ public interface TileHitbox3D extends TileHitbox<V3D>{
 			return obj.asHitbox(HitBox3D.class)
 					.calculateRectCollision(
 							tPos.getX(), tPos.getY(), tPos.getZ(),
-							tDims.getWidth(), tDims.getHeight(), tDims.getLength(),
-							t.getMaterial(), t.asTile(Tile3D.class).getCollisionFaces()
+							tDims.getWidth(), tDims.getHeight(), tDims.getLength(), t.asTile(Tile3D.class).getCollisionFaces()
 					);
 		}
 		

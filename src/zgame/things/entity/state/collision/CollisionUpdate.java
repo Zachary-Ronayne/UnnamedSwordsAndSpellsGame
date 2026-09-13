@@ -17,6 +17,8 @@ public class CollisionUpdate<V extends ZVector<V>>{
 	/** The material which was collided into */
 	private final Material material;
 	
+	// TODO figure out if it makes sense for this to use a hitbox as a function param
+	// TODO make this a separate lambda interface
 	/** A function that, given a hitbox to collide with, computes the new position it should move to */
 	private final Function<HitBox<V>, V> computeNewPosition;
 	
@@ -33,8 +35,16 @@ public class CollisionUpdate<V extends ZVector<V>>{
 		this.computeNewPosition = computeNewPosition;
 	}
 	
-	public Collision<V> getCollision(){
+	public Collision<V> collision(){
 		return collision;
+	}
+	
+	public Material material(){
+		return material;
+	}
+	
+	public V computeNewPos(HitBox<V> hitBox){
+		return this.computeNewPosition.apply(hitBox);
 	}
 	
 	// TODO make this hold the lambda function and compute the initial displacement

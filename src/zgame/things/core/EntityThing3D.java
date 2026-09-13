@@ -3,9 +3,9 @@ package zgame.things.core;
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.physics.V3D;
 import zgame.physics.ZVector;
-import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision3D;
 import zgame.things.entity.state.EntityState3D;
+import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.type.bounds.HitBox3D;
 
 /**
@@ -51,14 +51,14 @@ public abstract class EntityThing3D extends EntityThing<V3D> implements HitBox3D
 	}
 	
 	@Override
-	public void touchWall(Collision<V3D> result){
+	public void touchWall(CollisionUpdate<V3D> result){
 		super.touchWall(result);
 		// TODO test this formally and make sure this new approach makes sense
 		var currentVel = this.getVelocity();
 		
 		// TODO should entity thing need to know about the wall angle? Should this logic be part of the room when it schedules a collision?
 		// Determine the amount of velocity on each axis
-		double wallAngle = result.asCollision(Collision3D.class).wallAngle();
+		double wallAngle = result.collision().asCollision(Collision3D.class).wallAngle();
 		double currentAngle = currentVel.getYaw();
 		/*
 		I don't really understand how to explain in an intuitive way why this works for finding the bounce angle,

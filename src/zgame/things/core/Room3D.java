@@ -5,11 +5,11 @@ import zgame.core.graphics.ZColor;
 import zgame.core.utils.NotNullList;
 import zgame.core.utils.ZMath;
 import zgame.physics.V3D;
-import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision3D;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.ThingClickDetector3D;
+import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.still.tiles.threeDee.BaseTiles3D;
 import zgame.things.still.tiles.threeDee.Tile3D;
 import zgame.things.still.tiles.TileType3D;
@@ -259,7 +259,7 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 	}
 	
 	@Override
-	public List<Collision<V3D>> collideInside(EntityThing<V3D> obj){
+	public List<CollisionUpdate<V3D>> collideInside(EntityThing<V3D> obj){
 		double tileSize = Tile3D.size();
 		int tilesX = this.getTilesX() - 1;
 		int tilesY = this.getTilesY() - 1;
@@ -282,7 +282,7 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 		int tMinZ = (int)ZMath.minMax(0, tilesZ, Math.floor(minZ / tileSize));
 		int tMaxZ = (int)ZMath.minMax(0, tilesZ, Math.floor(maxZ / tileSize));
 		
-		ArrayList<Collision<V3D>> collisions = new ArrayList<>();
+		ArrayList<CollisionUpdate<V3D>> collisions = new ArrayList<>();
 		
 		// Go through all tiles, and record all collisions
 		for(int x = tMinX; x <= tMaxX; x++){

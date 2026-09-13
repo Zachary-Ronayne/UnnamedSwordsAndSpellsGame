@@ -2,7 +2,6 @@ package zgame.things.type.bounds;
 
 import zgame.physics.V2D;
 import zgame.physics.collision.Collision2D;
-import zgame.physics.material.Material;
 import zgame.things.entity.projectile.Projectile2D;
 
 /**
@@ -18,10 +17,9 @@ public interface HitBox2D extends HitBox<V2D>, Bounds2D{
 	 * @param y The y coordinate of the upper left hand corner of the bounds
 	 * @param w The width of the bounds
 	 * @param h The height of the bounds
-	 * @param m The material which was collided with
 	 * @return The information about the collision
 	 */
-	Collision2D calculateRectCollision(double x, double y, double w, double h, Material m);
+	Collision2D calculateRectCollision(double x, double y, double w, double h);
 	
 	/**
 	 * Determine a {@link Collision2D} from colliding this object with the given circular bounds. Essentially, move this object so that it no longer intersecting with
@@ -30,10 +28,9 @@ public interface HitBox2D extends HitBox<V2D>, Bounds2D{
 	 * @param x The x coordinate of the upper left hand corner of the bounds
 	 * @param y The y coordinate of the upper left hand corner of the bounds
 	 * @param r The radius of the circle
-	 * @param m The material which was collided with
 	 * @return The information about the collision
 	 */
-	Collision2D calculateCircleCollision(double x, double y, double r, Material m);
+	Collision2D calculateCircleCollision(double x, double y, double r);
 	
 	/**
 	 * @param x The upper left hand x rectangle

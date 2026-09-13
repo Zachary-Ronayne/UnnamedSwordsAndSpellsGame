@@ -2,7 +2,6 @@ package zgame.things.type.bounds;
 
 import zgame.physics.V3D;
 import zgame.physics.collision.Collision3D;
-import zgame.physics.material.Material;
 import zgame.things.entity.projectile.Projectile3D;
 import zgame.world.Direction3D;
 
@@ -83,11 +82,10 @@ public interface HitBox3D extends HitBox<V3D>, Bounds3D{
 	 * @param width The total width of the rectangular prism
 	 * @param height The total height of the rectangular prism
 	 * @param length The total length of the rectangular prism
-	 * @param m The material which was collided with
 	 * @param collisionFaces The faces of the rectangular prism which can cause collisions, indexed using {@link Direction3D}, true for allowing collision, false for no collision.
 	 * @return The information about the collision
 	 */
-	Collision3D calculateRectCollision(double x, double y, double z, double width, double height, double length, Material m, boolean[] collisionFaces);
+	Collision3D calculateRectCollision(double x, double y, double z, double width, double height, double length, boolean[] collisionFaces);
 	
 	// TODO probably do this in a better way to avoid casting
 	@SuppressWarnings("unchecked")

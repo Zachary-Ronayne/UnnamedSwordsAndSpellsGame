@@ -11,6 +11,7 @@ import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
 import zgame.things.core.state.Stateable;
+import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.type.bounds.Bounds;
 import zgame.things.type.bounds.HitBox;
 
@@ -140,7 +141,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing implements Bo
 	 * @param obj The object to collide
 	 * @return The {@link Collision}s representing the collisions needed
 	 */
-	public abstract List<Collision<V>> collideInside(EntityThing<V> obj);
+	public abstract List<CollisionUpdate<V>> collideInside(EntityThing<V> obj);
 	
 	/**
 	 * Collide the given {@link EntityThing} with the entities in the given room
@@ -148,7 +149,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing implements Bo
 	 * @param checkEntity The entity to check collision for
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
-	public List<Collision<V>> checkEntityCollisions(EntityThing<V> checkEntity, double dt){
+	public List<CollisionUpdate<V>> checkEntityCollisions(EntityThing<V> checkEntity, double dt){
 		// issue#21 make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
 		// Probably just rewrite the actual entity collision outside of on intersection, the commented out code is copied and modified from the EntityThing class, which was originally just for 2D
 		

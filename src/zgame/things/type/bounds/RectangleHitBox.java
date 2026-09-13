@@ -1,10 +1,9 @@
-package zgame.things.type.bounds;
+package zgame.things.type.bounds;Material
 
 import zgame.core.utils.ZMath;
 import zgame.physics.V2D;
 import zgame.physics.collision.Collision2D;
 import zgame.physics.collision.ZCollision;
-import zgame.physics.material.Material;
 
 /** An interface which describe a simple hitbox with a width and height, representing a non-rotating rectangle */
 public interface RectangleHitBox extends HitBox2D{
@@ -22,13 +21,13 @@ public interface RectangleHitBox extends HitBox2D{
 	}
 	
 	@Override
-	default Collision2D calculateRectCollision(double x, double y, double w, double h, Material m){
-		return ZCollision.rectToRectBasic(x, y, w, h, this.getX(), this.getY(), this.getWidth(), this.getHeight(), m);
+	default Collision2D calculateRectCollision(double x, double y, double w, double h){
+		return ZCollision.rectToRectBasic(x, y, w, h, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
 	@Override
-	default Collision2D calculateCircleCollision(double x, double y, double r, Material m){
-		return ZCollision.rectToCircleBasic(this.getX(), this.getY(), this.getWidth(), this.getHeight(), x, y, r, m).scale(-1);
+	default Collision2D calculateCircleCollision(double x, double y, double r){
+		return ZCollision.rectToCircleBasic(this.getX(), this.getY(), this.getWidth(), this.getHeight(), x, y, r).scale(-1);
 	}
 	
 	@Override
