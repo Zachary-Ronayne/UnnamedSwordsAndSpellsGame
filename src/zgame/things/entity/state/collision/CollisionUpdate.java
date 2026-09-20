@@ -4,9 +4,8 @@ import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
+import zgame.things.type.bounds.Bounds;
 import zgame.things.type.bounds.HitBox;
-
-import java.util.function.Function;
 
 /** An update for an individual collision occurring */
 public class CollisionUpdate<V extends ZVector<V>>{
@@ -14,25 +13,27 @@ public class CollisionUpdate<V extends ZVector<V>>{
 	/** The collision which occurred */
 	private final Collision<V> collision;
 	
+	/** The bounds that was collided into */
+	private final Bounds<V> collidedWith;
+	
 	/** The material which was collided into */
 	private final Material material;
 	
-	// TODO figure out if it makes sense for this to use a hitbox as a function param
-	// TODO make this a separate lambda interface
-	/** A function that, given a hitbox to collide with, computes the new position it should move to */
-	private final Function<HitBox<V>, V> computeNewPosition;
+	/** The object which collided with the other bounds */
+	private final HitBox<V> collider;
 	
 	// TODO update docs
 	/**
-	 * @param position The existing position of the object that collided
 	 * @param collision See {@link #collision}
 	 * @param material See {@link #material}
 	 */
-	public CollisionUpdate(V position, Collision<V> collision, Material material, Function<HitBox<V>, V> computeNewPosition){
+	// TODO probably avoid making this such a mess of so many objects
+	public CollisionUpdate(Collision<V> collision, HitBox<V> collider, Bounds<V> collidedWith, Material material){
 		this.collision = collision;
+		this.collider = collider;
+		this.collidedWith = collidedWith;
 		// Set the material to no material if none is given
 		this.material = material == null ? Materials.NONE : material;
-		this.computeNewPosition = computeNewPosition;
 	}
 	
 	public Collision<V> collision(){
@@ -43,10 +44,10 @@ public class CollisionUpdate<V extends ZVector<V>>{
 		return material;
 	}
 	
-	public V computeNewPos(HitBox<V> hitBox){
-		return this.computeNewPosition.apply(hitBox);
+	public V computeNewPos(V updatedPosition){
+		// TODO does this make sense?
+		var c = collider.collideAt(updatedPosition, this.collidedWith);
+		return c.originalPos().add(c.changePos());
 	}
-	
-	// TODO make this hold the lambda function and compute the initial displacement
 	
 }

@@ -18,4 +18,10 @@ public interface Bounds<V extends ZVector<V>> extends Position<V>{
 	/** @return The total size of this bounds across all dimensions */
 	V getDimensions();
 	
+	/**
+	 * @param bounds The bounds to check
+	 * @return true if this bounds intersects the given bounds, false otherwise
+	 */
+	boolean intersects(Bounds<V> bounds);
+	
 }

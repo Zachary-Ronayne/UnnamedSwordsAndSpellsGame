@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 import zgame.core.GameTickable;
 import zgame.core.utils.ZMath;
 import zgame.physics.ZVector;
-import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.core.state.GameThingState;

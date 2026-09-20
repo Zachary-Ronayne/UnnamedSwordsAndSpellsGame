@@ -216,14 +216,12 @@ public abstract class EntityState<V extends ZVector<V>> extends GameThingState{
 		// TODO then sort shortest by vector implementation, i.e. smallest y, then x, then z, or may want to prioritize vertical vs horizontal collisions
 		var sortedCollisions = collisionUpdates.stream().sorted(Comparator.comparingDouble((CollisionUpdate<V> c) -> c.collision().changePos().getMagnitude())).toList();
 		
-		// TODO should the state or the entity be passed into this?
-		// For the first collision, fully apply it
-		this.position = sortedCollisions.get(0).computeNewPos(this);
-		
-		// For the rest of the collisions, find where it would be collided based on this object's current position
-		for(int i = 1; i < sortedCollisions.size(); i++){
-			this.position = sortedCollisions.get(i).computeNewPos(this);
-		}
+		// For all collisions, find where it would be collided based on this object's current position
+		int i = 0;
+		do{
+			this.position = sortedCollisions.get(i).computeNewPos(this.position);
+			i++;
+		}while(i < sortedCollisions.size());
 		
 		// All collisions are applied
 		this.collisionUpdates.clear();
@@ -433,7 +431,7 @@ public abstract class EntityState<V extends ZVector<V>> extends GameThingState{
 	/** @return See {@link #wallTime} */
 	public double getWallTime(){
 		return this.wallTime;
-	}CollisionUpdate
+	}
 	
 	/** @return See {@link #noClip} */
 	public boolean isNoClip(){

@@ -4,6 +4,8 @@ import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
 import zgame.things.type.bounds.HitBox;
 
+// TODO remove tile hitbox, they'll use the same hitbox implementations as normal objects
+
 /** An object that represents the hitbox of a tile, i.e., what parts of the tile have collision */
 public interface TileHitbox<V extends ZVector<V>>{
 	

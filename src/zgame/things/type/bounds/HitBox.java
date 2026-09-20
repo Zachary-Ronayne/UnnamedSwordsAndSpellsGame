@@ -2,23 +2,35 @@ package zgame.things.type.bounds;
 
 import zgame.core.utils.Uuidable;
 import zgame.physics.ZVector;
+import zgame.physics.collision.Collision;
 import zgame.things.type.Materialable;
+import zgame.things.type.Position;
 
 /**
  * An interface which defines an object that has a hit box, meaning something with a position that other objects can collide with
  * @param <V> The type of dimension this hitbox interacts with
  */
 // TODO does hitbox still need a material and uuid?
+// TODO should hitbox even be considered a bounds?
 public interface HitBox<V extends ZVector<V>> extends Materialable, Uuidable, Bounds<V> {
 	
 	/** @return The type of this hitbox, for determining how it will collide with other hitboxes */
 	HitboxType getHitboxType();
 	
 	/**
-	 * @param h The hitbox to check
-	 * @return true if this hitbox intersects the given hitbox, false otherwise
+	 * @param bounds A bounds to collide this hitbox into
+	 * @return The collision representing how this hitbox will need to be moved to no longer be colliding with the given bounds
 	 */
-	boolean intersects(HitBox<V> h);
+	default Collision<V> collideBounds(Bounds<V> bounds){
+		return collideAt(this.getPosition(), bounds);
+	}
+	
+	/**
+	 * @param currentPos The position that this hitbox should be considered in for this computation
+	 * @param bounds The bounds that does not move during this collision
+	 * @return The collision representing how the moving bounds will need to be moved to no longer be colliding with the unmoving bounds
+	 */
+	Collision<V> collideAt(V currentPos, Bounds<V> bounds);
 	
 	// TODO does this value need to be defined as a part of entity state?
 	/** @return The surface area of this hitbox as it moves down */

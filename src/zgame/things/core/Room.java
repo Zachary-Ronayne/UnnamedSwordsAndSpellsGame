@@ -9,7 +9,6 @@ import zgame.core.graphics.Renderer;
 import zgame.core.utils.ClassMappedList;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector;
-import zgame.physics.collision.Collision;
 import zgame.things.core.state.Stateable;
 import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.type.bounds.Bounds;
@@ -139,7 +138,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing implements Bo
 	 * Compute the collisions the given {@link EntityThing} will encounter in this room, i.e. find all the things that will cause a collision to happen
 	 *
 	 * @param obj The object to collide
-	 * @return The {@link Collision}s representing the collisions needed
+	 * @return The {@link CollisionUpdate}s representing the collisions needed
 	 */
 	public abstract List<CollisionUpdate<V>> collideInside(EntityThing<V> obj);
 	

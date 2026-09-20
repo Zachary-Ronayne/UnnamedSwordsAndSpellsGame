@@ -289,7 +289,7 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 			for(int y = tMinY; y <= tMaxY; y++){
 				for(int z = tMinZ; z <= tMaxZ; z++){
 					var t = this.tiles[x][y][z];
-					collisions.add(t.collide(obj));
+					collisions.add(new CollisionUpdate<>(obj.collideBounds(t), obj, t, t.getMaterial()));
 				}
 			}
 		}

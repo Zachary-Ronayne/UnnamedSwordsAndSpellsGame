@@ -127,7 +127,7 @@ public class Room2D extends Room<V2D> implements Bounds2D{
 		for(int x = tMinX; x <= tMaxX; x++){
 			for(int y = tMinY; y <= tMaxY; y++){
 				var t = this.tiles[x][y];
-				collisions.add(t.collide(obj));
+				collisions.add(new CollisionUpdate<>(obj.collideBounds(t), obj, t, t.getMaterial()));
 			}
 		}
 		
@@ -138,6 +138,7 @@ public class Room2D extends Room<V2D> implements Bounds2D{
 			double newX = objHitbox.keepRight(this.getX());
 			double dist = Math.abs(objHitbox.getX() - newX);
 			if(dist != 0){
+				// TODO probably need an "infinite" barrier type hitbox implementation for this
 				obj.touchWall(new Collision2D(obj, (HitBox<V2D> hitbox) -> {
 					var pos = hitbox.getPosition();
 					return new V2D(hitbox.asHitbox(HitBox2D.class).keepRight(this.getX()), pos.getY());
