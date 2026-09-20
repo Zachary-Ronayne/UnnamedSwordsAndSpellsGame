@@ -1,6 +1,7 @@
 package zgame.things.type.bounds;
 
 import zgame.physics.V2D;
+import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision2D;
 import zgame.things.entity.projectile.Projectile2D;
 
@@ -49,17 +50,23 @@ public interface HitBox2D extends HitBox<V2D>, Bounds2D{
 	 */
 	boolean intersectsCircle(double x, double y, double r);
 	
+	@Override
+	default Collision<V2D> collideAt(V2D currentPos, Bounds<V2D> bounds){
+		// TODO implement
+	}
+	
 	/**
 	 * @param hitbox The hitbox to check
 	 * @return true if this hitbox intersects the given hitbox, false otherwise
 	 */
 	@Override
-	default boolean intersects(HitBox<V2D> hitbox){
+	default boolean intersects(Bounds<V2D> hitbox){
 		
 		var dims = hitbox.getDimensions();
 		double w = dims.getWidth();
 		double h = dims.getHeight();
 		
+		// TODO move "hitbox type" to be a bounds type
 		return switch(hitbox.getHitboxType()){
 			case CIRCLE -> {
 				var pos = hitbox.getCenterPosition();

@@ -2,14 +2,18 @@ package zgame.things.type.bounds;
 
 /** The type of hitbox that tells an object what hitbox collision method to use */
 public enum HitboxType{
+	/** A hitbox that does not collide */
+	NONE,
+	
 	/** A non rotating rectangular hitbox */
 	RECT,
 	/** A circle hitbox */
 	CIRCLE,
+	
 	/** A non rotating upwards facing cylinder */
 	CYLINDER,
 	/** An axis aligned rectangular prism */
 	RECT_PRISM,
 	/** A sphere hitbox */
-	SPHERE
+	SPHERE,
 }

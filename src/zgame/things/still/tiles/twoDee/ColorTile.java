@@ -9,8 +9,8 @@ import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType;
 import zgame.things.still.tiles.TileType2D;
 
-/** A {@link TileType} which renders tiles as a solid color */
-public class ColorTile extends TileType2D{
+/** A {@link TileType} which renders tiles using a solid color */
+public abstract class ColorTile extends TileType2D{
 	
 	/** The color to draw this tile */
 	private ZColor color;
@@ -20,11 +20,10 @@ public class ColorTile extends TileType2D{
 	 *
 	 * @param id See {@link #getId()}
 	 * @param origin See {@link #getOrigin()}
-	 * @param hitbox See {@link #getHitbox()}
 	 * @param color See {@link #color}
 	 */
-	public ColorTile(String id, String origin, TileHitbox2D hitbox, ZColor color){
-		this(id, origin, hitbox, color, Materials.DEFAULT);
+	public ColorTile(String id, String origin, ZColor color){
+		this(id, origin, color, Materials.DEFAULT);
 	}
 	
 	/**
@@ -32,12 +31,11 @@ public class ColorTile extends TileType2D{
 	 *
 	 * @param id See {@link #getId()}
 	 * @param origin See {@link #getOrigin()}
-	 * @param hitbox See {@link #getHitbox()}
 	 * @param color See {@link #color}
 	 * @param material See {@link #material}
 	 */
-	public ColorTile(String id, String origin, TileHitbox2D hitbox, ZColor color, Material material){
-		super(id, origin, hitbox, material);
+	public ColorTile(String id, String origin, ZColor color, Material material){
+		super(id, origin, material);
 		this.color = color;
 	}
 	
@@ -58,7 +56,9 @@ public class ColorTile extends TileType2D{
 	@Override
 	public void render(Tile<V2D> t, Renderer r){
 		r.setColor(this.getColor());
-		r.drawRectangle(t.getX(), t.getY(), t.getWidth(), t.getHeight());
+		var pos = t.getPosition();
+		var dims = t.getDimensions();
+		r.drawRectangle(pos.getX(), pos.getY(), dims.getWidth(), dims.getHeight());
 	}
 	
 }

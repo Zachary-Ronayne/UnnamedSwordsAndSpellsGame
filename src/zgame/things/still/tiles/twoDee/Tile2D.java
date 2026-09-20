@@ -2,17 +2,15 @@ package zgame.things.still.tiles.twoDee;
 
 import zgame.core.graphics.Renderer;
 import zgame.physics.V2D;
-import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
 import zgame.things.core.GameThing;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType2D;
 import zgame.things.type.*;
 import zgame.things.type.bounds.Bounds2D;
-import zgame.things.type.bounds.HitBox;
 
-/** A {@link GameThing} with a rectangular hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
-public class Tile2D extends GameThing<Object> implements Tile<V2D>, Bounds2D, Materialable{
+/** A {@link GameThing} with a position based on an index in an array. The indexes of this object should directly correlate to its position */
+public abstract class Tile2D extends GameThing implements Tile<V2D>, Bounds2D, Materialable{
 	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 64;
@@ -110,11 +108,6 @@ public class Tile2D extends GameThing<Object> implements Tile<V2D>, Bounds2D, Ma
 	}
 	
 	@Override
-	public Collision<V2D> collide(HitBox<V2D> obj){
-		return this.getFrontType().getHitbox().collide(this, obj);
-	}
-	
-	@Override
 	public void render(Renderer r){
 		this.getBackType().render(this, r);
 		this.getFrontType().render(this, r);
@@ -131,33 +124,8 @@ public class Tile2D extends GameThing<Object> implements Tile<V2D>, Bounds2D, Ma
 	}
 	
 	@Override
-	public double getX(){
-		return this.x;
-	}
-	
-	@Override
-	public double getY(){
-		return this.y;
-	}
-	
-	@Override
-	public double getWidth(){
-		return size();
-	}
-	
-	@Override
-	public double getHeight(){
-		return size();
-	}
-	
-	@Override
-	public double maxX(){
-		return this.getX() + this.getWidth();
-	}
-	
-	@Override
-	public double maxY(){
-		return this.getY() + this.getHeight();
+	public V2D getPosition(){
+		return new V2D(this.x, this.y);
 	}
 	
 	@SuppressWarnings("unchecked")

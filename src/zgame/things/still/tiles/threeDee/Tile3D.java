@@ -2,20 +2,17 @@ package zgame.things.still.tiles.threeDee;
 
 import zgame.core.graphics.Renderer;
 import zgame.physics.V3D;
-import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType3D;
 import zgame.things.core.GameThing;
 import zgame.things.type.bounds.Bounds3D;
-import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.RectPrismBounds;
 import zgame.world.Direction3D;
 import zgame.things.core.Room3D;
 
-/** A {@link GameThing} with a cube hitbox and a position based on an index in an array. The indexes of this object should directly correlate to its position */
-// TODO make a formal object for tile state even though there shouldn't be a tile state, maybe state doesn't exist on all game things
-public class Tile3D extends GameThing<Object> implements Tile<V3D>, Bounds3D, RectPrismBounds{
+/** A {@link GameThing} with a position based on indexes in an array. The indexes of this object should directly correlate to its position */
+public abstract class Tile3D extends GameThing implements Tile<V3D>, Bounds3D, RectPrismBounds{
 	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 1;
@@ -106,11 +103,6 @@ public class Tile3D extends GameThing<Object> implements Tile<V3D>, Bounds3D, Re
 	@Override
 	public Material getMaterial(){
 		return this.getType().getMaterial();
-	}
-	
-	@Override
-	public Collision<V3D> collide(HitBox<V3D> obj){
-		return this.getType().getHitbox().collide(this, obj);
 	}
 	
 	@Override

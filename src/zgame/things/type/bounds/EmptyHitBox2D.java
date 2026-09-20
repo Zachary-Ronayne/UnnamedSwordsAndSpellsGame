@@ -1,12 +1,11 @@
 package zgame.things.type.bounds;
 
-import zgame.core.utils.ZMath;
 import zgame.physics.V2D;
+import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision2D;
-import zgame.physics.collision.ZCollision;
 
-/** An interface which describe a simple hitbox with a width and height, representing a non-rotating rectangle */
-public interface RectangleHitBox extends HitBox2D{
+/** A hitbox that does not collide with anything */
+public interface EmptyHitBox2D extends HitBox2D{
 	
 	@Override
 	default V2D getMaxPosition(){
@@ -17,27 +16,44 @@ public interface RectangleHitBox extends HitBox2D{
 	
 	@Override
 	default HitboxType getHitboxType(){
-		return HitboxType.RECT;
+		return HitboxType.NONE;
+	}
+	
+	// TODO see if a lot of these methods can be cleaned up
+	
+	@Override
+	default Collision<V2D> collideAt(V2D currentPos, Bounds<V2D> bounds){
+		return new Collision2D(this.getPosition());
+	}
+	
+	@Override
+	default Collision<V2D> collideBounds(Bounds<V2D> bounds){
+		return new Collision2D(this.getPosition());
 	}
 	
 	@Override
 	default Collision2D calculateRectCollision(double x, double y, double w, double h){
-		return ZCollision.rectToRectBasic(x, y, w, h, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+		return new Collision2D(this.getPosition());
 	}
 	
 	@Override
 	default Collision2D calculateCircleCollision(double x, double y, double r){
-		return ZCollision.rectToCircleBasic(this.getX(), this.getY(), this.getWidth(), this.getHeight(), x, y, r).scale(-1);
+		return new Collision2D(this.getPosition());
+	}
+	
+	@Override
+	default boolean intersects(Bounds<V2D> hitbox){
+		return false;
 	}
 	
 	@Override
 	default boolean intersectsRect(double x, double y, double w, double h){
-		return this.getBounds().intersects(x, y, w, h);
+		return false;
 	}
 	
 	@Override
 	default boolean intersectsCircle(double x, double y, double r){
-		return ZMath.circleIntersectsRect(x, y, r, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+		return false;
 	}
 	
 	@Override

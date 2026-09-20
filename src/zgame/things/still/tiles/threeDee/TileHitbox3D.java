@@ -4,7 +4,6 @@ import zgame.core.utils.ZMath;
 import zgame.physics.V3D;
 import zgame.physics.collision.Collision3D;
 import zgame.things.still.tiles.Tile;
-import zgame.things.still.tiles.TileHitbox;
 import zgame.things.type.bounds.ClickerBounds;
 import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.HitBox3D;

@@ -1,10 +1,8 @@
 package zgame.things.type.bounds;
 
-import zgame.core.utils.Uuidable;
 import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
 import zgame.things.type.Materialable;
-import zgame.things.type.Position;
 
 /**
  * An interface which defines an object that has a hit box, meaning something with a position that other objects can collide with
@@ -12,7 +10,7 @@ import zgame.things.type.Position;
  */
 // TODO does hitbox still need a material and uuid?
 // TODO should hitbox even be considered a bounds?
-public interface HitBox<V extends ZVector<V>> extends Materialable, Uuidable, Bounds<V> {
+public interface HitBox<V extends ZVector<V>> extends Materialable, Bounds<V> {
 	
 	/** @return The type of this hitbox, for determining how it will collide with other hitboxes */
 	HitboxType getHitboxType();

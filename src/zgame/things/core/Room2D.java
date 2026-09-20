@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** A {@link Room} which is made of 2D tiles */
+// TODO make a rectangle bounds object and have room implement it
 public class Room2D extends Room<V2D> implements Bounds2D{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
@@ -100,7 +101,7 @@ public class Room2D extends Room<V2D> implements Bounds2D{
 		this.tiles = new Tile2D[xTiles][yTiles];
 		for(int i = 0; i < xTiles; i++){
 			for(int j = 0; j < yTiles; j++){
-				tiles[i][j] = new Tile2D(i, j, t, t);
+				tiles[i][j] = t.build(i, j, t);
 			}
 		}
 	}

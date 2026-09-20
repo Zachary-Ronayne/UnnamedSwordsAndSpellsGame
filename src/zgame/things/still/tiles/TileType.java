@@ -8,9 +8,6 @@ import zgame.things.type.Materialable;
 /** An enum that defines tiles that can exist. Extend this enum to add new tile types */
 public sealed abstract class TileType<V extends ZVector<V>> implements Materialable permits TileType3D, TileType2D{
 	
-	/** The hitbox of this tile type */
-	private final TileHitbox<V> hitbox;
-	
 	/** The unique string that identifies this {@link TileType} from others with the same {@link #origin} */
 	private final String id;
 	
@@ -23,16 +20,15 @@ public sealed abstract class TileType<V extends ZVector<V>> implements Materiala
 	/** The {@link Material} of this {@link TileType} */
 	private final Material material;
 	
+	// TODO update docs
 	/**
 	 * Create a new tile type
 	 *
 	 * @param id See {@link #id}
-	 * @param hitbox See {@link #hitbox}
 	 */
-	protected TileType(String id, String origin, TileHitbox<V> hitbox, Material material){
+	protected TileType(String id, String origin, Material material){
 		this.id = id;
 		this.origin = origin;
-		this.hitbox = hitbox;
 		this.material = material;
 	}
 	
@@ -50,12 +46,6 @@ public sealed abstract class TileType<V extends ZVector<V>> implements Materiala
 	public String getName(){
 		return String.join(".", this.getOrigin(), this.getId());
 	}
-	
-	/** @return See {@link TileHitbox} */
-	public TileHitbox<V> getHitbox(){
-		return this.hitbox;
-	}
-	
 	/**
 	 * Draw the given tile using this {@link TileType}
 	 *

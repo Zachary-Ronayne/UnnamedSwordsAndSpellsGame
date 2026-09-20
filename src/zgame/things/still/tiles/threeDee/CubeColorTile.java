@@ -6,11 +6,11 @@ import zgame.core.graphics.ZColor;
 import zgame.physics.V3D;
 import zgame.physics.material.Material;
 import zgame.things.still.tiles.Tile;
-import zgame.things.still.tiles.TileHitbox;
 import zgame.things.still.tiles.TileType3D;
+import zgame.things.type.bounds.RectangleHitBox;
 
 /** A simple tile which has a constant material */
-public class CubeColorTile extends TileType3D{
+public class CubeColorTile extends TileType3D implements RectangleHitBox{
 	
 	/** The initial color to use for rendering this tile before any modifications */
 	private ZColor baseColor;
@@ -20,11 +20,10 @@ public class CubeColorTile extends TileType3D{
 	 *
 	 * @param id See {@link #getId()}
 	 * @param origin See {@link #getOrigin()}
-	 * @param hitbox See {@link #getHitbox()}
 	 * @param material See {@link #material}
 	 */
-	public CubeColorTile(String id, String origin, TileHitbox<V3D> hitbox, ZColor baseColor, Material material){
-		super(id, origin, hitbox, material);
+	public CubeColorTile(String id, String origin, ZColor baseColor, Material material){
+		super(id, origin, material);
 		this.baseColor = baseColor;
 	}
 	

@@ -3,7 +3,6 @@ package zgame.things.still.tiles.twoDee;
 import zgame.physics.V2D;
 import zgame.physics.collision.Collision2D;
 import zgame.things.still.tiles.Tile;
-import zgame.things.still.tiles.TileHitbox;
 import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.HitBox2D;
 

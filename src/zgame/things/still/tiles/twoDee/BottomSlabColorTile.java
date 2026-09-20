@@ -7,6 +7,8 @@ import zgame.physics.material.Material;
 /** A basic tile that draws the bottom slab of a tile */
 public class BottomSlabColorTile extends ColorTile{
 	
+	// TODO make this have a proper bounds for the bottom slab behavior
+	
 	/**
 	 * Create a new {@link ColorTile} using the given data
 	 *
