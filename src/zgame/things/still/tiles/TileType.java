@@ -4,9 +4,10 @@ import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 import zgame.things.type.Materialable;
+import zgame.things.type.bounds.Shape;
 
 /** An enum that defines tiles that can exist. Extend this enum to add new tile types */
-public sealed abstract class TileType<V extends ZVector<V>> implements Materialable permits TileType3D, TileType2D{
+public sealed abstract class TileType<V extends ZVector<V>> implements Shape<V>, Materialable permits TileType3D, TileType2D{
 	
 	/** The unique string that identifies this {@link TileType} from others with the same {@link #origin} */
 	private final String id;

@@ -16,6 +16,7 @@ import java.util.HashSet;
  */
 public abstract class GameThing implements Comparable<GameThing>, Saveable, Destroyable{
 	
+	// TODO for tiles, these should probably be associated per tile type, not every game thing, or at least every tile instance should reference the same list
 	/** Any arbitrary fields associated with this {@link GameThing} */
 	private final HashSet<Tag> tags;
 	

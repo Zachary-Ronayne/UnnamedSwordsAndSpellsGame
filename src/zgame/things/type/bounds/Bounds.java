@@ -4,8 +4,9 @@ import zgame.physics.ZVector;
 import zgame.things.type.Position;
 
 /** An object which has a bounds that can be defined in a vector space */
-public interface Bounds<V extends ZVector<V>> extends Position<V>{
+public interface Bounds<V extends ZVector<V>> extends Position<V>, Shape<V>{
 	
+	// TODO does it even make sense to have a "min" and "max" position? May want to avoid using that system
 	/** @return The minimum value of all coordinates of this object */
 	V getMinPosition();
 	
@@ -14,14 +15,5 @@ public interface Bounds<V extends ZVector<V>> extends Position<V>{
 	
 	/** @return The center coordinate of the bounds of this object */
 	V getCenterPosition();
-	
-	/** @return The total size of this bounds across all dimensions */
-	V getDimensions();
-	
-	/**
-	 * @param bounds The bounds to check
-	 * @return true if this bounds intersects the given bounds, false otherwise
-	 */
-	boolean intersects(Bounds<V> bounds);
 	
 }

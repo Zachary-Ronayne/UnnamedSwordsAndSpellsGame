@@ -12,11 +12,11 @@ public final class BaseTiles2D{
 	public static final String BASE_ORIGIN = "base";
 	
 	/** An empty tile which has no hitbox or display */
-	public static final ColorTile AIR = new EmptyColorTile("air", BASE_ORIGIN, new ZColor(0, 0, 0, 0), Materials.NONE);
+	public static final ColorTile AIR = new EmptyColorTile("air", BASE_ORIGIN, new ZColor(0, 0, 0, 0));
 	/** A tile with no hitbox which displays as a dark color */
-	public static final ColorTile BACK_DARK = new EmptyColorTile("backDark", BASE_ORIGIN, new ZColor(.2), Materials.NONE);
+	public static final ColorTile BACK_DARK = new EmptyColorTile("backDark", BASE_ORIGIN, new ZColor(.2));
 	/** A tile with no hitbox which displays as a light color */
-	public static final ColorTile BACK_LIGHT = new EmptyColorTile("backLight", BASE_ORIGIN, new ZColor(.35), Materials.NONE);
+	public static final ColorTile BACK_LIGHT = new EmptyColorTile("backLight", BASE_ORIGIN, new ZColor(.35));
 	/** A tile with a solid hitbox that displays as a dark solid color */
 	public static final ColorTile WALL_DARK = new RectColorTile("wallDark", BASE_ORIGIN, new ZColor(.55));
 	/** A tile with a solid hitbox that displays as a light solid color */

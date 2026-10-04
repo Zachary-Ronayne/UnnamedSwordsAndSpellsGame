@@ -6,11 +6,12 @@ import zgame.physics.material.Material;
 import zgame.things.core.GameThing;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType2D;
-import zgame.things.type.*;
+import zgame.things.type.bounds.Bounds;
 import zgame.things.type.bounds.Bounds2D;
+import zgame.things.type.bounds.BoundsType;
 
 /** A {@link GameThing} with a position based on an index in an array. The indexes of this object should directly correlate to its position */
-public abstract class Tile2D extends GameThing implements Tile<V2D>, Bounds2D, Materialable{
+public class Tile2D extends Tile<V2D> implements Bounds2D{
 	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 64;
@@ -123,14 +124,40 @@ public abstract class Tile2D extends GameThing implements Tile<V2D>, Bounds2D, M
 		return TILE_SIZE_INVERSE;
 	}
 	
-	@Override
-	public V2D getPosition(){
-		return new V2D(this.x, this.y);
-	}
-	
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends Tile<V2D>> T asTile(Class<T> clazz){
 		return (T)this;
+	}
+	
+	@Override
+	public V2D getPosition(){
+		// TODO how should the position be determined? Needs to be based on the tile type
+	}
+	
+	@Override
+	public V2D getMinPosition(){
+		return this.getPosition();
+	}
+	
+	@Override
+	public V2D getMaxPosition(){
+		return new V2D(this.x + this.getWidth(), this.y + this.getHeight());
+	}
+	
+	@Override
+	public V2D getDimensions(){
+		var dims = this.getFrontType().getDimensions();
+		return new V2D(dims.getWidth(), dims.getHeight());
+	}
+	
+	@Override
+	public boolean intersects(Bounds<V2D> bounds){
+		return this.getFrontType().intersects(bounds);
+	}
+	
+	@Override
+	public BoundsType getBoundsType(){
+		return this.getFrontType().getBoundsType();
 	}
 }

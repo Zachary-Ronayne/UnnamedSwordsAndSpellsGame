@@ -7,12 +7,11 @@ import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType3D;
 import zgame.things.core.GameThing;
 import zgame.things.type.bounds.Bounds3D;
-import zgame.things.type.bounds.RectPrismBounds;
 import zgame.world.Direction3D;
 import zgame.things.core.Room3D;
 
 /** A {@link GameThing} with a position based on indexes in an array. The indexes of this object should directly correlate to its position */
-public abstract class Tile3D extends GameThing implements Tile<V3D>, Bounds3D, RectPrismBounds{
+public class Tile3D extends Tile<V3D> implements Bounds3D{
 	
 	/** The default size of tiles */
 	public static final double TILE_SIZE = 1;

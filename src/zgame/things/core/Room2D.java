@@ -12,16 +12,16 @@ import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.still.tiles.twoDee.BaseTiles2D;
 import zgame.things.still.tiles.twoDee.Tile2D;
 import zgame.things.still.tiles.TileType2D;
-import zgame.things.type.bounds.Bounds2D;
 import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.HitBox2D;
+import zgame.things.type.bounds.RectangleBounds;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /** A {@link Room} which is made of 2D tiles */
 // TODO make a rectangle bounds object and have room implement it
-public class Room2D extends Room<V2D> implements Bounds2D{
+public class Room2D extends Room<V2D> implements RectangleBounds{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -101,7 +101,7 @@ public class Room2D extends Room<V2D> implements Bounds2D{
 		this.tiles = new Tile2D[xTiles][yTiles];
 		for(int i = 0; i < xTiles; i++){
 			for(int j = 0; j < yTiles; j++){
-				tiles[i][j] = t.build(i, j, t);
+				tiles[i][j] = new Tile2D(i, j, t);
 			}
 		}
 	}
