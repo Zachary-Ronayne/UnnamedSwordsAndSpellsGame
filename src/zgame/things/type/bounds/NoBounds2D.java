@@ -16,17 +16,22 @@ public interface NoBounds2D extends Bounds2D{
 	
 	@Override
 	default V2D getMaxPosition(){
-		return this.getPosition();
+		return this.getMinPosition();
 	}
 	
 	@Override
 	default V2D getCenterPosition(){
-		return this.getPosition();
+		return this.getMinPosition();
 	}
 	
 	@Override
 	default boolean intersects(Bounds<V2D> bounds){
-		// No bounds means nothing intersects
+		// No bounds, nothing intersects
 		return false;
+	}
+	
+	@Override
+	default Bounds<V2D> shapeAsBounds(V2D minPos){
+		// TODO implement
 	}
 }

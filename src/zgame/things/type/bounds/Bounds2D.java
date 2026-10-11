@@ -8,8 +8,18 @@ import zgame.things.type.Position2D;
 public interface Bounds2D extends Position2D, Bounds<V2D>{
 	
 	@Override
-	default V2D getMinPosition(){
-		return this.getPosition();
+	default V2D getMaxPosition(){
+		return this.getMinPosition().add(this.getDimensions());
+	}
+	
+	/** @return The minimum x coordinate of this bounds */
+	default double minX(){
+		return this.getMinPosition().getX();
+	}
+	
+	/** @return The minimum y coordinate of this bounds */
+	default double minY(){
+		return this.getMinPosition().getY();
 	}
 	
 	/** @return The maximum x coordinate of this bounds */
@@ -33,22 +43,23 @@ public interface Bounds2D extends Position2D, Bounds<V2D>{
 	}
 	
 	default V2D getCenterPosition(){
-		return new V2D(this.centerX(), this.centerY());
+		return this.getMinPosition().add(this.getDimensions().scale(0.5));
 	}
 	
 	/** @return The center x coordinate of this bounds */
 	default double centerX(){
-		return this.getX() + this.getWidth() * 0.5;
+		return this.getCenterPosition().getX();
 	}
 	
 	/** @return The center y coordinate of this bounds */
 	default double centerY(){
-		return this.getY() + this.getHeight() * 0.5;
+		return this.getCenterPosition().getY();
 	}
 	
-	/** @return A rectangle representing the full bounds which this {@link Bounds2D} takes up */
-	default ZRect2D getBounds(){
-		return new ZRect2D(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+	/** @return An axis aligned rectangle representing the full bounds which this {@link Bounds2D} takes up */
+	default ZRect2D getRectBounds(){
+		var pos = this.getMinPosition();
+		return new ZRect2D(pos.getX(), pos.getY(), this.getWidth(), this.getHeight());
 	}
 	
 }

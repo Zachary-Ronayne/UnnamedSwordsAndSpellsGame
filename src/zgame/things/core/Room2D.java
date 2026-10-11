@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** A {@link Room} which is made of 2D tiles */
-// TODO make a rectangle bounds object and have room implement it
 public class Room2D extends Room<V2D> implements RectangleBounds{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
@@ -136,8 +135,8 @@ public class Room2D extends Room<V2D> implements RectangleBounds{
 		// Keep the object inside the game bounds, if the walls are enabled
 		var objHitbox = obj.asHitbox(HitBox2D.class);
 		if(this.isSolid(WALL_LEFT)){
-			double newX = objHitbox.keepRight(this.getX());
-			double dist = Math.abs(objHitbox.getX() - newX);
+			double newX = objHitbox.keepRight(this.minX());
+			double dist = Math.abs(objHitbox.minX() - newX);
 			if(dist != 0){
 				// TODO probably need an "infinite" barrier type hitbox implementation for this
 				obj.touchWall(new Collision2D(obj, (HitBox<V2D> hitbox) -> {
@@ -148,7 +147,7 @@ public class Room2D extends Room<V2D> implements RectangleBounds{
 		}
 		if(this.isSolid(WALL_RIGHT)){
 			double newX = objHitbox.keepLeft(this.maxX());
-			double dist = Math.abs(objHitbox.getX() - newX);
+			double dist = Math.abs(objHitbox.minX() - newX);
 			if(dist != 0){
 				obj.touchWall(new Collision2D(obj, (HitBox<V2D> hitbox) -> {
 					var pos = hitbox.getPosition();
@@ -157,8 +156,8 @@ public class Room2D extends Room<V2D> implements RectangleBounds{
 			}
 		}
 		if(this.isSolid(WALL_CEILING)){
-			double newY = objHitbox.keepBelow(this.getY());
-			double dist = Math.abs(objHitbox.getY() - newY);
+			double newY = objHitbox.keepBelow(this.minY());
+			double dist = Math.abs(objHitbox.minY() - newY);
 			if(dist != 0){
 				obj.touchCeiling(new Collision2D(obj, (HitBox<V2D> hitbox) -> {
 					var pos = hitbox.getPosition();
@@ -168,7 +167,7 @@ public class Room2D extends Room<V2D> implements RectangleBounds{
 		}
 		if(this.isSolid(WALL_FLOOR)){
 			double newY = objHitbox.keepAbove(this.maxY());
-			double dist = Math.abs(objHitbox.getY() - newY);
+			double dist = Math.abs(objHitbox.minY() - newY);
 			if(dist != 0){
 				obj.touchFloor(new Collision2D(obj, (HitBox<V2D> hitbox) -> {
 					var pos = hitbox.getPosition();
@@ -274,7 +273,7 @@ public class Room2D extends Room<V2D> implements RectangleBounds{
 	}
 	
 	@Override
-	public V2D getPosition(){
+	public V2D getMinPosition(){
 		return new V2D();
 	}
 	

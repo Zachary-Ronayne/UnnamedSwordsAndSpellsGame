@@ -20,10 +20,11 @@ public abstract class ColorTile extends TileType2D{
 	 *
 	 * @param id See {@link #getId()}
 	 * @param origin See {@link #getOrigin()}
+	 * @param shapeOffset See {@link #shapeOffset}
 	 * @param color See {@link #color}
 	 */
-	public ColorTile(String id, String origin, ZColor color){
-		this(id, origin, color, Materials.DEFAULT);
+	public ColorTile(String id, String origin, V2D shapeOffset, ZColor color){
+		this(id, origin, shapeOffset, color, Materials.DEFAULT);
 	}
 	
 	/**
@@ -31,11 +32,12 @@ public abstract class ColorTile extends TileType2D{
 	 *
 	 * @param id See {@link #getId()}
 	 * @param origin See {@link #getOrigin()}
+	 * @param shapeOffset See {@link #shapeOffset}
 	 * @param color See {@link #color}
 	 * @param material See {@link #material}
 	 */
-	public ColorTile(String id, String origin, ZColor color, Material material){
-		super(id, origin, material);
+	public ColorTile(String id, String origin, V2D shapeOffset, ZColor color, Material material){
+		super(id, origin, shapeOffset, material);
 		this.color = color;
 	}
 	
@@ -55,8 +57,9 @@ public abstract class ColorTile extends TileType2D{
 	
 	@Override
 	public void render(Tile<V2D> t, Renderer r){
+		// Render a rectangle of the bounds
 		r.setColor(this.getColor());
-		var pos = t.getPosition();
+		var pos = t.getMinPosition();
 		var dims = t.getDimensions();
 		r.drawRectangle(pos.getX(), pos.getY(), dims.getWidth(), dims.getHeight());
 	}

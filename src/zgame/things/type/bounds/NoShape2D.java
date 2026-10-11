@@ -3,7 +3,7 @@ package zgame.things.type.bounds;
 import zgame.physics.V2D;
 
 /** Represents a shape taking up no area */
-public interface NoShape2D extends Shape2D{
+public interface NoShape2D extends Shape2D, NoBounds2D{
 	
 	@Override
 	default V2D getDimensions(){

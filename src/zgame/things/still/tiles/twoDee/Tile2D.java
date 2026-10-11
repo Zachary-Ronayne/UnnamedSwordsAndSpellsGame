@@ -30,13 +30,13 @@ public class Tile2D extends Tile<V2D> implements Bounds2D{
 	/** The type of this tile used for rendering the front, foreground, of this tile */
 	private TileType2D frontType;
 	
-	/** The x coordinate of this tile */
+	/** The upper left hand x coordinate of the full area this tile takes up */
 	private final double x;
-	/** The y coordinate of this tile */
+	/** The upper left hand y coordinate of the full area this tile takes up */
 	private final double y;
 	
 	/**
-	 * Make a new tile at the given index as an air tile
+	 * Make a new air tile at the given index
 	 *
 	 * @param x See {@link #xIndex}
 	 * @param y See {@link #yIndex}
@@ -131,29 +131,23 @@ public class Tile2D extends Tile<V2D> implements Bounds2D{
 	}
 	
 	@Override
-	public V2D getPosition(){
-		// TODO how should the position be determined? Needs to be based on the tile type
-	}
-	
-	@Override
 	public V2D getMinPosition(){
-		return this.getPosition();
-	}
-	
-	@Override
-	public V2D getMaxPosition(){
-		return new V2D(this.x + this.getWidth(), this.y + this.getHeight());
+		return new V2D(this.x, this.y).add(this.getFrontType().getShapeOffset());
 	}
 	
 	@Override
 	public V2D getDimensions(){
-		var dims = this.getFrontType().getDimensions();
-		return new V2D(dims.getWidth(), dims.getHeight());
+		return this.getFrontType().getDimensions();
 	}
 	
 	@Override
 	public boolean intersects(Bounds<V2D> bounds){
-		return this.getFrontType().intersects(bounds);
+		return this.shapeAsBounds(this.getMinPosition()).intersects(bounds);
+	}
+	
+	@Override
+	public Bounds<V2D> shapeAsBounds(V2D pos){
+		return this.getFrontType().shapeAsBounds(pos);
 	}
 	
 	@Override

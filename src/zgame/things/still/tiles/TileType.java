@@ -21,15 +21,20 @@ public sealed abstract class TileType<V extends ZVector<V>> implements Shape<V>,
 	/** The {@link Material} of this {@link TileType} */
 	private final Material material;
 	
+	/** The distance from the min position of this tile's index bounds to where its bounds begins */
+	private final V shapeOffset;
+	
 	// TODO update docs
 	/**
 	 * Create a new tile type
 	 *
 	 * @param id See {@link #id}
+	 * @param shapeOffset See {@link #shapeOffset}
 	 */
-	protected TileType(String id, String origin, Material material){
+	protected TileType(String id, String origin, V shapeOffset, Material material){
 		this.id = id;
 		this.origin = origin;
+		this.shapeOffset = shapeOffset;
 		this.material = material;
 	}
 	
@@ -54,6 +59,11 @@ public sealed abstract class TileType<V extends ZVector<V>> implements Shape<V>,
 	 * @param r The renderer to use for drawing
 	 */
 	public abstract void render(Tile<V> t, Renderer r);
+	
+	/** @return See {@link #shapeOffset} */
+	public V getShapeOffset(){
+		return this.shapeOffset;
+	}
 	
 	@Override
 	public Material getMaterial(){

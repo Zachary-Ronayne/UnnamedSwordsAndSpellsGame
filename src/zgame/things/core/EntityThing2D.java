@@ -6,8 +6,8 @@ import zgame.core.graphics.Renderer;
 import zgame.core.utils.ZRect2D;
 import zgame.physics.V2D;
 import zgame.physics.ZVector;
-import zgame.physics.collision.Collision;
 import zgame.things.entity.state.EntityState;
+import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.entity.state.vector.EntityState2D;
 import zgame.things.type.bounds.HitBox2D;
 
@@ -53,11 +53,11 @@ public abstract class EntityThing2D extends EntityThing<V2D> implements HitBox2D
 	}
 	
 	@Override
-	public void touchWall(Collision<V2D> result){
-		super.touchWall(result);
+	public void touchWall(CollisionUpdate<V2D> collision){
+		super.touchWall(collision);
 		// TODO test this formally and make sure this new approach makes sense
 //		this.setHorizontalVel(-this.getHorizontalVel() * result.material().getWallBounce() * this.getMaterial().getWallBounce());
-		this.scaleVelocity(-1 * result.material().getWallBounce() * this.getMaterial().getWallBounce());
+		this.scaleVelocity(-1 * collision.material().getWallBounce() * this.getMaterial().getWallBounce());
 	}
 	
 	@Override
@@ -92,7 +92,7 @@ public abstract class EntityThing2D extends EntityThing<V2D> implements HitBox2D
 	
 	@Override
 	public boolean shouldRender(Renderer r){
-		return Game.get().getWindow().gameBoundsInScreen(this.getBounds());
+		return Game.get().getWindow().gameBoundsInScreen(this.getRectBounds());
 	}
 	
 	/**
@@ -116,7 +116,7 @@ public abstract class EntityThing2D extends EntityThing<V2D> implements HitBox2D
 	public void onRoomAdd(Room2D to){}
 	
 	// TODO potentially move this to an abstract get bounds method
-	public ZRect2D getBounds(){
+	public ZRect2D getRectBounds(){
 		var pos = this.getPosition();
 		var dims = this.getDimensions();
 		return new ZRect2D(pos.getX(), pos.getY(), dims.getWidth(), pos.getHeight());

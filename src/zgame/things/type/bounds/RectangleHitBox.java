@@ -32,7 +32,7 @@ public interface RectangleHitBox extends HitBox2D{
 	
 	@Override
 	default boolean intersectsRect(double x, double y, double w, double h){
-		return this.getBounds().intersects(x, y, w, h);
+		return this.getRectBounds().intersects(x, y, w, h);
 	}
 	
 	@Override
