@@ -14,7 +14,7 @@ import zgame.things.still.tiles.twoDee.Tile2D;
 import zgame.things.still.tiles.TileType2D;
 import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.twoDee.hitbox.HitBox2D;
-import zgame.things.type.bounds.twoDee.bounds.RectangleBounds;
+import zgame.things.type.bounds.twoDee.bounds.shape.RectangleBounds;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,13 +1,12 @@
-package zgame.things.type.bounds.twoDee.bounds;
+package zgame.things.type.bounds.twoDee.bounds.shape;
 
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint2D;
 import zgame.things.type.bounds.twoDee.shape.CircleShape;
 
 /** A circle with a position */
-public interface CircleBounds extends Bounds2D, CircleShape{
+public non-sealed interface CircleBounds extends ShapedBounds2D, CircleShape{
 	
-	@Override
 	default boolean intersectsCircle(CircleBounds bounds){
 		var c1 = this.getCenterPosition();
 		var c2 = bounds.getCenterPosition();
@@ -15,12 +14,10 @@ public interface CircleBounds extends Bounds2D, CircleShape{
 		return dist <= bounds.getRadius() + this.getRadius();
 	}
 	
-	@Override
 	default boolean intersectsRect(RectangleBounds bounds){
 		var cCenter = this.getCenterPosition();
 		var rMin = bounds.getMinPosition();
 		var rDims = bounds.getDimensions();
 		return ZMath.circleIntersectsRect(cCenter.getX(), cCenter.getY(), this.getRadius(), rMin.getX(), rMin.getY(), rDims.getWidth(), rDims.getHeight());
 	}
-	
 }

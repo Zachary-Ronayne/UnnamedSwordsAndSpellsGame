@@ -13,6 +13,8 @@ import zgame.things.type.bounds.HitBox;
  */
 public interface HitBox2D extends HitBox<V2D>, Bounds2D{
 	
+	// TODO next figure out what should be moved from hitbox to bounds, or if hitbox should even be its own class
+	
 	/**
 	 * Determine a {@link Collision2D} from colliding this object with the given rectangular bounds. Essentially, move this object so that it no longer intersecting with
 	 * the given bounds. This method should not change the state of this object, it should only return an object representing how the collision should happen.
@@ -56,35 +58,6 @@ public interface HitBox2D extends HitBox<V2D>, Bounds2D{
 	@Override
 	default Collision<V2D> collideAt(V2D currentPos, Bounds<V2D> bounds){
 		// TODO implement
-	}
-	
-	/**
-	 * @param hitbox The hitbox to check
-	 * @return true if this hitbox intersects the given hitbox, false otherwise
-	 */
-	@Override
-	default boolean intersects(Bounds<V2D> hitbox){
-		
-		var dims = hitbox.getDimensions();
-		double w = dims.getWidth();
-		double h = dims.getHeight();
-		
-		// TODO move "hitbox type" to be a bounds type
-		return switch(hitbox.getHitboxType()){
-			case CIRCLE -> {
-				var pos = hitbox.getCenterPosition();
-				double x = pos.getX();
-				double y = pos.getY();
-				yield this.intersectsCircle(x, y, w * 0.5);
-			}
-			case RECT -> {
-				var pos = hitbox.getMinPosition();
-				double x = pos.getX();
-				double y = pos.getY();
-				yield this.intersectsRect(x, y, w, h);
-			}
-			default -> false;
-		};
 	}
 	
 	/**

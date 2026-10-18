@@ -111,7 +111,7 @@ public interface Projectile<V extends ZVector<V>> extends GameTickable, HitBox<V
 		if(sourceId != null && sourceId.equals(thing.getUuid())) return false;
 		
 		// Otherwise it will hit as long as they intersect
-		return this.intersects(thing);
+		return this.intersectsDimensions(thing);
 	}
 	
 	/** @return true if this projectile should be deleted when it hits something, false otherwise */

@@ -23,5 +23,5 @@ public interface Bounds<V extends ZVector<V>> extends Position<V>, Shape<V>{
 	 * @param bounds The bounds to check
 	 * @return true if the given bounds intersects this at the given position, false otherwise
 	 */
-	boolean intersects(Bounds<V> bounds);
+	boolean intersectsDimensions(Bounds<V> bounds);
 }

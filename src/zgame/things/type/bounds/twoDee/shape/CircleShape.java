@@ -1,17 +1,17 @@
 package zgame.things.type.bounds.twoDee.shape;
 
 import zgame.physics.V2D;
-import zgame.things.type.bounds.Bounds;
-import zgame.things.type.bounds.twoDee.bounds.CircleBounds;
+import zgame.things.type.bounds.twoDee.bounds.shape.CircleBounds;
+import zgame.things.type.bounds.twoDee.bounds.shape.ShapedBounds2D;
 
-/** Represents a formal mathematical circle */
+/** A formal mathematical circle with no position */
 public interface CircleShape extends Shape2D{
 	
 	/** @return The radius of this circle */
 	double getRadius();
 	
 	@Override
-	default Bounds<V2D> shapeAsBounds(V2D minPos){
+	default ShapedBounds2D atMinPosition(V2D minPos){
 		final var c = this;
 		return new CircleBounds(){
 			@Override
@@ -29,10 +29,5 @@ public interface CircleShape extends Shape2D{
 				return c.getDimensions();
 			}
 		};
-	}
-	
-	@Override
-	default ShapeType2D getShapeType(){
-		return ShapeType2D.CIRCLE;
 	}
 }

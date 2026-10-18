@@ -6,8 +6,8 @@ import zgame.physics.material.Material;
 import zgame.things.core.GameThing;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType2D;
-import zgame.things.type.bounds.Bounds;
 import zgame.things.type.bounds.twoDee.bounds.Bounds2D;
+import zgame.things.type.bounds.twoDee.bounds.shape.ShapedBounds2D;
 
 /** A {@link GameThing} with a position based on an index in an array. The indexes of this object should directly correlate to its position */
 public class Tile2D extends Tile<V2D> implements Bounds2D{
@@ -134,18 +134,25 @@ public class Tile2D extends Tile<V2D> implements Bounds2D{
 		return new V2D(this.x, this.y).add(this.getFrontType().getShapeOffset());
 	}
 	
+	// Dimensions will come from the front type shape
+	
 	@Override
 	public V2D getDimensions(){
 		return this.getFrontType().getDimensions();
 	}
 	
 	@Override
-	public boolean intersects(Bounds<V2D> bounds){
-		return this.shapeAsBounds(this.getMinPosition()).intersects(bounds);
+	public boolean intersects(Bounds2D bounds){
+		return this.atMinPosition(this.getMinPosition()).intersectsDimensions(bounds);
 	}
 	
 	@Override
-	public Bounds<V2D> shapeAsBounds(V2D pos){
-		return this.getFrontType().shapeAsBounds(pos);
+	public ShapedBounds2D atMinPosition(V2D pos){
+		return this.getFrontType().atMinPosition(pos);
+	}
+	
+	@Override
+	public ShapedBounds2D asShapedBounds(){
+		return this.atMinPosition(this.getMinPosition());
 	}
 }

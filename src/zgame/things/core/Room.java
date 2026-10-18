@@ -171,7 +171,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing implements Bo
 		// Iterate through all entities, ignoring the given entity, and find the ones intersecting the given entity
 		for(int i = 0; i < entities.size(); i++){
 			var e = entities.get(i);
-			if(e == checkEntity || e.isNoClip() || !checkEntity.intersects(e)) continue;
+			if(e == checkEntity || e.isNoClip() || !checkEntity.intersectsDimensions(e)) continue;
 			checkEntity.checkEntityCollision(e, dt);
 
 			// TODO make a real attempt at entity collision again

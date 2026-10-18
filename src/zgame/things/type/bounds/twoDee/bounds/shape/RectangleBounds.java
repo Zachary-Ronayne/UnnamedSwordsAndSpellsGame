@@ -1,16 +1,15 @@
-package zgame.things.type.bounds.twoDee.bounds;
+package zgame.things.type.bounds.twoDee.bounds.shape;
 
 import zgame.core.utils.ZMath;
 import zgame.things.type.bounds.twoDee.shape.RectangleShape;
 
-public interface RectangleBounds extends Bounds2D, RectangleShape{
+/** An axis aligned rectangle */
+public non-sealed interface RectangleBounds extends ShapedBounds2D, RectangleShape{
 	
-	@Override
 	default boolean intersectsRect(RectangleBounds bounds){
 		return this.getRectBounds().intersects(bounds.getRectBounds());
 	}
 	
-	@Override
 	default boolean intersectsCircle(CircleBounds bounds){
 		var cCenter = bounds.getCenterPosition();
 		var rMin = this.getMinPosition();

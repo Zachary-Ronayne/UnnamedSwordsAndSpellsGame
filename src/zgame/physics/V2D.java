@@ -7,6 +7,9 @@ import zgame.core.utils.ZMath;
  */
 public final class V2D extends ZVector<V2D>{
 	
+	/** A singleton reference for a 2D vector with no size */
+	public static final V2D EMPTY = new V2D();
+	
 	/** The x component of this {@link V2D} */
 	private double x;
 	/** The y component of this {@link V2D} */

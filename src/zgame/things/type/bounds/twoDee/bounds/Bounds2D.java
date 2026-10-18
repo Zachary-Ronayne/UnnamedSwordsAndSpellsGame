@@ -4,6 +4,7 @@ import zgame.core.utils.ZRect2D;
 import zgame.physics.V2D;
 import zgame.things.type.Position2D;
 import zgame.things.type.bounds.Bounds;
+import zgame.things.type.bounds.twoDee.bounds.shape.ShapedBounds2D;
 import zgame.things.type.bounds.twoDee.shape.Shape2D;
 
 /** An object which has a bounds that can be defined in a 2D space */
@@ -57,20 +58,17 @@ public interface Bounds2D extends Position2D, Bounds<V2D>, Shape2D{
 	}
 	
 	@Override
-	default boolean intersects(Bounds<V2D> bounds){
-		// TODO consider not using a type enum, use sealed classes
-		return switch(this.getShapeType()){
-			// No shape, no intersection
-			case EMPTY -> false;
-			case RECT -> this.intersectsRect((RectangleBounds)bounds);
-			case CIRCLE -> this.intersectsCircle((CircleBounds)bounds);
-		};
+	default boolean intersectsDimensions(Bounds<V2D> bounds){
+		return this.intersects((Bounds2D)bounds);
 	}
 	
-	/** @return true if this bounds intersects the given rectangle bounds */
-	boolean intersectsRect(RectangleBounds bounds);
+	/**
+	 * @param bounds The bounds to check
+	 * @return true if the given bounds intersect with this bounds
+	 */
+	boolean intersects(Bounds2D bounds);
 	
-	/** @return true if this bounds intersects the given circle bounds */
-	boolean intersectsCircle(CircleBounds bounds);
+	/** @return A shape representing this bounds */
+	ShapedBounds2D asShapedBounds();
 	
 }

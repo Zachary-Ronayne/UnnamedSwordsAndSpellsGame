@@ -43,7 +43,7 @@ public interface EmptyHitBox2D extends HitBox2D{
 	}
 	
 	@Override
-	default boolean intersects(Bounds<V2D> hitbox){
+	default boolean intersectsDimensions(Bounds<V2D> hitbox){
 		return false;
 	}
 	

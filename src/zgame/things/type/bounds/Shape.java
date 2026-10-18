@@ -13,6 +13,6 @@ public interface Shape<V extends ZVector<V>>{
 	 * @param minPos The minimum position for the bounds
 	 * @return The bounds
 	 */
-	Bounds<V> shapeAsBounds(V minPos);
+	ShapedBounds<V> atMinPositionDimension(V minPos);
 	
 }

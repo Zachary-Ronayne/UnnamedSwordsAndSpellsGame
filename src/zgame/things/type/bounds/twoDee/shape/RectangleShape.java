@@ -1,13 +1,14 @@
 package zgame.things.type.bounds.twoDee.shape;
 
 import zgame.physics.V2D;
-import zgame.things.type.bounds.Bounds;
-import zgame.things.type.bounds.twoDee.bounds.RectangleBounds;
+import zgame.things.type.bounds.twoDee.bounds.shape.RectangleBounds;
+import zgame.things.type.bounds.twoDee.bounds.shape.ShapedBounds2D;
 
+/** An axis aligned rectangle with no position */
 public interface RectangleShape extends Shape2D{
 	
 	@Override
-	default Bounds<V2D> shapeAsBounds(V2D minPos){
+	default ShapedBounds2D atMinPosition(V2D minPos){
 		final var rect = this;
 		return new RectangleBounds(){
 			@Override
@@ -20,10 +21,5 @@ public interface RectangleShape extends Shape2D{
 				return rect.getDimensions();
 			}
 		};
-	}
-	
-	@Override
-	default ShapeType2D getShapeType(){
-		return ShapeType2D.RECT;
 	}
 }
