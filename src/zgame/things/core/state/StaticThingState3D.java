@@ -2,7 +2,7 @@ package zgame.things.core.state;
 
 import zgame.physics.V3D;
 import zgame.things.still.StaticThingState;
-import zgame.things.type.bounds.Bounds3D;
+import zgame.things.type.bounds.threeDee.bounds.Bounds3D;
 
 /** A 3D thing which does not move as an entity would, and generally doesn't move, but can be at an arbitrary position */
 public abstract class StaticThingState3D extends StaticThingState<V3D> implements Bounds3D{

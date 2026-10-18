@@ -1,7 +1,7 @@
 package tester;
 
 import zgame.core.graphics.Renderer;
-import zgame.things.type.bounds.RectangleHitBox;
+import zgame.things.type.bounds.twoDee.hitbox.RectangleHitBox;
 
 public class PlayerTesterRect extends PlayerTester implements RectangleHitBox{
 	/**

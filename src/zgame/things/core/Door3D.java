@@ -6,8 +6,8 @@ import zgame.core.graphics.ZColor;
 import zgame.physics.V3D;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
-import zgame.things.type.bounds.RectPrismClickable;
-import zgame.things.type.bounds.RectPrismHitbox;
+import zgame.things.type.bounds.threeDee.clickable.RectPrismClickable;
+import zgame.things.type.bounds.threeDee.hitbox.RectPrismHitbox;
 
 // TODO potentially move position and dims to a state, for now just making them static
 /** A door for 3D rooms */

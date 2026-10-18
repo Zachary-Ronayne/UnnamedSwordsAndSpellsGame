@@ -1,9 +1,12 @@
-package zgame.things.type.bounds;
+package zgame.things.type.bounds.twoDee.hitbox;
 
 import zgame.physics.V2D;
 import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision2D;
 import zgame.things.entity.projectile.Projectile2D;
+import zgame.things.type.bounds.Bounds;
+import zgame.things.type.bounds.twoDee.bounds.Bounds2D;
+import zgame.things.type.bounds.HitBox;
 
 /**
  * An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds

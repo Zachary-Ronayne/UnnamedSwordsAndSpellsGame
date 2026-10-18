@@ -1,4 +1,4 @@
-package zgame.things.type.bounds;
+package zgame.things.type.bounds.threeDee;
 
 import zgame.core.utils.ZRect3D;
 

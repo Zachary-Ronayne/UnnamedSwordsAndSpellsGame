@@ -7,8 +7,8 @@ import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.image.ImageManager;
 import zgame.core.utils.ZMath;
 import zgame.things.ThingClickDetector3D;
-import zgame.things.type.bounds.ClickerBounds;
-import zgame.things.type.bounds.ModifiableRectDims3D;
+import zgame.things.type.bounds.threeDee.clickable.ClickerBounds;
+import zgame.things.type.bounds.threeDee.ModifiableRectDims3D;
 import zgame.world.Direction3D;
 import zgame.things.core.Room3D;
 

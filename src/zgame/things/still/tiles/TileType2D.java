@@ -2,7 +2,7 @@ package zgame.things.still.tiles;
 
 import zgame.physics.V2D;
 import zgame.physics.material.Material;
-import zgame.things.type.bounds.Shape2D;
+import zgame.things.type.bounds.twoDee.shape.Shape2D;
 
 /** A standard 2D tile type */
 public non-sealed abstract class TileType2D extends TileType<V2D> implements Shape2D{

@@ -1,4 +1,4 @@
-package zgame.things.type.bounds;
+package zgame.things.type.bounds.threeDee.hitbox;
 
 import zgame.core.utils.ZMath;
 import zgame.physics.V3D;

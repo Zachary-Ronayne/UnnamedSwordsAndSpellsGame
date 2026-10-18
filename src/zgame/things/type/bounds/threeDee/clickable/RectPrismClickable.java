@@ -1,6 +1,7 @@
-package zgame.things.type.bounds;
+package zgame.things.type.bounds.threeDee.clickable;
 
 import zgame.core.utils.ZMath;
+import zgame.things.type.bounds.threeDee.bounds.RectPrismBounds;
 
 /** A clickable object with the hitbox of an axis aligned rectangular prism */
 public interface RectPrismClickable extends Clickable3D, RectPrismBounds{

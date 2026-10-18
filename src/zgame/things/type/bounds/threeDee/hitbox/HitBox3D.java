@@ -1,8 +1,10 @@
-package zgame.things.type.bounds;
+package zgame.things.type.bounds.threeDee.hitbox;
 
 import zgame.physics.V3D;
 import zgame.physics.collision.Collision3D;
 import zgame.things.entity.projectile.Projectile3D;
+import zgame.things.type.bounds.HitBox;
+import zgame.things.type.bounds.threeDee.bounds.Bounds3D;
 import zgame.world.Direction3D;
 
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */

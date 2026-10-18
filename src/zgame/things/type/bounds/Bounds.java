@@ -10,10 +10,14 @@ public interface Bounds<V extends ZVector<V>> extends Position<V>, Shape<V>{
 	V getMinPosition();
 	
 	/** @return The maximum coordinate of an axis aligned bounding box containing this bounds */
-	V getMaxPosition();
+	default V getMaxPosition(){
+		return this.getMinPosition().add(this.getDimensions());
+	}
 	
 	/** @return The center coordinate of an axis aligned bounding box containing this bounds */
-	V getCenterPosition();
+	default V getCenterPosition(){
+		return this.getMinPosition().add(this.getDimensions().scale(0.5));
+	}
 	
 	/**
 	 * @param bounds The bounds to check

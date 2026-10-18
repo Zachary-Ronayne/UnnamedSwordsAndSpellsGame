@@ -4,7 +4,7 @@ import zgame.core.utils.FunctionMap;
 import zgame.physics.V3D;
 import zgame.physics.collision.Collision3D;
 import zgame.things.core.EntityThing3D;
-import zgame.things.type.bounds.HitBox3D;
+import zgame.things.type.bounds.threeDee.hitbox.HitBox3D;
 import zgame.things.core.Room3D;
 
 /** A 3D implementation of a projectile which represents a thing flying through the air */

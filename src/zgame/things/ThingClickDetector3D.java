@@ -1,8 +1,8 @@
 package zgame.things;
 
 import zgame.physics.V3D;
-import zgame.things.type.bounds.Clickable3D;
-import zgame.things.type.bounds.ClickerBounds;
+import zgame.things.type.bounds.threeDee.clickable.Clickable3D;
+import zgame.things.type.bounds.threeDee.clickable.ClickerBounds;
 import zgame.things.core.Room3D;
 
 /** A utility interface for handling clicking on a game thing when a click happens on it */

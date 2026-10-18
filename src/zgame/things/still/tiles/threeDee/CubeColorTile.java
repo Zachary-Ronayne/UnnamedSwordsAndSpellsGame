@@ -7,7 +7,7 @@ import zgame.physics.V3D;
 import zgame.physics.material.Material;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType3D;
-import zgame.things.type.bounds.RectangleHitBox;
+import zgame.things.type.bounds.twoDee.hitbox.RectangleHitBox;
 
 /** A simple tile which has a constant material */
 public class CubeColorTile extends TileType3D implements RectangleHitBox{

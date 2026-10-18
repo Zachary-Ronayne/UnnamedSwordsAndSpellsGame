@@ -1,0 +1,29 @@
+package zgame.things.type.bounds.twoDee.shape;
+
+import zgame.physics.V2D;
+import zgame.things.type.bounds.Bounds;
+import zgame.things.type.bounds.twoDee.bounds.RectangleBounds;
+
+public interface RectangleShape extends Shape2D{
+	
+	@Override
+	default Bounds<V2D> shapeAsBounds(V2D minPos){
+		final var rect = this;
+		return new RectangleBounds(){
+			@Override
+			public V2D getMinPosition(){
+				return minPos;
+			}
+			
+			@Override
+			public V2D getDimensions(){
+				return rect.getDimensions();
+			}
+		};
+	}
+	
+	@Override
+	default ShapeType2D getShapeType(){
+		return ShapeType2D.RECT;
+	}
+}

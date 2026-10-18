@@ -3,7 +3,7 @@ package zgame.things.still.tiles.twoDee;
 import zgame.core.graphics.ZColor;
 import zgame.physics.V2D;
 import zgame.physics.material.Material;
-import zgame.things.type.bounds.RectangleShape;
+import zgame.things.type.bounds.twoDee.shape.RectangleShape;
 
 /** A basic tile that draws the bottom slab of a tile */
 public class BottomSlabColorTile extends ColorTile implements RectangleShape{

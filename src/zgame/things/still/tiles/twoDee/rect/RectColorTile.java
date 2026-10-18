@@ -7,7 +7,7 @@ import zgame.physics.material.Materials;
 import zgame.things.still.tiles.TileType;
 import zgame.things.still.tiles.twoDee.ColorTile;
 import zgame.things.still.tiles.twoDee.Tile2D;
-import zgame.things.type.bounds.RectangleShape;
+import zgame.things.type.bounds.twoDee.shape.RectangleShape;
 
 /** A {@link TileType} for a solid hitbox tile rendering a solid color */
 public class RectColorTile extends ColorTile implements RectangleShape{

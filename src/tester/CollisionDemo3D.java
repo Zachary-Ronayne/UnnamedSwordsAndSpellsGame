@@ -13,7 +13,7 @@ import zgame.physics.V3D;
 import zgame.physics.collision.ZCollision;
 import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.mobility.MobilityType;
-import zgame.things.type.bounds.SphereHitBox;
+import zgame.things.type.bounds.threeDee.hitbox.SphereHitBox;
 import zgame.things.core.Room3D;
 
 public class CollisionDemo3D extends Game{

@@ -13,9 +13,9 @@ import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.still.tiles.threeDee.BaseTiles3D;
 import zgame.things.still.tiles.threeDee.Tile3D;
 import zgame.things.still.tiles.TileType3D;
-import zgame.things.type.bounds.ClickerBounds;
+import zgame.things.type.bounds.threeDee.clickable.ClickerBounds;
 import zgame.things.type.bounds.HitBox;
-import zgame.things.type.bounds.RectPrismBounds;
+import zgame.things.type.bounds.threeDee.bounds.RectPrismBounds;
 import zgame.world.Direction3D;
 
 import static zgame.world.Direction3D.*;

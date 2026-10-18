@@ -5,7 +5,7 @@ import zgame.core.graphics.ZColor;
 import zgame.physics.V2D;
 import zgame.physics.material.Material;
 import zgame.things.still.tiles.Tile;
-import zgame.things.type.bounds.CircleShape;
+import zgame.things.type.bounds.twoDee.shape.CircleShape;
 
 /** A basic tile that draws a circle inscribed by a tile */
 public class CircleColorTile extends ColorTile implements CircleShape{

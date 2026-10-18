@@ -1,8 +1,9 @@
-package zgame.things.type.bounds;
+package zgame.things.type.bounds.threeDee.hitbox;
 
 import zgame.core.utils.ZMath;
 import zgame.physics.collision.Collision3D;
 import zgame.physics.collision.ZCollision;
+import zgame.things.type.bounds.threeDee.bounds.RectPrismBounds;
 
 public interface RectPrismHitbox extends HitBox3D, RectPrismBounds{
 	

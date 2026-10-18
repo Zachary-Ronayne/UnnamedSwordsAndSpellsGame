@@ -1,4 +1,4 @@
-package zgame.things.type.bounds;
+package zgame.things.type.bounds.twoDee.hitbox;
 
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint2D;
@@ -8,11 +8,6 @@ import zgame.physics.collision.ZCollision;
 
 /** An object representing a circle  */
 public interface CircleHitBox extends HitBox2D{
-	
-	@Override
-	default HitboxType getHitboxType(){
-		return HitboxType.CIRCLE;
-	}
 	
 	/** @return The radius of this circle hitbox */
 	double getRadius();

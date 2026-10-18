@@ -1,8 +1,9 @@
-package zgame.things.type.bounds;
+package zgame.things.type.bounds.threeDee.bounds;
 
 import zgame.core.utils.ZRect3D;
 import zgame.physics.V3D;
 import zgame.things.type.Position3D;
+import zgame.things.type.bounds.Bounds;
 
 /** An object which has a bounds that can be defined in a 3D space */
 public interface Bounds3D extends Position3D, Bounds<V3D>{

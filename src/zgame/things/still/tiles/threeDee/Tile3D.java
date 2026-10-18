@@ -6,7 +6,7 @@ import zgame.physics.material.Material;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType3D;
 import zgame.things.core.GameThing;
-import zgame.things.type.bounds.Bounds3D;
+import zgame.things.type.bounds.threeDee.bounds.Bounds3D;
 import zgame.world.Direction3D;
 import zgame.things.core.Room3D;
 

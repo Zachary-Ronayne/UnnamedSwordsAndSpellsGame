@@ -4,9 +4,9 @@ import zgame.core.utils.ZMath;
 import zgame.physics.V3D;
 import zgame.physics.collision.Collision3D;
 import zgame.things.still.tiles.Tile;
-import zgame.things.type.bounds.ClickerBounds;
+import zgame.things.type.bounds.threeDee.clickable.ClickerBounds;
 import zgame.things.type.bounds.HitBox;
-import zgame.things.type.bounds.HitBox3D;
+import zgame.things.type.bounds.threeDee.hitbox.HitBox3D;
 import zgame.world.Direction3D;
 
 /** An object that represents the hitbox of a tile, i.e., what parts of the tile have collision */

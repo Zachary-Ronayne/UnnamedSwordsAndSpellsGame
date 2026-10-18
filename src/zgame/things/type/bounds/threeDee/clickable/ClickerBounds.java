@@ -1,4 +1,4 @@
-package zgame.things.type.bounds;
+package zgame.things.type.bounds.threeDee.clickable;
 
 /** An object which is able to click on a {@link Clickable3D} */
 public interface ClickerBounds{

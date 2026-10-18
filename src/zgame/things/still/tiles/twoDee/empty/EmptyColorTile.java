@@ -4,10 +4,10 @@ import zgame.core.graphics.ZColor;
 import zgame.physics.material.Materials;
 import zgame.things.still.tiles.TileType;
 import zgame.things.still.tiles.twoDee.ColorTile;
-import zgame.things.type.bounds.NoShape2D;
+import zgame.things.type.bounds.twoDee.shape.EmptyShape2D;
 
 /** A {@link TileType} with no hitbox, rendering a solid color */
-public class EmptyColorTile extends ColorTile implements NoShape2D{
+public class EmptyColorTile extends ColorTile implements EmptyShape2D{
 	
 	/**
 	 * Create a new {@link EmptyColorTile} using the given data

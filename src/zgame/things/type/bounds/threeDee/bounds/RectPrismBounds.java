@@ -1,4 +1,4 @@
-package zgame.things.type.bounds;
+package zgame.things.type.bounds.threeDee.bounds;
 
 import zgame.physics.V3D;
 

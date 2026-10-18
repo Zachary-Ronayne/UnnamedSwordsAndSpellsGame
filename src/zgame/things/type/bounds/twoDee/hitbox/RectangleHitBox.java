@@ -1,4 +1,4 @@
-package zgame.things.type.bounds;
+package zgame.things.type.bounds.twoDee.hitbox;
 
 import zgame.core.utils.ZMath;
 import zgame.physics.V2D;

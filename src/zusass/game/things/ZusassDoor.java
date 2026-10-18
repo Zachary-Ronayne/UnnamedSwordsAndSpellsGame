@@ -6,7 +6,7 @@ import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZRect3D;
 import zgame.things.core.EntityThing3D;
 import zgame.things.core.Door3D;
-import zgame.things.type.bounds.ModifiableRectDims3D;
+import zgame.things.type.bounds.threeDee.ModifiableRectDims3D;
 import zgame.world.Direction3D;
 import zgame.things.core.Room3D;
 import zusass.ZusassGame;

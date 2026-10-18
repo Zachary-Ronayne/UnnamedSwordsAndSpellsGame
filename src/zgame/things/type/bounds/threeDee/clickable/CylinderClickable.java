@@ -1,4 +1,4 @@
-package zgame.things.type.bounds;
+package zgame.things.type.bounds.threeDee.clickable;
 
 /** A clickable object with the hitbox of an upright cylinder */
 public interface CylinderClickable extends Clickable3D{

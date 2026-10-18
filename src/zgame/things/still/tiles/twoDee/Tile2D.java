@@ -7,8 +7,7 @@ import zgame.things.core.GameThing;
 import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType2D;
 import zgame.things.type.bounds.Bounds;
-import zgame.things.type.bounds.Bounds2D;
-import zgame.things.type.bounds.BoundsType;
+import zgame.things.type.bounds.twoDee.bounds.Bounds2D;
 
 /** A {@link GameThing} with a position based on an index in an array. The indexes of this object should directly correlate to its position */
 public class Tile2D extends Tile<V2D> implements Bounds2D{
@@ -148,10 +147,5 @@ public class Tile2D extends Tile<V2D> implements Bounds2D{
 	@Override
 	public Bounds<V2D> shapeAsBounds(V2D pos){
 		return this.getFrontType().shapeAsBounds(pos);
-	}
-	
-	@Override
-	public BoundsType getBoundsType(){
-		return this.getFrontType().getBoundsType();
 	}
 }

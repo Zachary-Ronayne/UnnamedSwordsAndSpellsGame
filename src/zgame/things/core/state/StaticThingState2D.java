@@ -2,7 +2,7 @@ package zgame.things.core.state;
 
 import zgame.physics.V2D;
 import zgame.things.still.StaticThingState;
-import zgame.things.type.bounds.Bounds2D;
+import zgame.things.type.bounds.twoDee.bounds.Bounds2D;
 
 /** A 2D thing which does not move as an entity would, and generally doesn't move, but can be at an arbitrary position */
 public abstract class StaticThingState2D extends StaticThingState<V2D> implements Bounds2D{

@@ -1,8 +1,9 @@
-package zgame.things.type.bounds;
+package zgame.things.type.bounds.twoDee.hitbox;
 
 import zgame.physics.V2D;
 import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision2D;
+import zgame.things.type.bounds.Bounds;
 
 /** A hitbox that does not collide with anything */
 public interface EmptyHitBox2D extends HitBox2D{

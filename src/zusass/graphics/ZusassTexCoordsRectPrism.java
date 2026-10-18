@@ -3,7 +3,7 @@ package zusass.graphics;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.texture.TexCoordsRectPrism3D;
 import zgame.things.ThingClickDetector3D;
-import zgame.things.type.bounds.ModifiableRectDims3D;
+import zgame.things.type.bounds.threeDee.ModifiableRectDims3D;
 import zgame.world.Direction3D;
 import zusass.ZusassGame;
 

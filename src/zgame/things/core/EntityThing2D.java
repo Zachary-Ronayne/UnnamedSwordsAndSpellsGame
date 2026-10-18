@@ -9,7 +9,7 @@ import zgame.physics.ZVector;
 import zgame.things.entity.state.EntityState;
 import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.entity.state.vector.EntityState2D;
-import zgame.things.type.bounds.HitBox2D;
+import zgame.things.type.bounds.twoDee.hitbox.HitBox2D;
 
 /**
  * An {@link EntityThing} in 2D

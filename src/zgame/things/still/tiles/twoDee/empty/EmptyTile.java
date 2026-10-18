@@ -3,7 +3,7 @@ package zgame.things.still.tiles.twoDee.empty;
 import zgame.physics.V2D;
 import zgame.things.still.tiles.TileType2D;
 import zgame.things.still.tiles.twoDee.Tile2D;
-import zgame.things.type.bounds.EmptyHitBox2D;
+import zgame.things.type.bounds.twoDee.hitbox.EmptyHitBox2D;
 
 /** A tile with no hitbox */
 public class EmptyTile extends Tile2D implements EmptyHitBox2D{
