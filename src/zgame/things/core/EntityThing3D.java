@@ -6,11 +6,12 @@ import zgame.physics.ZVector;
 import zgame.physics.collision.Collision3D;
 import zgame.things.entity.state.EntityState3D;
 import zgame.things.entity.state.collision.CollisionUpdate;
+import zgame.things.type.bounds.threeDee.bounds.Bounds3D;
 
 /**
  * An {@link EntityThing} in 3D
  */
-public abstract class EntityThing3D extends EntityThing<V3D> implements HitBox3D{
+public abstract class EntityThing3D extends EntityThing<V3D> implements Bounds3D{
 	
 	/**
 	 * Create a new empty entity with the given mass

@@ -10,6 +10,8 @@ import zgame.things.type.bounds.threeDee.bounds.Bounds3D;
 import zgame.world.Direction3D;
 import zgame.things.core.Room3D;
 
+// TODO next, do the same kind of tile implementation for 3D as 2D
+
 /** A {@link GameThing} with a position based on indexes in an array. The indexes of this object should directly correlate to its position */
 public class Tile3D extends Tile<V3D> implements Bounds3D{
 	
@@ -171,9 +173,4 @@ public class Tile3D extends Tile<V3D> implements Bounds3D{
 		return size();
 	}
 	
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T extends Tile<V3D>> T asTile(Class<T> clazz){
-		return (T)this;
-	}
 }

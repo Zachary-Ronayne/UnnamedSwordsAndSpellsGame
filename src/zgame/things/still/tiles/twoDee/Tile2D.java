@@ -124,12 +124,6 @@ public class Tile2D extends Tile<V2D> implements Bounds2D{
 		return TILE_SIZE_INVERSE;
 	}
 	
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T extends Tile<V2D>> T asTile(Class<T> clazz){
-		return (T)this;
-	}
-	
 	@Override
 	public V2D getMinPosition(){
 		return new V2D(this.x, this.y).add(this.getFrontType().getShapeOffset());

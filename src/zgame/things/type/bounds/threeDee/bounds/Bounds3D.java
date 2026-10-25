@@ -4,13 +4,12 @@ import zgame.core.utils.ZRect3D;
 import zgame.physics.V3D;
 import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision3D;
-import zgame.things.type.Position3D;
 import zgame.things.type.bounds.Bounds;
 import zgame.things.type.bounds.threeDee.bounds.shape.ShapedBounds3D;
 import zgame.things.type.bounds.threeDee.shape.Shape3D;
 
 /** An object which has a bounds that can be defined in a 3D space */
-public interface Bounds3D extends Position3D, Bounds<V3D>, Shape3D{
+public interface Bounds3D extends Bounds<V3D>, Shape3D{
 	
 	/** @return The maximum x coordinate of an axis aligned rectangular prism bounding box entirely containing this hitbox */
 	default double maxX(){

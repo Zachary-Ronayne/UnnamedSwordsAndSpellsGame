@@ -2,7 +2,7 @@ package zgame.core.sound;
 
 import zgame.core.Game;
 import zgame.core.utils.ZMath;
-import zgame.things.type.Position3D;
+import zgame.things.type.bounds.threeDee.bounds.Bounds3D;
 
 /** A sound source which manages automatically updating all relevant fields for playing a sound */
 public class ManagedSoundSource extends SoundSource{
@@ -11,7 +11,7 @@ public class ManagedSoundSource extends SoundSource{
 	private String soundName;
 	
 	/** The object tracking the position of this sound. Sounds will originate at the values of this position at the time they are produced */
-	private Position3D position;
+	private Bounds3D position;
 	
 	/** The last time, in game time, that this source was played */
 	private double lastPlayed;
@@ -37,7 +37,7 @@ public class ManagedSoundSource extends SoundSource{
 	 * @param soundName See {@link #soundName}
 	 * @param position See {@link #position}
 	 */
-	public ManagedSoundSource(String soundName, Position3D position){
+	public ManagedSoundSource(String soundName, Bounds3D position){
 		this(soundName, position, 1, 1, 1);
 	}
 	
@@ -48,7 +48,7 @@ public class ManagedSoundSource extends SoundSource{
 	 * @param maxPitch See {@link #maxPitch}
 	 * @param volume The value for both {@link #minVolume} and {@link #maxVolume}
 	 */
-	public ManagedSoundSource(String soundName, Position3D position, double minPitch, double maxPitch, double volume){
+	public ManagedSoundSource(String soundName, Bounds3D position, double minPitch, double maxPitch, double volume){
 		this(soundName, position, minPitch, maxPitch, volume, volume);
 	}
 	
@@ -60,7 +60,7 @@ public class ManagedSoundSource extends SoundSource{
 	 * @param minVolume See {@link #minVolume}
 	 * @param maxVolume See {@link #maxVolume}
 	 */
-	public ManagedSoundSource(String soundName, Position3D position, double minPitch, double maxPitch, double minVolume, double maxVolume){
+	public ManagedSoundSource(String soundName, Bounds3D position, double minPitch, double maxPitch, double minVolume, double maxVolume){
 		super();
 		this.position = position;
 		this.soundName = soundName;
@@ -81,8 +81,9 @@ public class ManagedSoundSource extends SoundSource{
 		if(name == null) return;
 		
 		// No position, can't play
-		var pos = this.getPosition();
-		if(pos == null) return;
+		var b = this.getPosition();
+		if(b == null) return;
+		var pos = b.getBottomCenter();
 		
 		// Update general values
 		this.updatePosition(pos.getX() + this.getOffsetX(), pos.getY() + this.getOffsetY(), pos.getZ() + this.getOffsetZ());
@@ -97,12 +98,12 @@ public class ManagedSoundSource extends SoundSource{
 	}
 	
 	/** @return See {@link #position} */
-	public Position3D getPosition(){
+	public Bounds3D getPosition(){
 		return this.position;
 	}
 	
 	/** @param position See {@link #position} */
-	public void setPosition(Position3D position){
+	public void setPosition(Bounds3D position){
 		this.position = position;
 	}
 	

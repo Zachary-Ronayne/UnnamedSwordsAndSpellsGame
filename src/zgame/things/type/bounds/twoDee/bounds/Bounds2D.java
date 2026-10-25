@@ -4,13 +4,12 @@ import zgame.core.utils.ZRect2D;
 import zgame.physics.V2D;
 import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision2D;
-import zgame.things.type.Position2D;
 import zgame.things.type.bounds.Bounds;
 import zgame.things.type.bounds.twoDee.bounds.shape.ShapedBounds2D;
 import zgame.things.type.bounds.twoDee.shape.Shape2D;
 
 /** An object which has a bounds that can be defined in a 2D space */
-public interface Bounds2D extends Position2D, Bounds<V2D>, Shape2D{
+public interface Bounds2D extends Bounds<V2D>, Shape2D{
 	
 	/** @return The minimum x coordinate of this bounds */
 	default double minX(){

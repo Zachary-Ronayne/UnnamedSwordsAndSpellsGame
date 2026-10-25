@@ -2,10 +2,9 @@ package zgame.things.type.bounds;
 
 import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
-import zgame.things.type.Position;
 
 /** An object which has a bounds that can be defined in a vector space */
-public interface Bounds<V extends ZVector<V>> extends Position<V>, Shape<V>{
+public interface Bounds<V extends ZVector<V>> extends Shape<V>{
 	
 	/** @return The minimum coordinate of an axis aligned bounding box containing this bounds */
 	V getMinPosition();

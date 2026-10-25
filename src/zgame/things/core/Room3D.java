@@ -465,7 +465,7 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 			double txMax = (tx + 1) * Tile3D.size();
 			double tyMin = ty * Tile3D.size();
 			double tyMax = (ty + 1) * Tile3D.size();
-			double tzMin = tz * Tile3D.size();getHitbox
+			double tzMin = tz * Tile3D.size();
 			double tzMax = (tz + 1) * Tile3D.size();
 			
 			// Find the closest exit point for each axis
