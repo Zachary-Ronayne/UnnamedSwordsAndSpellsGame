@@ -9,6 +9,7 @@ import zgame.core.graphics.Renderer;
 import zgame.core.utils.ClassMappedList;
 import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector;
+import zgame.physics.material.Material;
 import zgame.things.core.state.Stateable;
 import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.type.bounds.Bounds;
@@ -107,7 +108,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing implements Bo
 	
 	/** @return The type of bounds used in this room. Used only for initialization, should always return a constant value */
 	public abstract Class<Bounds<V>> initBoundsType();
-	HitBox
+	
 	/** @return The type of entities used in this room. Used only for initialization, should always return a constant value */
 	public abstract Class<EntityThing<V>> initEntityClass();
 	
@@ -138,7 +139,18 @@ public abstract class Room<V extends ZVector<V>> extends GameThing implements Bo
 	 * @param obj The object to collide
 	 * @return The {@link CollisionUpdate}s representing the collisions needed
 	 */
-	public abstract List<CollisionUpdate<V>> collideInside(EntityThing<V> obj);
+	public abstract List<CollisionUpdate<V>> collideInsideDimensions(EntityThing<V> obj);
+	
+	/**
+	 * Compute a collision update for the given moving bounds colliding with the given unmoving bounds
+	 * @param moving The bounds that can move as a result of the collision
+	 * @param unmoving The bounds that will not move
+	 * @param unmovingMaterial The material of the bounds that will not move
+	 * @return The resulting update
+	 */
+	protected CollisionUpdate<V> computeCollision(Bounds<V> moving, Bounds<V> unmoving, Material unmovingMaterial){
+		return new CollisionUpdate<>(moving.collideAtDimensions(moving.getMinPosition(), this), moving, unmoving, unmovingMaterial);
+	}
 	
 	/**
 	 * Collide the given {@link EntityThing} with the entities in the given room
@@ -263,7 +275,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing implements Bo
 			
 			// TODO maybe make this two separate method calls
 			// Check for tile and boundary collisions
-			e.collide(this.collideInside(e));
+			e.collide(this.collideInsideDimensions(e));
 		}
 		
 		// TODO consolidate this to the current and next state system

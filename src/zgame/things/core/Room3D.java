@@ -253,7 +253,7 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 	}
 	
 	@Override
-	public List<CollisionUpdate<V3D>> collideInside(EntityThing<V3D> obj){
+	public List<CollisionUpdate<V3D>> collideInsideDimensions(EntityThing<V3D> obj){
 		double tileSize = Tile3D.size();
 		int tilesX = this.getTilesX() - 1;
 		int tilesY = this.getTilesY() - 1;

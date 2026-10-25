@@ -13,13 +13,15 @@ import zgame.things.still.tiles.twoDee.BaseTiles2D;
 import zgame.things.still.tiles.twoDee.Tile2D;
 import zgame.things.still.tiles.TileType2D;
 import zgame.things.type.bounds.Bounds;
+import zgame.things.type.bounds.twoDee.bounds.Bounds2D;
 import zgame.things.type.bounds.twoDee.bounds.shape.RectangleBounds;
+import zgame.things.type.bounds.twoDee.bounds.shape.ShapedBounds2D;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /** A {@link Room} which is made of 2D tiles */
-public class Room2D extends Room<V2D> implements RectangleBounds{
+public class Room2D extends Room<V2D> implements Bounds2D{
 	
 	/** The index for {@link #wallSolid} that represents the left wall */
 	public static final int WALL_LEFT = 0;
@@ -105,9 +107,19 @@ public class Room2D extends Room<V2D> implements RectangleBounds{
 	}
 	
 	@Override
-	public List<CollisionUpdate<V2D>> collideInside(EntityThing<V2D> obj){
+	public final List<CollisionUpdate<V2D>> collideInsideDimensions(EntityThing<V2D> obj){
+		return this.collideInside((EntityThing2D)obj);
+	}
+	
+	/**
+	 * Compute the collisions the given {@link EntityThing} will encounter in this room, i.e. find all the things that will cause a collision to happen
+	 *
+	 * @param obj The object to collide
+	 * @return The {@link CollisionUpdate}s representing the collisions needed
+	 */
+	public List<CollisionUpdate<V2D>> collideInside(EntityThing2D obj){
 		var minPos = obj.getMinPosition();
-		var maxPos = obj.getMinPosition();
+		var maxPos = obj.getMaxPosition();
 		
 		double minX = minPos.getX();
 		double maxX = maxPos.getX();
@@ -126,55 +138,14 @@ public class Room2D extends Room<V2D> implements RectangleBounds{
 		for(int x = tMinX; x <= tMaxX; x++){
 			for(int y = tMinY; y <= tMaxY; y++){
 				var t = this.tiles[x][y];
-				collisions.add(new CollisionUpdate<>(obj.collide(t), obj, t, t.getMaterial()));
+				collisions.add(this.computeCollision(obj, t, t.getMaterial()));
 			}
 		}
 		
-		// TODO make this not so clumsy, abstract similar to 3D
-		// Keep the object inside the game bounds, if the walls are enabled
-		var objHitbox = obj.asHitbox(HitBox2D.class);
-		if(this.isSolid(WALL_LEFT)){
-			double newX = objHitbox.keepRight(this.minX());
-			double dist = Math.abs(objHitbox.minX() - newX);
-			if(dist != 0){
-				// TODO probably need an "infinite" barrier type hitbox implementation for this
-				obj.touchWall(new Collision2D(obj, (HitBox<V2D> hitbox) -> {
-					var pos = hitbox.getPosition();
-					return new V2D(hitbox.asHitbox(HitBox2D.class).keepRight(this.getX()), pos.getY());
-				}, true, false, false, false, this.getWallMaterial()));
-			}
-		}
-		if(this.isSolid(WALL_RIGHT)){
-			double newX = objHitbox.keepLeft(this.maxX());
-			double dist = Math.abs(objHitbox.minX() - newX);
-			if(dist != 0){
-				obj.touchWall(new Collision2D(obj, (HitBox<V2D> hitbox) -> {
-					var pos = hitbox.getPosition();
-					return new V2D(hitbox.asHitbox(HitBox2D.class).keepLeft(this.maxX()), pos.getY());
-				}, false, true, false, false, this.getWallMaterial()));
-			}
-		}
-		if(this.isSolid(WALL_CEILING)){
-			double newY = objHitbox.keepBelow(this.minY());
-			double dist = Math.abs(objHitbox.minY() - newY);
-			if(dist != 0){
-				obj.touchCeiling(new Collision2D(obj, (HitBox<V2D> hitbox) -> {
-					var pos = hitbox.getPosition();
-					return new V2D(pos.getX(), hitbox.asHitbox(HitBox2D.class).keepBelow(this.getY()));
-				}, false, false, true, false, this.getWallMaterial()));
-			}
-		}
-		if(this.isSolid(WALL_FLOOR)){
-			double newY = objHitbox.keepAbove(this.maxY());
-			double dist = Math.abs(objHitbox.minY() - newY);
-			if(dist != 0){
-				obj.touchFloor(new Collision2D(obj, (HitBox<V2D> hitbox) -> {
-					var pos = hitbox.getPosition();
-					return new V2D(pos.getX(), hitbox.asHitbox(HitBox2D.class).keepAbove(this.maxY()));
-				}, false, false, false, true, this.getWallMaterial()));
-			}
-		}
+		// Check for colliding with the room
+		collisions.add(this.computeCollision(obj, this, this.getWallMaterial()));
 		
+		// Return final collisions
 		return collisions;
 	}
 	
@@ -462,6 +433,104 @@ public class Room2D extends Room<V2D> implements RectangleBounds{
 		var copy = new NotNullList<EntityThing2D>();
 		for(var entity : entities) copy.add((EntityThing2D)entity);
 		return copy;
+	}
+	
+	@Override
+	public boolean intersects(Bounds2D bounds){
+		// Treat this as intersecting the bounds of the room if the min position is outside the enabled walls
+		var bMinPos = bounds.getMinPosition();
+		var bMaxPos = bounds.getMaxPosition();
+		
+		var tMinPos = this.getMinPosition();
+		var tMaxPos = this.getMaxPosition();
+		
+		// Check each wall
+		if(this.isSolid(WALL_LEFT)){
+			if(bMinPos.getX() < tMinPos.getX()) return true;
+		}
+		if(this.isSolid(WALL_RIGHT)){
+			if(bMaxPos.getX() > tMaxPos.getX()) return true;
+		}
+		if(this.isSolid(WALL_CEILING)){
+			if(bMinPos.getY() < tMinPos.getY()) return true;
+		}
+		if(this.isSolid(WALL_FLOOR)){
+			if(bMaxPos.getY() > tMaxPos.getY()) return true;
+		}
+		
+		// Otherwise, no intersection
+		return false;
+	}
+	
+	@Override
+	public Collision2D collideAt(V2D currentMinPos, Bounds2D bounds){
+		var bMinPos = bounds.getMinPosition();
+		var bMaxPos = bounds.getMaxPosition();
+		
+		var tMinPos = this.getMinPosition();
+		var tMaxPos = this.getMaxPosition();
+		
+		double newX = 0;
+		double newY = 0;
+		boolean left = false;
+		boolean right = false;
+		boolean ceiling = false;
+		boolean floor = false;
+		
+		// Check x axis
+		if(this.isSolid(WALL_LEFT)){
+			left = true;
+			double diff = tMinPos.getX() - bMinPos.getX();
+			if(diff > 0) newX = diff;
+		}
+		else if(this.isSolid(WALL_RIGHT)){
+			right = true;
+			double diff = bMaxPos.getX() - tMaxPos.getX();
+			if(diff < 0) newX = diff;
+		}
+		
+		// Check y axis
+		if(this.isSolid(WALL_CEILING)){
+			ceiling = true;
+			double diff = tMinPos.getY() - bMinPos.getY();
+			if(diff > 0) newY = diff;
+		}
+		else if(this.isSolid(WALL_FLOOR)){
+			floor = true;
+			double diff = bMaxPos.getY() - tMaxPos.getY();
+			if(diff < 0) newY = diff;
+		}
+		
+		// Final collision from all walls
+		var newMinPos = new V2D(newX, newY);
+		return new Collision2D(currentMinPos, newMinPos.add(currentMinPos.inverse()), left, right, ceiling, floor);
+	}
+	
+	// TODO does it make sense to return a rectangle bounds? May need to make another shape that's an "inverse" rectangle, i.e. only colliding on the inside
+	@Override
+	public ShapedBounds2D asShapedBounds(){
+		return this.atMinPosition(this.getMinPosition());
+	}
+	
+	@Override
+	public double getGravityDragReferenceArea(){
+		return this.getWidth();
+	}
+	
+	@Override
+	public ShapedBounds2D atMinPosition(V2D minPos){
+		final var t = this;
+		return new RectangleBounds(){
+			@Override
+			public V2D getMinPosition(){
+				return minPos;
+			}
+			
+			@Override
+			public V2D getDimensions(){
+				return t.getDimensions();
+			}
+		};
 	}
 	
 }
