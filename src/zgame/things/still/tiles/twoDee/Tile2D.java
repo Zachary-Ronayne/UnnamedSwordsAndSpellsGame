@@ -2,6 +2,7 @@ package zgame.things.still.tiles.twoDee;
 
 import zgame.core.graphics.Renderer;
 import zgame.physics.V2D;
+import zgame.physics.collision.Collision2D;
 import zgame.physics.material.Material;
 import zgame.things.core.GameThing;
 import zgame.things.still.tiles.Tile;
@@ -154,5 +155,15 @@ public class Tile2D extends Tile<V2D> implements Bounds2D{
 	@Override
 	public ShapedBounds2D asShapedBounds(){
 		return this.atMinPosition(this.getMinPosition());
+	}
+	
+	@Override
+	public Collision2D collideAt(V2D currentMinPos, Bounds2D bounds){
+		return this.asShapedBounds().collideAt(currentMinPos, bounds);
+	}
+	
+	@Override
+	public double getGravityDragReferenceArea(){
+		return this.asShapedBounds().getGravityDragReferenceArea();
 	}
 }

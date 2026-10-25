@@ -10,6 +10,8 @@ import zgame.things.type.bounds.twoDee.shape.CircleShape;
 /** A basic tile that draws a circle inscribed by a tile */
 public class CircleColorTile extends ColorTile implements CircleShape{
 	
+	private static final double RADIUS = Tile2D.size() * 0.5;
+	
 	/**
 	 * Create a new {@link ColorTile} using the given data
 	 *
@@ -34,5 +36,10 @@ public class CircleColorTile extends ColorTile implements CircleShape{
 	public V2D getDimensions(){
 		double s = Tile2D.size();
 		return new V2D(s, s);
+	}
+	
+	@Override
+	public double getRadius(){
+		return RADIUS;
 	}
 }
