@@ -2,6 +2,8 @@ package zgame.things.type.bounds.twoDee.bounds.shape;
 
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint2D;
+import zgame.physics.collision.Collision2D;
+import zgame.physics.collision.ZCollision;
 import zgame.things.type.bounds.twoDee.shape.CircleShape;
 
 /** A circle with a position */
@@ -20,4 +22,36 @@ public non-sealed interface CircleBounds extends ShapedBounds2D, CircleShape{
 		var rDims = bounds.getDimensions();
 		return ZMath.circleIntersectsRect(cCenter.getX(), cCenter.getY(), this.getRadius(), rMin.getX(), rMin.getY(), rDims.getWidth(), rDims.getHeight());
 	}
+	
+	@Override
+	default Collision2D collideRect(RectangleBounds bounds){
+		var bPos = bounds.getMinPosition();
+		var bDims = bounds.getDimensions();
+		var tPos = this.getCenterPosition();
+		return ZCollision.rectToCircleBasic(
+				// Unmoving bounds
+				bPos.getX(), bPos.getY(), bDims.getWidth(), bDims.getHeight(),
+				// Moving bounds
+				tPos.getX(), tPos.getY(), this.getRadius()
+		);
+	}
+	
+	@Override
+	default Collision2D collideCircle(CircleBounds bounds){
+		var tPos = this.getCenterPosition();
+		var bPos = bounds.getCenterPosition();
+		
+		return ZCollision.circleToCircleBasic(
+				// Unmoving bounds
+				bPos.getX(), bPos.getY(), bounds.getRadius(),
+				// Moving bounds
+				tPos.getX(), tPos.getY(), this.getRadius()
+		);
+	}
+	
+	@Override
+	default double getGravityDragReferenceArea(){
+		return this.getWidth();
+	}
+	
 }

@@ -12,7 +12,6 @@ import zgame.physics.ZVector;
 import zgame.things.core.state.Stateable;
 import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.type.bounds.Bounds;
-import zgame.things.type.bounds.HitBox;
 
 /**
  * An object which represents a location in a game, i.e. something that holds the player, NPCs, the tiles, etc.
@@ -32,19 +31,19 @@ public abstract class Room<V extends ZVector<V>> extends GameThing implements Bo
 	
 	/** The type of entities used by this room */
 	private final Class<EntityThing<V>> entityClass;
-	/** The type of hitboxes used by this room */
-	private final Class<HitBox<V>> hitBoxClass;
+	/** The type of bounds used by this room */
+	private final Class<Bounds<V>> boundsClass;
 	
 	/**
 	 * Create a new empty {@link Room}
 	 */
 	public Room(){
 		this.entityClass = this.initEntityClass();
-		this.hitBoxClass = this.initHitBoxType();
+		this.boundsClass = this.initBoundsType();
 		
 		this.thingsMap = new ClassMappedList();
 		this.thingsMap.addClass(GameThing.class);
-		this.thingsMap.addClass(this.hitBoxClass);
+		this.thingsMap.addClass(this.boundsClass);
 		this.thingsMap.addClass(GameTickable.class);
 		this.thingsMap.addClass(this.entityClass);
 		this.thingsMap.addClass(Stateable.class);
@@ -101,14 +100,14 @@ public abstract class Room<V extends ZVector<V>> extends GameThing implements Bo
 		return this.thingsMap.get(Stateable.class);
 	}
 	
-	/** @return All the hitbox things in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
-	public NotNullList<HitBox<V>> getHitBoxThings(){
-		return this.thingsMap.get(this.hitBoxClass);
+	/** @return All the bounded things in this room. This is the actual collection holding the things, not a copy. Do not directly update the state of this collection */
+	public NotNullList<Bounds<V>> getBoundsThings(){
+		return this.thingsMap.get(this.boundsClass);
 	}
 	
-	/** @return The type of hitboxes used in this room. Used only for initialization, should always return a constant value */
-	public abstract Class<HitBox<V>> initHitBoxType();
-	
+	/** @return The type of bounds used in this room. Used only for initialization, should always return a constant value */
+	public abstract Class<Bounds<V>> initBoundsType();
+	HitBox
 	/** @return The type of entities used in this room. Used only for initialization, should always return a constant value */
 	public abstract Class<EntityThing<V>> initEntityClass();
 	
@@ -133,7 +132,6 @@ public abstract class Room<V extends ZVector<V>> extends GameThing implements Bo
 		this.thingsToRemove.add(thing);
 	}
 	
-	// TODO should this accept hitboxes?
 	/**
 	 * Compute the collisions the given {@link EntityThing} will encounter in this room, i.e. find all the things that will cause a collision to happen
 	 *
@@ -150,7 +148,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing implements Bo
 	 */
 	public List<CollisionUpdate<V>> checkEntityCollisions(EntityThing<V> checkEntity, double dt){
 		// issue#21 make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
-		// Probably just rewrite the actual entity collision outside of on intersection, the commented out code is copied and modified from the EntityThing class, which was originally just for 2D
+		// Probably just rewrite the actual entity collision outside on intersection, the commented out code is copied and modified from the EntityThing class, which was originally just for 2D
 		
 		// Check any stored entities, and remove them if they are not intersecting or are not in the room
 //		ArrayList<String> toRemove = new ArrayList<>(checkEntity.collidingUuids.size());
@@ -225,7 +223,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing implements Bo
 //			checkEntity.collidingUuids.add(eUuid);
 //			e.setForce(checkEntity.getUuid(), newForce.scale(-1));
 //			e.collidingUuids.add(checkEntity.getUuid());
-			// TODO call the generic hitbox and or entity collide method?
+			// TODO call the generic bounds and or entity collide method?
 		}
 		
 		return List.of();

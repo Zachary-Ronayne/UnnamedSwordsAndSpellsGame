@@ -471,7 +471,7 @@ public class GameDemo3D extends Game{
 			else this.addX(dx);
 			
 			boolean foundIntersection = false;
-			var things = dummyRoom.getHitBoxThings();
+			var things = dummyRoom.getBoundsThings();
 			if(things != null){
 				for(var t : things){
 					if(t != this && t.intersectsDimensions(this)){

@@ -13,8 +13,8 @@ import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.still.tiles.threeDee.BaseTiles3D;
 import zgame.things.still.tiles.threeDee.Tile3D;
 import zgame.things.still.tiles.TileType3D;
+import zgame.things.type.bounds.Bounds;
 import zgame.things.type.bounds.threeDee.clickable.ClickerBounds;
-import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.threeDee.bounds.RectPrismBounds;
 import zgame.world.Direction3D;
 
@@ -96,12 +96,6 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 				}
 			}
 		}
-	}
-	
-	/** The position of a room will always be the origin (0, 0, 0) */
-	@Override
-	public V3D getPosition(){
-		return new V3D();
 	}
 	
 	// TODO probably do some of this logical implementation in a rectangular bounds interface, allowing this class to only need to implement position and dimensions
@@ -289,7 +283,7 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 			for(int y = tMinY; y <= tMaxY; y++){
 				for(int z = tMinZ; z <= tMaxZ; z++){
 					var t = this.tiles[x][y][z];
-					collisions.add(new CollisionUpdate<>(obj.collideBounds(t), obj, t, t.getMaterial()));
+					collisions.add(new CollisionUpdate<>(obj.collide(t), obj, t, t.getMaterial()));
 				}
 			}
 		}
@@ -471,7 +465,7 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 			double txMax = (tx + 1) * Tile3D.size();
 			double tyMin = ty * Tile3D.size();
 			double tyMax = (ty + 1) * Tile3D.size();
-			double tzMin = tz * Tile3D.size();
+			double tzMin = tz * Tile3D.size();getHitbox
 			double tzMax = (tz + 1) * Tile3D.size();
 			
 			// Find the closest exit point for each axis
@@ -549,8 +543,8 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public Class<HitBox<V3D>> initHitBoxType(){
-		return (Class<HitBox<V3D>>)(Class<?>)HitBox.class;
+	public Class<Bounds<V3D>> initBoundsType(){
+		return (Class<Bounds<V3D>>)(Class<?>)Bounds.class;
 	}
 	
 	@Override

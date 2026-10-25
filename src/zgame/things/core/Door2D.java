@@ -5,10 +5,10 @@ import zgame.core.graphics.Renderer;
 import zgame.physics.V2D;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
-import zgame.things.type.bounds.twoDee.hitbox.RectangleHitBox;
+import zgame.things.type.bounds.twoDee.bounds.shape.RectangleBounds;
 
 /** A door for 2D rooms */
-public class Door2D extends Door<V2D> implements RectangleHitBox{
+public class Door2D extends Door<V2D> implements RectangleBounds{
 	
 	// TODO probably move these out of the generic door, add these as a parameter
 	/** The default value of the width dimension of this door */

@@ -9,12 +9,12 @@ import zgame.physics.ZVector;
 import zgame.things.entity.state.EntityState;
 import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.entity.state.vector.EntityState2D;
-import zgame.things.type.bounds.twoDee.hitbox.HitBox2D;
+import zgame.things.type.bounds.twoDee.bounds.Bounds2D;
 
 /**
  * An {@link EntityThing} in 2D
  */
-public abstract class EntityThing2D extends EntityThing<V2D> implements HitBox2D{
+public abstract class EntityThing2D extends EntityThing<V2D> implements Bounds2D{
 	
 	// issue#21 allow for multiple hitboxes, so a hitbox for collision and one for rendering, and one for hit detection
 	
@@ -117,7 +117,7 @@ public abstract class EntityThing2D extends EntityThing<V2D> implements HitBox2D
 	
 	// TODO potentially move this to an abstract get bounds method
 	public ZRect2D getRectBounds(){
-		var pos = this.getPosition();
+		var pos = this.getMinPosition();
 		var dims = this.getDimensions();
 		return new ZRect2D(pos.getX(), pos.getY(), dims.getWidth(), pos.getHeight());
 	}

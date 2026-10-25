@@ -56,7 +56,7 @@ public final class V2D extends ZVector<V2D>{
 	
 	@Override
 	public V2D zero(){
-		return new V2D();
+		return EMPTY;
 	}
 	
 	/** Update the internal x and y values based on the current values of {@link #angle} and {@link #magnitude} */

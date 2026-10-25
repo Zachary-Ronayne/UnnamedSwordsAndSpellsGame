@@ -8,11 +8,6 @@ import zgame.things.type.bounds.threeDee.bounds.RectPrismBounds;
 public interface RectPrismHitbox extends HitBox3D, RectPrismBounds{
 	
 	@Override
-	default HitboxType getHitboxType(){
-		return HitboxType.RECT_PRISM;
-	}
-	
-	@Override
 	default boolean intersectsRect(double x, double y, double z, double width, double height, double length){
 		double hw = width * 0.5;
 		double hl = length * 0.5;

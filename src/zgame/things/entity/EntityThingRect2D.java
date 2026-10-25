@@ -1,10 +1,10 @@
 package zgame.things.entity;
 
 import zgame.things.core.EntityThing2D;
-import zgame.things.type.bounds.twoDee.hitbox.RectangleHitBox;
+import zgame.things.type.bounds.twoDee.bounds.shape.RectangleBounds;
 
 /** A 2D entity with a rectangle hitbox */
-public abstract class EntityThingRect2D extends EntityThing2D implements RectangleHitBox{
+public abstract class EntityThingRect2D extends EntityThing2D implements RectangleBounds{
 	
 	/** The width of this thing */
 	private double width;

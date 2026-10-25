@@ -76,38 +76,21 @@ public abstract class EntityThing3D extends EntityThing<V3D> implements HitBox3D
 //		this.getNext().scaleVelocity(-1 * result.material().getWallBounce() * this.getMaterial().getWallBounce());
 	}
 	
-	/** @return Current x coordinate of this thing */
-	@Override
-	public double getX(){
-		return this.getPosition().getX();
-	}
-	
-	/** @return Current y coordinate of this thing */
-	@Override
-	public double getY(){
-		return this.getPosition().getY();
-	}
-	
-	/** @return Current z coordinate of this thing */
-	@Override
-	public double getZ(){
-		return this.getPosition().getZ();
-	}
-	
 	/** @return The height from the bottom of this entity where it should be able to "see" from, height of the entity by default */
 	public double getEyeHeight(){
 		return this.getHeight();
 	}
 	
 	/**
-	 * Set the position of this camera to the top center of this thing
+	 * Set the position of this camera to the eye level of this thing
 	 *
 	 * @param camera The camera to set
 	 */
 	public void updateCameraPos(GameCamera3D camera){
-		camera.setX(this.getX());
-		camera.setY(this.getY() + this.getEyeHeight());
-		camera.setZ(this.getZ());
+		var center = this.getCenterPosition();
+		camera.setX(center.getX());
+		camera.setY(this.getMaxPosition().getY() + this.getEyeHeight());
+		camera.setZ(center.getZ());
 	}
 	
 	@Override

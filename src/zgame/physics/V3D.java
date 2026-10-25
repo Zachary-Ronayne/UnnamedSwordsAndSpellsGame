@@ -7,6 +7,9 @@ import zgame.core.utils.ZMath;
  */
 public final class V3D extends ZVector<V3D>{
 	
+	/** A singleton reference for a 3D vector with no size */
+	public static final V3D EMPTY = new V3D();
+	
 	/** The x component of this {@link V3D} */
 	private double x;
 	/** The y component of this {@link V3D} */
@@ -41,7 +44,7 @@ public final class V3D extends ZVector<V3D>{
 	
 	@Override
 	public V3D zero(){
-		return new V3D();
+		return EMPTY;
 	}
 	
 	/**

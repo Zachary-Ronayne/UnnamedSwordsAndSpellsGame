@@ -5,7 +5,6 @@ import zgame.physics.collision.Collision;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
 import zgame.things.type.bounds.Bounds;
-import zgame.things.type.bounds.HitBox;
 
 /** An update for an individual collision occurring */
 public class CollisionUpdate<V extends ZVector<V>>{
@@ -20,7 +19,7 @@ public class CollisionUpdate<V extends ZVector<V>>{
 	private final Material material;
 	
 	/** The object which collided with the other bounds */
-	private final HitBox<V> collider;
+	private final Bounds<V> collider;
 	
 	// TODO update docs
 	/**
@@ -28,7 +27,7 @@ public class CollisionUpdate<V extends ZVector<V>>{
 	 * @param material See {@link #material}
 	 */
 	// TODO probably avoid making this such a mess of so many objects
-	public CollisionUpdate(Collision<V> collision, HitBox<V> collider, Bounds<V> collidedWith, Material material){
+	public CollisionUpdate(Collision<V> collision, Bounds<V> collider, Bounds<V> collidedWith, Material material){
 		this.collision = collision;
 		this.collider = collider;
 		this.collidedWith = collidedWith;
@@ -44,9 +43,13 @@ public class CollisionUpdate<V extends ZVector<V>>{
 		return material;
 	}
 	
-	public V computeNewPos(V updatedPosition){
-		// TODO does this make sense?
-		var c = collider.collideAt(updatedPosition, this.collidedWith);
+	/**
+	 * Compute the new minimum position that {@link #collider} should be at after this collision is applied to the given position
+	 * @param updatedMinPosition The position that {@link #collider} should be considered at
+	 * @return The new min position for {@link #collider}
+	 */
+	public V computeNewMinPos(V updatedMinPosition){
+		var c = collider.collideAtDimensions(updatedMinPosition, this.collidedWith);
 		return c.originalPos().add(c.changePos());
 	}
 	

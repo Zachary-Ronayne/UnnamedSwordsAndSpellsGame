@@ -12,8 +12,7 @@ import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.still.tiles.twoDee.BaseTiles2D;
 import zgame.things.still.tiles.twoDee.Tile2D;
 import zgame.things.still.tiles.TileType2D;
-import zgame.things.type.bounds.HitBox;
-import zgame.things.type.bounds.twoDee.hitbox.HitBox2D;
+import zgame.things.type.bounds.Bounds;
 import zgame.things.type.bounds.twoDee.bounds.shape.RectangleBounds;
 
 import java.util.ArrayList;
@@ -127,7 +126,7 @@ public class Room2D extends Room<V2D> implements RectangleBounds{
 		for(int x = tMinX; x <= tMaxX; x++){
 			for(int y = tMinY; y <= tMaxY; y++){
 				var t = this.tiles[x][y];
-				collisions.add(new CollisionUpdate<>(obj.collideBounds(t), obj, t, t.getMaterial()));
+				collisions.add(new CollisionUpdate<>(obj.collide(t), obj, t, t.getMaterial()));
 			}
 		}
 		
@@ -443,8 +442,8 @@ public class Room2D extends Room<V2D> implements RectangleBounds{
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public Class<HitBox<V2D>> initHitBoxType(){
-		return (Class<HitBox<V2D>>) (Class<?>) HitBox.class;
+	public Class<Bounds<V2D>> initBoundsType(){
+		return (Class<Bounds<V2D>>) (Class<?>) Bounds.class;
 	}
 	
 	@Override

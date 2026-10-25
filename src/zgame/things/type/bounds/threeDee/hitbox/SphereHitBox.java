@@ -6,11 +6,6 @@ import zgame.physics.collision.ZCollision;
 /** An object representing a circle  */
 public interface SphereHitBox extends HitBox3D{
 	
-	@Override
-	default HitboxType getHitboxType(){
-		return HitboxType.SPHERE;
-	}
-	
 	/** @return The radius of this sphere hitbox */
 	double getRadius();
 	

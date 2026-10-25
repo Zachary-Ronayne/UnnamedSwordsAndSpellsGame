@@ -3,12 +3,11 @@ package zgame.things.type.bounds.threeDee.hitbox;
 import zgame.physics.V3D;
 import zgame.physics.collision.Collision3D;
 import zgame.things.entity.projectile.Projectile3D;
-import zgame.things.type.bounds.HitBox;
 import zgame.things.type.bounds.threeDee.bounds.Bounds3D;
 import zgame.world.Direction3D;
 
 /** An interface which defines an object that has a hit box, meaning something with a position that can collide and move against other bounds */
-public interface HitBox3D extends HitBox<V3D>, Bounds3D{
+public interface HitBox3D extends Bounds3D, zgame.things.type.bounds.Bounds<V3D>{
 	
 	/**
 	 * Called when this {@link HitBox3D} is hit by a projectile. Does nothing by default, implement to provide custom behavior
@@ -92,7 +91,7 @@ public interface HitBox3D extends HitBox<V3D>, Bounds3D{
 	// TODO probably do this in a better way to avoid casting
 	@SuppressWarnings("unchecked")
 	@Override
-	default <H extends HitBox<V3D>> H asHitbox(Class<H> clazz){
+	default <H extends zgame.things.type.bounds.Bounds<V3D>> H asHitbox(Class<H> clazz){
 		return (H)this;
 	}
 	

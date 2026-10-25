@@ -1,6 +1,7 @@
 package zgame.things.type.bounds.twoDee.bounds.shape;
 
 import zgame.physics.V2D;
+import zgame.physics.collision.Collision2D;
 import zgame.things.type.bounds.ShapedBounds;
 import zgame.things.type.bounds.twoDee.bounds.Bounds2D;
 
@@ -13,8 +14,8 @@ public sealed interface ShapedBounds2D extends Bounds2D, ShapedBounds<V2D> permi
 			// No bounds, no intersection
 			case EmptyBounds2D ignore -> false;
 			// Otherwise, use the shape
-			case CircleBounds c -> intersectsCircle(c);
-			case RectangleBounds r -> intersectsRect(r);
+			case CircleBounds c -> this.intersectsCircle(c);
+			case RectangleBounds r -> this.intersectsRect(r);
 		};
 	}
 	
@@ -28,4 +29,34 @@ public sealed interface ShapedBounds2D extends Bounds2D, ShapedBounds<V2D> permi
 	default ShapedBounds2D asShapedBounds(){
 		return this;
 	}
+	
+	@Override
+	default Collision2D collideAt(V2D currentMinPos, Bounds2D bounds){
+		return switch(bounds.asShapedBounds()){
+			// No bounds, no intersection
+			case EmptyBounds2D ignore -> new Collision2D(this.getMinPosition());
+			// Otherwise, use the shape
+			case CircleBounds c -> this.collideCircle(c);
+			case RectangleBounds r -> this.collideRect(r);
+		};
+	}
+	
+	/**
+	 * Determine a {@link Collision2D} from colliding this object with the given rectangular bounds. Essentially, move this object so that it no longer intersecting with
+	 * the given bounds. This method should not change the state of this object, it should only return an object representing how the collision should happen.
+	 *
+	 * @param bounds The bounds of the rectangle collided with
+	 * @return The information about the collision
+	 */
+	Collision2D collideRect(RectangleBounds bounds);
+	
+	/**
+	 * Determine a {@link Collision2D} from colliding this object with the given circular bounds. Essentially, move this object so that it no longer intersecting with
+	 * the given bounds. This method should not change the state of this object, it should only return an object representing how the collision should happen.
+	 *
+	 * @param bounds The bounds of the circle collided with
+	 * @return The information about the collision
+	 */
+	Collision2D collideCircle(CircleBounds bounds);
+	
 }

@@ -1,9 +1,9 @@
 package tester;
 
 import zgame.core.graphics.Renderer;
-import zgame.things.type.bounds.twoDee.hitbox.CircleHitBox;
+import zgame.things.type.bounds.twoDee.bounds.shape.CircleBounds;
 
-public class PlayerTesterCircle extends PlayerTester implements CircleHitBox{
+public class PlayerTesterCircle extends PlayerTester implements CircleBounds{
 	
 	private final double radius;
 	

@@ -1,9 +1,9 @@
 package tester;
 
 import zgame.core.graphics.Renderer;
-import zgame.things.type.bounds.twoDee.hitbox.RectangleHitBox;
+import zgame.things.type.bounds.twoDee.bounds.shape.RectangleBounds;
 
-public class PlayerTesterRect extends PlayerTester implements RectangleHitBox{
+public class PlayerTesterRect extends PlayerTester implements RectangleBounds{
 	/**
 	 * Create a new {@link PlayerTesterRect} of the given size
 	 *
@@ -19,6 +19,7 @@ public class PlayerTesterRect extends PlayerTester implements RectangleHitBox{
 	@Override
 	public void render(Renderer r){
 		r.setColor(1, 0, 0);
-		r.drawRectangle(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+		var pos = this.getMinPosition();
+		r.drawRectangle(pos.getX(), pos.getY(), this.getWidth(), this.getHeight());
 	}
 }

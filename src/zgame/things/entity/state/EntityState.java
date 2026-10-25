@@ -80,6 +80,7 @@ public abstract class EntityState<V extends ZVector<V>> extends GameThingState{
 	// TODO consider if this should be a variable like this, or a method like it was with entities
 	private final double clampVelocity;
 	
+	// TODO should this be a min position?
 	// TODO probably avoid having to recompute all vector values every time for position, for now just using a simple vector
 	/** Current game position of this */
 	private V position;
@@ -170,17 +171,14 @@ public abstract class EntityState<V extends ZVector<V>> extends GameThingState{
 		this.forceUpdates.applyAll(this.forces);
 		
 		// Compute new force
-		// No forces, there is no force
 		// TODO only recompute force if it changes?
-		if(this.forces.isEmpty()) this.totalForce = this.zeroVec();
-		// Sum all forces
-		else{
-			var allForces = this.getForces();
-			this.totalForce = allForces.get(0).getValue();
-			for(int i = 1; i < allForces.size(); i++){
-				this.totalForce = this.totalForce.add(allForces.get(i).getValue());
-			}
-		}
+		this.totalForce = this.zeroVec();
+		var allForces = this.getForces();
+		int i = 0;
+		do{
+			this.totalForce = this.totalForce.add(allForces.get(i).getValue());
+			i++;
+		}while(i < allForces.size());
 		
 		// Compute new velocity
 		this.velocity = this.velocityUpdates.apply(this.velocity);
@@ -219,7 +217,7 @@ public abstract class EntityState<V extends ZVector<V>> extends GameThingState{
 		// For all collisions, find where it would be collided based on this object's current position
 		int i = 0;
 		do{
-			this.position = sortedCollisions.get(i).computeNewPos(this.position);
+			this.position = sortedCollisions.get(i).computeNewMinPos(this.position);
 			i++;
 		}while(i < sortedCollisions.size());
 		

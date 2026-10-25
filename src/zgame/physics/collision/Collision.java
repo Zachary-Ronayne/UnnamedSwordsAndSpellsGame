@@ -16,8 +16,8 @@ public sealed abstract class Collision<V extends ZVector<V>> permits Collision2D
 	private final boolean floor;
 	
 	// TODO figure out if both of these are needed or not
-	/** The position that the collided object was at before the collision */
-	private final V originalPos;
+	/** The minimum bounds position that the collided object was at before the collision */
+	private final V originalMinPos;
 	
 	/** The amount the collided object should change its position to no longer collide */
 	private final V changePos;
@@ -30,8 +30,8 @@ public sealed abstract class Collision<V extends ZVector<V>> permits Collision2D
 	 * @param ceiling See {@link #ceiling}
 	 * @param floor See {@link #floor}
 	 */
-	public Collision(V originalPos, V changePos, boolean wall, boolean ceiling, boolean floor){
-		this.originalPos = originalPos;
+	public Collision(V originalMinPos, V changePos, boolean wall, boolean ceiling, boolean floor){
+		this.originalMinPos = originalMinPos;
 		this.changePos = changePos;
 		this.wall = wall;
 		this.ceiling = ceiling;
@@ -44,7 +44,7 @@ public sealed abstract class Collision<V extends ZVector<V>> permits Collision2D
 	}
 	
 	public V originalPos(){
-		return this.originalPos;
+		return this.originalMinPos;
 	}
 	
 	/** @return See {@link #wall} */

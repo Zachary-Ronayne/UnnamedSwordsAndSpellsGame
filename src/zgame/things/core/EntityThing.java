@@ -15,7 +15,7 @@ import zgame.things.core.state.Stateable;
 import zgame.things.entity.projectile.Projectile;
 import zgame.things.entity.state.EntityState;
 import zgame.things.entity.state.collision.CollisionUpdate;
-import zgame.things.type.bounds.HitBox;
+import zgame.things.type.bounds.Bounds;
 
 /**
  * A thing is an entity, i.e. an object which can regularly move around in space and exist at an arbitrary location.
@@ -23,7 +23,7 @@ import zgame.things.type.bounds.HitBox;
  *
  * @param <V> The vector implementation used by this entity
  */
-public abstract class EntityThing<V extends ZVector<V>> extends GameThing implements GameTickable, HitBox<V>, Stateable{
+public abstract class EntityThing<V extends ZVector<V>> extends GameThing implements GameTickable, Stateable, Bounds<V>{
 	
 	/** The uuid of this entity */
 	private final String uuid;
@@ -242,7 +242,7 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 	}
 	
 	/**
-	 * @return The terminal velocity of this {@link EntityThing}. By default, based on the mass, the acceleration of gravity, the value of {@link HitBox#getGravityDragReferenceArea()},
+	 * @return The terminal velocity of this {@link EntityThing}. By default, based on the mass, the acceleration of gravity, the value of {@link Bounds#getGravityDragReferenceArea()},
 	 * 		and the friction of the ground material, which is also the air material when this {@link EntityThing} is not on the ground.
 	 * 		Returns 0 if this {@link EntityThing} is on the ground.
 	 * 		If {@link #getGravityDragReferenceArea()} returns 0, or is negative, then the value is ignored in the calculation.
@@ -405,11 +405,6 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 	// Hitbox implementation
 	
 	// TODO add the rest of the methods from hitbox? Or grab the data from the state
-	
-	/** @return The current position of this entity */
-	public V getPosition(){
-		return this.entityStateNext().getPosition();
-	}
 	
 	// Getters from state
 	

@@ -6,7 +6,6 @@ import zgame.physics.ZVector;
 import zgame.physics.collision.Collision;
 import zgame.things.BaseTags;
 import zgame.things.core.EntityThing;
-import zgame.things.type.bounds.HitBox;
 
 import java.util.function.Consumer;
 
@@ -16,7 +15,7 @@ import java.util.function.Consumer;
  *
  * @param <V> The type of vector used by the projectile
  */
-public interface Projectile<V extends ZVector<V>> extends GameTickable, HitBox<V>{
+public interface Projectile<V extends ZVector<V>> extends GameTickable, zgame.things.type.bounds.Bounds<V>{
 	
 	/**
 	 * Called to check this projectile's collision with the given entity
