@@ -7,14 +7,13 @@ import zgame.core.utils.NotNullList;
 import zgame.physics.V3D;
 import zgame.things.BaseTags;
 import zgame.things.entity.projectile.Projectile3D;
-import zgame.things.type.bounds.threeDee.hitbox.HitBox3D;
-import zgame.things.type.bounds.threeDee.hitbox.SphereHitBox;
+import zgame.things.type.bounds.threeDee.bounds.shape.SphereBounds;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
 import zusass.utils.ZusassSounds;
 
 /** A {@link Projectile3D} which applies a magic effect when it hits something other than its caster */
-public class MagicProjectile extends Projectile3D implements SphereHitBox{
+public class MagicProjectile extends Projectile3D implements SphereBounds{
 	
 	/** The radius of the projectile */
 	private double radius;

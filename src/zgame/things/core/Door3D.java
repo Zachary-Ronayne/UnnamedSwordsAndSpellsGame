@@ -6,12 +6,12 @@ import zgame.core.graphics.ZColor;
 import zgame.physics.V3D;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
+import zgame.things.type.bounds.threeDee.bounds.shape.RectPrismBounds;
 import zgame.things.type.bounds.threeDee.clickable.RectPrismClickable;
-import zgame.things.type.bounds.threeDee.hitbox.RectPrismHitbox;
 
 // TODO potentially move position and dims to a state, for now just making them static
 /** A door for 3D rooms */
-public class Door3D extends Door<V3D> implements RectPrismClickable, RectPrismHitbox{
+public class Door3D extends Door<V3D> implements RectPrismClickable, RectPrismBounds{
 	
 	/** The position of this door */
 	private final V3D doorPos;

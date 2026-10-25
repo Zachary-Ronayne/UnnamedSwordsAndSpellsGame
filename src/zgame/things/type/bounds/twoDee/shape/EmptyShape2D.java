@@ -4,7 +4,7 @@ import zgame.physics.V2D;
 import zgame.things.type.bounds.twoDee.bounds.shape.EmptyBounds2D;
 import zgame.things.type.bounds.twoDee.bounds.shape.ShapedBounds2D;
 
-/** Represents a shape taking up no area */
+/** Represents a 2D shape taking up no area */
 public interface EmptyShape2D extends Shape2D{
 	
 	@Override

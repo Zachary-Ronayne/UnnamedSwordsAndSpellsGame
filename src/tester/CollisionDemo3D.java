@@ -13,7 +13,7 @@ import zgame.physics.V3D;
 import zgame.physics.collision.ZCollision;
 import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.mobility.MobilityType;
-import zgame.things.type.bounds.threeDee.hitbox.SphereHitBox;
+import zgame.things.type.bounds.threeDee.bounds.shape.SphereBounds;
 import zgame.things.core.Room3D;
 
 public class CollisionDemo3D extends Game{
@@ -39,7 +39,7 @@ public class CollisionDemo3D extends Game{
 		
 	}
 	
-	public static class Player extends MobilityEntity3D implements SphereHitBox{
+	public static class Player extends MobilityEntity3D implements SphereBounds{
 		
 		public Player(double x, double y, double z){
 			super(x, y, z, 1);

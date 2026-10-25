@@ -6,7 +6,6 @@ import zgame.physics.ZVector;
 import zgame.physics.collision.Collision3D;
 import zgame.things.entity.state.EntityState3D;
 import zgame.things.entity.state.collision.CollisionUpdate;
-import zgame.things.type.bounds.threeDee.hitbox.HitBox3D;
 
 /**
  * An {@link EntityThing} in 3D

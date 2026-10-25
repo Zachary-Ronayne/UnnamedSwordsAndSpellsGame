@@ -42,8 +42,7 @@ public sealed interface ShapedBounds2D extends Bounds2D, ShapedBounds<V2D> permi
 	}
 	
 	/**
-	 * Determine a {@link Collision2D} from colliding this object with the given rectangular bounds. Essentially, move this object so that it no longer intersecting with
-	 * the given bounds. This method should not change the state of this object, it should only return an object representing how the collision should happen.
+	 * Determine a {@link Collision2D} from colliding this object with the given rectangular bounds. Essentially, move this object so that it no longer intersecting with the given bounds.
 	 *
 	 * @param bounds The bounds of the rectangle collided with
 	 * @return The information about the collision
@@ -51,8 +50,7 @@ public sealed interface ShapedBounds2D extends Bounds2D, ShapedBounds<V2D> permi
 	Collision2D collideRect(RectangleBounds bounds);
 	
 	/**
-	 * Determine a {@link Collision2D} from colliding this object with the given circular bounds. Essentially, move this object so that it no longer intersecting with
-	 * the given bounds. This method should not change the state of this object, it should only return an object representing how the collision should happen.
+	 * Determine a {@link Collision2D} from colliding this object with the given circular bounds. Essentially, move this object so that it no longer intersecting with the given bounds.
 	 *
 	 * @param bounds The bounds of the circle collided with
 	 * @return The information about the collision

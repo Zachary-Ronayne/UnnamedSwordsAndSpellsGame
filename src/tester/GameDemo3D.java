@@ -21,8 +21,8 @@ import zgame.things.entity.mobility.MobilityType;
 import zgame.things.still.tiles.threeDee.BaseTiles3D;
 import zgame.things.still.tiles.threeDee.CubeTexTile;
 import zgame.things.still.tiles.threeDee.TileHitbox3D;
-import zgame.things.type.bounds.threeDee.hitbox.CylinderHitbox;
-import zgame.things.type.bounds.threeDee.hitbox.RectPrismHitbox;
+import zgame.things.type.bounds.threeDee.bounds.shape.CylinderBounds;
+import zgame.things.type.bounds.threeDee.bounds.shape.RectPrismBounds;
 
 import static zgame.world.Direction3D.*;
 
@@ -484,7 +484,7 @@ public class GameDemo3D extends Game{
 		}
 	}
 	
-	private static class Rect extends MovingThing implements RectPrismHitbox{
+	private static class Rect extends MovingThing implements RectPrismBounds{
 		public Rect(double x, double y, double z, double speed){
 			super(x, y, z, speed);
 		}
@@ -498,7 +498,7 @@ public class GameDemo3D extends Game{
 		}
 	}
 	
-	private static class Cylinder extends MovingThing implements CylinderHitbox{
+	private static class Cylinder extends MovingThing implements CylinderBounds{
 		public Cylinder(double x, double y, double z, double speed){
 			super(x, y, z, speed);
 		}
@@ -545,7 +545,7 @@ public class GameDemo3D extends Game{
 		else game.getCurrentState().removeTopMenu();
 	}
 	
-	public static class Player3D extends MobilityEntity3D implements CylinderHitbox{
+	public static class Player3D extends MobilityEntity3D implements CylinderBounds{
 		
 		public Player3D(double x, double y, double z){
 			super(x, y, z, 100);
@@ -567,11 +567,6 @@ public class GameDemo3D extends Game{
 			
 			// Move the camera to the player
 			this.updateCameraPos(cam);
-		}
-		
-		@Override
-		public double getGravityDragReferenceArea(){
-			return CylinderHitbox.super.getGravityDragReferenceArea();
 		}
 		
 		private GameCamera3D getCamera(){

@@ -23,9 +23,9 @@ import zgame.stat.status.StatusEffects;
 import zgame.things.entity.mobility.Mobility3D;
 import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.projectile.Projectile3D;
+import zgame.things.type.bounds.threeDee.bounds.shape.CylinderBounds;
 import zgame.things.type.bounds.threeDee.clickable.ClickerBounds;
 import zgame.things.type.bounds.threeDee.clickable.CylinderClickable;
-import zgame.things.type.bounds.threeDee.hitbox.CylinderHitbox;
 import zusass.ZusassGame;
 import zgame.stat.Stats;
 import zusass.game.magic.*;
@@ -45,7 +45,7 @@ import zusass.utils.ZusassSounds;
 import static zusass.game.stat.ZusassStat.*;
 
 /** A generic mob in the Zusass game. All mobs have a cylinder hitbox */
-public abstract class ZusassMob extends MobilityEntity3D implements CylinderHitbox, ClickerBounds, ZThingClickDetector, CylinderClickable{
+public abstract class ZusassMob extends MobilityEntity3D implements CylinderBounds, ClickerBounds, ZThingClickDetector, CylinderClickable{
 	
 	/** The json key used to store the spellbook which this mob has */
 	public final static String SPELLBOOK_KEY = "spellbook";

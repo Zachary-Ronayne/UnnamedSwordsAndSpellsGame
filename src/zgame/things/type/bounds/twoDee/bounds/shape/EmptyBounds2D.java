@@ -8,7 +8,7 @@ import zgame.things.type.bounds.ShapedBounds;
 import zgame.things.type.bounds.twoDee.bounds.Bounds2D;
 import zgame.things.type.bounds.twoDee.shape.EmptyShape2D;
 
-/** An object that has no dimension */
+/** A 2D object that has no dimension */
 public non-sealed interface EmptyBounds2D extends ShapedBounds2D, EmptyShape2D{
 	
 	// No dimension, all positions are the same

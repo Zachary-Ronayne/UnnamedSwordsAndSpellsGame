@@ -15,7 +15,7 @@ import zgame.things.still.tiles.threeDee.Tile3D;
 import zgame.things.still.tiles.TileType3D;
 import zgame.things.type.bounds.Bounds;
 import zgame.things.type.bounds.threeDee.clickable.ClickerBounds;
-import zgame.things.type.bounds.threeDee.bounds.RectPrismBounds;
+import zgame.things.type.bounds.threeDee.bounds.shape.RectPrismBounds;
 import zgame.world.Direction3D;
 
 import static zgame.world.Direction3D.*;
