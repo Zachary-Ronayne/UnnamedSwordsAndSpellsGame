@@ -10,15 +10,15 @@ public final class BaseTiles3D{
 	public static final String BASE_ORIGIN = "base_3D";
 	
 	/** An empty tile which has no hitbox or display */
-	public static final CubeColorTile AIR = new CubeColorTile("air", BASE_ORIGIN, TileHitbox3D.NONE, new ZColor(0, 0, 0, 0), Materials.NONE);
+	public static final EmptyTile3D AIR = new EmptyTile3D("air", BASE_ORIGIN);
 	/** A tile with a solid hitbox that displays as a dark solid color */
-	public static final CubeColorTile SOLID_DARK = new CubeColorTile("solidDark", BASE_ORIGIN, TileHitbox3D.FULL, new ZColor(.35), Materials.DEFAULT);
+	public static final CubeColorTile SOLID_DARK = new CubeColorTile("solidDark", BASE_ORIGIN, new ZColor(.35), Materials.DEFAULT);
 	/** A tile with a solid hitbox that displays as a light solid color */
-	public static final CubeColorTile SOLID_LIGHT = new CubeColorTile("solidLight", BASE_ORIGIN, TileHitbox3D.FULL, new ZColor(.65), Materials.DEFAULT);
+	public static final CubeColorTile SOLID_LIGHT = new CubeColorTile("solidLight", BASE_ORIGIN, new ZColor(.65), Materials.DEFAULT);
 	/** A pink tile with a lot of bounciness */
-	public static final CubeColorTile BOUNCY = new CubeColorTile("bouncy", BASE_ORIGIN, TileHitbox3D.FULL, new ZColor(1, .5, .5), Materials.BOUNCE);
+	public static final CubeColorTile BOUNCY = new CubeColorTile("bouncy", BASE_ORIGIN, new ZColor(1, .5, .5), Materials.BOUNCE);
 	/** A brown tile with a huge friction value */
-	public static final CubeColorTile HIGH_FRICTION = new CubeColorTile("highFriction", BASE_ORIGIN, TileHitbox3D.FULL, new ZColor(.25, .125, .0625), Materials.HIGH_FRICTION);
+	public static final CubeColorTile HIGH_FRICTION = new CubeColorTile("highFriction", BASE_ORIGIN, new ZColor(.25, .125, .0625), Materials.HIGH_FRICTION);
 	
 	/** Cannot instantiate {@link BaseTiles3D} */
 	private BaseTiles3D(){

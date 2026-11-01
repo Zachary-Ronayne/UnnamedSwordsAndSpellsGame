@@ -14,8 +14,10 @@ import zgame.things.still.tiles.threeDee.BaseTiles3D;
 import zgame.things.still.tiles.threeDee.Tile3D;
 import zgame.things.still.tiles.TileType3D;
 import zgame.things.type.bounds.Bounds;
-import zgame.things.type.bounds.threeDee.clickable.ClickerBounds;
+import zgame.things.type.bounds.threeDee.bounds.Bounds3D;
 import zgame.things.type.bounds.threeDee.bounds.shape.RectPrismBounds;
+import zgame.things.type.bounds.threeDee.bounds.shape.ShapedBounds3D;
+import zgame.things.type.bounds.threeDee.clickable.ClickerBounds;
 import zgame.world.Direction3D;
 
 import static zgame.world.Direction3D.*;
@@ -26,7 +28,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /** A {@link Room} which is made of 3D tiles */
-public class Room3D extends Room<V3D> implements RectPrismBounds{
+public class Room3D extends Room<V3D> implements Bounds3D{
 	
 	/** An array of 6 elements representing which of the 6 boundary walls are enabled for collision */
 	private final boolean[] enabledBoundaries;
@@ -254,6 +256,16 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 	
 	@Override
 	public List<CollisionUpdate<V3D>> collideInsideDimensions(EntityThing<V3D> obj){
+		return this.collideInside((EntityThing3D)obj);
+	}
+	
+	/**
+	 * Compute the collisions the given {@link EntityThing} will encounter in this room, i.e. find all the things that will cause a collision to happen
+	 *
+	 * @param obj The object to collide
+	 * @return The {@link CollisionUpdate}s representing the collisions needed
+	 */
+	public List<CollisionUpdate<V3D>> collideInside(EntityThing3D obj){
 		double tileSize = Tile3D.size();
 		int tilesX = this.getTilesX() - 1;
 		int tilesY = this.getTilesY() - 1;
@@ -283,87 +295,13 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 			for(int y = tMinY; y <= tMaxY; y++){
 				for(int z = tMinZ; z <= tMaxZ; z++){
 					var t = this.tiles[x][y][z];
-					collisions.add(new CollisionUpdate<>(obj.collide(t), obj, t, t.getMaterial()));
+					collisions.add(this.computeCollision(obj, t, t.getMaterial()));
 				}
 			}
 		}
 		
-		// Check for collisions with all boundaries
-		// TODO consider if this should all be consolidated to a single collision object
-		// x axis, i.e. east west
-		if(this.boundaryEnabled(WEST)){
-			double boundary = this.getBoundary(WEST);
-			// TODO need to have the individual hitbox implementation determine how it will remain inside the boundary, not just always the min and max coordinates
-			if(minX > boundary){
-				collisions.add(new Collision3D(obj,
-						// TODO make some kind of convenience method for this to avoid this mess, also probably make it that it's possible to get individual coordinates
-						(HitBox<V3D> hitbox) -> {
-							var pos = hitbox.getPosition();
-							return new V3D(boundary - Math.abs(hitbox.getMaxPosition().getX() - pos.getX()), pos.getY(), pos.getZ());
-						},
-						true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
-			}
-		}
-		if(this.boundaryEnabled(EAST)){
-			// TODO probably make boundaries absolute coordinates instead of using negative and positive differently
-			double boundary = -this.getBoundary(EAST);
-			if(maxX < boundary){
-				collisions.add(new Collision3D(obj,
-						(HitBox<V3D> hitbox) -> {
-							var pos = hitbox.getPosition();
-							return new V3D(boundary + Math.abs(hitbox.getMinPosition().getX() - pos.getX()), pos.getY(), pos.getZ());
-						},
-						true, false, false, this.getBoundaryMaterial(), ZMath.PI_BY_2));
-			}
-		}
-		
-		// z axis, i.e. north south
-		if(this.boundaryEnabled(NORTH)){
-			double boundary = this.getBoundary(NORTH);
-			if(minZ > boundary){
-				collisions.add(new Collision3D(obj,
-						(HitBox<V3D> hitbox) -> {
-							var pos = hitbox.getPosition();
-							return new V3D(pos.getX(), pos.getY(), boundary + Math.abs(hitbox.getMaxPosition().getZ() - pos.getZ()));
-						},
-						true, false, false, this.getBoundaryMaterial(), 0));
-			}
-		}
-		if(this.boundaryEnabled(SOUTH)){
-			double boundary = -this.getBoundary(SOUTH);
-			if(maxZ < boundary){
-				collisions.add(new Collision3D(obj,
-						(HitBox<V3D> hitbox) -> {
-							var pos = hitbox.getPosition();
-							return new V3D(pos.getX(), pos.getY(), boundary - Math.abs(hitbox.getMinPosition().getZ() - pos.getZ()));
-						},
-						true, false, false, this.getBoundaryMaterial(), 0));
-			}
-		}
-		
-		// y axis, i.e. up down
-		if(this.boundaryEnabled(Direction3D.UP)){
-			double boundary = this.getBoundary(Direction3D.UP);
-			if(minY > boundary){
-				collisions.add(new Collision3D(obj,
-						(HitBox<V3D> hitbox) -> {
-							var pos = hitbox.getPosition();
-							return new V3D(pos.getX(), boundary + Math.abs(hitbox.getMaxPosition().getY() - pos.getY()), pos.getZ());
-						},
-						false, true, false, this.getBoundaryMaterial(), 0));
-			}
-		}
-		if(this.boundaryEnabled(Direction3D.DOWN)){
-			double boundary = -this.getBoundary(Direction3D.DOWN);
-			if(maxY < boundary){
-				collisions.add(new Collision3D(obj,
-						(HitBox<V3D> hitbox) -> {
-							var pos = hitbox.getPosition();
-							return new V3D(pos.getX(), boundary - Math.abs(hitbox.getMinPosition().getY() - pos.getY()), pos.getZ());
-						},
-						false, false, true, this.getBoundaryMaterial(), 0));
-			}
-		}
+		// Check for colliding with the room
+		collisions.add(this.computeCollision(obj, this, this.getBoundaryMaterial()));
 		
 		return collisions;
 	}
@@ -444,7 +382,7 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 					ZMath.in(0, tz, this.getTilesZ() - 1)
 			){
 				var t = this.tiles[tx][ty][tz];
-				tileDistance = t.getType().getHitbox().clickDistance(t, clicker);
+				tileDistance = t.getType().clickDistance(t, clicker);
 			}
 			else tileDistance = -1;
 			
@@ -699,4 +637,129 @@ public class Room3D extends Room<V3D> implements RectPrismBounds{
 		return success;
 	}
 	
+	@Override
+	public boolean intersects(Bounds3D bounds){
+		// Treat this as intersecting the bounds of the room if the min position is outside the enabled walls
+		var bMinPos = bounds.getMinPosition();
+		var bMaxPos = bounds.getMaxPosition();
+		
+		var tMinPos = this.getMinPosition();
+		var tMaxPos = this.getMaxPosition();
+		
+		if(this.boundaryEnabled(EAST)){
+			if(bMinPos.getX() < tMinPos.getX()) return false;
+		}
+		if(this.boundaryEnabled(WEST)){
+			if(bMaxPos.getX() > tMaxPos.getX()) return false;
+		}
+		
+		if(this.boundaryEnabled(DOWN)){
+			if(bMinPos.getY() < tMinPos.getY()) return false;
+		}
+		if(this.boundaryEnabled(UP)){
+			if(bMaxPos.getY() > tMaxPos.getY()) return false;
+		}
+		
+		if(this.boundaryEnabled(SOUTH)){
+			if(bMinPos.getZ() < tMinPos.getZ()) return false;
+		}
+		if(this.boundaryEnabled(WEST)){
+			if(bMaxPos.getZ() > tMaxPos.getZ()) return false;
+		}
+		
+		// Otherwise, no intersection
+		return false;
+	}
+	
+	@Override
+	public Collision3D collideAt(V3D currentMinPos, Bounds3D bounds){
+		var bMinPos = bounds.getMinPosition();
+		var bMaxPos = bounds.getMaxPosition();
+		
+		var tMinPos = this.getMinPosition();
+		var tMaxPos = this.getMaxPosition();
+		
+		double newX = 0;
+		double newY = 0;
+		double newZ = 0;
+		boolean wall = false;
+		boolean ceiling = false;
+		boolean floor = false;
+		double wallAngle = 0;
+		
+		// Wall angle east and west should be ZMath.PI_BY_2, otherwise stay at 0
+		// Check x axis
+		if(this.boundaryEnabled(EAST)){
+			wall = true;
+			double diff = tMinPos.getX() - bMinPos.getX();
+			if(diff > 0) newX = diff;
+		}
+		else if(this.boundaryEnabled(WEST)){
+			wall = true;
+			double diff = bMaxPos.getX() - tMaxPos.getX();
+			if(diff < 0) newX = diff;
+		}
+		
+		// Check y axis
+		if(this.boundaryEnabled(DOWN)){
+			ceiling = true;
+			double diff = tMinPos.getY() - bMinPos.getY();
+			if(diff > 0) newY = diff;
+		}
+		else if(this.boundaryEnabled(UP)){
+			floor = true;
+			double diff = bMaxPos.getY() - tMaxPos.getY();
+			if(diff < 0) newY = diff;
+		}
+		
+		// Check z axis
+		if(this.boundaryEnabled(SOUTH)){
+			ceiling = true;
+			double diff = tMinPos.getZ() - bMinPos.getZ();
+			if(diff > 0) newZ = diff;
+		}
+		else if(this.boundaryEnabled(NORTH)){
+			floor = true;
+			double diff = bMaxPos.getZ() - tMaxPos.getZ();
+			if(diff < 0) newZ = diff;
+		}
+		
+		// TODO test that wall angle makes sense
+		
+		// Final collision from all walls
+		var newMinPos = new V3D(newX, newY, newZ);
+		return new Collision3D(currentMinPos, newMinPos.add(currentMinPos.inverse()), wall, ceiling, floor, wallAngle);
+	}
+	
+	// TODO does it make sense to return a rectangle bounds? May need to make another shape that's an "inverse" rectangle, i.e. only colliding on the inside
+	@Override
+	public ShapedBounds3D asShapedBounds(){
+		return this.atMinPosition(this.getDimensions());
+	}
+	
+	@Override
+	public double getGravityDragReferenceArea(){
+		return this.getWidth() * this.getLength();
+	}
+	
+	@Override
+	public ShapedBounds3D atMinPosition(V3D minPos){
+		final var t = this;
+		return new RectPrismBounds(){
+			@Override
+			public V3D getMinPosition(){
+				return t.getMinPosition();
+			}
+			
+			@Override
+			public boolean[] getCollisionFaces(){
+				return t.enabledBoundaries;
+			}
+			
+			@Override
+			public V3D getDimensions(){
+				return t.getDimensions();
+			}
+		};
+	}
 }

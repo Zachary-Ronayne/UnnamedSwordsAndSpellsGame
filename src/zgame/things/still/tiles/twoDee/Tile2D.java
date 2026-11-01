@@ -6,6 +6,7 @@ import zgame.physics.collision.Collision2D;
 import zgame.physics.material.Material;
 import zgame.things.core.GameThing;
 import zgame.things.still.tiles.Tile;
+import zgame.things.still.tiles.TileType;
 import zgame.things.still.tiles.TileType2D;
 import zgame.things.type.bounds.twoDee.bounds.Bounds2D;
 import zgame.things.type.bounds.twoDee.bounds.shape.ShapedBounds2D;
@@ -30,9 +31,9 @@ public class Tile2D extends Tile<V2D> implements Bounds2D{
 	/** The type of this tile used for rendering the front, foreground, of this tile */
 	private TileType2D frontType;
 	
-	/** The upper left hand x coordinate of the full area this tile takes up */
+	/** The upper left hand x coordinate of the full area this tile's index takes up */
 	private final double x;
-	/** The upper left hand y coordinate of the full area this tile takes up */
+	/** The upper left hand y coordinate of the full area this tile's index takes up */
 	private final double y;
 	
 	/**
@@ -130,34 +131,28 @@ public class Tile2D extends Tile<V2D> implements Bounds2D{
 	}
 	
 	// Dimensions will come from the front type shape
-	
 	@Override
-	public V2D getDimensions(){
-		return this.getFrontType().getDimensions();
+	public TileType<V2D> getBoundsType(){
+		return this.getFrontType();
 	}
 	
 	@Override
 	public boolean intersects(Bounds2D bounds){
-		return this.atMinPosition(this.getMinPosition()).intersectsDimensions(bounds);
+		return this.intersectsDimensions(bounds);
 	}
 	
 	@Override
 	public ShapedBounds2D atMinPosition(V2D pos){
-		return this.getFrontType().atMinPosition(pos);
+		return (ShapedBounds2D)this.atMinPositionDimension(pos);
 	}
 	
 	@Override
 	public ShapedBounds2D asShapedBounds(){
-		return this.atMinPosition(this.getMinPosition());
+		return (ShapedBounds2D)this.asShapedBoundsDimension();
 	}
 	
 	@Override
 	public Collision2D collideAt(V2D currentMinPos, Bounds2D bounds){
-		return this.asShapedBounds().collideAt(currentMinPos, bounds);
-	}
-	
-	@Override
-	public double getGravityDragReferenceArea(){
-		return this.asShapedBounds().getGravityDragReferenceArea();
+		return (Collision2D)this.collideAtDimensions(currentMinPos, bounds);
 	}
 }

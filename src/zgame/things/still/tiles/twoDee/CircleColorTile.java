@@ -4,7 +4,6 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.physics.V2D;
 import zgame.physics.material.Material;
-import zgame.things.still.tiles.Tile;
 import zgame.things.type.bounds.twoDee.shape.CircleShape;
 
 /** A basic tile that draws a circle inscribed by a tile */
@@ -25,7 +24,7 @@ public class CircleColorTile extends ColorTile implements CircleShape{
 	}
 	
 	@Override
-	public void render(Tile<V2D> t, Renderer r){
+	public void render(Tile2D t, Renderer r){
 		r.setColor(this.getColor());
 		var pos = t.getCenterPosition();
 		var dims = this.getDimensions();

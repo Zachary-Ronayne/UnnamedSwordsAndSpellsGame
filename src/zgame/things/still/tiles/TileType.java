@@ -58,7 +58,7 @@ public sealed abstract class TileType<V extends ZVector<V>> implements Shape<V>,
 	 * @param t The tile to draw
 	 * @param r The renderer to use for drawing
 	 */
-	public abstract void render(Tile<V> t, Renderer r);
+	protected abstract void renderGeneric(Tile<V> t, Renderer r);
 	
 	/** @return See {@link #shapeOffset} */
 	public V getShapeOffset(){

@@ -3,14 +3,10 @@ package zgame.things.still.tiles.threeDee;
 import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
-import zgame.physics.V3D;
 import zgame.physics.material.Material;
-import zgame.things.still.tiles.Tile;
-import zgame.things.still.tiles.TileType3D;
-import zgame.things.type.bounds.twoDee.bounds.shape.RectangleBounds;
 
 /** A simple tile which has a constant material */
-public class CubeColorTile extends TileType3D implements RectangleBounds{
+public class CubeColorTile extends CubeTile{
 	
 	/** The initial color to use for rendering this tile before any modifications */
 	private ZColor baseColor;
@@ -38,7 +34,7 @@ public class CubeColorTile extends TileType3D implements RectangleBounds{
 	}
 	
 	@Override
-	public void render(Tile<V3D> t, Renderer r){
+	public void render(Tile3D t, Renderer r){
 		var c = this.getBaseColor();
 		// issue#46 render tiles with transparency properly, maybe this as is, is good enough, just only render them if they are fully opaque
 		if(c.alpha() < 1) return;
@@ -48,6 +44,11 @@ public class CubeColorTile extends TileType3D implements RectangleBounds{
 		// issue#48 only render the necessary faces
 		
 		// TODO return vectors for the coordinates and dimensions
-		r.drawRectPrism(new RectRender3D(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength()), c, c, c, c, c, c);
+		var pos = t.getBottomCenter();
+		var dims = t.getDimensions();
+		r.drawRectPrism(new RectRender3D(
+				pos.getX(), pos.getY(), pos.getZ(),
+				dims.getWidth(), dims.getHeight(), dims.getLength()
+		), c, c, c, c, c, c);
 	}
 }

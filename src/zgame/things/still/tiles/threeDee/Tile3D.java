@@ -2,15 +2,16 @@ package zgame.things.still.tiles.threeDee;
 
 import zgame.core.graphics.Renderer;
 import zgame.physics.V3D;
+import zgame.physics.collision.Collision3D;
 import zgame.physics.material.Material;
 import zgame.things.still.tiles.Tile;
+import zgame.things.still.tiles.TileType;
 import zgame.things.still.tiles.TileType3D;
 import zgame.things.core.GameThing;
 import zgame.things.type.bounds.threeDee.bounds.Bounds3D;
+import zgame.things.type.bounds.threeDee.bounds.shape.ShapedBounds3D;
 import zgame.world.Direction3D;
 import zgame.things.core.Room3D;
-
-// TODO next, do the same kind of tile implementation for 3D as 2D
 
 /** A {@link GameThing} with a position based on indexes in an array. The indexes of this object should directly correlate to its position */
 public class Tile3D extends Tile<V3D> implements Bounds3D{
@@ -31,12 +32,8 @@ public class Tile3D extends Tile<V3D> implements Bounds3D{
 	/** The type of tile in all contexts */
 	private TileType3D type;
 	
-	/** The x coordinate of this tile */
-	private final double x;
-	/** The y coordinate of this tile */
-	private final double y;
-	/** The z coordinate of this tile */
-	private final double z;
+	/** The bottom center position of the full area this tile's index takes up */
+	private final V3D minPos;
 	
 	/**
 	 * The faces of this tile can cause collisions, indexed using {@link Direction3D}, true for allowing collision, false for no collision.
@@ -71,9 +68,11 @@ public class Tile3D extends Tile<V3D> implements Bounds3D{
 		this.zIndex = z;
 		this.type = type;
 		double size = size();
-		this.x = (x + 0.5) * size;
-		this.y = y * size();
-		this.z = (z + 0.5) * size;
+		this.minPos = new V3D(
+				(x + 0.5) * size,
+				y * size(),
+				(z + 0.5) * size
+		);
 	}
 	
 	/** @return See {@link #xIndex} */
@@ -139,23 +138,7 @@ public class Tile3D extends Tile<V3D> implements Bounds3D{
 	 * @return true if this tile can collide with things on the given face, false otherwise
 	 */
 	public boolean canCollide(Direction3D face){
-		return this.getType().getHitbox().canCollide(face);
-	}
-	
-	@Override
-	public double getX(){
-		return this.x;
-	}
-	
-	@Override
-	public double getY(){
-		return this.y;
-	}
-	
-	/** @return See {@link #z} */
-	@Override
-	public double getZ(){
-		return this.z;
+		return this.getType().canCollide(this, face);
 	}
 	
 	@Override
@@ -173,4 +156,33 @@ public class Tile3D extends Tile<V3D> implements Bounds3D{
 		return size();
 	}
 	
+	@Override
+	public V3D getMinPosition(){
+		return this.minPos;
+	}
+	
+	@Override
+	public TileType<V3D> getBoundsType(){
+		return this.getType();
+	}
+	
+	@Override
+	public boolean intersects(Bounds3D bounds){
+		return this.intersectsDimensions(bounds);
+	}
+	
+	@Override
+	public ShapedBounds3D atMinPosition(V3D pos){
+		return (ShapedBounds3D)this.atMinPositionDimension(pos);
+	}
+	
+	@Override
+	public ShapedBounds3D asShapedBounds(){
+		return (ShapedBounds3D)this.asShapedBoundsDimension();
+	}
+	
+	@Override
+	public Collision3D collideAt(V3D currentMinPos, Bounds3D bounds){
+		return (Collision3D)this.collideAtDimensions(currentMinPos, bounds);
+	}
 }

@@ -5,13 +5,10 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.graphics.image.GameImage;
 import zgame.core.graphics.image.ImageManager;
-import zgame.physics.V3D;
 import zgame.physics.material.Material;
-import zgame.things.still.tiles.Tile;
-import zgame.things.still.tiles.TileType3D;
 
-/** A simple tile which has a constant material */
-public class CubeTexTile extends TileType3D{
+/** A simple textured solid cube tile which has a constant material */
+public class CubeTexTile extends CubeTile{
 	
 	/** The file name where the texture of this tile comes from */
 	private final String fileName;
@@ -25,11 +22,10 @@ public class CubeTexTile extends TileType3D{
 	 * @param id See {@link #getId()}
 	 * @param origin See {@link #getOrigin()}
 	 * @param fileName See {@link #fileName}
-	 * @param hitbox See {@link #getHitbox()}
 	 * @param material See {@link #material}
 	 */
-	public CubeTexTile(String id, String origin, String fileName, TileHitbox3D hitbox, Material material){
-		super(id, origin, hitbox, material);
+	public CubeTexTile(String id, String origin, String fileName, Material material){
+		super(id, origin, material);
 		this.fileName = fileName;
 	}
 	
@@ -38,15 +34,21 @@ public class CubeTexTile extends TileType3D{
 		return this.fileName;
 	}
 	
-	/** @return By default returns see {@link #DEFAULT_COLOR}, override to use a custom color */
+	/** @return By default, returns see {@link #DEFAULT_COLOR}, override to use a custom color */
 	public ZColor getColor(){
 		return DEFAULT_COLOR;
 	}
 	
 	@Override
-	public void render(Tile<V3D> t, Renderer r){
+	public void render(Tile3D t, Renderer r){
 		r.setColor(this.getColor());
-		this.renderTile(new RectRender3D(t.getX(), t.getY(), t.getZ(), t.getWidth(), t.getHeight(), t.getLength()), ImageManager.image(this.getFileName()), r);
+		
+		var pos = t.getBottomCenter();
+		var dims = t.getDimensions();
+		this.renderTile(new RectRender3D(
+				pos.getX(), pos.getY(), pos.getZ(),
+				dims.getWidth(), dims.getHeight(), dims.getLength()
+		), ImageManager.image(this.getFileName()), r);
 	}
 	
 	/**
@@ -63,4 +65,5 @@ public class CubeTexTile extends TileType3D{
 		// issue#48 only render the necessary faces
 		r.drawRectPrismTex(rect, image);
 	}
+	
 }

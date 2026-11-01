@@ -20,7 +20,6 @@ import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.mobility.MobilityType;
 import zgame.things.still.tiles.threeDee.BaseTiles3D;
 import zgame.things.still.tiles.threeDee.CubeTexTile;
-import zgame.things.still.tiles.threeDee.TileHitbox3D;
 import zgame.things.type.bounds.threeDee.bounds.shape.CylinderBounds;
 import zgame.things.type.bounds.threeDee.bounds.shape.RectPrismBounds;
 
@@ -55,7 +54,7 @@ public class GameDemo3D extends Game{
 	public static final String DEMO_GAME_TILE_ORIGIN = "demoGame";
 	
 	/** A tile with a solid hitbox with a generic brick texture */
-	public static final CubeTexTile BRICK_GRAY = new CubeTexTile("brick", DEMO_GAME_TILE_ORIGIN, "brick", TileHitbox3D.FULL, Materials.DEFAULT);
+	public static final CubeTexTile BRICK_GRAY = new CubeTexTile("brick", DEMO_GAME_TILE_ORIGIN, "brick", Materials.DEFAULT);
 	
 	public GameDemo3D(){
 		super();

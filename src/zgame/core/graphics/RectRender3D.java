@@ -2,7 +2,7 @@ package zgame.core.graphics;
 
 import zgame.core.utils.ZRect3D;
 
-/** An object holding data for drawing a 3D rectangular prism */
+/** An object holding data for drawing a 3D rectangular prism, where the position is the bottom center */
 public class RectRender3D extends ZRect3D{
 	
 	/** The rotations to apply to this rendered object */

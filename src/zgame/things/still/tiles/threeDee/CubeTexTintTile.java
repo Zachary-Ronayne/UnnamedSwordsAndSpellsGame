@@ -18,12 +18,11 @@ public class CubeTexTintTile extends CubeTexTile{
 	 * @param id See {@link #getId()}
 	 * @param origin See {@link #getOrigin()}
 	 * @param fileName See {@link #getFileName()}
-	 * @param hitbox See {@link #getHitbox()}
 	 * @param material See {@link #material}
 	 * @param tint See {@link #tint}
 	 */
-	public CubeTexTintTile(String id, String origin, String fileName, TileHitbox3D hitbox, Material material, ZColor tint){
-		super(id, origin, fileName, hitbox, material);
+	public CubeTexTintTile(String id, String origin, String fileName, Material material, ZColor tint){
+		super(id, origin, fileName, material);
 		this.tint = tint;
 	}
 	

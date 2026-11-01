@@ -5,6 +5,7 @@ import zgame.physics.V3D;
 import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision3D;
 import zgame.things.type.bounds.Bounds;
+import zgame.things.type.bounds.ShapedBounds;
 import zgame.things.type.bounds.threeDee.bounds.shape.ShapedBounds3D;
 import zgame.things.type.bounds.threeDee.shape.Shape3D;
 
@@ -109,6 +110,11 @@ public interface Bounds3D extends Bounds<V3D>, Shape3D{
 	 */
 	boolean intersects(Bounds3D bounds);
 	
+	@Override
+	default ShapedBounds<V3D> asShapedBoundsDimension(){
+		return this.asShapedBounds();
+	}
+	
 	/** @return A shape representing this bounds */
 	ShapedBounds3D asShapedBounds();
 	
@@ -123,4 +129,5 @@ public interface Bounds3D extends Bounds<V3D>, Shape3D{
 	 * @return The collision representing how this bounds will need to be moved to no longer be colliding with the given bounds
 	 */
 	Collision3D collideAt(V3D currentMinPos, Bounds3D bounds);
+	
 }

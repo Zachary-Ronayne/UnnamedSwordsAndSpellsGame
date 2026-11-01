@@ -509,7 +509,7 @@ public class Room2D extends Room<V2D> implements Bounds2D{
 	// TODO does it make sense to return a rectangle bounds? May need to make another shape that's an "inverse" rectangle, i.e. only colliding on the inside
 	@Override
 	public ShapedBounds2D asShapedBounds(){
-		return this.atMinPosition(this.getMinPosition());
+		return this.atMinPosition(new V2D(this.getWidth(), this.getHeight()));
 	}
 	
 	@Override

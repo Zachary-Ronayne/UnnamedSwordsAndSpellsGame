@@ -5,6 +5,7 @@ import zgame.physics.V2D;
 import zgame.physics.collision.Collision;
 import zgame.physics.collision.Collision2D;
 import zgame.things.type.bounds.Bounds;
+import zgame.things.type.bounds.ShapedBounds;
 import zgame.things.type.bounds.twoDee.bounds.shape.ShapedBounds2D;
 import zgame.things.type.bounds.twoDee.shape.Shape2D;
 
@@ -68,6 +69,11 @@ public interface Bounds2D extends Bounds<V2D>, Shape2D{
 	 * @return true if the given bounds intersect with this bounds
 	 */
 	boolean intersects(Bounds2D bounds);
+	
+	@Override
+	default ShapedBounds<V2D> asShapedBoundsDimension(){
+		return this.asShapedBounds();
+	}
 	
 	/** @return A shape representing this bounds */
 	ShapedBounds2D asShapedBounds();

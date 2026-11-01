@@ -5,7 +5,6 @@ import zgame.core.graphics.ZColor;
 import zgame.physics.V2D;
 import zgame.physics.material.Material;
 import zgame.physics.material.Materials;
-import zgame.things.still.tiles.Tile;
 import zgame.things.still.tiles.TileType;
 import zgame.things.still.tiles.TileType2D;
 
@@ -56,7 +55,7 @@ public abstract class ColorTile extends TileType2D{
 	}
 	
 	@Override
-	public void render(Tile<V2D> t, Renderer r){
+	public void render(Tile2D t, Renderer r){
 		// Render a rectangle of the bounds
 		r.setColor(this.getColor());
 		var pos = t.getMinPosition();

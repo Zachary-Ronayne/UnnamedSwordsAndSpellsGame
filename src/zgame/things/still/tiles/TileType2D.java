@@ -1,7 +1,9 @@
 package zgame.things.still.tiles;
 
+import zgame.core.graphics.Renderer;
 import zgame.physics.V2D;
 import zgame.physics.material.Material;
+import zgame.things.still.tiles.twoDee.Tile2D;
 import zgame.things.type.bounds.twoDee.shape.Shape2D;
 
 /** A standard 2D tile type */
@@ -18,5 +20,17 @@ public non-sealed abstract class TileType2D extends TileType<V2D> implements Sha
 	public TileType2D(String id, String origin, V2D shapeOffset, Material material){
 		super(id, origin, shapeOffset == null ? new V2D() : shapeOffset, material);
 	}
+	
+	
+	@Override
+	protected final void renderGeneric(Tile<V2D> t, Renderer r){
+		this.render((Tile2D)t, r);
+	}
+	/**
+	 * Renders this tile type for the bounds of the given tile
+	 * @param t The tile
+	 * @param r The renderer to use
+	 */
+	public void render(Tile2D t, Renderer r){}
 	
 }

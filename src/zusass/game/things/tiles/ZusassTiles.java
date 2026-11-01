@@ -4,7 +4,6 @@ import zgame.core.graphics.ZColor;
 import zgame.physics.material.Materials;
 import zgame.things.still.tiles.threeDee.CubeTexTile;
 import zgame.things.still.tiles.threeDee.CubeTexTintTile;
-import zgame.things.still.tiles.threeDee.TileHitbox3D;
 import zgame.things.still.tiles.TileType3D;
 import zusass.utils.ZusassImages;
 
@@ -41,7 +40,7 @@ public final class ZusassTiles{
 	 * @return The generated tile type
 	 */
 	public static CubeTexTintTile solidTintTile(String id, String fileName, ZColor tint){
-		return new CubeTexTintTile(id, ORIGIN, fileName, TileHitbox3D.FULL, Materials.DEFAULT, tint);
+		return new CubeTexTintTile(id, ORIGIN, fileName, Materials.DEFAULT, tint);
 	}
 	
 	/** Cannot instantiate {@link ZusassTiles} */

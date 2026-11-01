@@ -31,6 +31,9 @@ public interface Bounds<V extends ZVector<V>> extends Shape<V>{
 	 */
 	Collision<V> collideAtDimensions(V currentMinPos, Bounds<V> bounds);
 	
+	/** @return A shape representing this bounds */
+	ShapedBounds<V> asShapedBoundsDimension();
+	
 	// TODO does this value need to be defined as a part of entity state?
 	
 	/** @return The surface area of this hitbox as it moves down */
