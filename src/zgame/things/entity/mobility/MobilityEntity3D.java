@@ -2,10 +2,10 @@ package zgame.things.entity.mobility;
 
 import zgame.core.graphics.camera.GameCamera3D;
 import zgame.physics.V3D;
-import zgame.physics.collision.Collision;
 import zgame.things.core.state.StateHolder;
 import zgame.things.entity.*;
 import zgame.things.core.EntityThing3D;
+import zgame.things.entity.state.collision.CollisionUpdate;
 
 /** A 3D entity which uses mobility capabilities */
 public abstract class MobilityEntity3D extends EntityThing3D implements Mobility3D{
@@ -63,7 +63,7 @@ public abstract class MobilityEntity3D extends EntityThing3D implements Mobility
 	
 	// TODO should all of these things to call mobility touch floor methods be here?
 	@Override
-	public void touchFloor(Collision<V3D> collision){
+	public void touchFloor(CollisionUpdate<V3D> collision){
 		super.touchFloor(collision);
 		this.mobilityTouchFloor();
 		this.getMobilityState().setGroundedSinceLastJump(true);

@@ -30,6 +30,7 @@ public abstract class EntityThing3D extends EntityThing<V3D> implements Bounds3D
 	 * @param z Initial x coordinate of this thing
 	 * @param mass The initial mass of the entity
 	 */
+	// TODO replace individual coordinates with V3D
 	public EntityThing3D(double x, double y, double z, double mass){
 		super(mass);
 		this.initPosition(new V3D(x, y, z));
@@ -74,6 +75,23 @@ public abstract class EntityThing3D extends EntityThing<V3D> implements Bounds3D
 		this.attemptSetVelocity(new V3D(velX, currentVel.getY(), velZ, true));
 		// TODO potentially move this to the abstract parent method if 3D and 2D don't need a distinction
 //		this.getNext().scaleVelocity(-1 * result.material().getWallBounce() * this.getMaterial().getWallBounce());
+	}
+	
+	@Override
+	public void checkEntityCollisionDimension(EntityThing<V3D> entity, double dt){
+		super.checkEntityCollisionDimension(entity, dt);
+		this.checkEntityCollision((EntityThing3D)entity, dt);
+	}
+	
+	/**
+	 * Called each this {@link EntityThing} has its entity collision handled.
+	 * Does nothing by default, override to add custom behavior
+	 *
+	 * @param entity The entity that was collided with this entity
+	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
+	 */
+	public void checkEntityCollision(EntityThing3D entity, double dt){
+		// TODO implement entity collision? should this just call the collide method on the bounds
 	}
 	
 	/** @return The height from the bottom of this entity where it should be able to "see" from, height of the entity by default */

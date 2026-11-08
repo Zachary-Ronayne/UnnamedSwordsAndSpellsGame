@@ -1,5 +1,6 @@
 package zgame.core.utils;
 
+// TODO replace usages of this with V3D
 /** An object storing a 3D point */
 public class ZPoint3D {
 	

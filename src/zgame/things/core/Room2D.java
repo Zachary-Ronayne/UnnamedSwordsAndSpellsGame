@@ -138,12 +138,12 @@ public class Room2D extends Room<V2D> implements Bounds2D{
 		for(int x = tMinX; x <= tMaxX; x++){
 			for(int y = tMinY; y <= tMaxY; y++){
 				var t = this.tiles[x][y];
-				collisions.add(this.computeCollision(obj, t, t.getMaterial()));
+				collisions.add(this.computeStaticCollision(obj, t, t.getMaterial()));
 			}
 		}
 		
 		// Check for colliding with the room
-		collisions.add(this.computeCollision(obj, this, this.getWallMaterial()));
+		collisions.add(this.computeStaticCollision(obj, this, this.getWallMaterial()));
 		
 		// Return final collisions
 		return collisions;

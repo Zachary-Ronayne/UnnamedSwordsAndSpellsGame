@@ -295,13 +295,13 @@ public class Room3D extends Room<V3D> implements Bounds3D{
 			for(int y = tMinY; y <= tMaxY; y++){
 				for(int z = tMinZ; z <= tMaxZ; z++){
 					var t = this.tiles[x][y][z];
-					collisions.add(this.computeCollision(obj, t, t.getMaterial()));
+					collisions.add(this.computeStaticCollision(obj, t, t.getMaterial()));
 				}
 			}
 		}
 		
 		// Check for colliding with the room
-		collisions.add(this.computeCollision(obj, this, this.getBoundaryMaterial()));
+		collisions.add(this.computeStaticCollision(obj, this, this.getBoundaryMaterial()));
 		
 		return collisions;
 	}

@@ -3,6 +3,7 @@ package zgame.things.type.bounds.threeDee.clickable;
 /** An object which is able to click on a {@link Clickable3D} */
 public interface ClickerBounds{
 
+	// TODO change click x, y, z to a vector
 	/** @return The x coordinate where the click of this thing will originate */
 	double getClickX();
 

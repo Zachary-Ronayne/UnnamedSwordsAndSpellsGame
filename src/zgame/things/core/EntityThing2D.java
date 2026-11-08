@@ -61,6 +61,24 @@ public abstract class EntityThing2D extends EntityThing<V2D> implements Bounds2D
 	}
 	
 	@Override
+	public void checkEntityCollisionDimension(EntityThing<V2D> entity, double dt){
+		super.checkEntityCollisionDimension(entity, dt);
+		this.checkEntityCollision((EntityThing2D)entity, dt);
+	}
+	
+	/**
+	 * Called each this {@link EntityThing} has its entity collision handled.
+	 * Does nothing by default, override to add custom behavior
+	 *
+	 * @param entity The entity that was collided with this entity
+	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
+	 */
+	public void checkEntityCollision(EntityThing2D entity, double dt){
+		// TODO implement entity collision? should this just call the collide method on the bounds
+	}
+	
+	
+	@Override
 	public V2D zeroVector(){
 		return new V2D();
 	}

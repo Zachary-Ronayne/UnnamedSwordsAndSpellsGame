@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import zgame.core.file.Saveable;
 import zgame.core.utils.NotNullList;
 import zgame.physics.V3D;
+import zgame.things.entity.projectile.Projectile;
 import zusass.ZusassGame;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
@@ -12,16 +13,16 @@ import zusass.game.things.entities.projectile.MagicProjectile;
 /** A {@link Spell} that creates a projectile when cast */
 public class ProjectileSpell extends Spell{
 	
-	/** The json key storing {@link #radius} */
+	/** The JSON key storing {@link #radius} */
 	private static final String RADIUS_KEY = "radius";
-	/** The json key storing {@link #range} */
+	/** The JSON key storing {@link #range} */
 	private static final String RANGE_KEY = "range";
-	/** The json key storing {@link #speed} */
+	/** The JSON key storing {@link #speed} */
 	private static final String SPEED_KEY = "speed";
 	
 	/** See {@link MagicProjectile#radius} */
 	private double radius;
-	/** See {@link MagicProjectile#range} */
+	/** See {@link Projectile#range} */
 	private double range;
 	/** The initial velocity of this spell when cast */
 	private double speed;
@@ -45,7 +46,7 @@ public class ProjectileSpell extends Spell{
 	 *
 	 * @param effect A single effect for see {@link #effects}
 	 * @param radius See {@link MagicProjectile#radius}
-	 * @param range See {@link MagicProjectile#range}
+	 * @param range See {@link Projectile#range}
 	 */
 	public ProjectileSpell(SpellEffect effect, double radius, double range, double speed){
 		this(new NotNullList<>(effect), radius, range, speed);
@@ -65,7 +66,7 @@ public class ProjectileSpell extends Spell{
 	 *
 	 * @param effects See {@link #effects}
 	 * @param radius See {@link MagicProjectile#radius}
-	 * @param range See {@link MagicProjectile#range}
+	 * @param range See {@link Projectile#range}
 	 */
 	public ProjectileSpell(NotNullList<SpellEffect> effects, double radius, double range, double speed){
 		super(effects);
@@ -80,9 +81,7 @@ public class ProjectileSpell extends Spell{
 		var mobilityData = caster.getMobilityState();
 		var vel = new V3D(mobilityData.getFacingYaw(), mobilityData.getFacingPitch(), this.getSpeed(), false);
 		var castPoint = caster.getSpellCastPont();
-		var p = new MagicProjectile(castPoint.getX(), castPoint.getY(), castPoint.getZ(), caster.getUuid(), vel, this.getEffects());
-		p.setRange(this.range);
-		p.setRadius(this.radius);
+		var p = new MagicProjectile(castPoint, vel, this.radius, this.range, caster, this.getEffects());
 		// Initialize the sound on the introduction of the projectile to the room
 		r.addThing(p);
 	}

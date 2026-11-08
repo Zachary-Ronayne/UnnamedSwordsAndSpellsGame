@@ -12,8 +12,9 @@ public class CollisionUpdate<V extends ZVector<V>>{
 	/** The collision which occurred */
 	private final Collision<V> collision;
 	
+	// TODO maybe consolidate these objects
 	/** The bounds that was collided into */
-	private final Bounds<V> collidedWith;
+	private final CollidedWith<?, V> collidedWith;
 	
 	/** The material which was collided into */
 	private final Material material;
@@ -26,8 +27,7 @@ public class CollisionUpdate<V extends ZVector<V>>{
 	 * @param collision See {@link #collision}
 	 * @param material See {@link #material}
 	 */
-	// TODO probably avoid making this such a mess of so many objects
-	public CollisionUpdate(Collision<V> collision, Bounds<V> collider, Bounds<V> collidedWith, Material material){
+	public CollisionUpdate(Collision<V> collision, Bounds<V> collider, CollidedWith<?, V> collidedWith, Material material){
 		this.collision = collision;
 		this.collider = collider;
 		this.collidedWith = collidedWith;
@@ -49,8 +49,12 @@ public class CollisionUpdate<V extends ZVector<V>>{
 	 * @return The new min position for {@link #collider}
 	 */
 	public V computeNewMinPos(V updatedMinPosition){
-		var c = collider.collideAtDimensions(updatedMinPosition, this.collidedWith);
+		var c = collider.collideAtDimensions(updatedMinPosition, this.collidedWith.bounds());
 		return c.originalPos().add(c.changePos());
 	}
 	
+	/** @return See {@link #collidedWith} */
+	public CollidedWith<?, V> getCollidedWith(){
+		return this.collidedWith;
+	}
 }

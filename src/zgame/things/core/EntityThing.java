@@ -365,7 +365,9 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 	 * @param entity The entity that was collided with this entity
 	 * @param dt The amount of time, in seconds, which passed in the tick where this collision took place
 	 */
-	public void checkEntityCollision(EntityThing<V> entity, double dt){}
+	public void checkEntityCollisionDimension(EntityThing<V> entity, double dt){
+		// TODO implement entity collision? should this just call the collide method on the bounds
+	}
 	
 	
 	/** @return The total magnitude of horizontal velocity of this entity */
@@ -482,6 +484,10 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 	public double getWallTime(){
 		return this.entityStateCurrent().getWallTime();
 	}
+	// TODO should this be a min position?
+	public V getStatePosition(){
+		return this.entityStateCurrent().getPosition();
+	}
 	
 	// Updates for state
 	
@@ -560,7 +566,10 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 		this.entityStateNext().scaleVelocity(scalar);
 	}
 	
-	// TODO add docs
+	/**
+	 * Apply collisions to this thing
+	 * @param c The collision updates that should cause this thing to collide
+	 */
 	public void collide(List<CollisionUpdate<V>> c){
 		this.entityStateNext().collide(c);
 	}

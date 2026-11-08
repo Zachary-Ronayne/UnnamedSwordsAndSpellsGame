@@ -11,6 +11,7 @@ import zgame.core.utils.NotNullList;
 import zgame.physics.ZVector;
 import zgame.physics.material.Material;
 import zgame.things.core.state.Stateable;
+import zgame.things.entity.state.collision.CollidedWith;
 import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.type.bounds.Bounds;
 
@@ -142,14 +143,16 @@ public abstract class Room<V extends ZVector<V>> extends GameThing implements Bo
 	public abstract List<CollisionUpdate<V>> collideInsideDimensions(EntityThing<V> obj);
 	
 	/**
-	 * Compute a collision update for the given moving bounds colliding with the given unmoving bounds
+	 * Compute a collision update for the given moving bounds colliding with the given unmoving bounds representing a static non-identifiable object
 	 * @param moving The bounds that can move as a result of the collision
 	 * @param unmoving The bounds that will not move
 	 * @param unmovingMaterial The material of the bounds that will not move
 	 * @return The resulting update
 	 */
-	protected CollisionUpdate<V> computeCollision(Bounds<V> moving, Bounds<V> unmoving, Material unmovingMaterial){
-		return new CollisionUpdate<>(moving.collideAtDimensions(moving.getMinPosition(), this), moving, unmoving, unmovingMaterial);
+	protected CollisionUpdate<V> computeStaticCollision(Bounds<V> moving, Bounds<V> unmoving, Material unmovingMaterial){
+		var collidedWith = new CollidedWith<>(unmoving);
+		var collision = moving.collideAtDimensions(moving.getMinPosition(), this);
+		return new CollisionUpdate<>(collision, moving, collidedWith, unmovingMaterial);
 	}
 	
 	/**
@@ -161,6 +164,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing implements Bo
 	public List<CollisionUpdate<V>> checkEntityCollisions(EntityThing<V> checkEntity, double dt){
 		// issue#21 make this more efficient by reducing redundant checks, and not doing the same collision calculation for each pair of entities
 		// Probably just rewrite the actual entity collision outside on intersection, the commented out code is copied and modified from the EntityThing class, which was originally just for 2D
+		// TODO probably can implement entity collision properly with using the state system, will need to call computeCollision
 		
 		// Check any stored entities, and remove them if they are not intersecting or are not in the room
 //		ArrayList<String> toRemove = new ArrayList<>(checkEntity.collidingUuids.size());
@@ -182,7 +186,7 @@ public abstract class Room<V extends ZVector<V>> extends GameThing implements Bo
 		for(int i = 0; i < entities.size(); i++){
 			var e = entities.get(i);
 			if(e == checkEntity || e.isNoClip() || !checkEntity.intersectsDimensions(e)) continue;
-			checkEntity.checkEntityCollision(e, dt);
+			checkEntity.checkEntityCollisionDimension(e, dt);
 
 			// TODO make a real attempt at entity collision again
 //			// If they intersect, determine the force they should have against each other, and apply it to both entities

@@ -1,5 +1,6 @@
 package zgame.core.utils;
 
+// TODO maybe replace usages of this with an immutable data pattern
 /** An object representing a 3D rectangular prism with no rotations */
 public class ZRect3D extends ZPoint3D{
 	

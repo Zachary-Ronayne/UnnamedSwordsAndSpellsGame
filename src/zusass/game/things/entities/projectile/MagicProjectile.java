@@ -4,16 +4,19 @@ import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.core.sound.ManagedSoundSource;
 import zgame.core.utils.NotNullList;
+import zgame.core.utils.Uuidable;
 import zgame.physics.V3D;
 import zgame.things.BaseTags;
 import zgame.things.entity.projectile.Projectile3D;
+import zgame.things.entity.projectile.ProjectileThing3D;
+import zgame.things.entity.state.EntityState;
 import zgame.things.type.bounds.threeDee.bounds.shape.SphereBounds;
 import zusass.game.magic.effect.SpellEffect;
 import zusass.game.things.entities.mobs.ZusassMob;
 import zusass.utils.ZusassSounds;
 
 /** A {@link Projectile3D} which applies a magic effect when it hits something other than its caster */
-public class MagicProjectile extends Projectile3D implements SphereBounds{
+public class MagicProjectile extends ProjectileThing3D implements SphereBounds{
 	
 	/** The radius of the projectile */
 	private double radius;
@@ -30,64 +33,38 @@ public class MagicProjectile extends Projectile3D implements SphereBounds{
 	/**
 	 * Create a projectile at the specified location, moving at the given velocity
 	 *
-	 * @param x The initial x position of the projectile
-	 * @param y The initial y position of the projectile
-	 * @param z The initial z position of the projectile
-	 * @param sourceId See {@link #sourceId}, i.e. the uuid of the caster of this magic projectile
+	 * @param pos The initial position of the projectile
 	 * @param launchVelocity The initial velocity of the projectile
-	 * @param effects See {@link #effects}
-	 */
-	public MagicProjectile(double x, double y, double z, String sourceId, V3D launchVelocity, NotNullList<SpellEffect> effects){
-		this(x, y, z, 0.2, sourceId, launchVelocity, effects);
-	}
-	
-	/**
-	 * Create a projectile at the specified location, moving at the given velocity
-	 *
-	 * @param x The initial x position of the projectile
-	 * @param y The initial y position of the projectile
-	 * @param z The initial z position of the projectile
 	 * @param radius See {@link #radius}
-	 * @param sourceId See {@link #sourceId}, i.e. the uuid of the caster of this magic projectile
-	 * @param launchVelocity The initial velocity of the projectile
+	 * @param range The maximum range the projectile can move
+	 * @param source See the caster of this magic projectile
 	 * @param effects See {@link #effects}
 	 */
-	public MagicProjectile(double x, double y, double z, double radius, String sourceId, V3D launchVelocity, NotNullList<SpellEffect> effects){
-		this(x, y, z, radius, -1, sourceId, launchVelocity, effects);
-	}
-	
-	/**
-	 * Create a projectile at the specified location, moving at the given velocity
-	 *
-	 * @param x The initial x position of the projectile
-	 * @param y The initial y position of the projectile
-	 * @param z The initial z position of the projectile
-	 * @param radius See {@link #radius}
-	 * @param range See {@link #range}
-	 * @param sourceId See {@link #sourceId}, i.e. the uuid of the caster of this magic projectile
-	 * @param launchVelocity The initial velocity of the projectile
-	 * @param effects See {@link #effects}
-	 */
-	public MagicProjectile(double x, double y, double z, double radius, double range, String sourceId, V3D launchVelocity, NotNullList<SpellEffect> effects){
-		super(x, y, z, launchVelocity);
+	public MagicProjectile(V3D pos, V3D launchVelocity, double radius, double range, Uuidable source, NotNullList<SpellEffect> effects){
+		super(pos);
 		this.color = new ZColor(Math.random(), Math.random(), Math.random(), 0.4 * Math.random() + 0.4);
 		
-		this.setSourceId(sourceId);
 		this.setRadius(radius);
-		this.setRange(range);
+		this.getProjectile().setRange(range);
+		this.getProjectile().setOnHit(true);
 		this.effects = effects;
-		this.setOnHit(true);
 		this.addTags(BaseTags.PROJECTILE_NOT_COLLIDE);
 		
 		// Turn off gravity
-		this.getCurrent().setGravityLevel(0);
+		this.attemptSetForce(EntityState.FORCE_GRAVITY, V3D.EMPTY);
 		
 		// Add a function to effect a hit mob with magic
-		this.addHitFunc(ZusassMob.class, m -> {
-			for(var ef : this.effects) ef.apply(sourceId, m);
+		this.getProjectile().addHitFunc(ZusassMob.class, m -> {
+			for(var ef : this.effects) ef.apply(source.getUuid(), m);
 		});
 		
 		this.removedSoundSource = new ManagedSoundSource(ZusassSounds.MAGIC_DAMAGE, this, 0.95, 1.05, 1);
+	}
+	
+	// TODO should this be inherent to entity thing?
+	@Override
+	public V3D getMinPosition(){
+		return this.getStatePosition();
 	}
 	
 	@Override
@@ -99,15 +76,10 @@ public class MagicProjectile extends Projectile3D implements SphereBounds{
 	}
 	
 	@Override
-	public void hit(HitBox3D thing){
-		if(this.willRemove()) return;
-		thing.hitBy(this);
-	}
-	
-	@Override
 	protected void render(Renderer r){
 		r.setColor(this.color);
-		r.drawSphere(this.getX(), this.getY(), this.getZ(), this.getRadius());
+		var pos = this.getCenterPosition();
+		r.drawSphere(pos.getX(), pos.getY(), pos.getZ(), this.getRadius());
 	}
 	
 	@Override

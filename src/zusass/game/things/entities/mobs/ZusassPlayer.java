@@ -186,7 +186,8 @@ public class ZusassPlayer extends ZusassMob{
 		// Update the sound listener to the player
 		if(SoundManager.initialized()){
 			var sm = SoundManager.get();
-			sm.updateListenerPos(this.getX(), this.getY(), this.getZ());
+			var pos = this.getBottomCenter();
+			sm.updateListenerPos(pos.getX(), pos.getY() + this.getEyeHeight(), pos.getZ());
 			sm.updateListenerOrientation(new ForwardVector(mobilityData.getFacingYaw(), mobilityData.getFacingPitch()));
 		}
 	}
@@ -348,8 +349,9 @@ public class ZusassPlayer extends ZusassMob{
 		this.renderAttackTimer(r, ImageManager.image(ZusassImages.SWORD));
 		
 		// Billboard rendering of the player
+		var pos = this.getBottomCenter();
 		r.drawPlaneBufferSide(
-				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(), this.getWidth(), this.getHeight(),
+				pos.getX(), pos.getY() + this.getHeight() * 0.5, pos.getZ(), this.getWidth(), this.getHeight(),
 				this.getMobilityState().getFacingYaw(),
 				ImageManager.image(ZusassImages.ZUSASS_PLAYER).getId());
 		
@@ -390,6 +392,7 @@ public class ZusassPlayer extends ZusassMob{
 		this.getSounds().updateAndPlay(SOUND_SOURCE_TAKE_DAMAGE, s -> s.setOffsetY(this.getEyeHeight()));
 	}
 	
+	// TODO how is this meant to work?
 	@Override
 	public void enterRoom(Room3D from, Room3D to){
 		super.enterRoom(from, to);

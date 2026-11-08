@@ -10,9 +10,7 @@ import zgame.core.graphics.texture.RepeatingTexture;
 import zgame.core.sound.ManagedSoundSource;
 import zgame.core.sound.SoundSourceGroup;
 import zgame.core.utils.ZMath;
-import zgame.core.utils.ZPoint3D;
 import zgame.physics.V3D;
-import zgame.physics.collision.Collision3D;
 import zgame.stat.Stat;
 import zgame.stat.ValueStat;
 import zgame.stat.modifier.ModifierType;
@@ -23,6 +21,7 @@ import zgame.stat.status.StatusEffects;
 import zgame.things.entity.mobility.Mobility3D;
 import zgame.things.entity.mobility.MobilityEntity3D;
 import zgame.things.entity.projectile.Projectile3D;
+import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.type.bounds.threeDee.bounds.shape.CylinderBounds;
 import zgame.things.type.bounds.threeDee.clickable.ClickerBounds;
 import zgame.things.type.bounds.threeDee.clickable.CylinderClickable;
@@ -416,11 +415,6 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderBoun
 		ZusassGame.get().getCurrentRoom().removeThing(this);
 	}
 	
-	@Override
-	public void hitBy(Projectile3D p){
-		p.hit(ZusassMob.class, this);
-	}
-	
 	/** @return See {@link #attackTime} */
 	public double getAttackTime(){
 		return this.attackTime;
@@ -533,8 +527,8 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderBoun
 	}
 	
 	/** @return The point where this mob should cast a spell at when a spell is positional, defaults the middle top of the hitbox */
-	public ZPoint3D getSpellCastPont(){
-		return new ZPoint3D(this.centerX(), this.centerY() + this.getHeight() * 0.5, this.centerZ());
+	public V3D getSpellCastPont(){
+		return new V3D(this.centerX(), this.centerY() + this.getHeight() * 0.5, this.centerZ());
 	}
 	
 	/** @return See {@link #effects} */
@@ -850,12 +844,12 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderBoun
 	}
 	
 	@Override
-	public void touchFloor(Collision3D collision){
-		super.touchFloor(collision);
+	public void touchFloor(CollisionUpdate<V3D> update){
+		super.touchFloor(update);
 		
 		// TODO consider doing this based on current velocity
 		// If colliding with enough displacement, make a sound for hitting the floor
-		double diff = Math.abs(collision.y()) - 0.02;
+		double diff = Math.abs(update.collision().changePos().getY()) - 0.02;
 		if(diff > 0){
 			double newVolume = Math.pow(diff, 0.3) * 2.0;
 			

@@ -2,6 +2,7 @@ package zgame.core.utils;
 
 import java.awt.geom.Rectangle2D;
 
+// TODO remove usages of this in game logic
 /** A convenience class that just extends Rectangle2D.Double, making it easier to code with */
 public class ZRect2D extends Rectangle2D.Double{
 	
