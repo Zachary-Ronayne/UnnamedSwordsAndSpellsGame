@@ -10,7 +10,7 @@ public class EmptyGame extends Game{
 		this.setInitSounds(false);
 	}
 	
-	public static void main(String[] args){
+	static void main(String[] args){
 		new EmptyGame().start();
 	}
 }

@@ -121,7 +121,8 @@ public abstract class Projectile<V extends ZVector<V>> extends GameThingState{
 		if(this.isOnHit()) this.removeNext();
 		
 		// Ignore the current thing if the projectile will not hit it, or if the thing should not collide with projectiles
-		if(!this.willHit(collidedWith.bounds(), collidedWith.id()) || collidedWith.id().hasTag(BaseTags.PROJECTILE_NOT_COLLIDE)) return;
+		if(!this.willHit(collidedWith.bounds(), collidedWith.id()) || (collidedWith.id() != null && collidedWith.id().hasTag(BaseTags.PROJECTILE_NOT_COLLIDE))) return;
+		if(collidedWith.collided() == null) return;
 		
 		// Call the function
 		// TODO test if this is a valid cast, add assumptions made here to the docs

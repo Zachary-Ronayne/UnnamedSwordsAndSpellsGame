@@ -28,6 +28,10 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO next, fix issues with everything flickering, probably need to do something with enabling opengl double buffering
+
+// TODO next figure out the hs_err_pid log errors
+
 /**
  * A class that handles OpenGL operations related to drawing objects.
  * Use the singleton of this class from Game and call draw methods to draw to this Renderer,

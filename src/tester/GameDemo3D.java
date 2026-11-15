@@ -587,7 +587,7 @@ public class GameDemo3D extends Game{
 		
 		@Override
 		public double getCylinderHeight(){
-			return this.getDimensions().getHeight();
+			return this.getHeight();
 		}
 		
 		private GameCamera3D getCamera(){

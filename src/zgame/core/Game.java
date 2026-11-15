@@ -932,6 +932,7 @@ public class Game implements Saveable, Destroyable{
 		return this.initSounds;
 	}
 	
+	// TODO fix this logging an error if initSounds is false
 	/** @param initSounds See {@link #initSounds} */
 	public void setInitSounds(boolean initSounds){
 		this.initSounds = initSounds;
