@@ -3,13 +3,12 @@ package zgame.things.entity.projectile;
 import zgame.core.utils.FunctionMap;
 import zgame.core.utils.Uuidable;
 import zgame.physics.ZVector;
-import zgame.physics.collision.Collision;
 import zgame.things.BaseTags;
 import zgame.things.core.EntityThing;
+import zgame.things.core.state.GameThingState;
 import zgame.things.entity.state.collision.CollidedWith;
 import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.type.bounds.Bounds;
-import zgame.things.type.bounds.ShapedBounds;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -19,7 +18,7 @@ import java.util.function.Consumer;
  *
  * @param <V> The type of vector used by the projectile
  */
-public abstract class Projectile<V extends ZVector<V>> implements Bounds<V>{
+public abstract class Projectile<V extends ZVector<V>> extends GameThingState{
 	
 	/** The entity representing this projectile */
 	private final EntityThing<V> entity;
@@ -32,7 +31,6 @@ public abstract class Projectile<V extends ZVector<V>> implements Bounds<V>{
 	 */
 	private final FunctionMap mappedFuncs;
 	
-	// TODO move these be moved to a state object
 	/** The amount of distance this projectile can travel before being deleted, negative value to never be deleted */
 	private double range;
 	/** true if this is a {@link Projectile2D} which destroys itself when it hits anything, false otherwise */
@@ -64,6 +62,7 @@ public abstract class Projectile<V extends ZVector<V>> implements Bounds<V>{
 	
 	/**
 	 * Called when a projectile collides
+	 *
 	 * @param c A list of collisions that occurred
 	 */
 	public void collided(List<CollisionUpdate<V>> c){
@@ -78,6 +77,7 @@ public abstract class Projectile<V extends ZVector<V>> implements Bounds<V>{
 	
 	/**
 	 * Check if the given entity collides with this projectile. Calls {@link #hit(CollidedWith)} if the entity was hit
+	 *
 	 * @param entity The entity to potentially hit
 	 */
 	public <T extends EntityThing<V>> void checkHitEntity(T entity){
@@ -145,7 +145,7 @@ public abstract class Projectile<V extends ZVector<V>> implements Bounds<V>{
 		if(this.source.matches(source)) return false;
 		
 		// Otherwise it will hit as long as they intersect
-		return this.intersectsDimensions(bounds);
+		return this.entity.intersectsDimensions(bounds);
 	}
 	
 	
@@ -207,52 +207,4 @@ public abstract class Projectile<V extends ZVector<V>> implements Bounds<V>{
 		this.totalDistance = totalDistance;
 	}
 	
-	
-	// Bounds implementations to pull from the entity's bounds
-	
-	// TODO does it make sense to have projectile have to implement all of these just from the entity?
-	@Override
-	public V getMinPosition(){
-		return this.entity.getMinPosition();
-	}
-	
-	@Override
-	public V getMaxPosition(){
-		return this.entity.getMaxPosition();
-	}
-	
-	@Override
-	public V getCenterPosition(){
-		return this.entity.getCenterPosition();
-	}
-	
-	@Override
-	public boolean intersectsDimensions(Bounds<V> bounds){
-		return this.entity.intersectsDimensions(bounds);
-	}
-	
-	@Override
-	public Collision<V> collideAtDimensions(V currentMinPos, Bounds<V> bounds){
-		return this.entity.collideAtDimensions(currentMinPos, bounds);
-	}
-	
-	@Override
-	public ShapedBounds<V> asShapedBoundsDimension(){
-		return this.entity.asShapedBoundsDimension();
-	}
-	
-	@Override
-	public double getGravityDragReferenceArea(){
-		return this.entity.getGravityDragReferenceArea();
-	}
-	
-	@Override
-	public V getDimensions(){
-		return this.entity.getDimensions();
-	}
-	
-	@Override
-	public ShapedBounds<V> atMinPositionDimension(V minPos){
-		return this.entity.atMinPositionDimension(minPos);
-	}
 }
