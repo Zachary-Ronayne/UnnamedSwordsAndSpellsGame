@@ -18,9 +18,9 @@ import zgame.stat.modifier.StatModTracker;
 import zgame.stat.modifier.StatModifier;
 import zgame.stat.status.StatusEffect;
 import zgame.stat.status.StatusEffects;
+import zgame.things.core.Room3D;
 import zgame.things.entity.mobility.Mobility3D;
 import zgame.things.entity.mobility.MobilityEntity3D;
-import zgame.things.entity.projectile.Projectile3D;
 import zgame.things.entity.state.collision.CollisionUpdate;
 import zgame.things.type.bounds.threeDee.bounds.shape.CylinderBounds;
 import zgame.things.type.bounds.threeDee.clickable.ClickerBounds;
@@ -125,15 +125,13 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderBoun
 	
 	/**
 	 * Create a new mob with the given bounds
-	 *
-	 * @param x See {@link #getX()}
-	 * @param y See {@link #getY()}
-	 * @param z See {@link #getZ()}
+	 * TODO add docs
 	 * @param radius See {@link #radius}
 	 * @param height See {@link #height}
 	 */
 	public ZusassMob(double x, double y, double z, double radius, double height){
 		super(x, y, z, 1);
+		
 		this.sounds = new SoundSourceGroup();
 		
 		this.jumpBuildTime = DEFAULT_JUMP_BUILD_TIME;
@@ -225,8 +223,8 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderBoun
 	}
 	
 	@Override
-	public void onRoomAdd(){
-		super.onRoomAdd();
+	public void onRoomAdd(Room3D to){
+		super.onRoomAdd(to);
 		this.initSounds();
 	}
 	
@@ -311,11 +309,15 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderBoun
 		
 		// Find the position where the arm will attack to
 		var basePoint = this.getCenterPosition();
-		basePoint.setX(basePoint.getX() + armBaseVec.getX());
-		basePoint.setZ(basePoint.getZ() + armBaseVec.getZ());
-		var attackPoint = basePoint.copy();
-		attackPoint.setX(attackPoint.getX() + attackDirectionVec.getX());
-		attackPoint.setZ(attackPoint.getZ() + attackDirectionVec.getZ());
+		basePoint = new V3D(
+				basePoint.getX() + armBaseVec.getX(),
+				basePoint.getY(),
+				basePoint.getZ() + armBaseVec.getZ());
+		var attackPoint = new V3D(
+				basePoint.getX() + attackDirectionVec.getX(),
+				basePoint.getY(),
+				basePoint.getZ() + attackDirectionVec.getZ()
+		);
 		
 		// Find the correct pitch and yaw to rotate the arm from the base to the attack point
 		double armSize = this.getWidth() * 0.1;
@@ -624,21 +626,21 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderBoun
 	}
 	
 	/** @return The percentage of health this mob has remaining, in the range [0, 1] */
-	public double currentHealthPerc(){
-		double perc = this.getCurrentHealth() / this.stat(HEALTH_MAX);
-		return Math.min(1, Math.max(0, perc));
+	public double currentHealthPercent(){
+		double percent = this.getCurrentHealth() / this.stat(HEALTH_MAX);
+		return Math.clamp(percent, 0, 1);
 	}
 	
 	/** @return The percentage of stamina this mob has remaining, in the range [0, 1] */
-	public double currentStaminaPerc(){
-		double perc = this.stat(STAMINA) / this.stat(STAMINA_MAX);
-		return Math.min(1, Math.max(0, perc));
+	public double currentStaminaPercent(){
+		double percent = this.stat(STAMINA) / this.stat(STAMINA_MAX);
+		return Math.clamp(percent, 0, 1);
 	}
 	
 	/** @return The percentage of mana this mob has remaining, in the range [0, 1] */
-	public double currentManaPerc(){
-		double perc = this.stat(MANA) / this.stat(MANA_MAX);
-		return Math.min(1, Math.max(0, perc));
+	public double currentManaPercent(){
+		double percent = this.stat(MANA) / this.stat(MANA_MAX);
+		return Math.clamp(percent, 0, 1);
 	}
 	
 	/** @return See {@link #radius} */
@@ -664,23 +666,34 @@ public abstract class ZusassMob extends MobilityEntity3D implements CylinderBoun
 	}
 	
 	@Override
+	public double getCylinderHeight(){
+		return this.getHeight();
+	}
+	
+	@Override
 	public double getEyeHeight(){
 		return this.getHeight() * 0.8;
 	}
 	
 	@Override
+	public V3D getMinPosition(){
+		// TODO is this the correct value?
+		return this.getStatePosition();
+	}
+	
+	@Override
 	public double getClickX(){
-		return this.getX();
+		return this.centerX();
 	}
 	
 	@Override
 	public double getClickY(){
-		return this.getY() + this.getEyeHeight();
+		return this.getMinPosition().getY() + this.getEyeHeight();
 	}
 	
 	@Override
 	public double getClickZ(){
-		return this.getZ();
+		return this.centerZ();
 	}
 	
 	@Override

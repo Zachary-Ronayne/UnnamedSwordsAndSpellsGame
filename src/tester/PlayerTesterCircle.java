@@ -1,6 +1,7 @@
 package tester;
 
 import zgame.core.graphics.Renderer;
+import zgame.physics.V2D;
 import zgame.things.type.bounds.twoDee.bounds.shape.CircleBounds;
 
 public class PlayerTesterCircle extends PlayerTester implements CircleBounds{
@@ -28,5 +29,11 @@ public class PlayerTesterCircle extends PlayerTester implements CircleBounds{
 	public void render(Renderer r){
 		r.setColor(1, 0, 0);
 		r.drawCircle(this.centerX(), this.centerY(), this.radius);
+	}
+	
+	@Override
+	public V2D getMinPosition(){
+		// TODO make this make sense with the state system and how it uses position
+		return this.getStatePosition();
 	}
 }

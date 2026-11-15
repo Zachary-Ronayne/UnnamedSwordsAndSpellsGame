@@ -184,12 +184,13 @@ public class MainPlay extends PlayState<V3D>{
 			double ty = ZusassGame.window().getHeight() - 5;
 			var yaw = mobilityData.getFacingYaw();
 			var velocity = p.getVelocity();
+			var pos = p.getBottomCenter();
 			var dir = Direction3D.findCardinal(yaw);
 			var debugTextList = List.of(
 					"FPS: " + zgame.getFps(),
-					"X: " + this.debugNumberFormat.format(p.getX()),
-					"Y: " + this.debugNumberFormat.format(p.getY()),
-					"Z: " + this.debugNumberFormat.format(p.getZ()),
+					"X: " + this.debugNumberFormat.format(pos.getX()),
+					"Y: " + this.debugNumberFormat.format(pos.getY()),
+					"Z: " + this.debugNumberFormat.format(pos.getZ()),
 					"VX: " + this.debugNumberFormat.format(velocity.getX()),
 					"VY: " + this.debugNumberFormat.format(velocity.getY()),
 					"VZ: " + this.debugNumberFormat.format(velocity.getZ()),

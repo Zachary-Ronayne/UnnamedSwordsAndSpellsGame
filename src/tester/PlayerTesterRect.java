@@ -1,6 +1,7 @@
 package tester;
 
 import zgame.core.graphics.Renderer;
+import zgame.physics.V2D;
 import zgame.things.type.bounds.twoDee.bounds.shape.RectangleBounds;
 
 public class PlayerTesterRect extends PlayerTester implements RectangleBounds{
@@ -21,5 +22,16 @@ public class PlayerTesterRect extends PlayerTester implements RectangleBounds{
 		r.setColor(1, 0, 0);
 		var pos = this.getMinPosition();
 		r.drawRectangle(pos.getX(), pos.getY(), this.getWidth(), this.getHeight());
+	}
+	
+	// TODO is this correct?
+	@Override
+	public V2D getMinPosition(){
+		return this.getStatePosition();
+	}
+	
+	@Override
+	public V2D getDimensions(){
+		return new V2D(this.getWidth(), this.getHeight());
 	}
 }

@@ -7,7 +7,7 @@ import zgame.things.core.Room2D;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public abstract class PlayerTester extends MobilityEntity2D<PlayerTesterState>{
+public abstract class PlayerTester extends MobilityEntity2D{
 	
 	/** The width of this mob */
 	private double width;
@@ -124,7 +124,7 @@ public abstract class PlayerTester extends MobilityEntity2D<PlayerTesterState>{
 	@Override
 	public void onRoomAdd(Room2D to){
 		super.onRoomAdd(to);
-		Game.get().getPlayState().setCurrentRoom(to);
+		Game.get().getPlayState().setCurrentRoom2D(to);
 		
 		// Center the camera to the player
 		this.checkCenterCamera();
@@ -319,4 +319,5 @@ public abstract class PlayerTester extends MobilityEntity2D<PlayerTesterState>{
 	public double getFlyStopPower(){
 		return this.getWalkPower() * 100;
 	}
+	
 }

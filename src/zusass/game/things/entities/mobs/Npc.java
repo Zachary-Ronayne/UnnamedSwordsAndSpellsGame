@@ -33,10 +33,7 @@ public class Npc extends ZusassMob{
 	
 	/**
 	 * Create a new Npc with the given bounds
-	 *
-	 * @param x See {@link #getX()}
-	 * @param y See {@link #getY()}
-	 * @param z See {@link #getZ()}
+	 * // TODO add docs
 	 * @param radius See {@link #radius}
 	 * @param height See {@link #height}
 	 */
@@ -104,9 +101,11 @@ public class Npc extends ZusassMob{
 		
 		var zgame = ZusassGame.get();
 		var player = zgame.getPlayer();
-		double playerDx = player.getX() - this.getX();
-		double playerDy = (player.getY() + player.getHeight() * 0.5) - (this.getY() + this.getHeight());
-		double playerDz = player.getZ() - this.getZ();
+		var playerPos = player.getBottomCenter();
+		var thisPos = this.getBottomCenter();
+		double playerDx = playerPos.getX() - thisPos.getX();
+		double playerDy = (playerPos.getY() + player.getHeight() * 0.5) - (thisPos.getY() + this.getHeight());
+		double playerDz = playerPos.getZ() - thisPos.getZ();
 		double playerDist = Math.sqrt(playerDx * playerDx + playerDz * playerDz);
 		double playerYaw = ZMath.PI_BY_2 + ZMath.atan2Normalized(playerDz, playerDx);
 		double playerPitch = -ZMath.atan2Normalized(playerDy, playerDist);
@@ -118,7 +117,7 @@ public class Npc extends ZusassMob{
 		if(inRange) this.stopWalking();
 		
 		// If the AI has an attack available, and stamina is at least 75%, begin attacking
-		var staminaPerc = this.currentStaminaPerc();
+		var staminaPerc = this.currentStaminaPercent();
 		if(this.getAttackTime() <= 0 && inRange && staminaPerc > .75){
 			this.beginAttack();
 		}
@@ -163,8 +162,9 @@ public class Npc extends ZusassMob{
 		}
 		
 		// Render a billboard texture
+		var pos = this.getBottomCenter();
 		r.drawPlaneBufferSide(
-				this.getX(), this.getY() + this.getHeight() * 0.5, this.getZ(), this.getWidth(), this.getHeight(),
+				pos.getX(), pos.getY() + this.getHeight() * 0.5, pos.getZ(), this.getWidth(), this.getHeight(),
 				facingAngle, ImageManager.image(ZusassImages.GOBLIN).getId());
 		
 		if(tintRed){
@@ -178,7 +178,7 @@ public class Npc extends ZusassMob{
 		double barWidth = this.getWidth() * 1.2;
 		double barHeight = barWidth / this.resourceBarBuffer.getWidth() * this.resourceBarBuffer.getHeight();
 		r.drawPlaneBufferSide(
-				this.getX(), this.getY() + this.getHeight() + 0.05, this.getZ(), barWidth, barHeight, facingAngle,
+				pos.getX(), pos.getY() + this.getHeight() + 0.05, pos.getZ(), barWidth, barHeight, facingAngle,
 				this.resourceBarBuffer.getTextureID());
 	}
 	

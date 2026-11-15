@@ -392,10 +392,10 @@ public class ZusassPlayer extends ZusassMob{
 		this.getSounds().updateAndPlay(SOUND_SOURCE_TAKE_DAMAGE, s -> s.setOffsetY(this.getEyeHeight()));
 	}
 	
-	// TODO how is this meant to work?
+	// TODO test that this works
 	@Override
-	public void enterRoom(Room3D from, Room3D to){
-		super.enterRoom(from, to);
+	public void onRoomAdd(Room3D to){
+		super.onRoomAdd(to);
 		if(to != null){
 			// If this is setting the room to a new room, remove the player from that room, and set the new room
 			var zgame = ZusassGame.get();

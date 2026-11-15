@@ -1,10 +1,10 @@
 package zgame.things.entity.mobility;
 
 import zgame.physics.V2D;
-import zgame.physics.collision.Collision;
 import zgame.things.core.EntityThing2D;
 import zgame.things.core.state.StateHolder;
 import zgame.things.entity.MobilityState2D;
+import zgame.things.entity.state.collision.CollisionUpdate;
 
 /** A 2D entity which uses mobility capabilities */
 public abstract class MobilityEntity2D extends EntityThing2D implements Mobility2D{
@@ -46,6 +46,12 @@ public abstract class MobilityEntity2D extends EntityThing2D implements Mobility
 		return new MobilityState2D(this.getGravityAcceleration(), this.getClampVelocity());
 	}
 	
+	/** @return See {@link #mobilityState} */
+	@Override
+	public MobilityState2D getMobilityState(){
+		return this.mobilityState.getCurrent();
+	}
+	
 	// TODO where should these be called?
 	@Override
 	public void tick(double dt){
@@ -54,7 +60,7 @@ public abstract class MobilityEntity2D extends EntityThing2D implements Mobility
 	}
 	
 	@Override
-	public void touchFloor(Collision<V2D> collision){
+	public void touchFloor(CollisionUpdate<V2D> collision){
 		super.touchFloor(collision);
 		this.mobilityTouchFloor();
 		this.getMobilityState().setGroundedSinceLastJump(true);

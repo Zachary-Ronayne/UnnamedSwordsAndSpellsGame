@@ -11,6 +11,7 @@ import zgame.core.state.PlayState;
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZRect2D;
 import zgame.menu.Menu;
+import zgame.physics.V3D;
 import zgame.physics.material.Materials;
 import zgame.settings.BooleanTypeSetting;
 import zgame.settings.DoubleTypeSetting;
@@ -121,7 +122,7 @@ public class GameDemo3D extends Game{
 		game.start();
 	}
 	
-	private static class DemoGameState extends PlayState{
+	private static class DemoGameState extends PlayState<V3D>{
 		
 		/**
 		 * Create a basic empty play state with the given room
@@ -374,7 +375,8 @@ public class GameDemo3D extends Game{
 				yRot = 0;
 				zRot = 0;
 				
-				player.setPos(0, 0, 2);
+				// TODO what position should this represent?
+				player.initPosition(new V3D(0, 0, 2));
 				
 				player.clearMotion();
 				var m = player.getMobilityState();
@@ -424,7 +426,7 @@ public class GameDemo3D extends Game{
 			super(x, y, z, 1);
 			this.speed = speed;
 			this.movingLeft = false;
-			this.getCurrent().setGravityLevel(0);
+			this.setGravityLevel(0);
 			this.intersecting = false;
 		}
 		
@@ -444,18 +446,14 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
-		public double getWidth(){
-			return 0.5;
+		public V3D getMinPosition(){
+			// TODO is this correct?
+			return this.getStatePosition();
 		}
 		
 		@Override
-		public double getHeight(){
-			return 0.5;
-		}
-		
-		@Override
-		public double getLength(){
-			return 0.5;
+		public V3D getDimensions(){
+			return new V3D(0.5, 0.5, 0.5);
 		}
 		
 		@Override
@@ -463,11 +461,13 @@ public class GameDemo3D extends Game{
 			super.tick(dt);
 			double dx = dt * speed;
 			
-			if(this.getX() < -1.5) movingLeft = false;
-			else if(this.getX() > 1.5) movingLeft = true;
+			var x = this.getBottomCenter().getX();
+			if(x < -1.5) movingLeft = false;
+			else if(x > 1.5) movingLeft = true;
 			
-			if(movingLeft) this.addX(-dx);
-			else this.addX(dx);
+			// TODO test that this movement actually works
+			if(movingLeft) dx = -dx;
+			this.attemptSetVelocity(new V3D(dx, 0, 0));
 			
 			boolean foundIntersection = false;
 			var things = dummyRoom.getBoundsThings();
@@ -495,6 +495,11 @@ public class GameDemo3D extends Game{
 			else c = new ZColor(1, 0, 0);
 			r.drawRectPrism(new RectRender3D(this.getBounds()), c, c, c, c, c, c);
 		}
+		
+		@Override
+		public boolean[] getCollisionFaces(){
+			return new boolean[]{false, false, false, false, false, false};
+		}
 	}
 	
 	private static class Cylinder extends MovingThing implements CylinderBounds{
@@ -508,13 +513,19 @@ public class GameDemo3D extends Game{
 		}
 		
 		@Override
+		public double getCylinderHeight(){
+			return this.getDimensions().getHeight();
+		}
+		
+		@Override
 		protected void render(Renderer r){
 			ZColor c;
 			if(this.isIntersecting()) c = new ZColor(0, 1, 1);
 			else c = new ZColor(0, 0, 1);
 			r.setColor(c);
-			r.drawEllipse3D(this.getX(), this.getY(), this.getZ(), this.getWidth(), this.getHeight());
-			r.drawEllipse3D(this.getX(), this.getY() + this.getHeight(), this.getZ(), this.getWidth(), this.getLength());
+			var pos = this.getBottomCenter();
+			r.drawEllipse3D(pos.getX(), pos.getY(), pos.getZ(), this.getWidth(), this.getHeight());
+			r.drawEllipse3D(pos.getX(), pos.getY() + this.getHeight(), pos.getZ(), this.getWidth(), this.getLength());
 			var renderBounds = new RectRender3D(this.getBounds());
 			renderBounds.setWidth(0.1);
 			renderBounds.setLength(0.1);
@@ -566,6 +577,17 @@ public class GameDemo3D extends Game{
 			
 			// Move the camera to the player
 			this.updateCameraPos(cam);
+		}
+		
+		@Override
+		public V3D getMinPosition(){
+			// TODO is this correct?
+			return this.getStatePosition();
+		}
+		
+		@Override
+		public double getCylinderHeight(){
+			return this.getDimensions().getHeight();
 		}
 		
 		private GameCamera3D getCamera(){
@@ -667,11 +689,12 @@ public class GameDemo3D extends Game{
 			// issue#41 make some way of rendering this differently when it's the selected thing to control?
 			r.setColor(new ZColor(.5, 0, 0));
 			double diameter = this.getRadius() * 2.0;
-			r.drawSidePlaneZ(this.getX(), this.getY(), this.getZ(), diameter, this.getHeight(), ZMath.PI_BY_2 - this.getCamera().getYaw());
+			var pos = this.getBottomCenter();
+			r.drawSidePlaneZ(pos.getX(), pos.getY(), pos.getZ(), diameter, this.getHeight(), ZMath.PI_BY_2 - this.getCamera().getYaw());
 			
 			// Pseudo shadow
 			r.setColor(new ZColor(0, 0, 0, 0.5));
-			r.drawEllipse3D(this.getX(), 0.001, this.getZ(), diameter, diameter);
+			r.drawEllipse3D(pos.getX(), 0.001, pos.getZ(), diameter, diameter);
 		}
 		
 		@Override

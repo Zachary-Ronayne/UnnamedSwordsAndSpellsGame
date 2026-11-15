@@ -1,5 +1,6 @@
 package zusass.game;
 
+import zgame.physics.V3D;
 import zgame.things.still.tiles.threeDee.BaseTiles3D;
 import zgame.things.core.GameThing;
 
@@ -45,13 +46,15 @@ public class Hub extends ZusassRoom{
 		int highestRoom = data.getHighestRoomLevel();
 		if(highestRoom > 1){
 			var t = this.getTile(1, 1, 1);
-			var highDoor = new LevelDoor(t.getX(), 1, t.getZ(), highestRoom, NORTH);
+			var p = t.getBottomCenter();
+			var highDoor = new LevelDoor(p.getX(), 1, p.getZ(), highestRoom, NORTH);
 			this.addThing(highDoor);
 		}
 		
 		// The door to start from level 1
 		var t = this.getTile(3, 1, 1);
-		var levelDoor = new LevelDoor(t.getX(), 1, t.getZ(), 1, NORTH);
+		var p = t.getBottomCenter();
+		var levelDoor = new LevelDoor(p.getX(), 1, p.getZ(), 1, NORTH);
 		this.addThing(levelDoor);
 		
 		// Add the spell maker
@@ -68,14 +71,14 @@ public class Hub extends ZusassRoom{
 	public void placePlayer(){
 		var zgame = ZusassGame.get();
 		var player = zgame.getPlayer();
-		player.setPos(2, 1, 3);
+		player.initPosition(new V3D(2, 1, 3));
 		player.clearVelocity();
 		this.addThing(player);
 		player.updateCameraPos(zgame.getCamera3D());
 	}
 	
 	@Override
-	public void addThing(GameThing<?> thing){
+	public void addThing(GameThing thing){
 		super.addThing(thing);
 		if(thing.hasTag(ZusassTags.HUB_ENTER_RESTORE)) ((ZusassMob)thing).setResourcesMax();
 	}

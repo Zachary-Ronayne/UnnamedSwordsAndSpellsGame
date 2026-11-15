@@ -23,11 +23,6 @@ public interface CircleShape extends Shape2D{
 			public double getRadius(){
 				return c.getRadius();
 			}
-			
-			@Override
-			public V2D getDimensions(){
-				return c.getDimensions();
-			}
 		};
 	}
 }

@@ -1,10 +1,8 @@
 package zgame.things.core.state;
 
 import zgame.core.GameTickable;
-import zgame.core.annotations.PackagePrivate;
 import zgame.physics.ZVector;
 import zgame.things.core.GameThing;
-import zgame.things.core.Room;
 
 import java.util.UUID;
 
@@ -13,6 +11,7 @@ import java.util.UUID;
  *
  * @param <V> The type of vector this thing uses
  */
+// TODO consider doing something meaningful with the vector here, maybe static things have a bounds
 public abstract class StaticThing<V extends ZVector<V>> extends GameThing implements GameTickable{
 	
 	/** The uuid representing this thing */
@@ -32,21 +31,5 @@ public abstract class StaticThing<V extends ZVector<V>> extends GameThing implem
 	public String getUuid(){
 		return this.uuid;
 	}
-	
-	// TODO are these needed?
-	@Override
-	@PackagePrivate
-	@SuppressWarnings("unchecked")
-	final <AddV extends ZVector<AddV>> void onThingRoomAdd(Room<AddV> to){
-		this.onRoomAdd((Room<V>)to);
-	}
-	
-	/**
-	 * Run when this thing enters a room, does nothing by default, provide custom implementation for behavior
-	 *
-	 * @param to The room this was added to
-	 */
-	@PackagePrivate
-	abstract void onRoomAdd(Room<V> to);
 	
 }

@@ -2,12 +2,19 @@ package zgame.things.type.bounds.twoDee.bounds.shape;
 
 import zgame.core.utils.ZMath;
 import zgame.core.utils.ZPoint2D;
+import zgame.physics.V2D;
 import zgame.physics.collision.Collision2D;
 import zgame.physics.collision.ZCollision;
 import zgame.things.type.bounds.twoDee.shape.CircleShape;
 
 /** A circle with a position */
 public non-sealed interface CircleBounds extends ShapedBounds2D, CircleShape{
+	
+	@Override
+	default V2D getDimensions(){
+		var d = this.getRadius();
+		return new V2D(d, d);
+	}
 	
 	default boolean intersectsCircle(CircleBounds bounds){
 		var c1 = this.getCenterPosition();

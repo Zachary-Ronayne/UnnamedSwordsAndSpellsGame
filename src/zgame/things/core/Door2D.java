@@ -3,8 +3,6 @@ package zgame.things.core;
 import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.V2D;
-import zgame.physics.material.Material;
-import zgame.physics.material.Materials;
 import zgame.things.type.bounds.twoDee.bounds.shape.RectangleBounds;
 
 /** A door for 2D rooms */
@@ -36,20 +34,15 @@ public class Door2D extends Door<V2D> implements RectangleBounds{
 		this.doorDims = new V2D(WIDTH, HEIGHT);
 	}
 	
+	// TODO test if this position is correct
 	@Override
-	public V2D getPosition(){
+	public V2D getMinPosition(){
 		return this.doorPos;
 	}
 	
 	@Override
 	public V2D getDimensions(){
 		return this.doorDims;
-	}
-	
-	// TODO figure out if a door should have material
-	@Override
-	public Material getMaterial(){
-		return Materials.NONE;
 	}
 	
 	@Override
@@ -63,9 +56,7 @@ public class Door2D extends Door<V2D> implements RectangleBounds{
 			// issue#49 avoid needing this double check call to canEnter
 			if(!this.canEnter(entity)) continue;
 			
-			var pos = this.getPosition();
-			var dims = this.getDimensions();
-			if(entity.intersectsRect(pos.getX(), pos.getY(), dims.getWidth(), dims.getHeight())){
+			if(entity.intersects(this)){
 				this.enterRoom(room, entity);
 			}
 		}
@@ -74,21 +65,9 @@ public class Door2D extends Door<V2D> implements RectangleBounds{
 	@Override
 	public void render(Renderer r){
 		r.setColor(.25, .125, 0);
-		var pos = this.getPosition();
+		var pos = this.getMinPosition();
 		var dims = this.getDimensions();
 		r.drawRectangle(pos.getX(), pos.getY(), dims.getWidth(), dims.getHeight());
-	}
-	
-	/**
-	 * See {@link #enterRoom(Room, EntityThing)}
-	 */
-	public boolean enterRoom(Room2D r, EntityThing2D thing){
-		return super.enterRoom(r, thing);
-	}
-	
-	@Override
-	void onRoomAdd(Room<V2D> to){
-		this.onRoomAdd((Room2D)to);
 	}
 	
 	/**
@@ -100,4 +79,5 @@ public class Door2D extends Door<V2D> implements RectangleBounds{
 	public boolean isAutoEnter(){
 		return autoEnter;
 	}
+	
 }

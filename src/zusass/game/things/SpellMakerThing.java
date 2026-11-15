@@ -7,7 +7,6 @@ import zgame.core.state.MenuNode;
 import zgame.core.utils.ZRect3D;
 import zgame.physics.V3D;
 import zgame.things.core.state.StaticThing;
-import zgame.things.core.state.StaticThingState3D;
 import zgame.things.core.GameThing;
 import zgame.things.type.bounds.threeDee.ModifiableRectDims3D;
 import zgame.things.type.bounds.threeDee.clickable.RectPrismClickable;
@@ -22,7 +21,7 @@ import zusass.utils.ZusassTextureMappings;
 import java.util.UUID;
 
 /** A {@link GameThing} used as a station for the player to click on to open the spell making interface */
-public class SpellMakerThing extends StaticThing<StaticThingState3D, V3D> implements ZThingClickDetector, GameTickable, RectPrismClickable, ModifiableRectDims3D{
+public class SpellMakerThing extends StaticThing<V3D> implements ZThingClickDetector, GameTickable, RectPrismClickable, ModifiableRectDims3D{
 	
 	/** The uuid of this thing */
 	private final String uuid;
@@ -39,18 +38,23 @@ public class SpellMakerThing extends StaticThing<StaticThingState3D, V3D> implem
 	private double timeSinceAmbient;
 	/** The amount of time, in seconds, to wait before playing the next ambient sound */
 	private double ambientTimeWait;
+	/** The minimum positing this thing is at */
+	private final V3D minPosition;
 	
 	/**
 	 * Make a spell maker at the given position
-	 *
-	 * @param x The upper left hand x coordinate
-	 * @param y The upper left hand y coordinate
+	 * TODO add docs, the coordinates are the bottom center
 	 */
 	public SpellMakerThing(double x, double y, double z){
-		super(x, y, z, 1, 1, 1);
+		super();
+		
+		var dims = this.getDimensions();
+		this.minPosition = new V3D(x - dims.getWidth() * 0.5, y, z - dims.getLength() * 0.5);
+		
 		this.uuid = UUID.randomUUID().toString();
 		
 		this.menu = new SpellMakerMenu();
+		// TODO test if this needs a modifiable bounds rect, probably remove that as an object
 		this.textureCoordinates = new ZusassTexCoordsRectPrism(ZusassTextureMappings.SPELL_MAKER, this, 14.0 / 32.0, 7.0 / 32.0, 14.0 / 32.0, Direction3D.NORTH);
 		this.ambientSoundSource = new ManagedSoundSource(ZusassSounds.MAGIC_SOUND, this, 0.9, 1.1, 0.4);
 		this.timeSinceAmbient = 0;
@@ -104,7 +108,35 @@ public class SpellMakerThing extends StaticThing<StaticThingState3D, V3D> implem
 	}
 	
 	@Override
+	public V3D getMinPosition(){
+		return this.minPosition;
+	}
+	
+	@Override
+	public boolean[] getCollisionFaces(){
+		return new boolean[]{false, false, false, false, false, false};
+	}
+	
+	@Override
+	public V3D getDimensions(){
+		return new V3D(1, 0.5, 1);
+	}
+	
+	// TODO figure out how to remove these, stubs doing nothing for now
+	@Override
+	public void setWidth(double width){
+	}
+	
+	@Override
+	public void setHeight(double height){
+	}
+	
+	@Override
+	public void setLength(double length){
+	}
+	
+	@Override
 	public ZRect3D getBounds(){
-		return super.getBounds();
+		return ZThingClickDetector.super.getBounds();
 	}
 }

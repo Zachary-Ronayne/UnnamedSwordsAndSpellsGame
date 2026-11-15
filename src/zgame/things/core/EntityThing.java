@@ -404,10 +404,6 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 		return true;
 	}
 	
-	// Hitbox implementation
-	
-	// TODO add the rest of the methods from hitbox? Or grab the data from the state
-	
 	// Getters from state
 	
 	/** @return The mass of this entity based on current state */
@@ -494,6 +490,10 @@ public abstract class EntityThing<V extends ZVector<V>> extends GameThing implem
 	// TODO make docs and move this to an update system, and move this to setting next instead of current
 	public void setMass(double mass){
 		this.entityStateCurrent().setMass(mass);
+	}
+	
+	public void setGravityLevel(double gravity){
+		this.entityStateCurrent().setGravityLevel(gravity);
 	}
 	
 	/** @param name The name of the force that should be reset to zero */

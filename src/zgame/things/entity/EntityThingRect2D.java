@@ -45,14 +45,4 @@ public abstract class EntityThingRect2D extends EntityThing2D implements Rectang
 		this.height = height;
 	}
 	
-	@Override
-	public double maxX(){
-		return this.getX() + this.getWidth();
-	}
-	
-	@Override
-	public double maxY(){
-		return this.getY() + this.getHeight();
-	}
-	
 }

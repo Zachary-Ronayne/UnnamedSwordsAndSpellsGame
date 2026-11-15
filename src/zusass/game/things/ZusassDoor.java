@@ -4,6 +4,7 @@ import zgame.core.graphics.*;
 import zgame.core.sound.ManagedSoundSource;
 import zgame.core.utils.ZConfig;
 import zgame.core.utils.ZRect3D;
+import zgame.physics.V3D;
 import zgame.things.core.EntityThing3D;
 import zgame.things.core.Door3D;
 import zgame.things.type.bounds.threeDee.ModifiableRectDims3D;
@@ -33,7 +34,8 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 	 * @param direction The facing direction of the door, must be one of the cardinal directions
 	 */
 	public ZusassDoor(double x, double y, double z, Direction3D direction){
-		super(x, y, z, 1, 1, 1);
+		// TODO is this correct for the lead room and room position?
+		super(new V3D(x, y, z), new V3D(1, 1, 1), null, new V3D());
 		if(!direction.isCardinal()){
 			var defaultDirection = Direction3D.NORTH;
 			ZConfig.error("ZusassDoor cannot use non cardinal direction ", direction.name(), " defaulting to ", defaultDirection);
@@ -84,6 +86,19 @@ public class ZusassDoor extends Door3D implements ZThingClickDetector, Modifiabl
 	@Override
 	public void render(Renderer r){
 		this.textureCoordinates.renderSelectable(r, this);
+	}
+	
+	// TODO stubs for now, need to remove reliance on modifiable rect
+	@Override
+	public void setWidth(double width){
+	}
+	
+	@Override
+	public void setHeight(double height){
+	}
+	
+	@Override
+	public void setLength(double length){
 	}
 	
 	@Override

@@ -140,6 +140,7 @@ public class CollisionDemo3D extends Game{
 		
 		@Override
 		protected void render(Renderer r){
+			// TODO what is this supposed to be doing?
 //			var collision = ZCollision.rectToSphereBasic(
 //					RECT.getX(), RECT.getY(), RECT.getZ(), RECT.getWidth(), RECT.getHeight(), RECT.getLength(),
 //					this.getX(), this.getY(), this.getZ(), this.getRadius(), Materials.NONE
@@ -152,6 +153,12 @@ public class CollisionDemo3D extends Game{
 		@Override
 		public double getRadius(){
 			return 0.5;
+		}
+		
+		@Override
+		public V3D getMinPosition(){
+			// TODO is this correct?
+			return this.getStatePosition();
 		}
 	}
 	

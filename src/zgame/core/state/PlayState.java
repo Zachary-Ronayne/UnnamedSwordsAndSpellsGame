@@ -4,15 +4,19 @@ import zgame.core.Game;
 import zgame.core.graphics.Renderer;
 import zgame.physics.ZVector;
 import zgame.things.core.Room;
+import zgame.things.core.Room2D;
+import zgame.things.core.Room3D;
 
 /**
  * A {@link GameState} which is designed for game play, i.e. controlling a character in a world, not a menu
+ *
  * @param <V> The type of vector this play state will hold
  */
 public class PlayState<V extends ZVector<V>> extends GameState{
 	
+	// TODO put this back to being a typed parameter of type V, need to figure out how that's going to work
 	/** The {@link Room} which is currently used by this {@link PlayState}. The system assumes this will always be an appropriate type of room for the game played */
-	private Room<V> currentRoom;
+	private Room<?> currentRoom;
 	
 	/** true if this {@link PlayState} is paused and should not perform tick updates, false otherwise */
 	private boolean paused;
@@ -38,7 +42,7 @@ public class PlayState<V extends ZVector<V>> extends GameState{
 	}
 	
 	/** @return See {@link #currentRoom}. The returned room is expected to be the vector type for what it is declared as */
-	public Room<V> getCurrentRoom(){
+	public Room<?> getCurrentRoom(){
 		return this.currentRoom;
 	}
 	
@@ -48,10 +52,32 @@ public class PlayState<V extends ZVector<V>> extends GameState{
 	 * @param r See {@link #currentRoom}
 	 * @return true if the room was set, false otherwise
 	 */
-	public boolean setCurrentRoom(Room<V> r){
+	// TODO put this back to a type parameter
+	public boolean setCurrentRoom(Room<?> r){
 		if(r == null) return false;
 		this.currentRoom = r;
 		return true;
+	}
+	
+	// TODO How should this work with casting? May want a better system
+	/**
+	 * Set the room to use for this {@link PlayState} This method does nothing and returns false if r is null
+	 *
+	 * @param r See {@link #currentRoom}
+	 * @return true if the room was set, false otherwise
+	 */
+	public boolean setCurrentRoom2D(Room2D r){
+		return this.setCurrentRoom(r);
+	}
+	
+	/**
+	 * Set the room to use for this {@link PlayState} This method does nothing and returns false if r is null
+	 *
+	 * @param r See {@link #currentRoom}
+	 * @return true if the room was set, false otherwise
+	 */
+	public boolean setCurrentRoom3D(Room3D r){
+		return this.setCurrentRoom(r);
 	}
 	
 	/** @return See {@link #paused} */

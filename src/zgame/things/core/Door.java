@@ -12,9 +12,9 @@ import zgame.things.type.bounds.Bounds;
 public abstract class Door<V extends ZVector<V>> extends StaticThing<V> implements Bounds<V>{
 	
 	/** The {@link Room} which this door leads to. Can be null to make this a real fake door */
-	private final Room<V> leadRoom;
+	private Room<V> leadRoom;
 	/** The position to place objects which go through this door */
-	private final V roomPos;
+	private V roomPos;
 	
 	/**
 	 * Initialize this door to lead to the given room
@@ -22,6 +22,13 @@ public abstract class Door<V extends ZVector<V>> extends StaticThing<V> implemen
 	 * @param roomPos See {@link #roomPos}
 	 */
 	public Door(Room<V> leadRoom, V roomPos){
+		this.leadRoom = leadRoom;
+		this.roomPos = roomPos;
+	}
+	
+	// TODO why was lead room final before?
+	// TODO add doc
+	public void updateLeadRoom(Room<V> leadRoom, V roomPos){
 		this.leadRoom = leadRoom;
 		this.roomPos = roomPos;
 	}

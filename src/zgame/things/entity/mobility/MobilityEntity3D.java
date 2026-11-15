@@ -26,7 +26,7 @@ public abstract class MobilityEntity3D extends EntityThing3D implements Mobility
 		this(0, 0, 0, mass);
 	}
 	
-	// TODO udpate docs
+	// TODO update docs
 	/**
 	 * Create a new empty entity with the given mass
 	 *
@@ -59,6 +59,12 @@ public abstract class MobilityEntity3D extends EntityThing3D implements Mobility
 	public void tick(double dt){
 		this.mobilityTick();
 		super.tick(dt);
+	}
+	
+	/** @return See {@link #mobilityState} */
+	@Override
+	public MobilityState3D getMobilityState(){
+		return this.mobilityState.getCurrent();
 	}
 	
 	// TODO should all of these things to call mobility touch floor methods be here?

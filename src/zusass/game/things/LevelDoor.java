@@ -26,7 +26,7 @@ public class LevelDoor extends ZusassDoor{
 	/** A buffer holding the text to display the level of this door, initialized on the first frame of rendering */
 	private final DrawableBuffer3D levelTextBuffer;
 	
-	// TODO udpate docs
+	// TODO update docs
 	/**
 	 * Create a new LevelDoor at the given location
 	 *
@@ -66,9 +66,10 @@ public class LevelDoor extends ZusassDoor{
 		if(zAxis) zOffset = sideOffset;
 		else xOffset = sideOffset;
 		
-		this.levelTextBuffer.setX(this.getX() + xOffset);
-		this.levelTextBuffer.setY(this.getY() + this.getHeight() * 0.75);
-		this.levelTextBuffer.setZ(this.getZ() + zOffset);
+		var pos = this.getBottomCenter();
+		this.levelTextBuffer.setX(pos.getX() + xOffset);
+		this.levelTextBuffer.setY(pos.getY() + this.getHeight() * 0.75);
+		this.levelTextBuffer.setZ(pos.getZ() + zOffset);
 		double size = longSide * 0.95;
 		this.levelTextBuffer.setWidth(size);
 		this.levelTextBuffer.setLength(size);
@@ -88,7 +89,7 @@ public class LevelDoor extends ZusassDoor{
 	public boolean enterRoom(Room3D r, EntityThing3D thing){
 		// Generate the new room, then enter it
 		var levelRoom = new LevelRoom(this.getLevel());
-		this.setLeadRoom(levelRoom, new V3D(2, 1, 2));
+		this.updateLeadRoom(levelRoom, new V3D(2, 1, 2));
 		levelRoom.initRandom();
 		boolean success = super.enterRoom(r, thing);
 		

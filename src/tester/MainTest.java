@@ -30,8 +30,10 @@ import zgame.menu.scroller.HorizontalScroller;
 import zgame.menu.scroller.MenuScroller;
 import zgame.menu.scroller.VerticalScroller;
 import zgame.physics.ForwardVector;
+import zgame.physics.V2D;
 import zgame.physics.material.MaterialConst;
 import zgame.physics.material.Materials;
+import zgame.things.core.Door2D;
 import zgame.things.entity.mobility.MobilityType;
 import zgame.things.still.tiles.twoDee.BaseTiles2D;
 import zgame.things.core.Room2D;
@@ -235,7 +237,7 @@ public class MainTest extends Game{
 		return true;
 	}
 	
-	public static class GameEngineState extends PlayState{
+	public static class GameEngineState extends PlayState<V2D>{
 		private final PlayerTester player;
 		
 		public GameEngineState(){
@@ -255,12 +257,10 @@ public class MainTest extends Game{
 			this.player.setCanWallJump(true);
 			firstRoom.addThing(this.player);
 			
-			var d = new DoorState2D(700, 400);
-			d.setLeadRoom(secondRoom, 50, 100);
+			var d = new Door2D(new V2D(700, 400), secondRoom, new V2D(50, 100), true);
 			firstRoom.addThing(d);
 			
-			d = new DoorState2D(400, 500);
-			d.setLeadRoom(firstRoom, 100, 400);
+			d = new Door2D(new V2D(400, 500), secondRoom, new V2D(100, 400), true);
 			secondRoom.addThing(d);
 		}
 		

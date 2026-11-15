@@ -4,8 +4,6 @@ import zgame.core.graphics.RectRender3D;
 import zgame.core.graphics.Renderer;
 import zgame.core.graphics.ZColor;
 import zgame.physics.V3D;
-import zgame.physics.material.Material;
-import zgame.physics.material.Materials;
 import zgame.things.type.bounds.threeDee.bounds.shape.RectPrismBounds;
 import zgame.things.type.bounds.threeDee.clickable.RectPrismClickable;
 
@@ -49,30 +47,26 @@ public class Door3D extends Door<V3D> implements RectPrismClickable, RectPrismBo
 		r.drawRectPrism(new RectRender3D(this.getBounds()), c, c, c, c, c, c);
 	}
 	
-	@Override
-	void onRoomAdd(Room<V3D> to){
-		this.onRoomAdd((Room3D)to);
-	}
-	
 	/**
 	 * Run when this thing enters a room, does nothing by default, provide custom implementation for behavior
 	 * @param to The room this was added to
 	 */
 	public void onRoomAdd(Room3D to){}
 	
-	// TODO figure out if a door should have material
+	// TODO is this the correct value?
 	@Override
-	public Material getMaterial(){
-		return Materials.NONE;
-	}
-	
-	@Override
-	public V3D getPosition(){
+	public V3D getMinPosition(){
 		return this.doorPos;
 	}
 	
 	@Override
 	public V3D getDimensions(){
 		return this.doorDims;
+	}
+	
+	@Override
+	public boolean[] getCollisionFaces(){
+		// TODO make a constant for representing no collision, or probably make this an object instead of a plain boolean array
+		return new boolean[]{false, false, false, false, false, false};
 	}
 }

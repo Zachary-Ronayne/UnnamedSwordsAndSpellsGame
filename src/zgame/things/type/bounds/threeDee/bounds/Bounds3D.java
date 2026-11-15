@@ -59,17 +59,16 @@ public interface Bounds3D extends Bounds<V3D>, Shape3D{
 	
 	/** @return The center x coordinate of this bounds */
 	default double centerX(){
-		return this.getMinPosition().getX();
+		return this.getCenterPosition().getX();
 	}
 	
 	/** @return The center y coordinate of this bounds */
 	default double centerY(){
-		return this.getMinPosition().getY();
+		return this.getCenterPosition().getY();
 	}
-	
 	/** @return The center z coordinate of this bounds */
 	default double centerZ(){
-		return this.getMinPosition().getZ();
+		return this.getCenterPosition().getZ();
 	}
 	
 	default V3D getBottomCenter(){
