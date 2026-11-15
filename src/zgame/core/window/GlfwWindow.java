@@ -55,7 +55,7 @@ public class GlfwWindow extends GameWindow{
 	
 	// issue#66 make a formal full screen modes system, choosing between proper full screen, windowed full screen, accounting for other operating systems, maybe
 	/** true if this window should use borderless fullscreen, false for normal fullscreen */
-	private static final boolean BORDERLESS_FULLSCREEN = true;
+	private static final boolean BORDERLESS_FULLSCREEN = false;
 	
 	/**
 	 * Create an empty {@link GlfwWindow}. This does not initialize anything for GLFW or OpenGL, call {@link #init()} for that
@@ -370,14 +370,15 @@ public class GlfwWindow extends GameWindow{
 			glfwSetWindowAttrib(this.getWindowID(), GLFW_DECORATED, GLFW_FALSE);
 			glfwSetWindowAttrib(this.getWindowID(), GLFW_AUTO_ICONIFY, GLFW_FALSE);
 			
-			// Tell windows to make the window take up full screen
-			SetWindowPos(this.win32Id, HWND_TOP, mx[0], my[0], mode.width(), mode.height(), SWP_FRAMECHANGED);
-			
-			// Magic attributes to make borderless fullscreen work on windows, thank you https://github.com/Kira-NT for the cubes without borders mod showing an example of something like this
-			long style = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_GROUP;
-			long exStyle = WS_EX_APPWINDOW | WS_EX_ACCEPTFILES | WS_EX_COMPOSITED | WS_EX_LAYERED;
-			SetWindowLongPtr(this.win32Id, GWL_STYLE, style);
-			SetWindowLongPtr(this.win32Id, GWL_EXSTYLE, exStyle);
+			// TODO abstract this out to a Windows implementation, or just remove this
+//			// Tell windows to make the window take up full screen
+//			SetWindowPos(this.win32Id, HWND_TOP, mx[0], my[0], mode.width(), mode.height(), SWP_FRAMECHANGED);
+//
+//			// Magic attributes to make borderless fullscreen work on windows, thank you https://github.com/Kira-NT for the cubes without borders mod showing an example of something like this
+//			long style = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_GROUP;
+//			long exStyle = WS_EX_APPWINDOW | WS_EX_ACCEPTFILES | WS_EX_COMPOSITED | WS_EX_LAYERED;
+//			SetWindowLongPtr(this.win32Id, GWL_STYLE, style);
+//			SetWindowLongPtr(this.win32Id, GWL_EXSTYLE, exStyle);
 		}
 		else{
 			glfwSetWindowAttrib(this.getWindowID(), GLFW_DECORATED, GLFW_FALSE);
@@ -392,15 +393,16 @@ public class GlfwWindow extends GameWindow{
 	@Override
 	protected boolean exitFullScreen(){
 		if(BORDERLESS_FULLSCREEN){
+			// TODO abstract this out to a Windows implementation, or just remove this
 			// Tell windows to set the size back to what it was before going in full screen
-			SetWindowPos(this.win32Id, HWND_TOP, this.lastWindowedX, this.lastWindowedY, this.lastWindowedWidth, this.lastWindowedHeight, SWP_FRAMECHANGED);
-			
-			// Tell windows to show the window and keep it at whatever it was originally
-			long style = this.originalStyle | WS_VISIBLE;
-			long exStyle = this.originalExStyle;
-			SetWindowLongPtr(this.win32Id, GWL_STYLE, style);
-			SetWindowLongPtr(this.win32Id, GWL_EXSTYLE, exStyle);
-			
+//			SetWindowPos(this.win32Id, HWND_TOP, this.lastWindowedX, this.lastWindowedY, this.lastWindowedWidth, this.lastWindowedHeight, SWP_FRAMECHANGED);
+//
+//			// Tell windows to show the window and keep it at whatever it was originally
+//			long style = this.originalStyle | WS_VISIBLE;
+//			long exStyle = this.originalExStyle;
+//			SetWindowLongPtr(this.win32Id, GWL_STYLE, style);
+//			SetWindowLongPtr(this.win32Id, GWL_EXSTYLE, exStyle);
+//
 			// Tell the window to put the border, close button, etc
 			glfwSetWindowAttrib(this.getWindowID(), GLFW_DECORATED, GLFW_TRUE);
 		}
