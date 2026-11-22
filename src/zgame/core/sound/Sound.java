@@ -41,21 +41,11 @@ public abstract class Sound extends Asset{
 	protected abstract void bufferData(ZPointerBuffer p);
 	
 	/**
-	 * Load this {@link Sound} from memory and associate that data with the id of this {@link Sound}
-	 *
-	 * @return The pointer is if is still open, or null if it is not open, also returns null if any load errors occurred
-	 */
-	public ZPointerBuffer load(){
-		return this.load(true);
-	}
-	
-	/**
 	 * Load this sound from memory and associate that data with the id of this {@link Sound}
 	 *
-	 * @param freePointer true to free the pointer used to load the data, false to keep it open
-	 * @return The pointer is if is still open, or null if it is not open, also returns null if any load errors occurred
+	 * @return The pointer, or null if any load errors occurred
 	 */
-	public ZPointerBuffer load(boolean freePointer){
+	public ZPointerBuffer load(){
 		// Load the bytes of the sound from the jar
 		ByteBuffer buff = ZAssetUtils.getJarBytes(this.getPath());
 		
@@ -83,10 +73,6 @@ public abstract class Sound extends Asset{
 		}
 		this.samples = samplesLoaded;
 		this.bufferData(pointer);
-		if(freePointer){
-			pointer.free();
-			return null;
-		}
 		return pointer;
 	}
 	

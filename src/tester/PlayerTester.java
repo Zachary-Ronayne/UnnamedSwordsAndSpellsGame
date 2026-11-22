@@ -124,7 +124,8 @@ public abstract class PlayerTester extends MobilityEntity2D{
 	@Override
 	public void onRoomAdd(Room2D to){
 		super.onRoomAdd(to);
-		Game.get().getPlayState().setCurrentRoom2D(to);
+		// TODO is this even needed?
+//		Game.get().getPlayState().setCurrentRoom2D(to);
 		
 		// Center the camera to the player
 		this.checkCenterCamera();

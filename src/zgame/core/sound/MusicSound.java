@@ -59,12 +59,6 @@ public class MusicSound extends Sound{
 		this.pointerOffset = 0;
 	}
 	
-	@Override
-	public void destroy(){
-		this.pointer.free();
-		super.destroy();
-	}
-	
 	/**
 	 * Buffer data from the currently stored buffer in {@link #pointer}
 	 */
@@ -135,7 +129,7 @@ public class MusicSound extends Sound{
 	 */
 	public static MusicSound loadMusic(String name){
 		MusicSound s = new MusicSound(ZStringUtils.concat(ZFilePaths.music(), name));
-		s.load(false);
+		s.load();
 		return s;
 	}
 	

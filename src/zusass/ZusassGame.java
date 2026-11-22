@@ -1,5 +1,7 @@
 package zusass;
 
+// TODO setup the project as a Gradle or series of Gradle applications
+
 import com.google.gson.JsonElement;
 import zgame.core.Game;
 import zgame.core.file.Saveable;

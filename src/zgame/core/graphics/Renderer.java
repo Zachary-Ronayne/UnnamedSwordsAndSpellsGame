@@ -28,9 +28,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO next, fix issues with everything flickering, probably need to do something with enabling opengl double buffering
-
-// TODO next figure out the hs_err_pid log errors
+// TODO next, fix issues with everything flickering, probably need to do something with enabling opengl double buffering, or this is just from positions wildly being flipped back and forth
 
 /**
  * A class that handles OpenGL operations related to drawing objects.

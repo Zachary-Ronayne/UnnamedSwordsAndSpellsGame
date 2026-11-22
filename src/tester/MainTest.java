@@ -188,7 +188,7 @@ public class MainTest extends Game{
 		reset();
 	}
 	
-	public static void main(String[] args){
+	static void main(String[] args){
 		// Set up game
 		testerGame = new MainTest();
 		

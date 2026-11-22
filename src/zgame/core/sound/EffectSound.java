@@ -80,7 +80,7 @@ public class EffectSound extends Sound{
 	 */
 	public static EffectSound loadSound(String name, String type){
 		EffectSound s = new EffectSound(ZStringUtils.concat(ZFilePaths.effects(), name, ".ogg"), type);
-		s.load(false);
+		s.load();
 		return s;
 	}
 	

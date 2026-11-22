@@ -9,6 +9,11 @@ public interface Bounds<V extends ZVector<V>> extends Shape<V>{
 	/** @return The minimum coordinate of an axis aligned bounding box containing this bounds */
 	V getMinPosition();
 	
+	// TODO make these two methods also have to be defined per bounds, but then each bounds defines them in their own way, i.e. sphere is center based, rect prism is bottom center based
+	// TODO make bottom center also a required method for all 3D shapes
+	// TODO entity state store the position relative to the shape that it is of, use the diff of its current position and the dims and whatever position it's currently at to find where it should be set
+	//		i.e. if setting to bottom center and it stores min position, then subtract current position and bottom center to get an offset to add to the given coordinate
+	//		then each entity thing implements the one position method needed for it's bounds type, where that method returns the entity state's position
 	/** @return The maximum coordinate of an axis aligned bounding box containing this bounds */
 	default V getMaxPosition(){
 		return this.getMinPosition().add(this.getDimensions());
