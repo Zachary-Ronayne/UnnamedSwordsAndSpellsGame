@@ -1,0 +1,888 @@
+package zusass.game.things.entities.mobs;
+
+import com.google.gson.JsonElement;
+import zgame.core.Game;
+import zgame.core.file.Saveable;
+import zgame.core.graphics.*;
+import zgame.core.graphics.image.GameImage;
+import zgame.core.graphics.image.ImageManager;
+import zgame.core.graphics.texture.RepeatingTexture;
+import zgame.core.sound.ManagedSoundSource;
+import zgame.core.sound.SoundSourceGroup;
+import zgame.core.utils.ZMath;
+import zgame.physics.V3D;
+import zgame.stat.Stat;
+import zgame.stat.StatThing;
+import zgame.stat.ValueStat;
+import zgame.stat.modifier.ModifierType;
+import zgame.stat.modifier.StatModTracker;
+import zgame.stat.modifier.StatModifier;
+import zgame.stat.status.StatusEffect;
+import zgame.stat.status.StatusEffects;
+import zgame.things.core.Room3D;
+import zgame.things.entity.mobility.Mobility3D;
+import zgame.things.entity.mobility.MobilityEntity3D;
+import zgame.things.entity.state.collision.CollisionUpdate;
+import zgame.things.type.bounds.threeDee.bounds.shape.CylinderBounds;
+import zgame.things.type.bounds.threeDee.clickable.ClickerBounds;
+import zgame.things.type.bounds.threeDee.clickable.CylinderClickable;
+import zusass.ZusassGame;
+import zgame.stat.Stats;
+import zusass.game.magic.*;
+import zusass.game.stat.*;
+import zusass.game.stat.attributes.Agility;
+import zusass.game.stat.attributes.Endurance;
+import zusass.game.stat.attributes.Intelligence;
+import zusass.game.stat.attributes.Strength;
+import zusass.game.stat.resources.Health;
+import zusass.game.stat.resources.Mana;
+import zusass.game.stat.resources.Stamina;
+import zusass.game.status.StatEffect;
+import zusass.game.things.ZThingClickDetector;
+import zusass.utils.ZusassImages;
+import zusass.utils.ZusassSounds;
+
+import static zusass.game.stat.ZusassStat.*;
+
+/** A generic mob in the Zusass game. All mobs have a cylinder hitbox */
+public abstract class ZusassMob extends MobilityEntity3D implements CylinderBounds, ClickerBounds, ZThingClickDetector, CylinderClickable, StatThing{
+	
+	/** The json key used to store the spellbook which this mob has */
+	public final static String SPELLBOOK_KEY = "spellbook";
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/** The default value of {@link #jumpBuildTime} */
+	public static final double DEFAULT_JUMP_BUILD_TIME = 0;
+	/** The default value of {@link #jumpAfterBuildUp} */
+	public static final boolean DEFAULT_JUMP_AFTER_BUILD_UP = true;
+	/** The default value of {@link #walkFriction} */
+	public static final double DEFAULT_WALK_FRICTION = 1;
+	/** The default value of {@link #canWallJump} */
+	public static final boolean DEFAULT_CAN_WALL_JUMP = true;
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/** The radius of the center of this mob */
+	private double radius;
+	/** The height of this mob */
+	private double height;
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/** The amount of time, in seconds, until this mob will perform an attack, or a negative value if this mob is not preparing for an attack */
+	private double attackTime;
+	
+	/** The amount of time, in seconds, since this mob took damage */
+	private double lastDamageTime;
+	
+	/** The spells known to this mob */
+	private Spellbook spells;
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/** The stats used by this mob */
+	private final Stats stats;
+	
+	/** The status effects applied to this mob */
+	private final StatusEffects effects;
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/** A modifier used to drain stamina while running */
+	private StatModTracker staminaRunDrain;
+	
+	/** The sourceId of the modifier which drains stamina */
+	private static final String ID_STAMINA_DRAIN = "staminaDrain";
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/** All sounds this mob plays */
+	private final SoundSourceGroup sounds;
+	
+	/** The name of the sound source for this mob casting a spell */
+	private static final String SOUND_SOURCE_SPELL_CAST = "spellCast";
+	/** The name of the sound source for this mob's footsteps */
+	private static final String SOUND_SOURCE_FOOTSTEP = "footstep";
+	/** The name of the sound source for this mob hitting the ground */
+	private static final String SOUND_SOURCE_HIT_GROUND = "hitGround";
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	/** See {@link Mobility3D#getJumpBuildTime()} */
+	private double jumpBuildTime;
+	
+	/** See {@link Mobility3D#isJumpAfterBuildUp()} */
+	private boolean jumpAfterBuildUp;
+	
+	/** See {@link Mobility3D#getWalkFriction()} */
+	private double walkFriction;
+	
+	/** See {@link Mobility3D#isCanWallJump()} */
+	private boolean canWallJump;
+	
+	/** See {@link Mobility3D#isSprinting()} */
+	private boolean sprinting;
+	
+	/**
+	 * Create a new mob with the given bounds
+	 * TODO add docs
+	 * @param radius See {@link #radius}
+	 * @param height See {@link #height}
+	 */
+	public ZusassMob(double x, double y, double z, double radius, double height){
+		super(x, y, z, 1);
+		
+		this.sounds = new SoundSourceGroup();
+		
+		this.jumpBuildTime = DEFAULT_JUMP_BUILD_TIME;
+		this.jumpAfterBuildUp = DEFAULT_JUMP_AFTER_BUILD_UP;
+		this.walkFriction = DEFAULT_WALK_FRICTION;
+		this.canWallJump = DEFAULT_CAN_WALL_JUMP;
+		this.sprinting = false;
+		
+		this.stopWalking();
+		
+		this.radius = radius;
+		this.height = height;
+		
+		this.attackTime = -1;
+		
+		// Default the last time to something large to not have taken damage by default
+		this.lastDamageTime = Integer.MAX_VALUE;
+		
+		// Create stats
+		this.stats = new Stats();
+		
+		// Create status effects
+		this.effects = new StatusEffects();
+		
+		// Add attributes
+		this.stats.add(new Strength(this.stats));
+		this.stats.add(new Endurance(this.stats));
+		this.stats.add(new Intelligence(this.stats));
+		this.stats.add(new Agility(this.stats));
+		
+		// Add resources
+		this.stats.add(new Health(this.stats));
+		this.stats.add(new Stamina(this.stats));
+		this.stats.add(new Mana(this.stats));
+		
+		// Add misc stats
+		this.stats.add(new ValueStat(1, this.stats, ATTACK_RANGE));
+		this.stats.add(new ValueStat(.5, this.stats, ATTACK_SPEED));
+		this.stats.add(new AttackDamage(this.stats));
+		
+		this.stats.add(new MoveSpeed(this.stats));
+		
+		// Add other modifiers
+		this.initMobStatModifiers();
+		
+		// Ensure this thing stats at full resources
+		this.setResourcesMax();
+		
+		// Set initial attribute values
+		this.setStat(STRENGTH, 1);
+		this.setStat(ENDURANCE, 5);
+		this.setStat(INTELLIGENCE, 5);
+		this.setStat(AGILITY, 5);
+		
+		// Init the spellbook to empty
+		this.spells = new Spellbook();
+	}
+	
+	/** Reinitialize the state of all base stat modifiers used by mobs */
+	public void initMobStatModifiers(){
+		// This could use a better way of doing this, basically, remove the modifier if it's already there, or do nothing if it's not there, then recreate it
+		if(this.staminaRunDrain != null) this.getStat(STAMINA_REGEN).removeModifier(ID_STAMINA_DRAIN, this.staminaRunDrain.getMod());
+		this.staminaRunDrain = new StatModTracker(0, ModifierType.ADD, this.getStat(STAMINA_REGEN), ID_STAMINA_DRAIN);
+	}
+	
+	/**
+	 * Initialize this mob for creating sounds, otherwise sounds will not play
+	 */
+	public void initSounds(){
+		this.sounds.destroy();
+		
+		var cast = new ManagedSoundSource(null, this, 1.1, 1.3, 0.2);
+		var footstep = this.buildFootstepSource();
+		var hitGround = new ManagedSoundSource(ZusassSounds.HIT_GROUND, this, 0.5, 0.7, 1);
+		
+		this.sounds.add(SOUND_SOURCE_SPELL_CAST, cast);
+		this.sounds.add(SOUND_SOURCE_FOOTSTEP, footstep);
+		this.sounds.add(SOUND_SOURCE_HIT_GROUND, hitGround);
+	}
+	
+	/** @return See {@link #sounds} */
+	public SoundSourceGroup getSounds(){
+		return this.sounds;
+	}
+	
+	/** @return The sound source for creating footstep sounds for this mob */
+	public ManagedSoundSource buildFootstepSource(){
+		return new ManagedSoundSource(ZusassSounds.FOOTSTEP, this, 1.05, 1.18, 0.55);
+	}
+	
+	@Override
+	public void onRoomAdd(Room3D to){
+		super.onRoomAdd(to);
+		this.initSounds();
+	}
+	
+	@Override
+	public void destroy(){
+		super.destroy();
+		this.sounds.destroy();
+	}
+	
+	@Override
+	public void tick(double dt){
+		this.lastDamageTime += dt;
+		
+		// Update the state of the status effects
+		this.effects.tick(dt, this);
+		
+		// Update the state of the stats
+		this.updateStats(dt);
+		
+		// Update the attack timer
+		if(this.attackTime >= 0){
+			this.attackTime -= dt;
+			if(this.attackTime < 0) this.attackNearest();
+		}
+		
+		// If running and moving, need to drain stamina
+		this.staminaRunDrain.setValue(this.isSprinting() && this.isTryingToMove() ? -35 : 0);
+		
+		this.updateFootstepSoundTimer(dt);
+		
+		// Do the normal game update
+		super.tick(dt);
+	}
+	
+	/**
+	 * Update the timer and play a footstep sound if needed
+	 * @param dt The amount of time, in seconds, passed in the tick updating this method
+	 */
+	private void updateFootstepSoundTimer(double dt){
+		// Do nothing if not on the ground
+		if(!this.isOnGround()) return;
+		
+		// Don't play sound if there's no movement
+		double speed = Math.abs(this.getHorizontalVel());
+		if(speed < this.getClampVelocity()) return;
+		
+		// Force play a footstep if getting on the ground for the first time
+		double footstepSoundThreshold = 1.0 / speed * 0.4;
+		var game = Game.get();
+		double gameTime = game.getTotalTickTime();
+		double timeSinceLastFootstep = gameTime - this.sounds.get(SOUND_SOURCE_FOOTSTEP).getLastPlayed();
+		
+		// If it's been enough time, play the footstep sound
+		if(timeSinceLastFootstep > footstepSoundThreshold) this.playFootstepSound();
+	}
+	
+	/** Play the footstep sound */
+	private void playFootstepSound(){
+		this.sounds.play(SOUND_SOURCE_FOOTSTEP);
+	}
+	
+	/**
+	 * Minimal method for drawing a basic attack timer for melee attacks
+	 *
+	 * @param r The renderer to draw the attack with
+	 * @param image The image to use for drawing the attack
+	 */
+	public void renderAttackTimer(Renderer r, GameImage image){
+		// Do nothing if not attacking
+		if(this.getAttackTime() < 0) return;
+		
+		double time = this.getAttackTime();
+		double speed = this.getAttacksPerSecond();
+		// Scale the time until attacking to make the arm move slowly at first, then quick at the end
+		double anglePerc = Math.PI / 8.0 + Math.pow(1 - time * speed, 7) * 0.5;
+		double attackSize = this.stat(ATTACK_RANGE);
+		double attackYaw = this.getMobilityState().getFacingYaw();
+		
+		// Find the position where the arm will start
+		var attackDirectionVec = new V3D(attackYaw, 0, attackSize, false);
+		var armBaseVec = new V3D(this.getMobilityState().getFacingYaw() + ZMath.PI_BY_2, 0, this.getWidth() * 0.5, false);
+		
+		// Find the position where the arm will attack to
+		var basePoint = this.getCenterPosition();
+		basePoint = new V3D(
+				basePoint.getX() + armBaseVec.getX(),
+				basePoint.getY(),
+				basePoint.getZ() + armBaseVec.getZ());
+		var attackPoint = new V3D(
+				basePoint.getX() + attackDirectionVec.getX(),
+				basePoint.getY(),
+				basePoint.getZ() + attackDirectionVec.getZ()
+		);
+		
+		// Find the correct pitch and yaw to rotate the arm from the base to the attack point
+		double armSize = this.getWidth() * 0.1;
+		double dx = attackPoint.getX() - basePoint.getX();
+		double dy = attackPoint.getY() - basePoint.getY();
+		double dz = attackPoint.getZ() - basePoint.getZ();
+		double yaw = ZMath.atan2Normalized(dz, dx);
+		double pitch = ZMath.atan2Normalized(dy, Math.sqrt(dx * dx + dz * dz)) + ZMath.atan2Normalized(armSize, 0) * anglePerc - this.getMobilityState().getFacingPitch();
+		
+		// Draw the final rotated rect
+		double armOffset = attackSize * -0.5;
+		r.drawPlaneBuffer(
+				basePoint.getX(), basePoint.getY(), basePoint.getZ() - armOffset,
+				armSize, attackSize,
+				RotRender3D.euler(
+						yaw, pitch - ZMath.PI_BY_2, ZMath.PI_BY_2,
+						0, 0, -armOffset
+				), image.getId());
+	}
+	
+	/**
+	 * Draw a resource bar, in 2D for the stat of this mob
+	 *
+	 * @param r The renderer to use to draw the bar
+	 * @param x The x pixel coordinate to draw the bar
+	 * @param y The y pixel coordinate of the bar at the top, i.e. where listIndex is 0
+	 * @param listIndex How many elements in a list of resource bars this is
+	 * @param width The total width of the bar
+	 * @param height The total height of the bar
+	 * @param current The stat to use for the current value
+	 * @param max The stat to use for the max value
+	 * @param color The color of the resource bar
+	 * @param textColor The color fo the text on the resource bar, null to hide text
+	 */
+	public void drawResourceBar(Renderer r, double x, double y, int listIndex, double width, double height, ZusassStat current, ZusassStat max, ZColor color, ZColor textColor){
+		var c = this.stat(current);
+		var m = this.stat(max);
+		double border = 2;
+		double borderTwice = border + border;
+		double barSpacing = 1;
+		double space = (height + barSpacing) * listIndex;
+		
+		r.pushTextureTintShader();
+		r.setColor(.5, .5, .5);
+		double textureSize = 64;
+		double shiftX = -((System.currentTimeMillis() / 14.0) % width) / width + listIndex * listIndex * 0.5;
+		double shiftY = ((System.currentTimeMillis() / 300.0) % height) / height + listIndex * listIndex * 0.2;
+		var resourceBarImage = ImageManager.image(ZusassImages.RESOURCE_BAR);
+		var repeatingTexture = new RepeatingTexture(textureSize, textureSize, shiftX, shiftY);
+		r.drawRepeatingTexture(x, y + space, width, height, repeatingTexture, resourceBarImage);
+		r.setColor(color);
+		r.drawRepeatingTexture(x + border, y + border + space, (width - borderTwice) * c / m, height - borderTwice, repeatingTexture, resourceBarImage);
+		r.popShader();
+		// Using draw text like this is inefficient, but whatever, can optimize later if needed
+		if(textColor != null){
+			r.setColor(textColor);
+			r.setFontSize(height * 0.95);
+			r.drawText(x + borderTwice, y + space + height - borderTwice, Math.round(Math.max(0, c)) + " / " + Math.round(m));
+		}
+	}
+	
+	/**
+	 * Draw the resource bars, i.e. health, stamina, and mana, in 2D for the stat of this mob
+	 *
+	 * @param r The renderer to draw with
+	 * @param barX The upper left x pixel coordinate of the bars
+	 * @param barY The upper left y pixel coordinate of the bars
+	 * @param barWidth The width in pixels of the bar
+	 * @param barHeight The height in pixels of the bar
+	 * @param drawText true to draw the text for the stat numbers, false otherwise
+	 */
+	public void drawResourceBars(Renderer r, double barX, double barY, double barWidth, double barHeight, boolean drawText){
+		var textColor = drawText ? new ZColor(1) : null;
+		
+		this.drawResourceBar(r, barX, barY, 0, barWidth, barHeight, ZusassStat.HEALTH, ZusassStat.HEALTH_MAX, new ZColor(1.5, 0, 0), textColor);
+		this.drawResourceBar(r, barX, barY, 1, barWidth, barHeight, ZusassStat.STAMINA, ZusassStat.STAMINA_MAX, new ZColor(0, 1, 0), textColor);
+		this.drawResourceBar(r, barX, barY, 2, barWidth, barHeight, ZusassStat.MANA, ZusassStat.MANA_MAX, new ZColor(0, 0, 1.5), textColor);
+	}
+	
+	/**
+	 * Perform any necessary updates for the mob based on its current stats
+	 *
+	 * @param dt The number of seconds which passed in this update
+	 */
+	public void updateStats(double dt){
+		this.stats.tick(dt);
+		
+		// If this thing has 0 or less health, kill it
+		if(this.getCurrentHealth() <= 0) this.die();
+	}
+	
+	/**
+	 * Called when this stat thing dies
+	 */
+	public void die(){
+		// On death, by default, remove the thing from the game
+		ZusassGame.get().getCurrentRoom().removeThing(this);
+	}
+	
+	/** @return See {@link #attackTime} */
+	public double getAttackTime(){
+		return this.attackTime;
+	}
+	
+	/** @return The number of attacks per second this mob can perform */
+	public final double getAttacksPerSecond(){
+		return this.stat(ATTACK_SPEED);
+	}
+	
+	/**
+	 * Cause this mob to begin performing an attack in the direction it is facing
+	 *
+	 * @return true if an attack occurred, false otherwise
+	 */
+	public boolean beginAttack(){
+		// Do not allow attacking if an attack is taking place
+		if(this.attackTime > 0) return false;
+		
+		this.attackTime = 1.0 / this.getAttacksPerSecond();
+		
+		// Also drain stamina from the thing
+		this.getStat(STAMINA).addValue(-20);
+		return true;
+	}
+	
+	/**
+	 * Cause this mob to deal damage to the given mob
+	 *
+	 * @param mob The mob to attack
+	 */
+	public void attack(ZusassMob mob){
+		mob.damage(this.stat(ATTACK_DAMAGE));
+	}
+	
+	/**
+	 * Attack the nearest mob, in the direction the mob is facing, in the game which is not this mob
+	 */
+	public void attackNearest(){
+		var mobs = ZusassGame.get().getCurrentRoom().getMobs();
+		for(var m : mobs){
+			// Skip the current mob if it is this mob or the mob is out of the attack range
+			if(m == this) continue;
+			double mobDist = this.distance(m);
+			double attackRange = this.stat(ATTACK_RANGE);
+			if(mobDist >= attackRange) continue;
+			// Also skip the current mob if it cannot be "clicked" on
+			if(!this.canClick(attackRange, this.findClickDistance(m))) continue;
+			// Perform the attack
+			this.attack(m);
+			return;
+		}
+	}
+	
+	/**
+	 * Cause this mob to be effected by something that deals damage to it's health
+	 *
+	 * @param amount The amount of damage done. Does nothing if this value is less than or equal to 0
+	 */
+	public void damage(double amount){
+		if(amount <= 0) return;
+		this.stats.get(HEALTH).addValue(-amount);
+		if(amount > 0){
+			this.lastDamageTime = 0;
+			this.playDamageSound();
+		}
+	}
+	
+	/** Tell this mob to play the sound for this mob taking damage. Does nothing by default, override to play a sound */
+	public void playDamageSound(){}
+	
+	/** @return See {@link #lastDamageTime} */
+	public double getLastDamageTime(){
+		return this.lastDamageTime;
+	}
+	
+	/** @return See {@link Spellbook#selectedSpell} */
+	public Spell getSelectedSpell(){
+		return this.spells.getSelectedSpell();
+	}
+	
+	/** @return See {@link #spells} */
+	public Spellbook getSpells(){
+		return this.spells;
+	}
+	
+	/**
+	 * Attempt to cast the currently selected spell
+	 *
+	 * @return true if the spell could be cast, false otherwise i.e. the caster doesn't have enough mana
+	 */
+	public boolean castSpell(){
+		var selectedSpell = this.getSelectedSpell();
+		var success = selectedSpell.castAttempt(this);
+		if(success){
+			// Determine cast sound based on the kind of spell
+			var spellSound = switch(selectedSpell.getSpellCastType()){
+				case SELF -> ZusassSounds.MAGIC_SELF_CAST;
+				case PROJECTILE -> ZusassSounds.MAGIC_PROJECTILE_CAST;
+				default -> ZusassSounds.MAGIC_SOUND;
+			};
+			
+			// Play the sound at eye level
+			this.sounds.updateAndPlay(SOUND_SOURCE_SPELL_CAST, s -> {
+				s.setOffsetY(this.getEyeHeight());
+				s.setSoundName(spellSound);
+			});
+		}
+		return success;
+	}
+	
+	/** @return The point where this mob should cast a spell at when a spell is positional, defaults the middle top of the hitbox */
+	public V3D getSpellCastPont(){
+		return new V3D(this.centerX(), this.centerY() + this.getHeight() * 0.5, this.centerZ());
+	}
+	
+	/** @return See {@link #effects} */
+	public StatusEffects getEffects(){
+		return this.effects;
+	}
+	
+	/**
+	 * Add and apply a status effect to this mob
+	 *
+	 * @param effect The effect to add
+	 * @param sourceId The id representing whatever originally applied the effect
+	 */
+	public void addEffect(String sourceId, StatusEffect effect){
+		this.effects.addEffect(effect, sourceId, this);
+	}
+	
+	/**
+	 * Add and apply a {@link StatEffect} to this mob
+	 *
+	 * @param sourceId The id of whatever caused the effect to be applied to this mob
+	 * @param duration The duration of the effect
+	 * @param value The power of the effect
+	 * @param modifierType The way the modifier applies its value
+	 * @param statType The {@link Stat} to effect
+	 */
+	public void addStatEffect(String sourceId, double duration, double value, ModifierType modifierType, ZusassStat statType){
+		this.addEffect(sourceId, new StatEffect(duration, new StatModifier(value, modifierType), statType));
+	}
+	
+	/** @return See {@link #stats} */
+	public Stats getStats(){
+		return this.stats;
+	}
+	
+	/**
+	 * Get a stat from this {@link ZusassMob}
+	 *
+	 * @param type The type of stat to get
+	 * @return The stat
+	 */
+	public Stat getStat(ZusassStat type){
+		return this.stats.get(type);
+	}
+	
+	/** @return The value of the given stat */
+	public double stat(ZusassStat type){
+		var stat = this.stats.get(type);
+		if(stat == null) return 0;
+		return stat.get();
+	}
+	
+	/**
+	 * Set the current value of a stat
+	 *
+	 * @param type The type of stat to set
+	 * @param value The new value
+	 */
+	public void setStat(ZusassStat type, double value){
+		this.stats.get(type).setValue(value);
+	}
+	
+	/** @return The current amount of heath this {@link ZusassMob} has */
+	public double getCurrentHealth(){
+		return this.stat(HEALTH);
+	}
+	
+	/** Set every resource, i.e. health, stamina, mana, to their max values */
+	public void setResourcesMax(){
+		this.setToMaxHealth();
+		this.setToMaxStamina();
+		this.setToMaxMana();
+	}
+	
+	/** Bring every stat to its base value based on its {@link Stat#reset()} method */
+	public void resetStats(){
+		for(var m : this.stats.getArr()) m.reset();
+	}
+	
+	/** Set this thing's current health to its maximum health */
+	public void setToMaxHealth(){
+		this.setStat(HEALTH, this.stat(HEALTH_MAX));
+	}
+	
+	/** Set this thing's current stamina to its maximum stamina */
+	public void setToMaxStamina(){
+		this.setStat(STAMINA, this.stat(STAMINA_MAX));
+	}
+	
+	/** Set this thing's current mana to its maximum stamina */
+	public void setToMaxMana(){
+		this.setStat(MANA, this.stat(MANA_MAX));
+	}
+	
+	/** @return The percentage of health this mob has remaining, in the range [0, 1] */
+	public double currentHealthPercent(){
+		double percent = this.getCurrentHealth() / this.stat(HEALTH_MAX);
+		return Math.clamp(percent, 0, 1);
+	}
+	
+	/** @return The percentage of stamina this mob has remaining, in the range [0, 1] */
+	public double currentStaminaPercent(){
+		double percent = this.stat(STAMINA) / this.stat(STAMINA_MAX);
+		return Math.clamp(percent, 0, 1);
+	}
+	
+	/** @return The percentage of mana this mob has remaining, in the range [0, 1] */
+	public double currentManaPercent(){
+		double percent = this.stat(MANA) / this.stat(MANA_MAX);
+		return Math.clamp(percent, 0, 1);
+	}
+	
+	/** @return See {@link #radius} */
+	@Override
+	public double getRadius(){
+		return this.radius;
+	}
+	
+	/** @param radius See {@link #radius} */
+	public void setRadius(double radius){
+		this.radius = radius;
+	}
+	
+	/** @return See {@link #height} */
+	@Override
+	public double getHeight(){
+		return this.height;
+	}
+	
+	/** @param height See {@link #height} */
+	public void setHeight(double height){
+		this.height = height;
+	}
+	
+	@Override
+	public double getCylinderHeight(){
+		return this.getHeight();
+	}
+	
+	@Override
+	public double getEyeHeight(){
+		return this.getHeight() * 0.8;
+	}
+	
+	@Override
+	public V3D getMinPosition(){
+		// TODO is this the correct value?
+		return this.getStatePosition();
+	}
+	
+	@Override
+	public double getClickX(){
+		return this.centerX();
+	}
+	
+	@Override
+	public double getClickY(){
+		return this.getMinPosition().getY() + this.getEyeHeight();
+	}
+	
+	@Override
+	public double getClickZ(){
+		return this.centerZ();
+	}
+	
+	@Override
+	public double getClickYaw(){
+		return this.getMobilityState().getFacingYaw();
+	}
+	
+	@Override
+	public double getClickPitch(){
+		return this.getMobilityState().getFacingPitch();
+	}
+	
+	@Override
+	public double getClickRange(){
+		return this.stat(ATTACK_RANGE) * 0.8;
+	}
+	
+	@Override
+	public boolean jump(double dt){
+		var jumped = super.jump(dt);
+		if(jumped) this.getStat(STAMINA).addValue(-6);
+		return jumped;
+	}
+	
+	@Override
+	public double getWalkSpeedMax(){
+		// For now just making this a hard coded number based on the move speed stat
+		return this.stat(MOVE_SPEED);
+	}
+	
+	@Override
+	public double getWalkPower(){
+		double agilityModifier = 1 + this.stat(AGILITY);
+		if(agilityModifier < 0) agilityModifier = 0;
+		
+		// Both movement speed and agility make acceleration faster
+		return (1 + this.stat(MOVE_SPEED)) * 0.003 * agilityModifier;
+	}
+	
+	@Override
+	public double getWalkStopFriction(){
+		// For now just making this a hard coded number based on the move speed stat
+		double agilityModifier = this.stat(AGILITY) / 6.0;
+		if(agilityModifier < 0) agilityModifier = 0;
+		
+		return this.stat(MOVE_SPEED) * 2 + agilityModifier;
+	}
+	
+	@Override
+	public double getFrictionConstant(){
+		return this.getWalkFrictionConstant();
+	}
+	
+	@Override
+	public double getJumpPower(){
+		double agility = this.stat(AGILITY);
+		if(agility <= 0) return -1;
+		
+		return Math.pow(agility, 0.3) * 1.5;
+	}
+	
+	@Override
+	public double getJumpStopPower(){
+		double agility = this.stat(AGILITY);
+		if(agility <= 0) return -1;
+		
+		return Math.pow(agility, 0.3) * 0.1;
+	}
+	
+	/** @return See {@link #jumpBuildTime} */
+	@Override
+	public double getJumpBuildTime(){
+		return this.jumpBuildTime;
+	}
+	
+	/** @param jumpBuildTime See {@link #jumpBuildTime} */
+	public void setJumpBuildTime(double jumpBuildTime){
+		this.jumpBuildTime = jumpBuildTime;
+	}
+	
+	/** @return See {@link #jumpAfterBuildUp} */
+	@Override
+	public boolean isJumpAfterBuildUp(){
+		return this.jumpAfterBuildUp;
+	}
+	
+	/** @param jumpAfterBuildUp See {@link #jumpAfterBuildUp} */
+	public void setJumpAfterBuildUp(boolean jumpAfterBuildUp){
+		this.jumpAfterBuildUp = jumpAfterBuildUp;
+	}
+	
+	@Override
+	public double getWalkAirControl(){
+		double agility = this.stat(AGILITY);
+		if(agility <= -10) return 0;
+		return 1.0 - 10.0 / (agility + 10);
+	}
+	
+	/** @return See {@link #walkFriction} */
+	@Override
+	public double getWalkFriction(){
+		return this.walkFriction;
+	}
+	
+	/** @param walkFriction See {@link #walkFriction} */
+	public void setWalkFriction(double walkFriction){
+		this.walkFriction = walkFriction;
+	}
+	
+	@Override
+	public double getSprintingRatio(){
+		double agility = this.stat(AGILITY);
+		double divisor = -10 - agility * 0.5;
+		// If agility is too low, no sprinting bonus
+		if(divisor >= 0) return 1;
+		
+		// Approach a sprinting bonus of double
+		return 2 + 10 / divisor;
+	}
+	
+	/** @return See {@link #canWallJump} */
+	@Override
+	public boolean isCanWallJump(){
+		return this.canWallJump;
+	}
+	
+	/** @param canWallJump See {@link #canWallJump} */
+	public void setCanWallJump(boolean canWallJump){
+		this.canWallJump = canWallJump;
+	}
+	
+	@Override
+	public double getNormalJumpTime(){
+		double agility = this.stat(AGILITY);
+		if(agility <= -50) return -1;
+		
+		return 0.1 + .75 * (1.0 - (50.0 / (agility + 50)));
+	}
+	
+	@Override
+	public double getWallJumpTime(){
+		double agility = this.stat(AGILITY);
+		if(agility <= -50) return -1;
+		
+		return 0.15 + .75 * (1.0 - (50.0 / (agility + 50)));
+	}
+	
+	@Override
+	public boolean isSprinting(){
+		return this.sprinting;
+	}
+	
+	/** @param sprinting See {@link #sprinting} */
+	public void setSprinting(boolean sprinting){
+		this.sprinting = sprinting;
+	}
+	
+	/** toggle the state of {@link #sprinting} */
+	public void toggleSprinting(){
+		this.setSprinting(!this.isSprinting());
+	}
+	
+	@Override
+	public void touchFloor(CollisionUpdate<V3D> update){
+		super.touchFloor(update);
+		
+		// TODO consider doing this based on current velocity
+		// If colliding with enough displacement, make a sound for hitting the floor
+		double diff = Math.abs(update.collision().changePos().getY()) - 0.02;
+		if(diff > 0){
+			double newVolume = Math.pow(diff, 0.3) * 2.0;
+			
+			this.sounds.updateAndPlay(SOUND_SOURCE_HIT_GROUND, s -> {
+				s.setMinVolume(newVolume);
+				s.setMaxVolume(newVolume * 1.01);
+			});
+		}
+	}
+	
+	@Override
+	public boolean save(JsonElement e){
+		this.spells.save(Saveable.newObj(SPELLBOOK_KEY, e));
+		return true;
+	}
+	
+	@Override
+	public boolean load(JsonElement e) throws ClassCastException, IllegalStateException, NullPointerException{
+		this.spells = Saveable.obj(SPELLBOOK_KEY, e, Spellbook.class);
+		return true;
+	}
+}

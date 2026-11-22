@@ -1,0 +1,68 @@
+<project
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>zgame-root</groupId>
+    <artifactId>zgame-root</artifactId>
+
+    <version>0.1</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>zgame</module>
+        <module>zusass</module>
+        <module>tester</module>
+    </modules>
+
+    <!-- Central versions for libraries -->
+    <properties>
+        <zversion-lwjgl>3.4.3</zversion-lwjgl>
+        <zversion-glfw>3.4.3</zversion-glfw>
+        <zversion-opengl>3.4.3</zversion-opengl>
+        <zversion-openal>3.4.3</zversion-openal>
+        <zversion-stb>3.4.3</zversion-stb>
+    </properties>
+
+    <!-- OS Specifics -->
+    <profiles>
+        <profile>
+            <id>linux</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                    <name>Linux</name>
+                </os>
+            </activation>
+            <properties>
+                <lwjgl.natives>natives-linux</lwjgl.natives>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <lwjgl.natives>natives-windows</lwjgl.natives>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>macos</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <properties>
+                <lwjgl.natives>natives-macos</lwjgl.natives>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>
